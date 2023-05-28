@@ -9,16 +9,24 @@ use axum::{
     response::Response,
 };
 use dashmap::DashMap;
-use futures::StreamExt;
+use futures::{SinkExt, StreamExt};
 
 use crate::structs::{
     app_messages::{
         app_messages::{AppToServer, ServerToApp},
         initialize::InitializeResponse,
+        sign_transactions::SignTransactionsResponse,
+        user_connected_event::UserConnectedEvent,
+    },
+    client_messages::{
+        client_messages::{ClientToServer, ServerToClient},
+        connect::ConnectResponse,
+        get_info::GetInfoResponse,
+        get_pending_requests::GetPendingRequestsResponse,
     },
     common::SessionStatus,
     pending_request::PendingRequest,
-    session::{AppState, ClientState, Session},
+    session::{self, AppState, ClientState, Session},
 };
 
 pub async fn on_new_client_connection(
@@ -30,7 +38,7 @@ pub async fn on_new_client_connection(
 }
 
 pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Session>>) {
-    let (sender, mut receiver) = socket.split();
+    let (mut sender, mut receiver) = socket.split();
     // Handle the new app connection here
     // Wait for initialize message
     let session_id = loop {
@@ -47,7 +55,7 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
             }
         };
         let app_msg = match msg {
-            Message::Text(data) => match serde_json::from_str::<AppToServer>(&data) {
+            Message::Text(data) => match serde_json::from_str::<ClientToServer>(&data) {
                 Ok(app_msg) => app_msg,
                 Err(_) => continue,
             },
@@ -63,44 +71,40 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
             }
         };
         match app_msg {
-            AppToServer::InitializeRequest(init_data) => {
-                // Generate a new session id
-                let session_id = uuid7::uuid7().to_string();
-                let session = Session {
-                    id: session_id.clone(),
-                    status: SessionStatus::WaitingForClient,
-                    persistent: init_data.persistent,
-                    app_state: AppState {
-                        app_description: init_data.app_description,
-                        app_icon: init_data.app_icon,
-                        app_name: init_data.app_name,
-                        additional_info: init_data.additional_info,
-                        app_socket: Some(sender),
-                    },
-                    client_state: ClientState {
-                        client_socket: None,
-                        device: None,
-                    },
-                    network: init_data.network,
-                    version: init_data.version,
-                    device: None,
-                    pending_requests: DashMap::new(),
-                    token: None,
-                    notification_endpoint: None,
-                    connected_public_keys: Vec::new(),
-                };
-                sessions.insert(session_id.clone(), session);
-                let mut created_session = sessions.get_mut(&session_id).unwrap();
-                // created_session.app_state.app_socket.unwrap().send(item)
-                created_session
-                    .send_app_response(ServerToApp::InitializeResponse(InitializeResponse {
-                        response_id: init_data.response_id,
-                        session_id: session_id.clone(),
-                        created_new: true,
-                    }))
+            ClientToServer::GetInfoRequest(get_info_request) => {
+                let session = sessions.get(&get_info_request.session_id).unwrap();
+                let response = ServerToClient::GetInfoResponse(GetInfoResponse {
+                    response_id: get_info_request.response_id,
+                    app_name: session.app_state.app_name.clone(),
+                    network: session.network.clone(),
+                    version: session.version.clone(),
+                    app_description: session.app_state.app_description.clone(),
+                    app_icon: session.app_state.app_icon.clone(),
+                    additional_info: session.app_state.additional_info.clone(),
+                });
+                sender
+                    .send(Message::Text(serde_json::to_string(&response).unwrap()))
                     .await
-                    .unwrap();
-                break session_id.clone();
+                    .unwrap()
+            }
+            ClientToServer::ConnectRequest(connect_request) => {
+                let mut session = sessions.get_mut(&connect_request.session_id).unwrap();
+                // Insert user socket
+                session.status = SessionStatus::Connected;
+                session.client_state.client_socket = Some(sender);
+                session.client_state.device = connect_request.device.clone();
+                session.client_state.connected_public_keys = connect_request.public_keys.clone();
+
+                let client_reponse = ServerToClient::ConnectResponse(ConnectResponse {
+                    response_id: connect_request.response_id,
+                });
+                session.send_to_client(client_reponse).await.unwrap();
+                let app_event = ServerToApp::UserConnectedEvent(UserConnectedEvent {
+                    public_keys: connect_request.public_keys,
+                });
+                session.send_to_app(app_event).await.unwrap();
+
+                break session.session_id.clone();
             }
             _ => {
                 continue;
@@ -122,7 +126,7 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
             }
         };
         let app_msg = match msg {
-            Message::Text(data) => match serde_json::from_str::<AppToServer>(&data) {
+            Message::Text(data) => match serde_json::from_str::<ClientToServer>(&data) {
                 Ok(app_msg) => app_msg,
                 Err(_) => continue,
             },
@@ -138,17 +142,49 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
             }
         };
         match app_msg {
-            AppToServer::SignTransactionsRequest(sing_transactions_request) => {
-                let session = sessions.get(&session_id).unwrap();
-                let response_id = sing_transactions_request.response_id.clone();
-                let pending_request = PendingRequest::SignTransactions(sing_transactions_request);
-                session
+            ClientToServer::SignTransactionsEventReply(sign_transactions_event_reply) => {
+                let mut session = sessions.get_mut(&session_id).unwrap();
+                let _pending_request = session
                     .pending_requests
-                    .insert(response_id, pending_request.clone());
-                // Response will be sent by the client side
+                    .remove(&sign_transactions_event_reply.response_id)
+                    .unwrap();
+                // Send to app
+                let app_msg = ServerToApp::SignTransactionsResponse(SignTransactionsResponse {
+                    response_id: sign_transactions_event_reply.response_id,
+                    signed_transactions: sign_transactions_event_reply.signed_transactions,
+                });
+                session.send_to_app(app_msg).await.unwrap();
             }
-            AppToServer::InitializeRequest(_) => {
-                // App should not send initialize message after the first one
+            ClientToServer::GetInfoRequest(get_info_request) => {
+                let mut session = sessions.get_mut(&get_info_request.session_id).unwrap();
+                let response = ServerToClient::GetInfoResponse(GetInfoResponse {
+                    response_id: get_info_request.response_id,
+                    app_name: session.app_state.app_name.clone(),
+                    network: session.network.clone(),
+                    version: session.version.clone(),
+                    app_description: session.app_state.app_description.clone(),
+                    app_icon: session.app_state.app_icon.clone(),
+                    additional_info: session.app_state.additional_info.clone(),
+                });
+                session.send_to_client(response).await.unwrap();
+            }
+            ClientToServer::GetPendingRequestsRequest(get_pending_requests_request) => {
+                let mut session = sessions.get_mut(&session_id).unwrap();
+                let pending_requests = session
+                    .pending_requests
+                    .clone()
+                    .iter()
+                    .map(|v| v.clone())
+                    .collect::<Vec<PendingRequest>>();
+                let response =
+                    ServerToClient::GetPendingRequestsResponse(GetPendingRequestsResponse {
+                        requests: pending_requests,
+                        response_id: get_pending_requests_request.response_id,
+                    });
+                session.send_to_client(response).await.unwrap();
+            }
+            _ => {
+                continue;
             }
         }
     }

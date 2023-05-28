@@ -1,5 +1,6 @@
 use super::{
     app_messages::app_messages::ServerToApp,
+    client_messages::client_messages::ServerToClient,
     common::{Device, Network, SessionStatus, Version},
     pending_request::PendingRequest,
 };
@@ -10,7 +11,7 @@ use futures::{stream::SplitSink, SinkExt};
 
 #[derive(Debug)]
 pub struct Session {
-    pub id: String,
+    pub session_id: String,
     pub status: SessionStatus,
     pub persistent: bool,
     pub network: Network,
@@ -21,16 +22,24 @@ pub struct Session {
     pub pending_requests: DashMap<String, PendingRequest>,
     pub token: Option<String>,
     pub notification_endpoint: Option<String>,
-    pub connected_public_keys: Vec<String>,
 }
 impl Session {
-    pub async fn send_app_response(&mut self, app_response: ServerToApp) -> Result<()> {
+    pub async fn send_to_app(&mut self, msg: ServerToApp) -> Result<()> {
         match &mut self.app_state.app_socket {
             Some(app_socket) => Ok(app_socket
-                .send(Message::Text(serde_json::to_string(&app_response).unwrap()))
+                .send(Message::Text(serde_json::to_string(&msg).unwrap()))
                 .await
                 .unwrap()),
             None => Err(anyhow::anyhow!("No app socket found for session")),
+        }
+    }
+    pub async fn send_to_client(&mut self, msg: ServerToClient) -> Result<()> {
+        match &mut self.client_state.client_socket {
+            Some(client_socket) => Ok(client_socket
+                .send(Message::Text(serde_json::to_string(&msg).unwrap()))
+                .await
+                .unwrap()),
+            None => Err(anyhow::anyhow!("No client socket found for session")),
         }
     }
 }
@@ -46,4 +55,5 @@ pub struct AppState {
 pub struct ClientState {
     pub device: Option<Device>,
     pub client_socket: Option<SplitSink<WebSocket, Message>>,
+    pub connected_public_keys: Vec<String>,
 }

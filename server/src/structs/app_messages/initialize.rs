@@ -6,11 +6,15 @@ use crate::structs::common::{Network, Version};
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct InitializeRequest {
+    #[serde(rename = "responseId")]
     pub response_id: String,
 
     pub persistent: bool,
+    #[serde(rename = "appName")]
     pub app_name: String,
+    #[serde(rename = "appDescription")]
     pub app_description: Option<String>,
+    #[serde(rename = "appIcon")]
     pub app_icon: Option<String>,
     pub network: Network,
     pub version: Version,
@@ -23,6 +27,7 @@ pub struct InitializeRequest {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct InitializeResponse {
+    #[serde(rename = "responseId")]
     pub response_id: String,
     #[serde(rename = "sessionId")]
     pub session_id: String,
