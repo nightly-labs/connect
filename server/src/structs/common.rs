@@ -25,3 +25,17 @@ pub enum Device {
     Android,
     Unknown,
 }
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub struct TransactionToSign {
+    pub transaction: String, // serialized transaction
+    #[serde(rename = "publicKeys")]
+    pub public_keys: Vec<String>, // keys that need to sign the transaction
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub struct SignedTransaction {
+    pub transaction: String, // serialized transaction
+    #[serde(rename = "publicKeys")]
+    pub public_keys: Vec<String>, // keys that signed the transaction
+}

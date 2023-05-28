@@ -1,5 +1,5 @@
 use super::{
-    app_messages::app_messages::AppResponse,
+    app_messages::app_messages::ServerToApp,
     common::{Device, Network, SessionStatus, Version},
     pending_request::PendingRequest,
 };
@@ -24,7 +24,7 @@ pub struct Session {
     pub connected_public_keys: Vec<String>,
 }
 impl Session {
-    pub async fn send_app_response(&mut self, app_response: AppResponse) -> Result<()> {
+    pub async fn send_app_response(&mut self, app_response: ServerToApp) -> Result<()> {
         match &mut self.app_state.app_socket {
             Some(app_socket) => Ok(app_socket
                 .send(Message::Text(serde_json::to_string(&app_response).unwrap()))

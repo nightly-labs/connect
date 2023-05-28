@@ -13,7 +13,7 @@ use futures::StreamExt;
 
 use crate::structs::{
     app_messages::{
-        app_messages::{AppMessage, AppResponse},
+        app_messages::{AppToServer, ServerToApp},
         initialize::InitializeResponse,
     },
     common::SessionStatus,
@@ -47,7 +47,7 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
             }
         };
         let app_msg = match msg {
-            Message::Text(data) => match serde_json::from_str::<AppMessage>(&data) {
+            Message::Text(data) => match serde_json::from_str::<AppToServer>(&data) {
                 Ok(app_msg) => app_msg,
                 Err(_) => continue,
             },
@@ -63,7 +63,7 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
             }
         };
         match app_msg {
-            AppMessage::Initialize(init_data) => {
+            AppToServer::InitializeRequest(init_data) => {
                 // Generate a new session id
                 let session_id = uuid7::uuid7().to_string();
                 let session = Session {
@@ -93,7 +93,7 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
                 let mut created_session = sessions.get_mut(&session_id).unwrap();
                 // created_session.app_state.app_socket.unwrap().send(item)
                 created_session
-                    .send_app_response(AppResponse::Initialize(InitializeResponse {
+                    .send_app_response(ServerToApp::InitializeResponse(InitializeResponse {
                         response_id: init_data.response_id,
                         session_id: session_id.clone(),
                         created_new: true,
@@ -122,7 +122,7 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
             }
         };
         let app_msg = match msg {
-            Message::Text(data) => match serde_json::from_str::<AppMessage>(&data) {
+            Message::Text(data) => match serde_json::from_str::<AppToServer>(&data) {
                 Ok(app_msg) => app_msg,
                 Err(_) => continue,
             },
@@ -138,7 +138,7 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
             }
         };
         match app_msg {
-            AppMessage::SignTransactions(sing_transactions_request) => {
+            AppToServer::SignTransactionsRequest(sing_transactions_request) => {
                 let session = sessions.get(&session_id).unwrap();
                 let response_id = sing_transactions_request.response_id.clone();
                 let pending_request = PendingRequest::SignTransactions(sing_transactions_request);
@@ -147,7 +147,7 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
                     .insert(response_id, pending_request.clone());
                 // Response will be sent by the client side
             }
-            AppMessage::Initialize(_) => {
+            AppToServer::InitializeRequest(_) => {
                 // App should not send initialize message after the first one
             }
         }
