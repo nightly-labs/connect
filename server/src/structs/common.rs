@@ -48,3 +48,9 @@ pub struct ErrorMessage {
     pub response_id: String,
     pub error: String,
 }
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub struct AckMessage {
+    #[serde(rename = "responseId")]
+    pub response_id: String,
+}

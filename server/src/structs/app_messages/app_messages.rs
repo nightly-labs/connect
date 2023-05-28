@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-use crate::structs::common::ErrorMessage;
+use crate::structs::common::{AckMessage, ErrorMessage};
 
 use super::{
     initialize::{InitializeRequest, InitializeResponse},
@@ -24,4 +24,5 @@ pub enum ServerToApp {
     UserConnectedEvent(UserConnectedEvent),
     SignTransactionsResponse(SignTransactionsResponse),
     ErrorMessage(ErrorMessage),
+    AckMessage(AckMessage),
 }

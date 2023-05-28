@@ -6,8 +6,8 @@ use crate::structs::common::{SignedTransaction, TransactionToSign};
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct SignTransactionsEvent {
-    #[serde(rename = "responseId")]
-    pub response_id: String,
+    #[serde(rename = "requestId")]
+    pub request_id: String,
     pub transactions: Vec<TransactionToSign>,
 }
 
@@ -16,6 +16,8 @@ pub struct SignTransactionsEvent {
 pub struct SignTransactionsEventReply {
     #[serde(rename = "responseId")]
     pub response_id: String,
+    #[serde(rename = "requestId")]
+    pub request_id: String,
     #[serde(rename = "signedTransactions")]
     pub signed_transactions: Vec<SignedTransaction>,
 }

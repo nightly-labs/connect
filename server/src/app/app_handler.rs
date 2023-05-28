@@ -151,7 +151,7 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                 // Response will be sent by the client side
                 let sign_transactions_event =
                     ServerToClient::SignTransactionsEvent(SignTransactionsEvent {
-                        response_id: response_id.clone(),
+                        request_id: response_id.clone(),
                         transactions: sing_transactions_request.transactions,
                     });
                 session

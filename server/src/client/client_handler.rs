@@ -24,7 +24,7 @@ use crate::structs::{
         get_info::GetInfoResponse,
         get_pending_requests::GetPendingRequestsResponse,
     },
-    common::SessionStatus,
+    common::{AckMessage, SessionStatus},
     pending_request::PendingRequest,
     session::{self, AppState, ClientState, Session},
 };
@@ -54,6 +54,7 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
                 return;
             }
         };
+        println!("Received message: {:?}", msg);
         let app_msg = match msg {
             Message::Text(data) => match serde_json::from_str::<ClientToServer>(&data) {
                 Ok(app_msg) => app_msg,
@@ -70,6 +71,8 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
                 continue;
             }
         };
+        println!("Received app_msg: {:?}", app_msg);
+
         match app_msg {
             ClientToServer::GetInfoRequest(get_info_request) => {
                 let session = sessions.get(&get_info_request.session_id).unwrap();
@@ -146,14 +149,19 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
                 let mut session = sessions.get_mut(&session_id).unwrap();
                 let _pending_request = session
                     .pending_requests
-                    .remove(&sign_transactions_event_reply.response_id)
+                    .remove(&sign_transactions_event_reply.request_id)
                     .unwrap();
                 // Send to app
                 let app_msg = ServerToApp::SignTransactionsResponse(SignTransactionsResponse {
-                    response_id: sign_transactions_event_reply.response_id,
+                    response_id: sign_transactions_event_reply.request_id.clone(),
                     signed_transactions: sign_transactions_event_reply.signed_transactions,
                 });
                 session.send_to_app(app_msg).await.unwrap();
+
+                let client_msg = ServerToClient::AckMessage(AckMessage {
+                    response_id: sign_transactions_event_reply.response_id,
+                });
+                session.send_to_client(client_msg).await.unwrap();
             }
             ClientToServer::GetInfoRequest(get_info_request) => {
                 let mut session = sessions.get_mut(&get_info_request.session_id).unwrap();

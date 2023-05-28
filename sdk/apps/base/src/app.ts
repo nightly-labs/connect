@@ -11,10 +11,11 @@ import { Version } from '@bindings/Version'
 import WebSocket from 'isomorphic-ws'
 import { TypedEmitter } from 'tiny-typed-emitter'
 import { getRandomId } from './utils'
+import { TransactionToSign } from '@bindings/TransactionToSign'
 // const localStorage = LocalStorage('./.localstorage')
 // const sessionIdKey = 'nightly-id-solana'
 
-export interface BaseInitialize {
+export interface AppBaseInitialize {
   appName: string
   network: Network
   version: Version
@@ -24,7 +25,7 @@ export interface BaseInitialize {
   appDescription: string | null
   additionalInfo: string | null
   persistentSessionId: string | null
-  persistent: string | null
+  persistent: boolean
 }
 interface BaseEvents {
   userConnected: (e: UserConnectedEvent) => void
@@ -36,18 +37,18 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
   sessionId = ''
   timeout: number
 
-  constructor(ws: WebSocket, timeout: number) {
+  private constructor(ws: WebSocket, timeout: number) {
     super()
     this.ws = ws
     this.timeout = timeout
   }
 
-  public static build = async (baseInitialize: BaseInitialize): Promise<BaseApp> => {
+  public static build = async (baseInitialize: AppBaseInitialize): Promise<BaseApp> => {
     return new Promise((resolve, reject) => {
       // const persistent =
       //   typeof appMetadata.persistent === 'undefined' ? true : appMetadata.persistent
       const ws = baseInitialize.wsUrl
-        ? new WebSocket(baseInitialize.wsUrl)
+        ? new WebSocket(baseInitialize.wsUrl + '/app')
         : new WebSocket('wss://relay.nightly.app/app')
       const baseApp = new BaseApp(ws, baseInitialize.timeout ?? 40000)
       // connection.events[ServerMessageTypes.UserConnected] = (data: UserConnectedMessage) => {
@@ -56,7 +57,6 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
       // }
       baseApp.ws.onopen = () => {
         baseApp.ws.onmessage = ({ data }: { data: any }) => {
-          console.log('data', data)
           const response = JSON.parse(data) as ServerToApp
           switch (response.type) {
             case 'InitializeResponse':
@@ -72,7 +72,7 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
         }
         const reponseId = getRandomId()
         // Initialize the connection
-        const initializeRequest: InitializeRequest = {
+        const initializeRequest: { type: 'InitializeRequest' } & InitializeRequest = {
           additionalInfo: baseInitialize.additionalInfo,
           appName: baseInitialize.appName,
           appDescription: baseInitialize.appDescription,
@@ -81,7 +81,8 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
           persistentSessionId: baseInitialize.persistentSessionId,
           persistent: !!baseInitialize.persistent,
           responseId: reponseId,
-          version: baseInitialize.version
+          version: baseInitialize.version,
+          type: 'InitializeRequest'
         }
         // Set up the timeout
         const timer = setTimeout(() => {
@@ -98,7 +99,7 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
       }
     })
   }
-  send = async (message: Omit<AppToServer, 'type'>): Promise<ServerToApp> => {
+  send = async (message: AppToServer): Promise<ServerToApp> => {
     return new Promise((resolve, reject) => {
       const request = JSON.stringify(message)
       // Set up the timeout
@@ -112,8 +113,12 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
       this.ws.send(request)
     })
   }
-  signTransactions = async (request: SignTransactionsRequest) => {
-    const response = (await this.send(request)) as SignTransactionsResponse
+  signTransactions = async (transactions: Array<TransactionToSign>) => {
+    const response = (await this.send({
+      responseId: getRandomId(),
+      transactions,
+      type: 'SignTransactionsRequest'
+    })) as SignTransactionsResponse
     return response
   }
 }
