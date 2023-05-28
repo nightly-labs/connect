@@ -1,0 +1,63 @@
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+// TODO clean up this enum + add TS enum
+pub enum ApiErrors {
+    RequestTimeOut,
+    ServiceOverload,
+    UnhandledInternalError,
+    InvalidRequest,
+    CouldNotFindUser,
+    CouldNotRegisterUser,
+    IncorrectPassword,
+    UserExists,
+    UserNotExists,
+    InvalidAuthToken,
+    NoTokenProvided,
+    IncorrectPrice,
+    PriceNotZero,
+    PriceTooBig,
+    PriceNegative,
+    PriceNotTickSize,
+    IncorrectSize,
+    SizeNotZero,
+    SizeTooSmall,
+    SizeTooBig,
+    UserAlreadyHaveReferralCode,
+    InternalError,
+    InvalidMarketSymbol,
+    InvalidTimestampRange,
+    InvalidSide,
+    NoIdsProvided,
+}
+
+impl ApiErrors {
+    pub fn as_str(&self) -> String {
+        match self {
+            ApiErrors::RequestTimeOut => "Request timed out".to_string(),
+            ApiErrors::ServiceOverload => "Service is overloaded, try again later".to_string(),
+            ApiErrors::UnhandledInternalError => "Unhandled internal error :".to_string(),
+            ApiErrors::InvalidRequest => "Invalid request".to_string(),
+            ApiErrors::CouldNotFindUser => "Could not find user: ".to_string(),
+            ApiErrors::IncorrectPassword => "Incorrect password".to_string(),
+            ApiErrors::UserExists => "User already exists".to_string(),
+            ApiErrors::UserNotExists => "User does not exist".to_string(),
+            ApiErrors::InvalidAuthToken => "Invalid auth token".to_string(),
+            ApiErrors::NoTokenProvided => "No token provided".to_string(),
+            ApiErrors::IncorrectPrice => "Incorrect price".to_string(),
+            ApiErrors::PriceNotZero => "Incorrect price".to_string(),
+            ApiErrors::PriceTooBig => "Order price is too large".to_string(),
+            ApiErrors::PriceNegative => "Order price is negative".to_string(),
+            ApiErrors::PriceNotTickSize => "Order price is not a multiple of tick size".to_string(),
+            ApiErrors::IncorrectSize => "Incorrect size".to_string(),
+            ApiErrors::SizeNotZero => "Order size cant be zero".to_string(),
+            ApiErrors::SizeTooSmall => "Order size is too small".to_string(),
+            ApiErrors::SizeTooBig => "Order size is too large".to_string(),
+            ApiErrors::CouldNotRegisterUser => "Could not register user: ".to_string(),
+            ApiErrors::UserAlreadyHaveReferralCode => "User already have referral code".to_string(),
+            ApiErrors::InternalError => "Internal error".to_string(),
+            ApiErrors::InvalidMarketSymbol => "Invalid market symbol :".to_string(),
+            ApiErrors::InvalidTimestampRange => "Invalid timestamp range".to_string(),
+            ApiErrors::InvalidSide => "Invalid trade side".to_string(),
+            ApiErrors::NoIdsProvided => "No ids provided".to_string(),
+        }
+    }
+}

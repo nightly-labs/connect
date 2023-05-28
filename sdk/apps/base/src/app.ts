@@ -1,0 +1,119 @@
+// import LocalStorage from 'isomorphic-localstorage'
+import { AppToServer } from '@bindings/AppToServer'
+import { InitializeRequest } from '@bindings/InitializeRequest'
+import { InitializeResponse } from '@bindings/InitializeResponse'
+import { Network } from '@bindings/Network'
+import { ServerToApp } from '@bindings/ServerToApp'
+import { SignTransactionsRequest } from '@bindings/SignTransactionsRequest'
+import { SignTransactionsResponse } from '@bindings/SignTransactionsResponse'
+import { UserConnectedEvent } from '@bindings/UserConnectedEvent'
+import { Version } from '@bindings/Version'
+import WebSocket from 'isomorphic-ws'
+import { TypedEmitter } from 'tiny-typed-emitter'
+import { getRandomId } from './utils'
+// const localStorage = LocalStorage('./.localstorage')
+// const sessionIdKey = 'nightly-id-solana'
+
+export interface BaseInitialize {
+  appName: string
+  network: Network
+  version: Version
+  wsUrl?: string
+  timeout?: number
+  appIcon: string | null
+  appDescription: string | null
+  additionalInfo: string | null
+  persistentSessionId: string | null
+  persistent: string | null
+}
+interface BaseEvents {
+  userConnected: (e: UserConnectedEvent) => void
+  // newSignTransaction: (changedCount: number) => void
+}
+export class BaseApp extends TypedEmitter<BaseEvents> {
+  ws: WebSocket
+  events: { [key: string]: (data: any) => void | undefined } = {}
+  sessionId = ''
+  timeout: number
+
+  constructor(ws: WebSocket, timeout: number) {
+    super()
+    this.ws = ws
+    this.timeout = timeout
+  }
+
+  public static build = async (baseInitialize: BaseInitialize): Promise<BaseApp> => {
+    return new Promise((resolve, reject) => {
+      // const persistent =
+      //   typeof appMetadata.persistent === 'undefined' ? true : appMetadata.persistent
+      const ws = baseInitialize.wsUrl
+        ? new WebSocket(baseInitialize.wsUrl)
+        : new WebSocket('wss://relay.nightly.app/app')
+      const baseApp = new BaseApp(ws, baseInitialize.timeout ?? 40000)
+      // connection.events[ServerMessageTypes.UserConnected] = (data: UserConnectedMessage) => {
+      //   const pk = new PublicKey(Buffer.from(data.publicKey, 'hex'))
+      //   onUserConnect({ publicKey: pk })
+      // }
+      baseApp.ws.onopen = () => {
+        baseApp.ws.onmessage = ({ data }: { data: any }) => {
+          console.log('data', data)
+          const response = JSON.parse(data) as ServerToApp
+          switch (response.type) {
+            case 'InitializeResponse':
+            case 'SignTransactionsResponse':
+            case 'ErrorMessage': {
+              baseApp.events[response.responseId](response)
+              break
+            }
+            case 'UserConnectedEvent': {
+              baseApp.emit('userConnected', response)
+            }
+          }
+        }
+        const reponseId = getRandomId()
+        // Initialize the connection
+        const initializeRequest: InitializeRequest = {
+          additionalInfo: baseInitialize.additionalInfo,
+          appName: baseInitialize.appName,
+          appDescription: baseInitialize.appDescription,
+          appIcon: baseInitialize.appIcon,
+          network: baseInitialize.network,
+          persistentSessionId: baseInitialize.persistentSessionId,
+          persistent: !!baseInitialize.persistent,
+          responseId: reponseId,
+          version: baseInitialize.version
+        }
+        // Set up the timeout
+        const timer = setTimeout(() => {
+          reject(new Error(`Connection timed out after ${baseApp.timeout} ms`))
+        }, baseApp.timeout)
+
+        baseApp.events[initializeRequest.responseId] = (response: InitializeResponse) => {
+          clearTimeout(timer)
+          // TODO: Handle error
+          baseApp.sessionId = response.sessionId
+          resolve(baseApp)
+        }
+        baseApp.ws.send(JSON.stringify(initializeRequest))
+      }
+    })
+  }
+  send = async (message: Omit<AppToServer, 'type'>): Promise<ServerToApp> => {
+    return new Promise((resolve, reject) => {
+      const request = JSON.stringify(message)
+      // Set up the timeout
+      const timer = setTimeout(() => {
+        reject(new Error(`Request timed out after ${this.timeout} ms`))
+      }, this.timeout)
+      this.events[message.responseId] = (response: ServerToApp) => {
+        clearTimeout(timer)
+        resolve(response)
+      }
+      this.ws.send(request)
+    })
+  }
+  signTransactions = async (request: SignTransactionsRequest) => {
+    const response = (await this.send(request)) as SignTransactionsResponse
+    return response
+  }
+}

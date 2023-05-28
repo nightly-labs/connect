@@ -44,5 +44,7 @@ pub struct SignedTransaction {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct ErrorMessage {
+    #[serde(rename = "responseId")]
+    pub response_id: String,
     pub error: String,
 }
