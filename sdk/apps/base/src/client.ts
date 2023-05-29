@@ -64,6 +64,10 @@ export class BaseClient extends TypedEmitter<BaseEvents> {
               baseClient.emit('signMessages', response)
               break
             }
+            case 'AppDisconnectedEvent': {
+              baseClient.emit('appDisconnected', response)
+              break
+            }
           }
         }
         resolve(baseClient)

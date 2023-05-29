@@ -87,4 +87,14 @@ describe('Base Client tests', () => {
     const signed = await baseApp.signMessages(randomSignMessage)
     assert(signed.signedMessages.length === 2)
   })
+  test('#on("appDisconnected")', async () => {
+    const disconnecFn = vi.fn()
+    client.on('appDisconnected', async () => {
+      disconnecFn()
+    })
+    baseApp.ws.terminate()
+    baseApp.ws.close()
+    await sleep(10)
+    expect(disconnecFn).toHaveBeenCalledOnce()
+  })
 })

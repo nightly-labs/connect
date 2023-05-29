@@ -173,7 +173,10 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                 Err(_e) => {
                     println!("App disconnected");
                     let app_disconnected_event =
-                        ServerToClient::AppDisconnectedEvent(AppDisconnectedEvent {});
+                        ServerToClient::AppDisconnectedEvent(AppDisconnectedEvent {
+                            session_id: session_id.clone(),
+                            reason: "App disconnected".to_string(),
+                        });
                     let mut session = sessions.get_mut(&session_id).unwrap();
                     session
                         .send_to_client(app_disconnected_event)
@@ -199,7 +202,10 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
             },
             None => {
                 let app_disconnected_event =
-                    ServerToClient::AppDisconnectedEvent(AppDisconnectedEvent {});
+                    ServerToClient::AppDisconnectedEvent(AppDisconnectedEvent {
+                        session_id: session_id.clone(),
+                        reason: "App disconnected".to_string(),
+                    });
                 let mut session = sessions.get_mut(&session_id).unwrap();
                 session
                     .send_to_client(app_disconnected_event)
@@ -232,7 +238,10 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
             Message::Binary(_) => continue,
             Message::Close(None) | Message::Close(Some(_)) => {
                 let app_disconnected_event =
-                    ServerToClient::AppDisconnectedEvent(AppDisconnectedEvent {});
+                    ServerToClient::AppDisconnectedEvent(AppDisconnectedEvent {
+                        session_id: session_id.clone(),
+                        reason: "App disconnected".to_string(),
+                    });
                 let mut session = sessions.get_mut(&session_id).unwrap();
                 session
                     .send_to_client(app_disconnected_event)
