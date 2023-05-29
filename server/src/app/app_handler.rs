@@ -16,8 +16,8 @@ use crate::structs::{
         initialize::InitializeResponse,
     },
     client_messages::{
-        client_messages::ServerToClient, sign_messages::SignMessagesEvent,
-        sign_transation::SignTransactionsEvent,
+        app_disconnected_event::AppDisconnectedEvent, client_messages::ServerToClient,
+        sign_messages::SignMessagesEvent, sign_transation::SignTransactionsEvent,
     },
     common::SessionStatus,
     pending_request::PendingRequest,
@@ -117,10 +117,27 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
             Some(msg) => match msg {
                 Ok(msg) => msg,
                 Err(_e) => {
+                    let app_disconnected_event =
+                        ServerToClient::AppDisconnectedEvent(AppDisconnectedEvent {});
+                    let mut session = sessions.get_mut(&session_id).unwrap();
+                    session
+                        .send_to_client(app_disconnected_event)
+                        .await
+                        .unwrap_or_default();
+                    session.update_status(SessionStatus::AppDisconnected);
                     return;
                 }
             },
             None => {
+                let app_disconnected_event =
+                    ServerToClient::AppDisconnectedEvent(AppDisconnectedEvent {});
+                let mut session = sessions.get_mut(&session_id).unwrap();
+                session
+                    .send_to_client(app_disconnected_event)
+                    .await
+                    .unwrap_or_default();
+                session.update_status(SessionStatus::AppDisconnected);
+
                 return;
             }
         };
@@ -131,6 +148,15 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
             },
             Message::Binary(_) => continue,
             Message::Close(None) | Message::Close(Some(_)) => {
+                let app_disconnected_event =
+                    ServerToClient::AppDisconnectedEvent(AppDisconnectedEvent {});
+                let mut session = sessions.get_mut(&session_id).unwrap();
+                session
+                    .send_to_client(app_disconnected_event)
+                    .await
+                    .unwrap_or_default();
+                session.update_status(SessionStatus::AppDisconnected);
+
                 return;
             }
             Message::Ping(_) => {

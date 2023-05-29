@@ -42,6 +42,33 @@ impl Session {
             None => Err(anyhow::anyhow!("No client socket found for session")),
         }
     }
+    pub fn update_status(&mut self, status: SessionStatus) {
+        match status {
+            SessionStatus::Connected => {
+                self.status = status;
+            }
+            SessionStatus::UserDisconnected => {
+                if self.status == SessionStatus::AppDisconnected {
+                    self.status = SessionStatus::Idle;
+                } else {
+                    self.status = status;
+                }
+            }
+            SessionStatus::AppDisconnected => {
+                if self.status == SessionStatus::UserDisconnected {
+                    self.status = SessionStatus::Idle;
+                } else {
+                    self.status = status;
+                }
+            }
+            SessionStatus::Idle => {
+                self.status = status;
+            }
+            SessionStatus::WaitingForClient => {
+                self.status = status;
+            }
+        }
+    }
 }
 #[derive(Debug)]
 pub struct AppState {

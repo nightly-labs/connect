@@ -12,10 +12,11 @@ pub struct Version(pub String); // 0.0.1
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub enum SessionStatus {
-    WaitingForClient,
-    Connected,
-    UserDisconnected,
-    Idle,
+    WaitingForClient, // App initialized waiting for client to connect
+    Connected,        // Client connected
+    UserDisconnected, // Client disconnected
+    AppDisconnected,  // App disconnected
+    Idle, // Both disconnected, but session is still alive for a while in case client reconnects
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]

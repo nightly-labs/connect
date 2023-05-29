@@ -4,6 +4,7 @@ use ts_rs::TS;
 use crate::structs::common::{AckMessage, ErrorMessage};
 
 use super::{
+    app_disconnected_event::AppDisconnectedEvent,
     connect::{ConnectRequest, ConnectResponse},
     get_info::{GetInfoRequest, GetInfoResponse},
     get_pending_requests::{GetPendingRequestsRequest, GetPendingRequestsResponse},
@@ -29,6 +30,7 @@ pub enum ServerToClient {
     ConnectResponse(ConnectResponse),
     SignTransactionsEvent(SignTransactionsEvent),
     SignMessagesEvent(SignMessagesEvent),
+    AppDisconnectedEvent(AppDisconnectedEvent),
     GetPendingRequestsResponse(GetPendingRequestsResponse),
     ErrorMessage(ErrorMessage),
     AckMessage(AckMessage),

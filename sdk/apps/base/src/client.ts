@@ -13,6 +13,7 @@ import { GetPendingRequestsResponse } from '@bindings/GetPendingRequestsResponse
 import { SignTransactionsEventReply } from '@bindings/SignTransactionsEventReply'
 import { SignMessagesEvent } from '@bindings/SignMessagesEvent'
 import { SignMessagesEventReply } from '@bindings/SignMessagesEventReply'
+import { AppDisconnectedEvent } from '@bindings/AppDisconnectedEvent'
 
 export interface ClientBaseInitialize {
   version: Version
@@ -23,6 +24,7 @@ export interface ClientBaseInitialize {
 interface BaseEvents {
   signTransactions: (e: SignTransactionsEvent) => void
   signMessages: (e: SignMessagesEvent) => void
+  appDisconnected: (e: AppDisconnectedEvent) => void
 }
 export class BaseClient extends TypedEmitter<BaseEvents> {
   ws: WebSocket

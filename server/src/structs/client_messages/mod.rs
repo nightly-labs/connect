@@ -1,3 +1,4 @@
+pub mod app_disconnected_event;
 pub mod client_messages;
 pub mod connect;
 pub mod get_info;

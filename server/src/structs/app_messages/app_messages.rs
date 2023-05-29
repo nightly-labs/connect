@@ -8,6 +8,7 @@ use super::{
     sign_messages::{SignMessagesRequest, SignMessagesResponse},
     sign_transactions::{SignTransactionsRequest, SignTransactionsResponse},
     user_connected_event::UserConnectedEvent,
+    user_disconnected_event::UserDisconnectedEvent,
 };
 
 #[derive(Debug, Eq, PartialEq, Clone, Deserialize, Serialize, TS)]
@@ -24,6 +25,7 @@ pub enum AppToServer {
 pub enum ServerToApp {
     InitializeResponse(InitializeResponse),
     UserConnectedEvent(UserConnectedEvent),
+    UserDisconnectedEvent(UserDisconnectedEvent),
     SignTransactionsResponse(SignTransactionsResponse),
     SignMessagesResponse(SignMessagesResponse),
     ErrorMessage(ErrorMessage),

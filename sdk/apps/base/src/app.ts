@@ -13,6 +13,7 @@ import { getRandomId } from './utils'
 import { TransactionToSign } from '@bindings/TransactionToSign'
 import { MessageToSign } from '@bindings/MessageToSign'
 import { SignMessagesResponse } from '@bindings/SignMessagesResponse'
+import { UserDisconnectedEvent } from '@bindings/UserDisconnectedEvent'
 // const localStorage = LocalStorage('./.localstorage')
 // const sessionIdKey = 'nightly-id-solana'
 
@@ -30,7 +31,7 @@ export interface AppBaseInitialize {
 }
 interface BaseEvents {
   userConnected: (e: UserConnectedEvent) => void
-  // newSignTransaction: (changedCount: number) => void
+  userDisconnected: (e: UserDisconnectedEvent) => void
 }
 export class BaseApp extends TypedEmitter<BaseEvents> {
   ws: WebSocket
@@ -81,7 +82,7 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
           appIcon: baseInitialize.appIcon,
           network: baseInitialize.network,
           persistentSessionId: baseInitialize.persistentSessionId,
-          persistent: !!baseInitialize.persistent,
+          persistent: baseInitialize.persistent ?? true, // by default, persistent
           responseId: reponseId,
           version: baseInitialize.version,
           type: 'InitializeRequest'
