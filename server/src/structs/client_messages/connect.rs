@@ -8,7 +8,7 @@ use crate::structs::common::Device;
 pub struct ConnectRequest {
     #[serde(rename = "responseId")]
     pub response_id: String,
-    #[serde(rename = "publicKey")]
+    #[serde(rename = "publicKeys")]
     pub public_keys: Vec<String>,
     #[serde(rename = "sessionId")]
     pub session_id: String,

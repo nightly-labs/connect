@@ -13,7 +13,7 @@ export const testAppBaseInitialize: AppBaseInitialize = {
   appName: 'test-app-name',
   network: 'test-network',
   persistent: false,
-  persistentSessionId: null,
+  persistentSessionId: undefined,
   version: 'test-version',
   timeout: undefined,
   wsUrl: 'ws://localhost:6969'

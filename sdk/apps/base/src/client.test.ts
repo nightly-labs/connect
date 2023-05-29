@@ -30,14 +30,14 @@ describe('Base Client tests', () => {
   })
   test('#connect()', async () => {
     const msg: Connect = {
-      publicKey: ['1', '2'],
+      publicKeys: ['1', '2'],
       sessionId: baseApp.sessionId
     }
     await client.connect(msg)
   })
   test('#on("signTransactions")', async () => {
     const msg: Connect = {
-      publicKey: ['1', '2'],
+      publicKeys: ['1', '2'],
       sessionId: baseApp.sessionId
     }
     const randomSignTransaction: TransactionToSign[] = [
@@ -63,7 +63,7 @@ describe('Base Client tests', () => {
   })
   test('#on("signMessages")', async () => {
     const msg: Connect = {
-      publicKey: ['1', '2'],
+      publicKeys: ['1', '2'],
       sessionId: baseApp.sessionId
     }
     const randomSignMessage: MessageToSign[] = [

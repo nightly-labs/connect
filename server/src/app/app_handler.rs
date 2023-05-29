@@ -8,7 +8,7 @@ use axum::{
     response::Response,
 };
 use dashmap::DashMap;
-use futures::StreamExt;
+use futures::{SinkExt, StreamExt};
 
 use crate::structs::{
     app_messages::{
@@ -67,42 +67,96 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
         };
         match app_msg {
             AppToServer::InitializeRequest(init_data) => {
-                // Generate a new session id
-                let session_id = uuid7::uuid7().to_string();
-                let session = Session {
-                    session_id: session_id.clone(),
-                    status: SessionStatus::WaitingForClient,
-                    persistent: init_data.persistent,
-                    app_state: AppState {
-                        app_description: init_data.app_description,
-                        app_icon: init_data.app_icon,
-                        app_name: init_data.app_name,
-                        additional_info: init_data.additional_info,
-                        app_socket: Some(sender),
-                    },
-                    client_state: ClientState {
-                        client_socket: None,
-                        device: None,
-                        connected_public_keys: Vec::new(),
-                    },
-                    network: init_data.network,
-                    version: init_data.version,
-                    device: None,
-                    pending_requests: DashMap::new(),
-                    token: None,
-                    notification_endpoint: None,
+                let (session_id, created_new) = match init_data.persistent_session_id {
+                    Some(session_id) => {
+                        let (session_id, created_new) = match sessions.get_mut(session_id.as_str())
+                        {
+                            Some(mut session) => {
+                                session.update_status(SessionStatus::AppConnected);
+                                session.app_state = AppState {
+                                    app_description: init_data.app_description,
+                                    app_icon: init_data.app_icon,
+                                    app_name: init_data.app_name,
+                                    additional_info: init_data.additional_info,
+                                    app_socket: Some(sender),
+                                };
+                                // TODO decide if we want to do anything more here
+                                (session_id.clone(), false)
+                            }
+                            None => {
+                                let session_id = uuid7::uuid7().to_string();
+                                let session = Session {
+                                    session_id: session_id.clone(),
+                                    status: SessionStatus::WaitingForClient,
+                                    persistent: init_data.persistent,
+                                    app_state: AppState {
+                                        app_description: init_data.app_description,
+                                        app_icon: init_data.app_icon,
+                                        app_name: init_data.app_name,
+                                        additional_info: init_data.additional_info,
+                                        app_socket: Some(sender),
+                                    },
+                                    client_state: ClientState {
+                                        client_socket: None,
+                                        device: None,
+                                        connected_public_keys: Vec::new(),
+                                    },
+                                    network: init_data.network,
+                                    version: init_data.version,
+                                    device: None,
+                                    pending_requests: DashMap::new(),
+                                    token: None,
+                                    notification_endpoint: None,
+                                };
+                                sessions.insert(session_id.clone(), session);
+                                (session_id.clone(), true)
+                            }
+                        };
+                        (session_id, created_new)
+                    }
+                    None => {
+                        let session_id = uuid7::uuid7().to_string();
+                        let session = Session {
+                            session_id: session_id.clone(),
+                            status: SessionStatus::WaitingForClient,
+                            persistent: init_data.persistent,
+                            app_state: AppState {
+                                app_description: init_data.app_description,
+                                app_icon: init_data.app_icon,
+                                app_name: init_data.app_name,
+                                additional_info: init_data.additional_info,
+                                app_socket: Some(sender),
+                            },
+                            client_state: ClientState {
+                                client_socket: None,
+                                device: None,
+                                connected_public_keys: Vec::new(),
+                            },
+                            network: init_data.network,
+                            version: init_data.version,
+                            device: None,
+                            pending_requests: DashMap::new(),
+                            token: None,
+                            notification_endpoint: None,
+                        };
+                        sessions.insert(session_id.clone(), session);
+                        (session_id.clone(), true)
+                    }
                 };
-                sessions.insert(session_id.clone(), session);
+
                 let mut created_session = sessions.get_mut(&session_id).unwrap();
                 // created_session.app_state.app_socket.unwrap().send(item)
-                created_session
+                match created_session
                     .send_to_app(ServerToApp::InitializeResponse(InitializeResponse {
                         response_id: init_data.response_id,
                         session_id: session_id.clone(),
-                        created_new: true,
+                        created_new: created_new,
                     }))
                     .await
-                    .unwrap();
+                {
+                    Ok(_) => {}
+                    Err(e) => println!("Error sending initialize response: {:?}", e),
+                }
                 break session_id.clone();
             }
             _ => {
@@ -117,6 +171,7 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
             Some(msg) => match msg {
                 Ok(msg) => msg,
                 Err(_e) => {
+                    println!("App disconnected");
                     let app_disconnected_event =
                         ServerToClient::AppDisconnectedEvent(AppDisconnectedEvent {});
                     let mut session = sessions.get_mut(&session_id).unwrap();
@@ -124,7 +179,21 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                         .send_to_client(app_disconnected_event)
                         .await
                         .unwrap_or_default();
-                    session.update_status(SessionStatus::AppDisconnected);
+                    match session.persistent {
+                        true => {
+                            session.update_status(SessionStatus::AppDisconnected);
+                        }
+                        false => {
+                            match &mut session.client_state.client_socket {
+                                Some(client_socket) => {
+                                    client_socket.close();
+                                }
+                                None => {}
+                            }
+                            drop(session);
+                            sessions.remove(&session_id);
+                        }
+                    }
                     return;
                 }
             },
@@ -136,7 +205,21 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                     .send_to_client(app_disconnected_event)
                     .await
                     .unwrap_or_default();
-                session.update_status(SessionStatus::AppDisconnected);
+                match session.persistent {
+                    true => {
+                        session.update_status(SessionStatus::AppDisconnected);
+                    }
+                    false => {
+                        match &mut session.client_state.client_socket {
+                            Some(client_socket) => {
+                                client_socket.close();
+                            }
+                            None => {}
+                        }
+                        drop(session);
+                        sessions.remove(&session_id);
+                    }
+                }
 
                 return;
             }
@@ -155,8 +238,21 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                     .send_to_client(app_disconnected_event)
                     .await
                     .unwrap_or_default();
-                session.update_status(SessionStatus::AppDisconnected);
-
+                match session.persistent {
+                    true => {
+                        session.update_status(SessionStatus::AppDisconnected);
+                    }
+                    false => {
+                        match &mut session.client_state.client_socket {
+                            Some(client_socket) => {
+                                client_socket.close();
+                            }
+                            None => {}
+                        }
+                        drop(session);
+                        sessions.remove(&session_id);
+                    }
+                }
                 return;
             }
             Message::Ping(_) => {

@@ -86,9 +86,10 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
                     .unwrap()
             }
             ClientToServer::ConnectRequest(connect_request) => {
+                println!("Connect request received {} ", connect_request.session_id);
                 let mut session = sessions.get_mut(&connect_request.session_id).unwrap();
                 // Insert user socket
-                session.status = SessionStatus::Connected;
+                session.update_status(SessionStatus::ClientConnected);
                 session.client_state.client_socket = Some(sender);
                 session.client_state.device = connect_request.device.clone();
                 session.client_state.connected_public_keys = connect_request.public_keys.clone();
@@ -118,7 +119,10 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
                 Err(_e) => {
                     let user_disconnected_event =
                         ServerToApp::UserDisconnectedEvent(UserDisconnectedEvent {});
-                    let mut session = sessions.get_mut(&session_id).unwrap();
+                    let mut session = match sessions.get_mut(&session_id) {
+                        Some(session) => session,
+                        None => return,
+                    };
                     session
                         .send_to_app(user_disconnected_event)
                         .await
@@ -131,7 +135,10 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
             None => {
                 let user_disconnected_event =
                     ServerToApp::UserDisconnectedEvent(UserDisconnectedEvent {});
-                let mut session = sessions.get_mut(&session_id).unwrap();
+                let mut session = match sessions.get_mut(&session_id) {
+                    Some(session) => session,
+                    None => return,
+                };
                 session
                     .send_to_app(user_disconnected_event)
                     .await
@@ -150,7 +157,10 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
             Message::Close(None) | Message::Close(Some(_)) => {
                 let user_disconnected_event =
                     ServerToApp::UserDisconnectedEvent(UserDisconnectedEvent {});
-                let mut session = sessions.get_mut(&session_id).unwrap();
+                let mut session = match sessions.get_mut(&session_id) {
+                    Some(session) => session,
+                    None => return,
+                };
                 session
                     .send_to_app(user_disconnected_event)
                     .await

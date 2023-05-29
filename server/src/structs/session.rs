@@ -28,8 +28,7 @@ impl Session {
         match &mut self.app_state.app_socket {
             Some(app_socket) => Ok(app_socket
                 .send(Message::Text(serde_json::to_string(&msg).unwrap()))
-                .await
-                .unwrap()),
+                .await?),
             None => Err(anyhow::anyhow!("No app socket found for session")),
         }
     }
@@ -37,14 +36,16 @@ impl Session {
         match &mut self.client_state.client_socket {
             Some(client_socket) => Ok(client_socket
                 .send(Message::Text(serde_json::to_string(&msg).unwrap()))
-                .await
-                .unwrap()),
+                .await?),
             None => Err(anyhow::anyhow!("No client socket found for session")),
         }
     }
     pub fn update_status(&mut self, status: SessionStatus) {
         match status {
-            SessionStatus::Connected => {
+            SessionStatus::ClientConnected => {
+                self.status = status;
+            }
+            SessionStatus::AppConnected => {
                 self.status = status;
             }
             SessionStatus::UserDisconnected => {

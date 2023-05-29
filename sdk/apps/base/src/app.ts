@@ -8,15 +8,14 @@ import { SignTransactionsResponse } from '@bindings/SignTransactionsResponse'
 import { UserConnectedEvent } from '@bindings/UserConnectedEvent'
 import { Version } from '@bindings/Version'
 import WebSocket from 'isomorphic-ws'
+import LocalStorage from 'isomorphic-localstorage'
 import { TypedEmitter } from 'tiny-typed-emitter'
 import { getRandomId } from './utils'
 import { TransactionToSign } from '@bindings/TransactionToSign'
 import { MessageToSign } from '@bindings/MessageToSign'
 import { SignMessagesResponse } from '@bindings/SignMessagesResponse'
 import { UserDisconnectedEvent } from '@bindings/UserDisconnectedEvent'
-// const localStorage = LocalStorage('./.localstorage')
-// const sessionIdKey = 'nightly-id-solana'
-
+const localStorage = LocalStorage('./.nightly-connect-session')
 export interface AppBaseInitialize {
   appName: string
   network: Network
@@ -32,13 +31,14 @@ export interface AppBaseInitialize {
 interface BaseEvents {
   userConnected: (e: UserConnectedEvent) => void
   userDisconnected: (e: UserDisconnectedEvent) => void
+  serverDisconnected: () => void
 }
 export class BaseApp extends TypedEmitter<BaseEvents> {
   ws: WebSocket
   events: { [key: string]: (data: any) => void | undefined } = {}
   sessionId = ''
   timeout: number
-
+  // TODO add info about the app
   private constructor(ws: WebSocket, timeout: number) {
     super()
     this.ws = ws
@@ -47,16 +47,18 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
 
   public static build = async (baseInitialize: AppBaseInitialize): Promise<BaseApp> => {
     return new Promise((resolve, reject) => {
-      // const persistent =
-      //   typeof appMetadata.persistent === 'undefined' ? true : appMetadata.persistent
+      const persistent = baseInitialize.persistent ?? true
+      const persistentSessionId = persistent
+        ? localStorage.getItem(baseInitialize.appName) ?? undefined
+        : undefined
       const ws = baseInitialize.wsUrl
         ? new WebSocket(baseInitialize.wsUrl + '/app')
         : new WebSocket('wss://relay.nightly.app/app')
       const baseApp = new BaseApp(ws, baseInitialize.timeout ?? 40000)
-      // connection.events[ServerMessageTypes.UserConnected] = (data: UserConnectedMessage) => {
-      //   const pk = new PublicKey(Buffer.from(data.publicKey, 'hex'))
-      //   onUserConnect({ publicKey: pk })
-      // }
+      baseApp.ws.onclose = () => {
+        console.log('server disconnected')
+        baseApp.emit('serverDisconnected')
+      }
       baseApp.ws.onopen = () => {
         baseApp.ws.onmessage = ({ data }: { data: any }) => {
           const response = JSON.parse(data) as ServerToApp
@@ -73,6 +75,10 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
             }
           }
         }
+        baseApp.ws.onclose = () => {
+          console.log('server disconnected')
+          baseApp.emit('serverDisconnected')
+        }
         const reponseId = getRandomId()
         // Initialize the connection
         const initializeRequest: { type: 'InitializeRequest' } & InitializeRequest = {
@@ -81,8 +87,8 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
           appDescription: baseInitialize.appDescription,
           appIcon: baseInitialize.appIcon,
           network: baseInitialize.network,
-          persistentSessionId: baseInitialize.persistentSessionId,
-          persistent: baseInitialize.persistent ?? true, // by default, persistent
+          persistentSessionId: persistentSessionId,
+          persistent: persistent,
           responseId: reponseId,
           version: baseInitialize.version,
           type: 'InitializeRequest'
@@ -96,6 +102,8 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
           clearTimeout(timer)
           // TODO: Handle error
           baseApp.sessionId = response.sessionId
+          // Save the session id
+          if (persistent) localStorage.setItem(initializeRequest.appName, response.sessionId)
           resolve(baseApp)
         }
         baseApp.ws.send(JSON.stringify(initializeRequest))
