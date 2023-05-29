@@ -1,23 +1,24 @@
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-use crate::structs::common::{SignedTransaction, TransactionToSign};
+use crate::structs::common::{MessageToSign, SignedMessage};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct SignTransactionsRequest {
+pub struct SignMessagesRequest {
     #[serde(rename = "responseId")]
     pub response_id: String,
-    pub transactions: Vec<TransactionToSign>,
+    pub messages: Vec<MessageToSign>,
     #[ts(optional)]
     pub metadata: Option<String>,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct SignTransactionsResponse {
+pub struct SignMessagesResponse {
     #[serde(rename = "responseId")]
     pub response_id: String,
-    pub signed_transactions: Vec<SignedTransaction>,
+    #[serde(rename = "signedMessages")]
+    pub signed_messages: Vec<SignedMessage>,
     #[ts(optional)]
     pub metadata: Option<String>,
 }

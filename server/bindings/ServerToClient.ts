@@ -4,6 +4,7 @@ import type { ConnectResponse } from "./ConnectResponse";
 import type { ErrorMessage } from "./ErrorMessage";
 import type { GetInfoResponse } from "./GetInfoResponse";
 import type { GetPendingRequestsResponse } from "./GetPendingRequestsResponse";
+import type { SignMessagesEvent } from "./SignMessagesEvent";
 import type { SignTransactionsEvent } from "./SignTransactionsEvent";
 
-export type ServerToClient = { type: "GetInfoResponse" } & GetInfoResponse | { type: "ConnectResponse" } & ConnectResponse | { type: "SignTransactionsEvent" } & SignTransactionsEvent | { type: "GetPendingRequestsResponse" } & GetPendingRequestsResponse | { type: "ErrorMessage" } & ErrorMessage | { type: "AckMessage" } & AckMessage;
+export type ServerToClient = { type: "GetInfoResponse" } & GetInfoResponse | { type: "ConnectResponse" } & ConnectResponse | { type: "SignTransactionsEvent" } & SignTransactionsEvent | { type: "SignMessagesEvent" } & SignMessagesEvent | { type: "GetPendingRequestsResponse" } & GetPendingRequestsResponse | { type: "ErrorMessage" } & ErrorMessage | { type: "AckMessage" } & AckMessage;

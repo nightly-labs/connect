@@ -5,7 +5,6 @@ use axum::{
         ws::{Message, WebSocket},
         ConnectInfo, State, WebSocketUpgrade,
     },
-    http::response,
     response::Response,
 };
 use dashmap::DashMap;
@@ -15,9 +14,11 @@ use crate::structs::{
     app_messages::{
         app_messages::{AppToServer, ServerToApp},
         initialize::InitializeResponse,
-        sign_transactions,
     },
-    client_messages::{client_messages::ServerToClient, sign_transation::SignTransactionsEvent},
+    client_messages::{
+        client_messages::ServerToClient, sign_messages::SignMessagesEvent,
+        sign_transation::SignTransactionsEvent,
+    },
     common::SessionStatus,
     pending_request::PendingRequest,
     session::{AppState, ClientState, Session},
@@ -153,12 +154,29 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                     ServerToClient::SignTransactionsEvent(SignTransactionsEvent {
                         request_id: response_id.clone(),
                         transactions: sing_transactions_request.transactions,
+                        metadata: sing_transactions_request.metadata,
                     });
                 session
                     .send_to_client(sign_transactions_event)
                     .await
                     .unwrap();
             }
+            AppToServer::SignMessagesRequest(sign_messages_request) => {
+                let mut session = sessions.get_mut(&session_id).unwrap();
+                let response_id: String = sign_messages_request.response_id.clone();
+                let pending_request = PendingRequest::SignMessages(sign_messages_request.clone());
+                session
+                    .pending_requests
+                    .insert(response_id.clone(), pending_request.clone());
+                // Response will be sent by the client side
+                let sign_messages_event = ServerToClient::SignMessagesEvent(SignMessagesEvent {
+                    request_id: response_id.clone(),
+                    messages: sign_messages_request.messages,
+                    metadata: sign_messages_request.metadata,
+                });
+                session.send_to_client(sign_messages_event).await.unwrap();
+            }
+
             AppToServer::InitializeRequest(_) => {
                 // App should not send initialize message after the first one
             }

@@ -2,6 +2,7 @@
 import type { ConnectRequest } from "./ConnectRequest";
 import type { GetInfoRequest } from "./GetInfoRequest";
 import type { GetPendingRequestsRequest } from "./GetPendingRequestsRequest";
+import type { SignMessagesEventReply } from "./SignMessagesEventReply";
 import type { SignTransactionsEventReply } from "./SignTransactionsEventReply";
 
-export type ClientToServer = { type: "ConnectRequest" } & ConnectRequest | { type: "GetInfoRequest" } & GetInfoRequest | { type: "SignTransactionsEventReply" } & SignTransactionsEventReply | { type: "GetPendingRequestsRequest" } & GetPendingRequestsRequest;
+export type ClientToServer = { type: "ConnectRequest" } & ConnectRequest | { type: "GetInfoRequest" } & GetInfoRequest | { type: "SignTransactionsEventReply" } & SignTransactionsEventReply | { type: "SignMessagesEventReply" } & SignMessagesEventReply | { type: "GetPendingRequestsRequest" } & GetPendingRequestsRequest;

@@ -5,7 +5,6 @@ use axum::{
         ws::{Message, WebSocket},
         ConnectInfo, State, WebSocketUpgrade,
     },
-    http::response,
     response::Response,
 };
 use dashmap::DashMap;
@@ -13,10 +12,8 @@ use futures::{SinkExt, StreamExt};
 
 use crate::structs::{
     app_messages::{
-        app_messages::{AppToServer, ServerToApp},
-        initialize::InitializeResponse,
-        sign_transactions::SignTransactionsResponse,
-        user_connected_event::UserConnectedEvent,
+        app_messages::ServerToApp, sign_messages::SignMessagesResponse,
+        sign_transactions::SignTransactionsResponse, user_connected_event::UserConnectedEvent,
     },
     client_messages::{
         client_messages::{ClientToServer, ServerToClient},
@@ -26,7 +23,7 @@ use crate::structs::{
     },
     common::{AckMessage, SessionStatus},
     pending_request::PendingRequest,
-    session::{self, AppState, ClientState, Session},
+    session::Session,
 };
 
 pub async fn on_new_client_connection(
@@ -54,7 +51,6 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
                 return;
             }
         };
-        println!("Received message: {:?}", msg);
         let app_msg = match msg {
             Message::Text(data) => match serde_json::from_str::<ClientToServer>(&data) {
                 Ok(app_msg) => app_msg,
@@ -71,8 +67,6 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
                 continue;
             }
         };
-        println!("Received app_msg: {:?}", app_msg);
-
         match app_msg {
             ClientToServer::GetInfoRequest(get_info_request) => {
                 let session = sessions.get(&get_info_request.session_id).unwrap();
@@ -155,11 +149,31 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
                 let app_msg = ServerToApp::SignTransactionsResponse(SignTransactionsResponse {
                     response_id: sign_transactions_event_reply.request_id.clone(),
                     signed_transactions: sign_transactions_event_reply.signed_transactions,
+                    metadata: sign_transactions_event_reply.metadata,
                 });
                 session.send_to_app(app_msg).await.unwrap();
 
                 let client_msg = ServerToClient::AckMessage(AckMessage {
                     response_id: sign_transactions_event_reply.response_id,
+                });
+                session.send_to_client(client_msg).await.unwrap();
+            }
+            ClientToServer::SignMessagesEventReply(sign_message_event_reply) => {
+                let mut session = sessions.get_mut(&session_id).unwrap();
+                let _pending_request = session
+                    .pending_requests
+                    .remove(&sign_message_event_reply.request_id)
+                    .unwrap();
+                // Send to app
+                let app_msg = ServerToApp::SignMessagesResponse(SignMessagesResponse {
+                    response_id: sign_message_event_reply.request_id.clone(),
+                    signed_messages: sign_message_event_reply.signed_messages,
+                    metadata: sign_message_event_reply.metadata,
+                });
+                session.send_to_app(app_msg).await.unwrap();
+
+                let client_msg = ServerToClient::AckMessage(AckMessage {
+                    response_id: sign_message_event_reply.response_id,
                 });
                 session.send_to_client(client_msg).await.unwrap();
             }

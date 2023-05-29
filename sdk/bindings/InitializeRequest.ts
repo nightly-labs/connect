@@ -2,4 +2,4 @@
 import type { Network } from "./Network";
 import type { Version } from "./Version";
 
-export interface InitializeRequest { responseId: string, persistent: boolean, appName: string, appDescription: string | null, appIcon: string | null, network: Network, version: Version, additionalInfo: string | null, persistentSessionId: string | null, }
+export interface InitializeRequest { responseId: string, persistent: boolean, appName: string, appDescription?: string, appIcon?: string, network: Network, version: Version, additionalInfo?: string, persistentSessionId?: string, }

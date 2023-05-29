@@ -32,6 +32,8 @@ pub struct TransactionToSign {
     #[serde(rename = "publicKeys")]
     pub public_keys: Vec<String>, // keys that need to sign the transaction
     pub network: Network,
+    #[ts(optional)]
+    pub metadata: Option<String>,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
 #[ts(export)]
@@ -40,6 +42,27 @@ pub struct SignedTransaction {
     #[serde(rename = "publicKeys")]
     pub public_keys: Vec<String>, // keys that signed the transaction
     pub network: Network,
+    #[ts(optional)]
+    pub metadata: Option<String>,
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub struct MessageToSign {
+    pub message: String,
+    #[serde(rename = "publicKey")]
+    pub public_key: String,
+    #[ts(optional)]
+    pub metadata: Option<String>,
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub struct SignedMessage {
+    #[serde(rename = "signedMessage")]
+    pub signed_message: String, // serialized transaction
+    #[serde(rename = "publicKey")]
+    pub public_key: String,
+    #[ts(optional)]
+    pub metadata: Option<String>,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
 #[ts(export)]

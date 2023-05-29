@@ -2,4 +2,4 @@
 import type { Network } from "./Network";
 import type { Version } from "./Version";
 
-export interface GetInfoResponse { responseId: string, appName: string, network: Network, version: Version, appDescription: string | null, appIcon: string | null, additionalInfo: string | null, }
+export interface GetInfoResponse { responseId: string, appName: string, network: Network, version: Version, appDescription?: string, appIcon?: string, additionalInfo?: string, }

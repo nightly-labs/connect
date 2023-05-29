@@ -4,6 +4,8 @@ import { sleep, testAppBaseInitialize, testClientBaseInitialize } from './utils'
 import { BaseClient, Connect } from './client'
 import { TransactionToSign } from '@bindings/TransactionToSign'
 import { SignedTransaction } from '@bindings/SignedTransaction'
+import { MessageToSign } from '@bindings/MessageToSign'
+import { SignedMessage } from '@bindings/SignedMessage'
 
 // Edit an assertion and save to see HMR in action
 
@@ -28,15 +30,13 @@ describe('Base Client tests', () => {
   })
   test('#connect()', async () => {
     const msg: Connect = {
-      device: null,
       publicKey: ['1', '2'],
       sessionId: baseApp.sessionId
     }
     await client.connect(msg)
   })
-  test('#on("signTransaction")', async () => {
+  test('#on("signTransactions")', async () => {
     const msg: Connect = {
-      device: null,
       publicKey: ['1', '2'],
       sessionId: baseApp.sessionId
     }
@@ -48,7 +48,7 @@ describe('Base Client tests', () => {
       { network: 'solana', transaction: 'signed-1', publicKeys: ['1'] },
       { network: 'solana', transaction: 'signed-13', publicKeys: ['1'] }
     ]
-    client.on('signTransaction', async (e) => {
+    client.on('signTransactions', async (e) => {
       assert(e.transactions.length === 2)
       // resolve
       await client.resolveSignTransactions({
@@ -60,5 +60,31 @@ describe('Base Client tests', () => {
     await sleep(0)
     const signed = await baseApp.signTransactions(randomSignTransaction)
     assert(signed.signed_transactions.length === 2)
+  })
+  test('#on("signMessages")', async () => {
+    const msg: Connect = {
+      publicKey: ['1', '2'],
+      sessionId: baseApp.sessionId
+    }
+    const randomSignMessage: MessageToSign[] = [
+      { message: '1', publicKey: '1' },
+      { message: '13', publicKey: '1' }
+    ]
+    const randomResolveSignMessage: SignedMessage[] = [
+      { signedMessage: 'signed-1', publicKey: '1' },
+      { signedMessage: 'signed-13', publicKey: '1' }
+    ]
+    client.on('signMessages', async (e) => {
+      assert(e.messages.length === 2)
+      // resolve
+      await client.resolveSignMessages({
+        requestId: e.requestId,
+        signedMessages: randomResolveSignMessage
+      })
+    })
+    // sleep(100)
+    await sleep(0)
+    const signed = await baseApp.signMessages(randomSignMessage)
+    assert(signed.signedMessages.length === 2)
   })
 })

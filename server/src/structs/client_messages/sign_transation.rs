@@ -9,6 +9,8 @@ pub struct SignTransactionsEvent {
     #[serde(rename = "requestId")]
     pub request_id: String,
     pub transactions: Vec<TransactionToSign>,
+    #[ts(optional)]
+    pub metadata: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
@@ -20,4 +22,6 @@ pub struct SignTransactionsEventReply {
     pub request_id: String,
     #[serde(rename = "signedTransactions")]
     pub signed_transactions: Vec<SignedTransaction>,
+    #[ts(optional)]
+    pub metadata: Option<String>,
 }

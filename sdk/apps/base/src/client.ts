@@ -9,10 +9,10 @@ import { SignTransactionsEvent } from '@bindings/SignTransactionsEvent'
 import { GetInfoRequest } from '@bindings/GetInfoRequest'
 import { ConnectRequest } from '@bindings/ConnectRequest'
 import { GetInfoResponse } from '@bindings/GetInfoResponse'
-import { ConnectResponse } from '@bindings/ConnectResponse'
 import { GetPendingRequestsResponse } from '@bindings/GetPendingRequestsResponse'
-import { SignedTransaction } from '@bindings/SignedTransaction'
 import { SignTransactionsEventReply } from '@bindings/SignTransactionsEventReply'
+import { SignMessagesEvent } from '@bindings/SignMessagesEvent'
+import { SignMessagesEventReply } from '@bindings/SignMessagesEventReply'
 
 export interface ClientBaseInitialize {
   version: Version
@@ -21,7 +21,8 @@ export interface ClientBaseInitialize {
   persistent: boolean
 }
 interface BaseEvents {
-  signTransaction: (e: SignTransactionsEvent) => void
+  signTransactions: (e: SignTransactionsEvent) => void
+  signMessages: (e: SignMessagesEvent) => void
 }
 export class BaseClient extends TypedEmitter<BaseEvents> {
   ws: WebSocket
@@ -40,12 +41,10 @@ export class BaseClient extends TypedEmitter<BaseEvents> {
       const ws = baseInitialize.wsUrl
         ? new WebSocket(baseInitialize.wsUrl + '/client')
         : new WebSocket('wss://relay.nightly.app/client')
-      console.log(baseInitialize.wsUrl + '/client')
       const baseClient = new BaseClient(ws, baseInitialize.timeout ?? 40000)
 
       baseClient.ws.onopen = () => {
         baseClient.ws.onmessage = ({ data }: { data: any }) => {
-          console.log('data', data)
           const response = JSON.parse(data) as ServerToClient
           switch (response.type) {
             case 'GetInfoResponse':
@@ -56,7 +55,12 @@ export class BaseClient extends TypedEmitter<BaseEvents> {
               break
             }
             case 'SignTransactionsEvent': {
-              baseClient.emit('signTransaction', response)
+              baseClient.emit('signTransactions', response)
+              break
+            }
+            case 'SignMessagesEvent': {
+              baseClient.emit('signMessages', response)
+              break
             }
           }
         }
@@ -108,6 +112,13 @@ export class BaseClient extends TypedEmitter<BaseEvents> {
       responseId: getRandomId(),
       ...resolve,
       type: 'SignTransactionsEventReply'
+    })
+  }
+  resolveSignMessages = async (resolve: Omit<SignMessagesEventReply, 'responseId'>) => {
+    await this.send({
+      responseId: getRandomId(),
+      ...resolve,
+      type: 'SignMessagesEventReply'
     })
   }
 }

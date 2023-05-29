@@ -4,7 +4,6 @@ import { InitializeRequest } from '@bindings/InitializeRequest'
 import { InitializeResponse } from '@bindings/InitializeResponse'
 import { Network } from '@bindings/Network'
 import { ServerToApp } from '@bindings/ServerToApp'
-import { SignTransactionsRequest } from '@bindings/SignTransactionsRequest'
 import { SignTransactionsResponse } from '@bindings/SignTransactionsResponse'
 import { UserConnectedEvent } from '@bindings/UserConnectedEvent'
 import { Version } from '@bindings/Version'
@@ -12,6 +11,8 @@ import WebSocket from 'isomorphic-ws'
 import { TypedEmitter } from 'tiny-typed-emitter'
 import { getRandomId } from './utils'
 import { TransactionToSign } from '@bindings/TransactionToSign'
+import { MessageToSign } from '@bindings/MessageToSign'
+import { SignMessagesResponse } from '@bindings/SignMessagesResponse'
 // const localStorage = LocalStorage('./.localstorage')
 // const sessionIdKey = 'nightly-id-solana'
 
@@ -21,11 +22,11 @@ export interface AppBaseInitialize {
   version: Version
   wsUrl?: string
   timeout?: number
-  appIcon: string | null
-  appDescription: string | null
-  additionalInfo: string | null
-  persistentSessionId: string | null
-  persistent: boolean
+  appIcon?: string
+  appDescription?: string
+  additionalInfo?: string
+  persistentSessionId?: string
+  persistent?: boolean
 }
 interface BaseEvents {
   userConnected: (e: UserConnectedEvent) => void
@@ -61,6 +62,7 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
           switch (response.type) {
             case 'InitializeResponse':
             case 'SignTransactionsResponse':
+            case 'SignMessagesResponse':
             case 'ErrorMessage': {
               baseApp.events[response.responseId](response)
               break
@@ -113,12 +115,22 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
       this.ws.send(request)
     })
   }
-  signTransactions = async (transactions: Array<TransactionToSign>) => {
+  signTransactions = async (transactions: Array<TransactionToSign>, metadata?: string) => {
     const response = (await this.send({
       responseId: getRandomId(),
       transactions,
+      metadata,
       type: 'SignTransactionsRequest'
     })) as SignTransactionsResponse
+    return response
+  }
+  signMessages = async (messages: Array<MessageToSign>, metadata?: string) => {
+    const response = (await this.send({
+      responseId: getRandomId(),
+      messages,
+      metadata,
+      type: 'SignMessagesRequest'
+    })) as SignMessagesResponse
     return response
   }
 }

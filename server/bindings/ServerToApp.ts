@@ -2,7 +2,8 @@
 import type { AckMessage } from "./AckMessage";
 import type { ErrorMessage } from "./ErrorMessage";
 import type { InitializeResponse } from "./InitializeResponse";
+import type { SignMessagesResponse } from "./SignMessagesResponse";
 import type { SignTransactionsResponse } from "./SignTransactionsResponse";
 import type { UserConnectedEvent } from "./UserConnectedEvent";
 
-export type ServerToApp = { type: "InitializeResponse" } & InitializeResponse | { type: "UserConnectedEvent" } & UserConnectedEvent | { type: "SignTransactionsResponse" } & SignTransactionsResponse | { type: "ErrorMessage" } & ErrorMessage | { type: "AckMessage" } & AckMessage;
+export type ServerToApp = { type: "InitializeResponse" } & InitializeResponse | { type: "UserConnectedEvent" } & UserConnectedEvent | { type: "SignTransactionsResponse" } & SignTransactionsResponse | { type: "SignMessagesResponse" } & SignMessagesResponse | { type: "ErrorMessage" } & ErrorMessage | { type: "AckMessage" } & AckMessage;

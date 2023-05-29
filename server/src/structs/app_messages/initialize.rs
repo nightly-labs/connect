@@ -8,19 +8,22 @@ use crate::structs::common::{Network, Version};
 pub struct InitializeRequest {
     #[serde(rename = "responseId")]
     pub response_id: String,
-
     pub persistent: bool,
     #[serde(rename = "appName")]
     pub app_name: String,
     #[serde(rename = "appDescription")]
+    #[ts(optional)]
     pub app_description: Option<String>,
     #[serde(rename = "appIcon")]
+    #[ts(optional)]
     pub app_icon: Option<String>,
     pub network: Network,
     pub version: Version,
     #[serde(rename = "additionalInfo")]
+    #[ts(optional)]
     pub additional_info: Option<String>,
     #[serde(rename = "persistentSessionId")]
+    #[ts(optional)]
     pub persistent_session_id: Option<String>,
 }
 

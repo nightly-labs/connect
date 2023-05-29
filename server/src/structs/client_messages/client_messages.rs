@@ -7,6 +7,7 @@ use super::{
     connect::{ConnectRequest, ConnectResponse},
     get_info::{GetInfoRequest, GetInfoResponse},
     get_pending_requests::{GetPendingRequestsRequest, GetPendingRequestsResponse},
+    sign_messages::{SignMessagesEvent, SignMessagesEventReply},
     sign_transation::{SignTransactionsEvent, SignTransactionsEventReply},
 };
 
@@ -17,6 +18,7 @@ pub enum ClientToServer {
     ConnectRequest(ConnectRequest),
     GetInfoRequest(GetInfoRequest),
     SignTransactionsEventReply(SignTransactionsEventReply),
+    SignMessagesEventReply(SignMessagesEventReply),
     GetPendingRequestsRequest(GetPendingRequestsRequest),
 }
 #[derive(Debug, Eq, PartialEq, Clone, Deserialize, Serialize, TS)]
@@ -26,6 +28,7 @@ pub enum ServerToClient {
     GetInfoResponse(GetInfoResponse),
     ConnectResponse(ConnectResponse),
     SignTransactionsEvent(SignTransactionsEvent),
+    SignMessagesEvent(SignMessagesEvent),
     GetPendingRequestsResponse(GetPendingRequestsResponse),
     ErrorMessage(ErrorMessage),
     AckMessage(AckMessage),

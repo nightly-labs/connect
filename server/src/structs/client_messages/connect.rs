@@ -12,6 +12,7 @@ pub struct ConnectRequest {
     pub public_keys: Vec<String>,
     #[serde(rename = "sessionId")]
     pub session_id: String,
+    #[ts(optional)]
     pub device: Option<Device>,
 }
 

@@ -5,6 +5,7 @@ use crate::structs::common::{AckMessage, ErrorMessage};
 
 use super::{
     initialize::{InitializeRequest, InitializeResponse},
+    sign_messages::{SignMessagesRequest, SignMessagesResponse},
     sign_transactions::{SignTransactionsRequest, SignTransactionsResponse},
     user_connected_event::UserConnectedEvent,
 };
@@ -15,6 +16,7 @@ use super::{
 pub enum AppToServer {
     InitializeRequest(InitializeRequest),
     SignTransactionsRequest(SignTransactionsRequest),
+    SignMessagesRequest(SignMessagesRequest),
 }
 #[derive(Debug, Eq, PartialEq, Clone, Deserialize, Serialize, TS)]
 #[ts(export)]
@@ -23,6 +25,7 @@ pub enum ServerToApp {
     InitializeResponse(InitializeResponse),
     UserConnectedEvent(UserConnectedEvent),
     SignTransactionsResponse(SignTransactionsResponse),
+    SignMessagesResponse(SignMessagesResponse),
     ErrorMessage(ErrorMessage),
     AckMessage(AckMessage),
 }
