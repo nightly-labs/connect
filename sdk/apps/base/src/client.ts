@@ -1,9 +1,7 @@
 // import LocalStorage from 'isomorphic-localstorage'
 import { ClientToServer } from '@bindings/ClientToServer'
 import { ServerToClient } from '@bindings/ServerToClient'
-import { Version } from '@bindings/Version'
 import WebSocket from 'isomorphic-ws'
-import { TypedEmitter } from 'tiny-typed-emitter'
 import { getRandomId } from './utils'
 import { SignTransactionsEvent } from '@bindings/SignTransactionsEvent'
 import { GetInfoRequest } from '@bindings/GetInfoRequest'
@@ -14,12 +12,12 @@ import { SignTransactionsEventReply } from '@bindings/SignTransactionsEventReply
 import { SignMessagesEvent } from '@bindings/SignMessagesEvent'
 import { SignMessagesEventReply } from '@bindings/SignMessagesEventReply'
 import { AppDisconnectedEvent } from '@bindings/AppDisconnectedEvent'
+import { Reject } from '@bindings/Reject'
+import { TypedEmitter } from 'tiny-typed-emitter'
 
 export interface ClientBaseInitialize {
-  version: Version
   wsUrl?: string
   timeout?: number
-  persistent: boolean
 }
 interface BaseEvents {
   signTransactions: (e: SignTransactionsEvent) => void
@@ -28,7 +26,7 @@ interface BaseEvents {
 }
 export class BaseClient extends TypedEmitter<BaseEvents> {
   ws: WebSocket
-  events: { [key: string]: (data: any) => void | undefined } = {}
+  events: { [key: string]: { resolve: (data: any) => void; reject: (data: any) => void } } = {}
   sessionId = ''
   timeout: number
 
@@ -39,7 +37,7 @@ export class BaseClient extends TypedEmitter<BaseEvents> {
   }
 
   public static build = async (baseInitialize: ClientBaseInitialize): Promise<BaseClient> => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _) => {
       const ws = baseInitialize.wsUrl
         ? new WebSocket(baseInitialize.wsUrl + '/client')
         : new WebSocket('wss://relay.nightly.app/client')
@@ -52,8 +50,12 @@ export class BaseClient extends TypedEmitter<BaseEvents> {
             case 'GetInfoResponse':
             case 'ConnectResponse':
             case 'GetPendingRequestsResponse':
+            case 'AckMessage': {
+              baseClient.events[response.responseId].resolve(response)
+              break
+            }
             case 'ErrorMessage': {
-              baseClient.events[response.responseId](response)
+              baseClient.events[response.responseId].reject(response)
               break
             }
             case 'SignTransactionsEvent': {
@@ -81,18 +83,24 @@ export class BaseClient extends TypedEmitter<BaseEvents> {
       const timer = setTimeout(() => {
         reject(new Error(`Request timed out after ${this.timeout} ms`))
       }, this.timeout)
-      this.events[message.responseId] = (response: ServerToClient) => {
-        clearTimeout(timer)
-        resolve(response)
+      this.events[message.responseId] = {
+        reject: reject,
+        resolve: (response: ServerToClient) => {
+          clearTimeout(timer)
+          resolve(response)
+        }
       }
       this.ws.send(request)
     })
   }
   getInfo = async (sessionId: string) => {
+    console.log('getInfo2')
+
     const request: GetInfoRequest = {
       responseId: getRandomId(),
       sessionId
     }
+    console.log(request)
     const response = (await this.send({
       ...request,
       type: 'GetInfoRequest'
@@ -125,6 +133,13 @@ export class BaseClient extends TypedEmitter<BaseEvents> {
       responseId: getRandomId(),
       ...resolve,
       type: 'SignMessagesEventReply'
+    })
+  }
+  reject = async (reject: Omit<Reject, 'responseId'>) => {
+    await this.send({
+      responseId: getRandomId(),
+      ...reject,
+      type: 'Reject'
     })
   }
 }

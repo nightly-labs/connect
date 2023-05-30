@@ -12,9 +12,9 @@ use futures::{SinkExt, StreamExt};
 
 use crate::structs::{
     app_messages::{
-        app_messages::ServerToApp, sign_messages::SignMessagesResponse,
-        sign_transactions::SignTransactionsResponse, user_connected_event::UserConnectedEvent,
-        user_disconnected_event::UserDisconnectedEvent,
+        app_messages::ServerToApp, request_rejected::RequestRejected,
+        sign_messages::SignMessagesResponse, sign_transactions::SignTransactionsResponse,
+        user_connected_event::UserConnectedEvent, user_disconnected_event::UserDisconnectedEvent,
     },
     client_messages::{
         client_messages::{ClientToServer, ServerToClient},
@@ -32,6 +32,7 @@ pub async fn on_new_client_connection(
     State(sessions): State<Arc<DashMap<String, Session>>>,
     ws: WebSocketUpgrade,
 ) -> Response {
+    println!("New client connection from {}", ip);
     ws.on_upgrade(move |socket| client_handler(socket, sessions))
 }
 
@@ -52,6 +53,7 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
                 return;
             }
         };
+        println!("Message received {:?}", msg);
         let app_msg = match msg {
             Message::Text(data) => match serde_json::from_str::<ClientToServer>(&data) {
                 Ok(app_msg) => app_msg,
@@ -68,8 +70,11 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
                 continue;
             }
         };
+        println!("Message received {:?}", app_msg);
+
         match app_msg {
             ClientToServer::GetInfoRequest(get_info_request) => {
+                println!("Get info request received {} ", get_info_request.session_id);
                 let session = sessions.get(&get_info_request.session_id).unwrap();
                 let response = ServerToClient::GetInfoResponse(GetInfoResponse {
                     response_id: get_info_request.response_id,
@@ -242,6 +247,21 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
                         response_id: get_pending_requests_request.response_id,
                     });
                 session.send_to_client(response).await.unwrap();
+            }
+            ClientToServer::Reject(reject) => {
+                let mut session = sessions.get_mut(&session_id).unwrap();
+                session.pending_requests.remove(&reject.request_id);
+                // Send to app
+                let app_msg = ServerToApp::RequestRejected(RequestRejected {
+                    response_id: reject.request_id.clone(),
+                    reason: reject.reason,
+                });
+                session.send_to_app(app_msg).await.unwrap();
+
+                let client_msg = ServerToClient::AckMessage(AckMessage {
+                    response_id: reject.response_id,
+                });
+                session.send_to_client(client_msg).await.unwrap();
             }
             _ => {
                 continue;

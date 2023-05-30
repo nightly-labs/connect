@@ -1,4 +1,4 @@
-import { assert, beforeAll, describe, expect, test, vi } from 'vitest'
+import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { BaseApp } from './app'
 import { sleep, testAppBaseInitialize, testClientBaseInitialize } from './utils'
 import { BaseClient, Connect } from './client'
@@ -18,6 +18,9 @@ describe('Base Client tests', () => {
     assert(baseApp.sessionId !== '')
     client = await BaseClient.build(testClientBaseInitialize)
   })
+  beforeEach(async () => {
+    await sleep(5)
+  })
   test('#getInfo()', async () => {
     const info = await client.getInfo(baseApp.sessionId)
     expect(info).toBeDefined()
@@ -26,7 +29,7 @@ describe('Base Client tests', () => {
     assert(info.appIcon === testAppBaseInitialize.appIcon)
     assert(info.appName === testAppBaseInitialize.appName)
     assert(info.network === testAppBaseInitialize.network)
-    assert(info.version === testAppBaseInitialize.version)
+    // assert(info.version === testAppBaseInitialize.version)
   })
   test('#connect()', async () => {
     const msg: Connect = {
@@ -36,17 +39,13 @@ describe('Base Client tests', () => {
     await client.connect(msg)
   })
   test('#on("signTransactions")', async () => {
-    const msg: Connect = {
-      publicKeys: ['1', '2'],
-      sessionId: baseApp.sessionId
-    }
     const randomSignTransaction: TransactionToSign[] = [
-      { network: 'solana', transaction: '1', publicKeys: ['1'] },
-      { network: 'solana', transaction: '13', publicKeys: ['1'] }
+      { network: 'solana', transaction: '1' },
+      { network: 'solana', transaction: '13' }
     ]
     const randomResolveSignTransaction: SignedTransaction[] = [
-      { network: 'solana', transaction: 'signed-1', publicKeys: ['1'] },
-      { network: 'solana', transaction: 'signed-13', publicKeys: ['1'] }
+      { network: 'solana', transaction: 'signed-1' },
+      { network: 'solana', transaction: 'signed-13' }
     ]
     client.on('signTransactions', async (e) => {
       assert(e.transactions.length === 2)
@@ -62,17 +61,10 @@ describe('Base Client tests', () => {
     assert(signed.signed_transactions.length === 2)
   })
   test('#on("signMessages")', async () => {
-    const msg: Connect = {
-      publicKeys: ['1', '2'],
-      sessionId: baseApp.sessionId
-    }
-    const randomSignMessage: MessageToSign[] = [
-      { message: '1', publicKey: '1' },
-      { message: '13', publicKey: '1' }
-    ]
+    const randomSignMessage: MessageToSign[] = [{ message: '1' }, { message: '13' }]
     const randomResolveSignMessage: SignedMessage[] = [
-      { signedMessage: 'signed-1', publicKey: '1' },
-      { signedMessage: 'signed-13', publicKey: '1' }
+      { signedMessage: 'signed-1' },
+      { signedMessage: 'signed-13' }
     ]
     client.on('signMessages', async (e) => {
       assert(e.messages.length === 2)
@@ -86,6 +78,29 @@ describe('Base Client tests', () => {
     await sleep(0)
     const signed = await baseApp.signMessages(randomSignMessage)
     assert(signed.signedMessages.length === 2)
+  })
+  test('#reject', async () => {
+    const randomSignTransaction: TransactionToSign[] = [
+      { network: 'solana', transaction: '1' },
+      { network: 'solana', transaction: '13' }
+    ]
+
+    client.on('signTransactions', async (e) => {
+      assert(e.transactions.length === 2)
+      // resolve
+      await client.reject({
+        requestId: e.requestId,
+        reason: 'rejected'
+      })
+    })
+    // sleep(100)
+    await sleep(0)
+    try {
+      await baseApp.signTransactions(randomSignTransaction)
+      assert(false) // should not reach here
+    } catch (error) {
+      assert(true) // should  reach here
+    }
   })
   test('#on("appDisconnected")', async () => {
     const disconnecFn = vi.fn()

@@ -9,17 +9,17 @@ import { UserConnectedEvent } from '@bindings/UserConnectedEvent'
 import { Version } from '@bindings/Version'
 import WebSocket from 'isomorphic-ws'
 import LocalStorage from 'isomorphic-localstorage'
-import { TypedEmitter } from 'tiny-typed-emitter'
 import { getRandomId } from './utils'
 import { TransactionToSign } from '@bindings/TransactionToSign'
 import { MessageToSign } from '@bindings/MessageToSign'
 import { SignMessagesResponse } from '@bindings/SignMessagesResponse'
 import { UserDisconnectedEvent } from '@bindings/UserDisconnectedEvent'
+import { TypedEmitter } from 'tiny-typed-emitter'
+
 const localStorage = LocalStorage('./.nightly-connect-session')
 export interface AppBaseInitialize {
   appName: string
   network: Network
-  version: Version
   wsUrl?: string
   timeout?: number
   appIcon?: string
@@ -35,7 +35,7 @@ interface BaseEvents {
 }
 export class BaseApp extends TypedEmitter<BaseEvents> {
   ws: WebSocket
-  events: { [key: string]: (data: any) => void | undefined } = {}
+  events: { [key: string]: { resolve: (data: any) => void; reject: (data: any) => void } } = {}
   sessionId = ''
   timeout: number
   // TODO add info about the app
@@ -54,20 +54,31 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
       const ws = baseInitialize.wsUrl
         ? new WebSocket(baseInitialize.wsUrl + '/app')
         : new WebSocket('wss://relay.nightly.app/app')
+      console.log('ws', ws.url)
       const baseApp = new BaseApp(ws, baseInitialize.timeout ?? 40000)
       baseApp.ws.onclose = () => {
         console.log('server disconnected')
         baseApp.emit('serverDisconnected')
       }
       baseApp.ws.onopen = () => {
+        console.log('open')
         baseApp.ws.onmessage = ({ data }: { data: any }) => {
+          console.log('msg')
           const response = JSON.parse(data) as ServerToApp
           switch (response.type) {
             case 'InitializeResponse':
             case 'SignTransactionsResponse':
             case 'SignMessagesResponse':
+            case 'AckMessage': {
+              baseApp.events[response.responseId].resolve(response)
+              break
+            }
             case 'ErrorMessage': {
-              baseApp.events[response.responseId](response)
+              baseApp.events[response.responseId].reject(response)
+              break
+            }
+            case 'RequestRejected': {
+              baseApp.events[response.responseId].reject(response)
               break
             }
             case 'UserConnectedEvent': {
@@ -76,7 +87,6 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
           }
         }
         baseApp.ws.onclose = () => {
-          console.log('server disconnected')
           baseApp.emit('serverDisconnected')
         }
         const reponseId = getRandomId()
@@ -90,22 +100,26 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
           persistentSessionId: persistentSessionId,
           persistent: persistent,
           responseId: reponseId,
-          version: baseInitialize.version,
+          version: '#TODO version 0.0.0',
           type: 'InitializeRequest'
         }
         // Set up the timeout
         const timer = setTimeout(() => {
           reject(new Error(`Connection timed out after ${baseApp.timeout} ms`))
         }, baseApp.timeout)
-
-        baseApp.events[initializeRequest.responseId] = (response: InitializeResponse) => {
-          clearTimeout(timer)
-          // TODO: Handle error
-          baseApp.sessionId = response.sessionId
-          // Save the session id
-          if (persistent) localStorage.setItem(initializeRequest.appName, response.sessionId)
-          resolve(baseApp)
+        console.log('sending')
+        baseApp.events[initializeRequest.responseId] = {
+          reject: reject,
+          resolve: (response: InitializeResponse) => {
+            clearTimeout(timer)
+            // TODO: Handle error
+            baseApp.sessionId = response.sessionId
+            // Save the session id
+            if (persistent) localStorage.setItem(initializeRequest.appName, response.sessionId)
+            resolve(baseApp)
+          }
         }
+        console.log('sending')
         baseApp.ws.send(JSON.stringify(initializeRequest))
       }
     })
@@ -117,9 +131,12 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
       const timer = setTimeout(() => {
         reject(new Error(`Request timed out after ${this.timeout} ms`))
       }, this.timeout)
-      this.events[message.responseId] = (response: ServerToApp) => {
-        clearTimeout(timer)
-        resolve(response)
+      this.events[message.responseId] = {
+        reject: reject,
+        resolve: (response: ServerToApp) => {
+          clearTimeout(timer)
+          resolve(response)
+        }
       }
       this.ws.send(request)
     })

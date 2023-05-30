@@ -31,8 +31,6 @@ pub enum Device {
 #[ts(export)]
 pub struct TransactionToSign {
     pub transaction: String, // serialized transaction
-    #[serde(rename = "publicKeys")]
-    pub public_keys: Vec<String>, // keys that need to sign the transaction
     pub network: Network,
     #[ts(optional)]
     pub metadata: Option<String>,
@@ -41,8 +39,6 @@ pub struct TransactionToSign {
 #[ts(export)]
 pub struct SignedTransaction {
     pub transaction: String, // serialized transaction
-    #[serde(rename = "publicKeys")]
-    pub public_keys: Vec<String>, // keys that signed the transaction
     pub network: Network,
     #[ts(optional)]
     pub metadata: Option<String>,
@@ -51,8 +47,6 @@ pub struct SignedTransaction {
 #[ts(export)]
 pub struct MessageToSign {
     pub message: String,
-    #[serde(rename = "publicKey")]
-    pub public_key: String,
     #[ts(optional)]
     pub metadata: Option<String>,
 }
@@ -61,8 +55,6 @@ pub struct MessageToSign {
 pub struct SignedMessage {
     #[serde(rename = "signedMessage")]
     pub signed_message: String, // serialized transaction
-    #[serde(rename = "publicKey")]
-    pub public_key: String,
     #[ts(optional)]
     pub metadata: Option<String>,
 }

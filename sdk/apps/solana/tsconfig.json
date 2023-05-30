@@ -15,7 +15,7 @@
     "forceConsistentCasingInFileNames": true,
     "module": "CommonJS",
     "moduleResolution": "node",
-    "isolatedModules": false,
+    "isolatedModules": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
       "@bindings/*": ["../../bindings/*"]

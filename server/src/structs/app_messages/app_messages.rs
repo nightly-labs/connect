@@ -5,6 +5,7 @@ use crate::structs::common::{AckMessage, ErrorMessage};
 
 use super::{
     initialize::{InitializeRequest, InitializeResponse},
+    request_rejected::RequestRejected,
     sign_messages::{SignMessagesRequest, SignMessagesResponse},
     sign_transactions::{SignTransactionsRequest, SignTransactionsResponse},
     user_connected_event::UserConnectedEvent,
@@ -28,6 +29,7 @@ pub enum ServerToApp {
     UserDisconnectedEvent(UserDisconnectedEvent),
     SignTransactionsResponse(SignTransactionsResponse),
     SignMessagesResponse(SignMessagesResponse),
+    RequestRejected(RequestRejected),
     ErrorMessage(ErrorMessage),
     AckMessage(AckMessage),
 }

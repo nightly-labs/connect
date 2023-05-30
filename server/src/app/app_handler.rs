@@ -36,6 +36,7 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
     let (sender, mut receiver) = socket.split();
     // Handle the new app connection here
     // Wait for initialize message
+    println!("New app connected");
     let session_id = loop {
         let sessions = sessions.clone();
         let msg = match receiver.next().await {
@@ -67,6 +68,8 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
         };
         match app_msg {
             AppToServer::InitializeRequest(init_data) => {
+                println!("New initialize request");
+
                 let (session_id, created_new) = match init_data.persistent_session_id {
                     Some(session_id) => {
                         let (session_id, created_new) = match sessions.get_mut(session_id.as_str())
@@ -146,6 +149,8 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
 
                 let mut created_session = sessions.get_mut(&session_id).unwrap();
                 // created_session.app_state.app_socket.unwrap().send(item)
+                println!("send response");
+
                 match created_session
                     .send_to_app(ServerToApp::InitializeResponse(InitializeResponse {
                         response_id: init_data.response_id,

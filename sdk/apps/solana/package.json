@@ -1,8 +1,6 @@
 {
-  "name": "base",
+  "name": "solana",
   "private": true,
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
   "scripts": {
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -12,11 +10,13 @@
     "@vitest/ui": "^0.31.1"
   },
   "dependencies": {
+    "@solana/web3.js": "^1.77.2",
     "bindings": "../../bindings",
     "eventemitter3": "^5.0.1",
     "isomorphic-localstorage": "^0.0.8",
     "isomorphic-ws": "^5.0.0",
     "tiny-typed-emitter": "^2.1.0",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "base": "workspace:*"
   }
 }

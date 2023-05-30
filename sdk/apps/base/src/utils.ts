@@ -14,13 +14,10 @@ export const testAppBaseInitialize: AppBaseInitialize = {
   network: 'test-network',
   persistent: false,
   persistentSessionId: undefined,
-  version: 'test-version',
   timeout: undefined,
   wsUrl: 'ws://localhost:6969'
 }
 export const testClientBaseInitialize: ClientBaseInitialize = {
-  persistent: false,
-  version: 'test-version',
   timeout: undefined,
   wsUrl: 'ws://localhost:6969'
 }
