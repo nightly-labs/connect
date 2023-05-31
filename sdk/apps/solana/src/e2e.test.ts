@@ -54,7 +54,7 @@ describe('Base Client tests', () => {
       tx.sign([alice_keypair])
       // resolve
       await client.resolveSignTransaction({
-        requestId: e.requestId,
+        responseId: e.requestId,
         signedTransactions: [tx]
       })
     })
@@ -73,7 +73,7 @@ describe('Base Client tests', () => {
       const signature = nacl.sign.detached(encoded, alice_keypair.secretKey)
       // resolve
       await client.resolveSignMessage({
-        requestId: e.responseId,
+        responseId: e.responseId,
         signature: signature
       })
     })

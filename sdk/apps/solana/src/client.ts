@@ -66,7 +66,7 @@ export class ClientSolana extends TypedEmitter<ClientSolanaEvents> {
   }
 
   public resolveSignTransaction = async ({
-    requestId,
+    responseId,
     signedTransactions
   }: ResolveSignSolanaTransactions) => {
     const serializedTxs = signedTransactions
@@ -74,11 +74,14 @@ export class ClientSolana extends TypedEmitter<ClientSolanaEvents> {
       .map((tx) => {
         return { network: SOLANA_NETWORK, transaction: tx }
       })
-    await this.baseClient.resolveSignTransactions({ requestId, signedTransactions: serializedTxs })
+    await this.baseClient.resolveSignTransactions({
+      requestId: responseId,
+      signedTransactions: serializedTxs
+    })
   }
-  public resolveSignMessage = async ({ requestId, signature }: ResolveSignSolanaMessage) => {
+  public resolveSignMessage = async ({ responseId, signature }: ResolveSignSolanaMessage) => {
     await this.baseClient.resolveSignMessages({
-      requestId,
+      requestId: responseId,
       signedMessages: [{ signedMessage: Buffer.from(signature).toString('hex') }]
     })
   }
@@ -88,10 +91,10 @@ export class ClientSolana extends TypedEmitter<ClientSolanaEvents> {
 }
 
 export interface ResolveSignSolanaTransactions {
-  requestId: string
+  responseId: string
   signedTransactions: VersionedTransaction[]
 }
 export interface ResolveSignSolanaMessage {
-  requestId: string
+  responseId: string
   signature: Uint8Array
 }
