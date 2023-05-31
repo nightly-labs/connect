@@ -4,7 +4,9 @@ import { ClientSolana } from './client'
 import { SOLANA_NETWORK, TEST_APP_INITIALIZE, sleep } from './utils'
 import { Connect } from 'base'
 import { Keypair, LAMPORTS_PER_SOL, SystemProgram, Transaction } from '@solana/web3.js'
-
+import { sha256 } from 'js-sha256'
+import nacl from 'tweetnacl'
+import bs58 from 'bs58'
 // Edit an assertion and save to see HMR in action
 const alice_keypair = Keypair.generate()
 describe('Base Client tests', () => {
@@ -62,5 +64,26 @@ describe('Base Client tests', () => {
     // Transform to Transaction cuz idk how to verify VersionedTransaction
     const signed_transaction = Transaction.from(signed.serialize())
     assert(signed_transaction.verifySignatures())
+  })
+  test('#on("signMessages")', async () => {
+    const msgToSign = 'Hello World'
+    client.on('signMessages', async (e) => {
+      const msg = e.messages[0].message
+      const encoded = Uint8Array.from(sha256.array(msg))
+      const signature = nacl.sign.detached(encoded, alice_keypair.secretKey)
+      // resolve
+      await client.resolveSignMessage({
+        requestId: e.requestId,
+        signature: signature
+      })
+    })
+    await sleep(0)
+    const signature = await app.signMessage(msgToSign)
+    const verified = nacl.sign.detached.verify(
+      Uint8Array.from(sha256.array(msgToSign)),
+      signature,
+      alice_keypair.publicKey.toBuffer()
+    )
+    assert(verified)
   })
 })
