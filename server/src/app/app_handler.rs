@@ -278,9 +278,7 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                 // Response will be sent by the client side
                 let sign_transactions_event =
                     ServerToClient::SignTransactionsEvent(SignTransactionsEvent {
-                        request_id: response_id.clone(),
-                        transactions: sing_transactions_request.transactions,
-                        metadata: sing_transactions_request.metadata,
+                        request: sing_transactions_request.clone(),
                     });
                 // Try to send via WS
                 match session.send_to_client(sign_transactions_event).await {
@@ -318,9 +316,7 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                     .insert(response_id.clone(), pending_request.clone());
                 // Response will be sent by the client side
                 let sign_messages_event = ServerToClient::SignMessagesEvent(SignMessagesEvent {
-                    request_id: response_id.clone(),
-                    messages: sign_messages_request.messages,
-                    metadata: sign_messages_request.metadata,
+                    request: sign_messages_request.clone(),
                 });
                 // Try to send via WS
                 match session.send_to_client(sign_messages_event).await {

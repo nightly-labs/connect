@@ -1,17 +1,18 @@
 import { AppDisconnectedEvent } from '@bindings/AppDisconnectedEvent'
-import { SignMessagesEvent } from '@bindings/SignMessagesEvent'
 import { VersionedTransaction } from '@solana/web3.js'
 import { BaseClient, ClientBaseInitialize, Connect } from 'base'
 import { TypedEmitter } from 'tiny-typed-emitter'
 import { SOLANA_NETWORK } from './utils'
+import { SignMessagesRequest } from '@bindings/SignMessagesRequest'
 export interface SignSolanaTransactionEvent {
   requestId: string
   transactions: Array<VersionedTransaction>
   metadata?: string
 }
+export type SignSolanaMessageEvent = SignMessagesRequest
 export interface ClientSolanaEvents {
   signTransactions: (e: SignSolanaTransactionEvent) => void
-  signMessages: (e: SignMessagesEvent) => void
+  signMessages: (e: SignSolanaMessageEvent) => void
   appDisconnected: (e: AppDisconnectedEvent) => void
 }
 export class ClientSolana extends TypedEmitter<ClientSolanaEvents> {
@@ -21,7 +22,7 @@ export class ClientSolana extends TypedEmitter<ClientSolanaEvents> {
     super()
     baseClient.on('signTransactions', (e) => {
       const event: SignSolanaTransactionEvent = {
-        requestId: e.requestId,
+        requestId: e.responseId,
         transactions: e.transactions.map((tx) => {
           return VersionedTransaction.deserialize(Buffer.from(tx.transaction, 'hex'))
         }),

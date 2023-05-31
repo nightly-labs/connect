@@ -51,7 +51,7 @@ describe('Base Client tests', () => {
       assert(e.transactions.length === 2)
       // resolve
       await client.resolveSignTransactions({
-        requestId: e.requestId,
+        requestId: e.responseId,
         signedTransactions: randomResolveSignTransaction
       })
     })
@@ -70,7 +70,7 @@ describe('Base Client tests', () => {
       assert(e.messages.length === 2)
       // resolve
       await client.resolveSignMessages({
-        requestId: e.requestId,
+        requestId: e.responseId,
         signedMessages: randomResolveSignMessage
       })
     })
@@ -89,7 +89,7 @@ describe('Base Client tests', () => {
       assert(e.transactions.length === 2)
       // resolve
       await client.reject({
-        requestId: e.requestId,
+        requestId: e.responseId,
         reason: 'rejected'
       })
     })

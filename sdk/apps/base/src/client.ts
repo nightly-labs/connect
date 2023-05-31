@@ -3,18 +3,18 @@ import { ClientToServer } from '@bindings/ClientToServer'
 import { ServerToClient } from '@bindings/ServerToClient'
 import WebSocket from 'isomorphic-ws'
 import { getRandomId } from './utils'
-import { SignTransactionsEvent } from '@bindings/SignTransactionsEvent'
 import { GetInfoRequest } from '@bindings/GetInfoRequest'
 import { ConnectRequest } from '@bindings/ConnectRequest'
 import { GetInfoResponse } from '@bindings/GetInfoResponse'
 import { GetPendingRequestsResponse } from '@bindings/GetPendingRequestsResponse'
 import { SignTransactionsEventReply } from '@bindings/SignTransactionsEventReply'
-import { SignMessagesEvent } from '@bindings/SignMessagesEvent'
 import { SignMessagesEventReply } from '@bindings/SignMessagesEventReply'
 import { AppDisconnectedEvent } from '@bindings/AppDisconnectedEvent'
 import { Reject } from '@bindings/Reject'
 import { TypedEmitter } from 'tiny-typed-emitter'
 import { Notification } from '@bindings/Notification'
+import { SignMessagesRequest } from '@bindings/SignMessagesRequest'
+import { SignTransactionsRequest } from '@bindings/SignTransactionsRequest'
 
 export interface ClientBaseInitialize {
   wsUrl?: string
@@ -22,8 +22,8 @@ export interface ClientBaseInitialize {
   notification?: Notification
 }
 interface BaseEvents {
-  signTransactions: (e: SignTransactionsEvent) => void
-  signMessages: (e: SignMessagesEvent) => void
+  signTransactions: (e: SignTransactionsRequest) => void
+  signMessages: (e: SignMessagesRequest) => void
   appDisconnected: (e: AppDisconnectedEvent) => void
 }
 export class BaseClient extends TypedEmitter<BaseEvents> {
@@ -61,11 +61,11 @@ export class BaseClient extends TypedEmitter<BaseEvents> {
               break
             }
             case 'SignTransactionsEvent': {
-              baseClient.emit('signTransactions', response)
+              baseClient.emit('signTransactions', response.request)
               break
             }
             case 'SignMessagesEvent': {
-              baseClient.emit('signMessages', response)
+              baseClient.emit('signMessages', response.request)
               break
             }
             case 'AppDisconnectedEvent': {

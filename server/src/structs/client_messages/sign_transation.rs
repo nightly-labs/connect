@@ -1,16 +1,14 @@
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-use crate::structs::common::{SignedTransaction, TransactionToSign};
+use crate::structs::{
+    app_messages::sign_transactions::SignTransactionsRequest, common::SignedTransaction,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct SignTransactionsEvent {
-    #[serde(rename = "requestId")]
-    pub request_id: String,
-    pub transactions: Vec<TransactionToSign>,
-    #[ts(optional)]
-    pub metadata: Option<String>,
+    pub request: SignTransactionsRequest,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
