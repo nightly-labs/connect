@@ -22,9 +22,9 @@ pub async fn trigger_notification(
     endpoint: String,
     notification: NotificationPayload,
 ) -> Result<()> {
-    let client = reqwest::Client::new();
-    let body = serde_json::to_string(&notification).unwrap();
     tokio::spawn(async move {
+        let body = serde_json::to_string(&notification).unwrap();
+        let client = reqwest::Client::new();
         return client
             .post(endpoint)
             .header(reqwest::header::CONTENT_TYPE, "application/json")
@@ -33,6 +33,5 @@ pub async fn trigger_notification(
             .await
             .is_ok();
     });
-
     Ok(())
 }

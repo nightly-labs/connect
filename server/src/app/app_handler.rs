@@ -19,7 +19,8 @@ use crate::structs::{
         app_disconnected_event::AppDisconnectedEvent, client_messages::ServerToClient,
         sign_messages::SignMessagesEvent, sign_transation::SignTransactionsEvent,
     },
-    common::SessionStatus,
+    common::{Device, SessionStatus},
+    notification_msg::{trigger_notification, NotificationPayload},
     pending_request::PendingRequest,
     session::{AppState, ClientState, Session},
 };
@@ -281,10 +282,32 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                         transactions: sing_transactions_request.transactions,
                         metadata: sing_transactions_request.metadata,
                     });
-                session
-                    .send_to_client(sign_transactions_event)
-                    .await
-                    .unwrap();
+                // Try to send via WS
+                match session.send_to_client(sign_transactions_event).await {
+                    Ok(_) => {}
+                    // Fall back to notification
+                    Err(_) => {
+                        match &session.notification {
+                            Some(notification) => {
+                                let notification_payload = NotificationPayload {
+                                    app_metadata: session.app_state.metadata.clone(),
+                                    device: session.device.clone().unwrap_or(Device::Unknown),
+                                    request: pending_request,
+                                    session_id: session_id.clone(),
+                                    token: notification.token.clone(),
+                                };
+                                trigger_notification(
+                                    notification.notification_endpoint.clone(),
+                                    notification_payload,
+                                )
+                                .await;
+                            }
+                            None => {
+                                // Should we return an error here?
+                            }
+                        }
+                    }
+                }
             }
             AppToServer::SignMessagesRequest(sign_messages_request) => {
                 let mut session = sessions.get_mut(&session_id).unwrap();
@@ -299,7 +322,32 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                     messages: sign_messages_request.messages,
                     metadata: sign_messages_request.metadata,
                 });
-                session.send_to_client(sign_messages_event).await.unwrap();
+                // Try to send via WS
+                match session.send_to_client(sign_messages_event).await {
+                    Ok(_) => {}
+                    // Fall back to notification
+                    Err(_) => {
+                        match &session.notification {
+                            Some(notification) => {
+                                let notification_payload = NotificationPayload {
+                                    app_metadata: session.app_state.metadata.clone(),
+                                    device: session.device.clone().unwrap_or(Device::Unknown),
+                                    request: pending_request,
+                                    session_id: session_id.clone(),
+                                    token: notification.token.clone(),
+                                };
+                                trigger_notification(
+                                    notification.notification_endpoint.clone(),
+                                    notification_payload,
+                                )
+                                .await;
+                            }
+                            None => {
+                                // Should we return an error here?
+                            }
+                        }
+                    }
+                }
             }
 
             AppToServer::InitializeRequest(_) => {
