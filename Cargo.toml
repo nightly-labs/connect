@@ -28,3 +28,4 @@ ts-rs = "6.2.1"
 garde = "0.11.2"
 axum_garde = "0.11.2"
 uuid7 = { version = "0.3.3" }
+reqwest = "0.11.18"
