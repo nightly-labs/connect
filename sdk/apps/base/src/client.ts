@@ -14,10 +14,12 @@ import { SignMessagesEventReply } from '@bindings/SignMessagesEventReply'
 import { AppDisconnectedEvent } from '@bindings/AppDisconnectedEvent'
 import { Reject } from '@bindings/Reject'
 import { TypedEmitter } from 'tiny-typed-emitter'
+import { Notification } from '@bindings/Notification'
 
 export interface ClientBaseInitialize {
   wsUrl?: string
   timeout?: number
+  notification?: Notification
 }
 interface BaseEvents {
   signTransactions: (e: SignTransactionsEvent) => void

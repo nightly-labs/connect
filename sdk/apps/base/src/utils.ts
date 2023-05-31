@@ -7,10 +7,12 @@ export function sleep(ms: number) {
 }
 
 export const testAppBaseInitialize: AppBaseInitialize = {
-  additionalInfo: 'test-additional-info',
-  appDescription: 'test-app-description',
-  appIcon: 'test-app-icon',
-  appName: 'test-app-name',
+  appMetadata: {
+    additionalInfo: 'test-additional-info',
+    description: 'test-app-description',
+    icon: 'test-app-icon',
+    name: 'test-app-name'
+  },
   network: 'test-network',
   persistent: false,
   persistentSessionId: undefined,

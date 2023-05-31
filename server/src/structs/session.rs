@@ -1,7 +1,7 @@
 use super::{
     app_messages::app_messages::ServerToApp,
     client_messages::client_messages::ServerToClient,
-    common::{Device, Network, SessionStatus, Version},
+    common::{AppMetadata, Device, Network, Notification, SessionStatus, Version},
     pending_request::PendingRequest,
 };
 use anyhow::Result;
@@ -20,8 +20,7 @@ pub struct Session {
     pub app_state: AppState,
     pub client_state: ClientState,
     pub pending_requests: DashMap<String, PendingRequest>,
-    pub token: Option<String>,
-    pub notification_endpoint: Option<String>,
+    pub notification: Option<Notification>,
 }
 impl Session {
     pub async fn send_to_app(&mut self, msg: ServerToApp) -> Result<()> {
@@ -73,10 +72,7 @@ impl Session {
 }
 #[derive(Debug)]
 pub struct AppState {
-    pub app_name: String,
-    pub app_description: Option<String>,
-    pub app_icon: Option<String>,
-    pub additional_info: Option<String>,
+    pub metadata: AppMetadata,
     pub app_socket: Option<SplitSink<WebSocket, Message>>,
 }
 #[derive(Debug)]

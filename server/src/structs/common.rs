@@ -71,3 +71,23 @@ pub struct AckMessage {
     #[serde(rename = "responseId")]
     pub response_id: String,
 }
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub struct Notification {
+    pub token: String,
+    #[serde(rename = "notificationEndpoint")]
+    pub notification_endpoint: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub struct AppMetadata {
+    pub name: String,
+    #[ts(optional)]
+    pub description: Option<String>,
+    #[ts(optional)]
+    pub icon: Option<String>,
+    #[serde(rename = "additionalInfo")]
+    #[ts(optional)]
+    pub additional_info: Option<String>,
+}

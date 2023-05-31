@@ -78,12 +78,9 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
                 let session = sessions.get(&get_info_request.session_id).unwrap();
                 let response = ServerToClient::GetInfoResponse(GetInfoResponse {
                     response_id: get_info_request.response_id,
-                    app_name: session.app_state.app_name.clone(),
                     network: session.network.clone(),
                     version: session.version.clone(),
-                    app_description: session.app_state.app_description.clone(),
-                    app_icon: session.app_state.app_icon.clone(),
-                    additional_info: session.app_state.additional_info.clone(),
+                    app_metadata: session.app_state.metadata.clone(),
                 });
                 sender
                     .send(Message::Text(serde_json::to_string(&response).unwrap()))
@@ -224,12 +221,9 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
                 let mut session = sessions.get_mut(&get_info_request.session_id).unwrap();
                 let response = ServerToClient::GetInfoResponse(GetInfoResponse {
                     response_id: get_info_request.response_id,
-                    app_name: session.app_state.app_name.clone(),
                     network: session.network.clone(),
                     version: session.version.clone(),
-                    app_description: session.app_state.app_description.clone(),
-                    app_icon: session.app_state.app_icon.clone(),
-                    additional_info: session.app_state.additional_info.clone(),
+                    app_metadata: session.app_state.metadata.clone(),
                 });
                 session.send_to_client(response).await.unwrap();
             }

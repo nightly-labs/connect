@@ -15,16 +15,14 @@ import { MessageToSign } from '@bindings/MessageToSign'
 import { SignMessagesResponse } from '@bindings/SignMessagesResponse'
 import { UserDisconnectedEvent } from '@bindings/UserDisconnectedEvent'
 import { TypedEmitter } from 'tiny-typed-emitter'
+import { AppMetadata } from '@bindings/AppMetadata'
 
 const localStorage = LocalStorage('./.nightly-connect-session')
 export interface AppBaseInitialize {
-  appName: string
+  appMetadata: AppMetadata
   network: Network
   wsUrl?: string
   timeout?: number
-  appIcon?: string
-  appDescription?: string
-  additionalInfo?: string
   persistentSessionId?: string
   persistent?: boolean
 }
@@ -49,7 +47,7 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
     return new Promise((resolve, reject) => {
       const persistent = baseInitialize.persistent ?? true
       const persistentSessionId = persistent
-        ? localStorage.getItem(baseInitialize.appName) ?? undefined
+        ? localStorage.getItem(baseInitialize.appMetadata.name) ?? undefined
         : undefined
       const ws = baseInitialize.wsUrl
         ? new WebSocket(baseInitialize.wsUrl + '/app')
@@ -92,10 +90,7 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
         const reponseId = getRandomId()
         // Initialize the connection
         const initializeRequest: { type: 'InitializeRequest' } & InitializeRequest = {
-          additionalInfo: baseInitialize.additionalInfo,
-          appName: baseInitialize.appName,
-          appDescription: baseInitialize.appDescription,
-          appIcon: baseInitialize.appIcon,
+          appMetadata: baseInitialize.appMetadata,
           network: baseInitialize.network,
           persistentSessionId: persistentSessionId,
           persistent: persistent,
@@ -115,7 +110,8 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
             // TODO: Handle error
             baseApp.sessionId = response.sessionId
             // Save the session id
-            if (persistent) localStorage.setItem(initializeRequest.appName, response.sessionId)
+            if (persistent)
+              localStorage.setItem(initializeRequest.appMetadata.name, response.sessionId)
             resolve(baseApp)
           }
         }

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-use crate::structs::common::Device;
+use crate::structs::common::{Device, Notification};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
 #[ts(export)]
@@ -12,6 +12,8 @@ pub struct ConnectRequest {
     pub public_keys: Vec<String>,
     #[serde(rename = "sessionId")]
     pub session_id: String,
+    #[ts(optional)]
+    pub notification: Option<Notification>,
     #[ts(optional)]
     pub device: Option<Device>,
 }

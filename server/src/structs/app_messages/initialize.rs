@@ -1,27 +1,18 @@
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-use crate::structs::common::{Network, Version};
+use crate::structs::common::{AppMetadata, Network, Version};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct InitializeRequest {
     #[serde(rename = "responseId")]
     pub response_id: String,
-    pub persistent: bool,
-    #[serde(rename = "appName")]
-    pub app_name: String,
-    #[serde(rename = "appDescription")]
-    #[ts(optional)]
-    pub app_description: Option<String>,
-    #[serde(rename = "appIcon")]
-    #[ts(optional)]
-    pub app_icon: Option<String>,
+    #[serde(rename = "appMetadata")]
+    pub app_metadata: AppMetadata,
     pub network: Network,
     pub version: Version,
-    #[serde(rename = "additionalInfo")]
-    #[ts(optional)]
-    pub additional_info: Option<String>,
+    pub persistent: bool,
     #[serde(rename = "persistentSessionId")]
     #[ts(optional)]
     pub persistent_session_id: Option<String>,

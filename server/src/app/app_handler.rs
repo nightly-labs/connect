@@ -77,10 +77,7 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                             Some(mut session) => {
                                 session.update_status(SessionStatus::AppConnected);
                                 session.app_state = AppState {
-                                    app_description: init_data.app_description,
-                                    app_icon: init_data.app_icon,
-                                    app_name: init_data.app_name,
-                                    additional_info: init_data.additional_info,
+                                    metadata: init_data.app_metadata,
                                     app_socket: Some(sender),
                                 };
                                 // TODO decide if we want to do anything more here
@@ -93,10 +90,7 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                                     status: SessionStatus::WaitingForClient,
                                     persistent: init_data.persistent,
                                     app_state: AppState {
-                                        app_description: init_data.app_description,
-                                        app_icon: init_data.app_icon,
-                                        app_name: init_data.app_name,
-                                        additional_info: init_data.additional_info,
+                                        metadata: init_data.app_metadata,
                                         app_socket: Some(sender),
                                     },
                                     client_state: ClientState {
@@ -108,8 +102,7 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                                     version: init_data.version,
                                     device: None,
                                     pending_requests: DashMap::new(),
-                                    token: None,
-                                    notification_endpoint: None,
+                                    notification: None,
                                 };
                                 sessions.insert(session_id.clone(), session);
                                 (session_id.clone(), true)
@@ -124,10 +117,7 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                             status: SessionStatus::WaitingForClient,
                             persistent: init_data.persistent,
                             app_state: AppState {
-                                app_description: init_data.app_description,
-                                app_icon: init_data.app_icon,
-                                app_name: init_data.app_name,
-                                additional_info: init_data.additional_info,
+                                metadata: init_data.app_metadata,
                                 app_socket: Some(sender),
                             },
                             client_state: ClientState {
@@ -139,8 +129,7 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                             version: init_data.version,
                             device: None,
                             pending_requests: DashMap::new(),
-                            token: None,
-                            notification_endpoint: None,
+                            notification: None,
                         };
                         sessions.insert(session_id.clone(), session);
                         (session_id.clone(), true)

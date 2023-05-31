@@ -16,7 +16,7 @@ describe('Base App tests', () => {
     const persistInitialize = testAppBaseInitialize
     // Random string as app name to avoid conflicts
     const appName = Math.random().toString(36)
-    persistInitialize.appName = appName
+    persistInitialize.appMetadata.name = appName
     persistInitialize.persistent = true
     const baseApp = await BaseApp.build(persistInitialize)
     expect(baseApp).toBeDefined()
