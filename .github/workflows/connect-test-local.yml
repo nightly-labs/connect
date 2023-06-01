@@ -18,7 +18,7 @@ jobs:
           echo ${{secrets.TESTING_LAPTOP_PASSWORD}} | sudo -S chown -R $USER:$USER /home/syncomp/runners
           echo ${{secrets.TESTING_LAPTOP_PASSWORD}} | sudo -S chown $(whoami):$(whoami) /var/run/docker.sock
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: '20'
       - uses: pnpm/action-setup@v2
