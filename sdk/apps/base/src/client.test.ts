@@ -109,7 +109,7 @@ describe('Base Client tests', () => {
     })
     baseApp.ws.terminate()
     baseApp.ws.close()
-    await sleep(10)
+    await sleep(100)
     expect(disconnecFn).toHaveBeenCalledOnce()
   })
 })
