@@ -11,6 +11,7 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@nightlylabs/qr-code": "1.0.21",
     "autoprefixer": "^10.4.14",
     "lit": "^2.7.2",
     "postcss": "^8.4.24",
