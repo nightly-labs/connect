@@ -84,6 +84,8 @@ pub struct Notification {
 pub struct AppMetadata {
     pub name: String,
     #[ts(optional)]
+    pub url: Option<String>,
+    #[ts(optional)]
     pub description: Option<String>,
     #[ts(optional)]
     pub icon: Option<String>,
