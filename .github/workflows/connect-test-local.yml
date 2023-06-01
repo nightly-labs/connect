@@ -13,14 +13,17 @@ jobs:
     timeout-minutes: 10
     runs-on: [testing]
     steps:
+      - name: FIX BULLSHIT PERMISSION
+        run: |
+          echo ${{secrets.TESTING_LAPTOP_PASSWORD}} | sudo -S chown -R $USER:$USER /home/syncomp/runners
+          echo ${{secrets.TESTING_LAPTOP_PASSWORD}} | sudo -S chown $(whoami):$(whoami) /var/run/docker.sock
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v2
         with:
           node-version: '20'
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: nightly
-          override: true
+          toolchain: stable
       - uses: actions/cache@v2
         name: Cache Cargo registry + index
         id: cache-rust
