@@ -1,4 +1,4 @@
-name: landing-preview
+name: modal-storybook-preview
 
 on:
   pull_request:
@@ -13,7 +13,6 @@ jobs:
       - name: FIX BULLSHIT PERMISSION
         run: |
           echo ${{secrets.TESTING_LAPTOP_PASSWORD}} | sudo -S chown -R $USER:$USER /home/syncomp/runners
-          echo ${{secrets.TESTING_LAPTOP_PASSWORD}} | sudo -S chown $(whoami):$(whoami) /var/run/docker.sock
       - name: Checkout
         uses: actions/checkout@v3
       - name: Deploy to Vercel Action
