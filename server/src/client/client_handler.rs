@@ -10,33 +10,42 @@ use axum::{
 use dashmap::DashMap;
 use futures::{SinkExt, StreamExt};
 
-use crate::structs::{
-    app_messages::{
-        app_messages::ServerToApp, request_rejected::RequestRejected,
-        sign_messages::SignMessagesResponse, sign_transactions::SignTransactionsResponse,
-        user_connected_event::UserConnectedEvent, user_disconnected_event::UserDisconnectedEvent,
+use crate::{
+    state::{ClientToSessions, ModifySession, Sessions},
+    structs::{
+        app_messages::{
+            app_messages::ServerToApp, request_rejected::RequestRejected,
+            sign_messages::SignMessagesResponse, sign_transactions::SignTransactionsResponse,
+            user_connected_event::UserConnectedEvent,
+            user_disconnected_event::UserDisconnectedEvent,
+        },
+        client_messages::{
+            client_messages::{ClientToServer, ServerToClient},
+            connect::ConnectResponse,
+            get_info::GetInfoResponse,
+            get_pending_requests::GetPendingRequestsResponse,
+        },
+        common::{AckMessage, SessionStatus},
+        pending_request::PendingRequest,
+        session::Session,
     },
-    client_messages::{
-        client_messages::{ClientToServer, ServerToClient},
-        connect::ConnectResponse,
-        get_info::GetInfoResponse,
-        get_pending_requests::GetPendingRequestsResponse,
-    },
-    common::{AckMessage, SessionStatus},
-    pending_request::PendingRequest,
-    session::Session,
 };
 
 pub async fn on_new_client_connection(
     ConnectInfo(ip): ConnectInfo<SocketAddr>,
-    State(sessions): State<Arc<DashMap<String, Session>>>,
+    State(sessions): State<Sessions>,
+    State(client_to_sessions): State<ClientToSessions>,
     ws: WebSocketUpgrade,
 ) -> Response {
     println!("New client connection from {}", ip);
-    ws.on_upgrade(move |socket| client_handler(socket, sessions))
+    ws.on_upgrade(move |socket| client_handler(socket, sessions, client_to_sessions))
 }
 
-pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Session>>) {
+pub async fn client_handler(
+    socket: WebSocket,
+    sessions: Sessions,
+    client_to_sessions: ClientToSessions,
+) {
     let (mut sender, mut receiver) = socket.split();
     // Handle the new app connection here
     // Wait for initialize message
@@ -95,6 +104,7 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
                 session.client_state.client_socket = Some(sender);
                 session.client_state.device = connect_request.device.clone();
                 session.client_state.connected_public_keys = connect_request.public_keys.clone();
+                session.client_state.client_id = Some(connect_request.client_id.clone());
 
                 let client_reponse = ServerToClient::ConnectResponse(ConnectResponse {
                     response_id: connect_request.response_id,
@@ -104,6 +114,11 @@ pub async fn client_handler(socket: WebSocket, sessions: Arc<DashMap<String, Ses
                     public_keys: connect_request.public_keys,
                 });
                 session.send_to_app(app_event).await.unwrap();
+                // Insert new session id into client_to_sessions
+                client_to_sessions.add_session(
+                    connect_request.client_id.clone(),
+                    connect_request.session_id.clone(),
+                );
 
                 break session.session_id.clone();
             }

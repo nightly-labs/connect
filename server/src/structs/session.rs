@@ -1,3 +1,5 @@
+use crate::state::ClientId;
+
 use super::{
     app_messages::app_messages::ServerToApp,
     client_messages::client_messages::ServerToClient,
@@ -21,6 +23,7 @@ pub struct Session {
     pub client_state: ClientState,
     pub pending_requests: DashMap<String, PendingRequest>,
     pub notification: Option<Notification>,
+    pub creation_timestamp: u64,
 }
 impl Session {
     pub async fn send_to_app(&mut self, msg: ServerToApp) -> Result<()> {
@@ -77,6 +80,7 @@ pub struct AppState {
 }
 #[derive(Debug)]
 pub struct ClientState {
+    pub client_id: Option<ClientId>,
     pub device: Option<Device>,
     pub client_socket: Option<SplitSink<WebSocket, Message>>,
     pub connected_public_keys: Vec<String>,

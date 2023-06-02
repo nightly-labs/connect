@@ -10,34 +10,43 @@ use axum::{
 use dashmap::DashMap;
 use futures::{SinkExt, StreamExt};
 
-use crate::structs::{
-    app_messages::{
-        app_messages::{AppToServer, ServerToApp},
-        initialize::InitializeResponse,
+use crate::{
+    state::{ClientToSessions, ModifySession, Sessions},
+    structs::{
+        app_messages::{
+            app_messages::{AppToServer, ServerToApp},
+            initialize::InitializeResponse,
+        },
+        client_messages::{
+            app_disconnected_event::AppDisconnectedEvent, client_messages::ServerToClient,
+            sign_messages::SignMessagesEvent, sign_transation::SignTransactionsEvent,
+        },
+        common::{Device, SessionStatus},
+        notification_msg::{trigger_notification, NotificationPayload},
+        pending_request::PendingRequest,
+        session::{AppState, ClientState, Session},
     },
-    client_messages::{
-        app_disconnected_event::AppDisconnectedEvent, client_messages::ServerToClient,
-        sign_messages::SignMessagesEvent, sign_transation::SignTransactionsEvent,
-    },
-    common::{Device, SessionStatus},
-    notification_msg::{trigger_notification, NotificationPayload},
-    pending_request::PendingRequest,
-    session::{AppState, ClientState, Session},
+    utils::get_timestamp_in_milliseconds,
 };
 
 pub async fn on_new_app_connection(
     ConnectInfo(ip): ConnectInfo<SocketAddr>,
-    State(sessions): State<Arc<DashMap<String, Session>>>,
+    State(sessions): State<Sessions>,
+    State(client_to_sessions): State<ClientToSessions>,
+
     ws: WebSocketUpgrade,
 ) -> Response {
-    ws.on_upgrade(move |socket| app_handler(socket, sessions))
+    ws.on_upgrade(move |socket| app_handler(socket, sessions, client_to_sessions))
 }
 
-pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Session>>) {
+pub async fn app_handler(
+    socket: WebSocket,
+    sessions: Sessions,
+    client_to_sessions: ClientToSessions,
+) {
     let (sender, mut receiver) = socket.split();
     // Handle the new app connection here
     // Wait for initialize message
-    println!("New app connected");
     let session_id = loop {
         let sessions = sessions.clone();
         let msg = match receiver.next().await {
@@ -95,6 +104,7 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                                         app_socket: Some(sender),
                                     },
                                     client_state: ClientState {
+                                        client_id: None,
                                         client_socket: None,
                                         device: None,
                                         connected_public_keys: Vec::new(),
@@ -104,6 +114,7 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                                     device: None,
                                     pending_requests: DashMap::new(),
                                     notification: None,
+                                    creation_timestamp: get_timestamp_in_milliseconds(),
                                 };
                                 sessions.insert(session_id.clone(), session);
                                 (session_id.clone(), true)
@@ -122,6 +133,7 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                                 app_socket: Some(sender),
                             },
                             client_state: ClientState {
+                                client_id: None,
                                 client_socket: None,
                                 device: None,
                                 connected_public_keys: Vec::new(),
@@ -131,6 +143,7 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                             device: None,
                             pending_requests: DashMap::new(),
                             notification: None,
+                            creation_timestamp: get_timestamp_in_milliseconds(),
                         };
                         sessions.insert(session_id.clone(), session);
                         (session_id.clone(), true)
@@ -188,6 +201,11 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                                 }
                                 None => {}
                             }
+                            // Remove session
+                            client_to_sessions.remove_session(
+                                session.client_state.client_id.clone().unwrap_or_default(),
+                                session_id.clone(),
+                            );
                             drop(session);
                             sessions.remove(&session_id);
                         }
@@ -217,6 +235,11 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                             }
                             None => {}
                         }
+                        // Remove session
+                        client_to_sessions.remove_session(
+                            session.client_state.client_id.clone().unwrap_or_default(),
+                            session_id.clone(),
+                        );
                         drop(session);
                         sessions.remove(&session_id);
                     }
