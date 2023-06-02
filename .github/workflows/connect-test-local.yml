@@ -1,0 +1,58 @@
+name: connect-test-local.yml
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  install:
+    timeout-minutes: 10
+    runs-on: [testing]
+    steps:
+      - name: FIX BULLSHIT PERMISSION
+        run: |
+          echo ${{secrets.TESTING_LAPTOP_PASSWORD}} | sudo -S chown -R $USER:$USER /home/syncomp/runners
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 8
+          run_install: false
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions/cache@v2
+        name: Cache Cargo registry + index
+        id: cache-rust
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: cargo-${{ runner.os }}-v0000-${{ hashFiles('**/Cargo.lock') }}
+      - name: run cargo test
+        run: |
+          cargo test
+          cargo run &
+      - name: install packages
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: |
+          pnpm install
+        working-directory: ./sdk
+      - name: test base
+        run: |
+          pnpm test:run
+        working-directory: ./sdk/apps/base
+      - name: test solana
+        run: |
+          pnpm test:run
+        working-directory: ./sdk/apps/base

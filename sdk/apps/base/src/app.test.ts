@@ -28,7 +28,7 @@ describe('Base App tests', () => {
     baseApp.on('serverDisconnected', () => {
       disconnecFn()
     })
-    await sleep(10)
+    await sleep(100)
     expect(disconnecFn).toHaveBeenCalledOnce()
     // Reconnect
     persistInitialize.persistentSessionId = sessionId // Set the session id
@@ -55,7 +55,7 @@ describe('Base App tests', () => {
       sessionId: baseApp.sessionId
     }
     await client.connect(msg)
-    await sleep(10)
+    await sleep(100)
     // We should get public keys
     expect(userConnectedFn.mock.lastCall[0].publicKeys).toStrictEqual(msg.publicKeys)
     expect(userConnectedFn).toHaveBeenCalledOnce()
