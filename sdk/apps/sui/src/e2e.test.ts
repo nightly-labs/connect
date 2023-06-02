@@ -102,8 +102,8 @@ describe('Base Client tests', () => {
     const msgToSign = 'Hello World'
     client.on('signMessages', async (e) => {
       const msg = e.messages[0].message
-
-      const intentMessage = messageWithIntent(IntentScope.PersonalMessage, fromB64(msg))
+      const msgTo64 = toB64(new TextEncoder().encode(msg))
+      const intentMessage = messageWithIntent(IntentScope.PersonalMessage, fromB64(msgTo64))
       const digest = blake2b(intentMessage, { dkLen: 32 })
       const signature = alice_keypair.signData(digest)
       const signedMessage = {
@@ -122,8 +122,9 @@ describe('Base Client tests', () => {
     })
     await sleep(0)
     const signedMessage = await app.signMessage(msgToSign)
+    const signData = new TextEncoder().encode(msgToSign)
     const isValid = await verifyMessage(
-      signedMessage.messageBytes,
+      signData,
       signedMessage.signature,
       IntentScope.PersonalMessage
     )
