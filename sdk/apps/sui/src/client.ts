@@ -1,11 +1,6 @@
 import { AppDisconnectedEvent } from '@bindings/AppDisconnectedEvent'
 import { SignMessagesRequest } from '@bindings/SignMessagesRequest'
-import {
-  SerializedSignature,
-  SignedMessage,
-  SignedTransaction,
-  TransactionBlock
-} from '@mysten/sui.js'
+import { SignedMessage, SignedTransaction, TransactionBlock } from '@mysten/sui.js'
 import { BaseClient, ClientBaseInitialize, Connect } from 'base'
 import { TypedEmitter } from 'tiny-typed-emitter'
 import { SUI_NETWORK } from './utils'

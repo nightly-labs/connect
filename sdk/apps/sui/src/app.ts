@@ -1,6 +1,6 @@
-import { SignedTransaction, TransactionBlock, SignedMessage } from '@mysten/sui.js'
 import { MessageToSign } from '@bindings/MessageToSign'
 import { TransactionToSign } from '@bindings/TransactionToSign'
+import { SignedMessage, SignedTransaction, TransactionBlock } from '@mysten/sui.js'
 import { AppBaseInitialize, BaseApp } from 'base'
 import { SUI_NETWORK } from './utils'
 export type AppSuiInitialize = Omit<AppBaseInitialize, 'network'>

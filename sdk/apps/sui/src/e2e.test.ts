@@ -1,10 +1,9 @@
-import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
+import { Connect } from 'base'
+import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { AppSui } from './app'
 import { ClientSui } from './client'
-import { SUI_NETWORK, TEST_APP_INITIALIZE, sleep } from './utils'
-import { Connect } from 'base'
-import { sha256 } from 'js-sha256'
-import nacl from 'tweetnacl'
+import { sleep, SUI_NETWORK, TEST_APP_INITIALIZE } from './utils'
+
 import {
   Connection,
   Ed25519Keypair,

@@ -1,12 +1,11 @@
-import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
-import { AppSolana } from './app'
-import { ClientSolana } from './client'
-import { SOLANA_NETWORK, TEST_APP_INITIALIZE, sleep } from './utils'
-import { Connect } from 'base'
 import { Keypair, LAMPORTS_PER_SOL, SystemProgram, Transaction } from '@solana/web3.js'
+import { Connect } from 'base'
 import { sha256 } from 'js-sha256'
 import nacl from 'tweetnacl'
-import bs58 from 'bs58'
+import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
+import { AppSolana } from './app'
+import { ClientSolana } from './client'
+import { sleep, SOLANA_NETWORK, TEST_APP_INITIALIZE } from './utils'
 // Edit an assertion and save to see HMR in action
 const alice_keypair = Keypair.generate()
 describe('Base Client tests', () => {
