@@ -1,6 +1,11 @@
 import { AppDisconnectedEvent } from '@bindings/AppDisconnectedEvent'
 import { SignMessagesRequest } from '@bindings/SignMessagesRequest'
-import { SerializedSignature, SignedTransaction, TransactionBlock } from '@mysten/sui.js'
+import {
+  SerializedSignature,
+  SignedMessage,
+  SignedTransaction,
+  TransactionBlock
+} from '@mysten/sui.js'
 import { BaseClient, ClientBaseInitialize, Connect } from 'base'
 import { TypedEmitter } from 'tiny-typed-emitter'
 import { SUI_NETWORK } from './utils'
@@ -82,7 +87,7 @@ export class ClientSui extends TypedEmitter<ClientSuiEvents> {
   public resolveSignMessage = async ({ responseId, signature }: ResolveSignSuiMessage) => {
     await this.baseClient.resolveSignMessages({
       requestId: responseId,
-      signedMessages: [{ signedMessage: Buffer.from(signature).toString('hex') }]
+      signedMessages: [{ signedMessage: JSON.stringify(signature) }]
     })
   }
   public rejectRequest = async (requestId: string, reason?: string) => {
@@ -96,5 +101,5 @@ export interface ResolveSignSuiTransactions {
 }
 export interface ResolveSignSuiMessage {
   responseId: string
-  signature: SerializedSignature
+  signature: SignedMessage
 }

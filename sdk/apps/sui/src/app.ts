@@ -1,4 +1,4 @@
-import { SignedTransaction, TransactionBlock } from '@mysten/sui.js'
+import { SignedTransaction, TransactionBlock, SignedMessage } from '@mysten/sui.js'
 import { MessageToSign } from '@bindings/MessageToSign'
 import { TransactionToSign } from '@bindings/TransactionToSign'
 import { AppBaseInitialize, BaseApp } from 'base'
@@ -55,6 +55,6 @@ export class AppSui {
       metadata: JSON.stringify({ encoding: encoding || 'hex' })
     }
     const signedTx = await this.base.signMessages([request])
-    return Uint8Array.from(Buffer.from(signedTx.signedMessages[0].signedMessage, 'hex'))
+    return JSON.parse(signedTx.signedMessages[0].signedMessage) as SignedMessage
   }
 }

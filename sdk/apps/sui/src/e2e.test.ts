@@ -14,7 +14,8 @@ import {
   messageWithIntent,
   toB64,
   toSerializedSignature,
-  TransactionBlock
+  TransactionBlock,
+  verifyMessage
 } from '@mysten/sui.js'
 import { blake2b } from '@noble/hashes/blake2b'
 import { fetch } from 'cross-fetch'
@@ -89,34 +90,43 @@ describe('Base Client tests', () => {
     })
     // // sleep(100)
     await sleep(0)
-    const signed = await app.signTransaction(tx)
-    console.log('test sign transaction')
-    // Transform to Transaction cuz idk how to verify VersionedTransaction
-    // const signed_transaction = TransactionBlock.from(
-    //   signed.transactionBlockBytes
-    // )
-
-    // assert(signed_transaction)
+    const signedTx = await app.signTransaction(tx)
+    const isValid = await verifyMessage(
+      signedTx.transactionBlockBytes,
+      signedTx.signature,
+      IntentScope.TransactionData
+    )
+    expect(isValid).toBeTruthy()
   })
-  // test('#on("signMessages")', async () => {
-  //   const msgToSign = 'Hello World'
-  //   client.on('signMessages', async (e) => {
-  //     const msg = e.messages[0].message
-  //     const encoded = Uint8Array.from(sha256.array(msg))
-  //     const signature = nacl.sign.detached(encoded, alice_keypair.export().privateKey)
-  //     // resolve
-  //     await client.resolveSignMessage({
-  //       responseId: e.responseId,
-  //       signature: signature
-  //     })
-  //   })
-  //   await sleep(0)
-  //   const signature = await app.signMessage(msgToSign)
-  //   const verified = nacl.sign.detached.verify(
-  //     Uint8Array.from(sha256.array(msgToSign)),
-  //     signature,
-  //     alice_keypair.publicKey.toBuffer()
-  //   )
-  //   assert(verified)
-  // })
+  test('#on("signMessages")', async () => {
+    const msgToSign = 'Hello World'
+    client.on('signMessages', async (e) => {
+      const msg = e.messages[0].message
+
+      const intentMessage = messageWithIntent(IntentScope.PersonalMessage, fromB64(msg))
+      const digest = blake2b(intentMessage, { dkLen: 32 })
+      const signature = alice_keypair.signData(digest)
+      const signedMessage = {
+        messageBytes: msg,
+        signature: toSerializedSignature({
+          signature,
+          signatureScheme: 'ED25519',
+          pubKey: alice_keypair.getPublicKey()
+        })
+      }
+      // resolve
+      await client.resolveSignMessage({
+        responseId: e.responseId,
+        signature: signedMessage
+      })
+    })
+    await sleep(0)
+    const signedMessage = await app.signMessage(msgToSign)
+    const isValid = await verifyMessage(
+      signedMessage.messageBytes,
+      signedMessage.signature,
+      IntentScope.PersonalMessage
+    )
+    expect(isValid).toBe(true)
+  })
 })
