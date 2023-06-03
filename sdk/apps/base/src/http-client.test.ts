@@ -55,7 +55,7 @@ describe('Http Base Client tests', () => {
     ]
     // send sign transactions
     const promiseSignedTxs = baseApp.signTransactions(randomSignTransaction)
-    await sleep(10)
+    await sleep(50)
     // Query for sign transactions
     const pendingRequest = (await client.getPendingRequests({ sessionId: baseApp.sessionId }))[0]
     await client.resolveSignTransactions({
@@ -64,7 +64,7 @@ describe('Http Base Client tests', () => {
       signedTransactions: randomResolveSignTransaction
     })
 
-    await sleep(10)
+    await sleep(50)
     const signedTxs = await promiseSignedTxs
     assert(signedTxs.length === 2)
   })
@@ -76,7 +76,7 @@ describe('Http Base Client tests', () => {
     ]
     // send sign Messagess
     const promiseSigned = baseApp.signMessages(randomSignMessages)
-    await sleep(10)
+    await sleep(50)
     // Query for sign Messagess
     const pendingRequest = (await client.getPendingRequests({ sessionId: baseApp.sessionId }))[0]
     await client.resolveSignMessages({
@@ -85,13 +85,12 @@ describe('Http Base Client tests', () => {
       signedMessages: randomResolveSignMessages
     })
 
-    await sleep(10)
+    await sleep(50)
     const signed = await promiseSigned
     assert(signed.length === 2)
   })
   test('#reject()', async () => {
     try {
-      // const signed = await promiseSigned
       const randomSignMessages: MessageToSign[] = [{ message: '1' }, { message: '13' }]
 
       // eslint-disable-next-line no-async-promise-executor
@@ -99,7 +98,7 @@ describe('Http Base Client tests', () => {
         expect(() => baseApp.signMessages(randomSignMessages)).rejects.toThrow('test-error')
         resolve()
       })
-      await sleep(10)
+      await sleep(50)
       // Query for sign Messagess
       const pendingRequest = (await client.getPendingRequests({ sessionId: baseApp.sessionId }))[0]
       await client.reject({
@@ -107,9 +106,8 @@ describe('Http Base Client tests', () => {
         sessionId: baseApp.sessionId,
         reason: 'test-error'
       })
-      await sleep(10)
+      await sleep(50)
       await promiseSigned
-      // assert(false)
     } catch (error) {
       console.log(error)
     }
