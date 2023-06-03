@@ -9,7 +9,21 @@ pub struct Network(pub String);
 #[ts(export)]
 pub struct Version(pub String); // 0.0.1
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
+use strum_macros::{Display, EnumIter, EnumString};
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    Serialize,
+    Deserialize,
+    TS,
+    Display,
+    EnumIter,
+    EnumString,
+)]
 #[ts(export)]
 pub enum SessionStatus {
     WaitingForClient, // App initialized waiting for client to connect

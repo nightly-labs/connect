@@ -6,22 +6,22 @@ use crate::state::{ClientId, ClientToSessions, ModifySession, SessionId, Session
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct DropSessionsRequest {
+pub struct HttpDropSessionsRequest {
     #[serde(rename = "clientId")]
     pub client_id: ClientId,
     pub sessions: Vec<SessionId>,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct DropSessionsResponse {
+pub struct HttpDropSessionsResponse {
     #[serde(rename = "droppedSessions")]
     pub dropped_sessions: Vec<SessionId>,
 }
 pub async fn drop_sessions(
     State(sessions): State<Sessions>,
     State(client_to_sessions): State<ClientToSessions>,
-    Json(request): Json<DropSessionsRequest>,
-) -> Result<Json<DropSessionsResponse>, (StatusCode, String)> {
+    Json(request): Json<HttpDropSessionsRequest>,
+) -> Result<Json<HttpDropSessionsResponse>, (StatusCode, String)> {
     let mut dropped_sessions = Vec::new();
     // TODO handle disconnecting app
     for session_id in request.sessions {
@@ -33,5 +33,5 @@ pub async fn drop_sessions(
             }
         }
     }
-    Ok(Json(DropSessionsResponse { dropped_sessions }))
+    Ok(Json(HttpDropSessionsResponse { dropped_sessions }))
 }

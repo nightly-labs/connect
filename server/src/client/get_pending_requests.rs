@@ -6,7 +6,7 @@ use crate::state::{ClientId, SessionId, Sessions};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct GetPendingRequestsRequest {
+pub struct HttpGetPendingRequestsRequest {
     #[serde(rename = "clientId")]
     pub client_id: ClientId,
     #[serde(rename = "sessionId")]
@@ -14,21 +14,31 @@ pub struct GetPendingRequestsRequest {
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct GetPendingRequestsResponse {
+pub struct PendingRequest {
+    #[serde(rename = "requestId")]
+    pub request_id: String,
+    pub content: String,
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub struct HttpGetPendingRequestsResponse {
     #[serde(rename = "pendingRequests")]
-    pub pending_requests: Vec<String>,
+    pub pending_requests: Vec<PendingRequest>,
 }
 pub async fn get_pending_requests(
     State(sessions): State<Sessions>,
-    Json(request): Json<GetPendingRequestsRequest>,
-) -> Result<Json<GetPendingRequestsResponse>, (StatusCode, String)> {
+    Json(request): Json<HttpGetPendingRequestsRequest>,
+) -> Result<Json<HttpGetPendingRequestsResponse>, (StatusCode, String)> {
     let mut pending_requests = Vec::new();
     if let Some(session) = sessions.get(&request.session_id) {
         if session.client_state.client_id == Some(request.client_id.clone()) {
             for pending_request in session.pending_requests.iter() {
-                pending_requests.push(pending_request.clone());
+                pending_requests.push(PendingRequest {
+                    request_id: pending_request.key().clone(),
+                    content: pending_request.clone(),
+                });
             }
         }
     }
-    Ok(Json(GetPendingRequestsResponse { pending_requests }))
+    Ok(Json(HttpGetPendingRequestsResponse { pending_requests }))
 }

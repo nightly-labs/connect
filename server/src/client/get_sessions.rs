@@ -6,19 +6,19 @@ use crate::state::{ClientId, ClientToSessions, ModifySession, SessionId};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct GetSessionsRequest {
+pub struct HttpGetSessionsRequest {
     #[serde(rename = "clientId")]
     client_id: ClientId,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct GetSessionsResponse {
+pub struct HttpGetSessionsResponse {
     sessions: Vec<SessionId>,
 }
 pub async fn get_sessions(
     State(client_to_sessions): State<ClientToSessions>,
-    Json(request): Json<GetSessionsRequest>,
-) -> Result<Json<GetSessionsResponse>, (StatusCode, String)> {
+    Json(request): Json<HttpGetSessionsRequest>,
+) -> Result<Json<HttpGetSessionsResponse>, (StatusCode, String)> {
     let sessions = client_to_sessions.get_sessions(request.client_id);
-    Ok(Json(GetSessionsResponse { sessions }))
+    Ok(Json(HttpGetSessionsResponse { sessions }))
 }

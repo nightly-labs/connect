@@ -19,6 +19,8 @@ anyhow = { workspace = true }
 uuid7 = { workspace = true }
 ctrlc = { workspace = true }
 reqwest = { workspace = true }
+strum = { workspace = true }
+strum_macros = { workspace = true }
 axum = { version = "0.6.12", features = ["ws"] }
 axum-extra = { version = "0.7.2" }
 axum-macros = "0.3.7"

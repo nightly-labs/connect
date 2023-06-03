@@ -9,23 +9,23 @@ use crate::{
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct ResolveRequestRequest {
+pub struct HttpResolveRequestRequest {
     #[serde(rename = "clientId")]
     pub client_id: ClientId,
-    #[serde(rename = "responseId")]
-    pub response_id: String,
+    #[serde(rename = "sessionId")]
+    pub session_id: String,
     #[serde(rename = "requestId")]
     pub request_id: String,
     pub content: String,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct ResolveRequestResponse {}
+pub struct HttpResolveRequestResponse {}
 pub async fn resolve_request(
     State(sessions): State<Sessions>,
-    Json(request): Json<ResolveRequestRequest>,
-) -> Result<Json<ResolveRequestResponse>, (StatusCode, String)> {
-    let mut session = match sessions.get_mut(&request.request_id) {
+    Json(request): Json<HttpResolveRequestRequest>,
+) -> Result<Json<HttpResolveRequestResponse>, (StatusCode, String)> {
+    let mut session = match sessions.get_mut(&request.session_id) {
         Some(session) => session,
         None => {
             return Err((
@@ -57,5 +57,5 @@ pub async fn resolve_request(
         content: request.content.clone(),
     });
     session.send_to_app(app_msg).await.unwrap();
-    return Ok(Json(ResolveRequestResponse {}));
+    return Ok(Json(HttpResolveRequestResponse {}));
 }
