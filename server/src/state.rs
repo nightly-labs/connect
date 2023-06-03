@@ -1,17 +1,37 @@
 use std::sync::Arc;
 
+use crate::structs::{client_messages::client_messages::ServerToClient, session::Session};
+use anyhow::Result;
+use async_trait::async_trait;
+use axum::extract::ws::{Message, WebSocket};
 use axum_macros::FromRef;
 use dashmap::{DashMap, DashSet};
-
-use crate::structs::session::Session;
+use futures::{stream::SplitSink, SinkExt};
 
 pub type SessionId = String;
 pub type ClientId = String;
 pub type Sessions = Arc<DashMap<SessionId, Session>>;
+pub type ClientSockets = Arc<DashMap<ClientId, SplitSink<WebSocket, Message>>>;
+#[async_trait]
+pub trait SendToClient {
+    async fn send_to_client(&self, client_id: ClientId, msg: ServerToClient) -> Result<()>;
+}
+#[async_trait]
+impl SendToClient for ClientSockets {
+    async fn send_to_client(&self, client_id: ClientId, msg: ServerToClient) -> Result<()> {
+        match &mut self.get_mut(&client_id) {
+            Some(client_socket) => Ok(client_socket
+                .send(Message::Text(serde_json::to_string(&msg).unwrap()))
+                .await?),
+            None => Err(anyhow::anyhow!("No client socket found for session")),
+        }
+    }
+}
 pub type ClientToSessions = Arc<DashMap<ClientId, DashSet<SessionId>>>;
 #[derive(Clone, FromRef)]
 pub struct ServerState {
     pub sessions: Sessions,
+    pub client_to_sockets: ClientSockets, // Holds only live sockets
     pub client_to_sessions: ClientToSessions,
 }
 pub trait ModifySession {

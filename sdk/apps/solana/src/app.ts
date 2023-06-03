@@ -1,8 +1,7 @@
-import { MessageToSign } from '@bindings/MessageToSign'
-import { TransactionToSign } from '@bindings/TransactionToSign'
 import { Transaction, VersionedTransaction } from '@solana/web3.js'
 import { AppBaseInitialize, BaseApp } from 'base'
 import { SOLANA_NETWORK } from './utils'
+import { MessageToSign, TransactionToSign } from 'base/src/content'
 export type AppSolanaInitialize = Omit<AppBaseInitialize, 'network'>
 export class AppSolana {
   sessionId: string
@@ -25,14 +24,11 @@ export class AppSolana {
 
   signVersionedTransaction = async (transaction: VersionedTransaction) => {
     const transactionToSign: TransactionToSign = {
-      network: SOLANA_NETWORK,
       transaction: Buffer.from(transaction.serialize()).toString('hex')
     }
-    const signedTx = await this.base.signTransactions([transactionToSign])
+    const signedTxs = await this.base.signTransactions([transactionToSign])
 
-    return VersionedTransaction.deserialize(
-      Buffer.from(signedTx.signed_transactions[0].transaction, 'hex')
-    )
+    return VersionedTransaction.deserialize(Buffer.from(signedTxs[0].transaction, 'hex'))
   }
 
   signAllTransactions = async (transactions: Transaction[]) => {
@@ -47,9 +43,7 @@ export class AppSolana {
       transaction: Buffer.from(tx.serialize()).toString('hex')
     }))
     const signedTx = await this.base.signTransactions(transactionsToSign)
-    const parsed = signedTx.signed_transactions.map((tx) =>
-      Transaction.from(Buffer.from(tx.transaction, 'hex'))
-    )
+    const parsed = signedTx.map((tx) => Transaction.from(Buffer.from(tx.transaction, 'hex')))
     return parsed
   }
 
@@ -59,6 +53,6 @@ export class AppSolana {
       metadata: JSON.stringify({ encoding: encoding || 'hex' })
     }
     const signedTx = await this.base.signMessages([request])
-    return Uint8Array.from(Buffer.from(signedTx.signedMessages[0].signedMessage, 'hex'))
+    return Uint8Array.from(Buffer.from(signedTx[0].message, 'hex'))
   }
 }

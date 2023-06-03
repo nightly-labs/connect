@@ -8,7 +8,7 @@ use crate::structs::common::{Device, Notification};
 pub struct ConnectRequest {
     #[serde(rename = "responseId")]
     pub response_id: String,
-    #[serde(rename = "sessionId")]
+    #[serde(rename = "clientId")]
     pub client_id: String, // used for session resolution
     #[serde(rename = "publicKeys")]
     pub public_keys: Vec<String>,
@@ -18,6 +18,8 @@ pub struct ConnectRequest {
     pub notification: Option<Notification>,
     #[ts(optional)]
     pub device: Option<Device>,
+    #[ts(optional)]
+    pub metadata: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]

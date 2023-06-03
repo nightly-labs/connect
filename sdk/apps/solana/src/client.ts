@@ -3,13 +3,12 @@ import { VersionedTransaction } from '@solana/web3.js'
 import { BaseClient, ClientBaseInitialize, Connect } from 'base'
 import { TypedEmitter } from 'tiny-typed-emitter'
 import { SOLANA_NETWORK } from './utils'
-import { SignMessagesRequest } from '@bindings/SignMessagesRequest'
+import { SignMessagesEvent } from 'base/src/client'
 export interface SignSolanaTransactionEvent {
   requestId: string
   transactions: Array<VersionedTransaction>
-  metadata?: string
 }
-export type SignSolanaMessageEvent = SignMessagesRequest
+export type SignSolanaMessageEvent = SignMessagesEvent
 export interface ClientSolanaEvents {
   signTransactions: (e: SignSolanaTransactionEvent) => void
   signMessages: (e: SignSolanaMessageEvent) => void
@@ -25,8 +24,7 @@ export class ClientSolana extends TypedEmitter<ClientSolanaEvents> {
         requestId: e.responseId,
         transactions: e.transactions.map((tx) => {
           return VersionedTransaction.deserialize(Buffer.from(tx.transaction, 'hex'))
-        }),
-        metadata: e.metadata
+        })
       }
       this.emit('signTransactions', event)
     })
@@ -57,44 +55,74 @@ export class ClientSolana extends TypedEmitter<ClientSolanaEvents> {
     await this.baseClient.connect(connect)
     this.sessionId = connect.sessionId
   }
-  public getPendingRequests = async () => {
+  public getPendingRequests = async (sessionId?: string) => {
+    const sessionIdToUse = sessionId || this.sessionId
     //Assert session id is defined
-    if (this.sessionId === undefined) {
+    if (sessionIdToUse === undefined) {
       throw new Error('Session id is undefined')
     }
-    return await this.baseClient.getPendingRequests()
+    return await this.baseClient.getPendingRequests(sessionIdToUse)
   }
 
   public resolveSignTransaction = async ({
-    responseId,
-    signedTransactions
+    requestId,
+    signedTransactions,
+    sessionId
   }: ResolveSignSolanaTransactions) => {
     const serializedTxs = signedTransactions
       .map((tx) => Buffer.from(tx.serialize()).toString('hex'))
       .map((tx) => {
         return { network: SOLANA_NETWORK, transaction: tx }
       })
+    const sessionIdToUse = sessionId || this.sessionId
+    //Assert session id is defined
+    if (sessionIdToUse === undefined) {
+      throw new Error('Session id is undefined')
+    }
     await this.baseClient.resolveSignTransactions({
-      requestId: responseId,
-      signedTransactions: serializedTxs
+      requestId: requestId,
+      signedTransactions: serializedTxs,
+      sessionId: sessionIdToUse
     })
   }
-  public resolveSignMessage = async ({ responseId, signature }: ResolveSignSolanaMessage) => {
+  public resolveSignMessage = async ({
+    requestId,
+    signature,
+    sessionId
+  }: ResolveSignSolanaMessage) => {
+    const sessionIdToUse = sessionId || this.sessionId
+    //Assert session id is defined
+    if (sessionIdToUse === undefined) {
+      throw new Error('Session id is undefined')
+    }
     await this.baseClient.resolveSignMessages({
-      requestId: responseId,
-      signedMessages: [{ signedMessage: Buffer.from(signature).toString('hex') }]
+      requestId: requestId,
+      sessionId: sessionIdToUse,
+      signedMessages: [{ message: Buffer.from(signature).toString('hex') }]
     })
   }
-  public rejectRequest = async (requestId: string, reason?: string) => {
-    await this.baseClient.reject({ requestId, reason })
+  public rejectRequest = async ({ requestId, reason, sessionId }: RejectRequest) => {
+    const sessionIdToUse = sessionId || this.sessionId
+    //Assert session id is defined
+    if (sessionIdToUse === undefined) {
+      throw new Error('Session id is undefined')
+    }
+    await this.baseClient.reject({ requestId: requestId, reason, sessionId: sessionIdToUse })
   }
 }
 
+export interface RejectRequest {
+  requestId: string
+  reason?: string
+  sessionId?: string
+}
 export interface ResolveSignSolanaTransactions {
-  responseId: string
+  requestId: string
   signedTransactions: VersionedTransaction[]
+  sessionId?: string
 }
 export interface ResolveSignSolanaMessage {
-  responseId: string
+  requestId: string
   signature: Uint8Array
+  sessionId?: string
 }

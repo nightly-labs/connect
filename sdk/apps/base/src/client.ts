@@ -7,44 +7,65 @@ import { GetInfoRequest } from '@bindings/GetInfoRequest'
 import { ConnectRequest } from '@bindings/ConnectRequest'
 import { GetInfoResponse } from '@bindings/GetInfoResponse'
 import { GetPendingRequestsResponse } from '@bindings/GetPendingRequestsResponse'
-import { SignTransactionsEventReply } from '@bindings/SignTransactionsEventReply'
-import { SignMessagesEventReply } from '@bindings/SignMessagesEventReply'
 import { AppDisconnectedEvent } from '@bindings/AppDisconnectedEvent'
-import { Reject } from '@bindings/Reject'
 import { TypedEmitter } from 'tiny-typed-emitter'
 import { Notification } from '@bindings/Notification'
-import { SignMessagesRequest } from '@bindings/SignMessagesRequest'
-import { SignTransactionsRequest } from '@bindings/SignTransactionsRequest'
+import { MessageToSign, RequestContent, TransactionToSign } from './content'
+import {
+  ResponseContent,
+  ResponseContentType,
+  SignedMessage,
+  SignedTransaction
+} from './responseContent'
+import { ClientInitializeRequest } from '@bindings/ClientInitializeRequest'
 
 export interface ClientBaseInitialize {
+  clientId?: string
   wsUrl?: string
   timeout?: number
   notification?: Notification
 }
+export interface SignTransactionsEvent {
+  responseId: string
+  sessionId: string
+  transactions: TransactionToSign[]
+}
+export interface SignMessagesEvent {
+  responseId: string
+  sessionId: string
+  messages: MessageToSign[]
+}
+export interface CustomEvent {
+  responseId: string
+  sessionId: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  content?: any
+}
 interface BaseEvents {
-  signTransactions: (e: SignTransactionsRequest) => void
-  signMessages: (e: SignMessagesRequest) => void
+  signTransactions: (e: SignTransactionsEvent) => void
+  signMessages: (e: SignMessagesEvent) => void
+  customEvent: (e: CustomEvent) => void
   appDisconnected: (e: AppDisconnectedEvent) => void
 }
 export class BaseClient extends TypedEmitter<BaseEvents> {
   ws: WebSocket
   events: { [key: string]: { resolve: (data: any) => void; reject: (data: any) => void } } = {}
-  sessionId = ''
   timeout: number
-
-  private constructor(ws: WebSocket, timeout: number) {
+  clientId: string
+  private constructor(ws: WebSocket, timeout: number, clientId: string) {
     super()
     this.ws = ws
     this.timeout = timeout
+    this.clientId = clientId
   }
 
   public static build = async (baseInitialize: ClientBaseInitialize): Promise<BaseClient> => {
-    return new Promise((resolve, _) => {
+    return new Promise((resolve, reject) => {
       const ws = baseInitialize.wsUrl
         ? new WebSocket(baseInitialize.wsUrl + '/client')
         : new WebSocket('wss://relay.nightly.app/client')
-      const baseClient = new BaseClient(ws, baseInitialize.timeout ?? 40000)
-
+      const clientId = baseInitialize.clientId ?? getRandomId()
+      const baseClient = new BaseClient(ws, baseInitialize.timeout ?? 40000, clientId)
       baseClient.ws.onopen = () => {
         baseClient.ws.onmessage = ({ data }: { data: any }) => {
           const response = JSON.parse(data) as ServerToClient
@@ -52,6 +73,7 @@ export class BaseClient extends TypedEmitter<BaseEvents> {
             case 'GetInfoResponse':
             case 'ConnectResponse':
             case 'GetPendingRequestsResponse':
+            case 'ClientInitializeResponse':
             case 'AckMessage': {
               baseClient.events[response.responseId].resolve(response)
               break
@@ -60,21 +82,63 @@ export class BaseClient extends TypedEmitter<BaseEvents> {
               baseClient.events[response.responseId].reject(response)
               break
             }
-            case 'SignTransactionsEvent': {
-              baseClient.emit('signTransactions', response.request)
+            case 'NewPayloadEvent': {
+              const payload = JSON.parse(response.payload) as RequestContent
+              switch (payload.type) {
+                case 'SignTransactions': {
+                  baseClient.emit('signTransactions', {
+                    responseId: response.requestId,
+                    sessionId: response.sessionId,
+                    transactions: payload.transactions
+                  })
+                  break
+                }
+                case 'SignMessages': {
+                  baseClient.emit('signMessages', {
+                    responseId: response.requestId,
+                    sessionId: response.sessionId,
+                    messages: payload.messages
+                  })
+                  break
+                }
+                case 'Custom': {
+                  baseClient.emit('customEvent', {
+                    responseId: response.requestId,
+                    sessionId: response.sessionId,
+                    content: payload.content
+                  })
+                  break
+                }
+              }
+
               break
             }
-            case 'SignMessagesEvent': {
-              baseClient.emit('signMessages', response.request)
-              break
-            }
+
             case 'AppDisconnectedEvent': {
               baseClient.emit('appDisconnected', response)
               break
             }
           }
         }
-        resolve(baseClient)
+        const reponseId = getRandomId()
+        // Initialize the connection
+        const initializeRequest: { type: 'ClientInitializeRequest' } & ClientInitializeRequest = {
+          clientId: clientId,
+          responseId: reponseId,
+          type: 'ClientInitializeRequest'
+        }
+        // Set up the timeout
+        const timer = setTimeout(() => {
+          reject(new Error(`Connection timed out after ${baseClient.timeout} ms`))
+        }, baseClient.timeout)
+        baseClient.events[initializeRequest.responseId] = {
+          reject: reject,
+          resolve: () => {
+            clearTimeout(timer)
+            resolve(baseClient)
+          }
+        }
+        baseClient.ws.send(JSON.stringify(initializeRequest))
       }
     })
   }
@@ -96,13 +160,10 @@ export class BaseClient extends TypedEmitter<BaseEvents> {
     })
   }
   getInfo = async (sessionId: string) => {
-    console.log('getInfo2')
-
     const request: GetInfoRequest = {
       responseId: getRandomId(),
       sessionId
     }
-    console.log(request)
     const response = (await this.send({
       ...request,
       type: 'GetInfoRequest'
@@ -112,37 +173,96 @@ export class BaseClient extends TypedEmitter<BaseEvents> {
   connect = async (request: Connect) => {
     await this.send({
       ...request,
+      clientId: this.clientId,
       responseId: getRandomId(),
       type: 'ConnectRequest'
     })
   }
-  getPendingRequests = async () => {
+  getPendingRequests = async (sessionId: string) => {
     const response = (await this.send({
       responseId: getRandomId(),
+      sessionId: sessionId,
       type: 'GetPendingRequestsRequest'
     })) as GetPendingRequestsResponse
     return response
   }
-  resolveSignTransactions = async (resolve: Omit<SignTransactionsEventReply, 'responseId'>) => {
+  resolveRequest = async (resolve: ResolveRequest) => {
     await this.send({
       responseId: getRandomId(),
       ...resolve,
-      type: 'SignTransactionsEventReply'
+      content: JSON.stringify(resolve.content),
+      type: 'NewPayloadEventReply'
     })
   }
-  resolveSignMessages = async (resolve: Omit<SignMessagesEventReply, 'responseId'>) => {
-    await this.send({
-      responseId: getRandomId(),
-      ...resolve,
-      type: 'SignMessagesEventReply'
+  resolveSignTransactions = async ({
+    requestId,
+    sessionId,
+    signedTransactions
+  }: ResolveSignTransactions) => {
+    await this.resolveRequest({
+      requestId,
+      content: {
+        type: ResponseContentType.SignTransactions,
+        transactions: signedTransactions
+      },
+      sessionId
     })
   }
-  reject = async (reject: Omit<Reject, 'responseId'>) => {
-    await this.send({
-      responseId: getRandomId(),
-      ...reject,
-      type: 'Reject'
+  resolveSignMessages = async ({ requestId, sessionId, signedMessages }: ResolveSignMessages) => {
+    await this.resolveRequest({
+      requestId,
+      content: {
+        type: ResponseContentType.SignMessages,
+        messages: signedMessages
+      },
+      sessionId
+    })
+  }
+  resolveCustom = async ({ requestId, sessionId, content }: ResolveCustom) => {
+    await this.resolveRequest({
+      requestId,
+      content: {
+        type: ResponseContentType.Custom,
+        content: content
+      },
+      sessionId
+    })
+  }
+  reject = async ({ requestId, sessionId, reason }: Reject) => {
+    await this.resolveRequest({
+      requestId,
+      content: {
+        type: ResponseContentType.Reject,
+        reason: reason
+      },
+      sessionId
     })
   }
 }
-export type Connect = Omit<ConnectRequest, 'type' | 'responseId'>
+export interface ResolveSignTransactions {
+  requestId: string
+  sessionId: string
+  signedTransactions: SignedTransaction[]
+}
+export interface ResolveSignMessages {
+  requestId: string
+  sessionId: string
+  signedMessages: SignedMessage[]
+}
+export interface ResolveCustom {
+  requestId: string
+  sessionId: string
+  content?: string
+}
+export interface Reject {
+  requestId: string
+  sessionId: string
+  reason?: string
+}
+export interface ResolveRequest {
+  requestId: string
+  sessionId: string
+  content: ResponseContent
+}
+
+export type Connect = Omit<ConnectRequest, 'type' | 'responseId' | 'clientId'>

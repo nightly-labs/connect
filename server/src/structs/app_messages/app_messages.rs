@@ -5,9 +5,7 @@ use crate::structs::common::{AckMessage, ErrorMessage};
 
 use super::{
     initialize::{InitializeRequest, InitializeResponse},
-    request_rejected::RequestRejected,
-    sign_messages::{SignMessagesRequest, SignMessagesResponse},
-    sign_transactions::{SignTransactionsRequest, SignTransactionsResponse},
+    payload::{RequestPayload, ResponsePayload},
     user_connected_event::UserConnectedEvent,
     user_disconnected_event::UserDisconnectedEvent,
 };
@@ -17,8 +15,7 @@ use super::{
 #[serde(tag = "type")]
 pub enum AppToServer {
     InitializeRequest(InitializeRequest),
-    SignTransactionsRequest(SignTransactionsRequest),
-    SignMessagesRequest(SignMessagesRequest),
+    RequestPayload(RequestPayload),
 }
 #[derive(Debug, Eq, PartialEq, Clone, Deserialize, Serialize, TS)]
 #[ts(export)]
@@ -27,9 +24,7 @@ pub enum ServerToApp {
     InitializeResponse(InitializeResponse),
     UserConnectedEvent(UserConnectedEvent),
     UserDisconnectedEvent(UserDisconnectedEvent),
-    SignTransactionsResponse(SignTransactionsResponse),
-    SignMessagesResponse(SignMessagesResponse),
-    RequestRejected(RequestRejected),
+    ResponsePayload(ResponsePayload),
     ErrorMessage(ErrorMessage),
     AckMessage(AckMessage),
 }

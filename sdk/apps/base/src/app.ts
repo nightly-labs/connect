@@ -4,18 +4,25 @@ import { InitializeRequest } from '@bindings/InitializeRequest'
 import { InitializeResponse } from '@bindings/InitializeResponse'
 import { Network } from '@bindings/Network'
 import { ServerToApp } from '@bindings/ServerToApp'
-import { SignTransactionsResponse } from '@bindings/SignTransactionsResponse'
 import { UserConnectedEvent } from '@bindings/UserConnectedEvent'
 import { Version } from '@bindings/Version'
 import WebSocket from 'isomorphic-ws'
 import LocalStorage from 'isomorphic-localstorage'
 import { getRandomId } from './utils'
-import { TransactionToSign } from '@bindings/TransactionToSign'
-import { MessageToSign } from '@bindings/MessageToSign'
-import { SignMessagesResponse } from '@bindings/SignMessagesResponse'
 import { UserDisconnectedEvent } from '@bindings/UserDisconnectedEvent'
 import { TypedEmitter } from 'tiny-typed-emitter'
 import { AppMetadata } from '@bindings/AppMetadata'
+import { ContentType, MessageToSign, RequestContent, TransactionToSign } from './content'
+import { ResponsePayload } from '@bindings/ResponsePayload'
+import {
+  CustomResponseContent,
+  ResponseContent,
+  ResponseContentType,
+  SignMessagesResponseContent,
+  SignTransactionsResponseContent,
+  SignedMessage,
+  SignedTransaction
+} from './responseContent'
 
 const localStorage = LocalStorage('./.nightly-connect-session')
 export interface AppBaseInitialize {
@@ -52,21 +59,15 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
       const ws = baseInitialize.wsUrl
         ? new WebSocket(baseInitialize.wsUrl + '/app')
         : new WebSocket('wss://relay.nightly.app/app')
-      console.log('ws', ws.url)
       const baseApp = new BaseApp(ws, baseInitialize.timeout ?? 40000)
       baseApp.ws.onclose = () => {
-        console.log('server disconnected')
         baseApp.emit('serverDisconnected')
       }
       baseApp.ws.onopen = () => {
-        console.log('open')
         baseApp.ws.onmessage = ({ data }: { data: any }) => {
-          console.log('msg')
           const response = JSON.parse(data) as ServerToApp
           switch (response.type) {
             case 'InitializeResponse':
-            case 'SignTransactionsResponse':
-            case 'SignMessagesResponse':
             case 'AckMessage': {
               baseApp.events[response.responseId].resolve(response)
               break
@@ -75,8 +76,8 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
               baseApp.events[response.responseId].reject(response)
               break
             }
-            case 'RequestRejected': {
-              baseApp.events[response.responseId].reject(response)
+            case 'ResponsePayload': {
+              baseApp.events[response.responseId].resolve(response)
               break
             }
             case 'UserConnectedEvent': {
@@ -102,7 +103,6 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
         const timer = setTimeout(() => {
           reject(new Error(`Connection timed out after ${baseApp.timeout} ms`))
         }, baseApp.timeout)
-        console.log('sending')
         baseApp.events[initializeRequest.responseId] = {
           reject: reject,
           resolve: (response: InitializeResponse) => {
@@ -115,7 +115,6 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
             resolve(baseApp)
           }
         }
-        console.log('sending')
         baseApp.ws.send(JSON.stringify(initializeRequest))
       }
     })
@@ -137,22 +136,48 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
       this.ws.send(request)
     })
   }
-  signTransactions = async (transactions: Array<TransactionToSign>, metadata?: string) => {
+  sendRequest = async (content: RequestContent) => {
     const response = (await this.send({
       responseId: getRandomId(),
-      transactions,
-      metadata,
-      type: 'SignTransactionsRequest'
-    })) as SignTransactionsResponse
-    return response
+      content: JSON.stringify(content),
+      type: 'RequestPayload'
+    })) as ResponsePayload
+    const payload = JSON.parse(response.content) as ResponseContent
+    if (payload.type === ResponseContentType.Reject) {
+      throw new Error(payload.reason)
+    }
+    switch (content.type) {
+      case 'SignTransactions': {
+        return payload as SignTransactionsResponseContent
+      }
+      case 'SignMessages': {
+        return payload as SignMessagesResponseContent
+      }
+      case 'Custom': {
+        return payload as CustomResponseContent
+      }
+    }
+    throw new Error('Unknown response type')
   }
-  signMessages = async (messages: Array<MessageToSign>, metadata?: string) => {
-    const response = (await this.send({
-      responseId: getRandomId(),
-      messages,
-      metadata,
-      type: 'SignMessagesRequest'
-    })) as SignMessagesResponse
+  signTransactions = async (transactions: TransactionToSign[]): Promise<SignedTransaction[]> => {
+    const response = (await this.sendRequest({
+      type: ContentType.SignTransactions,
+      transactions: transactions
+    })) as SignTransactionsResponseContent
+    return response.transactions
+  }
+  signMessages = async (messages: MessageToSign[]): Promise<SignedMessage[]> => {
+    const response = (await this.sendRequest({
+      type: ContentType.SignMessages,
+      messages: messages
+    })) as SignMessagesResponseContent
+    return response.messages
+  }
+  customRequest = async (content: string): Promise<CustomResponseContent> => {
+    const response = (await this.sendRequest({
+      type: ContentType.Custom,
+      content: content
+    })) as CustomResponseContent
     return response
   }
 }

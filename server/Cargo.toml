@@ -29,3 +29,4 @@ tower = { version = "0.4", features = [
   "limit",
 ] }
 hyper = { version = "0.14.14", features = ["stream"] }
+async-trait = "0.1.68"

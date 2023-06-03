@@ -2,10 +2,7 @@ use axum::{extract::State, http::StatusCode, Json};
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-use crate::{
-    state::{ClientId, SessionId, Sessions},
-    structs::pending_request::PendingRequest,
-};
+use crate::state::{ClientId, SessionId, Sessions};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
@@ -19,7 +16,7 @@ pub struct GetPendingRequestsRequest {
 #[ts(export)]
 pub struct GetPendingRequestsResponse {
     #[serde(rename = "pendingRequests")]
-    pub pending_requests: Vec<PendingRequest>,
+    pub pending_requests: Vec<String>,
 }
 pub async fn get_pending_requests(
     State(sessions): State<Sessions>,
