@@ -44,7 +44,7 @@ describe('Http Base Client tests', () => {
       sessionId: baseApp.sessionId
     }
     await client.connect(msg)
-    await sleep(10)
+    await sleep(100)
     expect(userConnectedFn).toHaveBeenCalledOnce()
   })
   test('#resolveSignTransactions()', async () => {
@@ -55,7 +55,7 @@ describe('Http Base Client tests', () => {
     ]
     // send sign transactions
     const promiseSignedTxs = baseApp.signTransactions(randomSignTransaction)
-    await sleep(50)
+    await sleep(100)
     // Query for sign transactions
     const pendingRequest = (await client.getPendingRequests({ sessionId: baseApp.sessionId }))[0]
     await client.resolveSignTransactions({
@@ -64,7 +64,7 @@ describe('Http Base Client tests', () => {
       signedTransactions: randomResolveSignTransaction
     })
 
-    await sleep(50)
+    await sleep(100)
     const signedTxs = await promiseSignedTxs
     assert(signedTxs.length === 2)
   })
@@ -76,7 +76,7 @@ describe('Http Base Client tests', () => {
     ]
     // send sign Messagess
     const promiseSigned = baseApp.signMessages(randomSignMessages)
-    await sleep(50)
+    await sleep(100)
     // Query for sign Messagess
     const pendingRequest = (await client.getPendingRequests({ sessionId: baseApp.sessionId }))[0]
     await client.resolveSignMessages({
@@ -85,7 +85,7 @@ describe('Http Base Client tests', () => {
       signedMessages: randomResolveSignMessages
     })
 
-    await sleep(50)
+    await sleep(100)
     const signed = await promiseSigned
     assert(signed.length === 2)
   })
@@ -98,7 +98,7 @@ describe('Http Base Client tests', () => {
         expect(() => baseApp.signMessages(randomSignMessages)).rejects.toThrow('test-error')
         resolve()
       })
-      await sleep(50)
+      await sleep(100)
       // Query for sign Messagess
       const pendingRequest = (await client.getPendingRequests({ sessionId: baseApp.sessionId }))[0]
       await client.reject({

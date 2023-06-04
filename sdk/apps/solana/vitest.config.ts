@@ -4,6 +4,6 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   plugins: [tsconfigPath()],
   test: {
-    singleThread: true
+    // singleThread: true
   }
 })

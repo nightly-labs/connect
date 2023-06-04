@@ -57,7 +57,7 @@ describe('Base Client tests', () => {
     tx.feePayer = alice_keypair.publicKey
     tx.recentBlockhash = 'E6wypnGQkndknX5Urd5yXV8yxAkbHwD5MJ1aaNKWZBd5'
     const promiseSignTransaction = app.signTransaction(tx)
-    await sleep(50)
+    await sleep(100)
     // Query for request
     const pendingRequest = (await client.getPendingRequests({ sessionId: app.sessionId }))[0]
     if (pendingRequest.content.type !== ContentType.SignTransactions) {
@@ -74,7 +74,7 @@ describe('Base Client tests', () => {
       signedTransactions: [txToSign]
     })
 
-    sleep(50)
+    sleep(100)
     const signed = await promiseSignTransaction
     // Transform to Transaction cuz idk how to verify VersionedTransaction
     const signed_transaction = Transaction.from(signed.serialize())
