@@ -9,7 +9,21 @@ pub struct Network(pub String);
 #[ts(export)]
 pub struct Version(pub String); // 0.0.1
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
+use strum_macros::{Display, EnumIter, EnumString};
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    Serialize,
+    Deserialize,
+    TS,
+    Display,
+    EnumIter,
+    EnumString,
+)]
 #[ts(export)]
 pub enum SessionStatus {
     WaitingForClient, // App initialized waiting for client to connect
@@ -27,37 +41,7 @@ pub enum Device {
     Android,
     Unknown,
 }
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
-#[ts(export)]
-pub struct TransactionToSign {
-    pub transaction: String, // serialized transaction
-    pub network: Network,
-    #[ts(optional)]
-    pub metadata: Option<String>,
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
-#[ts(export)]
-pub struct SignedTransaction {
-    pub transaction: String, // serialized transaction
-    pub network: Network,
-    #[ts(optional)]
-    pub metadata: Option<String>,
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
-#[ts(export)]
-pub struct MessageToSign {
-    pub message: String,
-    #[ts(optional)]
-    pub metadata: Option<String>,
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
-#[ts(export)]
-pub struct SignedMessage {
-    #[serde(rename = "signedMessage")]
-    pub signed_message: String, // serialized transaction
-    #[ts(optional)]
-    pub metadata: Option<String>,
-}
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct ErrorMessage {

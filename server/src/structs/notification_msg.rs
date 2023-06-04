@@ -1,7 +1,4 @@
-use super::{
-    common::{AppMetadata, Device},
-    pending_request::PendingRequest,
-};
+use super::common::{AppMetadata, Device};
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
@@ -15,7 +12,8 @@ pub struct NotificationPayload {
     #[serde(rename = "appMetadata")]
     pub app_metadata: AppMetadata,
     pub device: Device,
-    pub request: PendingRequest,
+    pub request: String,
+    pub request_id: String,
 }
 
 pub async fn trigger_notification(

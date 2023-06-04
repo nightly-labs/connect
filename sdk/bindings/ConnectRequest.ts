@@ -2,4 +2,4 @@
 import type { Device } from "./Device";
 import type { Notification } from "./Notification";
 
-export interface ConnectRequest { responseId: string, publicKeys: Array<string>, sessionId: string, notification?: Notification, device?: Device, }
+export interface ConnectRequest { responseId: string, clientId: string, publicKeys: Array<string>, sessionId: string, notification?: Notification, device?: Device, metadata?: string, }
