@@ -1,0 +1,68 @@
+.mainContainer-header {
+  width: 720px;
+  height: 56px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px 16px 0px 0px;
+  background-color: #6067f9;
+}
+
+@media (max-width: 1080px) and (min-width: 640px) {
+  .mainContainer-header {
+    width: 494px;
+  }
+}
+
+@media (max-width: 640px) {
+  .mainContainer-header {
+    width: 494px;
+  }
+}
+
+@media (max-width: 560px) {
+  .mainContainer-header {
+    width: 287px;
+  }
+}
+
+.animation-header {
+  z-index: 1;
+  position: relative;
+  right: 100%;
+  background-image: url('../../static/svg/Clouds.svg');
+  background-repeat: no-repeat;
+  background-position: top;
+  background-position-y: -14px;
+  width: 1525px;
+  height: 56px;
+  margin: auto;
+  border-radius: 4px;
+  animation: slide 16s linear infinite;
+}
+@keyframes slide {
+  0% {
+    right: 99%;
+  }
+  100% {
+    right: 3%;
+  }
+}
+
+.logoContainer {
+  width: 100%;
+  z-index: 2;
+  position: absolute;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+}
+
+.header-logo {
+  width: 98px;
+  height: 24px;
+}
+.closeButton {
+  width: 24px;
+  height: 24px;
+}
