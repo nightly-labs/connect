@@ -27,7 +27,9 @@ impl Session {
     pub async fn send_to_app(&mut self, msg: ServerToApp) -> Result<()> {
         match &mut self.app_state.app_socket {
             Some(app_socket) => Ok(app_socket
-                .send(Message::Text(serde_json::to_string(&msg).unwrap()))
+                .send(Message::Text(
+                    serde_json::to_string(&msg).expect("Serialization should work"),
+                ))
                 .await?),
             None => Err(anyhow::anyhow!("No app socket found for session")),
         }

@@ -2,19 +2,44 @@ import { Transaction, VersionedTransaction } from '@solana/web3.js'
 import { AppBaseInitialize, BaseApp } from 'base'
 import { SOLANA_NETWORK } from './utils'
 import { MessageToSign, TransactionToSign } from 'base/src/content'
+import { DeeplinkConnect } from 'base/src/app'
+import { TypedEmitter } from 'tiny-typed-emitter'
+import { UserDisconnectedEvent } from '@bindings/UserDisconnectedEvent'
+import { UserConnectedEvent } from '@bindings/UserConnectedEvent'
+
 export type AppSolanaInitialize = Omit<AppBaseInitialize, 'network'>
-export class AppSolana {
+interface SolanaAppEvents {
+  userConnected: (e: UserConnectedEvent) => void
+  userDisconnected: (e: UserDisconnectedEvent) => void
+  serverDisconnected: () => void
+}
+export class AppSolana extends TypedEmitter<SolanaAppEvents> {
   sessionId: string
   base: BaseApp
 
   constructor(base: BaseApp) {
+    super()
+
     this.base = base
     this.sessionId = base.sessionId
+    this.base.on('userConnected', (e) => {
+      this.emit('userConnected', e)
+    })
+    this.base.on('userDisconnected', (e) => {
+      this.emit('userDisconnected', e)
+    })
+    this.base.on('serverDisconnected', () => {
+      this.emit('serverDisconnected')
+    })
   }
 
   public static build = async (initData: AppSolanaInitialize): Promise<AppSolana> => {
     const base = await BaseApp.build({ ...initData, network: SOLANA_NETWORK })
+    base.connectDeeplink
     return new AppSolana(base)
+  }
+  connectDeeplink = async (data: DeeplinkConnect) => {
+    this.base.connectDeeplink(data)
   }
   signTransaction = async (transaction: Transaction) => {
     return await this.signVersionedTransaction(

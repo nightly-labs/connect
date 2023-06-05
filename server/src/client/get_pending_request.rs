@@ -7,32 +7,28 @@ use crate::{
     state::{ClientId, SessionId, Sessions},
 };
 
+use super::get_pending_requests::PendingRequest;
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct HttpGetPendingRequestsRequest {
+pub struct HttpGetPendingRequestRequest {
     #[serde(rename = "clientId")]
     pub client_id: ClientId,
     #[serde(rename = "sessionId")]
     pub session_id: SessionId,
-}
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
-#[ts(export)]
-pub struct PendingRequest {
     #[serde(rename = "requestId")]
     pub request_id: String,
-    pub content: String,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct HttpGetPendingRequestsResponse {
-    #[serde(rename = "pendingRequests")]
-    pub pending_requests: Vec<PendingRequest>,
+pub struct HttpGetPendingRequestResponse {
+    pub request: PendingRequest,
 }
-pub async fn get_pending_requests(
+pub async fn get_pending_request(
     State(sessions): State<Sessions>,
-    Json(request): Json<HttpGetPendingRequestsRequest>,
-) -> Result<Json<HttpGetPendingRequestsResponse>, (StatusCode, String)> {
-    let session = match sessions.get_mut(&request.session_id) {
+    Json(request): Json<HttpGetPendingRequestRequest>,
+) -> Result<Json<HttpGetPendingRequestResponse>, (StatusCode, String)> {
+    let session = match sessions.get(&request.session_id) {
         Some(session) => session,
         None => {
             return Err((
@@ -47,12 +43,20 @@ pub async fn get_pending_requests(
             NightlyError::UserNotConnected.to_string(),
         ));
     }
-    let mut pending_requests = Vec::new();
-    for pending_request in session.pending_requests.iter() {
-        pending_requests.push(PendingRequest {
+    let pending_request = match session.pending_requests.get(&request.request_id) {
+        Some(pending_request) => pending_request,
+        None => {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                NightlyError::RequestDoesNotExist.to_string(),
+            ))
+        }
+    };
+
+    Ok(Json(HttpGetPendingRequestResponse {
+        request: PendingRequest {
             request_id: pending_request.key().clone(),
             content: pending_request.clone(),
-        });
-    }
-    Ok(Json(HttpGetPendingRequestsResponse { pending_requests }))
+        },
+    }))
 }

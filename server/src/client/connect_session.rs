@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 use crate::{
+    errors::NightlyError,
     state::{ClientToSessions, ModifySession, Sessions},
     structs::{
         app_messages::{app_messages::ServerToApp, user_connected_event::UserConnectedEvent},
@@ -39,7 +40,7 @@ pub async fn connect_session(
         None => {
             return Err((
                 StatusCode::BAD_REQUEST,
-                "Invalid request or session not found".to_string(),
+                NightlyError::SessionDoesNotExist.to_string(),
             ))
         }
     };
@@ -51,8 +52,17 @@ pub async fn connect_session(
 
     let app_event = ServerToApp::UserConnectedEvent(UserConnectedEvent {
         public_keys: request.public_keys,
+        metadata: request.metadata,
     });
-    session.send_to_app(app_event).await.unwrap();
+    match session.send_to_app(app_event).await {
+        Ok(_) => {}
+        Err(_) => {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                NightlyError::AppDisconnected.to_string(),
+            ))
+        }
+    };
     // Insert new session id into client_to_sessions
     client_to_sessions.add_session(request.client_id.clone(), request.session_id.clone());
     return Ok(Json(HttpConnectSessionResponse {}));
