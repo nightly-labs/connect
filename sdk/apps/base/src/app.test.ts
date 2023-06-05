@@ -1,16 +1,18 @@
-import { assert, describe, expect, test, vi } from 'vitest'
+import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { BaseApp } from './app'
 import { sleep, testAppBaseInitialize, testClientBaseInitialize } from './utils'
 import { BaseClient, Connect } from './client'
-import { UserConnectedEvent } from '@bindings/UserConnectedEvent'
-
 // Edit an assertion and save to see HMR in action
 
 describe('Base App tests', () => {
-  test('#Build()', async () => {
-    const baseApp = await BaseApp.build(testAppBaseInitialize)
+  let baseApp: BaseApp
+  beforeAll(async () => {
+    baseApp = await BaseApp.build(testAppBaseInitialize)
     expect(baseApp).toBeDefined()
-    assert(baseApp.sessionId !== '')
+  })
+  beforeEach(async () => {
+    // Reset the events
+    baseApp.removeAllListeners()
   })
   test('persistent session', async () => {
     const persistInitialize = testAppBaseInitialize
@@ -45,7 +47,6 @@ describe('Base App tests', () => {
       e
       userConnectedFn(e)
     })
-    console.log(baseApp.sessionId)
     await sleep(10)
 
     // Create client

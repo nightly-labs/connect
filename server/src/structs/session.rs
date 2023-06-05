@@ -1,8 +1,8 @@
+use crate::state::ClientId;
+
 use super::{
     app_messages::app_messages::ServerToApp,
-    client_messages::client_messages::ServerToClient,
     common::{AppMetadata, Device, Network, Notification, SessionStatus, Version},
-    pending_request::PendingRequest,
 };
 use anyhow::Result;
 use axum::extract::ws::{Message, WebSocket};
@@ -19,8 +19,9 @@ pub struct Session {
     pub device: Option<Device>,
     pub app_state: AppState,
     pub client_state: ClientState,
-    pub pending_requests: DashMap<String, PendingRequest>,
+    pub pending_requests: DashMap<String, String>,
     pub notification: Option<Notification>,
+    pub creation_timestamp: u64,
 }
 impl Session {
     pub async fn send_to_app(&mut self, msg: ServerToApp) -> Result<()> {
@@ -29,14 +30,6 @@ impl Session {
                 .send(Message::Text(serde_json::to_string(&msg).unwrap()))
                 .await?),
             None => Err(anyhow::anyhow!("No app socket found for session")),
-        }
-    }
-    pub async fn send_to_client(&mut self, msg: ServerToClient) -> Result<()> {
-        match &mut self.client_state.client_socket {
-            Some(client_socket) => Ok(client_socket
-                .send(Message::Text(serde_json::to_string(&msg).unwrap()))
-                .await?),
-            None => Err(anyhow::anyhow!("No client socket found for session")),
         }
     }
     pub fn update_status(&mut self, status: SessionStatus) {
@@ -77,7 +70,7 @@ pub struct AppState {
 }
 #[derive(Debug)]
 pub struct ClientState {
+    pub client_id: Option<ClientId>,
     pub device: Option<Device>,
-    pub client_socket: Option<SplitSink<WebSocket, Message>>,
     pub connected_public_keys: Vec<String>,
 }

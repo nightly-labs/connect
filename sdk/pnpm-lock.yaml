@@ -39,6 +39,9 @@ importers:
       bindings:
         specifier: ../../bindings
         version: link:../../bindings
+      cross-fetch:
+        specifier: ^3.1.6
+        version: 3.1.6
       eventemitter3:
         specifier: ^5.0.1
         version: 5.0.1
@@ -5266,7 +5269,6 @@ packages:
       node-fetch: 2.6.11
     transitivePeerDependencies:
       - encoding
-    dev: true
 
   /cross-spawn@7.0.3:
     resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}

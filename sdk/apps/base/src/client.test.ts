@@ -2,10 +2,8 @@ import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vites
 import { BaseApp } from './app'
 import { sleep, testAppBaseInitialize, testClientBaseInitialize } from './utils'
 import { BaseClient, Connect } from './client'
-import { TransactionToSign } from '@bindings/TransactionToSign'
-import { SignedTransaction } from '@bindings/SignedTransaction'
-import { MessageToSign } from '@bindings/MessageToSign'
-import { SignedMessage } from '@bindings/SignedMessage'
+import { MessageToSign, TransactionToSign } from './content'
+import { SignedMessage, SignedTransaction } from './responseContent'
 
 // Edit an assertion and save to see HMR in action
 
@@ -20,6 +18,8 @@ describe('Base Client tests', () => {
   })
   beforeEach(async () => {
     await sleep(5)
+    // Reset the events
+    client.removeAllListeners()
   })
   test('#getInfo()', async () => {
     const info = await client.getInfo(baseApp.sessionId)
@@ -39,37 +39,36 @@ describe('Base Client tests', () => {
     await client.connect(msg)
   })
   test('#on("signTransactions")', async () => {
-    const randomSignTransaction: TransactionToSign[] = [
-      { network: 'solana', transaction: '1' },
-      { network: 'solana', transaction: '13' }
-    ]
+    const randomSignTransaction: TransactionToSign[] = [{ transaction: '1' }, { transaction: '13' }]
     const randomResolveSignTransaction: SignedTransaction[] = [
-      { network: 'solana', transaction: 'signed-1' },
-      { network: 'solana', transaction: 'signed-13' }
+      { transaction: 'signed-1' },
+      { transaction: 'signed-13' }
     ]
     client.on('signTransactions', async (e) => {
       assert(e.transactions.length === 2)
       // resolve
       await client.resolveSignTransactions({
+        sessionId: e.sessionId,
         requestId: e.responseId,
         signedTransactions: randomResolveSignTransaction
       })
     })
     // sleep(100)
     await sleep(0)
-    const signed = await baseApp.signTransactions(randomSignTransaction)
-    assert(signed.signed_transactions.length === 2)
+    const signedTxs = await baseApp.signTransactions(randomSignTransaction)
+    assert(signedTxs.length === 2)
   })
   test('#on("signMessages")', async () => {
     const randomSignMessage: MessageToSign[] = [{ message: '1' }, { message: '13' }]
     const randomResolveSignMessage: SignedMessage[] = [
-      { signedMessage: 'signed-1' },
-      { signedMessage: 'signed-13' }
+      { message: 'signed-1' },
+      { message: 'signed-13' }
     ]
     client.on('signMessages', async (e) => {
       assert(e.messages.length === 2)
       // resolve
       await client.resolveSignMessages({
+        sessionId: e.sessionId,
         requestId: e.responseId,
         signedMessages: randomResolveSignMessage
       })
@@ -77,18 +76,16 @@ describe('Base Client tests', () => {
     // sleep(100)
     await sleep(0)
     const signed = await baseApp.signMessages(randomSignMessage)
-    assert(signed.signedMessages.length === 2)
+    assert(signed.length === 2)
   })
   test('#reject', async () => {
-    const randomSignTransaction: TransactionToSign[] = [
-      { network: 'solana', transaction: '1' },
-      { network: 'solana', transaction: '13' }
-    ]
+    const randomSignTransaction: TransactionToSign[] = [{ transaction: '1' }, { transaction: '13' }]
 
     client.on('signTransactions', async (e) => {
       assert(e.transactions.length === 2)
       // resolve
       await client.reject({
+        sessionId: e.sessionId,
         requestId: e.responseId,
         reason: 'rejected'
       })

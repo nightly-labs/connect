@@ -10,34 +10,45 @@ use axum::{
 use dashmap::DashMap;
 use futures::{SinkExt, StreamExt};
 
-use crate::structs::{
-    app_messages::{
-        app_messages::{AppToServer, ServerToApp},
-        initialize::InitializeResponse,
+use crate::{
+    state::{ClientSockets, ClientToSessions, ModifySession, SendToClient, Sessions},
+    structs::{
+        app_messages::{
+            app_messages::{AppToServer, ServerToApp},
+            initialize::InitializeResponse,
+        },
+        client_messages::{
+            app_disconnected_event::AppDisconnectedEvent, client_messages::ServerToClient,
+            new_payload_event::NewPayloadEvent,
+        },
+        common::{Device, SessionStatus},
+        notification_msg::{trigger_notification, NotificationPayload},
+        session::{AppState, ClientState, Session},
     },
-    client_messages::{
-        app_disconnected_event::AppDisconnectedEvent, client_messages::ServerToClient,
-        sign_messages::SignMessagesEvent, sign_transation::SignTransactionsEvent,
-    },
-    common::{Device, SessionStatus},
-    notification_msg::{trigger_notification, NotificationPayload},
-    pending_request::PendingRequest,
-    session::{AppState, ClientState, Session},
+    utils::get_timestamp_in_milliseconds,
 };
 
 pub async fn on_new_app_connection(
     ConnectInfo(ip): ConnectInfo<SocketAddr>,
-    State(sessions): State<Arc<DashMap<String, Session>>>,
+    State(sessions): State<Sessions>,
+    State(client_sockets): State<ClientSockets>,
+
+    State(client_to_sessions): State<ClientToSessions>,
+
     ws: WebSocketUpgrade,
 ) -> Response {
-    ws.on_upgrade(move |socket| app_handler(socket, sessions))
+    ws.on_upgrade(move |socket| app_handler(socket, sessions, client_sockets, client_to_sessions))
 }
 
-pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Session>>) {
+pub async fn app_handler(
+    socket: WebSocket,
+    sessions: Sessions,
+    client_sockets: ClientSockets,
+    client_to_sessions: ClientToSessions,
+) {
     let (sender, mut receiver) = socket.split();
     // Handle the new app connection here
     // Wait for initialize message
-    println!("New app connected");
     let session_id = loop {
         let sessions = sessions.clone();
         let msg = match receiver.next().await {
@@ -95,7 +106,7 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                                         app_socket: Some(sender),
                                     },
                                     client_state: ClientState {
-                                        client_socket: None,
+                                        client_id: None,
                                         device: None,
                                         connected_public_keys: Vec::new(),
                                     },
@@ -104,6 +115,7 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                                     device: None,
                                     pending_requests: DashMap::new(),
                                     notification: None,
+                                    creation_timestamp: get_timestamp_in_milliseconds(),
                                 };
                                 sessions.insert(session_id.clone(), session);
                                 (session_id.clone(), true)
@@ -122,7 +134,7 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                                 app_socket: Some(sender),
                             },
                             client_state: ClientState {
-                                client_socket: None,
+                                client_id: None,
                                 device: None,
                                 connected_public_keys: Vec::new(),
                             },
@@ -131,6 +143,7 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                             device: None,
                             pending_requests: DashMap::new(),
                             notification: None,
+                            creation_timestamp: get_timestamp_in_milliseconds(),
                         };
                         sessions.insert(session_id.clone(), session);
                         (session_id.clone(), true)
@@ -173,21 +186,25 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                             reason: "App disconnected".to_string(),
                         });
                     let mut session = sessions.get_mut(&session_id).unwrap();
-                    session
-                        .send_to_client(app_disconnected_event)
-                        .await
-                        .unwrap_or_default();
+                    match &session.client_state.client_id {
+                        Some(client_id) => {
+                            client_sockets
+                                .send_to_client(client_id.clone(), app_disconnected_event)
+                                .await;
+                        }
+                        None => {}
+                    }
+
                     match session.persistent {
                         true => {
                             session.update_status(SessionStatus::AppDisconnected);
                         }
                         false => {
-                            match &mut session.client_state.client_socket {
-                                Some(client_socket) => {
-                                    client_socket.close();
-                                }
-                                None => {}
-                            }
+                            // Remove session
+                            client_to_sessions.remove_session(
+                                session.client_state.client_id.clone().unwrap_or_default(),
+                                session_id.clone(),
+                            );
                             drop(session);
                             sessions.remove(&session_id);
                         }
@@ -202,21 +219,24 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                         reason: "App disconnected".to_string(),
                     });
                 let mut session = sessions.get_mut(&session_id).unwrap();
-                session
-                    .send_to_client(app_disconnected_event)
-                    .await
-                    .unwrap_or_default();
+                match &session.client_state.client_id {
+                    Some(client_id) => {
+                        client_sockets
+                            .send_to_client(client_id.clone(), app_disconnected_event)
+                            .await;
+                    }
+                    None => {}
+                }
                 match session.persistent {
                     true => {
                         session.update_status(SessionStatus::AppDisconnected);
                     }
                     false => {
-                        match &mut session.client_state.client_socket {
-                            Some(client_socket) => {
-                                client_socket.close();
-                            }
-                            None => {}
-                        }
+                        // Remove session
+                        client_to_sessions.remove_session(
+                            session.client_state.client_id.clone().unwrap_or_default(),
+                            session_id.clone(),
+                        );
                         drop(session);
                         sessions.remove(&session_id);
                     }
@@ -238,21 +258,19 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                         reason: "App disconnected".to_string(),
                     });
                 let mut session = sessions.get_mut(&session_id).unwrap();
-                session
-                    .send_to_client(app_disconnected_event)
-                    .await
-                    .unwrap_or_default();
+                match &session.client_state.client_id {
+                    Some(client_id) => {
+                        client_sockets
+                            .send_to_client(client_id.clone(), app_disconnected_event)
+                            .await;
+                    }
+                    None => {}
+                }
                 match session.persistent {
                     true => {
                         session.update_status(SessionStatus::AppDisconnected);
                     }
                     false => {
-                        match &mut session.client_state.client_socket {
-                            Some(client_socket) => {
-                                client_socket.close();
-                            }
-                            None => {}
-                        }
                         drop(session);
                         sessions.remove(&session_id);
                     }
@@ -267,59 +285,34 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
             }
         };
         match app_msg {
-            AppToServer::SignTransactionsRequest(sing_transactions_request) => {
+            AppToServer::RequestPayload(sing_transactions_request) => {
                 let mut session = sessions.get_mut(&session_id).unwrap();
                 let response_id: String = sing_transactions_request.response_id.clone();
-                let pending_request =
-                    PendingRequest::SignTransactions(sing_transactions_request.clone());
-                session
-                    .pending_requests
-                    .insert(response_id.clone(), pending_request.clone());
+
+                session.pending_requests.insert(
+                    response_id.clone(),
+                    sing_transactions_request.content.clone(),
+                );
                 // Response will be sent by the client side
-                let sign_transactions_event =
-                    ServerToClient::SignTransactionsEvent(SignTransactionsEvent {
-                        request: sing_transactions_request.clone(),
-                    });
-                // Try to send via WS
-                match session.send_to_client(sign_transactions_event).await {
-                    Ok(_) => {}
-                    // Fall back to notification
-                    Err(_) => {
-                        match &session.notification {
-                            Some(notification) => {
-                                let notification_payload = NotificationPayload {
-                                    app_metadata: session.app_state.metadata.clone(),
-                                    device: session.device.clone().unwrap_or(Device::Unknown),
-                                    request: pending_request,
-                                    session_id: session_id.clone(),
-                                    token: notification.token.clone(),
-                                };
-                                trigger_notification(
-                                    notification.notification_endpoint.clone(),
-                                    notification_payload,
-                                )
-                                .await;
-                            }
-                            None => {
-                                // Should we return an error here?
-                            }
-                        }
-                    }
-                }
-            }
-            AppToServer::SignMessagesRequest(sign_messages_request) => {
-                let mut session = sessions.get_mut(&session_id).unwrap();
-                let response_id: String = sign_messages_request.response_id.clone();
-                let pending_request = PendingRequest::SignMessages(sign_messages_request.clone());
-                session
-                    .pending_requests
-                    .insert(response_id.clone(), pending_request.clone());
-                // Response will be sent by the client side
-                let sign_messages_event = ServerToClient::SignMessagesEvent(SignMessagesEvent {
-                    request: sign_messages_request.clone(),
+                let sign_transactions_event = ServerToClient::NewPayloadEvent(NewPayloadEvent {
+                    payload: sing_transactions_request.content.clone(),
+                    request_id: response_id.clone(),
+                    session_id: session_id.clone(),
                 });
+
+                let client_id = match &session.client_state.client_id {
+                    Some(id) => id,
+                    None => {
+                        // Should never happen
+                        continue;
+                    }
+                };
+
                 // Try to send via WS
-                match session.send_to_client(sign_messages_event).await {
+                match client_sockets
+                    .send_to_client(client_id.clone(), sign_transactions_event)
+                    .await
+                {
                     Ok(_) => {}
                     // Fall back to notification
                     Err(_) => {
@@ -328,7 +321,8 @@ pub async fn app_handler(socket: WebSocket, sessions: Arc<DashMap<String, Sessio
                                 let notification_payload = NotificationPayload {
                                     app_metadata: session.app_state.metadata.clone(),
                                     device: session.device.clone().unwrap_or(Device::Unknown),
-                                    request: pending_request,
+                                    request: sing_transactions_request.content.clone(),
+                                    request_id: response_id.clone(),
                                     session_id: session_id.clone(),
                                     token: notification.token.clone(),
                                 };
