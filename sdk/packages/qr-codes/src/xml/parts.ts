@@ -152,7 +152,7 @@ export const centerImage = ({
   const dh = height - imageMargin * 2
 
   return /^<svg/.test(image)
-    ? `<g x="${dx}" y="${dy}" width="${dw}px" height="${dh}px">${image}</g>`
+    ? `<foreignObject id="G" x="${dx}" y="${dy}" width="${dw}px" height="${dh}px">${image}</foreignObject>`
     : `<image href="${image}" x="${dx}" y="${dy}" width="${dw}px" height="${dh}px"></image>`
 }
 

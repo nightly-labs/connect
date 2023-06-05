@@ -1,33 +1,12 @@
-import dts from 'rollup-plugin-dts'
-import esbuild from 'rollup-plugin-esbuild'
+import typescript from '@rollup/plugin-typescript';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
 
-const bundle = config => ({
-  ...config,
+export default {
   input: 'src/index.ts',
-  external: id => !/^[./]/.test(id),
-})
-
-export default [
-  bundle({
-    plugins: [esbuild()],
-    output: [
-      {
-        file: "dist/qr.js",
-        format: 'cjs',
-        sourcemap: true,
-      },
-      {
-        file: "dist/qr.mjs",
-        format: 'es',
-        sourcemap: true,
-      },
-    ],
-  }),
-  bundle({
-    plugins: [dts()],
-    output: {
-      file: "dist/qr.d.ts",
-      format: 'es',
-    },
-  }),
-]
+  output: {
+    dir: 'dist',
+    format: 'cjs'
+  },
+  plugins: [typescript(), nodeResolve(), commonjs()]
+};

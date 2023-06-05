@@ -1,4 +1,4 @@
-import { getQrInXml } from '@nightlylabs/qr-code'
+import { getQrInXml } from '@nightlylabs/qr-code/src/xml'
 import './style.css'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
