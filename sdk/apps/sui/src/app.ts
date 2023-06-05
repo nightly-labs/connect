@@ -1,27 +1,35 @@
-import {
-  ExecuteTransactionRequestType,
-  SignedMessage,
-  SignedTransaction,
-  SuiTransactionBlockResponseOptions,
-  TransactionBlock
-} from '@mysten/sui.js'
-import {
-  SuiSignAndExecuteTransactionBlockInput,
-  SuiSignAndExecuteTransactionBlockOutput,
-  SuiSignMessageInput,
-  SuiSignTransactionBlockInput
-} from '@mysten/wallet-standard'
+import { UserConnectedEvent } from '@bindings/UserConnectedEvent'
+import { SignedMessage, SignedTransaction } from '@mysten/sui.js'
+import { SuiSignMessageInput, SuiSignTransactionBlockInput } from '@mysten/wallet-standard'
 import { AppBaseInitialize, BaseApp } from 'base'
 import { MessageToSign, TransactionToSign } from 'base/src/content'
+import { TypedEmitter } from 'tiny-typed-emitter'
 import { SUI_NETWORK } from './utils'
+import { UserDisconnectedEvent } from '@bindings/UserDisconnectedEvent'
 export type AppSuiInitialize = Omit<AppBaseInitialize, 'network'>
-export class AppSui {
+interface SuiAppEvents {
+  userConnected: (e: UserConnectedEvent) => void
+  userDisconnected: (e: UserDisconnectedEvent) => void
+  serverDisconnected: () => void
+}
+export class AppSui extends TypedEmitter<SuiAppEvents> {
   sessionId: string
   base: BaseApp
 
   constructor(base: BaseApp) {
+    super()
+
     this.base = base
     this.sessionId = base.sessionId
+    this.base.on('userConnected', (e) => {
+      this.emit('userConnected', e)
+    })
+    this.base.on('userDisconnected', (e) => {
+      this.emit('userDisconnected', e)
+    })
+    this.base.on('serverDisconnected', () => {
+      this.emit('serverDisconnected')
+    })
   }
 
   public static build = async (initData: AppSuiInitialize): Promise<AppSui> => {

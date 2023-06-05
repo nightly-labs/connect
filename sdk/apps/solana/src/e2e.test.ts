@@ -15,7 +15,7 @@ describe('Base Client tests', () => {
     app = await AppSolana.build(TEST_APP_INITIALIZE)
     expect(app).toBeDefined()
     assert(app.sessionId !== '')
-    client = await ClientSolana.create({ wsUrl: 'ws://localhost:6969' })
+    client = await ClientSolana.create({ url: 'ws://localhost:6969' })
   })
   beforeEach(async () => {
     await sleep(5)

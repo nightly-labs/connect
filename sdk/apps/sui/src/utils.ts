@@ -12,7 +12,7 @@ export const TEST_APP_INITIALIZE: AppSuiInitialize = {
   persistent: false,
   persistentSessionId: undefined,
   timeout: undefined,
-  wsUrl: 'ws://localhost:6969'
+  url: 'ws://localhost:6969'
 }
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))

@@ -18,7 +18,7 @@ import {
 } from '@mysten/sui.js'
 import { blake2b } from '@noble/hashes/blake2b'
 import { fetch } from 'cross-fetch'
-import { ReadonlyWalletAccount, WalletAccount } from '@mysten/wallet-standard'
+import { WalletAccount } from '@mysten/wallet-standard'
 global.fetch = fetch
 // Edit an assertion and save to see HMR in action
 const alice_keypair = Ed25519Keypair.generate()
@@ -29,6 +29,11 @@ const aliceWalletAccount: WalletAccount = {
   features: ['sui:signAndExecuteTransactionBlock'],
   label: ''
 }
+const RECEIVER = Ed25519Keypair.generate()
+const RECEIVER_SUI_ADDRESS = RECEIVER.getPublicKey().toSuiAddress()
+const suiConnection = new JsonRpcProvider(
+  new Connection({ fullnode: 'https://fullnode.testnet.sui.io/' })
+)
 describe('Base Client tests', () => {
   let app: AppSui
   let client: ClientSui
@@ -36,7 +41,7 @@ describe('Base Client tests', () => {
     app = await AppSui.build(TEST_APP_INITIALIZE)
     expect(app).toBeDefined()
     assert(app.sessionId !== '')
-    client = await ClientSui.create({ wsUrl: 'ws://localhost:6969' })
+    client = await ClientSui.create({ url: 'ws://localhost:6969' })
   })
   beforeEach(async () => {
     await sleep(5)
@@ -59,11 +64,6 @@ describe('Base Client tests', () => {
     await client.connect(msg)
   })
   test('#on("signTransactions")', async () => {
-    const RECEIVER = Ed25519Keypair.generate()
-    const RECEIVER_SUI_ADDRESS = RECEIVER.getPublicKey().toSuiAddress()
-    const suiConnection = new JsonRpcProvider(
-      new Connection({ fullnode: 'https://fullnode.testnet.sui.io/' })
-    )
     const tx = new TransactionBlock()
 
     client.on('signTransactions', async (e) => {
