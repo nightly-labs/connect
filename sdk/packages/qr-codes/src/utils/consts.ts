@@ -15,11 +15,7 @@ interface TypesMap {
   [key: number]: TypeNumber
 }
 
-export const qrTypes: TypesMap = {}
-
-for (let type = 0; type <= 40; type++) {
-  qrTypes[type] = type as TypeNumber
-}
+export const qrTypes: TypesMap = Array(41).fill(0).reduce((acc, _, index) => ({ ...acc, [index]: index }), {})
 
 interface ErrorCorrectionPercents {
   [key: string]: number
