@@ -1,4 +1,16 @@
-import { SignedMessage, SignedTransaction, TransactionBlock } from '@mysten/sui.js'
+import {
+  ExecuteTransactionRequestType,
+  SignedMessage,
+  SignedTransaction,
+  SuiTransactionBlockResponseOptions,
+  TransactionBlock
+} from '@mysten/sui.js'
+import {
+  SuiSignAndExecuteTransactionBlockInput,
+  SuiSignAndExecuteTransactionBlockOutput,
+  SuiSignMessageInput,
+  SuiSignTransactionBlockInput
+} from '@mysten/wallet-standard'
 import { AppBaseInitialize, BaseApp } from 'base'
 import { MessageToSign, TransactionToSign } from 'base/src/content'
 import { SUI_NETWORK } from './utils'
@@ -16,41 +28,30 @@ export class AppSui {
     const base = await BaseApp.build({ ...initData, network: SUI_NETWORK })
     return new AppSui(base)
   }
-  signTransaction = async (transaction: TransactionBlock) => {
-    return await this.signTransactionBlock(transaction)
+  signTransaction = async (input: SuiSignTransactionBlockInput) => {
+    return await this.signTransactionBlock(input)
   }
 
-  signTransactionBlock = async (transaction: TransactionBlock): Promise<SignedTransaction> => {
+  signTransactionBlock = async (
+    input: SuiSignTransactionBlockInput
+  ): Promise<SignedTransaction> => {
     const transactionToSign: TransactionToSign = {
-      transaction: transaction.serialize()
+      transaction: input.transactionBlock.serialize()
     }
     const signedTx = await this.base.signTransactions([transactionToSign])
 
     return JSON.parse(signedTx[0].transaction)
   }
 
-  signAllTransactions = async (transactions: TransactionBlock[]) => {
-    return await this.signAllTransactionBlocks(transactions)
-  }
-
-  signAllTransactionBlocks = async (
-    transactions: TransactionBlock[]
-  ): Promise<SignedTransaction[]> => {
-    const transactionsToSign: TransactionToSign[] = transactions.map((tx) => ({
-      network: SUI_NETWORK,
-      transaction: tx.serialize()
-    }))
-    const signedTx = await this.base.signTransactions(transactionsToSign)
-    const parsed = signedTx.map((tx) => JSON.parse(tx.transaction) as SignedTransaction)
-    return parsed
-  }
-
-  signMessage = async (message: string, encoding?: string) => {
+  signMessage = async (input: SuiSignMessageInput, encoding?: string) => {
     const request: MessageToSign = {
-      message,
-      metadata: JSON.stringify({ encoding: encoding || 'hex' })
+      message: new TextDecoder().decode(input.message),
+      metadata: JSON.stringify({ encoding: encoding || 'hex', account: input.account })
     }
     const signedTx = await this.base.signMessages([request])
     return JSON.parse(signedTx[0].message) as SignedMessage
   }
+
+  // signAndExecuteTransactionBlock = async (input: SuiSignAndExecuteTransactionBlockInput): Promise<SuiSignAndExecuteTransactionBlockOutput> => {
+  // }
 }

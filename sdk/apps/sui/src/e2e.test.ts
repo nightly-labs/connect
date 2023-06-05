@@ -18,9 +18,17 @@ import {
 } from '@mysten/sui.js'
 import { blake2b } from '@noble/hashes/blake2b'
 import { fetch } from 'cross-fetch'
+import { ReadonlyWalletAccount, WalletAccount } from '@mysten/wallet-standard'
 global.fetch = fetch
 // Edit an assertion and save to see HMR in action
 const alice_keypair = Ed25519Keypair.generate()
+const aliceWalletAccount: WalletAccount = {
+  address: alice_keypair.getPublicKey().toSuiAddress(),
+  publicKey: alice_keypair.getPublicKey().toBytes(),
+  chains: ['sui:testnet'],
+  features: ['sui:signAndExecuteTransactionBlock'],
+  label: ''
+}
 describe('Base Client tests', () => {
   let app: AppSui
   let client: ClientSui
@@ -89,7 +97,12 @@ describe('Base Client tests', () => {
     })
     // // sleep(100)
     await sleep(0)
-    const signedTx = await app.signTransaction(tx)
+    const signedTx = await app.signTransaction({
+      transactionBlock: tx,
+      account: aliceWalletAccount,
+      chain: 'sui:testnet'
+    })
+
     const isValid = await verifyMessage(
       signedTx.transactionBlockBytes,
       signedTx.signature,
@@ -120,7 +133,11 @@ describe('Base Client tests', () => {
       })
     })
     await sleep(0)
-    const signedMessage = await app.signMessage(msgToSign)
+
+    const signedMessage = await app.signMessage({
+      message: new TextEncoder().encode(msgToSign),
+      account: aliceWalletAccount
+    })
     const signData = new TextEncoder().encode(msgToSign)
     const isValid = await verifyMessage(
       signData,
