@@ -174,7 +174,6 @@ pub async fn client_handler(
         };
         match app_msg {
             ClientToServer::ConnectRequest(connect_request) => {
-                println!("Connect request received {} ", connect_request.session_id);
                 let mut session = sessions.get_mut(&connect_request.session_id).unwrap();
                 // Insert user socket
                 session.update_status(SessionStatus::ClientConnected);
@@ -191,6 +190,7 @@ pub async fn client_handler(
                     .unwrap();
                 let app_event = ServerToApp::UserConnectedEvent(UserConnectedEvent {
                     public_keys: connect_request.public_keys,
+                    metadata: connect_request.metadata,
                 });
                 session.send_to_app(app_event).await.unwrap();
                 // Insert new session id into client_to_sessions

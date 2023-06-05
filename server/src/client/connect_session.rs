@@ -51,6 +51,7 @@ pub async fn connect_session(
 
     let app_event = ServerToApp::UserConnectedEvent(UserConnectedEvent {
         public_keys: request.public_keys,
+        metadata: request.metadata,
     });
     session.send_to_app(app_event).await.unwrap();
     // Insert new session id into client_to_sessions
