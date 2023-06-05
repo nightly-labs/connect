@@ -2,6 +2,7 @@ import { Transaction, VersionedTransaction } from '@solana/web3.js'
 import { AppBaseInitialize, BaseApp } from 'base'
 import { SOLANA_NETWORK } from './utils'
 import { MessageToSign, TransactionToSign } from 'base/src/content'
+import { DeeplinkConnect } from 'base/src/app'
 export type AppSolanaInitialize = Omit<AppBaseInitialize, 'network'>
 export class AppSolana {
   sessionId: string
@@ -14,7 +15,11 @@ export class AppSolana {
 
   public static build = async (initData: AppSolanaInitialize): Promise<AppSolana> => {
     const base = await BaseApp.build({ ...initData, network: SOLANA_NETWORK })
+    base.connectDeeplink
     return new AppSolana(base)
+  }
+  connectDeeplink = async (data: DeeplinkConnect) => {
+    this.base.connectDeeplink(data)
   }
   signTransaction = async (transaction: Transaction) => {
     return await this.signVersionedTransaction(

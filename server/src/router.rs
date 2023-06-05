@@ -11,9 +11,9 @@ use crate::{
     app::app_handler::on_new_app_connection,
     client::{
         client_handler::on_new_client_connection, connect_session::connect_session,
-        drop_sessions::drop_sessions, get_pending_requests::get_pending_requests,
-        get_session_info::get_session_info, get_sessions::get_sessions,
-        resolve_request::resolve_request,
+        drop_sessions::drop_sessions, get_pending_request::get_pending_request,
+        get_pending_requests::get_pending_requests, get_session_info::get_session_info,
+        get_sessions::get_sessions, resolve_request::resolve_request,
     },
     handle_error::handle_error,
     state::ServerState,
@@ -42,6 +42,10 @@ pub async fn get_router() -> Router {
         .route(
             &HttpEndpoint::GetPendingRequests.to_string(),
             post(get_pending_requests),
+        )
+        .route(
+            &HttpEndpoint::GetPendingRequest.to_string(),
+            post(get_pending_request),
         )
         .route(
             &HttpEndpoint::ResolveRequest.to_string(),
