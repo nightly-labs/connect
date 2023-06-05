@@ -8,4 +8,6 @@ use crate::structs::common::Network;
 pub struct UserConnectedEvent {
     #[serde(rename = "publicKeys")]
     pub public_keys: Vec<String>,
+    #[ts(optional)]
+    pub metadata: Option<String>,
 }

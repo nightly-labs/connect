@@ -15,6 +15,8 @@ pub enum HttpEndpoint {
     ResolveRequest,
     #[serde(rename = "/get_pending_requests")]
     GetPendingRequests,
+    #[serde(rename = "/get_pending_request")]
+    GetPendingRequest,
 }
 
 impl HttpEndpoint {
@@ -26,6 +28,7 @@ impl HttpEndpoint {
             HttpEndpoint::DropSessions => "/drop_sessions".to_string(),
             HttpEndpoint::ResolveRequest => "/resolve_request".to_string(),
             HttpEndpoint::GetPendingRequests => "/get_pending_requests".to_string(),
+            HttpEndpoint::GetPendingRequest => "/get_pending_request".to_string(),
         }
     }
 }

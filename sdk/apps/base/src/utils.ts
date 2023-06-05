@@ -17,9 +17,9 @@ export const testAppBaseInitialize: AppBaseInitialize = {
   persistent: false,
   persistentSessionId: undefined,
   timeout: undefined,
-  wsUrl: 'ws://localhost:6969'
+  url: 'http://127.0.0.1:6969'
 }
 export const testClientBaseInitialize: ClientBaseInitialize = {
   timeout: undefined,
-  wsUrl: 'ws://localhost:6969'
+  url: 'http://127.0.0.1:6969'
 }
