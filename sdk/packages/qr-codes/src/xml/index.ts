@@ -15,8 +15,8 @@ export const generateNightlyQRCodeXML = (
   const codeOptions: XMLOptions = {
     ...defaultXMLOptions,
     image: uri,
-    imageWidth: 629, // workaround for problem with getting image size
-    imageHeight: 629, // way used on web is incompatible with one used on native and vice versa
+    imageWidth: 1510, // workaround for problem with getting image size
+    imageHeight: 1660, // way used on web is incompatible with one used on native and vice versa
     data: address,
     ...(options ?? {}),
   };
