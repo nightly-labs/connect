@@ -1,5 +1,6 @@
 .mainContainer-header {
-  width: 720px;
+  width: 100%;
+  max-width: 720px;
   height: 56px;
   position: relative;
   overflow: hidden;
@@ -9,24 +10,24 @@
 
 @media (max-width: 1080px) and (min-width: 640px) {
   .mainContainer-header {
-    width: 494px;
+    max-width: 494px;
   }
 }
 
 @media (max-width: 640px) {
   .mainContainer-header {
-    width: 494px;
+    max-width: 494px;
   }
 }
 
 @media (max-width: 560px) {
   .mainContainer-header {
-    width: 287px;
+    max-width: 287px;
   }
 }
 
-.animation-header {
-  z-index: 1;
+.cloudsAnimationHeader {
+  z-index: 2;
   position: relative;
   right: 100%;
   background-image: url('../../static/svg/Clouds.svg');
@@ -48,9 +49,34 @@
   }
 }
 
-.logoContainer {
+.starsAnimationHeader {
+  position: absolute;
   width: 100%;
-  z-index: 2;
+  z-index: 1;
+  background-color: none;
+  height: 56px;
+  background-image: url('../../static/svg/Stars.svg');
+  background-repeat: no-repeat;
+  background-position: top;
+  margin: auto;
+  animation: fade-in-out 4s ease-in-out infinite;
+}
+
+@keyframes fade-in-out {
+  0% {
+    opacity: 10%;
+  }
+  50% {
+    opacity: 100%;
+  }
+  100% {
+    opacity: 10%;
+  }
+}
+
+.logoContainer {
+  z-index: 3;
+  width: 100%;
   position: absolute;
   top: 0;
   display: flex;

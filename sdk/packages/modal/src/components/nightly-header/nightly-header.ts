@@ -19,7 +19,8 @@ export class NightlyHeader extends TailwindElement(style) {
             <img src=${Close} this.onClose />
           </button>
         </div>
-        <div class="animation-header"></div>
+        <div class="starsAnimationHeader"></div>
+        <div class="cloudsAnimationHeader"></div>
       </div>
     `
   }
