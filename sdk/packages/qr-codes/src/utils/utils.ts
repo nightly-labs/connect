@@ -1,7 +1,7 @@
 import { modes } from './consts'
 import { ImageSizeResult, Mode } from './types'
 
-export function getMode(data: string): Mode {
+export const getMode = (data: string): Mode => {
   switch (true) {
     case /^[0-9]*$/.test(data):
       return modes.numeric
@@ -12,21 +12,20 @@ export function getMode(data: string): Mode {
   }
 }
 
-interface ImageSizeOptions {
+export const calculateImageSize = ({
+  originalHeight,
+  originalWidth,
+  maxHiddenDots,
+  maxHiddenAxisDots,
+  dotSize
+}: {
   originalHeight: number
   originalWidth: number
   maxHiddenDots: number
   maxHiddenAxisDots?: number
   dotSize: number
 }
-
-export function calculateImageSize({
-  originalHeight,
-  originalWidth,
-  maxHiddenDots,
-  maxHiddenAxisDots,
-  dotSize
-}: ImageSizeOptions): ImageSizeResult {
+): ImageSizeResult => {
   const hideDots = { x: 0, y: 0 }
   const imageSize = { x: 0, y: 0 }
 

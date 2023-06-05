@@ -1,5 +1,6 @@
 import { qrTypes } from '../utils/consts'
 import { ErrorCorrectionLevel, Mode, TypeNumber } from '../utils/types'
+import { fennecXml } from './consts'
 
 // TODO: I'm gonna add other options later or perhaps even create a whole new lib, it's too much work for now
 export interface XMLOptions {
@@ -62,5 +63,8 @@ export const defaultXMLOptions: XMLOptions = {
     typeNumber: qrTypes[0],
     mode: undefined,
     errorCorrectionLevel: 'Q'
-  }
+  },
+  image: fennecXml,
+  imageWidth: 1510, // workaround for problem with getting image size
+  imageHeight: 1660 // way used on web is incompatible with one used on native and vice versa
 }

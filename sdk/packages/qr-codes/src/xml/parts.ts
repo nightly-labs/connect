@@ -1,17 +1,35 @@
-import { BasicFigureDrawArgs, QRCode, ImageSizeResult } from '../utils/types'
+import { ImageSizeResult } from '../utils/types'
 
-interface DrawArgsWithColor extends BasicFigureDrawArgs {
-  color: string
-}
-
-export const rotationString = ({ x, y, size, rotation = 0 }: BasicFigureDrawArgs) => {
+export const rotationString = ({
+  x,
+  y,
+  size,
+  rotation = 0
+}: {
+  x: number
+  y: number
+  size: number
+  rotation?: number
+}) => {
   const cx = x + size / 2
   const cy = y + size / 2
 
   return 'transform=' + `"rotate(${(180 * rotation) / Math.PI},${cx},${cy})"`
 }
 
-export const tearCornerDot = ({ x, y, size, rotation = 0, color }: DrawArgsWithColor) => {
+export const tearCornerDot = ({
+  x,
+  y,
+  size,
+  rotation = 0,
+  color
+}: {
+  x: number
+  y: number
+  size: number
+  rotation?: number
+  color: string
+}) => {
   const dotSize = size / 7
 
   const d =
@@ -32,7 +50,19 @@ export const tearCornerDot = ({ x, y, size, rotation = 0, color }: DrawArgsWithC
   })}></path>`
 }
 
-export const tearCornerSquare = ({ x, y, size, rotation = 0, color }: DrawArgsWithColor) => {
+export const tearCornerSquare = ({
+  x,
+  y,
+  size,
+  rotation = 0,
+  color
+}: {
+  x: number
+  y: number
+  size: number
+  rotation?: number
+  color: string
+}) => {
   const dotSize = size / 7
 
   const d =
@@ -61,7 +91,19 @@ export const tearCornerSquare = ({ x, y, size, rotation = 0, color }: DrawArgsWi
   })}></path>`
 }
 
-export const distRoundedDot = ({ x, y, size, rotation = 0, color }: DrawArgsWithColor) => {
+export const distRoundedDot = ({
+  x,
+  y,
+  size,
+  rotation = 0,
+  color
+}: {
+  x: number
+  y: number
+  size: number
+  rotation?: number
+  color: string
+}) => {
   const dotSize = size / 8
 
   const d =
@@ -109,25 +151,25 @@ export const centerImage = ({
   const dw = width - imageMargin * 2
   const dh = height - imageMargin * 2
 
-  return `<image href="${image}" x="${dx}" y="${dy}" width="${dw}px" height="${dh}px"></image>`
+  return /^<svg/.test(image)
+    ? `<g x="${dx}" y="${dy}" width="${dw}px" height="${dh}px">${image}</g>`
+    : `<image href="${image}" x="${dx}" y="${dy}" width="${dw}px" height="${dh}px"></image>`
 }
 
-export const simpleColor = ({
+export const background = ({
   color,
   x,
   y,
   height,
-  width,
-  name
+  width
 }: {
   color?: string
   x: number
   y: number
   height: number
   width: number
-  name: string
 }) => {
-  const clipPath = `url('#clip-path-${name}')`
+  const clipPath = `url('#clip-path-bg')`
   const colorString = color ? `fill="${color}"` : ''
   return `<rect clip-path="${clipPath}" ${colorString} x="${x}" y="${y}" width="${width}" height="${height}"></rect>`
 }
