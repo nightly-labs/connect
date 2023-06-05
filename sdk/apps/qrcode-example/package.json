@@ -1,0 +1,19 @@
+{
+  "name": "qrcode-example",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "preinstall": "cd ../../packages/qr-codes && pnpm run build"
+  },
+  "dependencies": {
+    "@nightlylabs/qr-code": "../../packages/qr-codes"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.2",
+    "vite": "^4.3.9"
+  }
+}
