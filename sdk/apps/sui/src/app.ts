@@ -1,7 +1,6 @@
-import { MessageToSign } from '@bindings/MessageToSign'
-import { TransactionToSign } from '@bindings/TransactionToSign'
 import { SignedMessage, SignedTransaction, TransactionBlock } from '@mysten/sui.js'
 import { AppBaseInitialize, BaseApp } from 'base'
+import { MessageToSign, TransactionToSign } from 'base/src/content'
 import { SUI_NETWORK } from './utils'
 export type AppSuiInitialize = Omit<AppBaseInitialize, 'network'>
 export class AppSui {
@@ -23,12 +22,11 @@ export class AppSui {
 
   signTransactionBlock = async (transaction: TransactionBlock): Promise<SignedTransaction> => {
     const transactionToSign: TransactionToSign = {
-      network: SUI_NETWORK,
       transaction: transaction.serialize()
     }
     const signedTx = await this.base.signTransactions([transactionToSign])
 
-    return JSON.parse(signedTx.signed_transactions[0].transaction)
+    return JSON.parse(signedTx[0].transaction)
   }
 
   signAllTransactions = async (transactions: TransactionBlock[]) => {
@@ -43,9 +41,7 @@ export class AppSui {
       transaction: tx.serialize()
     }))
     const signedTx = await this.base.signTransactions(transactionsToSign)
-    const parsed = signedTx.signed_transactions.map(
-      (tx) => JSON.parse(tx.transaction) as SignedTransaction
-    )
+    const parsed = signedTx.map((tx) => JSON.parse(tx.transaction) as SignedTransaction)
     return parsed
   }
 
@@ -55,6 +51,6 @@ export class AppSui {
       metadata: JSON.stringify({ encoding: encoding || 'hex' })
     }
     const signedTx = await this.base.signMessages([request])
-    return JSON.parse(signedTx.signedMessages[0].signedMessage) as SignedMessage
+    return JSON.parse(signedTx[0].message) as SignedMessage
   }
 }

@@ -116,9 +116,6 @@ importers:
       bindings:
         specifier: ../../bindings
         version: link:../../bindings
-      eventemitter3:
-        specifier: ^5.0.1
-        version: 5.0.1
       isomorphic-localstorage:
         specifier: ^0.0.8
         version: 0.0.8
