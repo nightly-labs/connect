@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 use crate::{
+    errors::NightlyError,
     state::{ClientId, Sessions},
     structs::app_messages::{app_messages::ServerToApp, payload::ResponsePayload},
 };
@@ -30,7 +31,7 @@ pub async fn resolve_request(
         None => {
             return Err((
                 StatusCode::BAD_REQUEST,
-                "Invalid request or session not found".to_string(),
+                NightlyError::SessionDoesNotExist.to_string(),
             ))
         }
     };
@@ -39,7 +40,7 @@ pub async fn resolve_request(
     if session.client_state.client_id != Some(request.client_id.clone()) {
         return Err((
             StatusCode::BAD_REQUEST,
-            "Invalid request or session not found".to_string(),
+            NightlyError::UserNotConnected.to_string(),
         ));
     }
     let _pending_request = match session.pending_requests.remove(&request.request_id) {
@@ -47,7 +48,7 @@ pub async fn resolve_request(
         None => {
             return Err((
                 StatusCode::BAD_REQUEST,
-                "Invalid request or session not found".to_string(),
+                NightlyError::RequestDoesNotExist.to_string(),
             ))
         }
     };
@@ -56,6 +57,14 @@ pub async fn resolve_request(
         response_id: request.request_id.clone(),
         content: request.content.clone(),
     });
-    session.send_to_app(app_msg).await.unwrap();
+    match session.send_to_app(app_msg).await {
+        Ok(_) => {}
+        Err(_) => {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                NightlyError::AppDisconnected.to_string(),
+            ))
+        }
+    };
     return Ok(Json(HttpResolveRequestResponse {}));
 }

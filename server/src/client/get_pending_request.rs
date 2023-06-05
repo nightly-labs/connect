@@ -2,7 +2,10 @@ use axum::{extract::State, http::StatusCode, Json};
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-use crate::state::{ClientId, SessionId, Sessions};
+use crate::{
+    errors::NightlyError,
+    state::{ClientId, SessionId, Sessions},
+};
 
 use super::get_pending_requests::PendingRequest;
 
@@ -30,14 +33,14 @@ pub async fn get_pending_request(
         None => {
             return Err((
                 StatusCode::BAD_REQUEST,
-                "Invalid request or session not found".to_string(),
+                NightlyError::SessionDoesNotExist.to_string(),
             ))
         }
     };
     if session.client_state.client_id != Some(request.client_id.clone()) {
         return Err((
             StatusCode::BAD_REQUEST,
-            "Invalid request or session not found".to_string(),
+            NightlyError::UserNotConnected.to_string(),
         ));
     }
     let pending_request = match session.pending_requests.get(&request.request_id) {
@@ -45,7 +48,7 @@ pub async fn get_pending_request(
         None => {
             return Err((
                 StatusCode::BAD_REQUEST,
-                "Invalid request or session not found".to_string(),
+                NightlyError::RequestDoesNotExist.to_string(),
             ))
         }
     };
