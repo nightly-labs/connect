@@ -8,7 +8,8 @@ import Close from '../../static/svg/Close.svg'
 @customElement('nightly-header')
 export class NightlyHeader extends TailwindElement(style) {
   @property()
-  onClose = () => console.log()
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  onClose = () => {}
 
   render() {
     return html`
