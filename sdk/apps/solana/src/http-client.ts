@@ -3,6 +3,7 @@ import { HttpBaseClient, HttpBaseClientInitialize } from 'base'
 import { SOLANA_NETWORK } from './utils'
 import { HttpConnectSessionRequest } from '@bindings/HttpConnectSessionRequest'
 import { HttpGetPendingRequestsRequest } from '@bindings/HttpGetPendingRequestsRequest'
+import { HttpGetPendingRequestRequest } from '@bindings/HttpGetPendingRequestRequest'
 
 export class HttpClientSolana {
   baseClient: HttpBaseClient
@@ -21,7 +22,9 @@ export class HttpClientSolana {
   public getPendingRequests = async (request: Omit<HttpGetPendingRequestsRequest, 'clientId'>) => {
     return await this.baseClient.getPendingRequests(request)
   }
-
+  public getPendingRequest = async (request: Omit<HttpGetPendingRequestRequest, 'clientId'>) => {
+    return await this.baseClient.getPendingRequest(request)
+  }
   public resolveSignTransaction = async ({
     requestId,
     signedTransactions,

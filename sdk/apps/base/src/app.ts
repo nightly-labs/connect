@@ -23,12 +23,13 @@ import {
   SignedMessage,
   SignedTransaction
 } from './responseContent'
+import { triggerDeeplink } from './deeplinks'
 
 const localStorage = LocalStorage('./.nightly-connect-session')
 export interface AppBaseInitialize {
   appMetadata: AppMetadata
   network: Network
-  wsUrl?: string
+  url?: string
   timeout?: number
   persistentSessionId?: string
   persistent?: boolean
@@ -38,14 +39,22 @@ interface BaseEvents {
   userDisconnected: (e: UserDisconnectedEvent) => void
   serverDisconnected: () => void
 }
+
+export interface DeeplinkConnect {
+  url: string
+  walletName: string
+}
 export class BaseApp extends TypedEmitter<BaseEvents> {
+  url: string
   ws: WebSocket
   events: { [key: string]: { resolve: (data: any) => void; reject: (data: any) => void } } = {}
   sessionId = ''
   timeout: number
+  deeplink: DeeplinkConnect | undefined
   // TODO add info about the app
-  private constructor(ws: WebSocket, timeout: number) {
+  private constructor(url: string, ws: WebSocket, timeout: number) {
     super()
+    this.url = url
     this.ws = ws
     this.timeout = timeout
   }
@@ -56,10 +65,11 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
       const persistentSessionId = persistent
         ? localStorage.getItem(baseInitialize.appMetadata.name) ?? undefined
         : undefined
-      const ws = baseInitialize.wsUrl
-        ? new WebSocket(baseInitialize.wsUrl + '/app')
-        : new WebSocket('wss://relay.nightly.app/app')
-      const baseApp = new BaseApp(ws, baseInitialize.timeout ?? 40000)
+      const url = baseInitialize.url ?? 'https://relay.nightly.app'
+      // get domain from url
+      const path = url.replace('https://', 'wss://').replace('http://', 'ws://')
+      const ws = new WebSocket(path + '/app')
+      const baseApp = new BaseApp(url, ws, baseInitialize.timeout ?? 40000)
       baseApp.ws.onclose = () => {
         baseApp.emit('serverDisconnected')
       }
@@ -88,14 +98,14 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
         baseApp.ws.onclose = () => {
           baseApp.emit('serverDisconnected')
         }
-        const reponseId = getRandomId()
+        const responseId = getRandomId()
         // Initialize the connection
         const initializeRequest: { type: 'InitializeRequest' } & InitializeRequest = {
           appMetadata: baseInitialize.appMetadata,
           network: baseInitialize.network,
           persistentSessionId: persistentSessionId,
           persistent: persistent,
-          responseId: reponseId,
+          responseId: responseId,
           version: '#TODO version 0.0.0',
           type: 'InitializeRequest'
         }
@@ -119,6 +129,11 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
       }
     })
   }
+
+  connectDeeplink = (deeplinkData: DeeplinkConnect) => {
+    this.deeplink = deeplinkData
+  }
+
   send = async (message: AppToServer): Promise<ServerToApp> => {
     return new Promise((resolve, reject) => {
       const request = JSON.stringify(message)
@@ -134,6 +149,17 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
         }
       }
       this.ws.send(request)
+      // If deeplink is set, send the deeplink
+      if (this.deeplink && message.type === 'RequestPayload') {
+        triggerDeeplink({
+          path: this.deeplink.url,
+          deeplinkParams: {
+            relay: 'relay.nightly.app',
+            sessionId: this.sessionId,
+            requestId: message.responseId
+          }
+        })
+      }
     })
   }
   sendRequest = async (content: RequestContent) => {

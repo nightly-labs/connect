@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 use crate::{
+    errors::NightlyError,
     state::{SessionId, Sessions},
     structs::common::{AppMetadata, Network, SessionStatus, Version},
 };
@@ -32,7 +33,7 @@ pub async fn get_session_info(
         None => {
             return Err((
                 StatusCode::BAD_REQUEST,
-                "Invalid request or session not found".to_string(),
+                NightlyError::SessionDoesNotExist.to_string(),
             ))
         }
     };

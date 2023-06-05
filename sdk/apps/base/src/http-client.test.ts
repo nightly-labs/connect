@@ -20,7 +20,7 @@ describe('Http Base Client tests', () => {
     expect(baseApp).toBeDefined()
     assert(baseApp.sessionId !== '')
 
-    client = new HttpBaseClient({ url: 'http://localhost:6969', clientId: clientId })
+    client = new HttpBaseClient({ url: 'http://127.0.0.1:6969', clientId: clientId })
   })
   test('#getInfo()', async () => {
     const info = await client.getInfo(baseApp.sessionId)

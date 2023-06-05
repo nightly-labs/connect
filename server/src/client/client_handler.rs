@@ -7,9 +7,10 @@ use axum::{
     },
     response::Response,
 };
-use futures::{SinkExt, StreamExt};
+use futures::StreamExt;
 
 use crate::{
+    errors::NightlyError,
     state::{ClientSockets, ClientToSessions, ModifySession, SendToClient, Sessions},
     structs::{
         app_messages::{
@@ -24,7 +25,7 @@ use crate::{
             get_info::GetInfoResponse,
             get_pending_requests::GetPendingRequestsResponse,
         },
-        common::{AckMessage, SessionStatus},
+        common::{AckMessage, ErrorMessage, SessionStatus},
     },
 };
 
@@ -35,7 +36,6 @@ pub async fn on_new_client_connection(
     State(client_to_sessions): State<ClientToSessions>,
     ws: WebSocketUpgrade,
 ) -> Response {
-    println!("New client connection from {}", ip);
     ws.on_upgrade(move |socket| {
         client_handler(socket, sessions, client_sockets, client_to_sessions)
     })
@@ -62,7 +62,6 @@ pub async fn client_handler(
                 return;
             }
         };
-        println!("msg {:?}", msg);
         let app_msg = match msg {
             Message::Text(data) => match serde_json::from_str::<ClientToServer>(&data) {
                 Ok(app_msg) => app_msg,
@@ -79,8 +78,6 @@ pub async fn client_handler(
                 continue;
             }
         };
-        println!("app_msg {:?}", app_msg);
-
         match app_msg {
             ClientToServer::ClientInitializeRequest(connect_request) => {
                 client_sockets.insert(connect_request.client_id.clone(), sender);
@@ -91,7 +88,8 @@ pub async fn client_handler(
                     });
                 client_sockets
                     .send_to_client(connect_request.client_id.clone(), client_msg)
-                    .await;
+                    .await
+                    .unwrap_or_default();
                 break connect_request.client_id;
             }
             _ => {
@@ -174,13 +172,37 @@ pub async fn client_handler(
         };
         match app_msg {
             ClientToServer::ConnectRequest(connect_request) => {
-                println!("Connect request received {} ", connect_request.session_id);
-                let mut session = sessions.get_mut(&connect_request.session_id).unwrap();
+                let mut session = match sessions.get_mut(&connect_request.session_id) {
+                    Some(session) => session,
+                    None => {
+                        let error = ServerToClient::ErrorMessage(ErrorMessage {
+                            response_id: connect_request.response_id,
+                            error: NightlyError::SessionDoesNotExist.to_string(),
+                        });
+                        client_sockets
+                            .send_to_client(client_id.clone(), error)
+                            .await
+                            .unwrap_or_default();
+                        continue;
+                    }
+                };
                 // Insert user socket
                 session.update_status(SessionStatus::ClientConnected);
                 session.client_state.device = connect_request.device.clone();
                 session.client_state.connected_public_keys = connect_request.public_keys.clone();
                 session.client_state.client_id = Some(connect_request.client_id.clone());
+
+                let app_event = ServerToApp::UserConnectedEvent(UserConnectedEvent {
+                    public_keys: connect_request.public_keys,
+                    metadata: connect_request.metadata,
+                });
+                session.send_to_app(app_event).await.unwrap_or_default();
+
+                // Insert new session id into client_to_sessions
+                client_to_sessions.add_session(
+                    connect_request.client_id.clone(),
+                    connect_request.session_id.clone(),
+                );
 
                 let client_reponse = ServerToClient::ConnectResponse(ConnectResponse {
                     response_id: connect_request.response_id,
@@ -188,31 +210,46 @@ pub async fn client_handler(
                 client_sockets
                     .send_to_client(client_id.clone(), client_reponse)
                     .await
-                    .unwrap();
-                let app_event = ServerToApp::UserConnectedEvent(UserConnectedEvent {
-                    public_keys: connect_request.public_keys,
-                });
-                session.send_to_app(app_event).await.unwrap();
-                // Insert new session id into client_to_sessions
-                client_to_sessions.add_session(
-                    connect_request.client_id.clone(),
-                    connect_request.session_id.clone(),
-                );
+                    .unwrap_or_default();
             }
             ClientToServer::NewPayloadEventReply(new_payload_event_reply) => {
-                let mut session = sessions
-                    .get_mut(&new_payload_event_reply.session_id)
-                    .unwrap();
-                let _pending_request = session
+                let mut session = match sessions.get_mut(&new_payload_event_reply.session_id) {
+                    Some(session) => session,
+                    None => {
+                        let error = ServerToClient::ErrorMessage(ErrorMessage {
+                            response_id: new_payload_event_reply.response_id,
+                            error: NightlyError::SessionDoesNotExist.to_string(),
+                        });
+                        client_sockets
+                            .send_to_client(client_id.clone(), error)
+                            .await
+                            .unwrap_or_default();
+                        continue;
+                    }
+                };
+                match session
                     .pending_requests
                     .remove(&new_payload_event_reply.request_id)
-                    .unwrap();
+                {
+                    Some(_) => {}
+                    None => {
+                        let error = ServerToClient::ErrorMessage(ErrorMessage {
+                            response_id: new_payload_event_reply.response_id,
+                            error: NightlyError::RequestDoesNotExist.to_string(),
+                        });
+                        client_sockets
+                            .send_to_client(client_id.clone(), error)
+                            .await
+                            .unwrap_or_default();
+                        continue;
+                    }
+                };
                 // Send to app
                 let app_msg = ServerToApp::ResponsePayload(ResponsePayload {
                     response_id: new_payload_event_reply.request_id.clone(),
                     content: new_payload_event_reply.content.clone(),
                 });
-                session.send_to_app(app_msg).await.unwrap();
+                session.send_to_app(app_msg).await.unwrap_or_default();
 
                 let client_msg = ServerToClient::AckMessage(AckMessage {
                     response_id: new_payload_event_reply.response_id,
@@ -220,10 +257,23 @@ pub async fn client_handler(
                 client_sockets
                     .send_to_client(client_id.clone(), client_msg)
                     .await
-                    .unwrap();
+                    .unwrap_or_default();
             }
             ClientToServer::GetInfoRequest(get_info_request) => {
-                let session = sessions.get_mut(&get_info_request.session_id).unwrap();
+                let session = match sessions.get(&get_info_request.session_id) {
+                    Some(session) => session,
+                    None => {
+                        let error = ServerToClient::ErrorMessage(ErrorMessage {
+                            response_id: get_info_request.response_id,
+                            error: NightlyError::SessionDoesNotExist.to_string(),
+                        });
+                        client_sockets
+                            .send_to_client(client_id.clone(), error)
+                            .await
+                            .unwrap_or_default();
+                        continue;
+                    }
+                };
                 let response = ServerToClient::GetInfoResponse(GetInfoResponse {
                     response_id: get_info_request.response_id,
                     network: session.network.clone(),
@@ -233,12 +283,23 @@ pub async fn client_handler(
                 client_sockets
                     .send_to_client(client_id.clone(), response)
                     .await
-                    .unwrap();
+                    .unwrap_or_default();
             }
             ClientToServer::GetPendingRequestsRequest(get_pending_requests_request) => {
-                let session = sessions
-                    .get_mut(&get_pending_requests_request.session_id)
-                    .unwrap();
+                let session = match sessions.get(&get_pending_requests_request.session_id) {
+                    Some(session) => session,
+                    None => {
+                        let error = ServerToClient::ErrorMessage(ErrorMessage {
+                            response_id: get_pending_requests_request.response_id,
+                            error: NightlyError::SessionDoesNotExist.to_string(),
+                        });
+                        client_sockets
+                            .send_to_client(client_id.clone(), error)
+                            .await
+                            .unwrap_or_default();
+                        continue;
+                    }
+                };
                 let pending_requests = session
                     .pending_requests
                     .clone()
@@ -253,7 +314,7 @@ pub async fn client_handler(
                 client_sockets
                     .send_to_client(client_id.clone(), response)
                     .await
-                    .unwrap();
+                    .unwrap_or_default();
             }
             _ => {
                 continue;

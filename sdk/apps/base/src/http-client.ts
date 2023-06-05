@@ -12,6 +12,8 @@ import { HttpResolveRequestRequest } from '@bindings/HttpResolveRequestRequest'
 import { HttpResolveRequestResponse } from '@bindings/HttpResolveRequestResponse'
 import { HttpGetPendingRequestsRequest } from '@bindings/HttpGetPendingRequestsRequest'
 import { HttpGetPendingRequestsResponse } from '@bindings/HttpGetPendingRequestsResponse'
+import { HttpGetPendingRequestRequest } from '@bindings/HttpGetPendingRequestRequest'
+import { HttpGetPendingRequestResponse } from '@bindings/HttpGetPendingRequestResponse'
 import { fetch } from 'cross-fetch'
 import { getRandomId } from './utils'
 import {
@@ -111,6 +113,22 @@ export class HttpBaseClient {
         content: JSON.parse(r.content) as RequestContent
       }
     }) as HttpPendingRequest[]
+  }
+  getPendingRequest = async (
+    request: Omit<HttpGetPendingRequestRequest, 'clientId'> | HttpGetPendingRequestRequest
+  ) => {
+    const payload: HttpGetPendingRequestRequest = {
+      clientId: this.clientId,
+      ...request
+    }
+    const response = (await this.send(
+      payload,
+      '/get_pending_request'
+    )) as HttpGetPendingRequestResponse
+    return {
+      requestId: response.request.requestId,
+      content: JSON.parse(response.request.content) as RequestContent
+    } as HttpPendingRequest
   }
   resolveSignTransactions = async ({
     requestId,

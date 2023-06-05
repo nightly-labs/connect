@@ -21,7 +21,7 @@ import { ClientInitializeRequest } from '@bindings/ClientInitializeRequest'
 
 export interface ClientBaseInitialize {
   clientId?: string
-  wsUrl?: string
+  url?: string
   timeout?: number
   notification?: Notification
 }
@@ -48,12 +48,14 @@ interface BaseEvents {
   appDisconnected: (e: AppDisconnectedEvent) => void
 }
 export class BaseClient extends TypedEmitter<BaseEvents> {
+  url: string
   ws: WebSocket
   events: { [key: string]: { resolve: (data: any) => void; reject: (data: any) => void } } = {}
   timeout: number
   clientId: string
-  private constructor(ws: WebSocket, timeout: number, clientId: string) {
+  private constructor(url: string, ws: WebSocket, timeout: number, clientId: string) {
     super()
+    this.url = url
     this.ws = ws
     this.timeout = timeout
     this.clientId = clientId
@@ -61,11 +63,12 @@ export class BaseClient extends TypedEmitter<BaseEvents> {
 
   public static build = async (baseInitialize: ClientBaseInitialize): Promise<BaseClient> => {
     return new Promise((resolve, reject) => {
-      const ws = baseInitialize.wsUrl
-        ? new WebSocket(baseInitialize.wsUrl + '/client')
-        : new WebSocket('wss://relay.nightly.app/client')
+      const url = baseInitialize.url ?? 'https://relay.nightly.app'
+      // get domain from url
+      const path = url.replace('https://', 'wss://').replace('http://', 'ws://')
+      const ws = new WebSocket(path + '/client')
       const clientId = baseInitialize.clientId ?? getRandomId()
-      const baseClient = new BaseClient(ws, baseInitialize.timeout ?? 40000, clientId)
+      const baseClient = new BaseClient(url, ws, baseInitialize.timeout ?? 40000, clientId)
       baseClient.ws.onopen = () => {
         baseClient.ws.onmessage = ({ data }: { data: any }) => {
           const response = JSON.parse(data) as ServerToClient
