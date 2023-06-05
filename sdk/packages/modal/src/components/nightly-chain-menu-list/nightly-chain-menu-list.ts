@@ -1,7 +1,7 @@
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import { NightlyChainMenuItem } from '../nightly-chain-menu-item/nightly-chain-menu-item'
-import ChainIcon from '../static/svg/ChainIcon.svg'
+import ChainIcon from '../../static/svg/ChainIcon.svg'
 
 @customElement('nightly-chain-menu-list')
 export class NightlyChainMenuList extends NightlyChainMenuItem {

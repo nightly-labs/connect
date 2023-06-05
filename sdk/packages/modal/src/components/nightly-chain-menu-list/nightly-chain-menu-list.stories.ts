@@ -1,6 +1,6 @@
 import { Meta } from '@storybook/web-components'
 import { html } from 'lit'
-import ChainIcon from '../static/svg/ChainIcon.svg'
+import ChainIcon from '../../static/svg/ChainIcon.svg'
 
 import '../nightly-chain-menu-item/nightly-chain-menu-item'
 import './nightly-chain-menu-list'
