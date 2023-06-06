@@ -89,7 +89,7 @@ export const getQrInXml = (
     count,
     dotSize,
     image: codeOptions.image,
-    imageMargin: codeOptions.imageOptions.margin,
+    imageMargin: codeOptions.imageOptions.margin
   });
 
   const paths = [backgroundNode, ...dotPaths, ...cornerPaths, image];
