@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
+
+@media screen {
+  @font-face {
+    font-family: 'Poppins';
+    font-weight: 400;
+    font-style: normal;
+    src: local('Poppins'), local('sans-serif'),
+      url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
+  }
+  @font-face {
+    font-family: 'Poppins';
+    font-weight: 700;
+    font-style: normal;
+    src: local('Poppins'), local('sans-serif'),
+      url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
+  }
+}
+
+.walletSelectorItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border-radius: 8px;
+  width: 80px;
+  height: 96px;
+  background-color: transparent;
+}
+
+.walletSelectorItem img {
+  width: 64px;
+  height: 64px;
+  padding: 8px;
+}
+
+.walletSelectorItem:hover {
+  background-color: #47486a;
+}
+
+.walletSelectorName {
+  padding-bottom: 4px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  letter-spacing: 2%;
+  color: #ffffff;
+}
+
+.walletSelectorInfo {
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: 2%;
+  color: #6067f9;
+}
