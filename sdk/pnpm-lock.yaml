@@ -178,6 +178,9 @@ importers:
       '@nightlylabs/qr-code':
         specifier: 1.0.21
         version: 1.0.21
+      '@wallet-standard/core':
+        specifier: ^1.0.3
+        version: 1.0.3
       autoprefixer:
         specifier: ^10.4.14
         version: 10.4.14(postcss@8.4.24)
