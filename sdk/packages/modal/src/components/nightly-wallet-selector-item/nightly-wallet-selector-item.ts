@@ -19,20 +19,11 @@ export class NightlyWalletSelectorItem extends TailwindElement(style) {
   onClick: (event: Event) => void = () => {}
 
   render() {
-    const infoText =
-      this.status === 'recent'
-        ? 'Recent'
-        : this.status === 'detected'
-        ? 'Detected'
-        : this.status === 'both'
-        ? 'Recent'
-        : ''
-
     return html`
       <button class="walletSelectorItem" @click=${this.onClick}>
         <img src=${this.icon} />
         <span class="walletSelectorName">${this.name}</span>
-        ${infoText ? html`<span class="walletSelectorInfo">${infoText}</span>` : ''}
+        ${this.status ? html`<span class="walletSelectorInfo">${this.status}</span>` : ''}
       </button>
     `
   }

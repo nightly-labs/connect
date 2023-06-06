@@ -42,7 +42,7 @@ export const MetaMask: Story = {
   args: {
     name: 'MetaMask',
     icon: MetaMaskIcon,
-    status: 'both'
+    status: 'recent'
   }
 }
 
