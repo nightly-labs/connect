@@ -4,26 +4,6 @@ import { customElement, property } from 'lit/decorators.js'
 @customElement('nightly-chain-menu-item')
 export class NightlyChainMenuItem extends LitElement {
   static styles = css`
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
-
-    @media screen {
-      @font-face {
-        font-family: 'Poppins';
-        font-weight: 400;
-        font-style: normal;
-        src: local('Poppins'), local('sans-serif'),
-          url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
-      }
-      @font-face {
-        font-family: 'Poppins';
-        font-weight: 700;
-        font-style: normal;
-        src: local('Poppins'), local('sans-serif'),
-          url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
-      }
-    }
-
     .chainSingleButton {
       display: flex;
       border: none;
@@ -49,7 +29,7 @@ export class NightlyChainMenuItem extends LitElement {
     }
 
     .nameButtonChain {
-      font-family: 'Poppins';
+      font-family: 'Prompt';
       margin-left: 4px;
       font-size: 12px;
       line-height: 22px;
