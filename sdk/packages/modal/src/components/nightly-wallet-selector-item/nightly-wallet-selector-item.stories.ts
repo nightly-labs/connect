@@ -14,7 +14,7 @@ const meta = {
   },
   render: (args) => {
     return html`
-      <div class="width: 100%; height: 100%;  ">
+      <div class="width: 100%; height: 100%;  background-color: #17182B;">
         <nightly-wallet-selector-item
           name=${args.name}
           icon=${args.icon}
