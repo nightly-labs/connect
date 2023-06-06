@@ -23,13 +23,6 @@ export class NightlyWalletSelectorItem extends TailwindElement(style) {
 
   render() {
     return html`
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Prompt:wght@300&display=swap"
-        rel="${style}"
-      />
-
       <button class="walletSelectorItem" onClick=${this.onClick}>
         <img src=${this.icon} />
         <span class="walletSelectorName"> ${this.name} </span>
