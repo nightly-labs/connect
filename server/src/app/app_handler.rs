@@ -1,4 +1,4 @@
-use std::{net::SocketAddr, sync::Arc};
+use std::net::SocketAddr;
 
 use axum::{
     extract::{
@@ -8,7 +8,7 @@ use axum::{
     response::Response,
 };
 use dashmap::DashMap;
-use futures::{SinkExt, StreamExt};
+use futures::StreamExt;
 
 use crate::{
     state::{ClientSockets, ClientToSessions, ModifySession, SendToClient, Sessions},
@@ -29,7 +29,7 @@ use crate::{
 };
 
 pub async fn on_new_app_connection(
-    ConnectInfo(ip): ConnectInfo<SocketAddr>,
+    ConnectInfo(_): ConnectInfo<SocketAddr>,
     State(sessions): State<Sessions>,
     State(client_sockets): State<ClientSockets>,
 
@@ -80,8 +80,6 @@ pub async fn app_handler(
         };
         match app_msg {
             AppToServer::InitializeRequest(init_data) => {
-                println!("New initialize request");
-
                 let (session_id, created_new) = match init_data.persistent_session_id {
                     Some(session_id) => {
                         let (session_id, created_new) = match sessions.get_mut(session_id.as_str())
@@ -150,9 +148,7 @@ pub async fn app_handler(
                     }
                 };
 
-                let mut created_session = sessions.get_mut(&session_id).unwrap();
-                // created_session.app_state.app_socket.unwrap().send(item)
-                println!("send response");
+                let mut created_session = sessions.get_mut(&session_id).expect("safe unwrap");
 
                 match created_session
                     .send_to_app(ServerToApp::InitializeResponse(InitializeResponse {
@@ -185,12 +181,19 @@ pub async fn app_handler(
                             session_id: session_id.clone(),
                             reason: "App disconnected".to_string(),
                         });
-                    let mut session = sessions.get_mut(&session_id).unwrap();
+                    let mut session = match sessions.get_mut(&session_id) {
+                        Some(session) => session,
+                        None => {
+                            // Should never happen
+                            continue;
+                        }
+                    };
                     match &session.client_state.client_id {
                         Some(client_id) => {
                             client_sockets
                                 .send_to_client(client_id.clone(), app_disconnected_event)
-                                .await;
+                                .await
+                                .unwrap_or_default();
                         }
                         None => {}
                     }
@@ -218,12 +221,19 @@ pub async fn app_handler(
                         session_id: session_id.clone(),
                         reason: "App disconnected".to_string(),
                     });
-                let mut session = sessions.get_mut(&session_id).unwrap();
+                let mut session = match sessions.get_mut(&session_id) {
+                    Some(session) => session,
+                    None => {
+                        // Should never happen
+                        continue;
+                    }
+                };
                 match &session.client_state.client_id {
                     Some(client_id) => {
                         client_sockets
                             .send_to_client(client_id.clone(), app_disconnected_event)
-                            .await;
+                            .await
+                            .unwrap_or_default();
                     }
                     None => {}
                 }
@@ -257,12 +267,19 @@ pub async fn app_handler(
                         session_id: session_id.clone(),
                         reason: "App disconnected".to_string(),
                     });
-                let mut session = sessions.get_mut(&session_id).unwrap();
+                let mut session = match sessions.get_mut(&session_id) {
+                    Some(session) => session,
+                    None => {
+                        // Should never happen
+                        continue;
+                    }
+                };
                 match &session.client_state.client_id {
                     Some(client_id) => {
                         client_sockets
                             .send_to_client(client_id.clone(), app_disconnected_event)
-                            .await;
+                            .await
+                            .unwrap_or_default();
                     }
                     None => {}
                 }
@@ -286,7 +303,13 @@ pub async fn app_handler(
         };
         match app_msg {
             AppToServer::RequestPayload(sing_transactions_request) => {
-                let mut session = sessions.get_mut(&session_id).unwrap();
+                let session = match sessions.get(&session_id) {
+                    Some(session) => session,
+                    None => {
+                        // Should never happen
+                        continue;
+                    }
+                };
                 let response_id: String = sing_transactions_request.response_id.clone();
 
                 session.pending_requests.insert(

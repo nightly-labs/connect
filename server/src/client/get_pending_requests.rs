@@ -2,7 +2,10 @@ use axum::{extract::State, http::StatusCode, Json};
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-use crate::state::{ClientId, SessionId, Sessions};
+use crate::{
+    errors::NightlyError,
+    state::{ClientId, SessionId, Sessions},
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
@@ -29,16 +32,27 @@ pub async fn get_pending_requests(
     State(sessions): State<Sessions>,
     Json(request): Json<HttpGetPendingRequestsRequest>,
 ) -> Result<Json<HttpGetPendingRequestsResponse>, (StatusCode, String)> {
-    let mut pending_requests = Vec::new();
-    if let Some(session) = sessions.get(&request.session_id) {
-        if session.client_state.client_id == Some(request.client_id.clone()) {
-            for pending_request in session.pending_requests.iter() {
-                pending_requests.push(PendingRequest {
-                    request_id: pending_request.key().clone(),
-                    content: pending_request.clone(),
-                });
-            }
+    let session = match sessions.get_mut(&request.session_id) {
+        Some(session) => session,
+        None => {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                NightlyError::SessionDoesNotExist.to_string(),
+            ))
         }
+    };
+    if session.client_state.client_id != Some(request.client_id.clone()) {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            NightlyError::UserNotConnected.to_string(),
+        ));
+    }
+    let mut pending_requests = Vec::new();
+    for pending_request in session.pending_requests.iter() {
+        pending_requests.push(PendingRequest {
+            request_id: pending_request.key().clone(),
+            content: pending_request.clone(),
+        });
     }
     Ok(Json(HttpGetPendingRequestsResponse { pending_requests }))
 }

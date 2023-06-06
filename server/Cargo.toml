@@ -21,6 +21,7 @@ ctrlc = { workspace = true }
 reqwest = { workspace = true }
 strum = { workspace = true }
 strum_macros = { workspace = true }
+dotenvy = { workspace = true }
 axum = { version = "0.6.12", features = ["ws"] }
 axum-extra = { version = "0.7.2" }
 axum-macros = "0.3.7"
@@ -32,3 +33,4 @@ tower = { version = "0.4", features = [
 ] }
 hyper = { version = "0.14.14", features = ["stream"] }
 async-trait = "0.1.68"
+axum-server = { version = "0.5", features = ["tls-rustls"] }

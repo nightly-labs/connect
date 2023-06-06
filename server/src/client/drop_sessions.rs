@@ -2,7 +2,12 @@ use axum::{extract::State, http::StatusCode, Json};
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-use crate::state::{ClientId, ClientToSessions, ModifySession, SessionId, Sessions};
+use crate::{
+    state::{ClientId, ClientToSessions, SessionId, Sessions},
+    structs::app_messages::{
+        app_messages::ServerToApp, user_disconnected_event::UserDisconnectedEvent,
+    },
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
@@ -27,7 +32,19 @@ pub async fn drop_sessions(
     for session_id in request.sessions {
         if let Some(session) = sessions.get(&session_id) {
             if session.client_state.client_id == Some(request.client_id.clone()) {
-                sessions.remove(&session_id);
+                let session = sessions.remove(&session_id);
+                match session {
+                    Some((_, mut session)) => {
+                        // Send disconnect event to app
+                        let user_disconnected_event =
+                            ServerToApp::UserDisconnectedEvent(UserDisconnectedEvent {});
+                        session
+                            .send_to_app(user_disconnected_event)
+                            .await
+                            .unwrap_or_default();
+                    }
+                    None => {}
+                }
                 client_to_sessions.remove(&session_id);
                 dropped_sessions.push(session_id);
             }
