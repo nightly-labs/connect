@@ -8,10 +8,10 @@ import {
 import { BaseClient, ClientBaseInitialize, Connect } from 'base'
 import { TypedEmitter } from 'tiny-typed-emitter'
 import { SignMessagesEvent } from 'base/src/client'
+import { TransactionToSign } from 'base/src/content'
 export interface SignSuiTransactionEvent {
   requestId: string
-  transactions: Array<TransactionBlock>
-  metadata?: string
+  transactions: Array<TransactionToSign>
 }
 export type SignSuiMessageEvent = SignMessagesEvent
 export interface ClientSuiEvents {
@@ -27,9 +27,7 @@ export class ClientSui extends TypedEmitter<ClientSuiEvents> {
     baseClient.on('signTransactions', (e) => {
       const event: SignSuiTransactionEvent = {
         requestId: e.responseId,
-        transactions: e.transactions.map((tx) => {
-          return TransactionBlock.from(tx.transaction)
-        })
+        transactions: e.transactions
       }
       this.emit('signTransactions', event)
     })

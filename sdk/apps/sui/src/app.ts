@@ -63,15 +63,15 @@ export class AppSui extends TypedEmitter<SuiAppEvents> {
     return JSON.parse(signedTx[0].message) as SignedMessage
   }
 
-  // signAndExecuteTransactionBlock = async (
-  //   input: SuiSignAndExecuteTransactionBlockInput
-  // ): Promise<SuiSignAndExecuteTransactionBlockOutput> => {
-  //   const transactionToSign: TransactionToSign = {
-  //     transaction: input.transactionBlock.serialize(),
-  //     metadata: JSON.stringify({ account: input.account, chain: input.chain, execute: true })
-  //   }
-  //   const signedTx = await this.base.signTransactions([transactionToSign])
+  signAndExecuteTransactionBlock = async (
+    input: SuiSignAndExecuteTransactionBlockInput
+  ): Promise<SuiSignAndExecuteTransactionBlockOutput> => {
+    const transactionToSign: TransactionToSign = {
+      transaction: input.transactionBlock.serialize(),
+      metadata: JSON.stringify({ account: input.account, chain: input.chain, execute: true })
+    }
+    const signedTx = await this.base.signTransactions([transactionToSign])
 
-  //   return JSON.parse(signedTx[0].transaction)
-  // }
+    return JSON.parse(signedTx[0].transaction)
+  }
 }
