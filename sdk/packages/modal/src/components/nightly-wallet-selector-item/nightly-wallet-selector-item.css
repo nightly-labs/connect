@@ -5,14 +5,15 @@
   flex-direction: column;
   border-radius: 8px;
   width: 80px;
-  height: 96px;
+  padding: 4px 8px;
+  height: 104px;
   background-color: transparent;
 }
 
 .walletSelectorItem img {
+  padding-bottom: 8px;
   width: 64px;
   height: 64px;
-  padding: 8px;
 }
 
 .walletSelectorItem:hover {
@@ -20,7 +21,6 @@
 }
 
 .walletSelectorName {
-  padding-bottom: 4px;
   font-size: 12px;
   line-height: 16px;
   font-weight: 700;
