@@ -54,7 +54,7 @@ export const defaultXMLOptions: XMLOptions = {
     color: '#17182B'
   },
   imageOptions: {
-    margin: 0,
+    margin: 3,
     imageSize: 0.4,
     hideBackgroundDots: true,
     crossOrigin: undefined
@@ -65,6 +65,6 @@ export const defaultXMLOptions: XMLOptions = {
     errorCorrectionLevel: 'Q'
   },
   image: fennecXml,
-  imageWidth: 1510, // workaround for problem with getting image size
+  imageWidth: 1660, // workaround for problem with getting image size
   imageHeight: 1660 // way used on web is incompatible with one used on native and vice versa
 }

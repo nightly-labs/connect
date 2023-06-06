@@ -3,9 +3,9 @@ import './style.css'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div>
-  ${getQrInXml('sfdfghgdfgfgdffsfdfgfggfggdfhggdfgxhchfjfjcgjfchfchfch', {
-    width: 400,
-    height: 400
+  ${getQrInXml('DVXCjVUkz7yAvwufKgSBSieHjLtkDDc1jWanAZtSt3FP', {
+    width: 200,
+    height: 200
   })}
   </div>
 `
