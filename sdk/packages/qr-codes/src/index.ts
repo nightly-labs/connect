@@ -1,2 +1,3 @@
 export { getQrInXml } from './xml'
-export { defaultXMLOptions, XMLOptions } from './xml/options'
+export { defaultXMLOptions } from './utils/consts'
+export { XMLOptions } from './utils/types'

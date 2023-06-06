@@ -1,14 +1,13 @@
-import { modes } from './consts'
 import { ImageSizeResult, Mode } from './types'
 
 export const getMode = (data: string): Mode => {
   switch (true) {
     case /^[0-9]*$/.test(data):
-      return modes.numeric
+      return Mode.Numeric
     case /^[0-9A-Z $%*+\-./:]*$/.test(data):
-      return modes.alphanumeric
+      return Mode.Alphanumeric
     default:
-      return modes.byte
+      return Mode.Byte
   }
 }
 

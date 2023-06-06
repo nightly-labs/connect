@@ -1,8 +1,8 @@
-import { defaultXMLOptions, XMLOptions } from "./options";
 import * as parts from "./parts";
 import qrcode from "qrcode-generator";
 import { getMode, calculateImageSize } from "../utils/utils";
-import { errorCorrectionPercents } from "../utils/consts"
+import { defaultXMLOptions, errorCorrectionPercents } from "../utils/consts"
+import { XMLOptions } from "../utils/types";
 
 
 export const getQrInXml = (
