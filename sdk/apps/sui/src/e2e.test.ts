@@ -1,15 +1,13 @@
 import { Connect } from 'base'
-import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
+import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { AppSui } from './app'
 import { ClientSui } from './client'
 import { signTransactionBlock, sleep, SUI_NETWORK, TEST_APP_INITIALIZE } from './utils'
 
 import {
-  Connection,
   Ed25519Keypair,
   fromB64,
   IntentScope,
-  JsonRpcProvider,
   messageWithIntent,
   toB64,
   toSerializedSignature,
@@ -155,5 +153,15 @@ describe('SUI client tests', () => {
       account: aliceWalletAccount,
       chain: 'sui:testnet'
     })
+  })
+  test('#on("appDisconnected")', async () => {
+    const disconnecFn = vi.fn()
+    client.on('appDisconnected', async () => {
+      disconnecFn()
+    })
+    app.base.ws.terminate()
+    app.base.ws.close()
+    await sleep(100)
+    expect(disconnecFn).toHaveBeenCalledOnce()
   })
 })

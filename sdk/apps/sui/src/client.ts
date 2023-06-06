@@ -1,10 +1,5 @@
 import { AppDisconnectedEvent } from '@bindings/AppDisconnectedEvent'
-import {
-  SignedMessage,
-  SignedTransaction,
-  TransactionBlock,
-  SuiTransactionBlockResponse
-} from '@mysten/sui.js'
+import { SignedMessage, SignedTransaction, SuiTransactionBlockResponse } from '@mysten/sui.js'
 import { BaseClient, ClientBaseInitialize, Connect } from 'base'
 import { TypedEmitter } from 'tiny-typed-emitter'
 import { SignMessagesEvent } from 'base/src/client'
