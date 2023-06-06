@@ -19,9 +19,11 @@ import {
 import { blake2b } from '@noble/hashes/blake2b'
 import { fetch } from 'cross-fetch'
 import { WalletAccount } from '@mysten/wallet-standard'
+import { hexToBytes } from '@noble/hashes/utils'
 global.fetch = fetch
 // Edit an assertion and save to see HMR in action
-const alice_keypair = Ed25519Keypair.generate()
+const ALICE_PRIVE_KEY = '4aa55c99d633c646b8dc423eed56e0fc39bdbca6ac6d8c53cc6e4decda27d970'
+const alice_keypair = Ed25519Keypair.fromSecretKey(hexToBytes(ALICE_PRIVE_KEY))
 const aliceWalletAccount: WalletAccount = {
   address: alice_keypair.getPublicKey().toSuiAddress(),
   publicKey: alice_keypair.getPublicKey().toBytes(),
@@ -29,14 +31,32 @@ const aliceWalletAccount: WalletAccount = {
   features: ['sui:signAndExecuteTransactionBlock'],
   label: ''
 }
-const RECEIVER = Ed25519Keypair.generate()
-const RECEIVER_SUI_ADDRESS = RECEIVER.getPublicKey().toSuiAddress()
+
+// Wallet 10 from test seed
+const RECEIVER_SUI_ADDRESS = '0x19b78fbdf0f8fdb942abd67b8628ca80079aeb786cec0235d65af9b65019b59f'
 const suiConnection = new JsonRpcProvider(
   new Connection({ fullnode: 'https://fullnode.testnet.sui.io/' })
 )
 describe('Base Client tests', () => {
   let app: AppSui
   let client: ClientSui
+
+  const signTransactionBlock = async (tx: TransactionBlock) => {
+    const transactionBlockBytes = await tx.build({
+      provider: suiConnection,
+      onlyTransactionKind: true
+    })
+    const intentMessage = messageWithIntent(IntentScope.TransactionData, transactionBlockBytes)
+    const digest = blake2b(intentMessage, { dkLen: 32 })
+    const signatureArray = alice_keypair.signData(digest)
+    const signature = toSerializedSignature({
+      signature: signatureArray,
+      signatureScheme: 'ED25519',
+      pubKey: alice_keypair.getPublicKey()
+    })
+    return { transactionBlockBytes, signature }
+  }
+
   beforeAll(async () => {
     app = await AppSui.build(TEST_APP_INITIALIZE)
     expect(app).toBeDefined()
@@ -65,39 +85,26 @@ describe('Base Client tests', () => {
   })
   test('#on("signTransactions")', async () => {
     const tx = new TransactionBlock()
-
+    const coin = tx.splitCoins(tx.gas, [tx.pure(100)])
+    tx.transferObjects([coin], tx.pure(RECEIVER_SUI_ADDRESS))
+    tx.setSenderIfNotSet(RECEIVER_SUI_ADDRESS)
     client.on('signTransactions', async (e) => {
       const tx = e.transactions[0]
-      const coin = tx.splitCoins(tx.gas, [tx.pure(100)])
-      tx.transferObjects([coin], tx.pure(RECEIVER_SUI_ADDRESS))
-
-      tx.setSenderIfNotSet(RECEIVER_SUI_ADDRESS)
-      const transactionBlockBytes = await tx.build({
-        provider: suiConnection,
-        onlyTransactionKind: true
-      })
-      const intentMessage = messageWithIntent(IntentScope.TransactionData, transactionBlockBytes)
-      const digest = blake2b(intentMessage, { dkLen: 32 })
-      const signature = alice_keypair.signData(digest)
-
+      const { signature, transactionBlockBytes } = await signTransactionBlock(tx)
       // resolve
       await client.resolveSignTransaction({
         responseId: e.requestId,
         signedTransactions: [
           {
             transactionBlockBytes: toB64(transactionBlockBytes),
-            signature: toSerializedSignature({
-              signature,
-              signatureScheme: 'ED25519',
-              pubKey: alice_keypair.getPublicKey()
-            })
+            signature: signature
           }
         ]
       })
     })
     // // sleep(100)
     await sleep(0)
-    const signedTx = await app.signTransaction({
+    const signedTx = await app.signTransactionBlock({
       transactionBlock: tx,
       account: aliceWalletAccount,
       chain: 'sui:testnet'
@@ -146,4 +153,34 @@ describe('Base Client tests', () => {
     )
     expect(isValid).toBe(true)
   })
+  // test('#on("signAndExecuteSignTransaction")', async () => {
+  //   const tx = new TransactionBlock()
+  //   const coin = tx.splitCoins(tx.gas, [tx.pure(100)])
+  //   tx.transferObjects([coin], tx.pure(RECEIVER_SUI_ADDRESS))
+  //   tx.setSenderIfNotSet(RECEIVER_SUI_ADDRESS)
+  //   console.log('sign and execute')
+  //   client.on('signTransactions', async (e) => {
+  //     const tx = e.transactions[0]
+  //     console.log('przed')
+  //     const { signature, transactionBlockBytes } = await signTransactionBlock(tx)
+  //     console.log('po sign')
+  //     const response = await suiConnection.executeTransactionBlock({
+  //       transactionBlock: transactionBlockBytes,
+  //       signature
+  //     })
+  //     console.log(response)
+  //     // resolve
+  //     await client.resolveSignTransaction({
+  //       responseId: e.requestId,
+  //       signedTransactions: [response]
+  //     })
+  //   })
+
+  //   const signedTx = await app.signAndExecuteTransactionBlock({
+  //     transactionBlock: tx,
+  //     account: aliceWalletAccount,
+  //     chain: 'sui:testnet'
+  //   })
+  //   console.log(signedTx)
+  // })
 })

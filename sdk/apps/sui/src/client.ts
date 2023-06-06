@@ -1,8 +1,12 @@
 import { AppDisconnectedEvent } from '@bindings/AppDisconnectedEvent'
-import { SignedMessage, SignedTransaction, TransactionBlock } from '@mysten/sui.js'
+import {
+  SignedMessage,
+  SignedTransaction,
+  TransactionBlock,
+  SuiTransactionBlockResponse
+} from '@mysten/sui.js'
 import { BaseClient, ClientBaseInitialize, Connect } from 'base'
 import { TypedEmitter } from 'tiny-typed-emitter'
-import { SUI_NETWORK } from './utils'
 import { SignMessagesEvent } from 'base/src/client'
 export interface SignSuiTransactionEvent {
   requestId: string
@@ -73,7 +77,7 @@ export class ClientSui extends TypedEmitter<ClientSuiEvents> {
     const serializedTxs = signedTransactions
       .map((tx) => JSON.stringify(tx))
       .map((tx) => {
-        return { network: SUI_NETWORK, transaction: tx }
+        return { transaction: tx }
       })
     const sessionIdToUse = sessionId || this.sessionId
     if (sessionIdToUse === undefined) {
@@ -118,7 +122,7 @@ export interface RejectRequest {
 }
 export interface ResolveSignSuiTransactions {
   responseId: string
-  signedTransactions: SignedTransaction[]
+  signedTransactions: Array<SignedTransaction | SuiTransactionBlockResponse>
   sessionId?: string
 }
 export interface ResolveSignSuiMessage {

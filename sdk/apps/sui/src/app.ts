@@ -1,6 +1,11 @@
 import { UserConnectedEvent } from '@bindings/UserConnectedEvent'
 import { SignedMessage, SignedTransaction } from '@mysten/sui.js'
-import { SuiSignMessageInput, SuiSignTransactionBlockInput } from '@mysten/wallet-standard'
+import {
+  SuiSignAndExecuteTransactionBlockInput,
+  SuiSignAndExecuteTransactionBlockOutput,
+  SuiSignMessageInput,
+  SuiSignTransactionBlockInput
+} from '@mysten/wallet-standard'
 import { AppBaseInitialize, BaseApp } from 'base'
 import { MessageToSign, TransactionToSign } from 'base/src/content'
 import { TypedEmitter } from 'tiny-typed-emitter'
@@ -36,15 +41,13 @@ export class AppSui extends TypedEmitter<SuiAppEvents> {
     const base = await BaseApp.build({ ...initData, network: SUI_NETWORK })
     return new AppSui(base)
   }
-  signTransaction = async (input: SuiSignTransactionBlockInput) => {
-    return await this.signTransactionBlock(input)
-  }
 
   signTransactionBlock = async (
     input: SuiSignTransactionBlockInput
   ): Promise<SignedTransaction> => {
     const transactionToSign: TransactionToSign = {
-      transaction: input.transactionBlock.serialize()
+      transaction: input.transactionBlock.serialize(),
+      metadata: JSON.stringify({ account: input.account, chain: input.chain })
     }
     const signedTx = await this.base.signTransactions([transactionToSign])
 
@@ -60,6 +63,15 @@ export class AppSui extends TypedEmitter<SuiAppEvents> {
     return JSON.parse(signedTx[0].message) as SignedMessage
   }
 
-  // signAndExecuteTransactionBlock = async (input: SuiSignAndExecuteTransactionBlockInput): Promise<SuiSignAndExecuteTransactionBlockOutput> => {
+  // signAndExecuteTransactionBlock = async (
+  //   input: SuiSignAndExecuteTransactionBlockInput
+  // ): Promise<SuiSignAndExecuteTransactionBlockOutput> => {
+  //   const transactionToSign: TransactionToSign = {
+  //     transaction: input.transactionBlock.serialize(),
+  //     metadata: JSON.stringify({ account: input.account, chain: input.chain, execute: true })
+  //   }
+  //   const signedTx = await this.base.signTransactions([transactionToSign])
+
+  //   return JSON.parse(signedTx[0].transaction)
   // }
 }
