@@ -49,7 +49,7 @@ export const MetaMask: Story = {
 export const Binance: Story = {
   name: 'Binance',
   args: {
-    name: 'Binance',
+    name: 'Binance Wallet',
     icon: BinanceIcon,
     status: 'recent'
   }

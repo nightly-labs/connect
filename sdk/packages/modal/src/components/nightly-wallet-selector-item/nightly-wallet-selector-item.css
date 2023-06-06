@@ -21,17 +21,21 @@
 }
 
 .walletSelectorName {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  font-weight: bold;
   font-size: 12px;
   line-height: 16px;
-  font-weight: 700;
-  letter-spacing: 2%;
+  letter-spacing: 0.02em;
   color: #ffffff;
 }
 
 .walletSelectorInfo {
+  font-weight: normal;
   font-size: 10px;
-  font-weight: 400;
   line-height: 16px;
-  letter-spacing: 2%;
+  letter-spacing: 0.02em;
   color: #6067f9;
 }
