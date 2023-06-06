@@ -6,6 +6,12 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution":"node"
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "outDir": "dist",
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "declarationDir": "types",
+    "emitDeclarationOnly": true
   }
 }

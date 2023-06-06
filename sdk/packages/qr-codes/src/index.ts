@@ -1,3 +1,2 @@
-import { getQrInXml } from "./xml";
-
-export default { getQrInXml }
+export { getQrInXml } from './xml'
+export { defaultXMLOptions, XMLOptions } from './xml/options'
