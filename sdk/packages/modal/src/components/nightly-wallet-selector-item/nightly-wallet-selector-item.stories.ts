@@ -14,12 +14,13 @@ const meta = {
   },
   render: (args) => {
     return html`
-      <nightly-wallet-selector-item
-        name=${args.name}
-        icon=${args.icon}
-        recent=${args.recent}
-        detected=${args.detected}
-      ></nightly-wallet-selector-item>
+      <div class="width: 100%; height: 100%;  ">
+        <nightly-wallet-selector-item
+          name=${args.name}
+          icon=${args.icon}
+          status=${args.status}
+        ></nightly-wallet-selector-item>
+      </div>
     `
   }
 } satisfies Meta<NightlyWalletSelectorItem>
@@ -32,7 +33,7 @@ export const Default: Story = {
   args: {
     name: 'Phantom',
     icon: PhantomIcon,
-    recent: 'Recent'
+    status: 'detected'
   }
 }
 
@@ -41,7 +42,7 @@ export const MetaMask: Story = {
   args: {
     name: 'MetaMask',
     icon: MetaMaskIcon,
-    detected: 'Detected'
+    status: 'both'
   }
 }
 
@@ -50,6 +51,6 @@ export const Binance: Story = {
   args: {
     name: 'Binance',
     icon: BinanceIcon,
-    recent: 'Recent'
+    status: 'recent'
   }
 }

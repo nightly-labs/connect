@@ -12,22 +12,27 @@ export class NightlyWalletSelectorItem extends TailwindElement(style) {
   icon = ''
 
   @property({ type: String })
-  recent = ''
+  status = ''
 
-  @property({ type: String })
-  detected = ''
-
-  @property()
+  @property({ type: Function })
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  onClick = () => {}
+  onClick: (event: Event) => void = () => {}
 
   render() {
+    const infoText =
+      this.status === 'recent'
+        ? 'Recent'
+        : this.status === 'detected'
+        ? 'Detected'
+        : this.status === 'both'
+        ? 'Recent'
+        : ''
+
     return html`
-      <button class="walletSelectorItem" onClick=${this.onClick}>
+      <button class="walletSelectorItem" @click=${this.onClick}>
         <img src=${this.icon} />
-        <span class="walletSelectorName"> ${this.name} </span>
-        ${this.recent ? html`<span class="walletSelectorInfo">${this.recent}</span>` : ''}
-        ${this.detected ? html`<span class="walletSelectorInfo">${this.detected}</span>` : ''}
+        <span class="walletSelectorName">${this.name}</span>
+        ${infoText ? html`<span class="walletSelectorInfo">${infoText}</span>` : ''}
       </button>
     `
   }
