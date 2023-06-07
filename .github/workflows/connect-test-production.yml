@@ -1,4 +1,4 @@
-name: connect-test-local.yml
+name: connect-test-production.yml
 
 on:
   push:
@@ -26,38 +26,20 @@ jobs:
         with:
           version: 8
           run_install: false
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - uses: actions/cache@v2
-        name: Cache Cargo registry + index
-        id: cache-rust
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-          key: cargo-${{ runner.os }}-v0000-${{ hashFiles('**/Cargo.lock') }}
-
       - name: install packages
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: |
           pnpm install
         working-directory: ./sdk
-      - name: run cargo test
+      - name: test base production
         run: |
-          cargo test
-          cargo run &
-      - name: test base local
-        run: |
-          pnpm test:run
+          pnpm test:production
         working-directory: ./sdk/apps/base
-      - name: test solana local
+      - name: test solana production
         run: |
-          pnpm test:run
+          pnpm test:production
         working-directory: ./sdk/apps/solana
-      - name: test sui local
+      - name: test sui production
         run: |
-          pnpm test:run
+          pnpm test:production
         working-directory: ./sdk/apps/sui
