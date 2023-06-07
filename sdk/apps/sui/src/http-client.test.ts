@@ -1,6 +1,6 @@
 import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { AppSui } from './app'
-import { SUI_NETWORK, TEST_APP_INITIALIZE, sleep, signTransactionBlock } from './utils'
+import { SUI_NETWORK, TEST_APP_INITIALIZE, signTransactionBlock } from './utils'
 import { Connect, getRandomId } from 'base'
 import { HttpClientSui } from './http-client'
 
@@ -8,6 +8,7 @@ import { Ed25519Keypair, IntentScope, toB64, TransactionBlock, verifyMessage } f
 import { hexToBytes } from '@noble/hashes/utils'
 import { WalletAccount } from '@mysten/wallet-standard'
 import { ContentType } from 'base/src/content'
+import { RELAY_ENDPOINT, smartDelay } from 'base/src/utils'
 // Edit an assertion and save to see HMR in action
 const ALICE_PRIVE_KEY = '4aa55c99d633c646b8dc423eed56e0fc39bdbca6ac6d8c53cc6e4decda27d970'
 const alice_keypair = Ed25519Keypair.fromSecretKey(hexToBytes(ALICE_PRIVE_KEY))
@@ -29,10 +30,10 @@ describe('SUI http-client tests', () => {
     app = await AppSui.build(TEST_APP_INITIALIZE)
     expect(app).toBeDefined()
     assert(app.sessionId !== '')
-    client = new HttpClientSui({ url: 'http://localhost:6969', clientId })
+    client = new HttpClientSui({ url: RELAY_ENDPOINT, clientId })
   })
   beforeEach(async () => {
-    await sleep(5)
+    await smartDelay()
   })
   test('#getInfo()', async () => {
     const info = await client.getInfo(app.sessionId)
@@ -61,7 +62,7 @@ describe('SUI http-client tests', () => {
       account: aliceWalletAccount,
       chain: 'sui:testnet'
     })
-    await sleep(100)
+    await smartDelay()
     // Query for request
     const pendingRequest = (await client.getPendingRequests({ sessionId: app.sessionId }))[0]
     if (pendingRequest.content.type !== ContentType.SignTransactions) {
@@ -84,7 +85,7 @@ describe('SUI http-client tests', () => {
       ]
     })
 
-    sleep(100)
+    await smartDelay()
     const signedTx = await promiseSignTransaction
 
     const isValid = await verifyMessage(

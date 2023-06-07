@@ -1,9 +1,8 @@
 import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { BaseApp } from './app'
-import { sleep, testAppBaseInitialize, testClientBaseInitialize } from './utils'
+import { smartDelay, testAppBaseInitialize, testClientBaseInitialize } from './utils'
 import { BaseClient, Connect } from './client'
 // Edit an assertion and save to see HMR in action
-
 describe('Base App tests', () => {
   let baseApp: BaseApp
   beforeAll(async () => {
@@ -30,7 +29,7 @@ describe('Base App tests', () => {
     baseApp.on('serverDisconnected', () => {
       disconnecFn()
     })
-    await sleep(100)
+    await smartDelay()
     expect(disconnecFn).toHaveBeenCalledOnce()
     // Reconnect
     persistInitialize.persistentSessionId = sessionId // Set the session id
@@ -47,7 +46,7 @@ describe('Base App tests', () => {
       e
       userConnectedFn(e)
     })
-    await sleep(10)
+    await smartDelay()
 
     // Create client
     const client = await BaseClient.build(testClientBaseInitialize)
@@ -56,7 +55,7 @@ describe('Base App tests', () => {
       sessionId: baseApp.sessionId
     }
     await client.connect(msg)
-    await sleep(100)
+    await smartDelay()
     // We should get public keys
     expect(userConnectedFn.mock.lastCall[0].publicKeys).toStrictEqual(msg.publicKeys)
     expect(userConnectedFn).toHaveBeenCalledOnce()
