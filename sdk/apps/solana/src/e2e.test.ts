@@ -5,7 +5,8 @@ import nacl from 'tweetnacl'
 import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { AppSolana } from './app'
 import { ClientSolana } from './client'
-import { sleep, SOLANA_NETWORK, TEST_APP_INITIALIZE } from './utils'
+import { SOLANA_NETWORK, TEST_APP_INITIALIZE } from './utils'
+import { RELAY_ENDPOINT, smartDelay } from 'base/src/utils'
 // Edit an assertion and save to see HMR in action
 const alice_keypair = Keypair.generate()
 describe('Base Client tests', () => {
@@ -15,10 +16,10 @@ describe('Base Client tests', () => {
     app = await AppSolana.build(TEST_APP_INITIALIZE)
     expect(app).toBeDefined()
     assert(app.sessionId !== '')
-    client = await ClientSolana.create({ url: 'ws://localhost:6969' })
+    client = await ClientSolana.create({ url: RELAY_ENDPOINT })
   })
   beforeEach(async () => {
-    await sleep(5)
+    await smartDelay()
   })
   test('#getInfo()', async () => {
     const info = await client.getInfo(app.sessionId)
@@ -57,8 +58,8 @@ describe('Base Client tests', () => {
         signedTransactions: [tx]
       })
     })
-    // // sleep(100)
-    await sleep(0)
+
+    await smartDelay()
     const signed = await app.signTransaction(tx)
     // Transform to Transaction cuz idk how to verify VersionedTransaction
     const signed_transaction = Transaction.from(signed.serialize())
@@ -76,7 +77,7 @@ describe('Base Client tests', () => {
         signature: signature
       })
     })
-    await sleep(0)
+    await smartDelay()
     const signature = await app.signMessage(msgToSign)
     const verified = nacl.sign.detached.verify(
       Uint8Array.from(sha256.array(msgToSign)),

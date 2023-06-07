@@ -1,6 +1,6 @@
 import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { AppSolana } from './app'
-import { SOLANA_NETWORK, TEST_APP_INITIALIZE, sleep } from './utils'
+import { SOLANA_NETWORK, TEST_APP_INITIALIZE } from './utils'
 import { Connect, getRandomId } from 'base'
 import {
   Keypair,
@@ -9,11 +9,9 @@ import {
   Transaction,
   VersionedTransaction
 } from '@solana/web3.js'
-import { sha256 } from 'js-sha256'
-import nacl from 'tweetnacl'
-import bs58 from 'bs58'
 import { HttpClientSolana } from './http-client'
 import { ContentType } from 'base/src/content'
+import { RELAY_ENDPOINT, smartDelay } from 'base/src/utils'
 // Edit an assertion and save to see HMR in action
 const alice_keypair = Keypair.generate()
 describe('Base Client tests', () => {
@@ -24,10 +22,10 @@ describe('Base Client tests', () => {
     app = await AppSolana.build(TEST_APP_INITIALIZE)
     expect(app).toBeDefined()
     assert(app.sessionId !== '')
-    client = new HttpClientSolana({ url: 'http://localhost:6969', clientId })
+    client = new HttpClientSolana({ url: RELAY_ENDPOINT, clientId })
   })
   beforeEach(async () => {
-    await sleep(5)
+    await smartDelay()
   })
   test('#getInfo()', async () => {
     const info = await client.getInfo(app.sessionId)
@@ -57,7 +55,7 @@ describe('Base Client tests', () => {
     tx.feePayer = alice_keypair.publicKey
     tx.recentBlockhash = 'E6wypnGQkndknX5Urd5yXV8yxAkbHwD5MJ1aaNKWZBd5'
     const promiseSignTransaction = app.signTransaction(tx)
-    await sleep(100)
+    await smartDelay()
     // Query for request
     const pendingRequest = (await client.getPendingRequests({ sessionId: app.sessionId }))[0]
     if (pendingRequest.content.type !== ContentType.SignTransactions) {
@@ -74,7 +72,7 @@ describe('Base Client tests', () => {
       signedTransactions: [txToSign]
     })
 
-    sleep(100)
+    await smartDelay()
     const signed = await promiseSignTransaction
     // Transform to Transaction cuz idk how to verify VersionedTransaction
     const signed_transaction = Transaction.from(signed.serialize())

@@ -1,3 +1,4 @@
+import { RELAY_ENDPOINT } from 'base/src/utils'
 import { AppSolanaInitialize } from './app'
 
 export const SOLANA_NETWORK = 'Solana'
@@ -12,7 +13,7 @@ export const TEST_APP_INITIALIZE: AppSolanaInitialize = {
   persistent: false,
   persistentSessionId: undefined,
   timeout: undefined,
-  wsUrl: 'ws://localhost:6969'
+  url: RELAY_ENDPOINT
 }
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))

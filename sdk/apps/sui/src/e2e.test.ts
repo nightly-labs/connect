@@ -2,7 +2,7 @@ import { Connect } from 'base'
 import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { AppSui } from './app'
 import { ClientSui } from './client'
-import { signTransactionBlock, sleep, SUI_NETWORK, TEST_APP_INITIALIZE } from './utils'
+import { signTransactionBlock, SUI_NETWORK, TEST_APP_INITIALIZE } from './utils'
 
 import {
   Ed25519Keypair,
@@ -18,6 +18,7 @@ import { blake2b } from '@noble/hashes/blake2b'
 import { fetch } from 'cross-fetch'
 import { WalletAccount } from '@mysten/wallet-standard'
 import { hexToBytes } from '@noble/hashes/utils'
+import { RELAY_ENDPOINT, smartDelay } from 'base/src/utils'
 global.fetch = fetch
 
 const ALICE_PRIVE_KEY = '4aa55c99d633c646b8dc423eed56e0fc39bdbca6ac6d8c53cc6e4decda27d970'
@@ -41,10 +42,10 @@ describe('SUI client tests', () => {
     app = await AppSui.build(TEST_APP_INITIALIZE)
     expect(app).toBeDefined()
     assert(app.sessionId !== '')
-    client = await ClientSui.create({ url: 'ws://localhost:6969' })
+    client = await ClientSui.create({ url: RELAY_ENDPOINT })
   })
   beforeEach(async () => {
-    await sleep(5)
+    await smartDelay()
   })
   test('#getInfo()', async () => {
     const info = await client.getInfo(app.sessionId)
@@ -85,7 +86,8 @@ describe('SUI client tests', () => {
       })
     })
 
-    await sleep(0)
+    await smartDelay()
+
     const signedTx = await app.signTransactionBlock({
       transactionBlock: tx,
       account: aliceWalletAccount,
@@ -121,8 +123,7 @@ describe('SUI client tests', () => {
         signature: signedMessage
       })
     })
-    await sleep(0)
-
+    await smartDelay()
     const signedMessage = await app.signMessage({
       message: new TextEncoder().encode(msgToSign),
       account: aliceWalletAccount
@@ -161,7 +162,7 @@ describe('SUI client tests', () => {
     })
     app.base.ws.terminate()
     app.base.ws.close()
-    await sleep(100)
+    await smartDelay()
     expect(disconnecFn).toHaveBeenCalledOnce()
   })
 })

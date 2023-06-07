@@ -9,6 +9,7 @@ import {
 } from '@mysten/sui.js'
 import { blake2b } from '@noble/hashes/blake2b'
 import { AppSuiInitialize } from './app'
+import { RELAY_ENDPOINT } from 'base/src/utils'
 
 export const SUI_NETWORK = 'Sui'
 
@@ -22,7 +23,7 @@ export const TEST_APP_INITIALIZE: AppSuiInitialize = {
   persistent: false,
   persistentSessionId: undefined,
   timeout: undefined,
-  url: 'ws://localhost:6969'
+  url: RELAY_ENDPOINT
 }
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
