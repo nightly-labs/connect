@@ -1,0 +1,19 @@
+{
+  "name": "@nightlylabs/wallet-selector-solana",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@nightlylabs/wallet-selector-base": "workspace:*",
+    "@wallet-standard/core": "^1.0.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.1.3"
+  }
+}
