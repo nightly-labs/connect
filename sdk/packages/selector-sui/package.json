@@ -2,9 +2,15 @@
   "name": "@nightlylabs/wallet-selector-sui",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "type": "module",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rm -rf ./dist && rollup -c"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +20,13 @@
     "@wallet-standard/core": "^1.0.3"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-node-resolve": "^15.1.0",
+    "@rollup/plugin-terser": "^0.4.3",
+    "@rollup/plugin-typescript": "^11.1.1",
+    "rollup": "^3.23.1",
+    "rollup-plugin-dts": "^5.3.0",
+    "tslib": "^2.5.3",
     "typescript": "^5.1.3"
   }
 }

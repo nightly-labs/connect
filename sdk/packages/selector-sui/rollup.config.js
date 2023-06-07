@@ -11,7 +11,7 @@ export default [
       {
         file: 'dist/cjs/index.js',
         format: 'cjs',
-        sourcemap: true,
+        sourcemap: true
       },
       {
         file: 'dist/esm/index.js',
