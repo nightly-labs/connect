@@ -7,7 +7,8 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
-    "test:production": "PRODUCTION=true vitest run"
+    "test:production": "PRODUCTION=true vitest run",
+    "test:ci": "IS_CI=true vitest run"
   },
   "devDependencies": {
     "@vitest/ui": "^0.31.1"
