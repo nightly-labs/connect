@@ -1,7 +1,7 @@
 import { Wallet } from '@wallet-standard/core'
-import { getWalletsList, IWalletListItem } from '@nightlylabs/wallet-selector-base'
+import { getWalletsList, IWalletListItem, isStandardWalletAdapterCompatibleWallet } from '@nightlylabs/wallet-selector-base'
 
-export const suiWalletsFilter = (wallet: Wallet) => 'sui:signTransactionBlock' in wallet.features
+export const suiWalletsFilter = (wallet: Wallet) => isStandardWalletAdapterCompatibleWallet(wallet, ['sui:signTransactionBlock'])
 
 export const getSuiWalletsList = (
   presetList: Omit<IWalletListItem, 'recent' | 'detected'>[],

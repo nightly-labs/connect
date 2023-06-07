@@ -1,1 +1,1 @@
-export { IWalletListItem, getWalletsList } from './detection'
+export { IWalletListItem, getWalletsList, isStandardWalletAdapterCompatibleWallet } from './detection'
