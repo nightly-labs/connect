@@ -51,13 +51,13 @@ jobs:
           cargo run &
       - name: test base local
         run: |
-          pnpm test:run
+          pnpm test:ci
         working-directory: ./sdk/apps/base
       - name: test solana local
         run: |
-          pnpm test:run
+          pnpm test:ci
         working-directory: ./sdk/apps/solana
       - name: test sui local
         run: |
-          pnpm test:run
+          pnpm test:ci
         working-directory: ./sdk/apps/sui
