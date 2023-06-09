@@ -1,6 +1,9 @@
 import { v4 as uuidv4 } from 'uuid'
 import { AppBaseInitialize } from './app'
 import { ClientBaseInitialize } from './client'
+import { WalletMetadata } from '@bindings/WalletMetadata'
+import { fetch } from 'cross-fetch'
+
 export const getRandomId = () => uuidv4()
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -36,4 +39,17 @@ export const smartDelay = async (ms?: number) => {
       await sleep(ms || 5)
     }
   }
+}
+export const getWalletsMetadata = async (url?: string): Promise<WalletMetadata[]> => {
+  const endpoint = url ?? RELAY_ENDPOINT + '/get_wallets_metadata'
+  const result = await (
+    await fetch(endpoint, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
+  ).json()
+  return result
 }

@@ -60,4 +60,10 @@ describe('Base App tests', () => {
     expect(userConnectedFn.mock.lastCall[0].publicKeys).toStrictEqual(msg.publicKeys)
     expect(userConnectedFn).toHaveBeenCalledOnce()
   })
+  test('#getWalletsMetadata()', async () => {
+    const walletsMetadata = await BaseApp.getWalletsMetadata()
+    expect(walletsMetadata).toBeDefined()
+    console.log(walletsMetadata)
+    assert(walletsMetadata.length > 0)
+  })
 })

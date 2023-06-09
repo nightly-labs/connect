@@ -6,11 +6,12 @@ import {
   SuiSignMessageInput,
   SuiSignTransactionBlockInput
 } from '@mysten/wallet-standard'
-import { AppBaseInitialize, BaseApp } from 'base'
+import { AppBaseInitialize, BaseApp, getWalletsMetadata } from 'base'
 import { MessageToSign, TransactionToSign } from 'base/src/content'
 import { TypedEmitter } from 'tiny-typed-emitter'
 import { SUI_NETWORK } from './utils'
 import { UserDisconnectedEvent } from '@bindings/UserDisconnectedEvent'
+import { WalletMetadata } from '@bindings/WalletMetadata'
 export type AppSuiInitialize = Omit<AppBaseInitialize, 'network'>
 interface SuiAppEvents {
   userConnected: (e: UserConnectedEvent) => void
@@ -36,7 +37,9 @@ export class AppSui extends TypedEmitter<SuiAppEvents> {
       this.emit('serverDisconnected')
     })
   }
-
+  public static getWalletsMetadata = async (url?: string): Promise<WalletMetadata[]> => {
+    return getWalletsMetadata(url)
+  }
   public static build = async (initData: AppSuiInitialize): Promise<AppSui> => {
     const base = await BaseApp.build({ ...initData, network: SUI_NETWORK })
     return new AppSui(base)

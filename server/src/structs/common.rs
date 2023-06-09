@@ -4,7 +4,11 @@ use ts_rs::TS;
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct Network(pub String);
-
+impl Network {
+    pub fn new(network: &str) -> Self {
+        return Self(network.to_string());
+    }
+}
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct Version(pub String); // 0.0.1

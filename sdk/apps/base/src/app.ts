@@ -8,12 +8,13 @@ import { UserConnectedEvent } from '@bindings/UserConnectedEvent'
 import { Version } from '@bindings/Version'
 import WebSocket from 'isomorphic-ws'
 import LocalStorage from 'isomorphic-localstorage'
-import { getRandomId } from './utils'
+import { getRandomId, getWalletsMetadata } from './utils'
 import { UserDisconnectedEvent } from '@bindings/UserDisconnectedEvent'
 import { TypedEmitter } from 'tiny-typed-emitter'
 import { AppMetadata } from '@bindings/AppMetadata'
 import { ContentType, MessageToSign, RequestContent, TransactionToSign } from './content'
 import { ResponsePayload } from '@bindings/ResponsePayload'
+import { WalletMetadata } from '@bindings/WalletMetadata'
 import {
   CustomResponseContent,
   ResponseContent,
@@ -58,7 +59,9 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
     this.ws = ws
     this.timeout = timeout
   }
-
+  public static getWalletsMetadata = async (url?: string): Promise<WalletMetadata[]> => {
+    return getWalletsMetadata(url)
+  }
   public static build = async (baseInitialize: AppBaseInitialize): Promise<BaseApp> => {
     return new Promise((resolve, reject) => {
       const persistent = baseInitialize.persistent ?? true
