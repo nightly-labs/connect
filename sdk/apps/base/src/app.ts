@@ -1,4 +1,3 @@
-// import LocalStorage from 'isomorphic-localstorage'
 import { AppToServer } from '@bindings/AppToServer'
 import { InitializeRequest } from '@bindings/InitializeRequest'
 import { InitializeResponse } from '@bindings/InitializeResponse'
@@ -7,8 +6,7 @@ import { ServerToApp } from '@bindings/ServerToApp'
 import { UserConnectedEvent } from '@bindings/UserConnectedEvent'
 import { Version } from '@bindings/Version'
 import WebSocket from 'isomorphic-ws'
-import LocalStorage from 'isomorphic-localstorage'
-import { getRandomId } from './utils'
+import { getLocalStorage, getRandomId } from './utils'
 import { UserDisconnectedEvent } from '@bindings/UserDisconnectedEvent'
 import { TypedEmitter } from 'tiny-typed-emitter'
 import { AppMetadata } from '@bindings/AppMetadata'
@@ -25,7 +23,6 @@ import {
 } from './responseContent'
 import { triggerDeeplink } from './deeplinks'
 
-const localStorage = LocalStorage('./.nightly-connect-session')
 export interface AppBaseInitialize {
   appMetadata: AppMetadata
   network: Network
@@ -61,6 +58,7 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
 
   public static build = async (baseInitialize: AppBaseInitialize): Promise<BaseApp> => {
     return new Promise((resolve, reject) => {
+      const localStorage = getLocalStorage()
       const persistent = baseInitialize.persistent ?? true
       const persistentSessionId = persistent
         ? localStorage.getItem(baseInitialize.appMetadata.name) ?? undefined

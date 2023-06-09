@@ -17,7 +17,7 @@
     "base": "workspace:*",
     "bindings": "../../bindings",
     "eventemitter3": "^5.0.1",
-    "isomorphic-localstorage": "^0.0.8",
+    "isomorphic-localstorage": "^1.0.1",
     "isomorphic-ws": "^5.0.0",
     "tiny-typed-emitter": "^2.1.0",
     "uuid": "^9.0.0"

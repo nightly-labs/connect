@@ -46,8 +46,8 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1
       isomorphic-localstorage:
-        specifier: ^0.0.8
-        version: 0.0.8
+        specifier: ^1.0.1
+        version: 1.0.1
       isomorphic-ws:
         specifier: ^5.0.0
         version: 5.0.0(ws@8.13.0)
@@ -90,8 +90,8 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1
       isomorphic-localstorage:
-        specifier: ^0.0.8
-        version: 0.0.8
+        specifier: ^1.0.1
+        version: 1.0.1
       isomorphic-ws:
         specifier: ^5.0.0
         version: 5.0.0(ws@8.13.0)
@@ -133,8 +133,8 @@ importers:
         specifier: ../../bindings
         version: link:../../bindings
       isomorphic-localstorage:
-        specifier: ^0.0.8
-        version: 0.0.8
+        specifier: ^1.0.1
+        version: 1.0.1
       isomorphic-ws:
         specifier: ^5.0.0
         version: 5.0.0(ws@8.13.0)
@@ -6768,12 +6768,6 @@ packages:
       whatwg-fetch: 3.6.2
     transitivePeerDependencies:
       - encoding
-    dev: false
-
-  /isomorphic-localstorage@0.0.8:
-    resolution: {integrity: sha512-ejzdUagHWEV/vaxazMt8oIzEIP83SrMsp4gT3fj379pJ6iw2gss0K8rcexTM7vwlopLzA/b9vNwQ7fyf67UuLA==}
-    dependencies:
-      node-localstorage: 2.2.1
     dev: false
 
   /isomorphic-localstorage@1.0.1:
