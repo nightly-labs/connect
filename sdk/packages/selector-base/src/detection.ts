@@ -5,6 +5,8 @@ export interface IWalletListItem {
   icon: string
   recent?: boolean
   detected?: boolean
+  hasMobileVersion?: boolean
+  highlighted?: boolean
 }
 
 export const getWalletsList = (
@@ -32,16 +34,11 @@ export const getWalletsList = (
   return Object.values(walletsData)
 }
 
-const REQUIRED_FEATURES = [
-  "standard:connect",
-  "standard:events",
-];
+const REQUIRED_FEATURES = ['standard:connect', 'standard:events']
 
 export function isStandardWalletAdapterCompatibleWallet(
   wallet: Wallet,
   features: string[] = []
 ): boolean {
-  return [...REQUIRED_FEATURES, ...features].every(
-    (feature) => feature in wallet.features
-  );
+  return [...REQUIRED_FEATURES, ...features].every((feature) => feature in wallet.features)
 }
