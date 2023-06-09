@@ -29,6 +29,7 @@ pub async fn get_image(
 #[cfg(test)]
 mod tests {
     #[tokio::test]
+    #[ignore = "This does not work on CI since paths are different"]
     async fn test_get_image() {
         dotenvy::dotenv().ok();
         let slug = "nightly".to_string();
