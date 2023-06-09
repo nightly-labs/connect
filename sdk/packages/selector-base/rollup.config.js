@@ -11,7 +11,7 @@ export default [
       {
         file: 'dist/cjs/index.js',
         format: 'cjs',
-        sourcemap: true,
+        sourcemap: true
       },
       {
         file: 'dist/esm/index.js',
@@ -20,7 +20,7 @@ export default [
       }
     ],
     plugins: [typescript(), nodeResolve(), commonjs(), commonjs(), terser()],
-    external: ['@wallet-standard/core']
+    external: ['@wallet-standard/core', 'isomorphic-localstorage']
   },
   {
     input: 'dist/esm/types/index.d.ts',

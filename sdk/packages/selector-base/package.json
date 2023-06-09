@@ -16,7 +16,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@wallet-standard/core": "^1.0.3"
+    "@wallet-standard/core": "^1.0.3",
+    "isomorphic-localstorage": "^1.0.1"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.0",

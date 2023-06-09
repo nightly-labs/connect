@@ -36,9 +36,9 @@ export const getWalletsList = (
 
 const REQUIRED_FEATURES = ['standard:connect', 'standard:events']
 
-export function isStandardWalletAdapterCompatibleWallet(
+export const isStandardWalletAdapterCompatibleWallet = (
   wallet: Wallet,
   features: string[] = []
-): boolean {
+): boolean => {
   return [...REQUIRED_FEATURES, ...features].every((feature) => feature in wallet.features)
 }

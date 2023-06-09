@@ -261,6 +261,9 @@ importers:
       '@wallet-standard/core':
         specifier: ^1.0.3
         version: 1.0.3
+      isomorphic-localstorage:
+        specifier: ^1.0.1
+        version: 1.0.1
     devDependencies:
       '@rollup/plugin-commonjs':
         specifier: ^25.0.0
@@ -6769,6 +6772,12 @@ packages:
 
   /isomorphic-localstorage@0.0.8:
     resolution: {integrity: sha512-ejzdUagHWEV/vaxazMt8oIzEIP83SrMsp4gT3fj379pJ6iw2gss0K8rcexTM7vwlopLzA/b9vNwQ7fyf67UuLA==}
+    dependencies:
+      node-localstorage: 2.2.1
+    dev: false
+
+  /isomorphic-localstorage@1.0.1:
+    resolution: {integrity: sha512-8TvDxz9Qv4X1NxfH1mq/froWoHtO2cfr+lzX4/6ehwplyVhJBcKk9SBlUtjoPoIKAWwPcPP8GuBiVdfI8M3/Lw==}
     dependencies:
       node-localstorage: 2.2.1
     dev: false
