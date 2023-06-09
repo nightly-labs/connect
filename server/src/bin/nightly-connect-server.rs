@@ -5,7 +5,7 @@ use std::sync::mpsc::channel;
 
 #[tokio::main]
 async fn main() {
-    dotenvy::dotenv().ok();
+    dotenvy::dotenv().expect(".env file not found");
 
     let router = get_router().await;
     let socket = SocketAddr::from_str("127.0.0.1:6969").unwrap();

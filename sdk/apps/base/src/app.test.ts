@@ -63,7 +63,6 @@ describe('Base App tests', () => {
   test('#getWalletsMetadata()', async () => {
     const walletsMetadata = await BaseApp.getWalletsMetadata()
     expect(walletsMetadata).toBeDefined()
-    console.log(walletsMetadata)
     assert(walletsMetadata.length > 0)
   })
 })
