@@ -54,6 +54,10 @@ pub static WALLETS_METADATA: Lazy<Vec<WalletMetadata>> = Lazy::new(|| {
                     Platform::android,
                     "https://play.google.com/store/apps/details?id=com.nightlymobile".to_string(),
                 ),
+                (
+                    Platform::ios,
+                    "https://apps.apple.com/pl/app/nightly-multichain-wallet/id6444768157".to_string(),
+                ),
             ]),
             chains: vec![Network::new("solana"), Network::new("near"), Network::new("sui"), Network::new("aptos")],
             desktop: None,

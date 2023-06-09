@@ -17,6 +17,7 @@ use crate::{
         get_wallets_metadata::get_wallets_metadata, resolve_request::resolve_request,
     },
     handle_error::handle_error,
+    sesssion_cleaner::start_cleaning_sessions,
     state::ServerState,
     structs::http_endpoints::HttpEndpoint,
 };
@@ -27,6 +28,9 @@ pub async fn get_router() -> Router {
         client_to_sessions: Default::default(),
         client_to_sockets: Default::default(),
     };
+    // Start cleaning outdated sessions
+    start_cleaning_sessions(state.sessions.clone(), state.client_to_sessions.clone());
+
     return Router::new()
         .route("/client", get(on_new_client_connection))
         .route("/app", get(on_new_app_connection))
