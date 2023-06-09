@@ -25,4 +25,5 @@ pub enum NightlyError {
     UserNotConnected,
     SessionDropped,
     RequestDoesNotExist,
+    NotFound,
 }

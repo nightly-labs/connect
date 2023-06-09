@@ -34,3 +34,5 @@ tower = { version = "0.4", features = [
 hyper = { version = "0.14.14", features = ["stream"] }
 async-trait = "0.1.68"
 axum-server = { version = "0.5", features = ["tls-rustls"] }
+once_cell = "1.18.0"
+shellexpand = "3.1.0"
