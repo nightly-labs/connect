@@ -2,4 +2,4 @@
 import type { AppMetadata } from "./AppMetadata";
 import type { Device } from "./Device";
 
-export interface NotificationPayload { token: string, sessionId: string, appMetadata: AppMetadata, device: Device, request: string, request_id: string, }
+export interface NotificationPayload { token: string, sessionId: string, appMetadata: AppMetadata, device: Device, request: string, requestId: string, }
