@@ -3,4 +3,4 @@ export {
   getWalletsList,
   isStandardWalletAdapterCompatibleWallet
 } from './detection'
-export { persistRecentWalletForNetwork, getRecentWalletForNetwork } from './persistance'
+export { persistRecentWalletForNetwork, getRecentWalletForNetwork } from './persistence'

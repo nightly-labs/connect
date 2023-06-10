@@ -4,7 +4,7 @@ let _localStorage: ILocalStorage | null = null
 
 export const getLocalStorage = () => {
   if (_localStorage === null) {
-    _localStorage = getStorage('./localstorage')
+    _localStorage = getStorage('./nightly-connect-selector')
   }
 
   return _localStorage
