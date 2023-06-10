@@ -1,6 +1,2 @@
-export {
-  IWalletListItem,
-  getWalletsList,
-  isStandardWalletAdapterCompatibleWallet
-} from './detection'
+export { IWalletListItem, getWalletsList } from './detection'
 export { persistRecentWalletForNetwork, getRecentWalletForNetwork } from './persistence'

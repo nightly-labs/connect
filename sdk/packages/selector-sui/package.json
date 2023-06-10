@@ -17,6 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "@mysten/wallet-adapter-wallet-standard": "^0.7.9",
+    "@mysten/wallet-standard": "^0.5.7",
     "@nightlylabs/wallet-selector-base": "workspace:*",
     "@wallet-standard/core": "^1.0.3"
   },

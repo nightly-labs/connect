@@ -295,6 +295,9 @@ importers:
       '@nightlylabs/wallet-selector-base':
         specifier: workspace:*
         version: link:../selector-base
+      '@solana/wallet-adapter-base':
+        specifier: ^0.9.22
+        version: 0.9.22(@solana/web3.js@1.77.2)
       '@solana/wallet-standard-wallet-adapter-base':
         specifier: ^1.0.2
         version: 1.0.2(@solana/web3.js@1.77.2)(bs58@4.0.1)
@@ -332,6 +335,9 @@ importers:
       '@mysten/wallet-adapter-wallet-standard':
         specifier: ^0.7.9
         version: 0.7.9
+      '@mysten/wallet-standard':
+        specifier: ^0.5.7
+        version: 0.5.9
       '@nightlylabs/wallet-selector-base':
         specifier: workspace:*
         version: link:../selector-base
