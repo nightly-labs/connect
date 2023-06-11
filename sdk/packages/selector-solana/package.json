@@ -18,6 +18,7 @@
   "dependencies": {
     "@nightlylabs/wallet-selector-base": "workspace:*",
     "@solana/wallet-adapter-base": "^0.9.22",
+    "@solana/wallet-standard": "^1.0.2",
     "@solana/wallet-standard-wallet-adapter-base": "^1.0.2",
     "@wallet-standard/core": "^1.0.3"
   },
