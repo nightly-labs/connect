@@ -1,5 +1,5 @@
 {
-  "name": "solana",
+  "name": "@nightlylabs/connect-solana",
   "private": true,
   "scripts": {
     "test": "vitest",

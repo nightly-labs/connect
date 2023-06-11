@@ -15,8 +15,13 @@ import type {
   WalletAccount,
   StandardEventsOnMethod
 } from '@wallet-standard/core'
+import { AppSolanaInitialize, AppSolana } from '@nightlylabs/connect-solana/src/app'
+import { VersionedTransaction } from '@solana/web3.js'
 
 export class NightlyConnectBaseSolanaWallet implements Wallet {
+  private _appData: AppSolanaInitialize
+  private _app: AppSolana | undefined
+
   #listeners: { [E in StandardEventsNames]?: StandardEventsListeners[E][] } = {}
 
   get version() {
@@ -92,17 +97,40 @@ export class NightlyConnectBaseSolanaWallet implements Wallet {
     }
   }
 
-  constructor() {}
+  constructor(appData: AppSolanaInitialize) {
+    this._appData = appData
+  }
 
   #connect: StandardConnectMethod = async () => {
     return { accounts: [] }
   }
 
   #signTransaction: SolanaSignTransactionMethod = async (...inputs) => {
-    return []
+    return await Promise.all(inputs.map(async ({ transaction }) => {
+      const signed = await this._app?.signVersionedTransaction(VersionedTransaction.deserialize(transaction))
+
+      if (typeof signed === 'undefined') {
+        throw new Error('sign transaction error')
+      }
+
+      return {
+        signedTransaction: signed.serialize()
+      }
+    }))
   }
 
   #signMessage: SolanaSignMessageMethod = async (...inputs) => {
-    return []
+    return await Promise.all(inputs.map(async ({ message }) => {
+      const signature = await this._app?.signMessage(new TextDecoder().decode(message))
+
+      if (typeof signature === 'undefined') {
+        throw new Error('sign transaction error')
+      }
+
+      return {
+        signedMessage: message,
+        signature
+      }
+    }))
   }
 }
