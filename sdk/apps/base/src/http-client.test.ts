@@ -1,6 +1,6 @@
 import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { BaseApp } from './app'
-import { getRandomId, sleep, testAppBaseInitialize } from './utils'
+import { RELAY_ENDPOINT, getRandomId, smartDelay, testAppBaseInitialize } from './utils'
 import { Connect } from './client'
 import { MessageToSign, TransactionToSign } from './content'
 import { SignedMessage, SignedTransaction } from './responseContent'
@@ -20,7 +20,7 @@ describe('Http Base Client tests', () => {
     expect(baseApp).toBeDefined()
     assert(baseApp.sessionId !== '')
 
-    client = new HttpBaseClient({ url: 'http://127.0.0.1:6969', clientId: clientId })
+    client = new HttpBaseClient({ url: RELAY_ENDPOINT, clientId: clientId })
   })
   test('#getInfo()', async () => {
     const info = await client.getInfo(baseApp.sessionId)
@@ -44,7 +44,7 @@ describe('Http Base Client tests', () => {
       sessionId: baseApp.sessionId
     }
     await client.connect(msg)
-    await sleep(100)
+    await smartDelay()
     expect(userConnectedFn).toHaveBeenCalledOnce()
   })
   test('#resolveSignTransactions()', async () => {
@@ -55,7 +55,7 @@ describe('Http Base Client tests', () => {
     ]
     // send sign transactions
     const promiseSignedTxs = baseApp.signTransactions(randomSignTransaction)
-    await sleep(100)
+    await smartDelay()
     // Query for sign transactions
     const pendingRequest = (await client.getPendingRequests({ sessionId: baseApp.sessionId }))[0]
     await client.resolveSignTransactions({
@@ -64,7 +64,7 @@ describe('Http Base Client tests', () => {
       signedTransactions: randomResolveSignTransaction
     })
 
-    await sleep(100)
+    await smartDelay()
     const signedTxs = await promiseSignedTxs
     assert(signedTxs.length === 2)
   })
@@ -76,7 +76,7 @@ describe('Http Base Client tests', () => {
     ]
     // send sign Messagess
     const promiseSigned = baseApp.signMessages(randomSignMessages)
-    await sleep(100)
+    await smartDelay()
     // Query for sign Messagess
     const pendingRequest = (await client.getPendingRequests({ sessionId: baseApp.sessionId }))[0]
     await client.resolveSignMessages({
@@ -85,7 +85,7 @@ describe('Http Base Client tests', () => {
       signedMessages: randomResolveSignMessages
     })
 
-    await sleep(100)
+    await smartDelay()
     const signed = await promiseSigned
     assert(signed.length === 2)
   })
@@ -98,7 +98,7 @@ describe('Http Base Client tests', () => {
         expect(() => baseApp.signMessages(randomSignMessages)).rejects.toThrow('test-error')
         resolve()
       })
-      await sleep(100)
+      await smartDelay()
       // Query for sign Messagess
       const pendingRequest = (await client.getPendingRequests({ sessionId: baseApp.sessionId }))[0]
       await client.reject({
@@ -106,7 +106,7 @@ describe('Http Base Client tests', () => {
         sessionId: baseApp.sessionId,
         reason: 'test-error'
       })
-      await sleep(50)
+      await smartDelay()
       await promiseSigned
     } catch (error) {
       console.log(error)

@@ -9,9 +9,10 @@ import {
   HttpResolveSignMessages,
   HttpResolveSignTransactions
 } from './http-client'
-import { getRandomId, sleep } from './utils'
+import { getRandomId, getWalletsMetadata, sleep } from './utils'
 
 export {
+  getWalletsMetadata,
   HttpBaseClient,
   HttpBaseClientInitialize,
   HttpPendingRequest,

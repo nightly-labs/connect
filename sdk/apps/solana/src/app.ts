@@ -1,11 +1,12 @@
 import { Transaction, VersionedTransaction } from '@solana/web3.js'
-import { AppBaseInitialize, BaseApp } from 'base'
+import { AppBaseInitialize, BaseApp, getWalletsMetadata } from 'base'
 import { SOLANA_NETWORK } from './utils'
 import { MessageToSign, TransactionToSign } from 'base/src/content'
 import { DeeplinkConnect } from 'base/src/app'
 import { TypedEmitter } from 'tiny-typed-emitter'
 import { UserDisconnectedEvent } from '@bindings/UserDisconnectedEvent'
 import { UserConnectedEvent } from '@bindings/UserConnectedEvent'
+import { WalletMetadata } from '@bindings/WalletMetadata'
 
 export type AppSolanaInitialize = Omit<AppBaseInitialize, 'network'>
 interface SolanaAppEvents {
@@ -32,7 +33,9 @@ export class AppSolana extends TypedEmitter<SolanaAppEvents> {
       this.emit('serverDisconnected')
     })
   }
-
+  public static getWalletsMetadata = async (url?: string): Promise<WalletMetadata[]> => {
+    return getWalletsMetadata(url)
+  }
   public static build = async (initData: AppSolanaInitialize): Promise<AppSolana> => {
     const base = await BaseApp.build({ ...initData, network: SOLANA_NETWORK })
     base.connectDeeplink

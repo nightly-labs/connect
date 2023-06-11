@@ -11,11 +11,13 @@ use crate::{
     app::app_handler::on_new_app_connection,
     client::{
         client_handler::on_new_client_connection, connect_session::connect_session,
-        drop_sessions::drop_sessions, get_pending_request::get_pending_request,
-        get_pending_requests::get_pending_requests, get_session_info::get_session_info,
-        get_sessions::get_sessions, resolve_request::resolve_request,
+        drop_sessions::drop_sessions, get_image::get_image,
+        get_pending_request::get_pending_request, get_pending_requests::get_pending_requests,
+        get_session_info::get_session_info, get_sessions::get_sessions,
+        get_wallets_metadata::get_wallets_metadata, resolve_request::resolve_request,
     },
     handle_error::handle_error,
+    sesssion_cleaner::start_cleaning_sessions,
     state::ServerState,
     structs::http_endpoints::HttpEndpoint,
 };
@@ -26,6 +28,9 @@ pub async fn get_router() -> Router {
         client_to_sessions: Default::default(),
         client_to_sockets: Default::default(),
     };
+    // Start cleaning outdated sessions
+    start_cleaning_sessions(state.sessions.clone(), state.client_to_sessions.clone());
+
     return Router::new()
         .route("/client", get(on_new_client_connection))
         .route("/app", get(on_new_app_connection))
@@ -51,6 +56,11 @@ pub async fn get_router() -> Router {
             &HttpEndpoint::ResolveRequest.to_string(),
             post(resolve_request),
         )
+        .route(
+            &HttpEndpoint::GetWalletsMetadata.to_string(),
+            get(get_wallets_metadata),
+        )
+        .route(&HttpEndpoint::GetImage.to_string(), get(get_image))
         .layer(
             ServiceBuilder::new()
                 .layer(HandleErrorLayer::new(handle_error))

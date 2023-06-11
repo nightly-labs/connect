@@ -1,0 +1,45 @@
+name: connect-test-production.yml
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  install:
+    timeout-minutes: 10
+    runs-on: [testing]
+    steps:
+      - name: FIX BULLSHIT PERMISSION
+        run: |
+          echo ${{secrets.TESTING_LAPTOP_PASSWORD}} | sudo -S chown -R $USER:$USER /home/syncomp/runners
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 8
+          run_install: false
+      - name: install packages
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: |
+          pnpm install
+        working-directory: ./sdk
+      - name: test base production
+        run: |
+          pnpm test:production
+        working-directory: ./sdk/apps/base
+      - name: test solana production
+        run: |
+          pnpm test:production
+        working-directory: ./sdk/apps/solana
+      - name: test sui production
+        run: |
+          pnpm test:production
+        working-directory: ./sdk/apps/sui

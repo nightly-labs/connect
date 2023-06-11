@@ -1,0 +1,41 @@
+.walletSelectorItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border-radius: 8px;
+  width: 80px;
+  padding: 4px 8px;
+  height: 104px;
+  background-color: transparent;
+}
+
+.walletSelectorItem img {
+  padding-bottom: 8px;
+  width: 64px;
+  height: 64px;
+}
+
+.walletSelectorItem:hover {
+  background-color: #47486a;
+}
+
+.walletSelectorName {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  font-weight: bold;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+}
+
+.walletSelectorInfo {
+  font-weight: normal;
+  font-size: 10px;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+  color: #6067f9;
+}

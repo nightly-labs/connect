@@ -1,14 +1,12 @@
-use axum_server::tls_rustls::RustlsConfig;
 use server::router::get_router;
-use std::env;
 use std::net::SocketAddr;
-use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::mpsc::channel;
 
 #[tokio::main]
 async fn main() {
-    dotenvy::dotenv().ok();
+    dotenvy::dotenv().expect(".env file not found");
+
     let router = get_router().await;
     let socket = SocketAddr::from_str("127.0.0.1:6969").unwrap();
 

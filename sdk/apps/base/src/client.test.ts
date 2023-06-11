@@ -1,6 +1,6 @@
 import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { BaseApp } from './app'
-import { sleep, testAppBaseInitialize, testClientBaseInitialize } from './utils'
+import { smartDelay, testAppBaseInitialize, testClientBaseInitialize } from './utils'
 import { BaseClient, Connect } from './client'
 import { MessageToSign, TransactionToSign } from './content'
 import { SignedMessage, SignedTransaction } from './responseContent'
@@ -17,7 +17,7 @@ describe('Base Client tests', () => {
     client = await BaseClient.build(testClientBaseInitialize)
   })
   beforeEach(async () => {
-    await sleep(5)
+    await smartDelay()
     // Reset the events
     client.removeAllListeners()
   })
@@ -53,8 +53,7 @@ describe('Base Client tests', () => {
         signedTransactions: randomResolveSignTransaction
       })
     })
-    // sleep(100)
-    await sleep(0)
+    await smartDelay()
     const signedTxs = await baseApp.signTransactions(randomSignTransaction)
     assert(signedTxs.length === 2)
   })
@@ -73,8 +72,7 @@ describe('Base Client tests', () => {
         signedMessages: randomResolveSignMessage
       })
     })
-    // sleep(100)
-    await sleep(0)
+    await smartDelay()
     const signed = await baseApp.signMessages(randomSignMessage)
     assert(signed.length === 2)
   })
@@ -90,8 +88,7 @@ describe('Base Client tests', () => {
         reason: 'rejected'
       })
     })
-    // sleep(100)
-    await sleep(0)
+    await smartDelay()
     try {
       await baseApp.signTransactions(randomSignTransaction)
       assert(false) // should not reach here
@@ -106,7 +103,7 @@ describe('Base Client tests', () => {
     })
     baseApp.ws.terminate()
     baseApp.ws.close()
-    await sleep(100)
+    await smartDelay()
     expect(disconnecFn).toHaveBeenCalledOnce()
   })
 })

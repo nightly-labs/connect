@@ -39,20 +39,25 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
           key: cargo-${{ runner.os }}-v0000-${{ hashFiles('**/Cargo.lock') }}
-      - name: run cargo test
-        run: |
-          cargo test
-          cargo run &
+
       - name: install packages
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: |
           pnpm install
         working-directory: ./sdk
-      - name: test base
+      - name: run cargo test
         run: |
-          pnpm test:run
-        working-directory: ./sdk/apps/base
-      - name: test solana
+          cargo test
+          cargo run &
+      - name: test base local
         run: |
-          pnpm test:run
+          pnpm test:ci
         working-directory: ./sdk/apps/base
+      - name: test solana local
+        run: |
+          pnpm test:ci
+        working-directory: ./sdk/apps/solana
+      - name: test sui local
+        run: |
+          pnpm test:ci
+        working-directory: ./sdk/apps/sui

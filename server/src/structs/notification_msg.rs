@@ -13,6 +13,7 @@ pub struct NotificationPayload {
     pub app_metadata: AppMetadata,
     pub device: Device,
     pub request: String,
+    #[serde(rename = "requestId")]
     pub request_id: String,
 }
 
