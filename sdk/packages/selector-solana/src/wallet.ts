@@ -115,17 +115,11 @@ export class NightlyConnectSolanaWallet implements Wallet {
   }
 
   #signTransaction: SolanaSignTransactionMethod = async (...inputs) => {
-    return await Promise.all(
-      inputs.map(async ({ transaction }) => {
-        const signed = await this.#app.signVersionedTransaction(
-          VersionedTransaction.deserialize(transaction)
-        )
-
-        return {
-          signedTransaction: signed.serialize()
-        }
-      })
+    const signed = await this.#app.signAllVersionedTransactions(
+      inputs.map(({ transaction }) => VersionedTransaction.deserialize(transaction))
     )
+
+    return signed.map(tx => ({ signedTransaction: tx.serialize() }))
   }
 
   #signAndSendTransaction: SolanaSignAndSendTransactionMethod = async (...inputs) => {

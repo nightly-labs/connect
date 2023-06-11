@@ -16,8 +16,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@mysten/sui.js": "^0.35.1",
     "@mysten/wallet-adapter-wallet-standard": "^0.7.9",
     "@mysten/wallet-standard": "^0.5.7",
+    "@nightlylabs/connect-sui": "workspace:*",
     "@nightlylabs/wallet-selector-base": "workspace:*",
     "@wallet-standard/core": "^1.0.3"
   },
