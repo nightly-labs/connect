@@ -19,7 +19,7 @@ import type {
 import { AppSolana } from '@nightlylabs/connect-solana/src/app'
 import { PublicKey, VersionedTransaction } from '@solana/web3.js'
 
-export class NightlyConnectBaseSolanaWallet implements Wallet {
+export class NightlyConnectSolanaWallet implements Wallet {
   private _app: AppSolana
 
   #listeners: { [E in StandardEventsNames]?: StandardEventsListeners[E][] } = {}
