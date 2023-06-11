@@ -1,10 +1,13 @@
 import type {
+  SolanaChain,
+  SolanaSignAndSendTransactionFeature,
+  SolanaSignAndSendTransactionMethod,
   SolanaSignMessageFeature,
   SolanaSignMessageMethod,
   SolanaSignTransactionFeature,
-  SolanaSignTransactionMethod,
+  SolanaSignTransactionMethod
 } from '@solana/wallet-standard'
-import { SOLANA_CHAINS } from '@solana/wallet-standard'
+import { SOLANA_CHAINS, getEndpointForChain } from '@solana/wallet-standard'
 import type {
   StandardConnectFeature,
   StandardConnectMethod,
@@ -17,7 +20,7 @@ import type {
   IdentifierArray
 } from '@wallet-standard/core'
 import { AppSolana } from '@nightlylabs/connect-solana/src/app'
-import { PublicKey, VersionedTransaction } from '@solana/web3.js'
+import { Connection, PublicKey, VersionedTransaction } from '@solana/web3.js'
 
 export class NightlyConnectSolanaWallet implements Wallet {
   private _app: AppSolana
@@ -75,6 +78,7 @@ export class NightlyConnectSolanaWallet implements Wallet {
   get features(): StandardConnectFeature &
     StandardEventsFeature &
     SolanaSignTransactionFeature &
+    SolanaSignAndSendTransactionFeature &
     SolanaSignMessageFeature {
     return {
       'standard:connect': {
@@ -90,6 +94,11 @@ export class NightlyConnectSolanaWallet implements Wallet {
         supportedTransactionVersions: ['legacy'],
         signTransaction: this.#signTransaction
       },
+      'solana:signAndSendTransaction': {
+        version: '1.0.0',
+        supportedTransactionVersions: ['legacy'],
+        signAndSendTransaction: this.#signAndSendTransaction
+      },
       'solana:signMessage': {
         version: '1.0.0',
         signMessage: this.#signMessage
@@ -99,12 +108,14 @@ export class NightlyConnectSolanaWallet implements Wallet {
 
   constructor(app: AppSolana, publicKey: PublicKey) {
     this._app = app
-    this._accounts = [{
-      address: publicKey.toString(),
-      publicKey: publicKey.toBytes(),
-      chains: this.chains,
-      features: Object.keys(this.features) as IdentifierArray
-    }]
+    this._accounts = [
+      {
+        address: publicKey.toString(),
+        publicKey: publicKey.toBytes(),
+        chains: this.chains,
+        features: Object.keys(this.features) as IdentifierArray
+      }
+    ]
   }
 
   #connect: StandardConnectMethod = async () => {
@@ -112,23 +123,52 @@ export class NightlyConnectSolanaWallet implements Wallet {
   }
 
   #signTransaction: SolanaSignTransactionMethod = async (...inputs) => {
-    return await Promise.all(inputs.map(async ({ transaction }) => {
-      const signed = await this._app.signVersionedTransaction(VersionedTransaction.deserialize(transaction))
+    return await Promise.all(
+      inputs.map(async ({ transaction }) => {
+        const signed = await this._app.signVersionedTransaction(
+          VersionedTransaction.deserialize(transaction)
+        )
 
-      return {
-        signedTransaction: signed.serialize()
-      }
-    }))
+        return {
+          signedTransaction: signed.serialize()
+        }
+      })
+    )
+  }
+
+  #signAndSendTransaction: SolanaSignAndSendTransactionMethod = async (...inputs) => {
+    return await Promise.all(
+      inputs.map(async ({ transaction, chain, options }) => {
+        if (!this.chains.includes(chain as SolanaChain)) {
+          throw new Error('invalid chain')
+        }
+
+        const endpoint = getEndpointForChain(chain as SolanaChain)
+        const signedTx = await this._app.signVersionedTransaction(
+          VersionedTransaction.deserialize(transaction)
+        )
+
+        const connection = new Connection(endpoint, options?.commitment ?? 'confirmed')
+
+        const signature = await connection.sendRawTransaction(signedTx.serialize(), options)
+
+        return {
+          signature: new TextEncoder().encode(signature)
+        }
+      })
+    )
   }
 
   #signMessage: SolanaSignMessageMethod = async (...inputs) => {
-    return await Promise.all(inputs.map(async ({ message }) => {
-      const signature = await this._app.signMessage(new TextDecoder().decode(message))
+    return await Promise.all(
+      inputs.map(async ({ message }) => {
+        const signature = await this._app.signMessage(new TextDecoder().decode(message))
 
-      return {
-        signedMessage: message,
-        signature
-      }
-    }))
+        return {
+          signedMessage: message,
+          signature
+        }
+      })
+    )
   }
 }
