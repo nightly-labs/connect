@@ -13,14 +13,14 @@ import type {
   StandardEventsNames,
   StandardEventsListeners,
   WalletAccount,
-  StandardEventsOnMethod
+  StandardEventsOnMethod,
+  IdentifierArray
 } from '@wallet-standard/core'
-import { AppSolanaInitialize, AppSolana } from '@nightlylabs/connect-solana/src/app'
-import { VersionedTransaction } from '@solana/web3.js'
+import { AppSolana } from '@nightlylabs/connect-solana/src/app'
+import { PublicKey, VersionedTransaction } from '@solana/web3.js'
 
 export class NightlyConnectBaseSolanaWallet implements Wallet {
-  private _appData: AppSolanaInitialize
-  private _app: AppSolana | undefined
+  private _app: AppSolana
 
   #listeners: { [E in StandardEventsNames]?: StandardEventsListeners[E][] } = {}
 
@@ -97,21 +97,23 @@ export class NightlyConnectBaseSolanaWallet implements Wallet {
     }
   }
 
-  constructor(appData: AppSolanaInitialize) {
-    this._appData = appData
+  constructor(app: AppSolana, publicKey: PublicKey) {
+    this._app = app
+    this._accounts = [{
+      address: publicKey.toString(),
+      publicKey: publicKey.toBytes(),
+      chains: this.chains,
+      features: Object.keys(this.features) as IdentifierArray
+    }]
   }
 
   #connect: StandardConnectMethod = async () => {
-    return { accounts: [] }
+    return { accounts: this.accounts }
   }
 
   #signTransaction: SolanaSignTransactionMethod = async (...inputs) => {
     return await Promise.all(inputs.map(async ({ transaction }) => {
-      const signed = await this._app?.signVersionedTransaction(VersionedTransaction.deserialize(transaction))
-
-      if (typeof signed === 'undefined') {
-        throw new Error('sign transaction error')
-      }
+      const signed = await this._app.signVersionedTransaction(VersionedTransaction.deserialize(transaction))
 
       return {
         signedTransaction: signed.serialize()
@@ -121,11 +123,7 @@ export class NightlyConnectBaseSolanaWallet implements Wallet {
 
   #signMessage: SolanaSignMessageMethod = async (...inputs) => {
     return await Promise.all(inputs.map(async ({ message }) => {
-      const signature = await this._app?.signMessage(new TextDecoder().decode(message))
-
-      if (typeof signature === 'undefined') {
-        throw new Error('sign transaction error')
-      }
+      const signature = await this._app.signMessage(new TextDecoder().decode(message))
 
       return {
         signedMessage: message,
