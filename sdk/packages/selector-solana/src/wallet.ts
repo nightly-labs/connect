@@ -23,41 +23,33 @@ import { AppSolana } from '@nightlylabs/connect-solana/src/app'
 import { Connection, PublicKey, VersionedTransaction } from '@solana/web3.js'
 
 export class NightlyConnectSolanaWallet implements Wallet {
-  private _app: AppSolana
+  #app: AppSolana
 
-  #listeners: { [E in StandardEventsNames]?: StandardEventsListeners[E][] } = {}
+  #listeners: { [E in StandardEventsNames]: StandardEventsListeners[E][] } = {
+    change: []
+  }
 
   get version() {
     return '1.0.0' as const
   }
 
   get accounts() {
-    return this._accounts.slice()
+    return this.#accounts.slice()
   }
 
-  protected _on: StandardEventsOnMethod = (event, listener) => {
-    this.#listeners[event]?.push(listener) || (this.#listeners[event] = [listener])
-    return (): void => this._off(event, listener)
+  #on: StandardEventsOnMethod = (event, listener) => {
+    this.#listeners[event].push(listener)
+
+    return () => this.#off(event, listener)
   }
 
-  protected _emit<E extends StandardEventsNames>(
-    event: E,
-    ...args: Parameters<StandardEventsListeners[E]>
-  ): void {
-    // eslint-disable-next-line prefer-spread
-    this.#listeners[event]?.forEach((listener) => listener.apply(null, args))
-  }
-
-  protected _off<E extends StandardEventsNames>(
-    event: E,
-    listener: StandardEventsListeners[E]
-  ): void {
+  #off<E extends StandardEventsNames>(event: E, listener: StandardEventsListeners[E]): void {
     this.#listeners[event] = this.#listeners[event]?.filter(
       (existingListener) => listener !== existingListener
     )
   }
 
-  protected declare _accounts: WalletAccount[]
+  #accounts: WalletAccount[]
 
   #name = 'Nightly Connect' as const
   #icon =
@@ -87,7 +79,7 @@ export class NightlyConnectSolanaWallet implements Wallet {
       },
       'standard:events': {
         version: '1.0.0',
-        on: this._on
+        on: this.#on
       },
       'solana:signTransaction': {
         version: '1.0.0',
@@ -107,8 +99,8 @@ export class NightlyConnectSolanaWallet implements Wallet {
   }
 
   constructor(app: AppSolana, publicKey: PublicKey) {
-    this._app = app
-    this._accounts = [
+    this.#app = app
+    this.#accounts = [
       {
         address: publicKey.toString(),
         publicKey: publicKey.toBytes(),
@@ -125,7 +117,7 @@ export class NightlyConnectSolanaWallet implements Wallet {
   #signTransaction: SolanaSignTransactionMethod = async (...inputs) => {
     return await Promise.all(
       inputs.map(async ({ transaction }) => {
-        const signed = await this._app.signVersionedTransaction(
+        const signed = await this.#app.signVersionedTransaction(
           VersionedTransaction.deserialize(transaction)
         )
 
@@ -144,7 +136,7 @@ export class NightlyConnectSolanaWallet implements Wallet {
         }
 
         const endpoint = getEndpointForChain(chain as SolanaChain)
-        const signedTx = await this._app.signVersionedTransaction(
+        const signedTx = await this.#app.signVersionedTransaction(
           VersionedTransaction.deserialize(transaction)
         )
 
@@ -162,7 +154,7 @@ export class NightlyConnectSolanaWallet implements Wallet {
   #signMessage: SolanaSignMessageMethod = async (...inputs) => {
     return await Promise.all(
       inputs.map(async ({ message }) => {
-        const signature = await this._app.signMessage(new TextDecoder().decode(message))
+        const signature = await this.#app.signMessage(new TextDecoder().decode(message))
 
         return {
           signedMessage: message,
