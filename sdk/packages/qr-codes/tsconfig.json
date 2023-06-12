@@ -13,6 +13,5 @@
     "declaration": true,
     "declarationDir": "types",
     "emitDeclarationOnly": true
-  },
-  "exclude": ["node_modules"]
+  }
 }
