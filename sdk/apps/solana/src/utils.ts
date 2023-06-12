@@ -1,4 +1,4 @@
-import { RELAY_ENDPOINT } from 'base/src/utils'
+import { RELAY_ENDPOINT } from '@nightlylabs/nightly-connect-base'
 import { AppSolanaInitialize } from './app'
 
 export const SOLANA_NETWORK = 'Solana'

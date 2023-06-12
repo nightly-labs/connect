@@ -19,7 +19,7 @@ import type {
   StandardEventsOnMethod,
   IdentifierArray
 } from '@wallet-standard/core'
-import { AppSolana } from '@nightlylabs/connect-solana/src/app'
+import { AppSolana } from '@nightlylabs/nightly-connect-solana'
 import { Connection, PublicKey, VersionedTransaction } from '@solana/web3.js'
 
 export class NightlyConnectSolanaWallet implements Wallet {
@@ -119,7 +119,7 @@ export class NightlyConnectSolanaWallet implements Wallet {
       inputs.map(({ transaction }) => VersionedTransaction.deserialize(transaction))
     )
 
-    return signed.map(tx => ({ signedTransaction: tx.serialize() }))
+    return signed.map((tx) => ({ signedTransaction: tx.serialize() }))
   }
 
   #signAndSendTransaction: SolanaSignAndSendTransactionMethod = async (...inputs) => {

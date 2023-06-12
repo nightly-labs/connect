@@ -1,9 +1,10 @@
 import { VersionedTransaction } from '@solana/web3.js'
-import { HttpBaseClient, HttpBaseClientInitialize } from 'base'
+import { HttpBaseClient, HttpBaseClientInitialize } from '@nightlylabs/nightly-connect-base'
 import { SOLANA_NETWORK } from './utils'
-import { HttpConnectSessionRequest } from '@bindings/HttpConnectSessionRequest'
-import { HttpGetPendingRequestsRequest } from '@bindings/HttpGetPendingRequestsRequest'
-import { HttpGetPendingRequestRequest } from '@bindings/HttpGetPendingRequestRequest'
+import { HttpConnectSessionRequest } from '../../../bindings/HttpConnectSessionRequest'
+import { HttpGetPendingRequestsRequest } from '../../../bindings/HttpGetPendingRequestsRequest'
+import { HttpGetPendingRequestRequest } from '../../../bindings/HttpGetPendingRequestRequest'
+import { HttpGetSessionInfoResponse } from '../../../bindings/HttpGetSessionInfoResponse'
 
 export class HttpClientSolana {
   baseClient: HttpBaseClient
@@ -12,7 +13,7 @@ export class HttpClientSolana {
     this.clientId = clientId
     this.baseClient = new HttpBaseClient({ clientId, timeout, url })
   }
-  public getInfo = async (sessionId: string) => {
+  public getInfo = async (sessionId: string): Promise<HttpGetSessionInfoResponse> => {
     const response = await this.baseClient.getInfo(sessionId)
     return response
   }

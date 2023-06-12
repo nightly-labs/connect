@@ -1,15 +1,15 @@
 // import LocalStorage from 'isomorphic-localstorage'
-import { ClientToServer } from '@bindings/ClientToServer'
-import { ServerToClient } from '@bindings/ServerToClient'
+import { ClientToServer } from '../../../bindings/ClientToServer'
+import { ServerToClient } from '../../../bindings/ServerToClient'
 import WebSocket from 'isomorphic-ws'
 import { getRandomId } from './utils'
-import { GetInfoRequest } from '@bindings/GetInfoRequest'
-import { ConnectRequest } from '@bindings/ConnectRequest'
-import { GetInfoResponse } from '@bindings/GetInfoResponse'
-import { GetPendingRequestsResponse } from '@bindings/GetPendingRequestsResponse'
-import { AppDisconnectedEvent } from '@bindings/AppDisconnectedEvent'
+import { GetInfoRequest } from '../../../bindings/GetInfoRequest'
+import { ConnectRequest } from '../../../bindings/ConnectRequest'
+import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
+import { GetPendingRequestsResponse } from '../../../bindings/GetPendingRequestsResponse'
+import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
 import { TypedEmitter } from 'tiny-typed-emitter'
-import { Notification } from '@bindings/Notification'
+import { Notification } from '../../../bindings/Notification'
 import { MessageToSign, RequestContent, TransactionToSign } from './content'
 import {
   ResponseContent,
@@ -17,7 +17,7 @@ import {
   SignedMessage,
   SignedTransaction
 } from './responseContent'
-import { ClientInitializeRequest } from '@bindings/ClientInitializeRequest'
+import { ClientInitializeRequest } from '../../../bindings/ClientInitializeRequest'
 
 export interface ClientBaseInitialize {
   clientId?: string

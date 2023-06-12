@@ -1,9 +1,10 @@
-import { HttpBaseClient, HttpBaseClientInitialize } from 'base'
+import { HttpBaseClient, HttpBaseClientInitialize } from '@nightlylabs/nightly-connect-base'
 import { SUI_NETWORK } from './utils'
-import { HttpConnectSessionRequest } from '@bindings/HttpConnectSessionRequest'
-import { HttpGetPendingRequestsRequest } from '@bindings/HttpGetPendingRequestsRequest'
-import { HttpGetPendingRequestRequest } from '@bindings/HttpGetPendingRequestRequest'
+import { HttpConnectSessionRequest } from '../../../bindings/HttpConnectSessionRequest'
+import { HttpGetPendingRequestsRequest } from '../../../bindings/HttpGetPendingRequestsRequest'
+import { HttpGetPendingRequestRequest } from '../../../bindings/HttpGetPendingRequestRequest'
 import { SignedTransaction } from '@mysten/sui.js'
+import { HttpGetSessionInfoResponse } from '../../../bindings/HttpGetSessionInfoResponse'
 
 export class HttpClientSui {
   baseClient: HttpBaseClient
@@ -12,7 +13,7 @@ export class HttpClientSui {
     this.clientId = clientId
     this.baseClient = new HttpBaseClient({ clientId, timeout, url })
   }
-  public getInfo = async (sessionId: string) => {
+  public getInfo = async (sessionId: string): Promise<HttpGetSessionInfoResponse> => {
     const response = await this.baseClient.getInfo(sessionId)
     return response
   }

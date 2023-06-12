@@ -1,9 +1,15 @@
-import { AppDisconnectedEvent } from '@bindings/AppDisconnectedEvent'
+import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
 import { VersionedTransaction } from '@solana/web3.js'
-import { BaseClient, ClientBaseInitialize, Connect } from 'base'
+import {
+  BaseClient,
+  ClientBaseInitialize,
+  Connect,
+  SignMessagesEvent
+} from '@nightlylabs/nightly-connect-base'
 import { TypedEmitter } from 'tiny-typed-emitter'
 import { SOLANA_NETWORK } from './utils'
-import { SignMessagesEvent } from 'base/src/client'
+import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
+import { GetPendingRequestsResponse } from '../../../bindings/GetPendingRequestsResponse'
 export interface SignSolanaTransactionEvent {
   requestId: string
   transactions: Array<VersionedTransaction>
@@ -36,7 +42,13 @@ export class ClientSolana extends TypedEmitter<ClientSolanaEvents> {
     })
     this.baseClient = baseClient
   }
-  public static build = async (sessionId: string, initData: ClientBaseInitialize) => {
+  public static build = async (
+    sessionId: string,
+    initData: ClientBaseInitialize
+  ): Promise<{
+    client: ClientSolana
+    data: GetInfoResponse
+  }> => {
     const baseClient = await BaseClient.build(initData)
     const data = await baseClient.getInfo(sessionId)
     const client = new ClientSolana(baseClient)
@@ -47,7 +59,7 @@ export class ClientSolana extends TypedEmitter<ClientSolanaEvents> {
     const client = new ClientSolana(baseClient)
     return client
   }
-  public getInfo = async (sessionId: string) => {
+  public getInfo = async (sessionId: string): Promise<GetInfoResponse> => {
     const response = await this.baseClient.getInfo(sessionId)
     return response
   }
@@ -55,7 +67,7 @@ export class ClientSolana extends TypedEmitter<ClientSolanaEvents> {
     await this.baseClient.connect(connect)
     this.sessionId = connect.sessionId
   }
-  public getPendingRequests = async (sessionId?: string) => {
+  public getPendingRequests = async (sessionId?: string): Promise<GetPendingRequestsResponse> => {
     const sessionIdToUse = sessionId || this.sessionId
     //Assert session id is defined
     if (sessionIdToUse === undefined) {

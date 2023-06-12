@@ -18,7 +18,7 @@ import type {
   StandardEventsOnMethod,
   IdentifierArray
 } from '@wallet-standard/core'
-import { AppSui } from '@nightlylabs/connect-sui/src/app'
+import { AppSui } from '@nightlylabs/nightly-connect-sui'
 import { PublicKey } from '@mysten/sui.js'
 
 export class NightlyConnectSolanaWallet implements Wallet {
