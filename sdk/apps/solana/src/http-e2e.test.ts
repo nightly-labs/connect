@@ -16,6 +16,7 @@ import {
   VersionedTransaction
 } from '@solana/web3.js'
 import { HttpClientSolana } from './http-client'
+
 // Edit an assertion and save to see HMR in action
 const alice_keypair = Keypair.generate()
 describe('Base Client tests', () => {

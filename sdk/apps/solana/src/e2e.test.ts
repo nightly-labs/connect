@@ -6,6 +6,7 @@ import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { AppSolana } from './app'
 import { ClientSolana } from './client'
 import { SOLANA_NETWORK, TEST_APP_INITIALIZE } from './utils'
+
 // Edit an assertion and save to see HMR in action
 const alice_keypair = Keypair.generate()
 describe('Base Client tests', () => {

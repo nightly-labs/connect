@@ -9,7 +9,7 @@ export default [
     input: 'src/index.ts',
     output: [
       {
-        file: 'dist/cjs/index.js',
+        file: 'dist/cjs/index.cjs',
         format: 'cjs',
         sourcemap: true
       },
@@ -19,7 +19,7 @@ export default [
         sourcemap: true
       }
     ],
-    plugins: [typescript(), nodeResolve(), commonjs(), commonjs(), terser()],
+    plugins: [typescript(), nodeResolve(), commonjs(), terser()],
     external: [
       '@mysten/sui.js',
       '@mysten/wallet-adapter-wallet-standard',
