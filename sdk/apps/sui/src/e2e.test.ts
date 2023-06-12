@@ -1,4 +1,4 @@
-import { Connect } from 'base'
+import { Connect, RELAY_ENDPOINT, smartDelay } from '@nightlylabs/nightly-connect-base'
 import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { AppSui } from './app'
 import { ClientSui } from './client'
@@ -18,7 +18,7 @@ import { blake2b } from '@noble/hashes/blake2b'
 import { fetch } from 'cross-fetch'
 import { WalletAccount } from '@mysten/wallet-standard'
 import { hexToBytes } from '@noble/hashes/utils'
-import { RELAY_ENDPOINT, smartDelay } from 'base/src/utils'
+
 global.fetch = fetch
 
 const ALICE_PRIVE_KEY = '4aa55c99d633c646b8dc423eed56e0fc39bdbca6ac6d8c53cc6e4decda27d970'

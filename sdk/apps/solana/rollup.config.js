@@ -9,7 +9,7 @@ export default [
     input: 'src/index.ts',
     output: [
       {
-        file: 'dist/cjs/index.js',
+        file: 'dist/cjs/index.cjs',
         format: 'cjs',
         sourcemap: true
       },
@@ -19,11 +19,17 @@ export default [
         sourcemap: true
       }
     ],
-    plugins: [typescript(), nodeResolve(), commonjs(), commonjs(), terser()],
-    external: ['qrcode-generator']
+    plugins: [typescript(), nodeResolve(), commonjs(), terser()],
+    external: [
+      '@solana/web3.js',
+      '@nightlylabs/nightly-connect-base',
+      'isomorphic-ws',
+      'tiny-typed-emitter',
+      'uuid'
+    ]
   },
   {
-    input: 'dist/esm/types/index.d.ts',
+    input: 'dist/esm/types/apps/solana/src/index.d.ts',
     output: [{ file: 'dist/index.d.ts', format: 'esm' }],
     plugins: [dts()]
   }

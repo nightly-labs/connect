@@ -1,20 +1,18 @@
-// import LocalStorage from 'isomorphic-localstorage'
-import { AppToServer } from '@bindings/AppToServer'
-import { InitializeRequest } from '@bindings/InitializeRequest'
-import { InitializeResponse } from '@bindings/InitializeResponse'
-import { Network } from '@bindings/Network'
-import { ServerToApp } from '@bindings/ServerToApp'
-import { UserConnectedEvent } from '@bindings/UserConnectedEvent'
-import { Version } from '@bindings/Version'
+import { AppToServer } from '../../../bindings/AppToServer'
+import { InitializeRequest } from '../../../bindings/InitializeRequest'
+import { InitializeResponse } from '../../../bindings/InitializeResponse'
+import { Network } from '../../../bindings/Network'
+import { ServerToApp } from '../../../bindings/ServerToApp'
+import { UserConnectedEvent } from '../../../bindings/UserConnectedEvent'
+import { Version } from '../../../bindings/Version'
 import WebSocket from 'isomorphic-ws'
-import LocalStorage from 'isomorphic-localstorage'
-import { getRandomId, getWalletsMetadata } from './utils'
-import { UserDisconnectedEvent } from '@bindings/UserDisconnectedEvent'
+import { getLocalStorage, getRandomId, getWalletsMetadata } from './utils'
+import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
 import { TypedEmitter } from 'tiny-typed-emitter'
-import { AppMetadata } from '@bindings/AppMetadata'
+import { AppMetadata } from '../../../bindings/AppMetadata'
 import { ContentType, MessageToSign, RequestContent, TransactionToSign } from './content'
-import { ResponsePayload } from '@bindings/ResponsePayload'
-import { WalletMetadata } from '@bindings/WalletMetadata'
+import { ResponsePayload } from '../../../bindings/ResponsePayload'
+import { WalletMetadata } from '../../../bindings/WalletMetadata'
 import {
   CustomResponseContent,
   ResponseContent,
@@ -26,7 +24,6 @@ import {
 } from './responseContent'
 import { triggerDeeplink } from './deeplinks'
 
-const localStorage = LocalStorage('./.nightly-connect-session')
 export interface AppBaseInitialize {
   appMetadata: AppMetadata
   network: Network
@@ -64,6 +61,7 @@ export class BaseApp extends TypedEmitter<BaseEvents> {
   }
   public static build = async (baseInitialize: AppBaseInitialize): Promise<BaseApp> => {
     return new Promise((resolve, reject) => {
+      const localStorage = getLocalStorage()
       const persistent = baseInitialize.persistent ?? true
       const persistentSessionId = persistent
         ? localStorage.getItem(baseInitialize.appMetadata.name) ?? undefined
