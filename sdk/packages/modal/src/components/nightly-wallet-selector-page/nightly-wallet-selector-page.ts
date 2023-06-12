@@ -2,81 +2,64 @@ import { customElement, property } from 'lit/decorators.js'
 import { html } from 'lit/static-html.js'
 import { TailwindElement } from '../../shared/tailwind.element'
 import foxSadGIF from '../../static/gif/fox_sad.gif'
-import Binance from '../../static/svg/BinanceIcon.svg'
-import Coinbase from '../../static/svg/CoinbaseIcon.svg'
-import Glow from '../../static/svg/GlowIcon.svg'
-import MetaMask from '../../static/svg/MetaMaskIcon.svg'
-import NightlyIcon from '../../static/svg/NightlyIcon.svg'
-import Phantom from '../../static/svg/PhantomIcon.svg'
-import Sollet from '../../static/svg/SolletIcon.svg'
-import Trust from '../../static/svg/TrustIcon.svg'
-import ZenGO from '../../static/svg/ZenGOIcon.svg'
+import ChainIcon from '../../static/svg/ChainIcon.svg'
 import search from '../../static/svg/searchIcon.svg'
 import style from './nightly-wallet-selector-page.css?inline'
-import ChainIcon from '../../static/svg/ChainIcon.svg'
 
 @customElement('nightly-wallet-selector-page')
 export class NightlyWalletSelectorPage extends TailwindElement(style) {
-  @property({ type: String })
-  name = ''
+  @property({ type: Array })
+  get selectorItems(): { name: string; icon: string; status: string }[] {
+    return this._selectorItems
+  }
 
-  @property({ type: String })
-  status = ''
+  set selectorItems(value: { name: string; icon: string; status: string }[]) {
+    const oldValue = this._selectorItems
+    this._selectorItems = value
+    this.filteredItems = [...value]
+    this.requestUpdate('selectorItems', oldValue)
+  }
 
-  selectorItems = [
-    { name: 'Phantom', icon: Phantom, status: 'detected' },
-    { name: 'MetaMask', icon: MetaMask, status: '' },
-    { name: 'Coinbase', icon: Coinbase, status: 'recent' },
-    { name: 'Nightly Wallet', icon: NightlyIcon, status: 'detected' },
-    { name: 'Glow Wallet', icon: Glow, status: '' },
-    { name: 'ZenGO', icon: ZenGO, status: '' },
-    { name: 'Trust', icon: Trust, status: '' },
-    { name: 'Binance Wallet', icon: Binance, status: 'detected' },
-    { name: 'Binance Wallet', icon: Binance, status: '' },
-    { name: 'Binance Wallet', icon: Binance, status: '' },
-    { name: 'Binance Wallet', icon: Binance, status: '' },
-    { name: 'Binance Wallet', icon: Binance, status: '' },
-    { name: 'Binance Wallet', icon: Binance, status: '' },
-    { name: 'Binance Wallet', icon: Binance, status: '' },
-    { name: 'Binance Wallet', icon: Binance, status: '' },
-    { name: 'Sollet', icon: Sollet, status: 'recent' }
-  ]
-
-  filteredItems = [...this.selectorItems]
+  private _selectorItems: { name: string; icon: string; status: string }[] = []
+  filteredItems: { name: string; icon: string; status: string }[] = []
   showNotFoundIcon = false
+
+  constructor() {
+    super()
+  }
 
   render() {
     return html`
       <div class="walletSelectorPage">
-        <div class="walletSelectorHeader">
-          <span>Wallets</span>
-          <div class="walletSelectorBlockchain">
-            <img src=${ChainIcon} />
-            <span>Solana</span>
+        <div class="contentContainer">
+          <div class="walletSelectorHeader">
+            <span>Wallets</span>
+            <div class="walletSelectorBlockchain">
+              <img src=${ChainIcon} />
+              <span>Solana</span>
+            </div>
           </div>
-        </div>
-        <div class="walletInputSearchContainer">
-          <input placeholder="Search" class="walletInputSearch" @input=${this.handleSearchInput} />
-          <img src="${search}" />
-        </div>
-        <div class="${this.showNotFoundIcon ? 'NotFoundContainer' : 'walletSelectorButtons'}">
-          ${this.showNotFoundIcon ? this.renderNotFoundIcon() : this.renderSelectorItems()}
+          <div class="walletInputSearchContainer">
+            <input
+              placeholder="Search"
+              class="walletInputSearch"
+              @input=${this.handleSearchInput}
+            />
+            <img src="${search}" />
+          </div>
+          <div class="${this.showNotFoundIcon ? 'NotFoundContainer' : 'walletSelectorButtons'}">
+            ${this.showNotFoundIcon ? this.renderNotFoundIcon() : this.renderSelectorItems()}
+          </div>
         </div>
       </div>
     `
   }
 
   renderSelectorItems() {
-    const sortedItems = this.filteredItems.sort((a, b) => {
-      if (a.status === 'recent' || a.status === 'detected') return -1
-      if (b.status === 'recent' || b.status === 'detected') return 1
-      return 0
-    })
-
-    const recentDetectedItems = sortedItems.filter(
+    const recentDetectedItems = this.filteredItems.filter(
       (item) => item.status === 'recent' || item.status === 'detected'
     )
-    const otherItems = sortedItems.filter(
+    const otherItems = this.filteredItems.filter(
       (item) => item.status !== 'recent' && item.status !== 'detected'
     )
 
@@ -89,7 +72,7 @@ export class NightlyWalletSelectorPage extends TailwindElement(style) {
                 name=${item.name}
                 icon=${item.icon}
                 status=${item.status}
-                @click=${this.handleWalletSelectorClick}
+                @click=${(event: Event) => this.handleWalletSelectorClick(event, item.name)}
               ></nightly-wallet-selector-item>
             `
           })}
@@ -101,7 +84,7 @@ export class NightlyWalletSelectorPage extends TailwindElement(style) {
                 name=${item.name}
                 icon=${item.icon}
                 status=${item.status}
-                @click=${this.handleWalletSelectorClick}
+                @click=${(event: Event) => this.handleWalletSelectorClick(event, item.name)}
               ></nightly-wallet-selector-item>
             `
           })}
@@ -133,8 +116,8 @@ export class NightlyWalletSelectorPage extends TailwindElement(style) {
     this.requestUpdate()
   }
 
-  handleWalletSelectorClick(event: { target: { name: string } }) {
-    console.log('Kliknięto element menu:', event.target.name)
+  handleWalletSelectorClick(_event: Event, name: string) {
+    console.log('A menu item was clicked:', name)
   }
 }
 

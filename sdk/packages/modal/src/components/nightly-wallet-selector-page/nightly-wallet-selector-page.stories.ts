@@ -10,6 +10,7 @@ import Trust from '../../static/svg/TrustIcon.svg'
 import Binance from '../../static/svg/BinanceIcon.svg'
 import Sollet from '../../static/svg/SolletIcon.svg'
 import NightlyIcon from '../../static/svg/NightlyIcon.svg'
+
 import './nightly-wallet-selector-page'
 import '../nightly-chain-menu-item/nightly-chain-menu-item'
 
@@ -34,23 +35,47 @@ const meta: Meta<NightlyWalletSelectorPage> = {
 
 export default meta
 
-export const Default = (args: NightlyWalletSelectorListArgs) => html`
-  <nightly-wallet-selector-page
-    .walletSelectorItems=${args.walletSelectorItems}
-    .onWalletClick=${args.onWalletClick}
-  ></nightly-wallet-selector-page>
-`
+export const Default = (args: NightlyWalletSelectorListArgs) => {
+  console.log(args.walletSelectorItems)
+
+  return html`
+    <nightly-wallet-selector-page
+      .selectorItems=${args.walletSelectorItems}
+      .onWalletClick=${args.onWalletClick}
+    ></nightly-wallet-selector-page>
+  `
+}
+
 Default.args = {
   walletSelectorItems: [
-    { name: 'Phantom', icon: Phantom, status: '' },
+    { name: 'Phantom', icon: Phantom, status: 'recent' },
+    { name: 'Nightly Wallet', icon: NightlyIcon, status: 'recent' },
     { name: 'MetaMask', icon: MetaMask, status: '' },
-    { name: 'Coinbase', icon: Coinbase, status: '' },
-    { name: 'Nightly Wallet', icon: NightlyIcon, status: '' },
-    { name: 'Glow Wallet', icon: Glow, status: '' },
-    { name: 'ZenGO', icon: ZenGO, status: '' },
+    { name: 'Glow', icon: Glow, status: '' },
+    { name: 'ZenGO', icon: ZenGO, status: 'detected' },
     { name: 'Trust', icon: Trust, status: '' },
-    { name: 'Binance Wallet', icon: Binance, status: '' },
-    { name: 'Sollet', icon: Sollet, status: '' }
+    { name: 'Binance', icon: Binance, status: '' },
+    { name: 'Sollet', icon: Sollet, status: '' },
+    { name: 'Phantom', icon: Phantom, status: '' },
+    { name: 'MetaMask', icon: MetaMask, status: 'recent' },
+    { name: 'Coinbase', icon: Coinbase, status: '' },
+    { name: 'ZenGO', icon: ZenGO, status: '' },
+    { name: 'Trust', icon: Trust, status: 'detected' },
+    { name: 'Binance', icon: Binance, status: '' },
+    { name: 'Phantom', icon: Phantom, status: 'recent' },
+    { name: 'Nightly Wallet', icon: NightlyIcon, status: 'recent' },
+    { name: 'MetaMask', icon: MetaMask, status: '' },
+    { name: 'Glow', icon: Glow, status: '' },
+    { name: 'ZenGO', icon: ZenGO, status: 'detected' },
+    { name: 'Trust', icon: Trust, status: '' },
+    { name: 'Binance', icon: Binance, status: '' },
+    { name: 'Sollet', icon: Sollet, status: '' },
+    { name: 'Phantom', icon: Phantom, status: '' },
+    { name: 'MetaMask', icon: MetaMask, status: 'recent' },
+    { name: 'Coinbase', icon: Coinbase, status: '' },
+    { name: 'ZenGO', icon: ZenGO, status: '' },
+    { name: 'Trust', icon: Trust, status: 'detected' },
+    { name: 'Binance', icon: Binance, status: '' }
   ],
   onWalletClick: (event: Event) => {
     const target = event.target as HTMLElement
