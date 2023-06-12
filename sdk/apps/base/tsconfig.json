@@ -2,7 +2,7 @@
   "compilerOptions": {
     "lib": ["es2015", "DOM"],
     "types": ["node"],
-    "target": "es6",
+    "target": "esnext",
     "moduleDetection": "force",
     "resolveJsonModule": true,
     "allowJs": true,
@@ -13,15 +13,18 @@
     "strict": true,
     "noImplicitAny": false,
     "forceConsistentCasingInFileNames": true,
-    "module": "CommonJS",
+    "module": "esnext",
     "moduleResolution": "node",
     "isolatedModules": false,
     "noFallthroughCasesInSwitch": true,
-    "paths": {
-      "@bindings/*": ["../../bindings/*"]
-    }
+    "declaration": true,
+    "declarationDir": "types",
+    "emitDeclarationOnly": true,
+    "outDir": "dist",
+    "rootDir": "../.."
   },
   "ts-node": {
     "require": ["tsconfig-paths/register"]
-  }
+  },
+  "include": ["../../bindings/*", "src/*"]
 }

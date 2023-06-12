@@ -9,7 +9,7 @@ import {
 } from '@mysten/sui.js'
 import { blake2b } from '@noble/hashes/blake2b'
 import { AppSuiInitialize } from './app'
-import { RELAY_ENDPOINT } from 'base/src/utils'
+import { RELAY_ENDPOINT } from '@nightlylabs/nightly-connect-base'
 
 export const SUI_NETWORK = 'Sui'
 

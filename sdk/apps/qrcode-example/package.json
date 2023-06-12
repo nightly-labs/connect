@@ -6,11 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview",
-    "preinstall": "cd ../../packages/qr-codes && pnpm run build"
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@nightlylabs/qr-code": "../../packages/qr-codes"
+    "@nightlylabs/qr-code": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.0.2",

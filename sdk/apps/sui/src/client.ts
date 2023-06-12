@@ -1,9 +1,15 @@
-import { AppDisconnectedEvent } from '@bindings/AppDisconnectedEvent'
+import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
 import { SignedMessage, SignedTransaction, SuiTransactionBlockResponse } from '@mysten/sui.js'
-import { BaseClient, ClientBaseInitialize, Connect } from 'base'
+import {
+  BaseClient,
+  ClientBaseInitialize,
+  Connect,
+  SignMessagesEvent,
+  TransactionToSign
+} from '@nightlylabs/nightly-connect-base'
 import { TypedEmitter } from 'tiny-typed-emitter'
-import { SignMessagesEvent } from 'base/src/client'
-import { TransactionToSign } from 'base/src/content'
+import { GetPendingRequestsResponse } from '../../../bindings/GetPendingRequestsResponse'
+import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
 export interface SignSuiTransactionEvent {
   requestId: string
   transactions: Array<TransactionToSign>
@@ -34,7 +40,13 @@ export class ClientSui extends TypedEmitter<ClientSuiEvents> {
     })
     this.baseClient = baseClient
   }
-  public static build = async (sessionId: string, initData: ClientBaseInitialize) => {
+  public static build = async (
+    sessionId: string,
+    initData: ClientBaseInitialize
+  ): Promise<{
+    client: ClientSui
+    data: GetInfoResponse
+  }> => {
     const baseClient = await BaseClient.build(initData)
     const data = await baseClient.getInfo(sessionId)
     const client = new ClientSui(baseClient)
@@ -45,7 +57,7 @@ export class ClientSui extends TypedEmitter<ClientSuiEvents> {
     const client = new ClientSui(baseClient)
     return client
   }
-  public getInfo = async (sessionId: string) => {
+  public getInfo = async (sessionId: string): Promise<GetInfoResponse> => {
     const response = await this.baseClient.getInfo(sessionId)
     return response
   }
@@ -53,7 +65,7 @@ export class ClientSui extends TypedEmitter<ClientSuiEvents> {
     await this.baseClient.connect(connect)
     this.sessionId = connect.sessionId
   }
-  public getPendingRequests = async (sessionId?: string) => {
+  public getPendingRequests = async (sessionId?: string): Promise<GetPendingRequestsResponse> => {
     const sessionIdToUse = sessionId || this.sessionId
 
     if (sessionIdToUse === undefined) {

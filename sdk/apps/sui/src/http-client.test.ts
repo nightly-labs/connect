@@ -1,14 +1,19 @@
 import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { AppSui } from './app'
 import { SUI_NETWORK, TEST_APP_INITIALIZE, signTransactionBlock } from './utils'
-import { Connect, getRandomId } from 'base'
+import {
+  Connect,
+  getRandomId,
+  ContentType,
+  RELAY_ENDPOINT,
+  smartDelay
+} from '@nightlylabs/nightly-connect-base'
 import { HttpClientSui } from './http-client'
 
 import { Ed25519Keypair, IntentScope, toB64, TransactionBlock, verifyMessage } from '@mysten/sui.js'
 import { hexToBytes } from '@noble/hashes/utils'
 import { WalletAccount } from '@mysten/wallet-standard'
-import { ContentType } from 'base/src/content'
-import { RELAY_ENDPOINT, smartDelay } from 'base/src/utils'
+
 // Edit an assertion and save to see HMR in action
 const ALICE_PRIVE_KEY = '4aa55c99d633c646b8dc423eed56e0fc39bdbca6ac6d8c53cc6e4decda27d970'
 const alice_keypair = Ed25519Keypair.fromSecretKey(hexToBytes(ALICE_PRIVE_KEY))

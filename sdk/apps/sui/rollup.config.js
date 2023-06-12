@@ -19,11 +19,20 @@ export default [
         sourcemap: true
       }
     ],
-    plugins: [typescript(), nodeResolve(), commonjs(), commonjs(), terser()],
-    external: ['qrcode-generator']
+    plugins: [typescript(), nodeResolve(), commonjs(), terser()],
+    external: [
+      '@mysten/sui.js',
+      '@mysten/wallet-standard',
+      '@noble/hashes',
+      '@nightlylabs/nightly-connect-base',
+      'isomorphic-localstorage',
+      'isomorphic-ws',
+      'tiny-typed-emitter',
+      'uuid'
+    ]
   },
   {
-    input: 'dist/esm/types/index.d.ts',
+    input: 'dist/esm/types/apps/sui/src/index.d.ts',
     output: [{ file: 'dist/index.d.ts', format: 'esm' }],
     plugins: [dts()]
   }

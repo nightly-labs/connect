@@ -1,7 +1,8 @@
 import { v4 as uuidv4 } from 'uuid'
 import { AppBaseInitialize } from './app'
 import { ClientBaseInitialize } from './client'
-import { WalletMetadata } from '@bindings/WalletMetadata'
+import { getStorage, ILocalStorage } from 'isomorphic-localstorage'
+import { WalletMetadata } from '../../../bindings/WalletMetadata'
 import { fetch } from 'cross-fetch'
 
 export const getRandomId = () => uuidv4()
@@ -52,4 +53,13 @@ export const getWalletsMetadata = async (url?: string): Promise<WalletMetadata[]
     })
   ).json()
   return result
+}
+
+let _localStorage: ILocalStorage | null = null
+export const getLocalStorage = () => {
+  if (_localStorage === null) {
+    _localStorage = getStorage('./.nightly-connect-session')
+  }
+
+  return _localStorage
 }
