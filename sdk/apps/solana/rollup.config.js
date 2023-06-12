@@ -23,8 +23,6 @@ export default [
     external: [
       '@solana/web3.js',
       '@nightlylabs/nightly-connect-base',
-      'eventemitter3',
-      'isomorphic-localstorage',
       'isomorphic-ws',
       'tiny-typed-emitter',
       'uuid'

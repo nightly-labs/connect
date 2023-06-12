@@ -22,7 +22,6 @@ export default [
     plugins: [typescript(), nodeResolve(), commonjs(), terser()],
     external: [
       'cross-fetch',
-      'eventemitter3',
       'isomorphic-localstorage',
       'isomorphic-ws',
       'tiny-typed-emitter',
