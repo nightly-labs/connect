@@ -1,0 +1,165 @@
+.walletSelectorPage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 464px;
+  justify-content: center;
+  align-items: center;
+  background-color: #202137;
+}
+
+.walletSelectorPage::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 150px;
+  background: linear-gradient(180deg, rgba(15, 15, 26, 0) 0%, #0f0f1a 100%);
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.contentContainer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
+  height: 100%;
+  overflow: auto;
+}
+
+.contentContainer::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 1080px) {
+  .walletSelectorPage,
+  .recentDetectedContainer {
+    width: 204px;
+  }
+}
+
+.walletSelectorHeader {
+  padding: 16px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.walletSelectorHeader span {
+  cursor: default;
+  font-family: 'Prompt';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 22px;
+  color: #707a8d;
+}
+.walletSelectorBlockchain {
+  gap: 4px;
+  display: flex;
+  align-items: center;
+}
+.walletSelectorBlockchain span {
+  color: #6067f9;
+}
+.walletInputSearchContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 16px 8px 16px;
+  padding: 8px;
+  width: 256px;
+  height: 32px;
+  background-color: #0f0f1a;
+  border-radius: 8px;
+}
+@media (max-width: 1080px) {
+  .walletInputSearchContainer {
+    width: 176px;
+  }
+}
+.walletInputSearchContainer img {
+  width: 20px;
+  height: 20px;
+}
+.walletInputSearch {
+  background-color: #0f0f1a;
+  color: #707a8d;
+  font-size: 12px;
+  font-weight: 400;
+  width: 99%;
+  line-height: 22px;
+  letter-spacing: 0.02em;
+  border: 0;
+}
+.walletInputSearch:focus {
+  outline: none;
+}
+.NotFoundContainer {
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.NotFoundHeading {
+  padding-top: 16px;
+  color: #f7f7f7;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 22px;
+  letter-spacing: 0.02em;
+}
+.NotFoundInfo {
+  padding-top: 4px;
+  width: 171px;
+  color: #707a8d;
+  text-align: center;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+}
+.NotFoundGif {
+  width: 104px;
+  height: 216px;
+}
+.otherItemsContainer {
+  width: 264px;
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  justify-content: center;
+  align-items: center;
+}
+
+.recentDetectedContainer {
+  background-color: #343551;
+  width: 264px;
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (max-width: 1080px) {
+  .otherItemsContainer,
+  .recentDetectedContainer {
+    width: 176px;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .otherItemsContainer,
+  .recentDetectedContainer {
+    width: 176px;
+  }
+}
