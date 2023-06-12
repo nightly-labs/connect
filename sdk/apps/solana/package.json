@@ -34,7 +34,7 @@
     "@solana/web3.js": "^1.77.2",
     "@nightlylabs/nightly-connect-base": "workspace:*",
     "eventemitter3": "^5.0.1",
-    "isomorphic-localstorage": "^1.0.1",
+    "isomorphic-localstorage": "^1.0.2",
     "isomorphic-ws": "^5.0.0",
     "tiny-typed-emitter": "^2.1.0",
     "uuid": "^9.0.0"

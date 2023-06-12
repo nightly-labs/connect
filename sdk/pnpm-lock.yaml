@@ -43,8 +43,8 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1
       isomorphic-localstorage:
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.0.2
+        version: 1.0.2
       isomorphic-ws:
         specifier: ^5.0.0
         version: 5.0.0(ws@8.13.0)
@@ -111,8 +111,8 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1
       isomorphic-localstorage:
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.0.2
+        version: 1.0.2
       isomorphic-ws:
         specifier: ^5.0.0
         version: 5.0.0(ws@8.13.0)
@@ -178,8 +178,8 @@ importers:
         specifier: ^1.3.0
         version: 1.3.0
       isomorphic-localstorage:
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.0.2
+        version: 1.0.2
       isomorphic-ws:
         specifier: ^5.0.0
         version: 5.0.0(ws@8.13.0)
@@ -6843,8 +6843,8 @@ packages:
       - encoding
     dev: false
 
-  /isomorphic-localstorage@1.0.1:
-    resolution: {integrity: sha512-8TvDxz9Qv4X1NxfH1mq/froWoHtO2cfr+lzX4/6ehwplyVhJBcKk9SBlUtjoPoIKAWwPcPP8GuBiVdfI8M3/Lw==}
+  /isomorphic-localstorage@1.0.2:
+    resolution: {integrity: sha512-FwfdaTRe4ICraQ0JR0C1ibmIN17WPZxCVQDkYx2E134xmDMamdwv/mgRARW5J7exxKy8vmtmOem05vWWUSlVIw==}
     dependencies:
       node-localstorage: 2.2.1
     dev: false
