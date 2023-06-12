@@ -1,105 +1,45 @@
-import { NightlyWalletSelectorItem } from './../nightly-wallet-selector-item/nightly-wallet-selector-item'
-import { customElement } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 import { html } from 'lit/static-html.js'
-import search from '../../static/svg/searchIcon.svg'
-import Phantom from '../../static/svg/PhantomIcon.svg'
-import MetaMask from '../../static/svg/MetaMaskIcon.svg'
+import { TailwindElement } from '../../shared/tailwind.element'
+import foxSadGIF from '../../static/gif/fox_sad.gif'
+import Binance from '../../static/svg/BinanceIcon.svg'
 import Coinbase from '../../static/svg/CoinbaseIcon.svg'
 import Glow from '../../static/svg/GlowIcon.svg'
-import ZenGO from '../../static/svg/ZenGOIcon.svg'
-import Trust from '../../static/svg/TrustIcon.svg'
-import Binance from '../../static/svg/BinanceIcon.svg'
-import Sollet from '../../static/svg/SolletIcon.svg'
+import MetaMask from '../../static/svg/MetaMaskIcon.svg'
 import NightlyIcon from '../../static/svg/NightlyIcon.svg'
-import { css } from 'lit'
-import NotFoundIcon from '../../static/svg/nothingFound.svg'
+import Phantom from '../../static/svg/PhantomIcon.svg'
+import Sollet from '../../static/svg/SolletIcon.svg'
+import Trust from '../../static/svg/TrustIcon.svg'
+import ZenGO from '../../static/svg/ZenGOIcon.svg'
+import search from '../../static/svg/searchIcon.svg'
+import style from './nightly-wallet-selector-page.css?inline'
+import ChainIcon from '../../static/svg/ChainIcon.svg'
 
 @customElement('nightly-wallet-selector-page')
-export class NightlyWalletSelectorPage extends NightlyWalletSelectorItem {
-  static styles = css`
-    .walletSelectorPage {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      width: 288px;
-      height: 464px;
-      background-color: #202137;
-    }
-    .walletInputSearchContainer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 0 16px;
-      padding: 8px;
-      width: 256px;
-      height: 20px;
-      background-color: #0f0f1a;
-      border-radius: 8px;
-    }
-    .walletInputSearchContainer img {
-      width: 20px;
-      height: 20px;
-    }
-    .walletInputSearch {
-      background-color: #0f0f1a;
-      color: #707a8d;
-      font-size: 12px;
-      font-weight: 400;
-      width: 99%;
-      line-height: 22px;
-      letter-spacing: 0.02em;
-      border: 0;
-    }
-    .walletInputSearch:focus {
-      outline: none;
-    }
-    .walletSelectorButtons {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      justify-content: center;
-      align-items: center;
-      width: 264px;
+export class NightlyWalletSelectorPage extends TailwindElement(style) {
+  @property({ type: String })
+  name = ''
 
-      padding: 8px 12px 0px 12px;
-    }
-    .NotFoundContainer {
-      padding-top: 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    .NotFoundHeading {
-      padding-top: 16px;
-      color: #f7f7f7;
-      font-weight: 700;
-      font-size: 16px;
-      line-height: 22px;
-      letter-spacing: 0.02em;
-    }
-    .NotFoundInfo {
-      padding-top: 4px;
-      width: 171px;
-      color: #707a8d;
-      text-align: center;
-      font-weight: 400;
-      font-size: 12px;
-      line-height: 16px;
-      letter-spacing: 0.02em;
-    }
-  `
+  @property({ type: String })
+  status = ''
 
   selectorItems = [
-    { name: 'Phantom', icon: Phantom, status: '' },
+    { name: 'Phantom', icon: Phantom, status: 'detected' },
     { name: 'MetaMask', icon: MetaMask, status: '' },
-    { name: 'Coinbase', icon: Coinbase, status: '' },
-    { name: 'Nightly Wallet', icon: NightlyIcon, status: '' },
+    { name: 'Coinbase', icon: Coinbase, status: 'recent' },
+    { name: 'Nightly Wallet', icon: NightlyIcon, status: 'detected' },
     { name: 'Glow Wallet', icon: Glow, status: '' },
     { name: 'ZenGO', icon: ZenGO, status: '' },
     { name: 'Trust', icon: Trust, status: '' },
+    { name: 'Binance Wallet', icon: Binance, status: 'detected' },
     { name: 'Binance Wallet', icon: Binance, status: '' },
-    { name: 'Sollet', icon: Sollet, status: '' }
+    { name: 'Binance Wallet', icon: Binance, status: '' },
+    { name: 'Binance Wallet', icon: Binance, status: '' },
+    { name: 'Binance Wallet', icon: Binance, status: '' },
+    { name: 'Binance Wallet', icon: Binance, status: '' },
+    { name: 'Binance Wallet', icon: Binance, status: '' },
+    { name: 'Binance Wallet', icon: Binance, status: '' },
+    { name: 'Sollet', icon: Sollet, status: 'recent' }
   ]
 
   filteredItems = [...this.selectorItems]
@@ -108,6 +48,13 @@ export class NightlyWalletSelectorPage extends NightlyWalletSelectorItem {
   render() {
     return html`
       <div class="walletSelectorPage">
+        <div class="walletSelectorHeader">
+          <span>Wallets</span>
+          <div class="walletSelectorBlockchain">
+            <img src=${ChainIcon} />
+            <span>Solana</span>
+          </div>
+        </div>
         <div class="walletInputSearchContainer">
           <input placeholder="Search" class="walletInputSearch" @input=${this.handleSearchInput} />
           <img src="${search}" />
@@ -120,22 +67,53 @@ export class NightlyWalletSelectorPage extends NightlyWalletSelectorItem {
   }
 
   renderSelectorItems() {
-    return this.filteredItems.map((item) => {
-      return html`
-        <nightly-wallet-selector-item
-          name=${item.name}
-          icon=${item.icon}
-          status=${item.status}
-          @click=${this.handleWalletSelectorClick}
-        ></nightly-wallet-selector-item>
-      `
+    const sortedItems = this.filteredItems.sort((a, b) => {
+      if (a.status === 'recent' || a.status === 'detected') return -1
+      if (b.status === 'recent' || b.status === 'detected') return 1
+      return 0
     })
+
+    const recentDetectedItems = sortedItems.filter(
+      (item) => item.status === 'recent' || item.status === 'detected'
+    )
+    const otherItems = sortedItems.filter(
+      (item) => item.status !== 'recent' && item.status !== 'detected'
+    )
+
+    return html`
+      <div class="walletSelectorButtons">
+        <div class="recentDetectedContainer">
+          ${recentDetectedItems.map((item) => {
+            return html`
+              <nightly-wallet-selector-item
+                name=${item.name}
+                icon=${item.icon}
+                status=${item.status}
+                @click=${this.handleWalletSelectorClick}
+              ></nightly-wallet-selector-item>
+            `
+          })}
+        </div>
+        <div class="otherItemsContainer">
+          ${otherItems.map((item) => {
+            return html`
+              <nightly-wallet-selector-item
+                name=${item.name}
+                icon=${item.icon}
+                status=${item.status}
+                @click=${this.handleWalletSelectorClick}
+              ></nightly-wallet-selector-item>
+            `
+          })}
+        </div>
+      </div>
+    `
   }
 
   renderNotFoundIcon() {
     return html`
       <div class="NotFoundContainer">
-        <img src="${NotFoundIcon}" alt="Not Found" />
+        <img src="${foxSadGIF}" alt="Not Found" class="NotFoundGif" />
         <span class="NotFoundHeading">Nothing found...</span>
         <span class="NotFoundInfo">Make sure you’ve typed the name correctly.</span>
       </div>
@@ -152,7 +130,7 @@ export class NightlyWalletSelectorPage extends NightlyWalletSelectorItem {
 
     this.showNotFoundIcon = this.filteredItems.length === 0
 
-    this.requestUpdate() // Odświeżenie renderowania komponentu
+    this.requestUpdate()
   }
 
   handleWalletSelectorClick(event: { target: { name: string } }) {
