@@ -20,7 +20,14 @@ export default [
       }
     ],
     plugins: [typescript(), nodeResolve(), commonjs(), commonjs(), terser()],
-    external: ['@wallet-standard/core']
+    external: [
+      '@mysten/sui.js',
+      '@mysten/wallet-adapter-wallet-standard',
+      '@mysten/wallet-standard',
+      '@nightlylabs/nightly-connect-sui',
+      '@nightlylabs/wallet-selector-base',
+      '@wallet-standard/core'
+    ]
   },
   {
     input: 'dist/esm/types/index.d.ts',

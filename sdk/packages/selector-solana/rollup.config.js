@@ -20,7 +20,15 @@ export default [
       }
     ],
     plugins: [typescript(), nodeResolve(), commonjs(), commonjs(), terser()],
-    external: ['@wallet-standard/core']
+    external: [
+      '@nightlylabs/nightly-connect-solana',
+      '@nightlylabs/wallet-selector-base',
+      '@solana/wallet-adapter-base',
+      '@solana/wallet-standard',
+      '@solana/wallet-standard-wallet-adapter-base',
+      '@solana/web3.js',
+      '@wallet-standard/core'
+    ]
   },
   {
     input: 'dist/esm/types/index.d.ts',
