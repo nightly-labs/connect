@@ -10,6 +10,7 @@ import Trust from '../../static/svg/TrustIcon.svg'
 import Binance from '../../static/svg/BinanceIcon.svg'
 import Sollet from '../../static/svg/SolletIcon.svg'
 import NightlyIcon from '../../static/svg/NightlyIcon.svg'
+import ChainIcon from '../../static/svg/ChainIcon.svg'
 
 import './nightly-wallet-selector-page'
 import '../nightly-chain-menu-item/nightly-chain-menu-item'
@@ -23,6 +24,7 @@ interface WalletSelectorItem {
 interface NightlyWalletSelectorListArgs {
   walletSelectorItems: WalletSelectorItem[]
   onWalletClick: (event: Event) => void
+  chainIcon: string
 }
 
 const meta: Meta<NightlyWalletSelectorPage> = {
@@ -42,6 +44,7 @@ export const Default = (args: NightlyWalletSelectorListArgs) => {
     <nightly-wallet-selector-page
       .selectorItems=${args.walletSelectorItems}
       .onWalletClick=${args.onWalletClick}
+      .chainIcon=${args.chainIcon}
     ></nightly-wallet-selector-page>
   `
 }
@@ -80,5 +83,6 @@ Default.args = {
   onWalletClick: (event: Event) => {
     const target = event.target as HTMLElement
     console.log('Item clicked:', target.getAttribute('name'))
-  }
+  },
+  chainIcon: ChainIcon
 }

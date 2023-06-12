@@ -2,12 +2,12 @@ import { customElement, property } from 'lit/decorators.js'
 import { html } from 'lit/static-html.js'
 import { TailwindElement } from '../../shared/tailwind.element'
 import foxSadGIF from '../../static/gif/fox_sad.gif'
-import ChainIcon from '../../static/svg/ChainIcon.svg'
 import search from '../../static/svg/searchIcon.svg'
 import style from './nightly-wallet-selector-page.css?inline'
 
 @customElement('nightly-wallet-selector-page')
 export class NightlyWalletSelectorPage extends TailwindElement(style) {
+  @property({ type: String }) chainIcon = ''
   @property({ type: Array })
   get selectorItems(): { name: string; icon: string; status: string }[] {
     return this._selectorItems
@@ -35,7 +35,7 @@ export class NightlyWalletSelectorPage extends TailwindElement(style) {
           <div class="walletSelectorHeader">
             <span>Wallets</span>
             <div class="walletSelectorBlockchain">
-              <img src=${ChainIcon} />
+              <img src=${this.chainIcon} />
               <span>Solana</span>
             </div>
           </div>
