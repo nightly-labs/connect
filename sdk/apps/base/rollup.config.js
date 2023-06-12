@@ -9,7 +9,7 @@ export default [
     input: 'src/index.ts',
     output: [
       {
-        file: 'dist/cjs/index.js',
+        file: 'dist/cjs/index.cjs',
         format: 'cjs',
         sourcemap: true
       },
@@ -22,7 +22,6 @@ export default [
     plugins: [typescript(), nodeResolve(), commonjs(), terser()],
     external: [
       'cross-fetch',
-      'eventemitter3',
       'isomorphic-localstorage',
       'isomorphic-ws',
       'tiny-typed-emitter',

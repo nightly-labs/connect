@@ -39,12 +39,9 @@ importers:
       cross-fetch:
         specifier: ^3.1.6
         version: 3.1.6
-      eventemitter3:
-        specifier: ^5.0.1
-        version: 5.0.1
       isomorphic-localstorage:
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.0.2
+        version: 1.0.2
       isomorphic-ws:
         specifier: ^5.0.0
         version: 5.0.0(ws@8.13.0)
@@ -107,12 +104,6 @@ importers:
       '@solana/web3.js':
         specifier: ^1.77.2
         version: 1.77.2
-      eventemitter3:
-        specifier: ^5.0.1
-        version: 5.0.1
-      isomorphic-localstorage:
-        specifier: ^1.0.1
-        version: 1.0.1
       isomorphic-ws:
         specifier: ^5.0.0
         version: 5.0.0(ws@8.13.0)
@@ -177,9 +168,6 @@ importers:
       '@noble/hashes':
         specifier: ^1.3.0
         version: 1.3.0
-      isomorphic-localstorage:
-        specifier: ^1.0.1
-        version: 1.0.1
       isomorphic-ws:
         specifier: ^5.0.0
         version: 5.0.0(ws@8.13.0)
@@ -3174,38 +3162,14 @@ packages:
     engines: {node: '>=16'}
     dependencies:
       '@mysten/bcs': 0.7.1
-      '@noble/curves': 1.1.0
-      '@noble/hashes': 1.3.1
+      '@noble/curves': 1.0.0
+      '@noble/hashes': 1.3.0
       '@open-rpc/client-js': 1.8.1
       '@scure/bip32': 1.3.0
       '@scure/bip39': 1.2.0
       '@suchipi/femver': 1.0.0
       superstruct: 1.0.3
       tweetnacl: 1.0.3
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - utf-8-validate
-    dev: false
-
-  /@mysten/wallet-adapter-base@0.7.9:
-    resolution: {integrity: sha512-5ukbi59E/OObv0UPbgqQEh4L4wnFfuXnNt22oe9M/5EKwlQ/y82mtWRpPqEqfazPI2gVvtUyKLCf5uelA0aJIw==}
-    dependencies:
-      '@mysten/sui.js': 0.35.1
-      '@mysten/wallet-standard': 0.5.9
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - utf-8-validate
-    dev: false
-
-  /@mysten/wallet-adapter-wallet-standard@0.7.9:
-    resolution: {integrity: sha512-+wTBzIr6mT9G2KvXDLr0yg1EsZ8PvAKM0nZFAwRf5htGILIITPR3UEX+2ugxc+Ec4Gx/+NQxYd/TfMSA+iHBNg==}
-    dependencies:
-      '@mysten/sui.js': 0.35.1
-      '@mysten/wallet-adapter-base': 0.7.9
-      '@mysten/wallet-standard': 0.5.9
-      mitt: 3.0.0
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -3275,6 +3239,19 @@ packages:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.15.0
+
+  /@open-rpc/client-js@1.8.1:
+    resolution: {integrity: sha512-vV+Hetl688nY/oWI9IFY0iKDrWuLdYhf7OIKI6U1DcnJV7r4gAgwRJjEr1QVYszUc0gjkHoQJzqevmXMGLyA0g==}
+    dependencies:
+      isomorphic-fetch: 3.0.0
+      isomorphic-ws: 5.0.0(ws@7.5.9)
+      strict-event-emitter-types: 2.0.0
+      ws: 7.5.9
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - utf-8-validate
+    dev: false
 
   /@open-rpc/client-js@1.8.1:
     resolution: {integrity: sha512-vV+Hetl688nY/oWI9IFY0iKDrWuLdYhf7OIKI6U1DcnJV7r4gAgwRJjEr1QVYszUc0gjkHoQJzqevmXMGLyA0g==}
@@ -3898,7 +3875,7 @@ packages:
       remark-external-links: 8.0.0
       remark-slug: 6.1.0
       rollup: 3.23.1
-      typescript: 5.1.3
+      typescript: 5.0.2
       vite: 4.3.9(@types/node@20.3.0)
     transitivePeerDependencies:
       - supports-color
@@ -6091,10 +6068,6 @@ packages:
     resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
     dev: false
 
-  /eventemitter3@5.0.1:
-    resolution: {integrity: sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==}
-    dev: false
-
   /execa@5.1.1:
     resolution: {integrity: sha512-8uSpZZocAZRBAPIEINJj3Lo9HyGitllczc27Eh5YYojjMFMn8yHMDMaUHE2Jqfq05D/wucwI4JGURyXt1vchyg==}
     engines: {node: '>=10'}
@@ -6887,8 +6860,8 @@ packages:
       - encoding
     dev: false
 
-  /isomorphic-localstorage@1.0.1:
-    resolution: {integrity: sha512-8TvDxz9Qv4X1NxfH1mq/froWoHtO2cfr+lzX4/6ehwplyVhJBcKk9SBlUtjoPoIKAWwPcPP8GuBiVdfI8M3/Lw==}
+  /isomorphic-localstorage@1.0.2:
+    resolution: {integrity: sha512-FwfdaTRe4ICraQ0JR0C1ibmIN17WPZxCVQDkYx2E134xmDMamdwv/mgRARW5J7exxKy8vmtmOem05vWWUSlVIw==}
     dependencies:
       node-localstorage: 2.2.1
     dev: false
@@ -9299,6 +9272,39 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - typescript
+    dev: false
+
+  /vite@4.0.3:
+    resolution: {integrity: sha512-HvuNv1RdE7deIfQb8mPk51UKjqptO/4RXZ5yXSAvurd5xOckwS/gg8h9Tky3uSbnjYTgUm0hVCet1cyhKd73ZA==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': '>= 14'
+      less: '*'
+      sass: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      esbuild: 0.16.10
+      postcss: 8.4.24
+      resolve: 1.22.1
+      rollup: 3.23.1
+    optionalDependencies:
+      fsevents: 2.3.2
     dev: false
 
   /vite@4.3.9(@types/node@20.3.0):

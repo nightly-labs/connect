@@ -9,7 +9,7 @@ export default [
     input: 'src/index.ts',
     output: [
       {
-        file: 'dist/cjs/index.js',
+        file: 'dist/cjs/index.cjs',
         format: 'cjs',
         sourcemap: true
       },
@@ -23,8 +23,6 @@ export default [
     external: [
       '@solana/web3.js',
       '@nightlylabs/nightly-connect-base',
-      'eventemitter3',
-      'isomorphic-localstorage',
       'isomorphic-ws',
       'tiny-typed-emitter',
       'uuid'
