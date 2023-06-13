@@ -1,6 +1,8 @@
 .code {
   border-radius: 20px;
   border: 1px solid #343551;
+  width: 400px;
+  height: 400px;
 }
 
 .bottomContainer {
@@ -9,6 +11,35 @@
   overflow: hidden;
   border-radius: 0 0 16px 16px;
   max-width: 720px;
+}
+
+@media (max-width: 960px) {
+  .bottomContainer {
+    height: 368px;
+  }
+
+  .code {
+    width: 304px;
+    height: 304px;
+  }
+}
+
+@media (max-width: 1080px) and (min-width: 960px) {
+  .bottomContainer {
+    max-width: 868px;
+  }
+}
+
+@media (max-width: 960px) and (min-width: 640px) {
+  .bottomContainer {
+    max-width: 540px;
+  }
+}
+
+@media (max-width: 640px) {
+  .bottomContainer {
+    width: 100%;
+  }
 }
 
 .scan {
