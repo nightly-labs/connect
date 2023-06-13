@@ -4,7 +4,7 @@ import { TailwindElement } from '../../../shared/tailwind.element'
 import style from './nightly-wallet-selector-small-page.css?inline'
 import search from '../../../static/svg/searchIcon.svg'
 import foxSadGIF from '../../../static/gif/fox_sad.gif'
-import vector from '../../../static/svg/Vector 87.svg'
+import vector from '../../../static/svg/backButton.svg'
 import '../../nightly-header/nightly-header'
 
 @customElement('nightly-wallet-selector-small-page')
