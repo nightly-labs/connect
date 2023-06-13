@@ -10,14 +10,29 @@ export const getLocalStorage = () => {
   return _localStorage
 }
 
-export const persistRecentWalletForNetwork = (walletName: string, network: string) => {
-  const storage = getLocalStorage()
-
-  storage.setItem('NIGHTLY_CONNECT_SELECTOR_RECENT_WALLET_' + network, walletName)
+export interface IBaseSessionData {
+  sessionId: string
+  publicKey: string
+  walletName: string
 }
 
-export const getRecentWalletForNetwork = (network: string) => {
+export const persistSessionDataForNetwork = <T extends IBaseSessionData>(
+  sessionData: T,
+  network: string
+) => {
   const storage = getLocalStorage()
 
-  return storage.getItem('NIGHTLY_CONNECT_SELECTOR_RECENT_WALLET_' + network)
+  storage.setItem('NIGHTLY_CONNECT_SELECTOR_SESSION_DATA_' + network, JSON.stringify(sessionData))
+}
+
+export const getSessionDataForNetwork = <T extends IBaseSessionData>(network: string) => {
+  const storage = getLocalStorage()
+
+  const item = storage.getItem('NIGHTLY_CONNECT_SELECTOR_SESSION_DATA_' + network)
+
+  return item === null ? null : (JSON.parse(item) as T)
+}
+
+export const clearSessionDataForNetwork = (network: string) => {
+  localStorage.removeItem('NIGHTLY_CONNECT_SELECTOR_SESSION_DATA_' + network)
 }
