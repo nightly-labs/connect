@@ -353,10 +353,10 @@ importers:
   packages/selector-solana:
     dependencies:
       '@nightlylabs/nightly-connect-solana':
-        specifier: workspace:*
+        specifier: 0.0.1
         version: link:../../apps/solana
       '@nightlylabs/wallet-selector-base':
-        specifier: workspace:*
+        specifier: 0.0.1
         version: link:../selector-base
       '@solana/wallet-adapter-base':
         specifier: ^0.9.22
@@ -411,10 +411,10 @@ importers:
         specifier: ^0.5.7
         version: 0.5.9
       '@nightlylabs/nightly-connect-sui':
-        specifier: workspace:*
+        specifier: 0.0.1
         version: link:../../apps/sui
       '@nightlylabs/wallet-selector-base':
-        specifier: workspace:*
+        specifier: 0.0.1
         version: link:../selector-base
       '@wallet-standard/core':
         specifier: ^1.0.3
