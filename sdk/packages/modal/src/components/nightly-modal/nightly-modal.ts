@@ -34,8 +34,18 @@ export class NightlyModal extends TailwindElement(style) {
   @property({ type: String })
   network = ''
 
+  @property({ type: String })
+  copyMessage = 'Copy'
+
+  timeoutRef: number | undefined = undefined
+
   onCopy = () => {
     navigator.clipboard.writeText('nightlyconnect:' + this.sessionId + '?network=' + this.network)
+    this.copyMessage = 'Copied!'
+    clearTimeout(this.timeoutRef)
+    this.timeoutRef = setTimeout(() => {
+      this.copyMessage = 'Copy'
+    }, 1000) as unknown as number
   }
 
   render() {
@@ -44,8 +54,10 @@ export class NightlyModal extends TailwindElement(style) {
       <div class="bottomContainer">
         <div class="qrContainer">
           <div class="qrTop">
-            <div class="scan"><img class="scanImg" src=${scan} /> Scan QR code</div>
-            <div class="copy" @click=${this.onCopy}><img class="copyImg" src=${copy} /> Copy</div>
+            <div class="scan"><img class="scanImg" src=${scan} />Scan QR code</div>
+            <div class="copy" @click=${this.onCopy}>
+              <img class="copyImg" src=${copy} />${this.copyMessage}
+            </div>
           </div>
           <img
             class="code"
