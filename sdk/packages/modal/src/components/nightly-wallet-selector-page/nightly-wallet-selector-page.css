@@ -8,13 +8,19 @@
   background-color: #202137;
 }
 
+@media (max-width: 960px) {
+  .walletSelectorPage {
+    height: 368px;
+  }
+}
+
 .walletSelectorPage::before {
   content: '';
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 150px;
+  height: 32px;
   background: linear-gradient(180deg, rgba(15, 15, 26, 0) 0%, #0f0f1a 100%);
   opacity: 0.7;
   pointer-events: none;
@@ -28,7 +34,9 @@
   justify-content: flex-start;
   flex-direction: column;
   height: 100%;
-  overflow: auto;
+  overflow-x: hidden;
+  padding-bottom: 16px;
+  scrollbar-width: none;
 }
 
 .contentContainer::-webkit-scrollbar {

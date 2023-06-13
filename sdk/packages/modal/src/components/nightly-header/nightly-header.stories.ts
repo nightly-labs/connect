@@ -9,7 +9,7 @@ const meta = {
     layout: 'centered'
   },
   render: (args) => {
-    return html`<nightly-header onClose=${args.onClose}></nightly-header>`
+    return html`<nightly-header .onClose=${args.onClose}></nightly-header>`
   }
 } satisfies Meta<NightlyHeader>
 

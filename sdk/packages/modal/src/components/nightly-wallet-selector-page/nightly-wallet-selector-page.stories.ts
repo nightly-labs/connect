@@ -23,8 +23,9 @@ interface WalletSelectorItem {
 
 interface NightlyWalletSelectorListArgs {
   walletSelectorItems: WalletSelectorItem[]
-  onWalletClick: (event: Event) => void
+  onWalletClick: (name: string) => void
   chainIcon: string
+  chainName: string
 }
 
 const meta: Meta<NightlyWalletSelectorPage> = {
@@ -45,6 +46,7 @@ export const Default = (args: NightlyWalletSelectorListArgs) => {
       .selectorItems=${args.walletSelectorItems}
       .onWalletClick=${args.onWalletClick}
       .chainIcon=${args.chainIcon}
+      .chainName=${args.chainName}
     ></nightly-wallet-selector-page>
   `
 }
@@ -80,9 +82,9 @@ Default.args = {
     { name: 'Trust', icon: Trust, status: 'detected' },
     { name: 'Binance', icon: Binance, status: '' }
   ],
-  onWalletClick: (event: Event) => {
-    const target = event.target as HTMLElement
-    console.log('Item clicked:', target.getAttribute('name'))
+  onWalletClick: (name: string) => {
+    console.log(name)
   },
-  chainIcon: ChainIcon
+  chainIcon: ChainIcon,
+  chainName: 'Solana'
 }

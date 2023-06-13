@@ -99,7 +99,7 @@ importers:
   apps/solana:
     dependencies:
       '@nightlylabs/nightly-connect-base':
-        specifier: workspace:*
+        specifier: 0.0.1
         version: link:../base
       '@solana/web3.js':
         specifier: ^1.77.2
@@ -163,7 +163,7 @@ importers:
         specifier: ^0.5.9
         version: 0.5.9
       '@nightlylabs/nightly-connect-base':
-        specifier: workspace:*
+        specifier: 0.0.1
         version: link:../base
       '@noble/hashes':
         specifier: ^1.3.0
@@ -236,8 +236,8 @@ importers:
   packages/modal:
     dependencies:
       '@nightlylabs/qr-code':
-        specifier: 1.0.21
-        version: 1.0.21
+        specifier: 2.0.0
+        version: link:../qr-codes
       autoprefixer:
         specifier: ^10.4.14
         version: 10.4.14(postcss@8.4.24)
@@ -3416,12 +3416,6 @@ packages:
       pump: 3.0.0
       tar-fs: 2.1.1
     dev: true
-
-  /@nightlylabs/qr-code@1.0.21:
-    resolution: {integrity: sha512-W4gOXG8SDQMYX+MLBUWFSZbiTjApY8CW+z0Lu8MZUqW5IwtyGHjZ2GgkwLo/3A9peIWiXrF/2a93E7cCCouzgw==}
-    dependencies:
-      qrcode-generator: 1.4.4
-    dev: false
 
   /@noble/curves@1.0.0:
     resolution: {integrity: sha512-2upgEu0iLiDVDZkNLeFV2+ht0BAVgQnEmCk6JsOch9Rp8xfkMCbvbAZlA2pBHQc73dbl+vFOXfqkf4uemdn0bw==}
