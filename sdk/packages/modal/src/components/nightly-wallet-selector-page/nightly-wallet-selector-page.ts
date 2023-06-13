@@ -4,10 +4,12 @@ import { TailwindElement } from '../../shared/tailwind.element'
 import foxSadGIF from '../../static/gif/fox_sad.gif'
 import search from '../../static/svg/searchIcon.svg'
 import style from './nightly-wallet-selector-page.css?inline'
+import '../nightly-wallet-selector-item/nightly-wallet-selector-item'
 
 @customElement('nightly-wallet-selector-page')
 export class NightlyWalletSelectorPage extends TailwindElement(style) {
   @property({ type: String }) chainIcon = ''
+  @property({ type: String }) chainName = ''
   @property({ type: Array })
   get selectorItems(): { name: string; icon: string; status: string }[] {
     return this._selectorItems
@@ -24,6 +26,10 @@ export class NightlyWalletSelectorPage extends TailwindElement(style) {
   filteredItems: { name: string; icon: string; status: string }[] = []
   showNotFoundIcon = false
 
+  @property({ type: Function })
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  onWalletClick: (name: string) => void = () => {}
+
   constructor() {
     super()
   }
@@ -36,7 +42,7 @@ export class NightlyWalletSelectorPage extends TailwindElement(style) {
             <span>Wallets</span>
             <div class="walletSelectorBlockchain">
               <img src=${this.chainIcon} />
-              <span>Solana</span>
+              <span>${this.chainName}</span>
             </div>
           </div>
           <div class="walletInputSearchContainer">
@@ -72,7 +78,7 @@ export class NightlyWalletSelectorPage extends TailwindElement(style) {
                 name=${item.name}
                 icon=${item.icon}
                 status=${item.status}
-                @click=${(event: Event) => this.handleWalletSelectorClick(event, item.name)}
+                @click=${() => this.onWalletClick(item.name)}
               ></nightly-wallet-selector-item>
             `
           })}
@@ -84,7 +90,7 @@ export class NightlyWalletSelectorPage extends TailwindElement(style) {
                 name=${item.name}
                 icon=${item.icon}
                 status=${item.status}
-                @click=${(event: Event) => this.handleWalletSelectorClick(event, item.name)}
+                @click=${() => this.onWalletClick(item.name)}
               ></nightly-wallet-selector-item>
             `
           })}
@@ -114,10 +120,6 @@ export class NightlyWalletSelectorPage extends TailwindElement(style) {
     this.showNotFoundIcon = this.filteredItems.length === 0
 
     this.requestUpdate()
-  }
-
-  handleWalletSelectorClick(_event: Event, name: string) {
-    console.log('A menu item was clicked:', name)
   }
 }
 
