@@ -6,6 +6,8 @@ import copy from '../../static/svg/copy.svg'
 import scan from '../../static/svg/scan.svg'
 import { svgToBase64 } from '../../utils/images'
 import { generateQrCodeXml } from '@nightlylabs/qr-code'
+import '../nightly-wallet-selector-page/nightly-wallet-selector-page'
+import '../nightly-header/nightly-header'
 
 @customElement('nightly-modal')
 export class NightlyModal extends TailwindElement(style) {
@@ -20,19 +22,15 @@ export class NightlyModal extends TailwindElement(style) {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onWalletClick = () => {}
 
-  @property({ type: String }) chainIcon = ''
+  @property({ type: String })
+  chainIcon = ''
 
-  @property({ type: String }) chainName = ''
+  @property({ type: String })
+  chainName = ''
 
-  /**
-   * Id of current session
-   */
   @property({ type: String })
   sessionId = ''
 
-  /**
-   * Network of current session
-   */
   @property({ type: String })
   network = ''
 
