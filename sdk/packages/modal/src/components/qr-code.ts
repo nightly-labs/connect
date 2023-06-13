@@ -1,4 +1,4 @@
-import { generateNightlyQRCodeXML } from '@nightlylabs/qr-code'
+import { generateQrCodeXml } from '@nightlylabs/qr-code'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { TailwindElement } from '../shared/tailwind.element'
@@ -17,12 +17,21 @@ export class QrCode extends TailwindElement(style) {
    * Network of current session
    */
   @property({ type: String })
-  network =''
+  network = ''
 
   render() {
     return html`
       <div class="qr-wrapper">
-        <img class="code" src=${svgToBase64(generateNightlyQRCodeXML('nightlyconnect:' + this.sessionId + '?network=' + this.network, { width: 400, height: 400, margin: 4 }))} />
+        <img
+          class="code"
+          src=${svgToBase64(
+            generateQrCodeXml('nightlyconnect:' + this.sessionId + '?network=' + this.network, {
+              width: 400,
+              height: 400,
+              margin: 4
+            })
+          )}
+        />
       </div>
     `
   }

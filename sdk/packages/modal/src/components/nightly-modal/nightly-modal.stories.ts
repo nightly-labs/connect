@@ -1,20 +1,20 @@
 import { Meta, StoryObj } from '@storybook/web-components'
 import { html } from 'lit/static-html.js'
-import './nightly-header'
-import { NightlyHeader } from './nightly-header'
+import './nightly-modal'
+import { NightlyModal } from './nightly-modal'
 
 const meta = {
-  title: 'nightly-header',
+  title: 'nightly-modal',
   parameters: {
     layout: 'centered'
   },
   render: (args) => {
-    return html`<nightly-header .onClose=${args.onClose}></nightly-header>`
+    return html`<nightly-modal .onClose=${args.onClose}></nightly-modal>`
   }
-} satisfies Meta<NightlyHeader>
+} satisfies Meta<NightlyModal>
 
 export default meta
-type Story = StoryObj<NightlyHeader>
+type Story = StoryObj<NightlyModal>
 
 export const Default: Story = {
   name: 'Default',
