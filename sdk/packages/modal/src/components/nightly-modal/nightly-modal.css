@@ -38,6 +38,10 @@
   margin-right: 4px;
 }
 
+.copy:hover {
+  filter: brightness(1.5);
+}
+
 .qrTop {
   display: flex;
   flex-direction: row;
