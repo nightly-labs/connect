@@ -8,6 +8,7 @@ import style from './nightly-wallet-selector-page.css?inline'
 @customElement('nightly-wallet-selector-page')
 export class NightlyWalletSelectorPage extends TailwindElement(style) {
   @property({ type: String }) chainIcon = ''
+  @property({ type: String }) chainName = ''
   @property({ type: Array })
   get selectorItems(): { name: string; icon: string; status: string }[] {
     return this._selectorItems
@@ -36,7 +37,7 @@ export class NightlyWalletSelectorPage extends TailwindElement(style) {
             <span>Wallets</span>
             <div class="walletSelectorBlockchain">
               <img src=${this.chainIcon} />
-              <span>Solana</span>
+              <span>${this.chainName}</span>
             </div>
           </div>
           <div class="walletInputSearchContainer">

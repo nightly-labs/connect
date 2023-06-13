@@ -1,0 +1,52 @@
+.code {
+  border-radius: 20px;
+  border: 1px solid #343551;
+}
+
+.bottomContainer {
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  border-radius: 0 0 16px 16px;
+  max-width: 720px;
+}
+
+.scan {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-size: 12px;
+  line-height: 24px;
+  color: #707A8D;
+}
+
+.scanImg {
+  margin-right: 4px;
+}
+
+.copy {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-size: 12px;
+  line-height: 22px;
+  color: #6067f9;
+  cursor: pointer;
+}
+
+.copyImg {
+  margin-right: 4px;
+}
+
+.qrTop {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: 16px;
+  margin-bottom: 16px;
+}
+
+.qrContainer {
+  padding: 16px;
+  background-color: #17182b;
+}
