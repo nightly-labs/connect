@@ -13,21 +13,20 @@ import Sollet from '../../static/svg/SolletIcon.svg'
 import NightlyIcon from '../../static/svg/NightlyIcon.svg'
 import ChainIcon from '../../static/svg/ChainIcon.svg'
 
-
 const meta = {
   title: 'nightly-modal',
   parameters: {
     layout: 'centered'
   },
   render: (args) => {
-    return html`<nightly-modal 
-    .onClose=${args.onClose} 
-    .selectorItems=${args.selectorItems}
-    .onWalletClick=${args.onWalletClick}
-    .chainIcon=${args.chainIcon}
-    .chainName=${args.chainName}
-    .sessionId=${args.sessionId}
-    .network=${args.network}
+    return html`<nightly-modal
+      .onClose=${args.onClose}
+      .selectorItems=${args.selectorItems}
+      .onWalletClick=${args.onWalletClick}
+      .chainIcon=${args.chainIcon}
+      .chainName=${args.chainName}
+      .sessionId=${args.sessionId}
+      .network=${args.network}
     ></nightly-modal>`
   }
 } satisfies Meta<NightlyModal>
@@ -43,10 +42,10 @@ interface WalletSelectorItem {
 interface NightlyModalArgs {
   onClose: () => void
   selectorItems: WalletSelectorItem[]
-  onWalletClick: () => void
+  onWalletClick: (name: string) => void
   chainIcon: string
-  chainName: string,
-  sessionId: string,
+  chainName: string
+  sessionId: string
   network: string
 }
 type Story = StoryObj<NightlyModalArgs>
@@ -85,12 +84,13 @@ export const Default: Story = {
       { name: 'Trust', icon: Trust, status: 'detected' },
       { name: 'Binance', icon: Binance, status: '' }
     ],
-    onWalletClick: () => {
-      console.log('Item clicked')
+    onWalletClick: (name: string) => {
+      console.log('Item clicked:', name)
     },
     chainIcon: ChainIcon,
     chainName: 'Solana',
-    sessionId: 'fsdhfdzfsdhgfzghggdfhbgchgbdfnvfbxhncvfjhzxdhgbhghfgfvzhfgjhgszdhgzxdfhgfzxdjfuhdfhgd',
+    sessionId:
+      'fsdhfdzfsdhgfzghggdfhbgchgbdfnvfbxhncvfjhzxdhgbhghfgfvzhfgjhgszdhgzxdfhgfzxdjfuhdfhgd',
     network: 'SOLANA'
   }
 }

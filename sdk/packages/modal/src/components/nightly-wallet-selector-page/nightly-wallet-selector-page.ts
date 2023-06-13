@@ -26,6 +26,10 @@ export class NightlyWalletSelectorPage extends TailwindElement(style) {
   filteredItems: { name: string; icon: string; status: string }[] = []
   showNotFoundIcon = false
 
+  @property({ type: Function })
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  onWalletClick: (name: string) => void = () => {}
+
   constructor() {
     super()
   }
@@ -74,7 +78,7 @@ export class NightlyWalletSelectorPage extends TailwindElement(style) {
                 name=${item.name}
                 icon=${item.icon}
                 status=${item.status}
-                @click=${(event: Event) => this.handleWalletSelectorClick(event, item.name)}
+                @click=${() => this.onWalletClick(item.name)}
               ></nightly-wallet-selector-item>
             `
           })}
@@ -86,7 +90,7 @@ export class NightlyWalletSelectorPage extends TailwindElement(style) {
                 name=${item.name}
                 icon=${item.icon}
                 status=${item.status}
-                @click=${(event: Event) => this.handleWalletSelectorClick(event, item.name)}
+                @click=${() => this.onWalletClick(item.name)}
               ></nightly-wallet-selector-item>
             `
           })}
@@ -116,10 +120,6 @@ export class NightlyWalletSelectorPage extends TailwindElement(style) {
     this.showNotFoundIcon = this.filteredItems.length === 0
 
     this.requestUpdate()
-  }
-
-  handleWalletSelectorClick(_event: Event, name: string) {
-    console.log('A menu item was clicked:', name)
   }
 }
 

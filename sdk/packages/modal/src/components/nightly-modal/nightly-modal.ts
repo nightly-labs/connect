@@ -18,9 +18,9 @@ export class NightlyModal extends TailwindElement(style) {
   @property({ type: Array })
   selectorItems = []
 
-  @property()
+  @property({ type: Function })
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  onWalletClick = () => {}
+  onWalletClick: (name: string) => void = () => {}
 
   @property({ type: String })
   chainIcon = ''
