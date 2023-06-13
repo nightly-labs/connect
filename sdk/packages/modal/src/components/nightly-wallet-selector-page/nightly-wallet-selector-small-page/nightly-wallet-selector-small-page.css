@@ -1,0 +1,193 @@
+.mainContainer {
+  width: 638px;
+  height: 282px;
+  background-color: #17182b;
+  border-radius: 16px 16px 0px 0px;
+}
+.infoConatiner {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+}
+.infoConatiner button {
+  font-family: 'Prompt';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22px;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.02em;
+  color: #6067f9;
+  width: 73px;
+  height: 22px;
+  background: rgba(96, 103, 249, 0.25);
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+.infoConatiner p {
+  font-family: 'Prompt';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22px;
+  letter-spacing: 0.02em;
+  color: #f7f7f7;
+}
+
+.mainContainerWalletSellector {
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.topWalletsItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.headerContainer {
+  padding: 19px 0 16px 16px;
+  display: flex;
+  justify-content: space-between;
+}
+.buttonContainer {
+  align-self: flex-start;
+}
+
+.textContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.textContainer span {
+  font-family: 'Prompt';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22px;
+  letter-spacing: 0.02em;
+  color: #f7f7f7;
+}
+
+.walletSelectorButtons {
+  display: flex;
+  flex-direction: column;
+  background-color: #17182b;
+  width: 374px;
+  height: 526px;
+}
+
+.recentDetectedContainer {
+  overflow: hidden;
+  padding: 24px 16px 0 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  border-radius: 16px 16px 0px 0px;
+}
+
+.NotFoundContainer {
+  width: 374px;
+  height: 526px;
+  background-color: #17182b;
+  border-radius: 16px 16px 0px 0px;
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.NotFoundHeading {
+  padding-top: 16px;
+  color: #f7f7f7;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 22px;
+  letter-spacing: 0.02em;
+}
+.NotFoundInfo {
+  padding-top: 4px;
+  width: 171px;
+  color: #707a8d;
+  text-align: center;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+}
+.NotFoundGif {
+  width: 104px;
+  height: 216px;
+}
+.inputContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.walletInputSearchContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 8px 16px 8px 16px;
+  padding: 8px;
+  width: 256px;
+  height: 32px;
+  background-color: #0f0f1a;
+  border-radius: 8px;
+}
+@media (max-width: 1080px) {
+  .walletInputSearchContainer {
+    width: 176px;
+  }
+}
+.walletInputSearchContainer img {
+  width: 20px;
+  height: 20px;
+}
+.walletInputSearch {
+  background-color: #0f0f1a;
+  color: #707a8d;
+  font-size: 12px;
+  font-weight: 400;
+  width: 99%;
+  line-height: 22px;
+  letter-spacing: 0.02em;
+  border: 0;
+}
+.walletInputSearch:focus {
+  outline: none;
+}
+.showListButtonContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.showListButton {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: 24px;
+  justify-items: center;
+  align-items: center;
+  gap: 4px;
+}
+
+.buttonIcons {
+  width: 24px;
+  height: 24px;
+}
+
+.showListButtonContainer span {
+  cursor: pointer;
+  font-family: 'Prompt';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 16px;
+  text-align: center;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+}
