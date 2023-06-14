@@ -95,16 +95,14 @@ export class NightlyConnectSolanaWallet implements Wallet {
     }
   }
 
-  constructor(app: AppSui, publicKey: PublicKey) {
+  constructor(app: AppSui, publicKeys: PublicKey[]) {
     this.#app = app
-    this.#accounts = [
-      {
-        address: publicKey.toSuiAddress(),
-        publicKey: publicKey.toBytes(),
-        chains: this.chains,
-        features: Object.keys(this.features) as IdentifierArray
-      }
-    ]
+    this.#accounts = publicKeys.map(publicKey => ({
+      address: publicKey.toSuiAddress(),
+      publicKey: publicKey.toBytes(),
+      chains: this.chains,
+      features: Object.keys(this.features) as IdentifierArray
+    }))
   }
 
   #connect: StandardConnectMethod = async () => {
