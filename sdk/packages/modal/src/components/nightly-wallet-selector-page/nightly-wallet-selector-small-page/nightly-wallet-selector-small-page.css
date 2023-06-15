@@ -1,9 +1,22 @@
 .mainContainer {
-  width: 638px;
-  height: 282px;
+  width: 100%;
+}
+
+.walletWrapper {
+  display: flex;
+  flex-flow: row wrap;
+  flex-direction: column;
+  width: 100%;
+  top: -20px;
+  position: relative;
+  z-index: 2;
   background-color: #17182b;
   border-radius: 16px 16px 0px 0px;
 }
+.nightly-headerContainer {
+  width: 100%;
+}
+
 .infoConatiner {
   padding: 16px;
   display: flex;
@@ -19,8 +32,8 @@
   align-items: center;
   letter-spacing: 0.02em;
   color: #6067f9;
-  width: 73px;
-  height: 22px;
+  width: 89px;
+  height: 30px;
   background: rgba(96, 103, 249, 0.25);
   border-radius: 4px;
   padding: 4px 8px;
@@ -36,9 +49,55 @@
 }
 
 .mainContainerWalletSellector {
-  padding: 16px;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-gap: 16px;
+  padding: 16px;
+}
+
+@media (min-width: 640px) {
+  .mainContainerWalletSellector {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .recentDetectedContainer {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (min-width: 482px) and (max-width: 639px) {
+  .mainContainerWalletSellector {
+    grid-gap: 0px;
+    grid-template-columns: repeat(5, 1fr);
+  }
+  .recentDetectedContainer {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 374px) and (max-width: 482px) {
+  .mainContainerWalletSellector {
+    grid-gap: 0px;
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .recentDetectedContainer {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 374px) {
+  .mainContainerWalletSellector {
+    grid-gap: 0px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .recentDetectedContainer {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.nightlyWalletSelectorItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .topWalletsItem {
@@ -76,21 +135,28 @@
 .walletSelectorButtons {
   display: flex;
   flex-direction: column;
+  top: -20px;
+  border-radius: 16px 16px 0px 0px;
+  position: relative;
+  z-index: 2;
   background-color: #17182b;
-  width: 374px;
+  width: 100%;
   height: 526px;
 }
 
 .recentDetectedContainer {
+  width: 100%;
   overflow: hidden;
   padding: 24px 16px 0 16px;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
   border-radius: 16px 16px 0px 0px;
 }
 
 .NotFoundContainer {
-  width: 374px;
+  top: -20px;
+  position: relative;
+  z-index: 2;
+  width: 100%;
   height: 526px;
   background-color: #17182b;
   border-radius: 16px 16px 0px 0px;
@@ -123,6 +189,7 @@
   height: 216px;
 }
 .inputContainer {
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -133,15 +200,10 @@
   align-items: center;
   margin: 8px 16px 8px 16px;
   padding: 8px;
-  width: 256px;
+  width: 100%;
   height: 32px;
   background-color: #0f0f1a;
   border-radius: 8px;
-}
-@media (max-width: 1080px) {
-  .walletInputSearchContainer {
-    width: 176px;
-  }
 }
 .walletInputSearchContainer img {
   width: 20px;
@@ -190,4 +252,56 @@
   text-align: center;
   letter-spacing: 0.02em;
   color: #ffffff;
+}
+
+.code {
+  border-radius: 16px;
+  border: 1px solid #343551;
+  width: 432px;
+  height: 432px;
+}
+
+/* Medium screens */
+@media (max-width: 482px) and (min-width: 374px) {
+  .code {
+    width: 342px;
+    height: 342px;
+  }
+}
+
+/* Small screens */
+@media (max-width: 373px) {
+  .code {
+    width: 248px;
+    height: 248px;
+  }
+}
+
+.qrCodeWrapper {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.headerQrCodeWrapper {
+  height: 520px;
+  top: -20px;
+  position: relative;
+  z-index: 2;
+  background: #17182b;
+  border-radius: 16px 16px 0px 0px;
+}
+
+@media (max-width: 482px) and (min-width: 374px) {
+  .headerQrCodeWrapper {
+    height: 450px;
+  }
+}
+
+/* Small screens */
+@media (max-width: 373px) {
+  .headerQrCodeWrapper {
+    height: 332px;
+  }
 }

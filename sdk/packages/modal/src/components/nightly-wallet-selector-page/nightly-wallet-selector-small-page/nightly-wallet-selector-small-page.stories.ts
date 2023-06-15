@@ -11,8 +11,7 @@ import Binance from '../../../static/svg/BinanceIcon.svg'
 import Sollet from '../../../static/svg/SolletIcon.svg'
 import NightlyIcon from '../../../static/svg/NightlyIcon.svg'
 import './nightly-wallet-selector-small-page'
-import '../../nightly-chain-menu-item/nightly-chain-menu-item'
-// import '../../nightly-wallet-selector-item/nightly-wallet-selector-item'
+import '../../nightly-wallet-selector-item/nightly-wallet-selector-item'
 
 interface WalletSelectorItem {
   name: string
@@ -23,7 +22,9 @@ interface WalletSelectorItem {
 interface NightlyWalletSelectorListArgs {
   walletSelectorItems: WalletSelectorItem[]
   onWalletClick: (event: Event) => void
-  // chainIcon: string
+  sessionId: string
+  network: string
+  onClose: () => void
 }
 
 const meta: Meta<NightlyWalletSelectorSmallPage> = {
@@ -39,10 +40,15 @@ export const Default = (args: NightlyWalletSelectorListArgs) => {
   console.log(args.walletSelectorItems)
 
   return html`
-    <nightly-wallet-selector-small-page
-      .selectorItems=${args.walletSelectorItems}
-      .onWalletClick=${args.onWalletClick}
-    ></nightly-wallet-selector-small-page>
+    <div style="100%">
+      <nightly-wallet-selector-small-page
+        .selectorItems=${args.walletSelectorItems}
+        .onWalletClick=${args.onWalletClick}
+        .sessionId=${args.sessionId}
+        .network=${args.network}
+        .onClose=${args.onClose}
+      ></nightly-wallet-selector-small-page>
+    </div>
   `
 }
 Default.args = {
@@ -79,5 +85,8 @@ Default.args = {
   onWalletClick: (event: Event) => {
     const target = event.target as HTMLElement
     console.log('Item clicked:', target.getAttribute('name'))
-  }
+  },
+  sessionId:
+    'fsdhfdzfsdhgfzghggdfhbgchgbdfnvfbxhncvfjhzxdhgbhghfgfvzhfgjhgszdhgzxdfhgfzxdjfuhdfhgd',
+  network: 'SOLANA'
 }
