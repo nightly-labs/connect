@@ -35,12 +35,17 @@ export class NightlyModal extends TailwindElement(style) {
   network = ''
 
   @property({ type: String })
+  relay = ''
+
+  @property({ type: String })
   copyMessage = 'Copy'
 
   timeoutRef: number | undefined = undefined
 
   onCopy = () => {
-    navigator.clipboard.writeText('nightlyconnect:' + this.sessionId + '?network=' + this.network)
+    navigator.clipboard.writeText(
+      'nc:' + this.sessionId + '?network=' + this.network + '?relay=' + this.relay
+    )
     this.copyMessage = 'Copied!'
     clearTimeout(this.timeoutRef)
     this.timeoutRef = setTimeout(() => {
