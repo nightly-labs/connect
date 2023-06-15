@@ -9,10 +9,6 @@ use crate::structs::{
 };
 
 pub static WALLETS_METADATA: Lazy<Vec<WalletMetadata>> = Lazy::new(|| {
-    let host = match std::env::var("ENV").unwrap_or_default() == "DEV" {
-        true => "http://localhost:6969",
-        false => "https://nc2.nightly.app",
-    };
     // TODO refactor it to separate file for each wallet
     return vec![
         // Nightly
@@ -63,10 +59,10 @@ pub static WALLETS_METADATA: Lazy<Vec<WalletMetadata>> = Lazy::new(|| {
             desktop: None,
             mobile: None, // TODO
             image: Images {
-                default: format!("{host}/images/nightly/default.svg"),
-                sm: format!("{host}/images/nightly/sm.svg"),
-                md: format!("{host}/images/nightly/md.svg"),
-                lg: format!("{host}/images/nightly/lg.svg"),
+                default: format!("https://registry.connect.nightly.app/wallets/nightly/default.svg"),
+                sm: format!("https://registry.connect.nightly.app/wallets/nightly/sm.svg"),
+                md: format!("https://registry.connect.nightly.app/wallets/nightly/md.svg"),
+                lg: format!("https://registry.connect.nightly.app/wallets/nightly/lg.svg"),
             },
             inject_path: HashMap::from([
                 (Network::new("solana"),"window.nightly.solana".to_string()),
