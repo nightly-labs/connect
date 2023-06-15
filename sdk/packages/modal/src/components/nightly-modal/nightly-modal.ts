@@ -1,6 +1,6 @@
 import { customElement, property } from 'lit/decorators.js'
 import { tailwindElement } from '../../shared/tailwind.element'
-import style from './nightly-modal.css?inline'
+import style from './nightly-modal.css'
 import { LitElement, html } from 'lit'
 import copy from '../../static/svg/copy.svg'
 import scan from '../../static/svg/scan.svg'

@@ -1,7 +1,7 @@
 import { customElement, property } from 'lit/decorators.js'
 import { tailwindElement } from '../../shared/tailwind.element'
 import { html } from 'lit/static-html.js'
-import style from './nightly-wallet-selector-item.css?inline'
+import style from './nightly-wallet-selector-item.css'
 import { LitElement } from 'lit'
 
 @customElement('nightly-wallet-selector-item')

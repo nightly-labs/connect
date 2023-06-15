@@ -3,7 +3,7 @@ import { html } from 'lit/static-html.js'
 import { tailwindElement } from '../../shared/tailwind.element'
 import foxSadGIF from '../../static/gif/fox_sad.gif'
 import search from '../../static/svg/searchIcon.svg'
-import style from './nightly-wallet-selector-page.css?inline'
+import style from './nightly-wallet-selector-page.css'
 import '../nightly-wallet-selector-item/nightly-wallet-selector-item'
 import { LitElement } from 'lit'
 
