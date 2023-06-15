@@ -5,8 +5,8 @@ import terser from '@rollup/plugin-terser'
 import dts from 'rollup-plugin-dts'
 import litcss from 'rollup-plugin-lit-css'
 import template from 'rollup-plugin-html-literals'
-import url from '@rollup/plugin-url'
 import styles from 'rollup-plugin-styles'
+import image from '@rollup/plugin-image'
 
 export default [
   {
@@ -24,7 +24,7 @@ export default [
       }
     ],
     plugins: [
-      url(),
+      image(),
       styles({
         mode: 'emit'
       }),
@@ -35,7 +35,14 @@ export default [
       commonjs(),
       terser()
     ],
-    external: []
+    external: [
+      '@nightlylabs/qr-code',
+      'autoprefixer',
+      'lit',
+      'postcss',
+      'postcss-lit',
+      'tailwindcss'
+    ]
   },
   {
     input: 'dist/esm/types/index.d.ts',
