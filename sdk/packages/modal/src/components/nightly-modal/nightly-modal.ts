@@ -1,7 +1,7 @@
 import { customElement, property } from 'lit/decorators.js'
-import { TailwindElement } from '../../shared/tailwind.element'
+import { tailwindElement } from '../../shared/tailwind.element'
 import style from './nightly-modal.css?inline'
-import { html } from 'lit'
+import { LitElement, html } from 'lit'
 import copy from '../../static/svg/copy.svg'
 import scan from '../../static/svg/scan.svg'
 import { svgToBase64 } from '../../utils/images'
@@ -10,7 +10,9 @@ import '../nightly-wallet-selector-page/nightly-wallet-selector-page'
 import '../nightly-header/nightly-header'
 
 @customElement('nightly-modal')
-export class NightlyModal extends TailwindElement(style) {
+export class NightlyModal extends LitElement {
+  static styles = tailwindElement(style)
+
   @property()
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onClose = () => {}

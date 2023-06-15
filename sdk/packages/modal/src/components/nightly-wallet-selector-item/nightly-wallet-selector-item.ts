@@ -1,10 +1,13 @@
 import { customElement, property } from 'lit/decorators.js'
-import { TailwindElement } from '../../shared/tailwind.element'
+import { tailwindElement } from '../../shared/tailwind.element'
 import { html } from 'lit/static-html.js'
 import style from './nightly-wallet-selector-item.css?inline'
+import { LitElement } from 'lit'
 
 @customElement('nightly-wallet-selector-item')
-export class NightlyWalletSelectorItem extends TailwindElement(style) {
+export class NightlyWalletSelectorItem extends LitElement {
+  static styles = tailwindElement(style)
+
   @property({ type: String })
   name = ''
 
