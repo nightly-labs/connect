@@ -6,6 +6,7 @@ import dts from 'rollup-plugin-dts'
 import litcss from 'rollup-plugin-lit-css'
 import template from 'rollup-plugin-html-literals'
 import url from '@rollup/plugin-url'
+import styles from 'rollup-plugin-styles'
 
 export default [
   {
@@ -22,7 +23,18 @@ export default [
         sourcemap: true
       }
     ],
-    plugins: [url(), litcss(), template(), typescript(), nodeResolve(), commonjs(), terser()],
+    plugins: [
+      url(),
+      styles({
+        mode: 'emit'
+      }),
+      litcss(),
+      template(),
+      typescript(),
+      nodeResolve(),
+      commonjs(),
+      terser()
+    ],
     external: []
   },
   {
