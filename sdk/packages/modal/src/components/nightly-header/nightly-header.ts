@@ -4,6 +4,8 @@ import style from './nightly-header.css'
 import { LitElement, html } from 'lit'
 import Logo from '../../static/svg/Logo.svg'
 import Close from '../../static/svg/Close.svg'
+import Clouds from '../../static/svg/Clouds.svg'
+import Stars from '../../static/svg/Stars.svg'
 
 @customElement('nightly-header')
 export class NightlyHeader extends LitElement {
@@ -22,8 +24,8 @@ export class NightlyHeader extends LitElement {
             <img src=${Close} />
           </button>
         </div>
-        <div class="starsAnimationHeader"></div>
-        <div class="cloudsAnimationHeader"></div>
+        <img src=${Stars} class="starsAnimationHeader"></img>
+        <img src=${Clouds} class="cloudsAnimationHeader"></img>
       </div>
     `
   }

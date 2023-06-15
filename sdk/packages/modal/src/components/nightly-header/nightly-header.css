@@ -29,11 +29,8 @@
 .cloudsAnimationHeader {
   z-index: 2;
   position: relative;
+  top: 14px;
   right: 100%;
-  background-image: url('../../static/svg/Clouds.svg');
-  background-repeat: no-repeat;
-  background-position: top;
-  background-position-y: -14px;
   width: 1525px;
   height: 56px;
   margin: auto;
@@ -55,9 +52,6 @@
   z-index: 1;
   background-color: none;
   height: 56px;
-  background-image: url('../../static/svg/Stars.svg');
-  background-repeat: no-repeat;
-  background-position: top;
   margin: auto;
   animation: fade-in-out 4s ease-in-out infinite;
 }
