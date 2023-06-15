@@ -1,4 +1,4 @@
-use super::common::{AppMetadata, Device};
+use super::common::{AppMetadata, Device, Network};
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
@@ -7,6 +7,7 @@ use ts_rs::TS;
 #[ts(export)]
 pub struct NotificationPayload {
     pub token: String,
+    pub network: Network,
     #[serde(rename = "sessionId")]
     pub session_id: String,
     #[serde(rename = "appMetadata")]
