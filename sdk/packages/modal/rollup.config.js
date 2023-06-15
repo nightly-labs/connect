@@ -5,8 +5,7 @@ import terser from '@rollup/plugin-terser'
 import dts from 'rollup-plugin-dts'
 import litcss from 'rollup-plugin-lit-css'
 import template from 'rollup-plugin-html-literals'
-import svg from 'rollup-plugin-svg'
-import image from '@rollup/plugin-image'
+import url from '@rollup/plugin-url'
 
 export default [
   {
@@ -23,16 +22,7 @@ export default [
         sourcemap: true
       }
     ],
-    plugins: [
-      image(),
-      svg(),
-      litcss(),
-      template(),
-      typescript(),
-      nodeResolve(),
-      commonjs(),
-      terser()
-    ],
+    plugins: [url(), litcss(), template(), typescript(), nodeResolve(), commonjs(), terser()],
     external: []
   },
   {
