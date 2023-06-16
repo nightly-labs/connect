@@ -1,6 +1,6 @@
 {
   "name": "@nightlylabs/nightly-connect-solana",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "main": "dist/cjs/index.cjs",
   "module": "dist/esm/index.js",
@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@solana/web3.js": "^1.77.2",
-    "@nightlylabs/nightly-connect-base": "0.0.1",
+    "@nightlylabs/nightly-connect-base": "0.0.2",
     "isomorphic-ws": "^5.0.0",
     "tiny-typed-emitter": "^2.1.0",
     "uuid": "^9.0.0"
