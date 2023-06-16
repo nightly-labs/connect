@@ -23,7 +23,7 @@ export interface ClientSolanaEvents {
 export class ClientSolana extends TypedEmitter<ClientSolanaEvents> {
   baseClient: BaseClient
   sessionId: string | undefined = undefined
-  private constructor(baseClient: BaseClient) {
+  constructor(baseClient: BaseClient) {
     super()
     baseClient.on('signTransactions', (e) => {
       const event: SignSolanaTransactionEvent = {

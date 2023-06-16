@@ -53,7 +53,7 @@ export class BaseClient extends TypedEmitter<BaseEvents> {
   events: { [key: string]: { resolve: (data: any) => void; reject: (data: any) => void } } = {}
   timeout: number
   clientId: string
-  private constructor(url: string, ws: WebSocket, timeout: number, clientId: string) {
+  constructor(url: string, ws: WebSocket, timeout: number, clientId: string) {
     super()
     this.url = url
     this.ws = ws
