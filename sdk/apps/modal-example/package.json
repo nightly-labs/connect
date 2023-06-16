@@ -15,12 +15,13 @@
     "vite": "^4.1.4"
   },
   "dependencies": {
+    "@nightlylabs/wallet-selector-solana": "0.0.1",
+    "@solana/wallet-standard": "^1.0.2",
     "@solidjs/meta": "^0.28.2",
     "@solidjs/router": "^0.8.2",
     "solid-js": "^1.7.2",
     "solid-start": "^0.2.26",
-    "undici": "^5.15.1",
-    "@nightlylabs/wallet-selector-modal": "0.0.1"
+    "undici": "^5.15.1"
   },
   "engines": {
     "node": ">=16.8"
