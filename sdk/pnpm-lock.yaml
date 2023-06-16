@@ -435,7 +435,7 @@ importers:
   packages/selector-solana:
     dependencies:
       '@nightlylabs/nightly-connect-solana':
-        specifier: 0.0.2
+        specifier: 0.0.3
         version: link:../../apps/solana
       '@nightlylabs/wallet-selector-base':
         specifier: 0.0.1
@@ -496,7 +496,7 @@ importers:
         specifier: ^0.5.7
         version: 0.5.9
       '@nightlylabs/nightly-connect-sui':
-        specifier: 0.0.2
+        specifier: 0.0.3
         version: link:../../apps/sui
       '@nightlylabs/wallet-selector-base':
         specifier: 0.0.1
