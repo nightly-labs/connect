@@ -8,6 +8,7 @@ import search from '../../../static/svg/searchIcon.svg'
 import { svgToBase64 } from '../../../utils/images'
 import '../../nightly-header-small-page/nightly-header-small-page'
 import style from './nightly-wallet-selector-small-page.css?inline'
+import { Breakpoint, getBreakpointFromWidth, getNumberOfItems } from '../../../utils/utils'
 
 @customElement('nightly-wallet-selector-small-page')
 export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
@@ -36,9 +37,6 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
   @property({ type: String })
   network = ''
 
-  @property({ type: String })
-  breakpoint = ''
-
   @property({ type: Array })
   get selectorItems(): { name: string; icon: string; status: string }[] {
     return this._selectorItems
@@ -55,10 +53,18 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
   filteredItems: { name: string; icon: string; status: string }[] = []
   showNotFoundIcon = false
 
+  breakpoint: Breakpoint
+
   constructor() {
     super()
+    this.breakpoint = 'lg'
     this.updateBreakpoint()
     this.resizeListener()
+  }
+
+  updateBreakpoint() {
+    const screenWidth = window.innerWidth
+    this.breakpoint = getBreakpointFromWidth(screenWidth)
   }
 
   resizeListener() {
@@ -68,42 +74,25 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
     })
   }
 
-  updateBreakpoint() {
-    const screenWidth = window.innerWidth
-    console.log(screenWidth)
-
-    if (screenWidth < 374) {
-      this.breakpoint = 'xs'
-    } else if (screenWidth <= 485) {
-      this.breakpoint = 'sm'
-    } else {
-      this.breakpoint = 'lg'
-    }
-  }
-
   render() {
     return html`
       <div>
-        ${this.isQrPageVisible
-          ? this.renderQrCode()
-          : !this.isTopWalletsView && this.showAll
-          ? this.renderFullPage()
-          : this.renderTopWallets()}
+        ${(() => {
+          if (this.isQrPageVisible) {
+            return this.renderQrCode()
+          }
+
+          if (!this.isTopWalletsView && this.showAll) {
+            return this.renderFullPage()
+          }
+
+          return this.renderTopWallets()
+        })()}
       </div>
     `
   }
   renderTopWallets() {
-    let numberOfItems
-    switch (this.breakpoint) {
-      case 'xs':
-        numberOfItems = 5
-        break
-      case 'sm':
-        numberOfItems = 7
-        break
-      default:
-        numberOfItems = 9
-    }
+    const numberOfItems = getNumberOfItems(this.breakpoint)
     return html`
       <div class="mainContainer">
         <div class="nightly-headerContainer">
@@ -189,9 +178,6 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
     this.showAll = !oppositeState
     this.isQrPageVisible = false
     this.requestUpdate()
-
-    console.log('filteredItems length:', this.filteredItems.length)
-    console.log('showAllWallets state:', this.showAll, this.isTopWalletsView, this.isQrPageVisible)
   }
   renderFullPage() {
     return html`
