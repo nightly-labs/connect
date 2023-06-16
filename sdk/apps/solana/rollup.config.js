@@ -20,13 +20,7 @@ export default [
       }
     ],
     plugins: [typescript(), nodeResolve(), commonjs(), terser()],
-    external: [
-      '@solana/web3.js',
-      '@nightlylabs/nightly-connect-base',
-      'isomorphic-ws',
-      'tiny-typed-emitter',
-      'uuid'
-    ]
+    external: ['@solana/web3.js', '@nightlylabs/nightly-connect-base', 'isomorphic-ws', 'uuid']
   },
   {
     input: 'dist/esm/types/apps/solana/src/index.d.ts',

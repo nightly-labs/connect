@@ -4,22 +4,27 @@ import { NCSolanaSelector } from '@nightlylabs/wallet-selector-solana'
 import { StandardWalletAdapter } from '@solana/wallet-standard'
 import { Connection, PublicKey, SystemProgram, Transaction as SolanaTx } from '@solana/web3.js'
 
-const selector = new NCSolanaSelector({
-  appInitData: {
-    appMetadata: {
-      name: 'Test application',
-      description: 'If you see this message, you will be soon testing new Nightly Connect',
-      icon: 'https://docs.nightly.app/img/logo.png',
-      additionalInfo: 'Courtesy of Nightly Connect team'
-    }
-  }
-})
+let selector: NCSolanaSelector
 
 const connection = new Connection('https://api.devnet.solana.com')
 
 export default function Home() {
   const [adapter, setAdapter] = createSignal<StandardWalletAdapter>()
-  onMount(() => {
+  onMount(async () => {
+    if (selector) {
+      return
+    }
+    selector = await NCSolanaSelector.build({
+      appInitData: {
+        appMetadata: {
+          name: 'Test application',
+          description: 'If you see this message, you will be soon testing new Nightly Connect',
+          icon: 'https://docs.nightly.app/img/logo.png',
+          additionalInfo: 'Courtesy of Nightly Connect team'
+        },
+        url: 'https://nc2.nightly.app'
+      }
+    })
     selector.onSelectWallet = (newAdapter) => {
       setAdapter(newAdapter)
     }
@@ -54,7 +59,7 @@ export default function Home() {
           const id = await connection.sendRawTransaction(signedTx!.serialize())
           console.log(id)
         }}>
-        Connect
+        Test send
       </button>
     </main>
   )
