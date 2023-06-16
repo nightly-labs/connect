@@ -236,6 +236,7 @@
 }
 .showListButton {
   display: grid;
+  padding-bottom: 8px;
   grid-template-columns: repeat(2, 1fr);
   grid-auto-rows: 24px;
   justify-items: center;
