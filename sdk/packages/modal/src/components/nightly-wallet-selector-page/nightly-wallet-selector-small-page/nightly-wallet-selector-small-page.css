@@ -146,10 +146,16 @@
 
 .recentDetectedContainer {
   width: 100%;
-  overflow: hidden;
   padding: 24px 16px 0 16px;
   display: grid;
   border-radius: 16px 16px 0px 0px;
+  overflow-y: auto;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.recentDetectedContainer::-webkit-scrollbar {
+  display: none;
 }
 
 .NotFoundContainer {
