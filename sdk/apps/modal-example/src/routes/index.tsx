@@ -9,7 +9,7 @@ const selector = new NCSolanaSelector({
     appMetadata: {
       name: 'Test application',
       description: 'If you see this message, you will be soon testing new Nightly Connect',
-      icon: 'https://pbs.twimg.com/profile_images/1509999443692687367/T5-8VrZq_400x400.jpg',
+      icon: 'https://docs.nightly.app/img/logo.png',
       additionalInfo: 'Courtesy of Nightly Connect team'
     }
   }
