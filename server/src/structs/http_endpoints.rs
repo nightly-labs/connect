@@ -19,8 +19,6 @@ pub enum HttpEndpoint {
     GetPendingRequest,
     #[serde(rename = "/get_wallets_metadata")]
     GetWalletsMetadata,
-    #[serde(rename = "/images/:slug/:id")]
-    GetImage,
 }
 
 impl HttpEndpoint {
@@ -34,7 +32,6 @@ impl HttpEndpoint {
             HttpEndpoint::GetPendingRequests => "/get_pending_requests".to_string(),
             HttpEndpoint::GetPendingRequest => "/get_pending_request".to_string(),
             HttpEndpoint::GetWalletsMetadata => "/get_wallets_metadata".to_string(),
-            HttpEndpoint::GetImage => "/images/:slug/:id".to_string(),
         }
     }
 }

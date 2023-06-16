@@ -342,6 +342,7 @@ pub async fn app_handler(
                         match &session.notification {
                             Some(notification) => {
                                 let notification_payload = NotificationPayload {
+                                    network: session.network.clone(),
                                     app_metadata: session.app_state.metadata.clone(),
                                     device: session.device.clone().unwrap_or(Device::Unknown),
                                     request: sing_transactions_request.content.clone(),
