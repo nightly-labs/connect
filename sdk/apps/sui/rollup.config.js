@@ -25,7 +25,6 @@ export default [
       '@mysten/wallet-standard',
       '@noble/hashes',
       '@nightlylabs/nightly-connect-base',
-      'isomorphic-ws',
       'uuid',
       'eventemitter3'
     ]
