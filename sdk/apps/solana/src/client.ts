@@ -6,7 +6,7 @@ import {
   Connect,
   SignMessagesEvent
 } from '@nightlylabs/nightly-connect-base'
-import { TypedEmitter } from 'tiny-typed-emitter'
+import { EventEmitter } from 'eventemitter3'
 import { SOLANA_NETWORK } from './utils'
 import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
 import { GetPendingRequestsResponse } from '../../../bindings/GetPendingRequestsResponse'
@@ -20,10 +20,10 @@ export interface ClientSolanaEvents {
   signMessages: (e: SignSolanaMessageEvent) => void
   appDisconnected: (e: AppDisconnectedEvent) => void
 }
-export class ClientSolana extends TypedEmitter<ClientSolanaEvents> {
+export class ClientSolana extends EventEmitter<ClientSolanaEvents> {
   baseClient: BaseClient
   sessionId: string | undefined = undefined
-  constructor(baseClient: BaseClient) {
+  private constructor(baseClient: BaseClient) {
     super()
     baseClient.on('signTransactions', (e) => {
       const event: SignSolanaTransactionEvent = {

@@ -8,7 +8,6 @@ import { Version } from '../../../bindings/Version'
 import WebSocket from 'isomorphic-ws'
 import { getLocalStorage, getRandomId, getWalletsMetadata } from './utils'
 import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
-import { TypedEmitter } from 'tiny-typed-emitter'
 import { AppMetadata } from '../../../bindings/AppMetadata'
 import { ContentType, MessageToSign, RequestContent, TransactionToSign } from './content'
 import { ResponsePayload } from '../../../bindings/ResponsePayload'
@@ -23,6 +22,7 @@ import {
   SignedTransaction
 } from './responseContent'
 import { triggerDeeplink } from './deeplinks'
+import { EventEmitter } from 'eventemitter3'
 
 export interface AppBaseInitialize {
   appMetadata: AppMetadata
@@ -42,7 +42,7 @@ export interface DeeplinkConnect {
   url: string
   walletName: string
 }
-export class BaseApp extends TypedEmitter<BaseEvents> {
+export class BaseApp extends EventEmitter<BaseEvents> {
   url: string
   ws: WebSocket
   events: { [key: string]: { resolve: (data: any) => void; reject: (data: any) => void } } = {}

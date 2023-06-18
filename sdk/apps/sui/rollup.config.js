@@ -26,7 +26,8 @@ export default [
       '@noble/hashes',
       '@nightlylabs/nightly-connect-base',
       'isomorphic-ws',
-      'uuid'
+      'uuid',
+      'eventemitter3'
     ]
   },
   {
