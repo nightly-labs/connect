@@ -24,7 +24,9 @@ export class ClientSolana extends EventEmitter<ClientSolanaEvents> {
   baseClient: BaseClient
   sessionId: string | undefined = undefined
   private constructor(baseClient: BaseClient) {
+    console.log('super check start solana')
     super()
+    console.log('super check end solana')
     baseClient.on('signTransactions', (e) => {
       const event: SignSolanaTransactionEvent = {
         requestId: e.responseId,
