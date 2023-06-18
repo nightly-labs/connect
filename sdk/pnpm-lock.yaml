@@ -148,7 +148,7 @@ importers:
   apps/solana:
     dependencies:
       '@nightlylabs/nightly-connect-base':
-        specifier: 0.0.7
+        specifier: 0.0.8
         version: link:../base
       '@solana/web3.js':
         specifier: ^1.77.2
@@ -215,7 +215,7 @@ importers:
         specifier: ^0.5.9
         version: 0.5.9
       '@nightlylabs/nightly-connect-base':
-        specifier: 0.0.7
+        specifier: 0.0.8
         version: link:../base
       '@noble/hashes':
         specifier: ^1.3.0
@@ -441,7 +441,7 @@ importers:
   packages/selector-solana:
     dependencies:
       '@nightlylabs/nightly-connect-solana':
-        specifier: 0.0.7
+        specifier: 0.0.8
         version: link:../../apps/solana
       '@nightlylabs/wallet-selector-base':
         specifier: 0.0.1
@@ -502,7 +502,7 @@ importers:
         specifier: ^0.5.7
         version: 0.5.9
       '@nightlylabs/nightly-connect-sui':
-        specifier: 0.0.7
+        specifier: 0.0.8
         version: link:../../apps/sui
       '@nightlylabs/wallet-selector-base':
         specifier: 0.0.1

@@ -23,7 +23,7 @@ export interface ClientSuiEvents {
 export class ClientSui extends EventEmitter<ClientSuiEvents> {
   baseClient: BaseClient
   sessionId: string | undefined = undefined
-  private constructor(baseClient: BaseClient) {
+  public constructor(baseClient: BaseClient) {
     super()
     baseClient.on('signTransactions', (e) => {
       const event: SignSuiTransactionEvent = {

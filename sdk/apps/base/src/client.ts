@@ -53,10 +53,8 @@ export class BaseClient extends EventEmitter<BaseEvents> {
   events: { [key: string]: { resolve: (data: any) => void; reject: (data: any) => void } } = {}
   timeout: number
   clientId: string
-  constructor(url: string, ws: WebSocket, timeout: number, clientId: string) {
-    console.log('super check start base')
+  public constructor(url: string, ws: WebSocket, timeout: number, clientId: string) {
     super()
-    console.log('super check end base')
     this.url = url
     this.ws = ws
     this.timeout = timeout

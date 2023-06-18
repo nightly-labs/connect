@@ -1,6 +1,6 @@
 {
   "name": "@nightlylabs/nightly-connect-base",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "type": "module",
   "main": "dist/cjs/index.cjs",
   "module": "dist/esm/index.js",

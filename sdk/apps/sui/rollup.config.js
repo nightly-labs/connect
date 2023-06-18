@@ -27,6 +27,7 @@ export default [
       '@nightlylabs/nightly-connect-base',
       'isomorphic-ws',
       'uuid',
+      'eventemitter3',
       'ws'
     ]
   },
