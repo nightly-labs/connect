@@ -20,7 +20,7 @@ export default [
       }
     ],
     plugins: [typescript(), nodeResolve(), commonjs(), terser()],
-    external: ['cross-fetch', 'isomorphic-localstorage', 'uuid', 'eventemitter3']
+    external: ['cross-fetch', 'isomorphic-localstorage', 'isomorphic-ws', 'uuid', 'eventemitter3', 'ws']
   },
   {
     input: 'dist/esm/types/apps/base/src/index.d.ts',
