@@ -8,6 +8,7 @@ import { ConnectRequest } from '../../../bindings/ConnectRequest'
 import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
 import { GetPendingRequestsResponse } from '../../../bindings/GetPendingRequestsResponse'
 import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
+import { EventEmitter } from 'eventemitter3'
 import { Notification } from '../../../bindings/Notification'
 import { MessageToSign, RequestContent, TransactionToSign } from './content'
 import {
@@ -46,13 +47,16 @@ interface BaseEvents {
   customEvent: (e: CustomEvent) => void
   appDisconnected: (e: AppDisconnectedEvent) => void
 }
-export class BaseClient {
+export class BaseClient extends EventEmitter<BaseEvents> {
   url: string
   ws: WebSocket
   events: { [key: string]: { resolve: (data: any) => void; reject: (data: any) => void } } = {}
   timeout: number
   clientId: string
   public constructor(url: string, ws: WebSocket, timeout: number, clientId: string) {
+    console.log('base super')
+    super()
+    console.log('base after super')
     this.url = url
     this.ws = ws
     this.timeout = timeout
@@ -61,12 +65,16 @@ export class BaseClient {
 
   public static build = async (baseInitialize: ClientBaseInitialize): Promise<BaseClient> => {
     return new Promise((resolve, reject) => {
+      console.log('base start build')
       const url = baseInitialize.url ?? 'https://relay.nightly.app'
       // get domain from url
       const path = url.replace('https://', 'wss://').replace('http://', 'ws://')
+      console.log('base websocket')
       const ws = new WebSocket(path + '/client')
       const clientId = baseInitialize.clientId ?? getRandomId()
+      console.log('base call constructor')
       const baseClient = new BaseClient(url, ws, baseInitialize.timeout ?? 40000, clientId)
+      console.log('base init events')
       baseClient.ws.onopen = () => {
         baseClient.ws.onmessage = ({ data }: { data: any }) => {
           const response = JSON.parse(data) as ServerToClient
@@ -238,24 +246,6 @@ export class BaseClient {
       },
       sessionId
     })
-  }
-  listeners: Map<string, Array<(data: any) => void>> = new Map()
-  on = (eventName: string, cb: (data: any) => void) => {
-    if (typeof this.listeners.get(eventName) === 'undefined') {
-      this.listeners.set(eventName, [])
-    }
-
-    this.listeners.get(eventName)!.push(cb)
-  }
-
-  emit = (eventName: string, data: any) => {
-    this.listeners.get(eventName)?.forEach((cb) => {
-      cb(data)
-    })
-  }
-
-  removeAllListeners = () => {
-    this.listeners = new Map()
   }
 }
 export interface ResolveSignTransactions {
