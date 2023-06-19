@@ -53,10 +53,8 @@ export class BaseClient extends EventEmitter<BaseEvents> {
   events: { [key: string]: { resolve: (data: any) => void; reject: (data: any) => void } } = {}
   timeout: number
   clientId: string
-  public constructor(url: string, ws: WebSocket, timeout: number, clientId: string) {
-    console.log('base super')
+  private constructor(url: string, ws: WebSocket, timeout: number, clientId: string) {
     super()
-    console.log('base after super')
     this.url = url
     this.ws = ws
     this.timeout = timeout
@@ -65,16 +63,12 @@ export class BaseClient extends EventEmitter<BaseEvents> {
 
   public static build = async (baseInitialize: ClientBaseInitialize): Promise<BaseClient> => {
     return new Promise((resolve, reject) => {
-      console.log('base start build')
       const url = baseInitialize.url ?? 'https://relay.nightly.app'
       // get domain from url
       const path = url.replace('https://', 'wss://').replace('http://', 'ws://')
-      console.log('base websocket')
       const ws = new WebSocket(path + '/client')
       const clientId = baseInitialize.clientId ?? getRandomId()
-      console.log('base call constructor')
       const baseClient = new BaseClient(url, ws, baseInitialize.timeout ?? 40000, clientId)
-      console.log('base init events')
       baseClient.ws.onopen = () => {
         baseClient.ws.onmessage = ({ data }: { data: any }) => {
           const response = JSON.parse(data) as ServerToClient

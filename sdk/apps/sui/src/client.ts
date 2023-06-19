@@ -11,6 +11,7 @@ import { EventEmitter } from 'eventemitter3'
 import { GetPendingRequestsResponse } from '../../../bindings/GetPendingRequestsResponse'
 import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
 export interface SignSuiTransactionEvent {
+  sessionId: string
   requestId: string
   transactions: Array<TransactionToSign>
 }
@@ -23,10 +24,11 @@ export interface ClientSuiEvents {
 export class ClientSui extends EventEmitter<ClientSuiEvents> {
   baseClient: BaseClient
   sessionId: string | undefined = undefined
-  public constructor(baseClient: BaseClient) {
+  private constructor(baseClient: BaseClient) {
     super()
     baseClient.on('signTransactions', (e) => {
       const event: SignSuiTransactionEvent = {
+        sessionId: e.sessionId,
         requestId: e.responseId,
         transactions: e.transactions
       }

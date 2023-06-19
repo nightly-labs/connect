@@ -13,6 +13,7 @@ import { GetPendingRequestsResponse } from '../../../bindings/GetPendingRequests
 export interface SignSolanaTransactionEvent {
   requestId: string
   transactions: Array<VersionedTransaction>
+  sessionId: string
 }
 export type SignSolanaMessageEvent = SignMessagesEvent
 export interface ClientSolanaEvents {
@@ -23,12 +24,11 @@ export interface ClientSolanaEvents {
 export class ClientSolana extends EventEmitter<ClientSolanaEvents> {
   baseClient: BaseClient
   sessionId: string | undefined = undefined
-  public constructor(baseClient: BaseClient) {
-    console.log('solana call super')
+  private constructor(baseClient: BaseClient) {
     super()
-    console.log('solana base events')
     baseClient.on('signTransactions', (e) => {
       const event: SignSolanaTransactionEvent = {
+        sessionId: e.sessionId,
         requestId: e.responseId,
         transactions: e.transactions.map((tx) => {
           return VersionedTransaction.deserialize(Buffer.from(tx.transaction, 'hex'))
@@ -57,9 +57,7 @@ export class ClientSolana extends EventEmitter<ClientSolanaEvents> {
     return { client, data }
   }
   public static create = async (initData: ClientBaseInitialize) => {
-    console.log('solana start build')
     const baseClient = await BaseClient.build(initData)
-    console.log('solana use constructor')
     const client = new ClientSolana(baseClient)
     return client
   }

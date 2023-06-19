@@ -11,7 +11,8 @@ export default [
       {
         file: 'dist/cjs/index.cjs',
         format: 'cjs',
-        sourcemap: true
+        sourcemap: true,
+        interop: 'compat'
       },
       {
         file: 'dist/esm/index.js',
@@ -19,8 +20,45 @@ export default [
         sourcemap: true
       }
     ],
-    plugins: [typescript(), nodeResolve({ browser: true }), commonjs(), terser()],
-    external: ['@solana/web3.js', '@nightlylabs/nightly-connect-base', 'uuid', 'eventemitter3']
+    plugins: [typescript(), nodeResolve(), commonjs(), terser()],
+    external: [
+      '@solana/web3.js',
+      '@nightlylabs/nightly-connect-base',
+      'uuid',
+      'eventemitter3',
+      'isomorphic-ws',
+      'ws'
+    ]
+  },
+  {
+    input: 'src/index.ts',
+    output: [
+      {
+        file: 'dist/browser/cjs/index.cjs',
+        format: 'cjs',
+        sourcemap: true,
+        interop: 'compat'
+      },
+      {
+        file: 'dist/browser/esm/index.js',
+        format: 'esm',
+        sourcemap: true
+      }
+    ],
+    plugins: [
+      typescript(),
+      nodeResolve({ browser: true, preferBuiltins: false }),
+      commonjs(),
+      terser()
+    ],
+    external: [
+      '@solana/web3.js',
+      '@nightlylabs/nightly-connect-base',
+      'uuid',
+      'eventemitter3',
+      'isomorphic-ws',
+      'ws'
+    ]
   },
   {
     input: 'dist/esm/types/apps/solana/src/index.d.ts',
