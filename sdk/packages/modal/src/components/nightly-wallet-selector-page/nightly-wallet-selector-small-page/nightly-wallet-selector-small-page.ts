@@ -6,9 +6,9 @@ import foxSadGIF from '../../../static/gif/fox_sad.gif'
 import vector from '../../../static/svg/backButton.svg'
 import search from '../../../static/svg/searchIcon.svg'
 import { svgToBase64 } from '../../../utils/images'
+import { Breakpoint, getBreakpointFromWidth, getNumberOfItems } from '../../../utils/utils'
 import '../../nightly-header-small-page/nightly-header-small-page'
 import style from './nightly-wallet-selector-small-page.css?inline'
-import { Breakpoint, getBreakpointFromWidth, getNumberOfItems } from '../../../utils/utils'
 
 @customElement('nightly-wallet-selector-small-page')
 export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
