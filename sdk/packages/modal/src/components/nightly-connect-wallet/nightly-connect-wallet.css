@@ -1,0 +1,111 @@
+.mainContainer {
+  background-color: #343551;
+  border-radius: 0px 0px 16px 16px;
+  height: 486px;
+  width: 572px;
+}
+
+.headerContainer {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.buttonContainer {
+  align-self: flex-start;
+}
+
+.textContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.textContainer span {
+  font-family: 'Prompt';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22px;
+  letter-spacing: 0.02em;
+  color: #f7f7f7;
+}
+
+.custom-loader {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid;
+  border-color: transparent;
+  border-right-color: #ffffff;
+  animation: s2 1s infinite linear;
+}
+@keyframes s2 {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.coinInfoContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 16px;
+  margin-bottom: 36px;
+}
+
+.coinInfoContainer img {
+  width: 144px;
+  height: 144px;
+}
+
+.coinName {
+  font-family: 'Prompt';
+  font-style: normal;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  margin-top: 14px;
+}
+
+.connectInfo {
+  margin-top: 4px;
+}
+
+.reConnectWrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #17182b;
+  border-radius: 0px 0px 16px 16px;
+}
+
+.reConnectWrapper p {
+  color: #707a8d;
+  text-align: center;
+  padding: 24px 16px 16px 16px;
+}
+
+.reConnectWrapper button {
+  width: 128px;
+  height: 32px;
+  background: #6067f9;
+  color: #f7f7f7;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.link {
+  font-family: 'Prompt';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22px;
+  letter-spacing: 0.02em;
+  color: #6067f9;
+}
