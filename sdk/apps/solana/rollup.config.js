@@ -19,8 +19,8 @@ export default [
         sourcemap: true
       }
     ],
-    plugins: [typescript(), nodeResolve(), commonjs(), terser()],
-    external: ['@solana/web3.js', '@nightlylabs/nightly-connect-base', 'isomorphic-ws', 'uuid', 'eventemitter3', 'ws']
+    plugins: [typescript(), nodeResolve({ browser: true }), commonjs(), terser()],
+    external: ['@solana/web3.js', '@nightlylabs/nightly-connect-base', 'uuid', 'eventemitter3']
   },
   {
     input: 'dist/esm/types/apps/solana/src/index.d.ts',

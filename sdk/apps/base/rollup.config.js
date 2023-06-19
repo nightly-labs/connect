@@ -19,8 +19,8 @@ export default [
         sourcemap: true
       }
     ],
-    plugins: [typescript(), nodeResolve(), commonjs(), terser()],
-    external: ['cross-fetch', 'isomorphic-localstorage', 'isomorphic-ws', 'uuid', 'eventemitter3', 'ws']
+    plugins: [typescript(), nodeResolve({ browser: true }), commonjs(), terser()],
+    external: ['cross-fetch', 'isomorphic-localstorage', 'uuid', 'eventemitter3']
   },
   {
     input: 'dist/esm/types/apps/base/src/index.d.ts',
