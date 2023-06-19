@@ -26,7 +26,9 @@ export default function Home() {
       }
     })
     selector.onSelectWallet = (newAdapter) => {
-      setAdapter(newAdapter)
+      newAdapter.connect().then(() => {
+        setAdapter(newAdapter)
+      })
     }
   })
   return (
@@ -40,24 +42,29 @@ export default function Home() {
       </button>
       <button
         onClick={async () => {
-          const adapt = adapter()
+          try {
+            const adapt = adapter()
 
-          if (!adapt || adapt.publicKey === null) {
-            return
+            if (!adapt || adapt.publicKey === null) {
+              return
+            }
+
+            const ix = SystemProgram.transfer({
+              fromPubkey: adapt.publicKey,
+              lamports: 1_000_000,
+              toPubkey: new PublicKey('147oKbjwGDHEthw7sRKNrzYiRiGqYksk1ravTMFkpAnv')
+            })
+            const tx = new SolanaTx().add(ix).add(ix).add(ix).add(ix).add(ix)
+            const a = await connection.getRecentBlockhash()
+            tx.recentBlockhash = a.blockhash
+            tx.feePayer = adapt.publicKey
+            const signedTx = await adapt.signTransaction!(tx)
+            const id = await connection.sendRawTransaction(signedTx!.serialize())
+            console.log(id)
+            console.log(id)
+          } catch (e) {
+            console.log(e)
           }
-
-          const ix = SystemProgram.transfer({
-            fromPubkey: adapt.publicKey,
-            lamports: 1_000_000,
-            toPubkey: new PublicKey('147oKbjwGDHEthw7sRKNrzYiRiGqYksk1ravTMFkpAnv')
-          })
-          const tx = new SolanaTx().add(ix).add(ix).add(ix).add(ix).add(ix)
-          const a = await connection.getRecentBlockhash()
-          tx.recentBlockhash = a.blockhash
-          tx.feePayer = adapt.publicKey
-          const signedTx = await adapt.signTransaction!(tx)
-          const id = await connection.sendRawTransaction(signedTx!.serialize())
-          console.log(id)
         }}>
         Test send
       </button>
