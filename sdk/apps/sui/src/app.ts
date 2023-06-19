@@ -13,7 +13,7 @@ import {
   MessageToSign,
   TransactionToSign
 } from '@nightlylabs/nightly-connect-base'
-import { TypedEmitter } from 'tiny-typed-emitter'
+import { EventEmitter } from 'eventemitter3'
 import { SUI_NETWORK } from './utils'
 import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
 import { WalletMetadata } from '../../../bindings/WalletMetadata'
@@ -23,7 +23,7 @@ interface SuiAppEvents {
   userDisconnected: (e: UserDisconnectedEvent) => void
   serverDisconnected: () => void
 }
-export class AppSui extends TypedEmitter<SuiAppEvents> {
+export class AppSui extends EventEmitter<SuiAppEvents> {
   sessionId: string
   base: BaseApp
 
