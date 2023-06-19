@@ -8,7 +8,6 @@ import { ConnectRequest } from '../../../bindings/ConnectRequest'
 import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
 import { GetPendingRequestsResponse } from '../../../bindings/GetPendingRequestsResponse'
 import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
-import { EventEmitter } from 'eventemitter3'
 import { Notification } from '../../../bindings/Notification'
 import { MessageToSign, RequestContent, TransactionToSign } from './content'
 import {
@@ -47,14 +46,13 @@ interface BaseEvents {
   customEvent: (e: CustomEvent) => void
   appDisconnected: (e: AppDisconnectedEvent) => void
 }
-export class BaseClient extends EventEmitter<BaseEvents> {
+export class BaseClient {
   url: string
   ws: WebSocket
   events: { [key: string]: { resolve: (data: any) => void; reject: (data: any) => void } } = {}
   timeout: number
   clientId: string
   public constructor(url: string, ws: WebSocket, timeout: number, clientId: string) {
-    super()
     this.url = url
     this.ws = ws
     this.timeout = timeout
@@ -240,6 +238,24 @@ export class BaseClient extends EventEmitter<BaseEvents> {
       },
       sessionId
     })
+  }
+  listeners: Map<string, Array<(data: any) => void>> = new Map()
+  on = (eventName: string, cb: (data: any) => void) => {
+    if (typeof this.listeners.get(eventName) === 'undefined') {
+      this.listeners.set(eventName, [])
+    }
+
+    this.listeners.get(eventName)!.push(cb)
+  }
+
+  emit = (eventName: string, data: any) => {
+    this.listeners.get(eventName)?.forEach((cb) => {
+      cb(data)
+    })
+  }
+
+  removeAllListeners = () => {
+    this.listeners = new Map()
   }
 }
 export interface ResolveSignTransactions {

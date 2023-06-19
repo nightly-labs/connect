@@ -6,7 +6,6 @@ import {
   Connect,
   SignMessagesEvent
 } from '@nightlylabs/nightly-connect-base'
-import { EventEmitter } from 'eventemitter3'
 import { SOLANA_NETWORK } from './utils'
 import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
 import { GetPendingRequestsResponse } from '../../../bindings/GetPendingRequestsResponse'
@@ -20,11 +19,30 @@ export interface ClientSolanaEvents {
   signMessages: (e: SignSolanaMessageEvent) => void
   appDisconnected: (e: AppDisconnectedEvent) => void
 }
-export class ClientSolana extends EventEmitter<ClientSolanaEvents> {
+export class ClientSolana {
   baseClient: BaseClient
   sessionId: string | undefined = undefined
+
+  listeners: Map<string, Array<(data: any) => void>> = new Map()
+  on = (eventName: string, cb: (data: any) => void) => {
+    if (typeof this.listeners.get(eventName) === 'undefined') {
+      this.listeners.set(eventName, [])
+    }
+
+    this.listeners.get(eventName)!.push(cb)
+  }
+
+  emit = (eventName: string, data: any) => {
+    this.listeners.get(eventName)?.forEach((cb) => {
+      cb(data)
+    })
+  }
+
+  removeAllListeners = () => {
+    this.listeners = new Map()
+  }
+
   public constructor(baseClient: BaseClient) {
-    super()
     baseClient.on('signTransactions', (e) => {
       const event: SignSolanaTransactionEvent = {
         requestId: e.responseId,
