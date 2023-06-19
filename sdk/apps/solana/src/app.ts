@@ -8,7 +8,7 @@ import {
   DeeplinkConnect
 } from '@nightlylabs/nightly-connect-base'
 import { SOLANA_NETWORK } from './utils'
-import { TypedEmitter } from 'tiny-typed-emitter'
+import { EventEmitter } from 'eventemitter3'
 import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
 import { UserConnectedEvent } from '../../../bindings/UserConnectedEvent'
 import { WalletMetadata } from '../../../bindings/WalletMetadata'
@@ -19,7 +19,7 @@ interface SolanaAppEvents {
   userDisconnected: (e: UserDisconnectedEvent) => void
   serverDisconnected: () => void
 }
-export class AppSolana extends TypedEmitter<SolanaAppEvents> {
+export class AppSolana extends EventEmitter<SolanaAppEvents> {
   sessionId: string
   base: BaseApp
 
