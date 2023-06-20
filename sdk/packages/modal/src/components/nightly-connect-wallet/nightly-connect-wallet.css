@@ -1,8 +1,25 @@
 .mainContainer {
-  background-color: #202137;
-  border-radius: 0px 0px 16px 16px;
   height: 486px;
   width: 572px;
+}
+
+.wrapperConnectPage {
+  border: 1px solid #343551;
+  background-color: #202137;
+  border-radius: 0px 0px 16px 16px;
+}
+
+@media (min-width: 560px) and (max-width: 640px) {
+  .mainContainer {
+    width: 494px;
+    height: 408px;
+  }
+}
+
+@media (max-width: 560px) {
+  .mainContainer {
+    width: 287px;
+  }
 }
 
 .headerContainer {
@@ -61,6 +78,20 @@
   height: 144px;
 }
 
+@media (min-width: 560px) and (max-width: 640px) {
+  .coinInfoContainer img {
+    width: 104px;
+    height: 104px;
+  }
+}
+
+@media (max-width: 560px) {
+  .coinInfoContainer img {
+    width: 104px;
+    height: 104px;
+  }
+}
+
 .coinName {
   font-family: 'Prompt';
   font-style: normal;
@@ -91,6 +122,12 @@
   padding: 24px 16px 16px 16px;
 }
 
+@media (max-width: 640px) {
+  .reConnectWrapper p {
+    padding: 16px;
+  }
+}
+
 .reConnectWrapper button {
   width: 128px;
   height: 32px;
@@ -108,4 +145,34 @@
   line-height: 22px;
   letter-spacing: 0.02em;
   color: #6067f9;
+}
+
+.connectingContainer {
+  display: flex;
+}
+
+.connectingContainer span {
+  color: #707a8d;
+  font-family: 'Prompt';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22px;
+  letter-spacing: 0.02em;
+  margin-right: 8px;
+}
+
+.error {
+  color: #d25858;
+  font-family: 'Prompt';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 22px;
+  letter-spacing: 0.02em;
+}
+
+.vector {
+  width: 12px;
+  height: 24px;
 }
