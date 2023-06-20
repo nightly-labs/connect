@@ -18,7 +18,7 @@ const meta = {
         ?connecting=${args.connecting}
         walletIcon=${args.walletIcon}
         ?connected=${args.connected}
-        .onClick=${args.onClick}
+        .tryAgainClick=${args.tryAgainClick}
         .onClose=${args.onClose}
         .fallback=${args.fallback}
         link=${args.link}
@@ -39,7 +39,7 @@ export const Connecting: Story = {
     walletIcon: binance,
     connected: false,
     onClose: () => console.log('close'),
-    onClick: () => console.log('try again click'),
+    tryAgainClick: () => console.log('try again click'),
     fallback: () => console.log('back to main page'),
     link: `https://www.binance.com/en`
   }
@@ -53,7 +53,7 @@ export const ConnectingFailed: Story = {
     walletIcon: binance,
     connected: false,
     onClose: () => console.log('close'),
-    onClick: () => console.log('try again click'),
+    tryAgainClick: () => console.log('try again click'),
     fallback: () => console.log('back to main page')
   }
 }
