@@ -1,13 +1,15 @@
-import { html } from 'lit'
+import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { TailwindElement } from '../../shared/tailwind.element'
+import { tailwindElement } from '../../shared/tailwind.element'
 import vector from '../../static/svg/backButton.svg'
 import { Breakpoint, getBreakpointFromWidthInConnectWallet } from '../../utils/utils'
 import '../nightly-header-small-page/nightly-header-small-page'
 import '../nightly-header/nightly-header'
-import style from './nightly-connect-wallet.css?inline'
+import style from './nightly-connect-wallet.css'
 @customElement('nightly-connect-wallet')
-export class NightlyConnectWallet extends TailwindElement(style) {
+export class NightlyConnectWallet extends LitElement {
+  static styles = tailwindElement(style)
+
   @property({ type: Boolean })
   connecting = false
 

@@ -1,6 +1,6 @@
 {
   "name": "@nightlylabs/nightly-connect-base",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "type": "module",
   "browser": {
     "dist/cjs/index.cjs": "dist/browser/cjs/index.cjs",
