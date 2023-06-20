@@ -1,24 +1,19 @@
 import { customElement, property } from 'lit/decorators.js'
 import { TailwindElement } from '../../shared/tailwind.element'
-import style from './nightly-header.css?inline'
+import style from './nightly-header-small-page.css?inline'
 import { html } from 'lit'
 import Logo from '../../static/svg/Logo.svg'
 import Close from '../../static/svg/Close.svg'
-import { styleMap } from 'lit/directives/style-map.js'
 
-@customElement('nightly-header')
-export class NightlyHeader extends TailwindElement(style) {
+@customElement('nightly-header-small-page')
+export class NightlyHeaderSmallPage extends TailwindElement(style) {
   @property()
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onClose = () => {}
 
-  @property({ type: String })
-  height = '56px'
-
   render() {
-    const styles = { height: this.height }
     return html`
-      <div class="mainContainer-header" style=${styleMap(styles)}>
+      <div class="mainContainer-header">
         <div class="logoContainer">
           <img class="header-logo" src=${Logo} />
           <button class="closeButton" @click=${this.onClose}>
@@ -34,6 +29,6 @@ export class NightlyHeader extends TailwindElement(style) {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'nightly-header': NightlyHeader
+    'nightly-header-small-page': NightlyHeaderSmallPage
   }
 }
