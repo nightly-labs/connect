@@ -19,7 +19,7 @@
     "@mysten/sui.js": "^0.35.1",
     "@mysten/wallet-adapter-wallet-standard": "^0.7.9",
     "@mysten/wallet-standard": "^0.5.7",
-    "@nightlylabs/nightly-connect-sui": "0.0.14",
+    "@nightlylabs/nightly-connect-sui": "0.0.15",
     "@nightlylabs/wallet-selector-base": "0.0.1",
     "@wallet-standard/core": "^1.0.3"
   },
