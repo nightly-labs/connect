@@ -21,7 +21,7 @@ const meta = {
         .onClick=${args.onClick}
         .onClose=${args.onClose}
         .fallback=${args.fallback}
-        .clickLink=${args.clickLink}
+        link=${args.link}
       ></nightly-connect-wallet>
     `
   }
@@ -41,7 +41,7 @@ export const Connecting: Story = {
     onClose: () => console.log('close'),
     onClick: () => console.log('try again click'),
     fallback: () => console.log('back to main page'),
-    clickLink: () => console.log('user click link')
+    link: `https://www.binance.com/en`
   }
 }
 export const ConnectingFailed: Story = {
@@ -54,7 +54,6 @@ export const ConnectingFailed: Story = {
     connected: false,
     onClose: () => console.log('close'),
     onClick: () => console.log('try again click'),
-    fallback: () => console.log('back to main page'),
-    clickLink: () => console.log('user click link')
+    fallback: () => console.log('back to main page')
   }
 }

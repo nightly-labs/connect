@@ -149,6 +149,8 @@
 
 .connectingContainer {
   display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .connectingContainer span {
@@ -175,4 +177,16 @@
 .vector {
   width: 12px;
   height: 24px;
+}
+
+.wrapperPage {
+  display: flex;
+  flex-flow: row wrap;
+  flex-direction: column;
+  width: 100%;
+  top: -20px;
+  position: relative;
+  z-index: 2;
+  background-color: #202137;
+  border-radius: 16px;
 }
