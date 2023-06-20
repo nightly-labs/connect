@@ -10,6 +10,14 @@ export function getBreakpointFromWidth(screenWidth: number): Breakpoint {
   }
 }
 
+export function getBreakpointFromWidthInConnectWallet(screenWidth: number): Breakpoint {
+  if (screenWidth < 560) {
+    return 'xs'
+  } else {
+    return 'sm'
+  }
+}
+
 export function getNumberOfItems(breakpoint: Breakpoint) {
   switch (breakpoint) {
     case 'xs':
