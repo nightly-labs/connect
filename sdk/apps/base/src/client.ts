@@ -8,7 +8,7 @@ import { ConnectRequest } from '../../../bindings/ConnectRequest'
 import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
 import { GetPendingRequestsResponse } from '../../../bindings/GetPendingRequestsResponse'
 import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
-import { TypedEmitter } from 'tiny-typed-emitter'
+import { EventEmitter } from 'eventemitter3'
 import { Notification } from '../../../bindings/Notification'
 import { MessageToSign, RequestContent, TransactionToSign } from './content'
 import {
@@ -47,7 +47,7 @@ interface BaseEvents {
   customEvent: (e: CustomEvent) => void
   appDisconnected: (e: AppDisconnectedEvent) => void
 }
-export class BaseClient extends TypedEmitter<BaseEvents> {
+export class BaseClient extends EventEmitter<BaseEvents> {
   url: string
   ws: WebSocket
   events: { [key: string]: { resolve: (data: any) => void; reject: (data: any) => void } } = {}
