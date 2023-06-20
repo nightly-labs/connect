@@ -7,6 +7,9 @@ import binance from '../../static/svg/BinanceIcon.svg'
 
 @customElement('nightly-connect-wallet')
 export class NightlyConnectWallet extends TailwindElement(style) {
+  @property({ type: Boolean })
+  connecting = false
+
   @property({ type: String })
   nameLink = ''
 
@@ -19,7 +22,7 @@ export class NightlyConnectWallet extends TailwindElement(style) {
       <div class="mainContainer">
         <div class="headerContainer">
           <div class="buttonContainer">
-            <button>b</button>
+            <button></button>
           </div>
           <div class="textContainer">
             <span>Connect wallet</span>
