@@ -78,7 +78,16 @@ export class BaseClient extends EventEmitter<BaseEvents> {
             case 'GetPendingRequestsResponse':
             case 'ClientInitializeResponse':
             case 'AckMessage': {
+              console.log(
+                'get event',
+                response.responseId,
+                'has event',
+                !!baseClient.events?.[response.responseId],
+                'has resolve',
+                !!baseClient.events?.[response.responseId]?.resolve
+              )
               baseClient.events[response.responseId].resolve(response)
+              console.log('got event', response.responseId)
               break
             }
             case 'ErrorMessage': {
@@ -134,6 +143,7 @@ export class BaseClient extends EventEmitter<BaseEvents> {
         const timer = setTimeout(() => {
           reject(new Error(`Connection timed out after ${baseClient.timeout} ms`))
         }, baseClient.timeout)
+        console.log('add event', initializeRequest.responseId)
         baseClient.events[initializeRequest.responseId] = {
           reject: reject,
           resolve: () => {
@@ -141,6 +151,7 @@ export class BaseClient extends EventEmitter<BaseEvents> {
             resolve(baseClient)
           }
         }
+        console.log('added event', initializeRequest.responseId)
         baseClient.ws.send(JSON.stringify(initializeRequest))
       }
     })

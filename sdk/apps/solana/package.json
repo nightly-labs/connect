@@ -1,6 +1,6 @@
 {
   "name": "@nightlylabs/nightly-connect-solana",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "type": "module",
   "browser": {
     "dist/cjs/index.cjs": "dist/browser/cjs/index.cjs",
@@ -37,7 +37,7 @@
     "typescript": "^5.1.3"
   },
   "dependencies": {
-    "@nightlylabs/nightly-connect-base": "0.0.12",
+    "@nightlylabs/nightly-connect-base": "0.0.13",
     "@solana/web3.js": "^1.77.2",
     "eventemitter3": "^5.0.1",
     "uuid": "^9.0.0"
