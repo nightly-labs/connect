@@ -16,12 +16,14 @@ import type {
   StandardEventsListeners,
   WalletAccount,
   StandardEventsOnMethod,
-  IdentifierArray
+  IdentifierArray,
+  StandardDisconnectFeature,
+  StandardDisconnectMethod
 } from '@wallet-standard/core'
 import { AppSui } from '@nightlylabs/nightly-connect-sui'
 import { PublicKey } from '@mysten/sui.js'
 
-export class NightlyConnectSolanaWallet implements Wallet {
+export class NightlyConnectSuiWallet implements Wallet {
   #app: AppSui
 
   #listeners: { [E in StandardEventsNames]: StandardEventsListeners[E][] } = {
@@ -67,6 +69,7 @@ export class NightlyConnectSolanaWallet implements Wallet {
   }
 
   get features(): StandardConnectFeature &
+    StandardDisconnectFeature &
     StandardEventsFeature &
     SuiSignTransactionBlockFeature &
     SuiSignAndExecuteTransactionBlockFeature &
@@ -75,6 +78,10 @@ export class NightlyConnectSolanaWallet implements Wallet {
       'standard:connect': {
         version: '1.0.0',
         connect: this.#connect
+      },
+      'standard:disconnect': {
+        version: '1.0.0',
+        disconnect: this.#disconnect
       },
       'standard:events': {
         version: '1.0.0',
@@ -95,7 +102,9 @@ export class NightlyConnectSolanaWallet implements Wallet {
     }
   }
 
-  constructor(app: AppSui, publicKeys: PublicKey[]) {
+  #onDisconnect: () => void
+
+  constructor(app: AppSui, publicKeys: PublicKey[], onDisconnect: () => void) {
     this.#app = app
     this.#accounts = publicKeys.map(publicKey => ({
       address: publicKey.toSuiAddress(),
@@ -103,10 +112,15 @@ export class NightlyConnectSolanaWallet implements Wallet {
       chains: this.chains,
       features: Object.keys(this.features) as IdentifierArray
     }))
+    this.#onDisconnect = onDisconnect
   }
 
   #connect: StandardConnectMethod = async () => {
     return { accounts: this.accounts }
+  }
+
+  #disconnect: StandardDisconnectMethod = async () => {
+    this.#onDisconnect()
   }
 
   #signTransactionBlock: SuiSignTransactionBlockMethod = async (input) => {

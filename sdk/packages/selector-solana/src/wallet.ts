@@ -17,7 +17,9 @@ import type {
   StandardEventsListeners,
   WalletAccount,
   StandardEventsOnMethod,
-  IdentifierArray
+  IdentifierArray,
+  StandardDisconnectFeature,
+  StandardDisconnectMethod
 } from '@wallet-standard/core'
 import { AppSolana } from '@nightlylabs/nightly-connect-solana'
 import { Connection, PublicKey, VersionedTransaction } from '@solana/web3.js'
@@ -68,6 +70,7 @@ export class NightlyConnectSolanaWallet implements Wallet {
   }
 
   get features(): StandardConnectFeature &
+    StandardDisconnectFeature &
     StandardEventsFeature &
     SolanaSignTransactionFeature &
     SolanaSignAndSendTransactionFeature &
@@ -76,6 +79,10 @@ export class NightlyConnectSolanaWallet implements Wallet {
       'standard:connect': {
         version: '1.0.0',
         connect: this.#connect
+      },
+      'standard:disconnect': {
+        version: '1.0.0',
+        disconnect: this.#disconnect
       },
       'standard:events': {
         version: '1.0.0',
@@ -98,7 +105,9 @@ export class NightlyConnectSolanaWallet implements Wallet {
     }
   }
 
-  constructor(app: AppSolana, publicKey: PublicKey) {
+  #onDisconnect: () => void
+
+  constructor(app: AppSolana, publicKey: PublicKey, onDisconnect: () => void) {
     this.#app = app
     this.#accounts = [
       {
@@ -108,10 +117,15 @@ export class NightlyConnectSolanaWallet implements Wallet {
         features: Object.keys(this.features) as IdentifierArray
       }
     ]
+    this.#onDisconnect = onDisconnect
   }
 
   #connect: StandardConnectMethod = async () => {
     return { accounts: this.accounts }
+  }
+
+  #disconnect: StandardDisconnectMethod = async () => {
+    this.#onDisconnect()
   }
 
   #signTransaction: SolanaSignTransactionMethod = async (...inputs) => {
