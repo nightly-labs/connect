@@ -68,7 +68,7 @@ export class NightlyModal extends LitElement {
             <img
               class="code"
               src=${svgToBase64(
-                generateQrCodeXml('nightlyconnect:' + this.sessionId + '?network=' + this.network, {
+                generateQrCodeXml('nc:' + this.sessionId + '?network=' + this.network, {
                   width: 400,
                   height: 400,
                   margin: 10
