@@ -11,7 +11,9 @@ use futures::StreamExt;
 
 use crate::{
     errors::NightlyError,
-    state::{ClientSockets, ClientToSessions, ModifySession, SendToClient, Sessions},
+    state::{
+        ClientSockets, ClientToSessions, DisconnectUser, ModifySession, SendToClient, Sessions,
+    },
     structs::{
         app_messages::{
             app_messages::ServerToApp, payload::ResponsePayload,
@@ -341,17 +343,11 @@ pub async fn client_handler(
                 let mut dropped_sessions = Vec::new();
                 // TODO handle disconnecting app
                 for session_id in drop_sessions_request.sessions {
-                    if let Some((_, removed_session)) = sessions.remove(&session_id) {
-                        let mut session = removed_session;
-                        // Send disconnect event to app
-                        let user_disconnected_event =
-                            ServerToApp::UserDisconnectedEvent(UserDisconnectedEvent {});
-                        session
-                            .send_to_app(user_disconnected_event)
-                            .await
-                            .unwrap_or_default();
-                        client_to_sessions.remove(&session_id);
-                        dropped_sessions.push(session_id);
+                    if sessions.disconnect_user(session_id.clone()).await.is_ok() {
+                        dropped_sessions.push(session_id.clone());
+                    };
+                    if let Some(sessions) = client_to_sessions.get_mut(&client_id) {
+                        sessions.remove(&session_id);
                     }
                 }
                 let response = ServerToClient::DropSessionsResponse(DropSessionsResponse {
