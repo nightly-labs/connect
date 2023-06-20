@@ -41,7 +41,7 @@
 
 @media (max-width: 640px) {
   .mainContainer {
-    width: 100%;
+    max-width: 540px;
   }
 }
 
