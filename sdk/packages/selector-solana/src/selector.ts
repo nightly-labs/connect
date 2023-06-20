@@ -4,6 +4,9 @@ import { NightlyModal } from '@nightlylabs/wallet-selector-modal'
 import { StandardWalletAdapter } from '@solana/wallet-standard'
 import { NightlyConnectSolanaWallet } from './wallet'
 import { PublicKey } from '@solana/web3.js'
+import { getSolanaWalletsList } from './detection'
+import { getWallet } from '@nightlylabs/wallet-selector-base'
+import { WalletAdapterCompatibleStandardWallet } from '@solana/wallet-adapter-base'
 
 export class NCSolanaSelector {
   private _modal: NightlyModal | undefined
@@ -54,9 +57,24 @@ export class NCSolanaSelector {
       this._modal.relay = 'https://nc2.nightly.app'
       this._modal.chainIcon = 'https://assets.coingecko.com/coins/images/4128/small/solana.png'
       this._modal.chainName = 'Solana'
-      this._modal.selectorItems = []
+      this._modal.selectorItems = getSolanaWalletsList([]).map((w) => ({
+        name: w.name,
+        icon: w.icon,
+        status: w.recent ? 'Recent' : w.detected ? 'Detected' : ''
+      })) as any
       this._modal.onWalletClick = (name) => {
-        console.log(name)
+        const wallet = getWallet(name)
+        if (typeof wallet === 'undefined') {
+          return
+        }
+
+        const adapter = new StandardWalletAdapter({
+          wallet: wallet as WalletAdapterCompatibleStandardWallet
+        })
+        adapter.connect().then(() => {
+          this.onConnected?.(adapter)
+          this.closeModal()
+        })
       }
 
       document.body.appendChild(this._modal)

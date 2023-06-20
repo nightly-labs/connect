@@ -34,3 +34,9 @@ export const getWalletsList = (
   return Object.values(walletsData)
 }
 
+export const getWallet = (name: string) => {
+  const { get } = getWallets()
+  const windowWallets = get()
+
+  return windowWallets.find(w => w.name === name)
+}

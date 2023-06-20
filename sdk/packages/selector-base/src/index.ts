@@ -1,4 +1,4 @@
-export { IWalletListItem, getWalletsList } from './detection'
+export { IWalletListItem, getWalletsList, getWallet } from './detection'
 export {
   persistSessionDataForNetwork,
   getSessionDataForNetwork,
