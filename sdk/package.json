@@ -5,7 +5,7 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "postinstall": "pnpm build"
+    "postinstall": "build-only-packages.sh"
   },
   "devDependencies": {
     "eslint": "^7.32.0",

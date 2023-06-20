@@ -2,7 +2,7 @@
   "name": "modal-example",
   "scripts": {
     "dev": "solid-start dev",
-    "build-example": "solid-start build",
+    "build": "solid-start build",
     "start": "solid-start start"
   },
   "type": "module",
