@@ -7,10 +7,11 @@ import {
   SignMessagesEvent,
   TransactionToSign
 } from '@nightlylabs/nightly-connect-base'
-import { TypedEmitter } from 'tiny-typed-emitter'
+import { EventEmitter } from 'eventemitter3'
 import { GetPendingRequestsResponse } from '../../../bindings/GetPendingRequestsResponse'
 import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
 export interface SignSuiTransactionEvent {
+  sessionId: string
   requestId: string
   transactions: Array<TransactionToSign>
 }
@@ -20,13 +21,14 @@ export interface ClientSuiEvents {
   signMessages: (e: SignSuiMessageEvent) => void
   appDisconnected: (e: AppDisconnectedEvent) => void
 }
-export class ClientSui extends TypedEmitter<ClientSuiEvents> {
+export class ClientSui extends EventEmitter<ClientSuiEvents> {
   baseClient: BaseClient
   sessionId: string | undefined = undefined
   private constructor(baseClient: BaseClient) {
     super()
     baseClient.on('signTransactions', (e) => {
       const event: SignSuiTransactionEvent = {
+        sessionId: e.sessionId,
         requestId: e.responseId,
         transactions: e.transactions
       }
