@@ -12,7 +12,7 @@ import style from './nightly-wallet-selector-small-page.css?inline'
 
 @customElement('nightly-wallet-selector-small-page')
 export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
-  @property()
+  @property({})
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onClose = () => {}
 
@@ -82,6 +82,10 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
             return this.renderQrCode()
           }
 
+          if (this.showNotFoundIcon) {
+            return this.renderNotFoundIcon()
+          }
+
           if (!this.isTopWalletsView && this.showAll) {
             return this.renderFullPage()
           }
@@ -96,7 +100,7 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
     return html`
       <div class="mainContainer">
         <div class="nightly-headerContainer">
-          <nightly-header-small-page onClose=${this.onClose}></nightly-header-small-page>
+          <nightly-header-small-page .onClose=${this.onClose}></nightly-header-small-page>
         </div>
         <div class="walletWrapper">
           <div class="infoConatiner">
@@ -143,7 +147,7 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
   renderQrCode() {
     return html`
       <div class="nightly-headerContainer">
-        <nightly-header-small-page onClose=${this.onClose}></nightly-header-small-page>
+        <nightly-header-small-page .onClose=${this.onClose}></nightly-header-small-page>
       </div>
       <div class="headerQrCodeWrapper">
         <div class="headerContainer">
@@ -173,16 +177,21 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
   }
 
   showAllWallets() {
-    const oppositeState = this.showAll
-    this.isTopWalletsView = oppositeState
-    this.showAll = !oppositeState
-    this.isQrPageVisible = false
+    if (this.isQrPageVisible) {
+      this.isQrPageVisible = false
+      this.isTopWalletsView = true
+      this.showAll = false
+    } else {
+      const oppositeState = this.showAll
+      this.isTopWalletsView = oppositeState
+      this.showAll = !oppositeState
+    }
     this.requestUpdate()
   }
   renderFullPage() {
     return html`
       <div class="nightly-headerContainer">
-        <nightly-header-small-page onClose=${this.onClose}></nightly-header-small-page>
+        <nightly-header-small-page .onClose=${this.onClose}></nightly-header-small-page>
       </div>
       <div class="walletSelectorButtons">
         <div class="headerContainer">
@@ -227,7 +236,7 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
   renderNotFoundIcon() {
     return html`
       <div class="nightly-headerContainer">
-        <nightly-header-small-page onClose=${this.onClose}></nightly-header-small-page>
+        <nightly-header-small-page .onClose=${this.onClose}></nightly-header-small-page>
       </div>
       <div class="NotFoundContainer">
         <div class="inputContainer">
@@ -261,7 +270,7 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
 
     this.requestUpdate()
   }
-  handleWalletSelectorClick(_event: Event, name: string) {
-    console.log('A menu item was clicked:', name)
-  }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  handleWalletSelectorClick(_event: Event, name: string) {}
 }
