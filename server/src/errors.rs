@@ -26,4 +26,5 @@ pub enum NightlyError {
     SessionDropped,
     RequestDoesNotExist,
     NotFound,
+    ClientAlreadyInitialized,
 }

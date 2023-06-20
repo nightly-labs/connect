@@ -18,6 +18,10 @@ import {
   SignedTransaction
 } from './responseContent'
 import { ClientInitializeRequest } from '../../../bindings/ClientInitializeRequest'
+import { GetSessionsRequest } from '../../../bindings/GetSessionsRequest'
+import { GetSessionsResponse } from '../../../bindings/GetSessionsResponse'
+import { DropSessionsRequest } from '../../../bindings/DropSessionsRequest'
+import { DropSessionsResponse } from '../../../bindings/DropSessionsResponse'
 
 export interface ClientBaseInitialize {
   clientId?: string
@@ -77,6 +81,8 @@ export class BaseClient extends EventEmitter<BaseEvents> {
             case 'ConnectResponse':
             case 'GetPendingRequestsResponse':
             case 'ClientInitializeResponse':
+            case 'DropSessionsResponse':
+            case 'GetSessionsResponse':
             case 'AckMessage': {
               console.log(
                 'get event',
@@ -172,6 +178,27 @@ export class BaseClient extends EventEmitter<BaseEvents> {
       }
       this.ws.send(request)
     })
+  }
+  getSessions = async () => {
+    const request: GetSessionsRequest = {
+      responseId: getRandomId()
+    }
+    const response = (await this.send({
+      ...request,
+      type: 'GetSessionsRequest'
+    })) as GetSessionsResponse
+    return response.sessions
+  }
+  dropSessions = async (sessions: string[]) => {
+    const request: DropSessionsRequest = {
+      responseId: getRandomId(),
+      sessions
+    }
+    const response = (await this.send({
+      ...request,
+      type: 'DropSessionsRequest'
+    })) as DropSessionsResponse
+    return response.droppedSessions
   }
   getInfo = async (sessionId: string) => {
     const request: GetInfoRequest = {

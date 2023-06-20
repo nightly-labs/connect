@@ -1,29 +1,10 @@
 .mainContainer-header {
   width: 100%;
-  max-width: 720px;
   height: 56px;
   position: relative;
   overflow: hidden;
   border-radius: 16px 16px 0px 0px;
   background-color: #6067f9;
-}
-
-@media (max-width: 1080px) and (min-width: 960px) {
-  .mainContainer-header {
-    max-width: 636px;
-  }
-}
-
-@media (max-width: 960px) and (min-width: 640px) {
-  .mainContainer-header {
-    max-width: 540px;
-  }
-}
-
-@media (max-width: 640px) {
-  .mainContainer-header {
-    width: 100%;
-  }
 }
 
 .cloudsAnimationHeader {
