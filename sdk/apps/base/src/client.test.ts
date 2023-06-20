@@ -1,6 +1,6 @@
 import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { BaseApp } from './app'
-import { smartDelay, testAppBaseInitialize, testClientBaseInitialize } from './utils'
+import { sleep, smartDelay, testAppBaseInitialize, testClientBaseInitialize } from './utils'
 import { BaseClient, Connect } from './client'
 import { MessageToSign, TransactionToSign } from './content'
 import { SignedMessage, SignedTransaction } from './responseContent'
@@ -96,7 +96,27 @@ describe('Base Client tests', () => {
       assert(true) // should  reach here
     }
   })
+  test('#getSessions', async () => {
+    const sessions = await client.getSessions()
+    assert(sessions.length === 1)
+    assert(sessions[0] === baseApp.sessionId)
+  })
+  test('#dropSession', async () => {
+    const droppedSessions = await client.dropSessions([baseApp.sessionId])
+    assert(droppedSessions.length === 1)
+    assert(droppedSessions[0] === baseApp.sessionId)
+  })
   test('#on("appDisconnected")', async () => {
+    // Connect again because the previous test has disconnected the app
+    baseApp = await BaseApp.build(testAppBaseInitialize)
+    await smartDelay()
+
+    const msg: Connect = {
+      publicKeys: ['1', '2'],
+      sessionId: baseApp.sessionId
+    }
+    await client.connect(msg)
+    await smartDelay()
     const disconnecFn = vi.fn()
     client.on('appDisconnected', async () => {
       disconnecFn()
