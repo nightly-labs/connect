@@ -59,6 +59,7 @@ export default function Solana() {
 
               window.alert('Transaction was signed and sent!')
             } catch (e) {
+              window.alert('Error: couldn\'t sign and send transaction!')
               console.log(e)
             }
           }}>
@@ -67,6 +68,7 @@ export default function Solana() {
         <button
           onClick={() => {
             adapter()?.disconnect()
+            setAdapter(undefined)
           }}>
           Disconnect
         </button>

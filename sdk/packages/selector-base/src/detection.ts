@@ -6,7 +6,6 @@ export interface IWalletListItem {
   recent?: boolean
   detected?: boolean
   hasMobileVersion?: boolean
-  highlighted?: boolean
 }
 
 export const getWalletsList = (
@@ -17,6 +16,8 @@ export const getWalletsList = (
   const { get } = getWallets()
   const windowWallets = get()
 
+  console.log(windowWallets)
+
   const walletsData: Record<string, IWalletListItem> = {}
 
   presetList.forEach((wallet) => {
@@ -25,11 +26,16 @@ export const getWalletsList = (
 
   windowWallets.filter(walletsFilterCb).forEach((wallet) => {
     walletsData[wallet.name] = {
-      ...(walletsData?.[wallet.name] ?? wallet),
+      ...(walletsData?.[wallet.name] ?? {
+        name: wallet.name,
+        icon: wallet.icon
+      }),
       detected: true,
       recent: recentWalletName === wallet.name
     }
   })
+
+  console.log(walletsData)
 
   return Object.values(walletsData)
 }
