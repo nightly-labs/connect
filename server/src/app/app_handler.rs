@@ -110,7 +110,6 @@ pub async fn app_handler(
                                     },
                                     network: init_data.network,
                                     version: init_data.version,
-                                    device: None,
                                     pending_requests: DashMap::new(),
                                     notification: None,
                                     creation_timestamp: get_timestamp_in_milliseconds(),
@@ -138,7 +137,6 @@ pub async fn app_handler(
                             },
                             network: init_data.network,
                             version: init_data.version,
-                            device: None,
                             pending_requests: DashMap::new(),
                             notification: None,
                             creation_timestamp: get_timestamp_in_milliseconds(),
@@ -344,7 +342,11 @@ pub async fn app_handler(
                                 let notification_payload = NotificationPayload {
                                     network: session.network.clone(),
                                     app_metadata: session.app_state.metadata.clone(),
-                                    device: session.device.clone().unwrap_or(Device::Unknown),
+                                    device: session
+                                        .client_state
+                                        .device
+                                        .clone()
+                                        .unwrap_or(Device::Unknown),
                                     request: sing_transactions_request.content.clone(),
                                     request_id: response_id.clone(),
                                     session_id: session_id.clone(),

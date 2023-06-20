@@ -1,6 +1,10 @@
 use std::sync::Arc;
 
-use crate::structs::{client_messages::client_messages::ServerToClient, session::Session};
+use crate::structs::{
+    app_messages::{app_messages::ServerToApp, user_disconnected_event::UserDisconnectedEvent},
+    client_messages::client_messages::ServerToClient,
+    session::{ClientState, Session},
+};
 use anyhow::Result;
 use async_trait::async_trait;
 use axum::extract::ws::{Message, WebSocket};
@@ -12,6 +16,30 @@ pub type SessionId = String;
 pub type ClientId = String;
 pub type Sessions = Arc<DashMap<SessionId, Session>>;
 pub type ClientSockets = Arc<DashMap<ClientId, SplitSink<WebSocket, Message>>>;
+#[async_trait]
+pub trait DisconnectUser {
+    async fn disconnect_user(&self, session_id: SessionId) -> Result<()>;
+}
+#[async_trait]
+impl DisconnectUser for Sessions {
+    async fn disconnect_user(&self, session_id: SessionId) -> Result<()> {
+        let mut session = match self.get_mut(&session_id) {
+            Some(session) => session,
+            None => return Err(anyhow::anyhow!("Session does not exist")), // Session does not exist
+        };
+        session.client_state = ClientState {
+            client_id: None,
+            connected_public_keys: vec![],
+            device: None,
+        };
+        session.notification = None;
+        session.pending_requests.clear();
+        // Send disconnect event to app
+        let user_disconnected_event = ServerToApp::UserDisconnectedEvent(UserDisconnectedEvent {});
+        session.send_to_app(user_disconnected_event).await?;
+        Ok(())
+    }
+}
 #[async_trait]
 pub trait SendToClient {
     async fn send_to_client(&self, client_id: ClientId, msg: ServerToClient) -> Result<()>;
