@@ -16,7 +16,6 @@ pub struct Session {
     pub persistent: bool,
     pub network: Network,
     pub version: Version,
-    pub device: Option<Device>,
     pub app_state: AppState,
     pub client_state: ClientState,
     pub pending_requests: DashMap<String, String>,

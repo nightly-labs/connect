@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 use crate::{
-    state::{ClientId, ClientToSessions, SessionId, Sessions},
+    state::{ClientId, ClientToSessions, DisconnectUser, SessionId, Sessions},
     structs::app_messages::{
         app_messages::ServerToApp, user_disconnected_event::UserDisconnectedEvent,
     },
@@ -30,24 +30,11 @@ pub async fn drop_sessions(
     let mut dropped_sessions = Vec::new();
     // TODO handle disconnecting app
     for session_id in request.sessions {
-        if let Some(session) = sessions.get(&session_id) {
-            if session.client_state.client_id == Some(request.client_id.clone()) {
-                let session = sessions.remove(&session_id);
-                match session {
-                    Some((_, mut session)) => {
-                        // Send disconnect event to app
-                        let user_disconnected_event =
-                            ServerToApp::UserDisconnectedEvent(UserDisconnectedEvent {});
-                        session
-                            .send_to_app(user_disconnected_event)
-                            .await
-                            .unwrap_or_default();
-                    }
-                    None => {}
-                }
-                client_to_sessions.remove(&session_id);
-                dropped_sessions.push(session_id);
-            }
+        if sessions.disconnect_user(session_id.clone()).await.is_ok() {
+            dropped_sessions.push(session_id.clone());
+        };
+        if let Some(sessions) = client_to_sessions.get_mut(&request.client_id) {
+            sessions.remove(&session_id);
         }
     }
     Ok(Json(HttpDropSessionsResponse { dropped_sessions }))
