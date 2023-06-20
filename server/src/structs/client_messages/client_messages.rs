@@ -7,8 +7,10 @@ use super::{
     app_disconnected_event::AppDisconnectedEvent,
     client_initialize::{ClientInitializeRequest, ClientInitializeResponse},
     connect::{ConnectRequest, ConnectResponse},
+    drop_sessions::{DropSessionsRequest, DropSessionsResponse},
     get_info::{GetInfoRequest, GetInfoResponse},
     get_pending_requests::{GetPendingRequestsRequest, GetPendingRequestsResponse},
+    get_sessions::{GetSessionsRequest, GetSessionsResponse},
     new_payload_event::{NewPayloadEvent, NewPayloadEventReply},
 };
 
@@ -21,6 +23,8 @@ pub enum ClientToServer {
     GetInfoRequest(GetInfoRequest),
     NewPayloadEventReply(NewPayloadEventReply),
     GetPendingRequestsRequest(GetPendingRequestsRequest),
+    DropSessionsRequest(DropSessionsRequest),
+    GetSessionsRequest(GetSessionsRequest),
 }
 #[derive(Debug, Eq, PartialEq, Clone, Deserialize, Serialize, TS)]
 #[ts(export)]
@@ -32,6 +36,8 @@ pub enum ServerToClient {
     NewPayloadEvent(NewPayloadEvent),
     AppDisconnectedEvent(AppDisconnectedEvent),
     GetPendingRequestsResponse(GetPendingRequestsResponse),
+    DropSessionsResponse(DropSessionsResponse),
+    GetSessionsResponse(GetSessionsResponse),
     ErrorMessage(ErrorMessage),
     AckMessage(AckMessage),
 }

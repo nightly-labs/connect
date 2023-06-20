@@ -1,0 +1,192 @@
+.mainContainer {
+  height: 486px;
+  width: 572px;
+}
+
+.wrapperConnectPage {
+  border: 1px solid #343551;
+  background-color: #202137;
+  border-radius: 0px 0px 16px 16px;
+}
+
+@media (min-width: 560px) and (max-width: 640px) {
+  .mainContainer {
+    width: 494px;
+    height: 408px;
+  }
+}
+
+@media (max-width: 560px) {
+  .mainContainer {
+    width: 287px;
+  }
+}
+
+.headerContainer {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.buttonContainer {
+  align-self: flex-start;
+}
+
+.textContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.textContainer span {
+  font-family: 'Prompt';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22px;
+  letter-spacing: 0.02em;
+  color: #f7f7f7;
+}
+
+.custom-loader {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid;
+  border-color: transparent;
+  border-right-color: #ffffff;
+  animation: s2 1s infinite linear;
+}
+@keyframes s2 {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.coinInfoContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 16px;
+  margin-bottom: 36px;
+}
+
+.coinInfoContainer img {
+  width: 144px;
+  height: 144px;
+}
+
+@media (min-width: 560px) and (max-width: 640px) {
+  .coinInfoContainer img {
+    width: 104px;
+    height: 104px;
+  }
+}
+
+@media (max-width: 560px) {
+  .coinInfoContainer img {
+    width: 104px;
+    height: 104px;
+  }
+}
+
+.coinName {
+  font-family: 'Prompt';
+  font-style: normal;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  margin-top: 14px;
+}
+
+.connectInfo {
+  margin-top: 4px;
+}
+
+.reConnectWrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #17182b;
+  border-radius: 0px 0px 16px 16px;
+}
+
+.reConnectWrapper p {
+  color: #707a8d;
+  text-align: center;
+  padding: 24px 16px 16px 16px;
+}
+
+@media (max-width: 640px) {
+  .reConnectWrapper p {
+    padding: 16px;
+  }
+}
+
+.reConnectWrapper button {
+  width: 128px;
+  height: 32px;
+  background: #6067f9;
+  color: #f7f7f7;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.link {
+  font-family: 'Prompt';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22px;
+  letter-spacing: 0.02em;
+  color: #6067f9;
+}
+
+.connectingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.connectingContainer span {
+  color: #707a8d;
+  font-family: 'Prompt';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22px;
+  letter-spacing: 0.02em;
+  margin-right: 8px;
+}
+
+.error {
+  color: #d25858;
+  font-family: 'Prompt';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 22px;
+  letter-spacing: 0.02em;
+}
+
+.vector {
+  width: 12px;
+  height: 24px;
+}
+
+.wrapperPage {
+  display: flex;
+  flex-flow: row wrap;
+  flex-direction: column;
+  width: 100%;
+  top: -20px;
+  position: relative;
+  z-index: 2;
+  background-color: #202137;
+  border-radius: 16px;
+}

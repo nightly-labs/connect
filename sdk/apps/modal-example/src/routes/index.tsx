@@ -27,7 +27,9 @@ export default function Home() {
     })
     selector.onSelectWallet = (newAdapter) => {
       newAdapter.connect().then(() => {
+        console.log('connected')
         setAdapter(newAdapter)
+        selector.closeModal()
       })
     }
   })
@@ -45,6 +47,8 @@ export default function Home() {
           try {
             const adapt = adapter()
 
+            console.log(adapt?.publicKey)
+
             if (!adapt || adapt.publicKey === null) {
               return
             }
@@ -60,8 +64,7 @@ export default function Home() {
             tx.feePayer = adapt.publicKey
             const signedTx = await adapt.signTransaction!(tx)
             const id = await connection.sendRawTransaction(signedTx!.serialize())
-            console.log(id)
-            console.log(id)
+            console.log('transaction sent', id)
           } catch (e) {
             console.log(e)
           }

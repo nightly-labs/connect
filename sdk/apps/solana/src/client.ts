@@ -51,13 +51,21 @@ export class ClientSolana extends EventEmitter<ClientSolanaEvents> {
     client: ClientSolana
     data: GetInfoResponse
   }> => {
-    const baseClient = await BaseClient.build(initData)
+    // Add prefix to client id
+    const baseClient = await BaseClient.build({
+      ...initData,
+      clientId: 'solana-' + initData.clientId
+    })
     const data = await baseClient.getInfo(sessionId)
     const client = new ClientSolana(baseClient)
     return { client, data }
   }
   public static create = async (initData: ClientBaseInitialize) => {
-    const baseClient = await BaseClient.build(initData)
+    // Add prefix to client id
+    const baseClient = await BaseClient.build({
+      ...initData,
+      clientId: 'solana-' + initData.clientId
+    })
     const client = new ClientSolana(baseClient)
     return client
   }
@@ -122,6 +130,12 @@ export class ClientSolana extends EventEmitter<ClientSolanaEvents> {
       throw new Error('Session id is undefined')
     }
     await this.baseClient.reject({ requestId: requestId, reason, sessionId: sessionIdToUse })
+  }
+  public getSessions = async (): Promise<string[]> => {
+    return await this.baseClient.getSessions()
+  }
+  public dropSessions = async (sessionsToDrop: string[]): Promise<string[]> => {
+    return await this.baseClient.dropSessions(sessionsToDrop)
   }
 }
 

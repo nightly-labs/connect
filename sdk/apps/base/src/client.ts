@@ -18,6 +18,10 @@ import {
   SignedTransaction
 } from './responseContent'
 import { ClientInitializeRequest } from '../../../bindings/ClientInitializeRequest'
+import { GetSessionsRequest } from '../../../bindings/GetSessionsRequest'
+import { GetSessionsResponse } from '../../../bindings/GetSessionsResponse'
+import { DropSessionsRequest } from '../../../bindings/DropSessionsRequest'
+import { DropSessionsResponse } from '../../../bindings/DropSessionsResponse'
 
 export interface ClientBaseInitialize {
   clientId?: string
@@ -77,8 +81,19 @@ export class BaseClient extends EventEmitter<BaseEvents> {
             case 'ConnectResponse':
             case 'GetPendingRequestsResponse':
             case 'ClientInitializeResponse':
+            case 'DropSessionsResponse':
+            case 'GetSessionsResponse':
             case 'AckMessage': {
+              console.log(
+                'get event',
+                response.responseId,
+                'has event',
+                !!baseClient.events?.[response.responseId],
+                'has resolve',
+                !!baseClient.events?.[response.responseId]?.resolve
+              )
               baseClient.events[response.responseId].resolve(response)
+              console.log('got event', response.responseId)
               break
             }
             case 'ErrorMessage': {
@@ -134,6 +149,7 @@ export class BaseClient extends EventEmitter<BaseEvents> {
         const timer = setTimeout(() => {
           reject(new Error(`Connection timed out after ${baseClient.timeout} ms`))
         }, baseClient.timeout)
+        console.log('add event', initializeRequest.responseId)
         baseClient.events[initializeRequest.responseId] = {
           reject: reject,
           resolve: () => {
@@ -141,6 +157,7 @@ export class BaseClient extends EventEmitter<BaseEvents> {
             resolve(baseClient)
           }
         }
+        console.log('added event', initializeRequest.responseId)
         baseClient.ws.send(JSON.stringify(initializeRequest))
       }
     })
@@ -161,6 +178,27 @@ export class BaseClient extends EventEmitter<BaseEvents> {
       }
       this.ws.send(request)
     })
+  }
+  getSessions = async () => {
+    const request: GetSessionsRequest = {
+      responseId: getRandomId()
+    }
+    const response = (await this.send({
+      ...request,
+      type: 'GetSessionsRequest'
+    })) as GetSessionsResponse
+    return response.sessions
+  }
+  dropSessions = async (sessions: string[]) => {
+    const request: DropSessionsRequest = {
+      responseId: getRandomId(),
+      sessions
+    }
+    const response = (await this.send({
+      ...request,
+      type: 'DropSessionsRequest'
+    })) as DropSessionsResponse
+    return response.droppedSessions
   }
   getInfo = async (sessionId: string) => {
     const request: GetInfoRequest = {

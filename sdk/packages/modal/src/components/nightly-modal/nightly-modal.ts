@@ -55,32 +55,34 @@ export class NightlyModal extends LitElement {
 
   render() {
     return html`
-      <nightly-header .onClose=${this.onClose}></nightly-header>
-      <div class="bottomContainer">
-        <div class="qrContainer">
-          <div class="qrTop">
-            <div class="scan"><img class="scanImg" src=${scan} />Scan QR code</div>
-            <div class="copy" @click=${this.onCopy}>
-              <img class="copyImg" src=${copy} />${this.copyMessage}
+      <div class="mainContainer">
+        <nightly-header .onClose=${this.onClose}></nightly-header>
+        <div class="bottomContainer">
+          <div class="qrContainer">
+            <div class="qrTop">
+              <div class="scan"><img class="scanImg" src=${scan} />Scan QR code</div>
+              <div class="copy" @click=${this.onCopy}>
+                <img class="copyImg" src=${copy} />${this.copyMessage}
+              </div>
             </div>
+            <img
+              class="code"
+              src=${svgToBase64(
+                generateQrCodeXml('nightlyconnect:' + this.sessionId + '?network=' + this.network, {
+                  width: 400,
+                  height: 400,
+                  margin: 10
+                })
+              )}
+            />
           </div>
-          <img
-            class="code"
-            src=${svgToBase64(
-              generateQrCodeXml('nc:' + this.sessionId + '?network=' + this.network, {
-                width: 400,
-                height: 400,
-                margin: 10
-              })
-            )}
-          />
+          <nightly-wallet-selector-page
+            .selectorItems=${this.selectorItems}
+            .onWalletClick=${this.onWalletClick}
+            .chainIcon=${this.chainIcon}
+            .chainName=${this.chainName}
+          ></nightly-wallet-selector-page>
         </div>
-        <nightly-wallet-selector-page
-          .selectorItems=${this.selectorItems}
-          .onWalletClick=${this.onWalletClick}
-          .chainIcon=${this.chainIcon}
-          .chainName=${this.chainName}
-        ></nightly-wallet-selector-page>
       </div>
     `
   }
