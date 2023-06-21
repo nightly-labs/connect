@@ -39,6 +39,7 @@ export class NightlyModal extends LitElement {
   @property({ type: String })
   relay = ''
 
+  @property({ type: String })
   copyMessage = 'Copy'
 
   timeoutRef: number | undefined = undefined
