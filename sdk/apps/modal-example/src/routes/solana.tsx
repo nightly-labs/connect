@@ -15,15 +15,14 @@ export default function Solana() {
       return
     }
     selector = await NCSolanaSelector.build({
-        appMetadata: {
-          name: 'NCTest',
-          description: 'Nightly Connect Test',
-          icon: 'https://docs.nightly.app/img/logo.png',
-          additionalInfo: 'Courtesy of Nightly Connect team'
-        },
-        url: 'https://nc2.nightly.app'
-      }
-    )
+      appMetadata: {
+        name: 'NCTest',
+        description: 'Nightly Connect Test',
+        icon: 'https://docs.nightly.app/img/logo.png',
+        additionalInfo: 'Courtesy of Nightly Connect team'
+      },
+      url: 'https://nc2.nightly.app'
+    })
     selector.onConnected = (newAdapter) => {
       setAdapter(newAdapter)
     }
@@ -59,11 +58,24 @@ export default function Solana() {
 
               window.alert('Transaction was signed and sent!')
             } catch (e) {
-              window.alert('Error: couldn\'t sign and send transaction!')
+              window.alert("Error: couldn't sign and send transaction!")
               console.log(e)
             }
           }}>
           Send 0.005 SOL
+        </button>
+        <button
+          onClick={async () => {
+            try {
+              await adapter()!.signMessage!(new TextEncoder().encode('I love Nightly'))
+
+              window.alert('Message was signed!')
+            } catch (e) {
+              window.alert("Error: couldn't sign message!")
+              console.log(e)
+            }
+          }}>
+          Sign message
         </button>
         <button
           onClick={() => {
