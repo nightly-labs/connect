@@ -37,6 +37,10 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
   @property({ type: String })
   network = ''
 
+  @property({ type: Function })
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  onWalletClick: (name: string) => void = () => {}
+
   @property({ type: Array })
   get selectorItems(): { name: string; icon: string; status: string }[] {
     return this._selectorItems
@@ -105,7 +109,9 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
         <div class="walletWrapper">
           <div class="infoConatiner">
             <p>Connect wallet</p>
-            <button @click=${this.openQrPage}>QR Code</button>
+            <button id="nightly-wallet-selector-page-qrCode-open-button" @click=${this.openQrPage}>
+              QR Code
+            </button>
           </div>
           <div class="mainContainerWalletSellector">
             ${this._selectorItems.slice(0, numberOfItems).map(
@@ -116,7 +122,7 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
                       name=${wallet.name}
                       icon=${wallet.icon}
                       status=${wallet.status}
-                      @click=${(event: Event) => this.handleWalletSelectorClick(event, wallet.name)}
+                      @click=${() => this.onWalletClick(wallet.name)}
                     ></nightly-wallet-selector-item>
                   </div>
                 `
@@ -223,7 +229,7 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
                   name=${item.name}
                   icon=${item.icon}
                   status=${item.status}
-                  @click=${(event: Event) => this.handleWalletSelectorClick(event, item.name)}
+                  @click=${() => this.onWalletClick(item.name)}
                 ></nightly-wallet-selector-item>
               </div>
             `
