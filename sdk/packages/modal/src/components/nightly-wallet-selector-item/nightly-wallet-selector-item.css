@@ -1,7 +1,6 @@
 .walletSelectorItem {
   display: flex;
   align-items: center;
-  justify-content: center;
   flex-direction: column;
   border-radius: 8px;
   width: 80px;

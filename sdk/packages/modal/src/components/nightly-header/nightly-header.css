@@ -19,6 +19,9 @@
   height: 56px;
   margin: auto;
   border-radius: 4px;
+  animation-name: slidein;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
   animation: slide 16s linear infinite;
 }
 @keyframes slide {
@@ -26,7 +29,7 @@
     right: 99%;
   }
   100% {
-    right: 3%;
+    right: 6%;
   }
 }
 
