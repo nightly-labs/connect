@@ -62,10 +62,10 @@ export class NightlyWalletSelectorPage extends LitElement {
 
   renderSelectorItems() {
     const recentDetectedItems = this.filteredItems.filter(
-      (item) => item.status === 'recent' || item.status === 'detected'
+      (item) => item.status.toLowerCase() === 'recent' || item.status.toLowerCase() === 'detected'
     )
     const otherItems = this.filteredItems.filter(
-      (item) => item.status !== 'recent' && item.status !== 'detected'
+      (item) => item.status.toLowerCase() !== 'recent' && item.status.toLowerCase() !== 'detected'
     )
 
     return html`

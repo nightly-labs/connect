@@ -16,8 +16,6 @@ export const getWalletsList = (
   const { get } = getWallets()
   const windowWallets = get()
 
-  console.log(windowWallets)
-
   const walletsData: Record<string, IWalletListItem> = {}
 
   presetList.forEach((wallet) => {
@@ -35,8 +33,6 @@ export const getWalletsList = (
     }
   })
 
-  console.log(walletsData)
-
   return Object.values(walletsData)
 }
 
@@ -44,5 +40,5 @@ export const getWallet = (name: string) => {
   const { get } = getWallets()
   const windowWallets = get()
 
-  return windowWallets.find(w => w.name === name)
+  return windowWallets.find((w) => w.name === name)
 }
