@@ -1,6 +1,3 @@
-export { IWalletListItem, getWalletsList, getWallet } from './detection'
-export {
-  persistSessionDataForNetwork,
-  getSessionDataForNetwork,
-  clearSessionDataForNetwork
-} from './persistence'
+export * from './detection'
+export * from './persistence'
+export * from './utils'

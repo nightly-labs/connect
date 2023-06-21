@@ -5,11 +5,12 @@ import { StandardWalletAdapter } from '@mysten/wallet-adapter-wallet-standard'
 import { NightlyConnectSuiWallet } from './wallet'
 import { publicKeyFromSerialized } from '@mysten/sui.js'
 import { getSuiWalletsList } from './detection'
-import { getWallet } from '@nightlylabs/wallet-selector-base'
+import { getWallet, modalStyle } from '@nightlylabs/wallet-selector-base'
 import { StandardWalletAdapterWallet } from '@mysten/wallet-standard'
 
 export class NCSuiSelector {
   private _modal: NightlyModal | undefined
+  private _modalRoot: HTMLDivElement | undefined
   private _app: AppSui
 
   appInitData: AppSuiInitialize
@@ -52,7 +53,7 @@ export class NCSuiSelector {
   }
 
   public openModal = () => {
-    if (!this._modal) {
+    if (!this._modalRoot) {
       this._modal = document.createElement('nightly-modal')
       this._modal.onClose = this.closeModal
 
@@ -81,16 +82,26 @@ export class NCSuiSelector {
         })
       }
 
-      document.body.appendChild(this._modal)
+      const style = document.createElement('style')
+      style.textContent = modalStyle
+      document.head.appendChild(style)
+
+      this._modalRoot = document.createElement('div')
+      this._modalRoot.classList.add('nightlyConnectSelectorOverlay')
+
+      this._modal.classList.add('nightlyConnectSelector')
+      this._modalRoot.appendChild(this._modal)
+
+      document.body.appendChild(this._modalRoot)
     } else {
-      this._modal.style.display = 'block'
+      this._modalRoot.style.display = 'block'
     }
     this.onOpen?.()
   }
 
   public closeModal = () => {
-    if (this._modal) {
-      this._modal.style.display = 'none'
+    if (this._modalRoot) {
+      this._modalRoot.style.display = 'none'
       this.onClose?.()
     }
   }

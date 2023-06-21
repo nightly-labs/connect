@@ -56,9 +56,9 @@ export default function Solana() {
               const signedTx = await adapter()!.signTransaction!(tx)
               await connection.sendRawTransaction(signedTx!.serialize())
 
-              window.alert('Transaction was signed and sent!')
+              console.log('Transaction was signed and sent!')
             } catch (e) {
-              window.alert("Error: couldn't sign and send transaction!")
+              console.log("Error: couldn't sign and send transaction!")
               console.log(e)
             }
           }}>
@@ -69,9 +69,9 @@ export default function Solana() {
             try {
               await adapter()!.signMessage!(new TextEncoder().encode('I love Nightly'))
 
-              window.alert('Message was signed!')
+              console.log('Message was signed!')
             } catch (e) {
-              window.alert("Error: couldn't sign message!")
+              console.log("Error: couldn't sign message!")
               console.log(e)
             }
           }}>
