@@ -3,6 +3,7 @@ import { Title } from 'solid-start'
 import { NCSuiSelector } from '@nightlylabs/wallet-selector-sui'
 import { StandardWalletAdapter } from '@mysten/wallet-adapter-wallet-standard'
 import { TransactionBlock } from '@mysten/sui.js'
+import toast from 'solid-toast';
 
 let selector: NCSuiSelector
 
@@ -58,9 +59,9 @@ export default function Sui() {
                 account: adapter()!.wallet.accounts[0]
               })
 
-              console.log('Transaction was signed and sent!')
+              toast.success('Transaction was signed and sent!')
             } catch (e) {
-              console.log("Error: couldn't sign and send transaction!")
+              toast.error("Error: couldn't sign and send transaction!")
               console.log(e)
             }
           }}>
@@ -74,9 +75,9 @@ export default function Sui() {
                 account: adapter()!.wallet.accounts[0]
               })
 
-              console.log('Message was signed!')
+              toast.success('Message was signed!')
             } catch (e) {
-             console.log("Error: couldn't sign message!")
+             toast.error("Error: couldn't sign message!")
               console.log(e)
             }
           }}>

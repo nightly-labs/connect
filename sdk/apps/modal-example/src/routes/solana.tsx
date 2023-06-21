@@ -3,6 +3,7 @@ import { Title } from 'solid-start'
 import { NCSolanaSelector } from '@nightlylabs/wallet-selector-solana'
 import { StandardWalletAdapter } from '@solana/wallet-standard'
 import { Connection, PublicKey, SystemProgram, Transaction as SolanaTx } from '@solana/web3.js'
+import toast from 'solid-toast';
 
 let selector: NCSolanaSelector
 
@@ -56,9 +57,9 @@ export default function Solana() {
               const signedTx = await adapter()!.signTransaction!(tx)
               await connection.sendRawTransaction(signedTx!.serialize())
 
-              console.log('Transaction was signed and sent!')
+              toast.success('Transaction was signed and sent!')
             } catch (e) {
-              console.log("Error: couldn't sign and send transaction!")
+              toast.error("Error: couldn't sign and send transaction!")
               console.log(e)
             }
           }}>
@@ -69,9 +70,9 @@ export default function Solana() {
             try {
               await adapter()!.signMessage!(new TextEncoder().encode('I love Nightly'))
 
-              console.log('Message was signed!')
+              toast.success('Message was signed!')
             } catch (e) {
-              console.log("Error: couldn't sign message!")
+              toast.error("Error: couldn't sign message!")
               console.log(e)
             }
           }}>

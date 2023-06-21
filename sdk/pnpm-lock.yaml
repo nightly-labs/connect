@@ -121,6 +121,9 @@ importers:
       solid-start-vercel:
         specifier: ^0.2.26
         version: 0.2.26(solid-start@0.2.26)(vite@4.3.9)
+      solid-toast:
+        specifier: ^0.5.0
+        version: 0.5.0(solid-js@1.7.2)
       undici:
         specifier: ^5.15.1
         version: 5.15.1
@@ -10264,6 +10267,14 @@ packages:
       wait-on: 6.0.1(debug@4.3.4)
     transitivePeerDependencies:
       - supports-color
+
+  /solid-toast@0.5.0(solid-js@1.7.2):
+    resolution: {integrity: sha512-t770JakjyS2P9b8Qa1zMLOD51KYKWXbTAyJePVUoYex5c5FH5S/HtUBUbZAWFcqRCKmAE8KhyIiCvDZA8bOnxQ==}
+    peerDependencies:
+      solid-js: ^1.5.4
+    dependencies:
+      solid-js: 1.7.2
+    dev: false
 
   /source-map-js@1.0.2:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
