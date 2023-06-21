@@ -11,7 +11,7 @@ module.exports = {
       type: 'category',
       label: '📱 Client',
       collapsed: false,
-      items: [ 'client/connect', 'client/sign', 'client/signAll', 'client/push']
+      items: [ 'client/connect', 'client/sign', 'client/signMessage', 'client/push']
     },
   ]
 }

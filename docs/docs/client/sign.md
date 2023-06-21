@@ -6,8 +6,6 @@ slug: client/sign
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-### Fetch data
-
 Client is listening to the event `client.on('signTransactions')`, which returns data about transactions that are being requested.
 
 When user accepts and signs a transaction with keyPair, the transaction is approved and sent to the blockchain.
@@ -45,7 +43,14 @@ client.on('signTransactions', async (e) => {
 <TabItem value="SUI" label="SUI">
 
 ```js
-import {Ed25519Keypair, TransactionBlock} from '@mysten/sui.js'
+import {
+  Ed25519Keypair,
+  messageWithIntent,
+  toB64,
+  toSerializedSignature,
+  TransactionBlock,
+} from '@mysten/sui.js'
+import { blake2b } from '@noble/hashes/blake2b'
 
 interface SignSuiTransactionEvent {
   sessionId: string
