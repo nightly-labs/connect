@@ -8,8 +8,10 @@ import '../nightly-wallet-selector-item/nightly-wallet-selector-item'
 
 @customElement('nightly-wallet-selector-page')
 export class NightlyWalletSelectorPage extends TailwindElement(style) {
-  @property({ type: String }) chainIcon = ''
-  @property({ type: String }) chainName = ''
+  @property({ type: String })
+  chainIcon = ''
+  @property({ type: String })
+  chainName = ''
   @property({ type: Array })
   get selectorItems(): { name: string; icon: string; status: string }[] {
     return this._selectorItems

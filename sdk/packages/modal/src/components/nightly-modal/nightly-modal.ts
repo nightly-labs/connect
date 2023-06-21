@@ -56,9 +56,9 @@ export class NightlyModal extends TailwindElement(style) {
           <div class="qrContainer">
             <div class="qrTop">
               <div class="scan"><img class="scanImg" src=${scan} />Scan QR code</div>
-              <div class="copy" @click=${this.onCopy}>
+              <button id="nightly-modal-copy-button" class="copy" @click=${this.onCopy}>
                 <img class="copyImg" src=${copy} />${this.copyMessage}
-              </div>
+              </button>
             </div>
             <img
               class="code"
