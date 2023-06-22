@@ -58,7 +58,7 @@ interface SignSuiTransactionEvent {
   transactions: Array<TransactionToSign>
 }
 
-const alice_keypair = Ed25519Keypair.fromSecretKey(hexToBytes(ALICE_PRIVE_KEY))
+const alice_keypair: Ed25519Keypair  = Ed25519Keypair.fromSecretKey(hexToBytes(ALICE_PRIVE_KEY))
 
 client.on('signTransactions', async (e) => {
   const tx = e.transactions[0].transaction
@@ -71,9 +71,9 @@ client.on('signTransactions', async (e) => {
   const digest = blake2b(intentMessage, { dkLen: 32 })
   const signatureArray = alice_keypair.signData(digest)
   const signature = toSerializedSignature({
-    signature: signatureArray,
-    signatureScheme: 'ED25519',
-    pubKey: alice_keypair.getPublicKey()
+    signature: signatureArray, // Uint8Array
+    signatureScheme: 'ED25519', // SignatureScheme
+    pubKey: alice_keypair.getPublicKey() // PublicKey
   })
 
   // resolve

@@ -50,11 +50,14 @@ const client: ClientSolana = await ClientSolana.create({
 })
 const info: GetInfoResponse = await client.getInfo(sessionId)
 
-const msg: Connect = {
-  publicKeys: ['1', '2'],
+const message: Connect = {
+  publicKeys: [
+    '9mtkm594sexac7G6jct3PZqyEVe3eUWMx6SUcEhYBRxr',
+    '8MtpTNvQfr7iAWYLjJeyMw19vHw7bx7jrmoamkootfvA'
+  ],
   sessionId: sessionId
 }
-await client.connect(msg)
+await client.connect(message)
 ```
 
 </TabItem>
@@ -69,11 +72,14 @@ const client: ClientSui = await ClientSui.create({
 })
 const info: GetInfoResponse = await client.getInfo(sessionId)
 
-const msg: Connect = {
-  publicKeys: ['1', '2'],
+const message: Connect = {
+  publicKeys: [
+    '0x9353aa5322295a6542b69a05e873177b2594373a5ac58efa5055562630434a9e',
+    '0x46f4dba3f180b8237119989d798c108f5d4c87b6aea02e6a093dd402a07083bd'
+  ],
   sessionId: sessionId
 }
-await client.connect(msg)
+await client.connect(message)
 ```
 
 </TabItem>
