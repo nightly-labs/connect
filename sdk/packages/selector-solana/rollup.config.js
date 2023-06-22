@@ -28,7 +28,6 @@ export default [
     external: [
       '@nightlylabs/nightly-connect-solana',
       '@nightlylabs/wallet-selector-base',
-      '@nightlylabs/wallet-selector-modal',
       '@solana/wallet-adapter-base',
       '@solana/wallet-standard',
       '@solana/wallet-standard-wallet-adapter-base',
