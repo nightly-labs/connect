@@ -19,7 +19,12 @@ export default [
         sourcemap: true
       }
     ],
-    plugins: [typescript(), nodeResolve(), commonjs(), terser()],
+    plugins: [
+      typescript(),
+      nodeResolve({ browser: true, preferBuiltins: false }),
+      commonjs(),
+      terser()
+    ],
     external: ['@wallet-standard/core', 'isomorphic-localstorage']
   },
   {

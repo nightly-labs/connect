@@ -19,7 +19,12 @@ export default [
         sourcemap: true
       }
     ],
-    plugins: [typescript(), nodeResolve(), commonjs(), terser()],
+    plugins: [
+      typescript(),
+      nodeResolve({ browser: true, preferBuiltins: false }),
+      commonjs(),
+      terser()
+    ],
     external: [
       '@nightlylabs/nightly-connect-solana',
       '@nightlylabs/wallet-selector-base',
