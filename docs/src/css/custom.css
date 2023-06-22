@@ -49,7 +49,8 @@
 
 img[src*="#connectImage"] {
   margin-left: 30%;
-  width: 264px;
-  height: 328px;
+  height: 352px;
+  width: 266px;
+  border-radius: 8px;
 }
 

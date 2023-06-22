@@ -7,14 +7,14 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 To get started, we need to connect the user to the application.
-In order to do so, application generates the sesssionId, a unique id that identifies each connection. This encrypted key ensures the connection is secure.
+In order to do so, application generates the sessionId, a unique id that identifies each connection. This encrypted key ensures the connection is secure.
 
 ---
 
 This process is initialized by one side displaying a sessionId through QR code (see the screenshot).
-The other peer needs just to scan the QR code on its device. In other cases the sessionId can be just copied (by using the Copy QR button).
+The other peer needs just to scan the QR code on its device.
 
-![Welcome to Nightly](../../static/img/connect.png#connectImage)
+![ConnectImage](../../static/img/connect.png#connectImage)
 
 ### Connect
 
@@ -23,52 +23,46 @@ Server sends a request to connect with the client. On the client side all inform
 Application builds a connection using `build()` function.
 Once user accepts the Connection request (clicks on Connect), application will get public key and the connection is now confirmed.
 
+```js
+interface AppMetadata {
+  name: string;
+  url?: string;
+  description?: string;
+  icon?: string;
+  additionalInfo?: string;
+}
+
+interface AppBaseInitialize {
+  appMetadata: AppMetadata;
+  network: Network;
+  url?: string;
+  timeout?: number;
+  persistentSessionId?: string;
+  persistent?: boolean;
+}
+```
+
 <Tabs>
 <TabItem value="Solana" label="Solana">
 
 ```js
-import { AppSolana } from '@nightlylabs/connect'
+import { AppSolana } from '@nightlylabs/nightly-connect-solana'
 
-interface SolanaOnConnect {
-  publicKey: SolanaPublicKey
-}
+type AppSolanaInitialize = Omit<AppBaseInitialize, 'network'>
 
-interface SolanaAppInfo {
-  application: string // 'Application name'
-  description: string // 'Description'
-  additionalInfo: string // Some Additional info
-  icon: string // https://application/logo.png
-  url?: string // default: wss://relay.nightly.app/app
-  onUserConnect: (params: SolanaOnConnect) => void // userConnectedCallback
-  timeout?: number //  40s default timeout (timer for Server answer request). On timeout throws Error 'Connection timed out'.
-}
-
-application = await AppSolana.build(testSolanaAppInfo)
+const app: AppSolana = await AppSolana.build(TEST_APP_INITIALIZE) // build take argument of AppSolanaInitialize type
 ```
 
 </TabItem>
 
-<TabItem value="Near" label="Near">
+<TabItem value="SUI" label="SUI">
 
 ```js
-import { AppNear } from '@nightlylabs/connect'
+import { AppSui } from '@nightlylabs/nightly-connect-sui'
 
-interface NearOnConnect {
-  publicKey: NearPublicKey
-  accountId: string // account ID required to build connection
-}
+type AppSuiInitialize = Omit<AppBaseInitialize, 'network'>
 
-interface NearAppInfo {
-  application: string // 'Application name'
-  description: string // 'Description'
-  additionalInfo: string // Some Additional info
-  icon: string // https://application/logo.png
-  url?: string // default: wss://relay.nightly.app/app
-  onUserConnect: (params: NearOnConnect) => void // userConnectedCallback
-  timeout?: number //  40s default timeout (timer for Server answer request). On timeout throws Error 'Connection timed out'.
-}
-
-application = await AppNear.build(testNearAppInfo)
+const app: AppSui = await AppSui.build(TEST_APP_INITIALIZE)
 ```
 
 </TabItem>

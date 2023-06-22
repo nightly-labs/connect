@@ -2,13 +2,14 @@
 title: Send Transaction
 slug: application/send
 ---
+
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 To transfer tokens, first application needs to create a transaction, which has to be signed by client.
 Client on its side will fetch the transaction data and parse it to information (amount, tokens, value, icon, recipient address) to be displayed to the user.
 
-Transaction are sent to the client as Promises. Client can accept or reject the request. Once client signs transaction, ```signTransaction()``` method returns resolved promise with Signed Transaction.
+Transaction are sent to the client as Promises. Client can accept or reject the request. Once client signs transaction, `signTransaction()` method returns resolved promise with Signed Transaction.
 
 <Tabs>
 <TabItem value="Solana" label="Solana">
@@ -16,48 +17,45 @@ Transaction are sent to the client as Promises. Client can accept or reject the 
   recipient and sender public keys, the amount of lamports per transaction, feePayer and recentBlockhash.
 
 ```js
-import { Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
+import {
+  Keypair,
+  LAMPORTS_PER_SOL,
+  SystemProgram,
+  Transaction,
+  VersionedTransaction
+} from '@solana/web3.js'
 
-const alice_keypair: Keypair = Keypair.generate()
-const alice_publicKey: PublicKey = alice_keypair.publicKey
-const receiver_publicKey: PublicKey = Keypair.generate().publicKey
-
+const RECEIVER = Keypair.generate()
 const ix = SystemProgram.transfer({
-    fromPubkey: alice_publicKey, // PublicKey: string
-    lamports: LAMPORTS_PER_SOL, // number
-    toPubkey: receiver_publicKey // PublicKey: string
-  })
-  
+  fromPubkey: alice_keypair.publicKey,
+  lamports: LAMPORTS_PER_SOL,
+  toPubkey: RECEIVER.publicKey
+})
 const tx = new Transaction().add(ix)
-tx.feePayer = alice_publicKey
-tx.recentBlockhash = someRecentBlockhash
+tx.feePayer = alice_keypair.publicKey
+tx.recentBlockhash = recentBlockhash
 
-await application.signTransaction(tx)
+const signed: VersionedTransaction = await app.signTransaction(tx)
 ```
+
 </TabItem>
 
-<TabItem value="Near" label="Near">
-  To transfer tokens, application needs to provide following information:
-  recipient and sender account ids, sender public key, the action (type of transaction, e.g. transfer) and recentBlockhash.
+<TabItem value="SUI" label="SUI">
+  To transfer tokens, application needs to provide following information: transactionBlock, wallet account and chain.
 
 ```js
-import { KeyPairEd25519, PublicKey } from 'near-api-js/lib/utils'
-import { transactions } from 'near-api-js'
+import { TransactionBlock } from '@mysten/sui.js'
 
-const alice_keypair: KeyPairEd25519 = KeyPairEd25519.fromRandom()
-const alice_publicKey: PublicKey = alice_keypair.publicKey
-const action = transactions.transfer(new BN(amount))
+const tx = new TransactionBlock()
+const coin = tx.splitCoins(tx.gas, [tx.pure(100)])
+tx.transferObjects([coin], tx.pure(RECEIVER_SUI_ADDRESS))
+tx.setSenderIfNotSet(RECEIVER_SUI_ADDRESS)
 
-const tx = transactions.createTransaction(
-  FROM_ACCOUNT_ID, // signerId: string
-  alice_publicKey, // PublicKey: string
-  TARGET_ACCOUNT_ID, // receiverId: string
-  1, // nonce: number
-  [action], // actions: transactions.Action[]
-  recentBlockhash // blockHash: Uint8Array
-)
-
-await application.signTransaction(tx)
+const signedTx: SignedTransaction = await app.signTransactionBlock({
+  transactionBlock: tx, // TransactionBlock
+  account: aliceWalletAccount, // WalletAccount
+  chain: 'sui:testnet' // IdentifierString
+})
 ```
 
 </TabItem>

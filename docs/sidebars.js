@@ -5,7 +5,7 @@ module.exports = {
       type: 'category',
       label: '💻 Application',
       collapsed: false,
-      items: ['application/connect', 'application/send', 'application/sendAll']
+      items: ['application/connect', 'application/send']
     },
     {
       type: 'category',

@@ -27,6 +27,14 @@ interface GetInfoResponse {
   version: Version; // string
   appMetadata: AppMetadata;
 }
+
+type Connect = {
+  publicKeys: string[],
+  sessionId: string,
+  notification?: Notification | undefined, // for notification purposes
+  device?: Device | undefined,
+  metadata?: string | undefined
+}
 ```
 
 ### Build & Connect
