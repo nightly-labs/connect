@@ -15,7 +15,7 @@ export default function Sui() {
     }
     selector = await NCSuiSelector.build({
       appMetadata: {
-        name: 'NCTest',
+        name: 'NCTestSui',
         description: 'Nightly Connect Test',
         icon: 'https://docs.nightly.app/img/logo.png',
         additionalInfo: 'Courtesy of Nightly Connect team'

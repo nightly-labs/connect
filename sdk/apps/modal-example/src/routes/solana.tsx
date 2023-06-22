@@ -17,7 +17,7 @@ export default function Solana() {
     }
     selector = await NCSolanaSelector.build({
       appMetadata: {
-        name: 'NCTest',
+        name: 'NCTestSolana',
         description: 'Nightly Connect Test',
         icon: 'https://docs.nightly.app/img/logo.png',
         additionalInfo: 'Courtesy of Nightly Connect team'
