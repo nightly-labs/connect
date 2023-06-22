@@ -39,7 +39,7 @@ export default function Sui() {
             Connect
           </button>
         }>
-        <h1>Current addresses: {adapter()?.wallet.accounts.map((a) => a.address)}</h1>
+        <h1>Current address (first one of all in your app): {adapter()?.wallet.accounts[0].address}</h1>
         <button
           onClick={async () => {
             try {

@@ -31,7 +31,8 @@ export default [
       '@mysten/wallet-standard',
       '@nightlylabs/nightly-connect-sui',
       '@nightlylabs/wallet-selector-base',
-      '@wallet-standard/core'
+      '@wallet-standard/core',
+      'bs58'
     ]
   },
   {

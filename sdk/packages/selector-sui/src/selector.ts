@@ -7,6 +7,12 @@ import { publicKeyFromSerialized } from '@mysten/sui.js'
 import { getSuiWalletsList } from './detection'
 import { getWallet, modalStyle } from '@nightlylabs/wallet-selector-base'
 import { StandardWalletAdapterWallet } from '@mysten/wallet-standard'
+import bs58 from 'bs58'
+
+export const convertBase58toBase64 = (base58: string) => {
+  const buffer = bs58.decode(base58)
+  return buffer.toString('base64')
+}
 
 export class NCSuiSelector {
   private _modal: NightlyModal | undefined
@@ -31,7 +37,7 @@ export class NCSuiSelector {
       const adapter = new StandardWalletAdapter({
         wallet: new NightlyConnectSuiWallet(
           app,
-          e.publicKeys.map((pk) => publicKeyFromSerialized('ED25519', pk)),
+          e.publicKeys.map((pk) => publicKeyFromSerialized('ED25519', convertBase58toBase64(pk))),
           async () => {
             const app = await AppSui.build(this.appInitData)
             this.setApp(app)
@@ -62,7 +68,7 @@ export class NCSuiSelector {
       this._modal.relay = 'https://nc2.nightly.app'
       this._modal.chainIcon = 'https://assets.coingecko.com/coins/images/26375/small/sui_asset.jpeg'
       this._modal.chainName = 'Sui'
-      this._modal.selectorItems = getSuiWalletsList([]).map(w => ({
+      this._modal.selectorItems = getSuiWalletsList([]).map((w) => ({
         name: w.name,
         icon: w.icon,
         status: w.recent ? 'Recent' : w.detected ? 'Detected' : ''
