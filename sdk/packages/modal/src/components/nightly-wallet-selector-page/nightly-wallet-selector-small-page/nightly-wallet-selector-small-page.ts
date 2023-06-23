@@ -1,15 +1,15 @@
-import { generateQrCodeXml } from '@nightlylabs/qr-code'
 import { customElement, property } from 'lit/decorators.js'
 import { html } from 'lit/static-html.js'
 import { TailwindElement } from '../../../shared/tailwind.element'
 import foxSadGIF from '../../../static/gif/fox_sad.gif'
-import vector from '../../../static/svg/backButton.svg'
 import search from '../../../static/svg/searchIcon.svg'
-import { svgToBase64 } from '../../../utils/images'
-import { Breakpoint, getBreakpointFromWidth, getNumberOfItems } from '../../../utils/utils'
+import { Breakpoint, getBreakpointFromWidth } from '../../../utils/utils'
 import '../../nightly-header-small-page/nightly-header-small-page'
+import '../nightly-all-wallets-selector/nightly-all-wallets-selector'
+import '../nightly-qrCode/nightly-qrCode'
+import '../nightly-wallet-wrapper/nightly-wallet-wrapper'
 import style from './nightly-wallet-selector-small-page.css?inline'
-
+import { PropertyValues } from 'lit'
 @customElement('nightly-wallet-selector-small-page')
 export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
   @property({})
@@ -61,6 +61,7 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
 
   constructor() {
     super()
+    this.handleSearchInput = this.handleSearchInput.bind(this)
     this.breakpoint = 'lg'
     this.updateBreakpoint()
     this.resizeListener()
@@ -78,110 +79,6 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
     })
   }
 
-  render() {
-    return html`
-      <div>
-        ${(() => {
-          if (this.isQrPageVisible) {
-            return this.renderQrCode()
-          }
-
-          if (this.showNotFoundIcon) {
-            return this.renderNotFoundIcon()
-          }
-
-          if (!this.isTopWalletsView && this.showAll) {
-            return this.renderFullPage()
-          }
-
-          return this.renderTopWallets()
-        })()}
-      </div>
-    `
-  }
-  renderTopWallets() {
-    const numberOfItems = getNumberOfItems(this.breakpoint)
-    return html`
-      <div class="mainContainer">
-        <div class="nightly-headerContainer">
-          <nightly-header-small-page .onClose=${this.onClose}></nightly-header-small-page>
-        </div>
-        <div class="walletWrapper">
-          <div class="infoConatiner">
-            <p>Connect wallet</p>
-            <button id="nightly-wallet-selector-page-qrCode-open-button" @click=${this.openQrPage}>
-              QR Code
-            </button>
-          </div>
-          <div class="mainContainerWalletSellector">
-            ${this._selectorItems.slice(0, numberOfItems).map(
-              (wallet) =>
-                html`
-                  <div class="topWalletsItem">
-                    <nightly-wallet-selector-item
-                      name=${wallet.name}
-                      icon=${wallet.icon}
-                      status=${wallet.status}
-                      @click=${() => this.onWalletClick(wallet.name)}
-                    ></nightly-wallet-selector-item>
-                  </div>
-                `
-            )}
-            <div class="showListButtonContainer" @click=${this.showAllWallets}>
-              <button class="showListButton">
-                ${this.selectorItems.slice(0, Math.min(this.selectorItems.length, 4)).map(
-                  (item) => html`
-                    <div>
-                      <img src=${item.icon} class="buttonIcons" alt=${item.name} />
-                    </div>
-                  `
-                )}
-              </button>
-              <span>Other wallet</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    `
-  }
-
-  openQrPage() {
-    this.isQrPageVisible = true
-    this.requestUpdate()
-  }
-
-  renderQrCode() {
-    return html`
-      <div class="nightly-headerContainer">
-        <nightly-header-small-page .onClose=${this.onClose}></nightly-header-small-page>
-      </div>
-      <div class="headerQrCodeWrapper">
-        <div class="headerContainer">
-          <div class="buttonContainer">
-            <button @click=${this.showAllWallets}>
-              <img src=${vector} />
-            </button>
-          </div>
-          <div class="textContainer">
-            <span> QR Code </span>
-          </div>
-        </div>
-        <div class="qrCodeWrapper">
-          <img
-            class="code"
-            src=${svgToBase64(
-              generateQrCodeXml('nightlyconnect:' + this.sessionId + '?network=' + this.network, {
-                width: 432,
-                height: 432,
-                margin: 5
-              })
-            )}
-          />
-        </div>
-      </div>
-    `
-  }
-
   showAllWallets() {
     if (this.isQrPageVisible) {
       this.isQrPageVisible = false
@@ -194,47 +91,91 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
     }
     this.requestUpdate()
   }
-  renderFullPage() {
+
+  handleSearchInput(event: InputEvent) {
+    const searchInput = event.target as HTMLInputElement
+    this.searchInputValue = searchInput.value
+
+    const searchText = this.searchInputValue.toLowerCase()
+
+    this.filteredItems = this.selectorItems.filter((item) => {
+      return item.name.toLowerCase().includes(searchText)
+    })
+
+    this.showNotFoundIcon = this.filteredItems.length === 0
+    this.requestUpdate()
+  }
+
+  openQrPage() {
+    this.isQrPageVisible = true
+    this.isTopWalletsView = false
+    setTimeout(() => {
+      const qrCodeComponent = this.shadowRoot?.querySelector('.nightly-qr-code')
+      qrCodeComponent?.classList.add('visible')
+    }, 1000)
+    this.requestUpdate()
+  }
+
+  updated(changedProperties: PropertyValues) {
+    super.updated(changedProperties)
+
+    if (changedProperties.has('isQrPageVisible')) {
+      const qrCodeComponent = this.shadowRoot?.querySelector('.nightly-qr-code')
+
+      if (this.isQrPageVisible) {
+        qrCodeComponent?.classList.add('visible')
+      } else {
+        qrCodeComponent?.classList.remove('visible')
+      }
+    }
+  }
+
+  render() {
+    if (this.showNotFoundIcon) {
+      return this.renderNotFoundIcon()
+    }
+
     return html`
       <div class="nightly-headerContainer">
         <nightly-header-small-page .onClose=${this.onClose}></nightly-header-small-page>
       </div>
-      <div class="walletSelectorButtons">
-        <div class="headerContainer">
-          <div class="buttonContainer">
-            <button @click=${this.showAllWallets}>
-              <img src=${vector} />
-            </button>
-          </div>
-          <div class="textContainer">
-            <span> All wallets </span>
-          </div>
-        </div>
-        <div class="inputContainer">
-          <div class="walletInputSearchContainer">
-            <input
-              placeholder="Search"
-              class="walletInputSearch"
-              .value=${this.searchInputValue}
-              @input=${this.handleSearchInput}
-            />
-            <img src="${search}" />
-          </div>
-        </div>
-        <div class="recentDetectedContainer">
-          ${this.filteredItems.map((item) => {
+      <div>
+        ${(() => {
+          if (!this.isTopWalletsView && this.showAll) {
             return html`
-              <div class="nightlyWalletSelectorItem">
-                <nightly-wallet-selector-item
-                  name=${item.name}
-                  icon=${item.icon}
-                  status=${item.status}
-                  @click=${() => this.onWalletClick(item.name)}
-                ></nightly-wallet-selector-item>
-              </div>
+              <nightly-all-wallets-selector
+                .showAllWallets=${this.showAllWallets.bind(this)}
+                .onWalletClick=${this.onWalletClick.bind(this)}
+                .searchInputValue=${this.searchInputValue}
+                .selectorItems=${this.selectorItems}
+                .filteredItems=${this.filteredItems}
+                .handleSearchInput=${this.handleSearchInput}
+                .showNotFoundIcon=${this.showNotFoundIcon}
+              ></nightly-all-wallets-selector>
             `
-          })}
-        </div>
+          }
+
+          if (!this.isTopWalletsView && this.isQrPageVisible) {
+            return html`
+              <nightly-qr-code
+                class="nightly-qr-code"
+                .network=${this.network}
+                .sessionId=${this.sessionId}
+                .showAllWallets=${this.showAllWallets.bind(this)}
+              ></nightly-qr-code>
+            `
+          }
+
+          return html`
+            <nightly-wallet-wrapper
+              .breakpoint=${this.breakpoint}
+              .showAllWallets=${this.showAllWallets.bind(this)}
+              .onWalletClick=${this.onWalletClick.bind(this)}
+              .openQrPage=${() => this.openQrPage()}
+              .selectorItems=${this.selectorItems}
+            ></nightly-wallet-wrapper>
+          `
+        })()}
       </div>
     `
   }
@@ -262,21 +203,10 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
       </div>
     `
   }
-  handleSearchInput(event: InputEvent) {
-    const searchInput = event.target as HTMLInputElement
-    this.searchInputValue = searchInput.value
+}
 
-    const searchText = this.searchInputValue.toLowerCase()
-
-    this.filteredItems = this.selectorItems.filter((item) => {
-      return item.name.toLowerCase().includes(searchText)
-    })
-
-    this.showNotFoundIcon = this.filteredItems.length === 0
-
-    this.requestUpdate()
+declare global {
+  interface HTMLElementTagNameMap {
+    'nightly-wallet-selector-small-page': NightlyWalletSelectorSmallPage
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  handleWalletSelectorClick(_event: Event, name: string) {}
 }
