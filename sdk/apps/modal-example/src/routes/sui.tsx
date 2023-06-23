@@ -3,7 +3,7 @@ import { Title } from 'solid-start'
 import { NCSuiSelector } from '@nightlylabs/wallet-selector-sui'
 import { StandardWalletAdapter } from '@mysten/wallet-adapter-wallet-standard'
 import { TransactionBlock } from '@mysten/sui.js'
-import toast from 'solid-toast';
+import toast from 'solid-toast'
 
 let selector: NCSuiSelector
 
@@ -39,23 +39,25 @@ export default function Sui() {
             Connect
           </button>
         }>
-        <h1>Current address (first one of all in your app): {adapter()?.wallet.accounts[0].address}</h1>
+        <h1>
+          Current address (first one of all in your app): {adapter()?.wallet.accounts[0].address}
+        </h1>
         <button
           onClick={async () => {
             try {
               const transactionBlock = new TransactionBlock()
               const coin = transactionBlock.splitCoins(transactionBlock.gas, [
-                transactionBlock.pure(500)
+                transactionBlock.pure(50000000)
               ])
               transactionBlock.transferObjects(
                 [coin],
                 transactionBlock.pure(
-                  '0xde06e7ab60f89597530356efddda07b8146245063e5de5e18f646274d15a331d'
+                  '0x5635a39dfd0b9e2302453695497b1979fa1af481a0fbfed9d0dd5a99accb2fc0'
                 )
               )
               await adapter()!.signAndExecuteTransactionBlock({
                 transactionBlock,
-                chain: 'sui:devnet',
+                chain: 'sui:testnet',
                 account: adapter()!.wallet.accounts[0]
               })
 
@@ -65,7 +67,7 @@ export default function Sui() {
               console.log(e)
             }
           }}>
-          Send 0.005 SUI
+          Send 0.05 SUI
         </button>
         <button
           onClick={async () => {
@@ -77,7 +79,7 @@ export default function Sui() {
 
               toast.success('Message was signed!')
             } catch (e) {
-             toast.error("Error: couldn't sign message!")
+              toast.error("Error: couldn't sign message!")
               console.log(e)
             }
           }}>
