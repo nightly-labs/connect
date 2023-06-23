@@ -1,0 +1,110 @@
+.walletSelectorButtons {
+  display: flex;
+  flex-direction: column;
+  top: -20px;
+  border-radius: 16px 16px 0px 0px;
+  position: relative;
+  z-index: 2;
+  background-color: #17182b;
+  width: 100%;
+  height: 526px;
+}
+
+.headerContainer {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.buttonContainer {
+  align-self: flex-start;
+}
+
+.textContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.inputContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.textContainer span {
+  font-family: 'Prompt';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22px;
+  letter-spacing: 0.02em;
+  color: #f7f7f7;
+}
+.walletInputSearchContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 8px 16px 8px 16px;
+  padding: 8px;
+  width: 100%;
+  height: 32px;
+  background-color: #0f0f1a;
+  border-radius: 8px;
+}
+.walletInputSearchContainer img {
+  width: 20px;
+  height: 20px;
+}
+.walletInputSearch {
+  background-color: #0f0f1a;
+  color: #707a8d;
+  font-size: 12px;
+  font-weight: 400;
+  width: 99%;
+  line-height: 22px;
+  letter-spacing: 0.02em;
+  border: 0;
+}
+.walletInputSearch:focus {
+  outline: none;
+}
+
+.recentDetectedContainer {
+  width: 100%;
+  padding: 24px 16px 0 16px;
+  display: grid;
+  border-radius: 16px 16px 0px 0px;
+  overflow-y: auto;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.recentDetectedContainer::-webkit-scrollbar {
+  display: none;
+}
+@media (min-width: 640px) {
+  .recentDetectedContainer {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (min-width: 482px) and (max-width: 639px) {
+  .recentDetectedContainer {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 374px) and (max-width: 482px) {
+  .recentDetectedContainer {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 374px) {
+  .recentDetectedContainer {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
