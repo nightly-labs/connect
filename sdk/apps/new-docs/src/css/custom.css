@@ -31,14 +31,14 @@
   color: var(--ifm-color-black)
 }
 
-.admonition{
+.theme-admonition {
   background-color: var(--ifm-color-background);
   color: var(--ifm-color-white);
   border: none;
   border-left: 4px solid var(--ifm-color-primary);
 }
 
-.admonition a {
+.theme-admonition a {
   color: var(--ifm-color-primary);
   text-decoration: none
 }
