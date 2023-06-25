@@ -58,11 +58,26 @@ export class NCSolanaSelector {
       this._modal.relay = 'https://nc2.nightly.app'
       this._modal.chainIcon = 'https://assets.coingecko.com/coins/images/4128/small/solana.png'
       this._modal.chainName = 'Solana'
-      this._modal.selectorItems = getSolanaWalletsList([]).map((w) => ({
-        name: w.name,
-        icon: w.icon,
-        status: w.recent ? 'Recent' : w.detected ? 'Detected' : ''
-      })) as any
+      AppSolana.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
+        .then((wallets) => {
+          this._modal!.selectorItems = getSolanaWalletsList(
+            wallets.map((w) => ({
+              name: w.name,
+              icon: w.image.default
+            }))
+          ).map((w) => ({
+            name: w.name,
+            icon: w.icon,
+            status: w.recent ? 'Recent' : w.detected ? 'Detected' : ''
+          })) as any
+        })
+        .catch(() => {
+          this._modal!.selectorItems = getSolanaWalletsList([]).map((w) => ({
+            name: w.name,
+            icon: w.icon,
+            status: w.recent ? 'Recent' : w.detected ? 'Detected' : ''
+          })) as any
+        })
       this._modal.onWalletClick = (name) => {
         const wallet = getWallet(name)
         if (typeof wallet === 'undefined') {
