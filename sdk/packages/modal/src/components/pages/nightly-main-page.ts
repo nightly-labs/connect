@@ -7,6 +7,7 @@ import style from './nightly-main-page.css?inline'
 import '../nightly-connect-wallet/nightly-connect-wallet'
 import '../nightly-wallet-selector-page/nightly-wallet-selector-small-page/nightly-wallet-selector-small-page'
 import '../nightly-header-small-page/nightly-header-small-page'
+import '../nightly-header/nightly-header'
 @customElement('nightly-main-page')
 export class NightlyMainPage extends TailwindElement(style) {
   @property()
@@ -64,12 +65,16 @@ export class NightlyMainPage extends TailwindElement(style) {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   tryAgainClick = () => {}
 
+  @property({ type: Boolean })
+  useSmallHeader = false
+
   timeoutRef: number | undefined = undefined
 
   breakpoint: Breakpoint
 
   constructor() {
     super()
+    this.useSmallHeader = false
     this.onWalletClick = this.onWalletClick.bind(this)
     this.openConnectWallet = this.openConnectWallet.bind(this)
     this.breakpoint = 'sm'
@@ -90,11 +95,25 @@ export class NightlyMainPage extends TailwindElement(style) {
   }
 
   render() {
+    let headerComponent
+
+    // Dodaj tutaj warunki, które decydują, który nagłówek powinien być użyty
+    if (this.useSmallHeader) {
+      headerComponent = html`
+        <nightly-header-small-page .onClose=${this.onClose}></nightly-header-small-page>
+      `
+    } else {
+      headerComponent = html` <nightly-header .onClose=${this.onClose}></nightly-header> `
+    }
+
     let additionalContent
 
     if (this.openWalletConncet) {
       additionalContent = this.renderConnectWallet()
     } else if (this.breakpoint === 'xs') {
+      headerComponent = html`
+        <nightly-header-small-page .onClose=${this.onClose}></nightly-header-small-page>
+      `
       additionalContent = html`
         <nightly-wallet-selector-small-page
           .breakpoint=${this.breakpoint}
@@ -108,8 +127,9 @@ export class NightlyMainPage extends TailwindElement(style) {
         ></nightly-wallet-selector-small-page>
       `
     } else {
+      headerComponent = html` <nightly-header .onClose=${this.onClose}></nightly-header> `
       additionalContent = html`
-        <div>
+        <div class="nightlyModal">
           <nightly-modal
             .chainIcon=${this.chainIcon}
             .chainName=${this.chainName}
@@ -128,7 +148,7 @@ export class NightlyMainPage extends TailwindElement(style) {
 
     return html`
       <div style="display: flex; flex-direction: column; height: 100vh; z-index: 1;">
-        <nightly-header-small-page .onClose=${this.onClose}></nightly-header-small-page>
+        ${headerComponent}
         <div>${additionalContent}</div>
       </div>
     `

@@ -39,6 +39,7 @@ const meta = {
         .fallback=${args.fallback}
         link=${args.link}
         ?openWalletConncet=${args.openWalletConncet}
+        ?useSmallHeader=${args.useSmallHeader}
       ></nightly-main-page>
     `
   }
@@ -69,6 +70,7 @@ interface NightlyModalArgs {
   fallback: () => void
   link: string
   openWalletConncet: boolean
+  useSmallHeader: boolean
 }
 type Story = StoryObj<NightlyModalArgs>
 
@@ -122,6 +124,7 @@ export const Default: Story = {
     tryAgainClick: () => console.log('try again click'),
     fallback: () => console.log('back to main page'),
     link: `https://www.binance.com/en`,
-    openWalletConncet: true
+    openWalletConncet: false,
+    useSmallHeader: false
   }
 }
