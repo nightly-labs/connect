@@ -5,9 +5,10 @@ import { StandardWalletAdapter } from '@solana/wallet-standard'
 import { NightlyConnectSolanaWallet } from './wallet'
 import { PublicKey } from '@solana/web3.js'
 import { getSolanaWalletsList } from './detection'
-import { getWallet, modalStyle } from '@nightlylabs/wallet-selector-base'
+import { getWallet, modalStyle, triggerConnect } from '@nightlylabs/wallet-selector-base'
 import { WalletAdapterCompatibleStandardWallet } from '@solana/wallet-adapter-base'
 import { Deeplink } from '@nightlylabs/nightly-connect-solana/dist/browser/cjs/types/bindings/Deeplink'
+import { isMobileBrowser } from '@nightlylabs/wallet-selector-base'
 
 export class NCSolanaSelector {
   private _modal: NightlyModal | undefined
@@ -95,13 +96,36 @@ export class NCSolanaSelector {
           return
         }
 
-        const adapter = new StandardWalletAdapter({
-          wallet: wallet as WalletAdapterCompatibleStandardWallet
-        })
-        adapter.connect().then(() => {
-          this.onConnected?.(adapter)
-          this.closeModal()
-        })
+        if (isMobileBrowser()) {
+          const walletData = this._metadataWallets.find((w) => w.name === name)
+
+          if (
+            typeof walletData === 'undefined' ||
+            walletData.deeplink === null ||
+            (walletData.deeplink.universal === null && walletData.deeplink.native === null)
+          ) {
+            return
+          }
+
+          this._app.connectDeeplink({
+            walletName: walletData.name,
+            url: walletData.deeplink.universal ?? walletData.deeplink.native!
+          })
+
+          triggerConnect(
+            walletData.deeplink.universal ?? walletData.deeplink.native!,
+            this._app.sessionId,
+            'https://nc2.nightly.app'
+          )
+        } else {
+          const adapter = new StandardWalletAdapter({
+            wallet: wallet as WalletAdapterCompatibleStandardWallet
+          })
+          adapter.connect().then(() => {
+            this.onConnected?.(adapter)
+            this.closeModal()
+          })
+        }
       }
 
       const style = document.createElement('style')

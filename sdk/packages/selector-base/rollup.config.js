@@ -25,7 +25,11 @@ export default [
       commonjs(),
       terser()
     ],
-    external: ['@wallet-standard/core', 'isomorphic-localstorage']
+    external: [
+      '@nightlylabs/nightly-connect-solana',
+      '@wallet-standard/core',
+      'isomorphic-localstorage'
+    ]
   },
   {
     input: 'dist/esm/types/index.d.ts',

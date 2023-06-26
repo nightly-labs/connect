@@ -1,3 +1,5 @@
+import { triggerDeeplink } from '@nightlylabs/nightly-connect-base'
+
 export const modalStyle = `
   @import url('https://fonts.googleapis.com/css2?family=Prompt&display=swap');
 
@@ -21,3 +23,13 @@ export const modalStyle = `
     display: block;
   }
 `
+
+export const isMobileBrowser = () =>
+  /Android|iPhone|iPad|iPod|Opera Mini/i.test(navigator.userAgent)
+
+export const triggerConnect = (path: string, sessionId: string, relay: string) => {
+  triggerDeeplink({
+    path,
+    deeplinkParams: { sessionId, relay }
+  })
+}
