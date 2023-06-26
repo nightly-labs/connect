@@ -91,11 +91,6 @@ export class NCSolanaSelector {
         status: w.recent ? 'Recent' : w.detected ? 'Detected' : ''
       })) as any
       this._modal.onWalletClick = (name) => {
-        const wallet = getWallet(name)
-        if (typeof wallet === 'undefined') {
-          return
-        }
-
         if (isMobileBrowser()) {
           const walletData = this._metadataWallets.find((w) => w.name === name)
 
@@ -118,6 +113,11 @@ export class NCSolanaSelector {
             'https://nc2.nightly.app'
           )
         } else {
+          const wallet = getWallet(name)
+          if (typeof wallet === 'undefined') {
+            return
+          }
+
           const adapter = new StandardWalletAdapter({
             wallet: wallet as WalletAdapterCompatibleStandardWallet
           })
