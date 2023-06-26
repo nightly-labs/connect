@@ -1,3 +1,4 @@
+import { PropertyValues } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { html } from 'lit/static-html.js'
 import { TailwindElement } from '../../../shared/tailwind.element'
@@ -9,7 +10,6 @@ import '../nightly-all-wallets-selector/nightly-all-wallets-selector'
 import '../nightly-qrCode/nightly-qrCode'
 import '../nightly-wallet-wrapper/nightly-wallet-wrapper'
 import style from './nightly-wallet-selector-small-page.css?inline'
-import { PropertyValues } from 'lit'
 @customElement('nightly-wallet-selector-small-page')
 export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
   @property({})
@@ -111,7 +111,8 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
     this.isTopWalletsView = false
     setTimeout(() => {
       const qrCodeComponent = this.shadowRoot?.querySelector('.nightly-qr-code')
-      qrCodeComponent?.classList.add('visible')
+      qrCodeComponent?.classList.remove('router-element') // remove initial animation
+      qrCodeComponent?.classList.add('router-element-view') // add appearing animation
     }, 1000)
     this.requestUpdate()
   }
@@ -123,9 +124,11 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
       const qrCodeComponent = this.shadowRoot?.querySelector('.nightly-qr-code')
 
       if (this.isQrPageVisible) {
-        qrCodeComponent?.classList.add('visible')
+        qrCodeComponent?.classList.remove('router-element') // remove initial animation
+        qrCodeComponent?.classList.add('router-element-view') // add appearing animation
       } else {
-        qrCodeComponent?.classList.remove('visible')
+        qrCodeComponent?.classList.add('router-element') // add disappearing animation
+        qrCodeComponent?.classList.remove('router-element-view') // remove appearing animation
       }
     }
   }
@@ -136,12 +139,13 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
     }
 
     return html`
-      <div class="nightly-headerContainer">
-        <nightly-header-small-page .onClose=${this.onClose}></nightly-header-small-page>
-      </div>
-      <div>
+      <div style="">
         ${(() => {
           if (!this.isTopWalletsView && this.showAll) {
+            const allWalletsSelector = this.shadowRoot?.querySelector(
+              'nightly-all-wallets-selector'
+            )
+            allWalletsSelector?.classList.add('visible')
             return html`
               <nightly-all-wallets-selector
                 .showAllWallets=${this.showAllWallets.bind(this)}
@@ -157,8 +161,9 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
 
           if (!this.isTopWalletsView && this.isQrPageVisible) {
             return html`
+              <div class="router-element"></div>
               <nightly-qr-code
-                class="nightly-qr-code"
+                class="router-element-view nightly-qr-code"
                 .network=${this.network}
                 .sessionId=${this.sessionId}
                 .showAllWallets=${this.showAllWallets.bind(this)}
@@ -182,9 +187,6 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
 
   renderNotFoundIcon() {
     return html`
-      <div class="nightly-headerContainer">
-        <nightly-header-small-page .onClose=${this.onClose}></nightly-header-small-page>
-      </div>
       <div class="NotFoundContainer">
         <div class="inputContainer">
           <div class="walletInputSearchContainer">

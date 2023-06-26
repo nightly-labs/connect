@@ -63,7 +63,7 @@ export class NightlyConnectWallet extends TailwindElement(style) {
     if (!this.connected) {
       if (this.breakpoint === 'xs') {
         return html`
-          <nightly-header-small-page .onClose=${this.onClose}></nightly-header-small-page>
+          <!-- <nightly-header-small-page .onClose=${this.onClose}></nightly-header-small-page> -->
           <div class="wrapperPage">
             <div class="headerContainer">
               <div class="buttonContainer">
@@ -99,7 +99,7 @@ export class NightlyConnectWallet extends TailwindElement(style) {
       } else {
         return html`
           <div class="mainContainer">
-            <nightly-header .onClose=${this.onClose}></nightly-header>
+            <!-- <nightly-header .onClose=${this.onClose}></nightly-header> -->
             <div class="wrapperConnectPage">
               <div class="headerContainer">
                 <div class="buttonContainer">

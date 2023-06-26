@@ -51,7 +51,7 @@ export class NightlyModal extends TailwindElement(style) {
   render() {
     return html`
       <div class="mainContainer">
-        <nightly-header .onClose=${this.onClose}></nightly-header>
+        <!-- <nightly-header .onClose=${this.onClose}></nightly-header> -->
         <div class="bottomContainer">
           <div class="qrContainer">
             <div class="qrTop">

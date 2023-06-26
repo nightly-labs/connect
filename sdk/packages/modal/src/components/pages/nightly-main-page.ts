@@ -6,7 +6,7 @@ import '../nightly-modal/nightly-modal'
 import style from './nightly-main-page.css?inline'
 import '../nightly-connect-wallet/nightly-connect-wallet'
 import '../nightly-wallet-selector-page/nightly-wallet-selector-small-page/nightly-wallet-selector-small-page'
-
+import '../nightly-header-small-page/nightly-header-small-page'
 @customElement('nightly-main-page')
 export class NightlyMainPage extends TailwindElement(style) {
   @property()
@@ -90,11 +90,12 @@ export class NightlyMainPage extends TailwindElement(style) {
   }
 
   render() {
+    let additionalContent
+
     if (this.openWalletConncet) {
-      return this.renderConnectWallet()
-    }
-    if (this.breakpoint === 'xs') {
-      return html`
+      additionalContent = this.renderConnectWallet()
+    } else if (this.breakpoint === 'xs') {
+      additionalContent = html`
         <nightly-wallet-selector-small-page
           .breakpoint=${this.breakpoint}
           .hasUpdated=${this.hasUpdated}
@@ -107,7 +108,7 @@ export class NightlyMainPage extends TailwindElement(style) {
         ></nightly-wallet-selector-small-page>
       `
     } else {
-      return html`
+      additionalContent = html`
         <div>
           <nightly-modal
             .chainIcon=${this.chainIcon}
@@ -124,6 +125,13 @@ export class NightlyMainPage extends TailwindElement(style) {
         </div>
       `
     }
+
+    return html`
+      <div style="display: flex; flex-direction: column; height: 100vh; z-index: 1;">
+        <nightly-header-small-page .onClose=${this.onClose}></nightly-header-small-page>
+        <div>${additionalContent}</div>
+      </div>
+    `
   }
 
   openConnectWallet() {
