@@ -5,7 +5,6 @@ export interface IWalletListItem {
   icon: string
   recent?: boolean
   detected?: boolean
-  hasMobileVersion?: boolean
 }
 
 export const getWalletsList = (

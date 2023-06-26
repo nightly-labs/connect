@@ -8,6 +8,7 @@ import { getSuiWalletsList } from './detection'
 import { getWallet, modalStyle } from '@nightlylabs/wallet-selector-base'
 import { StandardWalletAdapterWallet } from '@mysten/wallet-standard'
 import bs58 from 'bs58'
+import { Deeplink } from '@nightlylabs/nightly-connect-sui/dist/browser/cjs/types/bindings/Deeplink'
 
 export const convertBase58toBase64 = (base58: string) => {
   const buffer = bs58.decode(base58)
@@ -18,6 +19,11 @@ export class NCSuiSelector {
   private _modal: NightlyModal | undefined
   private _modalRoot: HTMLDivElement | undefined
   private _app: AppSui
+  private _metadataWallets: Array<{
+    name: string
+    icon: string
+    deeplink: Deeplink | null
+  }>
 
   appInitData: AppSuiInitialize
 
@@ -25,9 +31,18 @@ export class NCSuiSelector {
   onOpen: (() => void) | undefined
   onClose: (() => void) | undefined
 
-  constructor(appInitData: AppSuiInitialize, app: AppSui) {
+  constructor(
+    appInitData: AppSuiInitialize,
+    app: AppSui,
+    metadataWallets: Array<{
+      name: string
+      icon: string
+      deeplink: Deeplink | null
+    }>
+  ) {
     this.appInitData = appInitData
     this._app = app
+    this._metadataWallets = metadataWallets
     this.setApp(app)
   }
 
@@ -53,7 +68,18 @@ export class NCSuiSelector {
 
   public static build = async (appInitData: AppSuiInitialize) => {
     const app = await AppSui.build(appInitData)
-    const selector = new NCSuiSelector(appInitData, app)
+    const metadataWallets = await AppSui.getWalletsMetadata(
+      'https://nc2.nightly.app/get_wallets_metadata'
+    )
+      .then((list) =>
+        list.map((wallet) => ({
+          name: wallet.name,
+          icon: wallet.image.default,
+          deeplink: wallet.mobile
+        }))
+      )
+      .catch(() => [] as any)
+    const selector = new NCSuiSelector(appInitData, app, metadataWallets)
 
     return selector
   }
@@ -68,26 +94,11 @@ export class NCSuiSelector {
       this._modal.relay = 'https://nc2.nightly.app'
       this._modal.chainIcon = 'https://assets.coingecko.com/coins/images/26375/small/sui_asset.jpeg'
       this._modal.chainName = 'Sui'
-      AppSui.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
-        .then((wallets) => {
-          this._modal!.selectorItems = getSuiWalletsList(
-            wallets.map((w) => ({
-              name: w.name,
-              icon: w.image.default
-            }))
-          ).map((w) => ({
-            name: w.name,
-            icon: w.icon,
-            status: w.recent ? 'Recent' : w.detected ? 'Detected' : ''
-          })) as any
-        })
-        .catch(() => {
-          this._modal!.selectorItems = getSuiWalletsList([]).map((w) => ({
-            name: w.name,
-            icon: w.icon,
-            status: w.recent ? 'Recent' : w.detected ? 'Detected' : ''
-          })) as any
-        })
+      this._modal!.selectorItems = getSuiWalletsList(this._metadataWallets).map((w) => ({
+        name: w.name,
+        icon: w.icon,
+        status: w.recent ? 'Recent' : w.detected ? 'Detected' : ''
+      })) as any
       this._modal.onWalletClick = (name) => {
         const wallet = getWallet(name)
         if (typeof wallet === 'undefined') {
