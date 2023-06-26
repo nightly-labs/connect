@@ -5,7 +5,12 @@ import { StandardWalletAdapter } from '@mysten/wallet-adapter-wallet-standard'
 import { NightlyConnectSuiWallet } from './wallet'
 import { publicKeyFromSerialized } from '@mysten/sui.js'
 import { getSuiWalletsList } from './detection'
-import { getWallet, modalStyle } from '@nightlylabs/wallet-selector-base'
+import {
+  getWallet,
+  isMobileBrowser,
+  modalStyle,
+  triggerConnect
+} from '@nightlylabs/wallet-selector-base'
 import { StandardWalletAdapterWallet } from '@mysten/wallet-standard'
 import bs58 from 'bs58'
 import { Deeplink } from '@nightlylabs/nightly-connect-sui/dist/browser/cjs/types/bindings/Deeplink'
@@ -100,18 +105,41 @@ export class NCSuiSelector {
         status: w.recent ? 'Recent' : w.detected ? 'Detected' : ''
       })) as any
       this._modal.onWalletClick = (name) => {
-        const wallet = getWallet(name)
-        if (typeof wallet === 'undefined') {
-          return
-        }
+        if (isMobileBrowser()) {
+          const walletData = this._metadataWallets.find((w) => w.name === name)
 
-        const adapter = new StandardWalletAdapter({
-          wallet: wallet as StandardWalletAdapterWallet
-        })
-        adapter.connect().then(() => {
-          this.onConnected?.(adapter)
-          this.closeModal()
-        })
+          if (
+            typeof walletData === 'undefined' ||
+            walletData.deeplink === null ||
+            (walletData.deeplink.universal === null && walletData.deeplink.native === null)
+          ) {
+            return
+          }
+
+          this._app.base.connectDeeplink({
+            walletName: walletData.name,
+            url: walletData.deeplink.universal ?? walletData.deeplink.native!
+          })
+
+          triggerConnect(
+            walletData.deeplink.universal ?? walletData.deeplink.native!,
+            this._app.sessionId,
+            'https://nc2.nightly.app'
+          )
+        } else {
+          const wallet = getWallet(name)
+          if (typeof wallet === 'undefined') {
+            return
+          }
+
+          const adapter = new StandardWalletAdapter({
+            wallet: wallet as StandardWalletAdapterWallet
+          })
+          adapter.connect().then(() => {
+            this.onConnected?.(adapter)
+            this.closeModal()
+          })
+        }
       }
 
       const style = document.createElement('style')

@@ -112,6 +112,9 @@ importers:
       '@solidjs/router':
         specifier: ^0.8.2
         version: 0.8.2(solid-js@1.7.2)
+      buffer:
+        specifier: ^6.0.3
+        version: 6.0.3
       solid-js:
         specifier: ^1.7.2
         version: 1.7.2
