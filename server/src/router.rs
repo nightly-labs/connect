@@ -20,6 +20,7 @@ use crate::{
     sesssion_cleaner::start_cleaning_sessions,
     state::ServerState,
     structs::http_endpoints::HttpEndpoint,
+    utils::get_cors,
 };
 
 pub async fn get_router() -> Router {
@@ -30,6 +31,7 @@ pub async fn get_router() -> Router {
     };
     // Start cleaning outdated sessions
     start_cleaning_sessions(state.sessions.clone(), state.client_to_sessions.clone());
+    let cors = get_cors();
 
     return Router::new()
         .route("/client", get(on_new_client_connection))
@@ -68,5 +70,6 @@ pub async fn get_router() -> Router {
                 .timeout(Duration::from_secs(10))
                 .into_inner(),
         )
-        .with_state(state);
+        .with_state(state)
+        .layer(cors);
 }

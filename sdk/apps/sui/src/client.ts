@@ -49,13 +49,15 @@ export class ClientSui extends EventEmitter<ClientSuiEvents> {
     client: ClientSui
     data: GetInfoResponse
   }> => {
-    const baseClient = await BaseClient.build(initData)
+    // Add prefix to client id
+    const baseClient = await BaseClient.build({ ...initData, clientId: 'sui-' + initData.clientId })
     const data = await baseClient.getInfo(sessionId)
     const client = new ClientSui(baseClient)
     return { client, data }
   }
   public static create = async (initData: ClientBaseInitialize) => {
-    const baseClient = await BaseClient.build(initData)
+    // Add prefix to client id
+    const baseClient = await BaseClient.build({ ...initData, clientId: 'sui-' + initData.clientId })
     const client = new ClientSui(baseClient)
     return client
   }
@@ -119,6 +121,12 @@ export class ClientSui extends EventEmitter<ClientSuiEvents> {
       throw new Error('Session id is undefined')
     }
     await this.baseClient.reject({ requestId: requestId, reason, sessionId: sessionIdToUse })
+  }
+  public getSessions = async (): Promise<string[]> => {
+    return await this.baseClient.getSessions()
+  }
+  public dropSessions = async (sessionsToDrop: string[]): Promise<string[]> => {
+    return await this.baseClient.dropSessions(sessionsToDrop)
   }
 }
 

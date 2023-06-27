@@ -4,7 +4,7 @@ use once_cell::sync::Lazy;
 
 use crate::structs::{
     common::{Network, Version},
-    wallet_metadata::{Images, Platform, WalletMetadata},
+    wallet_metadata::{Deeplink, Images, Platform, WalletMetadata},
     wallet_type::WalletType,
 };
 
@@ -57,7 +57,10 @@ pub static WALLETS_METADATA: Lazy<Vec<WalletMetadata>> = Lazy::new(|| {
             ]),
             chains: vec![Network::new("solana"), Network::new("near"), Network::new("sui"), Network::new("aptos")],
             desktop: None,
-            mobile: None, // TODO
+            mobile: Some(Deeplink {
+                native: Some("nightly".to_string()),
+                universal: Some("https://wallet.nightly.app".to_string()),
+            }),
             image: Images {
                 default: format!("https://registry.connect.nightly.app/wallets/nightly/default.svg"),
                 sm: format!("https://registry.connect.nightly.app/wallets/nightly/sm.svg"),

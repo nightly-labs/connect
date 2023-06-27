@@ -11,7 +11,9 @@ use futures::StreamExt;
 
 use crate::{
     errors::NightlyError,
-    state::{ClientSockets, ClientToSessions, ModifySession, SendToClient, Sessions},
+    state::{
+        ClientSockets, ClientToSessions, DisconnectUser, ModifySession, SendToClient, Sessions,
+    },
     structs::{
         app_messages::{
             app_messages::ServerToApp, payload::ResponsePayload,
@@ -22,8 +24,10 @@ use crate::{
             client_initialize::ClientInitializeResponse,
             client_messages::{ClientToServer, ServerToClient},
             connect::ConnectResponse,
+            drop_sessions::{self, DropSessionsResponse},
             get_info::GetInfoResponse,
             get_pending_requests::GetPendingRequestsResponse,
+            get_sessions::GetSessionsResponse,
         },
         common::{AckMessage, ErrorMessage, SessionStatus},
     },
@@ -324,8 +328,46 @@ pub async fn client_handler(
                     .await
                     .unwrap_or_default();
             }
-            _ => {
-                continue;
+            ClientToServer::GetSessionsRequest(get_sessions_request) => {
+                let sessions = client_to_sessions.get_sessions(client_id.clone());
+                let response = ServerToClient::GetSessionsResponse(GetSessionsResponse {
+                    sessions,
+                    response_id: get_sessions_request.response_id,
+                });
+                client_sockets
+                    .send_to_client(client_id.clone(), response)
+                    .await
+                    .unwrap_or_default();
+            }
+            ClientToServer::DropSessionsRequest(drop_sessions_request) => {
+                let mut dropped_sessions = Vec::new();
+                // TODO handle disconnecting app
+                for session_id in drop_sessions_request.sessions {
+                    if sessions.disconnect_user(session_id.clone()).await.is_ok() {
+                        dropped_sessions.push(session_id.clone());
+                    };
+                    if let Some(sessions) = client_to_sessions.get_mut(&client_id) {
+                        sessions.remove(&session_id);
+                    }
+                }
+                let response = ServerToClient::DropSessionsResponse(DropSessionsResponse {
+                    dropped_sessions,
+                    response_id: drop_sessions_request.response_id,
+                });
+                client_sockets
+                    .send_to_client(client_id.clone(), response)
+                    .await
+                    .unwrap_or_default();
+            }
+            ClientToServer::ClientInitializeRequest(_) => {
+                let error = ServerToClient::ErrorMessage(ErrorMessage {
+                    response_id: "".to_string(),
+                    error: NightlyError::ClientAlreadyInitialized.to_string(),
+                });
+                client_sockets
+                    .send_to_client(client_id.clone(), error)
+                    .await
+                    .unwrap_or_default();
             }
         }
     }

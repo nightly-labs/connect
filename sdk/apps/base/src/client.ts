@@ -9,7 +9,6 @@ import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
 import { GetPendingRequestsResponse } from '../../../bindings/GetPendingRequestsResponse'
 import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
 import { EventEmitter } from 'eventemitter3'
-import { Notification } from '../../../bindings/Notification'
 import { MessageToSign, RequestContent, TransactionToSign } from './content'
 import {
   ResponseContent,
@@ -18,12 +17,15 @@ import {
   SignedTransaction
 } from './responseContent'
 import { ClientInitializeRequest } from '../../../bindings/ClientInitializeRequest'
+import { GetSessionsRequest } from '../../../bindings/GetSessionsRequest'
+import { GetSessionsResponse } from '../../../bindings/GetSessionsResponse'
+import { DropSessionsRequest } from '../../../bindings/DropSessionsRequest'
+import { DropSessionsResponse } from '../../../bindings/DropSessionsResponse'
 
 export interface ClientBaseInitialize {
   clientId?: string
   url?: string
   timeout?: number
-  notification?: Notification
 }
 export interface SignTransactionsEvent {
   responseId: string
@@ -77,6 +79,8 @@ export class BaseClient extends EventEmitter<BaseEvents> {
             case 'ConnectResponse':
             case 'GetPendingRequestsResponse':
             case 'ClientInitializeResponse':
+            case 'DropSessionsResponse':
+            case 'GetSessionsResponse':
             case 'AckMessage': {
               baseClient.events[response.responseId].resolve(response)
               break
@@ -161,6 +165,27 @@ export class BaseClient extends EventEmitter<BaseEvents> {
       }
       this.ws.send(request)
     })
+  }
+  getSessions = async () => {
+    const request: GetSessionsRequest = {
+      responseId: getRandomId()
+    }
+    const response = (await this.send({
+      ...request,
+      type: 'GetSessionsRequest'
+    })) as GetSessionsResponse
+    return response.sessions
+  }
+  dropSessions = async (sessions: string[]) => {
+    const request: DropSessionsRequest = {
+      responseId: getRandomId(),
+      sessions
+    }
+    const response = (await this.send({
+      ...request,
+      type: 'DropSessionsRequest'
+    })) as DropSessionsResponse
+    return response.droppedSessions
   }
   getInfo = async (sessionId: string) => {
     const request: GetInfoRequest = {
