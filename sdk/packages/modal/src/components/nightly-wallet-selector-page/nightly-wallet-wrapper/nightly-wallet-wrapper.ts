@@ -56,6 +56,9 @@ export class NightlyWalletWrapper extends TailwindElement(style) {
   showNotFoundIcon = false
   render() {
     const numberOfItems = getNumberOfItems(this.breakpoint)
+    const totalItems = this._selectorItems.length
+    const showListButtonContainerDisplay = totalItems > numberOfItems ? 'flex' : 'none'
+
     return html`
       <div class="mainContainer">
         <div class="walletWrapper">
@@ -79,7 +82,11 @@ export class NightlyWalletWrapper extends TailwindElement(style) {
                   </div>
                 `
             )}
-            <div class="showListButtonContainer" @click=${this.showAllWallets}>
+            <div
+              class="showListButtonContainer"
+              @click=${this.showAllWallets}
+              style=${`display: ${showListButtonContainerDisplay}`}
+            >
               <button class="showListButton">
                 ${this.selectorItems.slice(0, Math.min(this.selectorItems.length, 4)).map(
                   (item) => html`

@@ -109,28 +109,7 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
   openQrPage() {
     this.isQrPageVisible = true
     this.isTopWalletsView = false
-    setTimeout(() => {
-      const qrCodeComponent = this.shadowRoot?.querySelector('.nightly-qr-code')
-      qrCodeComponent?.classList.remove('router-element') // remove initial animation
-      qrCodeComponent?.classList.add('router-element-view') // add appearing animation
-    }, 1000)
     this.requestUpdate()
-  }
-
-  updated(changedProperties: PropertyValues) {
-    super.updated(changedProperties)
-
-    if (changedProperties.has('isQrPageVisible')) {
-      const qrCodeComponent = this.shadowRoot?.querySelector('.nightly-qr-code')
-
-      if (this.isQrPageVisible) {
-        qrCodeComponent?.classList.remove('router-element') // remove initial animation
-        qrCodeComponent?.classList.add('router-element-view') // add appearing animation
-      } else {
-        qrCodeComponent?.classList.add('router-element') // add disappearing animation
-        qrCodeComponent?.classList.remove('router-element-view') // remove appearing animation
-      }
-    }
   }
 
   render() {
@@ -161,24 +140,28 @@ export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
 
           if (!this.isTopWalletsView && this.isQrPageVisible) {
             return html`
-              <div class="router-element"></div>
-              <nightly-qr-code
-                class="router-element-view nightly-qr-code"
-                .network=${this.network}
-                .sessionId=${this.sessionId}
-                .showAllWallets=${this.showAllWallets.bind(this)}
-              ></nightly-qr-code>
+              <div class="nightlyQrCode">
+                <nightly-qr-code
+                  .network=${this.network}
+                  .sessionId=${this.sessionId}
+                  .showAllWallets=${this.showAllWallets.bind(this)}
+                ></nightly-qr-code>
+              </div>
             `
           }
 
           return html`
-            <nightly-wallet-wrapper
-              .breakpoint=${this.breakpoint}
-              .showAllWallets=${this.showAllWallets.bind(this)}
-              .onWalletClick=${this.onWalletClick.bind(this)}
-              .openQrPage=${() => this.openQrPage()}
-              .selectorItems=${this.selectorItems}
-            ></nightly-wallet-wrapper>
+            <div class="walletWrapperContainer ${this.isQrPageVisible ? 'open' : 'nightlyQrCode'}">
+              <nightly-wallet-wrapper
+                .network=${this.network}
+                .sessionId=${this.sessionId}
+                .breakpoint=${this.breakpoint}
+                .showAllWallets=${this.showAllWallets.bind(this)}
+                .onWalletClick=${this.onWalletClick.bind(this)}
+                .openQrPage=${() => this.openQrPage()}
+                .selectorItems=${this.selectorItems}
+              ></nightly-wallet-wrapper>
+            </div>
           `
         })()}
       </div>

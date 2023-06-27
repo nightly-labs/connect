@@ -72,6 +72,11 @@ export class NightlyMainPage extends TailwindElement(style) {
 
   breakpoint: Breakpoint
 
+  openConnectWallet() {
+    this.openWalletConncet = true
+    this.requestUpdate()
+  }
+
   constructor() {
     super()
     this.useSmallHeader = false
@@ -95,25 +100,18 @@ export class NightlyMainPage extends TailwindElement(style) {
   }
 
   render() {
-    let headerComponent
-
-    // Dodaj tutaj warunki, które decydują, który nagłówek powinien być użyty
-    if (this.useSmallHeader) {
-      headerComponent = html`
-        <nightly-header-small-page .onClose=${this.onClose}></nightly-header-small-page>
-      `
-    } else {
-      headerComponent = html` <nightly-header .onClose=${this.onClose}></nightly-header> `
-    }
-
     let additionalContent
+    let headerClass
+    let headerComponent
 
     if (this.openWalletConncet) {
       additionalContent = this.renderConnectWallet()
+      headerClass = 'headerWrapConnectWallet'
+      headerComponent =
+        this.breakpoint === 'xs'
+          ? html`<nightly-header-small-page .onClose=${this.onClose}></nightly-header-small-page>`
+          : html`<nightly-header .onClose=${this.onClose}></nightly-header>`
     } else if (this.breakpoint === 'xs') {
-      headerComponent = html`
-        <nightly-header-small-page .onClose=${this.onClose}></nightly-header-small-page>
-      `
       additionalContent = html`
         <nightly-wallet-selector-small-page
           .breakpoint=${this.breakpoint}
@@ -126,37 +124,39 @@ export class NightlyMainPage extends TailwindElement(style) {
           .sessionId=${this.sessionId}
         ></nightly-wallet-selector-small-page>
       `
+      headerClass = 'headerWrapXS'
+      headerComponent = html`<nightly-header-small-page
+        .onClose=${this.onClose}
+      ></nightly-header-small-page>`
     } else {
-      headerComponent = html` <nightly-header .onClose=${this.onClose}></nightly-header> `
       additionalContent = html`
         <div class="nightlyModal">
-          <nightly-modal
-            .chainIcon=${this.chainIcon}
-            .chainName=${this.chainName}
-            .copyMessage=${this.copyMessage}
-            .hasUpdated=${this.hasUpdated}
-            .isUpdatePending=${this.isUpdatePending}
-            .network=${this.network}
-            .onClose=${this.onClose}
-            .onWalletClick=${this.openConnectWallet}
-            .selectorItems=${this.selectorItems}
-            .sessionId=${this.sessionId}
-          ></nightly-modal>
+          <div>
+            <nightly-modal
+              .chainIcon=${this.chainIcon}
+              .chainName=${this.chainName}
+              .copyMessage=${this.copyMessage}
+              .hasUpdated=${this.hasUpdated}
+              .isUpdatePending=${this.isUpdatePending}
+              .network=${this.network}
+              .onClose=${this.onClose}
+              .onWalletClick=${this.openConnectWallet}
+              .selectorItems=${this.selectorItems}
+              .sessionId=${this.sessionId}
+            ></nightly-modal>
+          </div>
         </div>
       `
+      headerClass = 'headerWrapModal'
+      headerComponent = html`<nightly-header .onClose=${this.onClose}></nightly-header>`
     }
 
     return html`
       <div style="display: flex; flex-direction: column; height: 100vh; z-index: 1;">
-        ${headerComponent}
+        <div class="${headerClass}">${headerComponent}</div>
         <div>${additionalContent}</div>
       </div>
     `
-  }
-
-  openConnectWallet() {
-    this.openWalletConncet = true
-    this.requestUpdate()
   }
 
   backToPage = () => {
@@ -166,7 +166,7 @@ export class NightlyMainPage extends TailwindElement(style) {
 
   renderConnectWallet() {
     return html`
-      <div class="">
+      <div class="connectWallet">
         <nightly-connect-wallet
           .breakpoint=${this.breakpoint}
           .coinName=${this.coinName}
