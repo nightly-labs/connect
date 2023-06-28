@@ -20,7 +20,6 @@ const meta = {
   },
   render: (args) => {
     return html`<nightly-modal
-      .onClose=${args.onClose}
       .selectorItems=${args.selectorItems}
       .onWalletClick=${args.onWalletClick}
       .chainIcon=${args.chainIcon}
@@ -41,7 +40,6 @@ interface WalletSelectorItem {
 }
 
 interface NightlyModalArgs {
-  onClose: () => void
   selectorItems: WalletSelectorItem[]
   onWalletClick: (name: string) => void
   chainIcon: string
@@ -55,7 +53,6 @@ type Story = StoryObj<NightlyModalArgs>
 export const Default: Story = {
   name: 'Default',
   args: {
-    onClose: () => console.log('close'),
     selectorItems: [
       { name: 'Phantom', icon: Phantom, status: 'recent' },
       { name: 'Nightly Wallet', icon: NightlyIcon, status: 'recent' },

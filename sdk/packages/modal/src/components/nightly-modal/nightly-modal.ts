@@ -7,15 +7,10 @@ import scan from '../../static/svg/scan.svg'
 import { svgToBase64 } from '../../utils/images'
 import { generateQrCodeXml } from '@nightlylabs/qr-code'
 import '../nightly-wallet-selector-page/nightly-wallet-selector-page'
-import '../nightly-header/nightly-header'
 
 @customElement('nightly-modal')
 export class NightlyModal extends LitElement {
   static styles = tailwindElement(style)
-
-  @property()
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  onClose = () => {}
 
   @property({ type: Array })
   selectorItems = []
@@ -58,7 +53,6 @@ export class NightlyModal extends LitElement {
   render() {
     return html`
       <div class="mainContainer">
-        <!-- <nightly-header .onClose=${this.onClose}></nightly-header> -->
         <div class="bottomContainer">
           <div class="qrContainer">
             <div class="qrTop">

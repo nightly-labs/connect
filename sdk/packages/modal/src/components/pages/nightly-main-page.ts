@@ -173,7 +173,6 @@ export class NightlyMainPage extends LitElement {
           .breakpoint=${this.breakpoint}
           .coinName=${this.coinName}
           .connecting=${this.connecting}
-          .onClose=${this.onClose}
           .tryAgainClick=${this.tryAgainClick}
           .fallback=${this.backToPage}
           .link=${this.link}
