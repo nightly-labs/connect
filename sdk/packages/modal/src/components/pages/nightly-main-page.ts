@@ -105,45 +105,47 @@ export class NightlyMainPage extends LitElement {
     return html`
       <div class="nightlyModal">
         <nightly-header .onClose=${this.onClose}></nightly-header>
-        <nightly-connect-wallet
-          style=${styleMap({ display: this.openWalletConncet ? 'unset' : 'none' })}
-          .breakpoint=${this.breakpoint}
-          .coinName=${this.coinName}
-          .connecting=${this.connecting}
-          .tryAgainClick=${this.tryAgainClick}
-          .fallback=${this.backToPage}
-          .link=${this.link}
-          .nameLink=${this.nameLink}
-          .walletIcon=${this.walletIcon}
-        ></nightly-connect-wallet>
-        <nightly-wallet-selector-small-page
-          style=${styleMap({
-            display: this.breakpoint === 'xs' && !this.openWalletConncet ? 'unset' : 'none'
-          })}
-          .breakpoint=${this.breakpoint}
-          .hasUpdated=${this.hasUpdated}
-          .isUpdatePending=${this.isUpdatePending}
-          .network=${this.network}
-          .onWalletClick=${this.openConnectWallet}
-          .onClose=${this.onClose}
-          .selectorItems=${this.selectorItems}
-          .sessionId=${this.sessionId}
-        ></nightly-wallet-selector-small-page>
-        <nightly-modal
-          style=${styleMap({
-            display: this.breakpoint !== 'xs' && !this.openWalletConncet ? 'unset' : 'none'
-          })}
-          .chainIcon=${this.chainIcon}
-          .chainName=${this.chainName}
-          .copyMessage=${this.copyMessage}
-          .hasUpdated=${this.hasUpdated}
-          .isUpdatePending=${this.isUpdatePending}
-          .network=${this.network}
-          .onClose=${this.onClose}
-          .onWalletClick=${this.openConnectWallet}
-          .selectorItems=${this.selectorItems}
-          .sessionId=${this.sessionId}
-        ></nightly-modal>
+        <div class="contentWrapper">
+          <nightly-connect-wallet
+            style=${styleMap({ display: this.openWalletConncet ? 'unset' : 'none' })}
+            .breakpoint=${this.breakpoint}
+            .coinName=${this.coinName}
+            .connecting=${this.connecting}
+            .tryAgainClick=${this.tryAgainClick}
+            .fallback=${this.backToPage}
+            .link=${this.link}
+            .nameLink=${this.nameLink}
+            .walletIcon=${this.walletIcon}
+          ></nightly-connect-wallet>
+          <nightly-wallet-selector-small-page
+            style=${styleMap({
+              display: this.breakpoint === 'xs' && !this.openWalletConncet ? 'unset' : 'none'
+            })}
+            .breakpoint=${this.breakpoint}
+            .hasUpdated=${this.hasUpdated}
+            .isUpdatePending=${this.isUpdatePending}
+            .network=${this.network}
+            .onWalletClick=${this.openConnectWallet}
+            .onClose=${this.onClose}
+            .selectorItems=${this.selectorItems}
+            .sessionId=${this.sessionId}
+          ></nightly-wallet-selector-small-page>
+          <nightly-modal
+            style=${styleMap({
+              display: this.breakpoint !== 'xs' && !this.openWalletConncet ? 'unset' : 'none'
+            })}
+            .chainIcon=${this.chainIcon}
+            .chainName=${this.chainName}
+            .copyMessage=${this.copyMessage}
+            .hasUpdated=${this.hasUpdated}
+            .isUpdatePending=${this.isUpdatePending}
+            .network=${this.network}
+            .onClose=${this.onClose}
+            .onWalletClick=${this.openConnectWallet}
+            .selectorItems=${this.selectorItems}
+            .sessionId=${this.sessionId}
+          ></nightly-modal>
+        </div>
       </div>
     `
   }

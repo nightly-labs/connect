@@ -21,3 +21,16 @@
     max-width: 100%;
   }
 }
+
+.contentWrapper {
+  border-radius: 0px 0px 16px 16px;
+  overflow: hidden;
+  background-color: #17182b;
+}
+
+@media (max-width: 640px) {
+  .contentWrapper {
+    border-radius: 0;
+    overflow: visible;
+  }
+}
