@@ -1,5 +1,7 @@
 .nightlyModal {
   max-width: 720px;
+  display: flex;
+  flex-direction: column;
 }
 
 @media (max-width: 1080px) and (min-width: 960px) {

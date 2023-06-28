@@ -7,6 +7,7 @@ import style from './nightly-main-page.css'
 import '../nightly-connect-wallet/nightly-connect-wallet'
 import '../nightly-wallet-selector-page/nightly-wallet-selector-small-page/nightly-wallet-selector-small-page'
 import '../nightly-header/nightly-header'
+import { styleMap } from 'lit/directives/style-map.js'
 @customElement('nightly-main-page')
 export class NightlyMainPage extends LitElement {
   static styles = tailwindElement(style)
@@ -101,57 +102,11 @@ export class NightlyMainPage extends LitElement {
   }
 
   render() {
-    let additionalContent
-
-    if (this.openWalletConncet) {
-      additionalContent = this.renderConnectWallet()
-    } else if (this.breakpoint === 'xs') {
-      additionalContent = html`
-        <nightly-wallet-selector-small-page
-          .breakpoint=${this.breakpoint}
-          .hasUpdated=${this.hasUpdated}
-          .isUpdatePending=${this.isUpdatePending}
-          .network=${this.network}
-          .onWalletClick=${this.openConnectWallet}
-          .onClose=${this.onClose}
-          .selectorItems=${this.selectorItems}
-          .sessionId=${this.sessionId}
-        ></nightly-wallet-selector-small-page>
-      `
-    } else {
-      additionalContent = html`
-            <nightly-modal
-              .chainIcon=${this.chainIcon}
-              .chainName=${this.chainName}
-              .copyMessage=${this.copyMessage}
-              .hasUpdated=${this.hasUpdated}
-              .isUpdatePending=${this.isUpdatePending}
-              .network=${this.network}
-              .onClose=${this.onClose}
-              .onWalletClick=${this.openConnectWallet}
-              .selectorItems=${this.selectorItems}
-              .sessionId=${this.sessionId}
-            ></nightly-modal>
-      `
-    }
-
     return html`
-      <div class="nightlyModal" style="display: flex; flex-direction: column; height: 100vh; z-index: 1;">
+      <div class="nightlyModal">
         <nightly-header .onClose=${this.onClose}></nightly-header>
-        <div>${additionalContent}</div>
-      </div>
-    `
-  }
-
-  backToPage = () => {
-    this.openWalletConncet = false
-    this.requestUpdate()
-  }
-
-  renderConnectWallet() {
-    return html`
-      <div class="connectWallet">
         <nightly-connect-wallet
+          style=${styleMap({ display: this.openWalletConncet ? 'unset' : 'none' })}
           .breakpoint=${this.breakpoint}
           .coinName=${this.coinName}
           .connecting=${this.connecting}
@@ -161,8 +116,41 @@ export class NightlyMainPage extends LitElement {
           .nameLink=${this.nameLink}
           .walletIcon=${this.walletIcon}
         ></nightly-connect-wallet>
+        <nightly-wallet-selector-small-page
+          style=${styleMap({
+            display: this.breakpoint === 'xs' && !this.openWalletConncet ? 'unset' : 'none'
+          })}
+          .breakpoint=${this.breakpoint}
+          .hasUpdated=${this.hasUpdated}
+          .isUpdatePending=${this.isUpdatePending}
+          .network=${this.network}
+          .onWalletClick=${this.openConnectWallet}
+          .onClose=${this.onClose}
+          .selectorItems=${this.selectorItems}
+          .sessionId=${this.sessionId}
+        ></nightly-wallet-selector-small-page>
+        <nightly-modal
+          style=${styleMap({
+            display: this.breakpoint !== 'xs' && !this.openWalletConncet ? 'unset' : 'none'
+          })}
+          .chainIcon=${this.chainIcon}
+          .chainName=${this.chainName}
+          .copyMessage=${this.copyMessage}
+          .hasUpdated=${this.hasUpdated}
+          .isUpdatePending=${this.isUpdatePending}
+          .network=${this.network}
+          .onClose=${this.onClose}
+          .onWalletClick=${this.openConnectWallet}
+          .selectorItems=${this.selectorItems}
+          .sessionId=${this.sessionId}
+        ></nightly-modal>
       </div>
     `
+  }
+
+  backToPage = () => {
+    this.openWalletConncet = false
+    this.requestUpdate()
   }
 }
 
