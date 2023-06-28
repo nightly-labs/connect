@@ -4,6 +4,8 @@ import style from './nightly-header.css'
 import { LitElement, html } from 'lit'
 import Logo from '../../static/svg/Logo.svg'
 import Close from '../../static/svg/Close.svg'
+import Clouds from '../../static/svg/Clouds.svg'
+import Stars from '../../static/svg/Stars.svg'
 import { styleMap } from 'lit/directives/style-map.js'
 
 @customElement('nightly-header')
@@ -27,8 +29,14 @@ export class NightlyHeader extends LitElement {
             <img src=${Close} />
           </button>
         </div>
-        <div class="starsAnimationHeader"></div>
-        <div class="cloudsAnimationHeader"></div>
+        <div
+          class="starsAnimationHeader"
+          style=${styleMap({ 'background-image': `url("${Stars}")` })}
+        ></div>
+        <div
+          class="cloudsAnimationHeader"
+          style=${styleMap({ 'background-image': `url("${Clouds}")` })}
+        ></div>
       </div>
     `
   }

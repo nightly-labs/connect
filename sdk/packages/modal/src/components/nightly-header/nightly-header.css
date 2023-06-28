@@ -12,7 +12,6 @@
   z-index: 2;
   position: relative;
   right: 100%;
-  background-image: url('../../static/svg/Clouds.svg');
   background-repeat: no-repeat;
   background-position: top;
   background-position-y: -14px;
@@ -40,7 +39,6 @@
   z-index: 1;
   background-color: none;
   height: 56px;
-  background-image: url('../../static/svg/Stars.svg');
   background-repeat: no-repeat;
   background-position: top;
   margin: auto;
