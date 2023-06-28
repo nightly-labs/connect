@@ -1,9 +1,6 @@
 .walletSelectorButtons {
   display: flex;
   flex-direction: column;
-  top: -20px;
-  border-radius: 16px 16px 0px 0px;
-  position: relative;
   z-index: 2;
   background-color: #17182b;
   width: 100%;
@@ -76,7 +73,6 @@
   width: 100%;
   padding: 24px 16px 0 16px;
   display: grid;
-  border-radius: 16px 16px 0px 0px;
   overflow-y: auto;
 
   scrollbar-width: none;

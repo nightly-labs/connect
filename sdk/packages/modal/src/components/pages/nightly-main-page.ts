@@ -107,6 +107,7 @@ export class NightlyMainPage extends LitElement {
         <nightly-header .onClose=${this.onClose}></nightly-header>
         <div class="contentWrapper">
           <nightly-connect-wallet
+            class="fade-in"
             style=${styleMap({ display: this.openWalletConncet ? 'unset' : 'none' })}
             .breakpoint=${this.breakpoint}
             .coinName=${this.coinName}
@@ -118,6 +119,7 @@ export class NightlyMainPage extends LitElement {
             .walletIcon=${this.walletIcon}
           ></nightly-connect-wallet>
           <nightly-wallet-selector-small-page
+            class="fade-in"
             style=${styleMap({
               display: this.breakpoint === 'xs' && !this.openWalletConncet ? 'unset' : 'none'
             })}
@@ -131,6 +133,7 @@ export class NightlyMainPage extends LitElement {
             .sessionId=${this.sessionId}
           ></nightly-wallet-selector-small-page>
           <nightly-modal
+            class="fade-in"
             style=${styleMap({
               display: this.breakpoint !== 'xs' && !this.openWalletConncet ? 'unset' : 'none'
             })}

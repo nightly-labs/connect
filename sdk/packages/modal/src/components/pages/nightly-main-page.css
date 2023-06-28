@@ -30,7 +30,21 @@
 
 @media (max-width: 640px) {
   .contentWrapper {
-    border-radius: 0;
-    overflow: visible;
+    top: -20px;
+    position: relative;
+    border-radius: 16px 16px 0 0;
   }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 300ms;
 }

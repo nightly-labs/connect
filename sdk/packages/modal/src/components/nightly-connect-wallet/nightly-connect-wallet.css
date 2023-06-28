@@ -117,7 +117,6 @@
   justify-content: center;
   align-items: center;
   background-color: #17182b;
-  border-radius: 0px 0px 16px 16px;
 }
 
 .reConnectWrapper p {
@@ -188,8 +187,6 @@
   flex-flow: row wrap;
   flex-direction: column;
   width: 100%;
-  top: -20px;
-  position: relative;
   z-index: 2;
   background-color: #202137;
   border-radius: 16px;

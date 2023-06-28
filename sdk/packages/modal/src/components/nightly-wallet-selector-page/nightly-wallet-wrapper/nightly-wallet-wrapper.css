@@ -3,11 +3,8 @@
   flex-flow: row wrap;
   flex-direction: column;
   width: 100%;
-  top: -20px;
-  position: relative;
   z-index: 2;
   background-color: #17182b;
-  border-radius: 16px 16px 0px 0px;
 }
 .infoConatiner {
   padding: 16px;

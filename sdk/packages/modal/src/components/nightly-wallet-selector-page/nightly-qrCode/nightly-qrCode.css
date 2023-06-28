@@ -1,10 +1,7 @@
 .headerQrCodeWrapper {
   height: 510px;
-  top: -20px;
-  position: relative;
   z-index: 2;
   background: #17182b;
-  border-radius: 16px 16px 0px 0px;
 }
 
 @media (max-width: 482px) and (min-width: 374px) {

@@ -3,13 +3,10 @@
 }
 
 .NotFoundContainer {
-  top: -20px;
-  position: relative;
   z-index: 2;
   width: 100%;
   height: 526px;
   background-color: #17182b;
-  border-radius: 16px 16px 0px 0px;
   padding-top: 16px;
   display: flex;
   flex-direction: column;
