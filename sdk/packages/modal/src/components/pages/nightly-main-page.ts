@@ -1,15 +1,17 @@
-import { html } from 'lit'
+import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { TailwindElement } from '../../shared/tailwind.element'
+import { tailwindElement } from '../../shared/tailwind.element'
 import { Breakpoint, getBreakpointFromWidthInMainPage } from '../../utils/utils'
 import '../nightly-modal/nightly-modal'
-import style from './nightly-main-page.css?inline'
+import style from './nightly-main-page.css'
 import '../nightly-connect-wallet/nightly-connect-wallet'
 import '../nightly-wallet-selector-page/nightly-wallet-selector-small-page/nightly-wallet-selector-small-page'
 import '../nightly-header-small-page/nightly-header-small-page'
 import '../nightly-header/nightly-header'
 @customElement('nightly-main-page')
-export class NightlyMainPage extends TailwindElement(style) {
+export class NightlyMainPage extends LitElement {
+  static styles = tailwindElement(style)
+
   @property()
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onClose = () => {}

@@ -1,13 +1,15 @@
-import { html } from 'lit'
-import { TailwindElement } from '../../../shared/tailwind.element'
+import { LitElement, html } from 'lit'
+import { tailwindElement } from '../../../shared/tailwind.element'
 import { customElement, property } from 'lit/decorators.js'
 import { svgToBase64 } from '../../../utils/images'
 import { generateQrCodeXml } from '@nightlylabs/qr-code'
 import vector from '../../../static/svg/backButton.svg'
-import style from './nightly-qrCode.css?inline'
+import style from './nightly-qrCode.css'
 
 @customElement('nightly-qr-code')
-export class NightlyQrCode extends TailwindElement(style) {
+export class NightlyQrCode extends LitElement {
+  static styles = tailwindElement(style)
+
   @property({ type: String })
   sessionId = ''
 

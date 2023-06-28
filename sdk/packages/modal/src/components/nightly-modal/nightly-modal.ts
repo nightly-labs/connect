@@ -1,7 +1,7 @@
 import { customElement, property } from 'lit/decorators.js'
-import { TailwindElement } from '../../shared/tailwind.element'
-import style from './nightly-modal.css?inline'
-import { html } from 'lit'
+import { tailwindElement } from '../../shared/tailwind.element'
+import style from './nightly-modal.css'
+import { LitElement, html } from 'lit'
 import copy from '../../static/svg/copy.svg'
 import scan from '../../static/svg/scan.svg'
 import { svgToBase64 } from '../../utils/images'
@@ -10,7 +10,9 @@ import '../nightly-wallet-selector-page/nightly-wallet-selector-page'
 import '../nightly-header/nightly-header'
 
 @customElement('nightly-modal')
-export class NightlyModal extends TailwindElement(style) {
+export class NightlyModal extends LitElement {
+  static styles = tailwindElement(style)
+
   @property()
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onClose = () => {}
@@ -35,12 +37,17 @@ export class NightlyModal extends TailwindElement(style) {
   network = ''
 
   @property({ type: String })
+  relay = ''
+
+  @property({ type: String })
   copyMessage = 'Copy'
 
   timeoutRef: number | undefined = undefined
 
   onCopy = () => {
-    navigator.clipboard.writeText('nightlyconnect:' + this.sessionId + '?network=' + this.network)
+    navigator.clipboard.writeText(
+      'nc:' + this.sessionId + '?network=' + this.network + '?relay=' + this.relay
+    )
     this.copyMessage = 'Copied!'
     clearTimeout(this.timeoutRef)
     this.timeoutRef = setTimeout(() => {
@@ -63,11 +70,14 @@ export class NightlyModal extends TailwindElement(style) {
             <img
               class="code"
               src=${svgToBase64(
-                generateQrCodeXml('nightlyconnect:' + this.sessionId + '?network=' + this.network, {
-                  width: 400,
-                  height: 400,
-                  margin: 10
-                })
+                generateQrCodeXml(
+                  'nc:' + this.sessionId + '?network=' + this.network + '?relay=' + this.relay,
+                  {
+                    width: 400,
+                    height: 400,
+                    margin: 10
+                  }
+                )
               )}
             />
           </div>

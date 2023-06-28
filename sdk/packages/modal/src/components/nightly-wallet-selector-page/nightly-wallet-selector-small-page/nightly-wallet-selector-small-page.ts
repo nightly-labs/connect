@@ -1,7 +1,6 @@
-import { PropertyValues } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { html } from 'lit/static-html.js'
-import { TailwindElement } from '../../../shared/tailwind.element'
+import { tailwindElement } from '../../../shared/tailwind.element'
 import foxSadGIF from '../../../static/gif/fox_sad.gif'
 import search from '../../../static/svg/searchIcon.svg'
 import { Breakpoint, getBreakpointFromWidth } from '../../../utils/utils'
@@ -9,9 +8,12 @@ import '../../nightly-header-small-page/nightly-header-small-page'
 import '../nightly-all-wallets-selector/nightly-all-wallets-selector'
 import '../nightly-qrCode/nightly-qrCode'
 import '../nightly-wallet-wrapper/nightly-wallet-wrapper'
-import style from './nightly-wallet-selector-small-page.css?inline'
+import style from './nightly-wallet-selector-small-page.css'
+import { LitElement } from 'lit'
 @customElement('nightly-wallet-selector-small-page')
-export class NightlyWalletSelectorSmallPage extends TailwindElement(style) {
+export class NightlyWalletSelectorSmallPage extends LitElement {
+  static styles = tailwindElement(style)
+
   @property({})
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onClose = () => {}

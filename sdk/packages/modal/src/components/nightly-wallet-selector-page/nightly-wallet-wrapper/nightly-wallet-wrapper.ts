@@ -1,11 +1,13 @@
 import { customElement, property } from 'lit/decorators.js'
-import { TailwindElement } from '../../../shared/tailwind.element'
-import { html } from 'lit'
+import { tailwindElement } from '../../../shared/tailwind.element'
+import { LitElement, html } from 'lit'
 import { Breakpoint, getBreakpointFromWidth, getNumberOfItems } from '../../../utils/utils'
-import style from './nightly-wallet-wrapper.css?inline'
+import style from './nightly-wallet-wrapper.css'
 
 @customElement('nightly-wallet-wrapper')
-export class NightlyWalletWrapper extends TailwindElement(style) {
+export class NightlyWalletWrapper extends LitElement {
+  static styles = tailwindElement(style)
+
   @property({ type: Function })
   showAllWallets!: () => void
 

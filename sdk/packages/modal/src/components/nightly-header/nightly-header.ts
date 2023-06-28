@@ -1,13 +1,15 @@
 import { customElement, property } from 'lit/decorators.js'
-import { TailwindElement } from '../../shared/tailwind.element'
-import style from './nightly-header.css?inline'
-import { html } from 'lit'
+import { tailwindElement } from '../../shared/tailwind.element'
+import style from './nightly-header.css'
+import { LitElement, html } from 'lit'
 import Logo from '../../static/svg/Logo.svg'
 import Close from '../../static/svg/Close.svg'
 import { styleMap } from 'lit/directives/style-map.js'
 
 @customElement('nightly-header')
-export class NightlyHeader extends TailwindElement(style) {
+export class NightlyHeader extends LitElement {
+  static styles = tailwindElement(style)
+
   @property()
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onClose = () => {}

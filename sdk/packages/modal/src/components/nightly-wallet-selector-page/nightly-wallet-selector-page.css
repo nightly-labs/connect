@@ -74,6 +74,11 @@
 .walletSelectorBlockchain span {
   color: #6067f9;
 }
+.walletSelectorBlockchain img {
+  width: 16px;
+  height: 16px;
+  border-radius: 100%;
+}
 .walletInputSearchContainer {
   display: flex;
   justify-content: space-between;

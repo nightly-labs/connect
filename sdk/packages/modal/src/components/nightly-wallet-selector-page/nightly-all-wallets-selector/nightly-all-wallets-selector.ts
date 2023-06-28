@@ -1,12 +1,14 @@
 import { customElement, property } from 'lit/decorators.js'
-import { TailwindElement } from '../../../shared/tailwind.element'
-import { html } from 'lit'
-import style from './nightly-all-wallets-selector.css?inline'
+import { tailwindElement } from '../../../shared/tailwind.element'
+import { LitElement, html } from 'lit'
+import style from './nightly-all-wallets-selector.css'
 import vector from '../../../static/svg/backButton.svg'
 import search from '../../../static/svg/searchIcon.svg'
 
 @customElement('nightly-all-wallets-selector')
-export class NightlyAllWalletsSelector extends TailwindElement(style) {
+export class NightlyAllWalletsSelector extends LitElement {
+  static styles = tailwindElement(style)
+
   @property({ type: Function })
   showAllWallets!: () => void
 
