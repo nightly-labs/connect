@@ -29,8 +29,14 @@ export class NightlyHeader extends LitElement {
             <img src=${Close} />
           </button>
         </div>
-        <img src=${Stars} class="starsAnimationHeader"></img>
-        <img src=${Clouds} class="cloudsAnimationHeader"></img>
+        <div
+          class="starsAnimationHeader"
+          style=${styleMap({ 'background-image': `url("${Stars}")` })}
+        ></div>
+        <div
+          class="cloudsAnimationHeader"
+          style=${styleMap({ 'background-image': `url("${Clouds}")` })}
+        ></div>
       </div>
     `
   }
