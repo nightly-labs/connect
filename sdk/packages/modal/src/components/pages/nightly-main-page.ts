@@ -6,7 +6,6 @@ import '../nightly-modal/nightly-modal'
 import style from './nightly-main-page.css'
 import '../nightly-connect-wallet/nightly-connect-wallet'
 import '../nightly-wallet-selector-page/nightly-wallet-selector-small-page/nightly-wallet-selector-small-page'
-import '../nightly-header-small-page/nightly-header-small-page'
 import '../nightly-header/nightly-header'
 @customElement('nightly-main-page')
 export class NightlyMainPage extends LitElement {
@@ -103,16 +102,9 @@ export class NightlyMainPage extends LitElement {
 
   render() {
     let additionalContent
-    let headerClass
-    let headerComponent
 
     if (this.openWalletConncet) {
       additionalContent = this.renderConnectWallet()
-      headerClass = 'headerWrapConnectWallet'
-      headerComponent =
-        this.breakpoint === 'xs'
-          ? html`<nightly-header-small-page .onClose=${this.onClose}></nightly-header-small-page>`
-          : html`<nightly-header .onClose=${this.onClose}></nightly-header>`
     } else if (this.breakpoint === 'xs') {
       additionalContent = html`
         <nightly-wallet-selector-small-page
@@ -126,14 +118,8 @@ export class NightlyMainPage extends LitElement {
           .sessionId=${this.sessionId}
         ></nightly-wallet-selector-small-page>
       `
-      headerClass = 'headerWrapXS'
-      headerComponent = html`<nightly-header-small-page
-        .onClose=${this.onClose}
-      ></nightly-header-small-page>`
     } else {
       additionalContent = html`
-        <div class="nightlyModal">
-          <div>
             <nightly-modal
               .chainIcon=${this.chainIcon}
               .chainName=${this.chainName}
@@ -146,16 +132,12 @@ export class NightlyMainPage extends LitElement {
               .selectorItems=${this.selectorItems}
               .sessionId=${this.sessionId}
             ></nightly-modal>
-          </div>
-        </div>
       `
-      headerClass = 'headerWrapModal'
-      headerComponent = html`<nightly-header .onClose=${this.onClose}></nightly-header>`
     }
 
     return html`
-      <div style="display: flex; flex-direction: column; height: 100vh; z-index: 1;">
-        <div class="${headerClass}">${headerComponent}</div>
+      <div class="nightlyModal" style="display: flex; flex-direction: column; height: 100vh; z-index: 1;">
+        <nightly-header .onClose=${this.onClose}></nightly-header>
         <div>${additionalContent}</div>
       </div>
     `

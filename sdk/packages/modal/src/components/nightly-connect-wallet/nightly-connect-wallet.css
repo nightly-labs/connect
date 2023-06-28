@@ -1,25 +1,12 @@
 .mainContainer {
   height: 486px;
-  width: 572px;
+  width: 100%;
 }
 
 .wrapperConnectPage {
   border: 1px solid #343551;
   background-color: #202137;
   border-radius: 0px 0px 16px 16px;
-}
-
-@media (min-width: 560px) and (max-width: 640px) {
-  .mainContainer {
-    width: 494px;
-    height: 408px;
-  }
-}
-
-@media (max-width: 560px) {
-  .mainContainer {
-    width: 287px;
-  }
 }
 
 .headerContainer {

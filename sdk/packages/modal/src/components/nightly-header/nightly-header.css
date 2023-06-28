@@ -8,6 +8,12 @@
   background-color: #6067f9;
 }
 
+@media (max-width: 640px) {
+  .mainContainer-header {
+    height: 76px;
+  }
+}
+
 .cloudsAnimationHeader {
   z-index: 2;
   position: relative;

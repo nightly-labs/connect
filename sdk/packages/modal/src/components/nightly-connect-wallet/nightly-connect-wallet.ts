@@ -3,7 +3,6 @@ import { customElement, property } from 'lit/decorators.js'
 import { tailwindElement } from '../../shared/tailwind.element'
 import vector from '../../static/svg/backButton.svg'
 import { Breakpoint, getBreakpointFromWidthInConnectWallet } from '../../utils/utils'
-import '../nightly-header-small-page/nightly-header-small-page'
 import style from './nightly-connect-wallet.css'
 @customElement('nightly-connect-wallet')
 export class NightlyConnectWallet extends LitElement {

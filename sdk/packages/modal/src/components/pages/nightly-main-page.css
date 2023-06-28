@@ -2,15 +2,8 @@
   max-width: 720px;
 }
 
-.headerWrapModal {
-  max-width: 720px;
-}
-
 @media (max-width: 1080px) and (min-width: 960px) {
   .nightlyModal {
-    max-width: 636px;
-  }
-  .headerWrapModal {
     max-width: 636px;
   }
 }
@@ -19,44 +12,10 @@
   .nightlyModal {
     max-width: 540px;
   }
-  .headerWrapModal {
-    max-width: 540px;
-  }
 }
 
 @media (max-width: 640px) {
   .nightlyModal {
-    max-width: 540px;
-  }
-  .headerWrapModal {
-    max-width: 540px;
-  }
-}
-
-.connectWallet {
-  height: 486px;
-  width: 572px;
-}
-
-.headerWrapConnectWallet {
-  width: 572px;
-}
-
-@media (min-width: 560px) and (max-width: 640px) {
-  .connectWallet {
-    width: 494px;
-    height: 408px;
-  }
-  .headerWrapConnectWallet {
-    width: 494px;
-  }
-}
-
-@media (max-width: 560px) {
-  .connectWallet {
-    width: 287px;
-  }
-  .headerWrapConnectWallet {
-    width: 287px;
+    max-width: 100%;
   }
 }
