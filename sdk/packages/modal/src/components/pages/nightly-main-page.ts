@@ -8,6 +8,7 @@ import '../nightly-connect-wallet/nightly-connect-wallet'
 import '../nightly-wallet-selector-page/nightly-wallet-selector-small-page/nightly-wallet-selector-small-page'
 import '../nightly-header/nightly-header'
 import { styleMap } from 'lit/directives/style-map.js'
+import { animate } from '@lit-labs/motion'
 @customElement('nightly-main-page')
 export class NightlyMainPage extends LitElement {
   static styles = tailwindElement(style)
@@ -108,7 +109,11 @@ export class NightlyMainPage extends LitElement {
         <div class="contentWrapper">
           <nightly-connect-wallet
             class="fade-in"
-            style=${styleMap({ display: this.openWalletConncet ? 'unset' : 'none' })}
+            style=${styleMap({
+              visibility: this.openWalletConncet ? 'visible' : 'hidden',
+              height: this.openWalletConncet ? 'auto' : '0',
+              opacity: this.openWalletConncet ? '1' : '0'
+            })}
             .breakpoint=${this.breakpoint}
             .coinName=${this.coinName}
             .connecting=${this.connecting}
@@ -117,11 +122,15 @@ export class NightlyMainPage extends LitElement {
             .link=${this.link}
             .nameLink=${this.nameLink}
             .walletIcon=${this.walletIcon}
+            ${animate()}
           ></nightly-connect-wallet>
           <nightly-wallet-selector-small-page
             class="fade-in"
             style=${styleMap({
-              display: this.breakpoint === 'xs' && !this.openWalletConncet ? 'unset' : 'none'
+              visibility:
+                this.breakpoint === 'xs' && !this.openWalletConncet ? 'visible' : 'hidden',
+              height: this.breakpoint === 'xs' && !this.openWalletConncet ? 'auto' : '0',
+              opacity: this.breakpoint === 'xs' && !this.openWalletConncet ? '1' : '0'
             })}
             .breakpoint=${this.breakpoint}
             .hasUpdated=${this.hasUpdated}
@@ -131,11 +140,15 @@ export class NightlyMainPage extends LitElement {
             .onClose=${this.onClose}
             .selectorItems=${this.selectorItems}
             .sessionId=${this.sessionId}
+            ${animate()}
           ></nightly-wallet-selector-small-page>
           <nightly-modal
             class="fade-in"
             style=${styleMap({
-              display: this.breakpoint !== 'xs' && !this.openWalletConncet ? 'unset' : 'none'
+              visibility:
+                this.breakpoint !== 'xs' && !this.openWalletConncet ? 'visible' : 'hidden',
+              height: this.breakpoint !== 'xs' && !this.openWalletConncet ? 'auto' : '0',
+              opacity: this.breakpoint !== 'xs' && !this.openWalletConncet ? '1' : '0'
             })}
             .chainIcon=${this.chainIcon}
             .chainName=${this.chainName}
@@ -147,6 +160,7 @@ export class NightlyMainPage extends LitElement {
             .onWalletClick=${this.openConnectWallet}
             .selectorItems=${this.selectorItems}
             .sessionId=${this.sessionId}
+            ${animate()}
           ></nightly-modal>
         </div>
       </div>
