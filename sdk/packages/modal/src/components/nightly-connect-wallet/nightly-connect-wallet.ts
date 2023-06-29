@@ -31,34 +31,13 @@ export class NightlyConnectWallet extends LitElement {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   fallback = () => {}
 
-  breakpoint: Breakpoint
-
-  constructor() {
-    super()
-    this.breakpoint = 'sm'
-    this.updateBreakpoint()
-    this.resizeListener()
-  }
-
-  updateBreakpoint() {
-    const screenWidth = window.innerWidth
-    this.breakpoint = getBreakpointFromWidthInConnectWallet(screenWidth)
-  }
-
-  resizeListener() {
-    window.addEventListener('resize', () => {
-      this.updateBreakpoint()
-      this.requestUpdate()
-    })
-  }
-
   render() {
-    if (this.breakpoint === 'xs') {
-      return html`
-        <div class="wrapperPage">
+    return html`
+      <div class="mainContainer">
+        <div class="wrapperConnectPage">
           <div class="headerContainer">
             <div class="buttonContainer">
-              <button @click=${this.fallback}>
+              <button id="connect-wallet-fallback-button" @click=${this.fallback}>
                 <img class="vector" src=${vector} />
               </button>
             </div>
@@ -80,54 +59,18 @@ export class NightlyConnectWallet extends LitElement {
             <p>
               Connecting takes too long? Make sure ${this.nameLink} is installed on your device.
               Otherwise, visit
-              <a class="link" href="${this.link}">${this.nameLink}</a>
+              <a id="connect-wallet-page-link-wallet-website" class="link" href="${this.link}"
+                >${this.nameLink}</a
+              >
               to download it.
             </p>
-            <button @click=${this.tryAgainClick}>Try again</button>
+            <button id="connect-wallet-page-try-again-button" @click=${this.tryAgainClick}>
+              Try again
+            </button>
           </div>
         </div>
-      `
-    } else {
-      return html`
-        <div class="mainContainer">
-          <div class="wrapperConnectPage">
-            <div class="headerContainer">
-              <div class="buttonContainer">
-                <button id="connect-wallet-fallback-button" @click=${this.fallback}>
-                  <img class="vector" src=${vector} />
-                </button>
-              </div>
-              <div class="textContainer">
-                <span>Connect wallet</span>
-              </div>
-            </div>
-            <div class="coinInfoContainer">
-              <img src=${this.walletIcon} />
-              <span class="coinName">${this.coinName}</span>
-              ${this.connecting
-                ? html` <div class="connectingContainer">
-                    <span>Connecting... </span>
-                    <div class="custom-loader"></div>
-                  </div>`
-                : html` <span class="error">Connecting failed</span> `}
-            </div>
-            <div class="reConnectWrapper">
-              <p>
-                Connecting takes too long? Make sure ${this.nameLink} is installed on your device.
-                Otherwise, visit
-                <a id="connect-wallet-page-link-wallet-website" class="link" href="${this.link}"
-                  >${this.nameLink}</a
-                >
-                to download it.
-              </p>
-              <button id="connect-wallet-page-try-again-button" @click=${this.tryAgainClick}>
-                Try again
-              </button>
-            </div>
-          </div>
-        </div>
-      `
-    }
+      </div>
+    `
   }
 }
 

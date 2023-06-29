@@ -1,7 +1,6 @@
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { tailwindElement } from '../../shared/tailwind.element'
-import { Breakpoint, getBreakpointFromWidthInMainPage } from '../../utils/utils'
 import '../nightly-modal/nightly-modal'
 import style from './nightly-main-page.css'
 import '../nightly-connect-wallet/nightly-connect-wallet'
@@ -73,8 +72,6 @@ export class NightlyMainPage extends LitElement {
 
   timeoutRef: number | undefined = undefined
 
-  breakpoint: Breakpoint
-
   openConnectWallet() {
     this.openWalletConncet = true
     this.requestUpdate()
@@ -85,21 +82,6 @@ export class NightlyMainPage extends LitElement {
     this.useSmallHeader = false
     this.onWalletClick = this.onWalletClick.bind(this)
     this.openConnectWallet = this.openConnectWallet.bind(this)
-    this.breakpoint = 'sm'
-    this.updateBreakpoint()
-    this.resizeListener()
-  }
-
-  updateBreakpoint() {
-    const screenWidth = window.innerWidth
-    this.breakpoint = getBreakpointFromWidthInMainPage(screenWidth)
-  }
-
-  resizeListener() {
-    window.addEventListener('resize', () => {
-      this.updateBreakpoint()
-      this.requestUpdate()
-    })
   }
 
   render() {
@@ -109,7 +91,6 @@ export class NightlyMainPage extends LitElement {
         <div class="contentWrapper">
           <nightly-connect-wallet
             class="modalConnect ${this.openWalletConncet ? 'fade-in-open' : 'fade-in-closed'}"
-            .breakpoint=${this.breakpoint}
             .coinName=${this.coinName}
             .connecting=${this.connecting}
             .tryAgainClick=${this.tryAgainClick}
@@ -120,10 +101,7 @@ export class NightlyMainPage extends LitElement {
             ${animate()}
           ></nightly-connect-wallet>
           <nightly-wallet-selector-small-page
-            class="modalMobile ${this.breakpoint === 'xs' && !this.openWalletConncet
-              ? 'fade-in-open'
-              : 'fade-in-closed'}"
-            .breakpoint=${this.breakpoint}
+            class="modalMobile ${!this.openWalletConncet ? 'fade-in-open' : 'fade-in-closed'}"
             .hasUpdated=${this.hasUpdated}
             .isUpdatePending=${this.isUpdatePending}
             .network=${this.network}
@@ -134,9 +112,7 @@ export class NightlyMainPage extends LitElement {
             ${animate()}
           ></nightly-wallet-selector-small-page>
           <nightly-modal
-            class="modalDesktop ${this.breakpoint !== 'xs' && !this.openWalletConncet
-              ? 'fade-in-open'
-              : 'fade-in-closed'}"
+            class="modalDesktop ${!this.openWalletConncet ? 'fade-in-open' : 'fade-in-closed'}"
             .chainIcon=${this.chainIcon}
             .chainName=${this.chainName}
             .copyMessage=${this.copyMessage}

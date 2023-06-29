@@ -3,7 +3,6 @@ import { html } from 'lit/static-html.js'
 import { tailwindElement } from '../../../shared/tailwind.element'
 import foxSadGIF from '../../../static/gif/fox_sad.gif'
 import search from '../../../static/svg/searchIcon.svg'
-import { Breakpoint, getBreakpointFromWidth } from '../../../utils/utils'
 import '../nightly-all-wallets-selector/nightly-all-wallets-selector'
 import '../nightly-qrCode/nightly-qrCode'
 import '../nightly-wallet-wrapper/nightly-wallet-wrapper'
@@ -58,26 +57,9 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
   filteredItems: { name: string; icon: string; status: string }[] = []
   showNotFoundIcon = false
 
-  breakpoint: Breakpoint
-
   constructor() {
     super()
     this.handleSearchInput = this.handleSearchInput.bind(this)
-    this.breakpoint = 'lg'
-    this.updateBreakpoint()
-    this.resizeListener()
-  }
-
-  updateBreakpoint() {
-    const screenWidth = window.innerWidth
-    this.breakpoint = getBreakpointFromWidth(screenWidth)
-  }
-
-  resizeListener() {
-    window.addEventListener('resize', () => {
-      this.updateBreakpoint()
-      this.requestUpdate()
-    })
   }
 
   showAllWallets() {
@@ -156,7 +138,6 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
               <nightly-wallet-wrapper
                 .network=${this.network}
                 .sessionId=${this.sessionId}
-                .breakpoint=${this.breakpoint}
                 .showAllWallets=${this.showAllWallets.bind(this)}
                 .onWalletClick=${this.onWalletClick.bind(this)}
                 .openQrPage=${() => this.openQrPage()}
