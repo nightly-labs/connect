@@ -36,6 +36,38 @@
   }
 }
 
-.fade-in {
+.modalConnect {
   display: block;
 }
+
+.fade-in-open {
+  visibility: visible;
+  height: auto;
+  opacity: 1;
+}
+
+.fade-in-closed {
+  visibility: hidden;
+  height: 0;
+  opacity: 0;
+}
+
+.modalDesktop {
+  display: block;
+}
+
+.modalMobile {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .modalDesktop {
+    display: none;
+  }
+
+  .modalMobile {
+    display: block;
+  }
+}
+
+
