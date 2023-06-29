@@ -1,5 +1,5 @@
 import { LitElement, html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import { tailwindElement } from '../../shared/tailwind.element'
 import '../nightly-modal/nightly-modal'
 import style from './nightly-main-page.css'
@@ -18,9 +18,6 @@ export class NightlyMainPage extends LitElement {
 
   @property({ type: Array })
   selectorItems = []
-
-  @property({ type: Boolean })
-  openWalletConncet = false
 
   @property({ type: Function })
   onWalletClick(name: string): void {
@@ -67,19 +64,15 @@ export class NightlyMainPage extends LitElement {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   tryAgainClick = () => {}
 
-  @property({ type: Boolean })
-  useSmallHeader = false
-
-  timeoutRef: number | undefined = undefined
+  @state()
+  openWalletConncet = false
 
   openConnectWallet() {
     this.openWalletConncet = true
-    this.requestUpdate()
   }
 
   constructor() {
     super()
-    this.useSmallHeader = false
     this.onWalletClick = this.onWalletClick.bind(this)
     this.openConnectWallet = this.openConnectWallet.bind(this)
   }
