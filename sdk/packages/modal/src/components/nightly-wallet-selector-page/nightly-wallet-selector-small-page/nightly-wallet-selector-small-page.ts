@@ -51,44 +51,101 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
       this.isTopWalletsView = oppositeState
       this.showAll = !oppositeState
     }
-    this.requestUpdate()
   }
 
   openQrPage() {
     this.isQrPageVisible = true
     this.isTopWalletsView = false
-    this.requestUpdate()
   }
 
   render() {
+    if (this.isTopWalletsView) {
+      return html`
+        <nightly-wallet-wrapper
+          class="selectorView"
+          .network=${this.network}
+          .sessionId=${this.sessionId}
+          .showAllWallets=${this.showAllWallets.bind(this)}
+          .onWalletClick=${this.onWalletClick.bind(this)}
+          .openQrPage=${() => this.openQrPage()}
+          .selectorItems=${this.selectorItems}
+          ${animate({
+            properties: ['height', 'opacity', 'transform'],
+            skipInitial: true,
+            in: [
+              {
+                opacity: 0,
+                transform: 'scale(0.9)'
+              },
+              {
+                offset: 0.1,
+                opacity: 0,
+                transform: 'scale(0.9)'
+              },
+              {
+                offset: 1,
+                opacity: 1,
+                transform: 'scale(1)'
+              }
+            ]
+          })}
+        ></nightly-wallet-wrapper>
+      `
+    }
+
+    if (this.showAll) {
+      return html` <nightly-all-wallets-selector
+        class="selectorView"
+        .showAllWallets=${this.showAllWallets.bind(this)}
+        .onWalletClick=${this.onWalletClick.bind(this)}
+        .selectorItems=${this.selectorItems}
+        ${animate({
+          properties: ['height', 'opacity', 'transform'],
+          in: [
+            {
+              opacity: 0,
+              transform: 'scale(0.9)'
+            },
+            {
+              offset: 0.1,
+              opacity: 0,
+              transform: 'scale(0.9)'
+            },
+            {
+              offset: 1,
+              opacity: 1,
+              transform: 'scale(1)'
+            }
+          ]
+        })}
+      ></nightly-all-wallets-selector>`
+    }
+
     return html`
-      <nightly-wallet-wrapper
-        class="selectorView ${this.isTopWalletsView ? 'fade-in-open' : 'fade-in-closed'}"
-        .network=${this.network}
-        .sessionId=${this.sessionId}
-        .showAllWallets=${this.showAllWallets.bind(this)}
-        .onWalletClick=${this.onWalletClick.bind(this)}
-        .openQrPage=${() => this.openQrPage()}
-        .selectorItems=${this.selectorItems}
-        ${animate()}
-      ></nightly-wallet-wrapper>
-      <nightly-all-wallets-selector
-        class="selectorView ${!this.isTopWalletsView && this.showAll
-          ? 'fade-in-open'
-          : 'fade-in-closed'}"
-        .showAllWallets=${this.showAllWallets.bind(this)}
-        .onWalletClick=${this.onWalletClick.bind(this)}
-        .selectorItems=${this.selectorItems}
-        ${animate()}
-      ></nightly-all-wallets-selector>
       <nightly-qr-code
-        class="selectorView ${!this.isTopWalletsView && this.isQrPageVisible
-          ? 'fade-in-open'
-          : 'fade-in-closed'}"
+        class="selectorView"
         .network=${this.network}
         .sessionId=${this.sessionId}
         .showAllWallets=${this.showAllWallets.bind(this)}
-        ${animate()}
+        ${animate({
+          properties: ['height', 'opacity', 'transform'],
+          in: [
+            {
+              opacity: 0,
+              transform: 'scale(0.9)'
+            },
+            {
+              offset: 0.1,
+              opacity: 0,
+              transform: 'scale(0.9)'
+            },
+            {
+              offset: 1,
+              opacity: 1,
+              transform: 'scale(1)'
+            }
+          ]
+        })}
       ></nightly-qr-code>
     `
   }

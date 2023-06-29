@@ -37,8 +37,6 @@ const meta: Meta<NightlyWalletSelectorSmallPage> = {
 export default meta
 
 export const Default = (args: NightlyWalletSelectorListArgs) => {
-  console.log(args.walletSelectorItems)
-
   return html`
     <div style="100%">
       <nightly-wallet-selector-small-page
