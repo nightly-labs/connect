@@ -6,6 +6,8 @@ import '../nightly-qrCode/nightly-qrCode'
 import '../nightly-wallet-wrapper/nightly-wallet-wrapper'
 import style from './nightly-wallet-selector-small-page.css'
 import { LitElement } from 'lit'
+import { animate } from '@lit-labs/motion'
+
 @customElement('nightly-wallet-selector-small-page')
 export class NightlyWalletSelectorSmallPage extends LitElement {
   static styles = tailwindElement(style)
@@ -60,40 +62,34 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
 
   render() {
     return html`
-      <div style="">
-        ${(() => {
-          if (!this.isTopWalletsView && this.showAll) {
-            return html`
-              <nightly-all-wallets-selector
-                .showAllWallets=${this.showAllWallets.bind(this)}
-                .onWalletClick=${this.onWalletClick.bind(this)}
-                .selectorItems=${this.selectorItems}
-              ></nightly-all-wallets-selector>
-            `
-          }
-
-          if (!this.isTopWalletsView && this.isQrPageVisible) {
-            return html`
-              <nightly-qr-code
-                .network=${this.network}
-                .sessionId=${this.sessionId}
-                .showAllWallets=${this.showAllWallets.bind(this)}
-              ></nightly-qr-code>
-            `
-          }
-
-          return html`
-            <nightly-wallet-wrapper
-              .network=${this.network}
-              .sessionId=${this.sessionId}
-              .showAllWallets=${this.showAllWallets.bind(this)}
-              .onWalletClick=${this.onWalletClick.bind(this)}
-              .openQrPage=${() => this.openQrPage()}
-              .selectorItems=${this.selectorItems}
-            ></nightly-wallet-wrapper>
-          `
-        })()}
-      </div>
+      <nightly-wallet-wrapper
+        class="selectorView ${this.isTopWalletsView ? 'fade-in-open' : 'fade-in-closed'}"
+        .network=${this.network}
+        .sessionId=${this.sessionId}
+        .showAllWallets=${this.showAllWallets.bind(this)}
+        .onWalletClick=${this.onWalletClick.bind(this)}
+        .openQrPage=${() => this.openQrPage()}
+        .selectorItems=${this.selectorItems}
+        ${animate()}
+      ></nightly-wallet-wrapper>
+      <nightly-all-wallets-selector
+        class="selectorView ${!this.isTopWalletsView && this.showAll
+          ? 'fade-in-open'
+          : 'fade-in-closed'}"
+        .showAllWallets=${this.showAllWallets.bind(this)}
+        .onWalletClick=${this.onWalletClick.bind(this)}
+        .selectorItems=${this.selectorItems}
+        ${animate()}
+      ></nightly-all-wallets-selector>
+      <nightly-qr-code
+        class="selectorView ${!this.isTopWalletsView && this.isQrPageVisible
+          ? 'fade-in-open'
+          : 'fade-in-closed'}"
+        .network=${this.network}
+        .sessionId=${this.sessionId}
+        .showAllWallets=${this.showAllWallets.bind(this)}
+        ${animate()}
+      ></nightly-qr-code>
     `
   }
 }
