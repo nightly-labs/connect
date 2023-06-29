@@ -1,5 +1,5 @@
 {
-  "name": "@nightlylabs/nightly-connect-solana",
+  "name": "@nightlylabs/nightly-connect-polkadot",
   "version": "0.0.12",
   "type": "module",
   "browser": {
