@@ -78,14 +78,13 @@ export class NightlyAllWalletsSelector extends LitElement {
       <div class="recentDetectedContainer">
         ${this.filteredItems.map((item) => {
           return html`
-            <div class="nightlyWalletSelectorItem">
               <nightly-wallet-selector-item
+                class="nightlyWalletSelectorItem"
                 name=${item.name}
                 icon=${item.icon}
                 status=${item.status}
                 @click=${() => this.onWalletClick(item.name)}
               ></nightly-wallet-selector-item>
-            </div>
           `
         })}
       </div>

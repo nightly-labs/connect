@@ -71,19 +71,20 @@ export class NightlyWalletWrapper extends LitElement {
             </button>
           </div>
           <div class="mainContainerWalletSellector">
-            ${this._selectorItems.slice(0, numberOfItems).map(
-              (wallet) =>
-                html`
-                  <div class="topWalletsItem">
+            ${this._selectorItems
+              .slice(0, numberOfItems)
+              .map(
+                (wallet) =>
+                  html`
                     <nightly-wallet-selector-item
+                      class="topWalletsItem"
                       name=${wallet.name}
                       icon=${wallet.icon}
                       status=${wallet.status}
                       @click=${() => this.onWalletClick(wallet.name)}
                     ></nightly-wallet-selector-item>
-                  </div>
-                `
-            )}
+                  `
+              )}
             <div
               class="showListButtonContainer"
               @click=${this.showAllWallets}

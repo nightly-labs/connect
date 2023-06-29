@@ -134,3 +134,9 @@
   width: 104px;
   height: 216px;
 }
+
+.nightlyWalletSelectorItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
