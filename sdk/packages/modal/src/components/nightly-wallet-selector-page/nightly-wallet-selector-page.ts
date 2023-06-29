@@ -1,4 +1,4 @@
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import { html } from 'lit/static-html.js'
 import { tailwindElement } from '../../shared/tailwind.element'
 import foxSadGIF from '../../static/gif/fox_sad.gif'
@@ -21,15 +21,18 @@ export class NightlyWalletSelectorPage extends LitElement {
   }
 
   set selectorItems(value: { name: string; icon: string; status: string }[]) {
-    const oldValue = this._selectorItems
     this._selectorItems = value
-    this.filteredItems = [...value]
-    this.requestUpdate('selectorItems', oldValue)
+    this.filteredItems = value.filter((item) => {
+      return item.name.toLowerCase().includes(this.searchText)
+    })
   }
 
   private _selectorItems: { name: string; icon: string; status: string }[] = []
+
+  @state()
   filteredItems: { name: string; icon: string; status: string }[] = []
-  showNotFoundIcon = false
+  @state()
+  searchText = ''
 
   @property({ type: Function })
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -54,9 +57,9 @@ export class NightlyWalletSelectorPage extends LitElement {
             />
             <img src="${search}" />
           </div>
-          <div class="${this.showNotFoundIcon ? 'NotFoundContainer' : 'walletSelectorButtons'}">
-            ${this.showNotFoundIcon ? this.renderNotFoundIcon() : this.renderSelectorItems()}
-          </div>
+          ${this.filteredItems.length === 0
+            ? this.renderNotFoundIcon()
+            : this.renderSelectorItems()}
         </div>
       </div>
     `
@@ -113,14 +116,11 @@ export class NightlyWalletSelectorPage extends LitElement {
   handleSearchInput(event: InputEvent) {
     const searchInput = event.target as HTMLInputElement
     const searchText = searchInput.value.toLowerCase()
+    this.searchText = searchText
 
     this.filteredItems = this.selectorItems.filter((item) => {
       return item.name.toLowerCase().includes(searchText)
     })
-
-    this.showNotFoundIcon = this.filteredItems.length === 0
-
-    this.requestUpdate()
   }
 }
 

@@ -104,3 +104,33 @@
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+.NotFoundContainer {
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.NotFoundHeading {
+  padding-top: 16px;
+  color: #f7f7f7;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 22px;
+  letter-spacing: 0.02em;
+}
+.NotFoundInfo {
+  padding-top: 4px;
+  width: 171px;
+  color: #707a8d;
+  text-align: center;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+}
+.NotFoundGif {
+  width: 104px;
+  height: 216px;
+}
