@@ -1,4 +1,4 @@
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import { html } from 'lit/static-html.js'
 import { tailwindElement } from '../../../shared/tailwind.element'
 import '../nightly-all-wallets-selector/nightly-all-wallets-selector'
@@ -16,13 +16,13 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onClose = () => {}
 
-  @property({ type: Boolean })
+  @state()
   showAll = false
 
-  @property({ type: Boolean })
+  @state()
   isTopWalletsView = true
 
-  @property({ type: Boolean })
+  @state()
   isQrPageVisible = false
 
   @property({ type: String })
