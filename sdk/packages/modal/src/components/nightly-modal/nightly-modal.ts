@@ -1,4 +1,4 @@
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import { tailwindElement } from '../../shared/tailwind.element'
 import style from './nightly-modal.css'
 import { LitElement, html } from 'lit'
@@ -34,7 +34,7 @@ export class NightlyModal extends LitElement {
   @property({ type: String })
   relay = ''
 
-  @property({ type: String })
+  @state()
   copyMessage = 'Copy'
 
   timeoutRef: number | undefined = undefined
