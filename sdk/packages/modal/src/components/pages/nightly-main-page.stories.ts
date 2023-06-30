@@ -29,15 +29,13 @@ const meta = {
         .chainName=${args.chainName}
         .sessionId=${args.sessionId}
         .network=${args.network}
-        coinName=${args.coinName}
         nameLink=${args.nameLink}
         ?connecting=${args.connecting}
-        walletIcon=${args.walletIcon}
         ?connected=${args.connected}
         .tryAgainClick=${args.tryAgainClick}
         .onClose=${args.onClose}
         link=${args.link}
-        ?openWalletConncet=${args.openWalletConncet}
+        ?openWalletConncet=${args.connectingViewOpen}
       ></nightly-main-page>
     `
   }
@@ -59,10 +57,8 @@ interface NightlyModalArgs {
   chainName: string
   sessionId: string
   network: string
-  coinName: string
   nameLink: string
   connecting: boolean
-  walletIcon: string
   connected: boolean
   tryAgainClick: () => void
   fallback: () => void
@@ -85,26 +81,26 @@ export const Default: Story = {
       { name: 'Trust', icon: Trust, status: '' },
       { name: 'Binance', icon: Binance, status: '' },
       { name: 'Sollet', icon: Sollet, status: '' },
-      { name: 'Phantom', icon: Phantom, status: '' },
-      { name: 'MetaMask', icon: MetaMask, status: 'recent' },
+      { name: 'Phantom2', icon: Phantom, status: '' },
+      { name: 'MetaMask2', icon: MetaMask, status: 'recent' },
       { name: 'Coinbase', icon: Coinbase, status: '' },
-      { name: 'ZenGO', icon: ZenGO, status: '' },
-      { name: 'Trust', icon: Trust, status: 'detected' },
-      { name: 'Binance', icon: Binance, status: '' },
-      { name: 'Phantom', icon: Phantom, status: 'recent' },
-      { name: 'Nightly Wallet', icon: NightlyIcon, status: 'recent' },
-      { name: 'MetaMask', icon: MetaMask, status: '' },
-      { name: 'Glow', icon: Glow, status: '' },
-      { name: 'ZenGO', icon: ZenGO, status: 'detected' },
-      { name: 'Trust', icon: Trust, status: '' },
-      { name: 'Binance', icon: Binance, status: '' },
-      { name: 'Sollet', icon: Sollet, status: '' },
-      { name: 'Phantom', icon: Phantom, status: '' },
-      { name: 'MetaMask', icon: MetaMask, status: 'recent' },
-      { name: 'Coinbase', icon: Coinbase, status: '' },
-      { name: 'ZenGO', icon: ZenGO, status: '' },
-      { name: 'Trust', icon: Trust, status: 'detected' },
-      { name: 'Binance', icon: Binance, status: '' }
+      { name: 'ZenGO2', icon: ZenGO, status: '' },
+      { name: 'Trust2', icon: Trust, status: 'detected' },
+      { name: 'Binance2', icon: Binance, status: '' },
+      { name: 'Phantom3', icon: Phantom, status: 'recent' },
+      { name: 'Nightly Wallet2', icon: NightlyIcon, status: 'recent' },
+      { name: 'MetaMask2', icon: MetaMask, status: '' },
+      { name: 'Glow2', icon: Glow, status: '' },
+      { name: 'ZenGO3', icon: ZenGO, status: 'detected' },
+      { name: 'Trust3', icon: Trust, status: '' },
+      { name: 'Binance3', icon: Binance, status: '' },
+      { name: 'Sollet2', icon: Sollet, status: '' },
+      { name: 'Phantom4', icon: Phantom, status: '' },
+      { name: 'MetaMask3', icon: MetaMask, status: 'recent' },
+      { name: 'Coinbase2', icon: Coinbase, status: '' },
+      { name: 'ZenGO4', icon: ZenGO, status: '' },
+      { name: 'Trust4', icon: Trust, status: 'detected' },
+      { name: 'Binance4', icon: Binance, status: '' }
     ],
     onWalletClick: (name: string) => {
       console.log('Item clicked:', name)
@@ -114,10 +110,8 @@ export const Default: Story = {
     sessionId:
       'fsdhfdzfsdhgfzghggdfhbgchgbdfnvfbxhncvfjhzxdhgbhghfgfvzhfgjhgszdhgzxdfhgfzxdjfuhdfhgd',
     network: 'SOLANA',
-    coinName: 'Binance Wallet',
     nameLink: 'Binance Wallet website',
     connecting: true,
-    walletIcon: Binance,
     connected: false,
     tryAgainClick: () => console.log('try again click'),
     fallback: () => console.log('back to main page'),

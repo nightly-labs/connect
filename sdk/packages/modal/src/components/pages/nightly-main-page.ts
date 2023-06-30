@@ -8,6 +8,13 @@ import '../nightly-wallet-selector-page/nightly-wallet-selector-small-page/night
 import '../nightly-header/nightly-header'
 import { animate } from '@lit-labs/motion'
 import { styleMap } from 'lit/directives/style-map.js'
+import { isMobileBrowser } from '../../utils/utils'
+
+interface WalletSelectorItem {
+  name: string
+  icon: string
+  status: string
+}
 
 @customElement('nightly-main-page')
 export class NightlyMainPage extends LitElement {
@@ -18,7 +25,7 @@ export class NightlyMainPage extends LitElement {
   onClose = () => {}
 
   @property({ type: Array })
-  selectorItems = []
+  selectorItems: WalletSelectorItem[] = []
 
   @property({ type: Function })
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -48,26 +55,41 @@ export class NightlyMainPage extends LitElement {
   @property({ type: String })
   link = ''
 
-  @property({ type: String })
+  @state()
   walletIcon = ''
 
-  @property({ type: String })
-  coinName = ''
+  @state()
+  currentWalletName = ''
 
   @property()
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   tryAgainClick = () => {}
 
   @state()
-  openWalletConncet = false
+  connectingViewOpen = false
 
-  openConnectWallet() {
-    this.openWalletConncet = true
+  onSelectWallet = (name: string) => {
+    const wallet = this.selectorItems.find((w) => w.name === name)
+
+    this.walletIcon = wallet?.icon ?? ''
+    this.currentWalletName = wallet?.name ?? ''
+
+    if (
+      isMobileBrowser() ||
+      wallet?.status.toLowerCase() === 'recent' ||
+      wallet?.status.toLowerCase() === 'detected'
+    ) {
+      this.connectingViewOpen = true
+    } else {
+      console.log(wallet)
+    }
+
+    this.onWalletClick(name)
   }
 
   constructor() {
     super()
-    this.openConnectWallet = this.openConnectWallet.bind(this)
+    this.onSelectWallet = this.onSelectWallet.bind(this)
   }
 
   @query('#modalConnect')
@@ -99,7 +121,7 @@ export class NightlyMainPage extends LitElement {
       <nightly-connect-wallet
         id="modalConnect"
         class="modalConnect"
-        .coinName=${this.coinName}
+        .coinName=${this.currentWalletName}
         .connecting=${this.connecting}
         .tryAgainClick=${this.tryAgainClick}
         .fallback=${this.backToPage}
@@ -146,7 +168,7 @@ export class NightlyMainPage extends LitElement {
       <nightly-wallet-selector-small-page
         class="modalMobile"
         .network=${this.network}
-        .onWalletClick=${this.openConnectWallet}
+        .onWalletClick=${this.onSelectWallet}
         .onClose=${this.onClose}
         .selectorItems=${this.selectorItems}
         .sessionId=${this.sessionId}
@@ -177,7 +199,7 @@ export class NightlyMainPage extends LitElement {
         .chainName=${this.chainName}
         .network=${this.network}
         .onClose=${this.onClose}
-        .onWalletClick=${this.openConnectWallet}
+        .onWalletClick=${this.onSelectWallet}
         .selectorItems=${this.selectorItems}
         .sessionId=${this.sessionId}
         ${animate({
@@ -215,14 +237,14 @@ export class NightlyMainPage extends LitElement {
             window.innerWidth <= 640 ? { height: this.mobileContentHeight + 'px' } : {}
           )}
         >
-          ${this.openWalletConncet ? this.renderConnect() : this.renderSelect()}
+          ${this.connectingViewOpen ? this.renderConnect() : this.renderSelect()}
         </div>
       </div>
     `
   }
 
   backToPage = () => {
-    this.openWalletConncet = false
+    this.connectingViewOpen = false
   }
 }
 
