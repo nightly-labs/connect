@@ -1,4 +1,4 @@
-name: modal-example-preview
+name: example-preview
 
 on:
   pull_request:
@@ -22,3 +22,15 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_NIGHTLY_CONNECT_EXAMPLE_PREVIEW }}
           VERCEL_SCOPE: ${{ secrets.VERCEL_ORG_ID }}
           PRODUCTION: false
+          CREATE_COMMENT: false
+          GITHUB_DEPLOYMENT: false
+      - uses: thollander/actions-comment-pull-request@v1
+        with:
+          message: 🤙🤙🤙🤙 EXAMPLE PREVIEW 🤙🤙🤙🤙
+            <table>
+            <tr>
+            <td><strong>✅ Preview:</strong></td>
+            <td><a href='${{ steps.vercel-deploy.outputs.PREVIEW_URL }}'>${{ steps.vercel-deploy.outputs.PREVIEW_URL }}</a></td>
+            </tr>
+            </table>
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
