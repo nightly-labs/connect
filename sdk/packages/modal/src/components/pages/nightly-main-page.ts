@@ -53,9 +53,6 @@ export class NightlyMainPage extends LitElement {
   connected = false
 
   @property({ type: String })
-  nameLink = ''
-
-  @property({ type: String })
   link = ''
 
   @state()
@@ -129,7 +126,7 @@ export class NightlyMainPage extends LitElement {
         .tryAgainClick=${this.tryAgainClick}
         .fallback=${this.backToPage}
         .link=${this.link}
-        .nameLink=${this.nameLink}
+        .nameLink=${this.currentWalletName}
         .walletIcon=${this.walletIcon}
         ${animate({
           properties: ['opacity', 'transform'],

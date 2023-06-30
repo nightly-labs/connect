@@ -60,7 +60,7 @@ export class NightlyConnectWallet extends LitElement {
               Connecting takes too long? Make sure ${this.nameLink} is installed on your device.
               Otherwise, visit
               <a id="connect-wallet-page-link-wallet-website" class="link" href="${this.link}"
-                >${this.nameLink}</a
+                >${this.nameLink} website</a
               >
               to download it.
             </p>

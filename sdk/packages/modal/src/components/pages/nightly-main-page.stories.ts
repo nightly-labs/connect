@@ -29,7 +29,6 @@ const meta = {
         .chainName=${args.chainName}
         .sessionId=${args.sessionId}
         .network=${args.network}
-        nameLink=${args.nameLink}
         ?connecting=${args.connecting}
         ?connected=${args.connected}
         .tryAgainClick=${args.tryAgainClick}
@@ -57,7 +56,6 @@ interface NightlyModalArgs {
   chainName: string
   sessionId: string
   network: string
-  nameLink: string
   connecting: boolean
   connected: boolean
   tryAgainClick: () => void
@@ -108,7 +106,6 @@ export const Default: Story = {
     sessionId:
       'fsdhfdzfsdhgfzghggdfhbgchgbdfnvfbxhncvfjhzxdhgbhghfgfvzhfgjhgszdhgzxdfhgfzxdjfuhdfhgd',
     network: 'SOLANA',
-    nameLink: 'Binance Wallet website',
     connecting: true,
     connected: false,
     tryAgainClick: () => console.log('try again click'),
