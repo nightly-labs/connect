@@ -24,6 +24,7 @@ interface NightlyWalletSelectorListArgs {
   onWalletClick: (name: string) => void
   sessionId: string
   network: string
+  relay: string
   onClose: () => void
 }
 
@@ -45,6 +46,7 @@ export const Default = (args: NightlyWalletSelectorListArgs) => {
         .sessionId=${args.sessionId}
         .network=${args.network}
         .onClose=${args.onClose}
+        .relay=${args.relay}
       ></nightly-wallet-selector-small-page>
     </div>
   `
@@ -85,5 +87,6 @@ Default.args = {
   },
   sessionId:
     'fsdhfdzfsdhgfzghggdfhbgchgbdfnvfbxhncvfjhzxdhgbhghfgfvzhfgjhgszdhgzxdfhgfzxdjfuhdfhgd',
-  network: 'SOLANA'
+  network: 'SOLANA',
+  relay: 'https://relay.nightly.app'
 }

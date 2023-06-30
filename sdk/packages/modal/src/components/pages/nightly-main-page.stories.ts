@@ -35,7 +35,7 @@ const meta = {
         .tryAgainClick=${args.tryAgainClick}
         .onClose=${args.onClose}
         link=${args.link}
-        ?openWalletConncet=${args.connectingViewOpen}
+        .relay=${args.relay}
       ></nightly-main-page>
     `
   }
@@ -61,10 +61,8 @@ interface NightlyModalArgs {
   connecting: boolean
   connected: boolean
   tryAgainClick: () => void
-  fallback: () => void
   link: string
-  openWalletConncet: boolean
-  useSmallHeader: boolean
+  relay: string
 }
 type Story = StoryObj<NightlyModalArgs>
 
@@ -114,9 +112,7 @@ export const Default: Story = {
     connecting: true,
     connected: false,
     tryAgainClick: () => console.log('try again click'),
-    fallback: () => console.log('back to main page'),
     link: `https://www.binance.com/en`,
-    openWalletConncet: false,
-    useSmallHeader: false
+    relay: 'https://relay.nightly.app'
   }
 }

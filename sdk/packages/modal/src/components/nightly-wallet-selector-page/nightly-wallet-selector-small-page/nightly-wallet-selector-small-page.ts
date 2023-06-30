@@ -34,6 +34,9 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
   @property({ type: String })
   network = ''
 
+  @property({ type: String })
+  relay = ''
+
   @property({ type: Function })
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onWalletClick: (name: string) => void = () => {}
@@ -126,6 +129,7 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
         class="selectorView"
         .network=${this.network}
         .sessionId=${this.sessionId}
+        .relay=${this.relay}
         .showAllWallets=${this.showAllWallets.bind(this)}
         ${animate({
           properties: ['opacity', 'transform'],
@@ -151,8 +155,15 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
   }
 
   render() {
-    return html`
-    <div class="selectorWrapper ${this.isTopWalletsView ? 'topView' : this.isQrPageVisible ? 'qrView' : 'walletsView'}">${this.renderView()}</div>`
+    return html` <div
+      class="selectorWrapper ${this.isTopWalletsView
+        ? 'topView'
+        : this.isQrPageVisible
+        ? 'qrView'
+        : 'walletsView'}"
+    >
+      ${this.renderView()}
+    </div>`
   }
 }
 

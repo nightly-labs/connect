@@ -16,6 +16,9 @@ export class NightlyQrCode extends LitElement {
   @property({ type: String })
   network = ''
 
+  @property({ type: String })
+  relay = ''
+
   @property({ type: Function })
   showAllWallets!: () => void
 
@@ -36,11 +39,14 @@ export class NightlyQrCode extends LitElement {
           <img
             class="code"
             src=${svgToBase64(
-              generateQrCodeXml('nightlyconnect:' + this.sessionId + '?network=' + this.network, {
-                width: 432,
-                height: 432,
-                margin: 5
-              })
+              generateQrCodeXml(
+                'nc:' + this.sessionId + '?network=' + this.network + '?relay=' + this.relay,
+                {
+                  width: 432,
+                  height: 432,
+                  margin: 5
+                }
+              )
             )}
           />
         </div>

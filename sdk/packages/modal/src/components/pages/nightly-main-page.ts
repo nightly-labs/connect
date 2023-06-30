@@ -43,6 +43,9 @@ export class NightlyMainPage extends LitElement {
   @property({ type: String })
   network = ''
 
+  @property({ type: String })
+  relay = ''
+
   @property({ type: Boolean })
   connecting = false
 
@@ -172,6 +175,7 @@ export class NightlyMainPage extends LitElement {
         .onClose=${this.onClose}
         .selectorItems=${this.selectorItems}
         .sessionId=${this.sessionId}
+        .relay=${this.relay}
         ${animate({
           properties: ['opacity', 'transform'],
           skipInitial: true,
@@ -202,6 +206,7 @@ export class NightlyMainPage extends LitElement {
         .onWalletClick=${this.onSelectWallet}
         .selectorItems=${this.selectorItems}
         .sessionId=${this.sessionId}
+        .relay=${this.relay}
         ${animate({
           properties: ['opacity', 'transform'],
           skipInitial: true,
