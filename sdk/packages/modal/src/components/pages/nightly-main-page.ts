@@ -21,9 +21,9 @@ export class NightlyMainPage extends LitElement {
   selectorItems = []
 
   @property({ type: Function })
-  onWalletClick(name: string): void {
-    console.log('Item clicked:', name)
-  }
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  onWalletClick: (name: string) => void = () => {}
+
   @property({ type: String })
   chainIcon = ''
 
@@ -67,7 +67,6 @@ export class NightlyMainPage extends LitElement {
 
   constructor() {
     super()
-    this.onWalletClick = this.onWalletClick.bind(this)
     this.openConnectWallet = this.openConnectWallet.bind(this)
   }
 
@@ -88,7 +87,9 @@ export class NightlyMainPage extends LitElement {
       this.mobileContentHeight = this._modalConnect.scrollHeight
       if (!this.connectObserver) {
         this.connectObserver = new ResizeObserver(() => {
-          if (!this._modalConnect) { return }
+          if (!this._modalConnect) {
+            return
+          }
           this.mobileContentHeight = this._modalConnect.scrollHeight
         })
       }
@@ -133,7 +134,9 @@ export class NightlyMainPage extends LitElement {
       this.mobileContentHeight = this._modalSelect.scrollHeight
       if (!this.selectObserver) {
         this.selectObserver = new ResizeObserver(() => {
-          if (!this._modalSelect) { return }
+          if (!this._modalSelect) {
+            return
+          }
           this.mobileContentHeight = this._modalSelect.scrollHeight
         })
       }
