@@ -1,5 +1,5 @@
 import { LitElement, html } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, property, state, query } from 'lit/decorators.js'
 import { tailwindElement } from '../../shared/tailwind.element'
 import '../nightly-modal/nightly-modal'
 import style from './nightly-main-page.css'
@@ -7,6 +7,7 @@ import '../nightly-connect-wallet/nightly-connect-wallet'
 import '../nightly-wallet-selector-page/nightly-wallet-selector-small-page/nightly-wallet-selector-small-page'
 import '../nightly-header/nightly-header'
 import { animate } from '@lit-labs/motion'
+import { styleMap } from 'lit/directives/style-map.js'
 
 @customElement('nightly-main-page')
 export class NightlyMainPage extends LitElement {
@@ -35,9 +36,6 @@ export class NightlyMainPage extends LitElement {
   @property({ type: String })
   network = ''
 
-  @property({ type: String })
-  copyMessage = 'Copy'
-
   @property({ type: Boolean })
   connecting = false
 
@@ -58,10 +56,6 @@ export class NightlyMainPage extends LitElement {
 
   @property()
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  fallback = () => {}
-
-  @property()
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   tryAgainClick = () => {}
 
   @state()
@@ -77,9 +71,32 @@ export class NightlyMainPage extends LitElement {
     this.openConnectWallet = this.openConnectWallet.bind(this)
   }
 
+  @query('#modalConnect')
+  _modalConnect!: HTMLElement
+
+  @query('#modalSelect')
+  _modalSelect!: HTMLElement
+
+  @state()
+  mobileContentHeight = 318
+
+  connectObserver: ResizeObserver | undefined
+  selectObserver: ResizeObserver | undefined
+
   renderConnect() {
+    setTimeout(() => {
+      this.mobileContentHeight = this._modalConnect.scrollHeight
+      if (!this.connectObserver) {
+        this.connectObserver = new ResizeObserver(() => {
+          if (!this._modalConnect) { return }
+          this.mobileContentHeight = this._modalConnect.scrollHeight
+        })
+      }
+      this.connectObserver.observe(this._modalConnect)
+    }, 0)
     return html`
       <nightly-connect-wallet
+        id="modalConnect"
         class="modalConnect"
         .coinName=${this.coinName}
         .connecting=${this.connecting}
@@ -89,7 +106,7 @@ export class NightlyMainPage extends LitElement {
         .nameLink=${this.nameLink}
         .walletIcon=${this.walletIcon}
         ${animate({
-          properties: ['height', 'opacity', 'transform'],
+          properties: ['opacity', 'transform'],
           in: [
             {
               opacity: 0,
@@ -112,17 +129,26 @@ export class NightlyMainPage extends LitElement {
   }
 
   renderSelect() {
-    return html` <nightly-wallet-selector-small-page
+    setTimeout(() => {
+      this.mobileContentHeight = this._modalSelect.scrollHeight
+      if (!this.selectObserver) {
+        this.selectObserver = new ResizeObserver(() => {
+          if (!this._modalSelect) { return }
+          this.mobileContentHeight = this._modalSelect.scrollHeight
+        })
+      }
+      this.selectObserver.observe(this._modalSelect)
+    }, 0)
+    return html`<div id="modalSelect">
+      <nightly-wallet-selector-small-page
         class="modalMobile"
-        .hasUpdated=${this.hasUpdated}
-        .isUpdatePending=${this.isUpdatePending}
         .network=${this.network}
         .onWalletClick=${this.openConnectWallet}
         .onClose=${this.onClose}
         .selectorItems=${this.selectorItems}
         .sessionId=${this.sessionId}
         ${animate({
-          properties: ['height', 'opacity', 'transform'],
+          properties: ['opacity', 'transform'],
           skipInitial: true,
           in: [
             {
@@ -146,16 +172,13 @@ export class NightlyMainPage extends LitElement {
         class="modalDesktop"
         .chainIcon=${this.chainIcon}
         .chainName=${this.chainName}
-        .copyMessage=${this.copyMessage}
-        .hasUpdated=${this.hasUpdated}
-        .isUpdatePending=${this.isUpdatePending}
         .network=${this.network}
         .onClose=${this.onClose}
         .onWalletClick=${this.openConnectWallet}
         .selectorItems=${this.selectorItems}
         .sessionId=${this.sessionId}
         ${animate({
-          properties: ['height', 'opacity', 'transform'],
+          properties: ['opacity', 'transform'],
           skipInitial: true,
           in: [
             {
@@ -174,14 +197,21 @@ export class NightlyMainPage extends LitElement {
             }
           ]
         })}
-      ></nightly-modal>`
+      ></nightly-modal>
+    </div>`
   }
 
   render() {
     return html`
       <div class="nightlyModal">
         <nightly-header .onClose=${this.onClose}></nightly-header>
-        <div class="contentWrapper">
+        <div
+          id="contentWrapper"
+          class="contentWrapper"
+          style=${styleMap(
+            window.innerWidth <= 640 ? { height: this.mobileContentHeight + 'px' } : {}
+          )}
+        >
           ${this.openWalletConncet ? this.renderConnect() : this.renderSelect()}
         </div>
       </div>
@@ -190,7 +220,6 @@ export class NightlyMainPage extends LitElement {
 
   backToPage = () => {
     this.openWalletConncet = false
-    this.requestUpdate()
   }
 }
 

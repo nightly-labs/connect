@@ -36,10 +36,8 @@ const meta = {
         ?connected=${args.connected}
         .tryAgainClick=${args.tryAgainClick}
         .onClose=${args.onClose}
-        .fallback=${args.fallback}
         link=${args.link}
         ?openWalletConncet=${args.openWalletConncet}
-        ?useSmallHeader=${args.useSmallHeader}
       ></nightly-main-page>
     `
   }
