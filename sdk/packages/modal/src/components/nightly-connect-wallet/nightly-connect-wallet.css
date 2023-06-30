@@ -1,25 +1,35 @@
 .mainContainer {
-  height: 486px;
-  width: 572px;
+  height: 464px;
+  width: 100%;
+}
+
+@media (max-width: 960px) {
+  .mainContainer {
+    height: 368px;
+  }
+}
+
+@media (max-width: 1080px) and (min-width: 960px) {
+  .mainContainer {
+    max-width: 636px;
+  }
+}
+
+@media (max-width: 960px) and (min-width: 640px) {
+  .mainContainer {
+    max-width: 540px;
+  }
+}
+
+@media (max-width: 640px) {
+  .mainContainer {
+    max-width: 100%;
+  }
 }
 
 .wrapperConnectPage {
   border: 1px solid #343551;
   background-color: #202137;
-  border-radius: 0px 0px 16px 16px;
-}
-
-@media (min-width: 560px) and (max-width: 640px) {
-  .mainContainer {
-    width: 494px;
-    height: 408px;
-  }
-}
-
-@media (max-width: 560px) {
-  .mainContainer {
-    width: 287px;
-  }
 }
 
 .headerContainer {
@@ -78,14 +88,19 @@
   height: 144px;
 }
 
-@media (min-width: 560px) and (max-width: 640px) {
+@media (max-width: 960px) {
+  .coinInfoContainer {
+    padding-top: 4px;
+    margin-bottom: 16px;
+  }
+
   .coinInfoContainer img {
-    width: 104px;
-    height: 104px;
+    width: 72px;
+    height: 72px;
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 640px) {
   .coinInfoContainer img {
     width: 104px;
     height: 104px;
@@ -93,7 +108,6 @@
 }
 
 .coinName {
-  font-family: 'Prompt';
   font-style: normal;
   font-weight: 600;
   font-size: 24px;
@@ -101,6 +115,19 @@
   letter-spacing: 0.02em;
   color: #ffffff;
   margin-top: 14px;
+}
+
+@media (min-width: 640px) and (max-width: 960px) {
+  .coinName {
+    font-size: 18px;
+    line-height: 24px;
+    letter-spacing: 0.02em;
+  }
+
+  .connectingContainer span {
+    font-size: 12px;
+    line-height: 16px;
+  }
 }
 
 .connectInfo {
@@ -113,7 +140,6 @@
   justify-content: center;
   align-items: center;
   background-color: #17182b;
-  border-radius: 0px 0px 16px 16px;
 }
 
 .reConnectWrapper p {
@@ -138,12 +164,6 @@
 }
 
 .link {
-  font-family: 'Prompt';
-  font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 22px;
-  letter-spacing: 0.02em;
   color: #6067f9;
 }
 
@@ -155,7 +175,6 @@
 
 .connectingContainer span {
   color: #707a8d;
-  font-family: 'Prompt';
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
@@ -166,7 +185,6 @@
 
 .error {
   color: #d25858;
-  font-family: 'Prompt';
   font-style: normal;
   font-weight: 400;
   font-size: 12px;
@@ -184,8 +202,6 @@
   flex-flow: row wrap;
   flex-direction: column;
   width: 100%;
-  top: -20px;
-  position: relative;
   z-index: 2;
   background-color: #202137;
   border-radius: 16px;

@@ -16,13 +16,9 @@ export class NightlyHeader extends LitElement {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onClose = () => {}
 
-  @property({ type: String })
-  height = '56px'
-
   render() {
-    const customStyles = { height: this.height }
     return html`
-      <div class="mainContainer-header" style=${styleMap(customStyles)}>
+      <div class="mainContainer-header">
         <div class="logoContainer">
           <img class="header-logo" src=${Logo} />
           <button class="closeButton" @click=${this.onClose}>

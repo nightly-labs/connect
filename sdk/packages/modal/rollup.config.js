@@ -41,7 +41,8 @@ export default [
       'lit',
       'postcss',
       'postcss-lit',
-      'tailwindcss'
+      'tailwindcss',
+      '@lit-labs/motion'
     ]
   },
   {

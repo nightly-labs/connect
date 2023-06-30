@@ -1,0 +1,119 @@
+.walletWrapper {
+  display: flex;
+  flex-flow: row wrap;
+  flex-direction: column;
+  width: 100%;
+  z-index: 2;
+  background-color: #17182b;
+}
+.infoConatiner {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.infoConatiner button {
+  font-family: 'Prompt';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22px;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.02em;
+  color: #6067f9;
+  width: 89px;
+  height: 30px;
+  background: rgba(96, 103, 249, 0.25);
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+.infoConatiner p {
+  font-family: 'Prompt';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22px;
+  letter-spacing: 0.02em;
+  color: #f7f7f7;
+}
+.mainContainerWalletSellector {
+  display: grid;
+  grid-gap: 16px;
+  padding: 16px;
+}
+
+@media (min-width: 640px) {
+  .mainContainerWalletSellector {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .recentDetectedContainer {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (min-width: 482px) and (max-width: 639px) {
+  .mainContainerWalletSellector {
+    grid-gap: 0px;
+    grid-template-columns: repeat(5, 1fr);
+  }
+  .recentDetectedContainer {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 374px) and (max-width: 482px) {
+  .mainContainerWalletSellector {
+    grid-gap: 0px;
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .recentDetectedContainer {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 374px) {
+  .mainContainerWalletSellector {
+    grid-gap: 0px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .recentDetectedContainer {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.showListButtonContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.showListButton {
+  display: grid;
+  padding-bottom: 8px;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: 24px;
+  justify-items: center;
+  align-items: center;
+  gap: 4px;
+}
+.showListButtonContainer span {
+  cursor: pointer;
+  font-family: 'Prompt';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 16px;
+  text-align: center;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+}
+.buttonIcons {
+  width: 24px;
+  height: 24px;
+}
+.topWalletsItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

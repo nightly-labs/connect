@@ -18,6 +18,14 @@ export function getBreakpointFromWidthInConnectWallet(screenWidth: number): Brea
   }
 }
 
+export function getBreakpointFromWidthInMainPage(screenWidth: number): Breakpoint {
+  if (screenWidth < 640) {
+    return 'xs'
+  } else {
+    return 'sm'
+  }
+}
+
 export function getNumberOfItems(breakpoint: Breakpoint) {
   switch (breakpoint) {
     case 'xs':
@@ -29,3 +37,6 @@ export function getNumberOfItems(breakpoint: Breakpoint) {
       return 9
   }
 }
+
+export const isMobileBrowser = () =>
+  /Android|iPhone|iPad|iPod|Opera Mini/i.test(navigator.userAgent)
