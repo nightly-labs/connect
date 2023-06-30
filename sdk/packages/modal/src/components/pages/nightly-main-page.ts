@@ -10,10 +10,11 @@ import { animate } from '@lit-labs/motion'
 import { styleMap } from 'lit/directives/style-map.js'
 import { isMobileBrowser } from '../../utils/utils'
 
-interface WalletSelectorItem {
+export interface WalletSelectorItem {
   name: string
   icon: string
   status: string
+  link: string
 }
 
 @customElement('nightly-main-page')
@@ -52,7 +53,7 @@ export class NightlyMainPage extends LitElement {
   @property({ type: Boolean })
   connected = false
 
-  @property({ type: String })
+  @state()
   link = ''
 
   @state()
@@ -73,6 +74,7 @@ export class NightlyMainPage extends LitElement {
 
     this.walletIcon = wallet?.icon ?? ''
     this.currentWalletName = wallet?.name ?? ''
+    this.link = wallet?.link ?? ''
 
     if (
       isMobileBrowser() ||
