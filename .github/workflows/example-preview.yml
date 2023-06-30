@@ -1,10 +1,8 @@
-name: modal-storybook-preview
+name: example-preview
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    paths:
-      - 'sdk/packages/modal/**'
 
 jobs:
   upload:
@@ -22,14 +20,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_NIGHTLY_CONNECT_MODAL_STORYBOOK }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_NIGHTLY_CONNECT_EXAMPLE_PREVIEW }}
           VERCEL_SCOPE: ${{ secrets.VERCEL_ORG_ID }}
           PRODUCTION: false
           CREATE_COMMENT: false
           GITHUB_DEPLOYMENT: false
       - uses: thollander/actions-comment-pull-request@v1
         with:
-          message: 🤙🤙🤙🤙 STORYBOOK 🤙🤙🤙🤙
+          message: 🤙🤙🤙🤙 EXAMPLE PREVIEW 🤙🤙🤙🤙
             <table>
             <tr>
             <td><strong>✅ Preview:</strong></td>
