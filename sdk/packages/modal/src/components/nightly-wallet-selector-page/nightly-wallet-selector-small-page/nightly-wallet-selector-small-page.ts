@@ -58,7 +58,7 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
     this.isTopWalletsView = false
   }
 
-  render() {
+  renderView() {
     if (this.isTopWalletsView) {
       return html`
         <nightly-wallet-wrapper
@@ -70,7 +70,7 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
           .openQrPage=${() => this.openQrPage()}
           .selectorItems=${this.selectorItems}
           ${animate({
-            properties: ['height', 'opacity', 'transform'],
+            properties: ['opacity', 'transform'],
             skipInitial: true,
             in: [
               {
@@ -100,7 +100,7 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
         .onWalletClick=${this.onWalletClick.bind(this)}
         .selectorItems=${this.selectorItems}
         ${animate({
-          properties: ['height', 'opacity', 'transform'],
+          properties: ['opacity', 'transform'],
           in: [
             {
               opacity: 0,
@@ -128,7 +128,7 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
         .sessionId=${this.sessionId}
         .showAllWallets=${this.showAllWallets.bind(this)}
         ${animate({
-          properties: ['height', 'opacity', 'transform'],
+          properties: ['opacity', 'transform'],
           in: [
             {
               opacity: 0,
@@ -148,6 +148,11 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
         })}
       ></nightly-qr-code>
     `
+  }
+
+  render() {
+    return html`
+    <div class="selectorWrapper ${this.isTopWalletsView ? 'topView' : this.isQrPageVisible ? 'qrView' : 'walletsView'}">${this.renderView()}</div>`
   }
 }
 

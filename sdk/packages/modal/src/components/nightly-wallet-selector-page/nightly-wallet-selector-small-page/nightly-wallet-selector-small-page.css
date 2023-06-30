@@ -1,3 +1,34 @@
 .selectorView {
-  display: block
+  display: block;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+.selectorWrapper {
+  transition: height 500ms;
+}
+
+.topView {
+  height: 318px;
+}
+
+.qrView {
+  height: 510px;
+}
+
+@media (max-width: 482px) and (min-width: 374px) {
+  .qrView {
+    height: 420px;
+  }
+}
+
+@media (max-width: 373px) {
+  .qrView {
+    height: 332px;
+  }
+}
+
+.walletsView {
+  height: 526px;
 }
