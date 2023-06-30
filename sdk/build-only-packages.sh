@@ -11,3 +11,5 @@ pnpm build
 # ui packages
 cd ../../packages/qr-codes
 pnpm build
+cd ../modal
+pnpm build

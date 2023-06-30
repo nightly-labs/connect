@@ -1,17 +1,16 @@
 .walletSelectorItem {
   display: flex;
   align-items: center;
-  justify-content: center;
   flex-direction: column;
   border-radius: 8px;
   width: 80px;
   padding: 4px 8px;
-  height: 104px;
+  height: 112px;
   background-color: transparent;
 }
 
 .walletSelectorItem img {
-  padding-bottom: 8px;
+  margin-bottom: 8px;
   width: 64px;
   height: 64px;
 }

@@ -1,38 +1,42 @@
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import { html } from 'lit/static-html.js'
-import { TailwindElement } from '../../shared/tailwind.element'
+import { tailwindElement } from '../../shared/tailwind.element'
 import foxSadGIF from '../../static/gif/fox_sad.gif'
 import search from '../../static/svg/searchIcon.svg'
-import style from './nightly-wallet-selector-page.css?inline'
+import style from './nightly-wallet-selector-page.css'
 import '../nightly-wallet-selector-item/nightly-wallet-selector-item'
+import { LitElement } from 'lit'
 
 @customElement('nightly-wallet-selector-page')
-export class NightlyWalletSelectorPage extends TailwindElement(style) {
-  @property({ type: String }) chainIcon = ''
-  @property({ type: String }) chainName = ''
+export class NightlyWalletSelectorPage extends LitElement {
+  static styles = tailwindElement(style)
+
+  @property({ type: String })
+  chainIcon = ''
+  @property({ type: String })
+  chainName = ''
   @property({ type: Array })
   get selectorItems(): { name: string; icon: string; status: string }[] {
     return this._selectorItems
   }
 
   set selectorItems(value: { name: string; icon: string; status: string }[]) {
-    const oldValue = this._selectorItems
     this._selectorItems = value
-    this.filteredItems = [...value]
-    this.requestUpdate('selectorItems', oldValue)
+    this.filteredItems = value.filter((item) => {
+      return item.name.toLowerCase().includes(this.searchText)
+    })
   }
 
   private _selectorItems: { name: string; icon: string; status: string }[] = []
+
+  @state()
   filteredItems: { name: string; icon: string; status: string }[] = []
-  showNotFoundIcon = false
+  @state()
+  searchText = ''
 
   @property({ type: Function })
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onWalletClick: (name: string) => void = () => {}
-
-  constructor() {
-    super()
-  }
 
   render() {
     return html`
@@ -53,9 +57,9 @@ export class NightlyWalletSelectorPage extends TailwindElement(style) {
             />
             <img src="${search}" />
           </div>
-          <div class="${this.showNotFoundIcon ? 'NotFoundContainer' : 'walletSelectorButtons'}">
-            ${this.showNotFoundIcon ? this.renderNotFoundIcon() : this.renderSelectorItems()}
-          </div>
+          ${this.filteredItems.length === 0
+            ? this.renderNotFoundIcon()
+            : this.renderSelectorItems()}
         </div>
       </div>
     `
@@ -63,10 +67,10 @@ export class NightlyWalletSelectorPage extends TailwindElement(style) {
 
   renderSelectorItems() {
     const recentDetectedItems = this.filteredItems.filter(
-      (item) => item.status === 'recent' || item.status === 'detected'
+      (item) => item.status.toLowerCase() === 'recent' || item.status.toLowerCase() === 'detected'
     )
     const otherItems = this.filteredItems.filter(
-      (item) => item.status !== 'recent' && item.status !== 'detected'
+      (item) => item.status.toLowerCase() !== 'recent' && item.status.toLowerCase() !== 'detected'
     )
 
     return html`
@@ -112,14 +116,11 @@ export class NightlyWalletSelectorPage extends TailwindElement(style) {
   handleSearchInput(event: InputEvent) {
     const searchInput = event.target as HTMLInputElement
     const searchText = searchInput.value.toLowerCase()
+    this.searchText = searchText
 
     this.filteredItems = this.selectorItems.filter((item) => {
       return item.name.toLowerCase().includes(searchText)
     })
-
-    this.showNotFoundIcon = this.filteredItems.length === 0
-
-    this.requestUpdate()
   }
 }
 

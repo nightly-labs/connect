@@ -4,14 +4,18 @@
 
 @font-face {
   font-family: 'Prompt';
-  src: url('src/utils/fonts/Prompt/Prompt-Light.ttf') format('truetype');
+  src: url('../utils/fonts/Prompt/Prompt-Light.ttf') format('truetype');
   font-style: normal;
   font-weight: normal;
 }
 
 @font-face {
   font-family: 'Prompt';
-  src: url('src/utils/fonts/Prompt/Prompt-SemiBold.ttf') format('truetype');
+  src: url('../utils/fonts/Prompt/Prompt-SemiBold.ttf') format('truetype');
   font-style: normal;
   font-weight: bold;
+}
+
+* {
+  font-family: 'Prompt';
 }

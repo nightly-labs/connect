@@ -20,13 +20,13 @@ const meta = {
   },
   render: (args) => {
     return html`<nightly-modal
-      .onClose=${args.onClose}
       .selectorItems=${args.selectorItems}
       .onWalletClick=${args.onWalletClick}
       .chainIcon=${args.chainIcon}
       .chainName=${args.chainName}
       .sessionId=${args.sessionId}
       .network=${args.network}
+      .relay=${args.relay}
     ></nightly-modal>`
   }
 } satisfies Meta<NightlyModal>
@@ -40,20 +40,19 @@ interface WalletSelectorItem {
 }
 
 interface NightlyModalArgs {
-  onClose: () => void
   selectorItems: WalletSelectorItem[]
   onWalletClick: (name: string) => void
   chainIcon: string
   chainName: string
   sessionId: string
   network: string
+  relay: string
 }
 type Story = StoryObj<NightlyModalArgs>
 
 export const Default: Story = {
   name: 'Default',
   args: {
-    onClose: () => console.log('close'),
     selectorItems: [
       { name: 'Phantom', icon: Phantom, status: 'recent' },
       { name: 'Nightly Wallet', icon: NightlyIcon, status: 'recent' },
@@ -89,8 +88,8 @@ export const Default: Story = {
     },
     chainIcon: ChainIcon,
     chainName: 'Solana',
-    sessionId:
-      'fsdhfdzfsdhgfzghggdfhbgchgbdfnvfbxhncvfjhzxdhgbhghfgfvzhfgjhgszdhgzxdfhgfzxdjfuhdfhgd',
-    network: 'SOLANA'
+    sessionId: '6a82dc5a-c013-4c17-b6ff-45fe0f45bddb',
+    network: 'SOLANA',
+    relay: 'https://relay.nightly.app'
   }
 }

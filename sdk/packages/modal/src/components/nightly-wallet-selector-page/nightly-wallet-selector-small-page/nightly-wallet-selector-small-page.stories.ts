@@ -21,9 +21,10 @@ interface WalletSelectorItem {
 
 interface NightlyWalletSelectorListArgs {
   walletSelectorItems: WalletSelectorItem[]
-  onWalletClick: (event: Event) => void
+  onWalletClick: (name: string) => void
   sessionId: string
   network: string
+  relay: string
   onClose: () => void
 }
 
@@ -37,8 +38,6 @@ const meta: Meta<NightlyWalletSelectorSmallPage> = {
 export default meta
 
 export const Default = (args: NightlyWalletSelectorListArgs) => {
-  console.log(args.walletSelectorItems)
-
   return html`
     <div style="100%">
       <nightly-wallet-selector-small-page
@@ -47,6 +46,7 @@ export const Default = (args: NightlyWalletSelectorListArgs) => {
         .sessionId=${args.sessionId}
         .network=${args.network}
         .onClose=${args.onClose}
+        .relay=${args.relay}
       ></nightly-wallet-selector-small-page>
     </div>
   `
@@ -82,11 +82,11 @@ Default.args = {
     { name: 'Trust', icon: Trust, status: 'detected' },
     { name: 'Binance', icon: Binance, status: '' }
   ],
-  onWalletClick: (event: Event) => {
-    const target = event.target as HTMLElement
-    console.log('Item clicked:', target.getAttribute('name'))
+  onWalletClick: (name: string) => {
+    console.log(name)
   },
   sessionId:
     'fsdhfdzfsdhgfzghggdfhbgchgbdfnvfbxhncvfjhzxdhgbhghfgfvzhfgjhgszdhgzxdfhgfzxdjfuhdfhgd',
-  network: 'SOLANA'
+  network: 'SOLANA',
+  relay: 'https://relay.nightly.app'
 }

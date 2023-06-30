@@ -1,19 +1,16 @@
-import { customElement, property } from 'lit/decorators.js'
-import { TailwindElement } from '../../shared/tailwind.element'
-import style from './nightly-modal.css?inline'
-import { html } from 'lit'
+import { customElement, property, state } from 'lit/decorators.js'
+import { tailwindElement } from '../../shared/tailwind.element'
+import style from './nightly-modal.css'
+import { LitElement, html } from 'lit'
 import copy from '../../static/svg/copy.svg'
 import scan from '../../static/svg/scan.svg'
 import { svgToBase64 } from '../../utils/images'
 import { generateQrCodeXml } from '@nightlylabs/qr-code'
 import '../nightly-wallet-selector-page/nightly-wallet-selector-page'
-import '../nightly-header/nightly-header'
 
 @customElement('nightly-modal')
-export class NightlyModal extends TailwindElement(style) {
-  @property()
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  onClose = () => {}
+export class NightlyModal extends LitElement {
+  static styles = tailwindElement(style)
 
   @property({ type: Array })
   selectorItems = []
@@ -35,12 +32,17 @@ export class NightlyModal extends TailwindElement(style) {
   network = ''
 
   @property({ type: String })
+  relay = ''
+
+  @state()
   copyMessage = 'Copy'
 
   timeoutRef: number | undefined = undefined
 
   onCopy = () => {
-    navigator.clipboard.writeText('nightlyconnect:' + this.sessionId + '?network=' + this.network)
+    navigator.clipboard.writeText(
+      'nc:' + this.sessionId + '?network=' + this.network + '?relay=' + this.relay
+    )
     this.copyMessage = 'Copied!'
     clearTimeout(this.timeoutRef)
     this.timeoutRef = setTimeout(() => {
@@ -51,23 +53,25 @@ export class NightlyModal extends TailwindElement(style) {
   render() {
     return html`
       <div class="mainContainer">
-        <nightly-header .onClose=${this.onClose}></nightly-header>
         <div class="bottomContainer">
           <div class="qrContainer">
             <div class="qrTop">
               <div class="scan"><img class="scanImg" src=${scan} />Scan QR code</div>
-              <div class="copy" @click=${this.onCopy}>
+              <button id="nightly-modal-copy-button" class="copy" @click=${this.onCopy}>
                 <img class="copyImg" src=${copy} />${this.copyMessage}
-              </div>
+              </button>
             </div>
             <img
               class="code"
               src=${svgToBase64(
-                generateQrCodeXml('nightlyconnect:' + this.sessionId + '?network=' + this.network, {
-                  width: 400,
-                  height: 400,
-                  margin: 10
-                })
+                generateQrCodeXml(
+                  'nc:' + this.sessionId + '?network=' + this.network + '?relay=' + this.relay,
+                  {
+                    width: 400,
+                    height: 400,
+                    margin: 10
+                  }
+                )
               )}
             />
           </div>
