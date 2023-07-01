@@ -120,6 +120,7 @@ export class NCBaseSelector<A extends Adapter> {
   public closeModal = () => {
     if (this._modalRoot) {
       this._modalRoot.style.display = 'none'
+      this._modal!.connectingViewOpen = false
       this.onClose?.()
     }
   }
