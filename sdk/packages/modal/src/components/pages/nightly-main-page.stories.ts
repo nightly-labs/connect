@@ -30,9 +30,6 @@ const meta = {
         .sessionId=${args.sessionId}
         .network=${args.network}
         ?connecting=${args.connecting}
-        ?connected=${args.connected}
-        .tryAgainClick=${args.tryAgainClick}
-        .onClose=${args.onClose}
         .relay=${args.relay}
       ></nightly-main-page>
     `
@@ -50,8 +47,6 @@ interface NightlyModalArgs {
   sessionId: string
   network: string
   connecting: boolean
-  connected: boolean
-  tryAgainClick: () => void
   relay: string
 }
 type Story = StoryObj<NightlyModalArgs>
@@ -109,8 +104,6 @@ export const Default: Story = {
       'fsdhfdzfsdhgfzghggdfhbgchgbdfnvfbxhncvfjhzxdhgbhghfgfvzhfgjhgszdhgzxdfhgfzxdjfuhdfhgd',
     network: 'SOLANA',
     connecting: true,
-    connected: false,
-    tryAgainClick: () => console.log('try again click'),
     relay: 'https://relay.nightly.app'
   }
 }

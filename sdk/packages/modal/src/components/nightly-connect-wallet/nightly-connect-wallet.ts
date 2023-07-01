@@ -1,8 +1,8 @@
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
+import { unsafeHTML } from 'lit/directives/unsafe-html.js'
 import { tailwindElement } from '../../shared/tailwind.element'
 import vector from '../../static/svg/backButton.svg'
-import { Breakpoint, getBreakpointFromWidthInConnectWallet } from '../../utils/utils'
 import style from './nightly-connect-wallet.css'
 @customElement('nightly-connect-wallet')
 export class NightlyConnectWallet extends LitElement {
@@ -58,11 +58,13 @@ export class NightlyConnectWallet extends LitElement {
           <div class="reConnectWrapper">
             <p>
               Connecting takes too long? Make sure ${this.nameLink} is installed on your device.
-              Otherwise, visit
+              ${this.link.length
+                ? unsafeHTML(`Otherwise, visit
               <a id="connect-wallet-page-link-wallet-website" class="link" href="${this.link}"
                 >${this.nameLink} website</a
               >
-              to download it.
+              to download it.`)
+                : ''}
             </p>
             <button id="connect-wallet-page-try-again-button" @click=${this.tryAgainClick}>
               Try again

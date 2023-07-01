@@ -37,6 +37,3 @@ export function getNumberOfItems(breakpoint: Breakpoint) {
       return 9
   }
 }
-
-export const isMobileBrowser = () =>
-  /Android|iPhone|iPad|iPod|Opera Mini/i.test(navigator.userAgent)

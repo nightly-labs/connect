@@ -1,6 +1,6 @@
 import { AppSui, AppSuiInitialize } from '@nightlylabs/nightly-connect-sui'
 import '@nightlylabs/wallet-selector-modal'
-import { NightlyModal } from '@nightlylabs/wallet-selector-modal'
+import { NightlyMainPage } from '@nightlylabs/wallet-selector-modal'
 import { StandardWalletAdapter } from '@mysten/wallet-adapter-wallet-standard'
 import { NightlyConnectSuiWallet } from './wallet'
 import { publicKeyFromSerialized } from '@mysten/sui.js'
@@ -21,13 +21,14 @@ export const convertBase58toBase64 = (base58: string) => {
 }
 
 export class NCSuiSelector {
-  private _modal: NightlyModal | undefined
+  private _modal: NightlyMainPage | undefined
   private _modalRoot: HTMLDivElement | undefined
   private _app: AppSui
   private _metadataWallets: Array<{
     name: string
     icon: string
     deeplink: Deeplink | null
+    link: string
   }>
 
   appInitData: AppSuiInitialize
@@ -43,6 +44,7 @@ export class NCSuiSelector {
       name: string
       icon: string
       deeplink: Deeplink | null
+      link: string
     }>
   ) {
     this.appInitData = appInitData
@@ -80,7 +82,8 @@ export class NCSuiSelector {
         list.map((wallet) => ({
           name: wallet.name,
           icon: wallet.image.default,
-          deeplink: wallet.mobile
+          deeplink: wallet.mobile,
+          link: wallet.homepage
         }))
       )
       .catch(() => [] as any)
@@ -91,7 +94,7 @@ export class NCSuiSelector {
 
   public openModal = () => {
     if (!this._modalRoot) {
-      this._modal = document.createElement('nightly-modal')
+      this._modal = document.createElement('nightly-main-page')
       this._modal.onClose = this.closeModal
 
       this._modal.network = 'SUI'
@@ -102,7 +105,8 @@ export class NCSuiSelector {
       this._modal!.selectorItems = getSuiWalletsList(this._metadataWallets).map((w) => ({
         name: w.name,
         icon: w.icon,
-        status: w.recent ? 'Recent' : w.detected ? 'Detected' : ''
+        status: w.recent ? 'Recent' : w.detected ? 'Detected' : '',
+        link: w.link ?? ''
       })) as any
       this._modal.onWalletClick = (name) => {
         if (isMobileBrowser()) {
@@ -126,6 +130,8 @@ export class NCSuiSelector {
             this._app.sessionId,
             'https://nc2.nightly.app'
           )
+
+          this._modal!.connecting = true
         } else {
           const wallet = getWallet(name)
           if (typeof wallet === 'undefined') {
@@ -135,9 +141,12 @@ export class NCSuiSelector {
           const adapter = new StandardWalletAdapter({
             wallet: wallet as StandardWalletAdapterWallet
           })
+          this._modal!.connecting = true
           adapter.connect().then(() => {
             this.onConnected?.(adapter)
             this.closeModal()
+          }).catch(() => {
+            this._modal!.connecting = false
           })
         }
       }

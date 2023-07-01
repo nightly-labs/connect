@@ -3,6 +3,7 @@ import { Wallet, getWallets } from '@wallet-standard/core'
 export interface IWalletListItem {
   name: string
   icon: string
+  link?: string
   recent?: boolean
   detected?: boolean
 }

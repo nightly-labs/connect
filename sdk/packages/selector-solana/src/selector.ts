@@ -1,6 +1,6 @@
 import { AppSolana, AppSolanaInitialize } from '@nightlylabs/nightly-connect-solana'
 import '@nightlylabs/wallet-selector-modal'
-import { NightlyModal } from '@nightlylabs/wallet-selector-modal'
+import { NightlyMainPage } from '@nightlylabs/wallet-selector-modal'
 import { StandardWalletAdapter } from '@solana/wallet-standard'
 import { NightlyConnectSolanaWallet } from './wallet'
 import { PublicKey } from '@solana/web3.js'
@@ -11,13 +11,14 @@ import { Deeplink } from '@nightlylabs/nightly-connect-solana/dist/browser/cjs/t
 import { isMobileBrowser } from '@nightlylabs/wallet-selector-base'
 
 export class NCSolanaSelector {
-  private _modal: NightlyModal | undefined
+  private _modal: NightlyMainPage | undefined
   private _modalRoot: HTMLDivElement | undefined
   private _app: AppSolana
   private _metadataWallets: Array<{
     name: string
     icon: string
     deeplink: Deeplink | null
+    link: string
   }>
 
   appInitData: AppSolanaInitialize
@@ -33,6 +34,7 @@ export class NCSolanaSelector {
       name: string
       icon: string
       deeplink: Deeplink | null
+      link: string
     }>
   ) {
     this.appInitData = appInitData
@@ -66,7 +68,8 @@ export class NCSolanaSelector {
         list.map((wallet) => ({
           name: wallet.name,
           icon: wallet.image.default,
-          deeplink: wallet.mobile
+          deeplink: wallet.mobile,
+          link: wallet.homepage
         }))
       )
       .catch(() => [] as any)
@@ -77,7 +80,7 @@ export class NCSolanaSelector {
 
   public openModal = () => {
     if (!this._modalRoot) {
-      this._modal = document.createElement('nightly-modal')
+      this._modal = document.createElement('nightly-main-page')
       this._modal.onClose = this.closeModal
 
       this._modal.network = 'SOLANA'
@@ -85,10 +88,11 @@ export class NCSolanaSelector {
       this._modal.relay = 'https://nc2.nightly.app'
       this._modal.chainIcon = 'https://assets.coingecko.com/coins/images/4128/small/solana.png'
       this._modal.chainName = 'Solana'
-      this._modal!.selectorItems = getSolanaWalletsList(this._metadataWallets).map((w) => ({
+      this._modal.selectorItems = getSolanaWalletsList(this._metadataWallets).map((w) => ({
         name: w.name,
         icon: w.icon,
-        status: w.recent ? 'Recent' : w.detected ? 'Detected' : ''
+        status: w.recent ? 'Recent' : w.detected ? 'Detected' : '',
+        link: w.link ?? ''
       })) as any
       this._modal.onWalletClick = (name) => {
         if (isMobileBrowser()) {
@@ -112,6 +116,8 @@ export class NCSolanaSelector {
             this._app.sessionId,
             'https://nc2.nightly.app'
           )
+
+          this._modal!.connecting = true
         } else {
           const wallet = getWallet(name)
           if (typeof wallet === 'undefined') {
@@ -121,9 +127,12 @@ export class NCSolanaSelector {
           const adapter = new StandardWalletAdapter({
             wallet: wallet as WalletAdapterCompatibleStandardWallet
           })
+          this._modal!.connecting = true
           adapter.connect().then(() => {
             this.onConnected?.(adapter)
             this.closeModal()
+          }).catch(() => {
+            this._modal!.connecting = false
           })
         }
       }

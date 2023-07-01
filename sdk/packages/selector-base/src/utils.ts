@@ -7,8 +7,8 @@ export const modalStyle = `
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     background: rgba(15, 15, 26, 0.4);
     backdrop-filter: blur(10px);
     z-index: 100;
@@ -21,6 +21,14 @@ export const modalStyle = `
     transform: translateY(-50%);
     width: fit-content;
     display: block;
+  }
+
+  @media (max-width: 640px) {
+    .nightlyConnectSelector {
+      top: 100%;
+      transform: translateY(calc(-100% + 20px));
+      width: unset;
+    }
   }
 `
 

@@ -8,7 +8,6 @@ import '../nightly-wallet-selector-page/nightly-wallet-selector-small-page/night
 import '../nightly-header/nightly-header'
 import { animate } from '@lit-labs/motion'
 import { styleMap } from 'lit/directives/style-map.js'
-import { isMobileBrowser } from '../../utils/utils'
 
 export interface WalletSelectorItem {
   name: string
@@ -50,9 +49,6 @@ export class NightlyMainPage extends LitElement {
   @property({ type: Boolean })
   connecting = false
 
-  @property({ type: Boolean })
-  connected = false
-
   @state()
   link = ''
 
@@ -62,9 +58,9 @@ export class NightlyMainPage extends LitElement {
   @state()
   currentWalletName = ''
 
-  @property()
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  tryAgainClick = () => {}
+  tryAgainClick = () => {
+    this.onSelectWallet(this.currentWalletName)
+  }
 
   @state()
   connectingViewOpen = false
@@ -76,15 +72,7 @@ export class NightlyMainPage extends LitElement {
     this.currentWalletName = wallet?.name ?? ''
     this.link = wallet?.link ?? ''
 
-    if (
-      isMobileBrowser() ||
-      wallet?.status.toLowerCase() === 'recent' ||
-      wallet?.status.toLowerCase() === 'detected'
-    ) {
-      this.connectingViewOpen = true
-    } else {
-      console.log(wallet)
-    }
+    this.connectingViewOpen = true
 
     this.onWalletClick(name)
   }
@@ -92,6 +80,7 @@ export class NightlyMainPage extends LitElement {
   constructor() {
     super()
     this.onSelectWallet = this.onSelectWallet.bind(this)
+    this.tryAgainClick = this.tryAgainClick.bind(this)
   }
 
   @query('#modalConnect')
