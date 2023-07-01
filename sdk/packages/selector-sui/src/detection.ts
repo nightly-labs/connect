@@ -1,5 +1,5 @@
 import { Wallet } from '@wallet-standard/core'
-import { getWalletsList, IWalletListItem } from '@nightlylabs/wallet-selector-base'
+
 import { isStandardWalletAdapterCompatibleWallet } from '@mysten/wallet-standard'
 
 export const suiWalletsFilter = (wallet: Wallet) =>
@@ -8,8 +8,3 @@ export const suiWalletsFilter = (wallet: Wallet) =>
     'sui:signTransactionBlock',
     'sui:signMessage'
   ])
-
-export const getSuiWalletsList = (
-  presetList: Omit<IWalletListItem, 'recent' | 'detected'>[],
-  recentWalletName?: string
-) => getWalletsList(presetList, suiWalletsFilter, recentWalletName)
