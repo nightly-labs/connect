@@ -30,7 +30,6 @@ export default [
       '@nightlylabs/wallet-selector-base',
       '@solana/wallet-adapter-base',
       '@solana/wallet-standard',
-      '@solana/wallet-standard-wallet-adapter-base',
       '@solana/web3.js',
       '@wallet-standard/core'
     ]
