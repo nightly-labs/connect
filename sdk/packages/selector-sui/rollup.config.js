@@ -32,7 +32,8 @@ export default [
       '@nightlylabs/nightly-connect-sui',
       '@nightlylabs/wallet-selector-base',
       '@wallet-standard/core',
-      'bs58'
+      'bs58',
+      'events'
     ]
   },
   {
