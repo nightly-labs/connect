@@ -1,8 +1,8 @@
-import { AppSolana } from '@nightlylabs/nightly-connect-solana'
+import { AppSolana, SOLANA_NETWORK } from '@nightlylabs/nightly-connect-solana'
 import { StandardWalletAdapter } from '@solana/wallet-standard'
 import { NightlyConnectSolanaWallet } from './wallet'
 import { PublicKey } from '@solana/web3.js'
-import { AppInitData, MetadataWallet, NCBaseSelector, NETWORK } from '@nightlylabs/wallet-selector-base'
+import { AppInitData, MetadataWallet, NCBaseSelector, NETWORK, clearSessionIdForNetwork } from '@nightlylabs/wallet-selector-base'
 import { solanaWalletsFilter } from './detection'
 import { WalletAdapterCompatibleStandardWallet } from '@solana/wallet-adapter-base'
 
@@ -41,6 +41,7 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
     this._app.on('userConnected', (e) => {
       const adapter = new StandardWalletAdapter({
         wallet: new NightlyConnectSolanaWallet(app, new PublicKey(e.publicKeys[0]), async () => {
+          clearSessionIdForNetwork(SOLANA_NETWORK)
           const app = await AppSolana.build(this._appInitData)
           this.setApp(app)
         })

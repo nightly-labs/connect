@@ -1,4 +1,4 @@
-import { AppSui } from '@nightlylabs/nightly-connect-sui'
+import { AppSui, SUI_NETWORK } from '@nightlylabs/nightly-connect-sui'
 import { StandardWalletAdapter } from '@mysten/wallet-adapter-wallet-standard'
 import { NightlyConnectSuiWallet } from './wallet'
 import { publicKeyFromSerialized } from '@mysten/sui.js'
@@ -7,7 +7,8 @@ import {
   AppInitData,
   MetadataWallet,
   NCBaseSelector,
-  NETWORK
+  NETWORK,
+  clearSessionIdForNetwork
 } from '@nightlylabs/wallet-selector-base'
 import { StandardWalletAdapterWallet } from '@mysten/wallet-standard'
 import bs58 from 'bs58'
@@ -54,6 +55,7 @@ export class NCSuiSelector extends NCBaseSelector<StandardWalletAdapter> {
           app,
           e.publicKeys.map((pk) => publicKeyFromSerialized('ED25519', convertBase58toBase64(pk))),
           async () => {
+            clearSessionIdForNetwork(SUI_NETWORK)
             const app = await AppSui.build(this._appInitData)
             this.setApp(app)
           }

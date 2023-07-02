@@ -4,9 +4,8 @@ import { InitializeResponse } from '../../../bindings/InitializeResponse'
 import { Network } from '../../../bindings/Network'
 import { ServerToApp } from '../../../bindings/ServerToApp'
 import { UserConnectedEvent } from '../../../bindings/UserConnectedEvent'
-import { Version } from '../../../bindings/Version'
 import WebSocket from 'isomorphic-ws'
-import { getLocalStorage, getRandomId, getWalletsMetadata } from './utils'
+import { getLocalStorage, getRandomId, getSessionIdLocalStorageKey, getWalletsMetadata } from './utils'
 import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
 import { AppMetadata } from '../../../bindings/AppMetadata'
 import { ContentType, MessageToSign, RequestContent, TransactionToSign } from './content'
@@ -64,7 +63,7 @@ export class BaseApp extends EventEmitter<BaseEvents> {
       const localStorage = getLocalStorage()
       const persistent = baseInitialize.persistent ?? true
       const persistentSessionId = persistent
-        ? localStorage.getItem(baseInitialize.appMetadata.name) ?? undefined
+        ? localStorage.getItem(getSessionIdLocalStorageKey(baseInitialize.network)) ?? undefined
         : undefined
       const url = baseInitialize.url ?? 'https://relay.nightly.app'
       // get domain from url
@@ -122,7 +121,7 @@ export class BaseApp extends EventEmitter<BaseEvents> {
             baseApp.sessionId = response.sessionId
             // Save the session id
             if (persistent)
-              localStorage.setItem(initializeRequest.appMetadata.name, response.sessionId)
+              localStorage.setItem(getSessionIdLocalStorageKey(baseInitialize.network), response.sessionId)
             resolve(baseApp)
           }
         }

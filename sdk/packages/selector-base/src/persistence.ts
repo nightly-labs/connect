@@ -1,17 +1,17 @@
+import { getSessionIdLocalStorageKey } from '@nightlylabs/nightly-connect-base'
 import { ILocalStorage, getStorage } from 'isomorphic-localstorage'
 
 let _localStorage: ILocalStorage | null = null
 
 export const getLocalStorage = () => {
   if (_localStorage === null) {
-    _localStorage = getStorage('./nightly-connect-selector')
+    _localStorage = getStorage('./nightly-connect-session')
   }
 
   return _localStorage
 }
 
 export interface IBaseSessionData {
-  sessionId: string
   publicKey: string
   walletName: string
 }
@@ -35,4 +35,10 @@ export const getSessionDataForNetwork = <T extends IBaseSessionData>(network: st
 
 export const clearSessionDataForNetwork = (network: string) => {
   localStorage.removeItem('NIGHTLY_CONNECT_SELECTOR_SESSION_DATA_' + network)
+}
+
+export const clearSessionIdForNetwork = (network: string) => {
+  const storage = getLocalStorage()
+
+  storage.removeItem(getSessionIdLocalStorageKey(network))
 }
