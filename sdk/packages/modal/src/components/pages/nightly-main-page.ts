@@ -121,14 +121,14 @@ export class NightlyMainPage extends LitElement {
         .walletIcon=${this.walletIcon}
         ${animate({
           properties: ['opacity'],
-          keyframeOptions: { duration: 320 },
+          keyframeOptions: { duration: 380 },
           skipInitial: true,
           in: [
             {
               opacity: 0
             },
             {
-              offset: 0.4,
+              offset: 0.25,
               opacity: 0
             },
             {
@@ -165,14 +165,14 @@ export class NightlyMainPage extends LitElement {
         .relay=${this.relay}
         ${animate({
           properties: ['opacity'],
-          keyframeOptions: { duration: 320 },
+          keyframeOptions: { duration: 380 },
           skipInitial: true,
           in: [
             {
               opacity: 0
             },
             {
-              offset: 0.4,
+              offset: 0.25,
               opacity: 0
             },
             {
@@ -194,14 +194,14 @@ export class NightlyMainPage extends LitElement {
         .relay=${this.relay}
         ${animate({
           properties: ['opacity'],
-          keyframeOptions: { duration: 320 },
+          keyframeOptions: { duration: 250 },
           skipInitial: true,
           in: [
             {
               opacity: 0
             },
             {
-              offset: 0.4,
+              offset: 0.25,
               opacity: 0
             },
             {
@@ -226,7 +226,7 @@ export class NightlyMainPage extends LitElement {
           )}
           ${animate({
             properties: ['height'],
-            keyframeOptions: { duration: 200 },
+            keyframeOptions: { duration: 250 },
             skipInitial: true
           })}
         >

@@ -74,13 +74,13 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
           .selectorItems=${this.selectorItems}
           ${animate({
             properties: ['opacity'],
-            keyframeOptions: { duration: 320 },
+            keyframeOptions: { duration: 380 },
             in: [
               {
                 opacity: 0
               },
               {
-                offset: 0.4,
+                offset: 0.25,
                 opacity: 0
               },
               {
@@ -101,13 +101,13 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
         .selectorItems=${this.selectorItems}
         ${animate({
           properties: ['opacity'],
-          keyframeOptions: { duration: 320 },
+          keyframeOptions: { duration: 380 },
           in: [
             {
               opacity: 0
             },
             {
-              offset: 0.4,
+              offset: 0.25,
               opacity: 0
             },
             {
@@ -128,13 +128,13 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
         .showAllWallets=${this.showAllWallets.bind(this)}
         ${animate({
           properties: ['opacity'],
-          keyframeOptions: { duration: 320 },
+          keyframeOptions: { duration: 380 },
           in: [
             {
               opacity: 0
             },
             {
-              offset: 0.4,
+              offset: 0.25,
               opacity: 0
             },
             {
