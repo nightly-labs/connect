@@ -183,7 +183,7 @@ pub async fn app_handler(
                         Some(session) => session,
                         None => {
                             // Should never happen
-                            continue;
+                            return;
                         }
                     };
                     match &session.client_state.client_id {
@@ -223,7 +223,7 @@ pub async fn app_handler(
                     Some(session) => session,
                     None => {
                         // Should never happen
-                        continue;
+                        return;
                     }
                 };
                 match &session.client_state.client_id {
@@ -269,7 +269,7 @@ pub async fn app_handler(
                     Some(session) => session,
                     None => {
                         // Should never happen
-                        continue;
+                        return;
                     }
                 };
                 match &session.client_state.client_id {
