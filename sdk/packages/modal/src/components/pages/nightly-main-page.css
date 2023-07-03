@@ -26,7 +26,6 @@
   border-radius: 0px 0px 16px 16px;
   overflow: hidden;
   background-color: #17182b;
-  transition: height 500ms;
 }
 
 @media (max-width: 640px) {
@@ -58,5 +57,3 @@
     display: block;
   }
 }
-
-

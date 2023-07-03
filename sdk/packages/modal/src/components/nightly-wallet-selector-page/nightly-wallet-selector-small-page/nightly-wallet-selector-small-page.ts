@@ -73,22 +73,19 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
           .openQrPage=${() => this.openQrPage()}
           .selectorItems=${this.selectorItems}
           ${animate({
-            properties: ['opacity', 'transform'],
-            skipInitial: true,
+            properties: ['opacity'],
+            keyframeOptions: { duration: 320 },
             in: [
               {
-                opacity: 0,
-                transform: 'scale(0.9)'
+                opacity: 0
               },
               {
-                offset: 0.1,
-                opacity: 0,
-                transform: 'scale(0.9)'
+                offset: 0.4,
+                opacity: 0
               },
               {
                 offset: 1,
-                opacity: 1,
-                transform: 'scale(1)'
+                opacity: 1
               }
             ]
           })}
@@ -103,21 +100,19 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
         .onWalletClick=${this.onWalletClick.bind(this)}
         .selectorItems=${this.selectorItems}
         ${animate({
-          properties: ['opacity', 'transform'],
+          properties: ['opacity'],
+          keyframeOptions: { duration: 320 },
           in: [
             {
-              opacity: 0,
-              transform: 'scale(0.9)'
+              opacity: 0
             },
             {
-              offset: 0.1,
-              opacity: 0,
-              transform: 'scale(0.9)'
+              offset: 0.4,
+              opacity: 0
             },
             {
               offset: 1,
-              opacity: 1,
-              transform: 'scale(1)'
+              opacity: 1
             }
           ]
         })}
@@ -132,21 +127,19 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
         .relay=${this.relay}
         .showAllWallets=${this.showAllWallets.bind(this)}
         ${animate({
-          properties: ['opacity', 'transform'],
+          properties: ['opacity'],
+          keyframeOptions: { duration: 320 },
           in: [
             {
-              opacity: 0,
-              transform: 'scale(0.9)'
+              opacity: 0
             },
             {
-              offset: 0.1,
-              opacity: 0,
-              transform: 'scale(0.9)'
+              offset: 0.4,
+              opacity: 0
             },
             {
               offset: 1,
-              opacity: 1,
-              transform: 'scale(1)'
+              opacity: 1
             }
           ]
         })}

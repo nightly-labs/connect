@@ -20,21 +20,25 @@ const meta = {
   },
 
   render: (args) => {
-    return html`
-      <nightly-main-page
-        .onClose=${args.onClose}
-        .selectorItems=${args.selectorItems}
-        .onWalletClick=${args.onWalletClick}
-        .chainIcon=${args.chainIcon}
-        .chainName=${args.chainName}
-        .sessionId=${args.sessionId}
-        .network=${args.network}
-        ?connecting=${args.connecting}
-        .relay=${args.relay}
-      ></nightly-main-page>
-    `
+    if (args.open) {
+      return html`
+        <nightly-main-page
+          .onClose=${args.onClose}
+          .selectorItems=${args.selectorItems}
+          .onWalletClick=${args.onWalletClick}
+          .chainIcon=${args.chainIcon}
+          .chainName=${args.chainName}
+          .sessionId=${args.sessionId}
+          .network=${args.network}
+          ?connecting=${args.connecting}
+          .relay=${args.relay}
+        ></nightly-main-page>
+      `
+    } else {
+      return html``
+    }
   }
-} satisfies Meta<NightlyMainPage>
+} satisfies Meta<NightlyMainPage & { open: boolean }>
 
 export default meta
 
@@ -49,11 +53,12 @@ interface NightlyModalArgs {
   connecting: boolean
   relay: string
 }
-type Story = StoryObj<NightlyModalArgs>
+type Story = StoryObj<NightlyModalArgs & { open: boolean }>
 
 export const Default: Story = {
   name: 'Default',
   args: {
+    open: true,
     onClose: () => console.log('close'),
     selectorItems: [
       { name: 'Phantom', icon: Phantom, status: 'recent', link: `https://www.binance.com/en` },

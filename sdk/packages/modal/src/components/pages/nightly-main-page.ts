@@ -120,21 +120,20 @@ export class NightlyMainPage extends LitElement {
         .nameLink=${this.currentWalletName}
         .walletIcon=${this.walletIcon}
         ${animate({
-          properties: ['opacity', 'transform'],
+          properties: ['opacity'],
+          keyframeOptions: { duration: 320 },
+          skipInitial: true,
           in: [
             {
-              opacity: 0,
-              transform: 'scale(0.9)'
+              opacity: 0
             },
             {
-              offset: 0.1,
-              opacity: 0,
-              transform: 'scale(0.9)'
+              offset: 0.4,
+              opacity: 0
             },
             {
               offset: 1,
-              opacity: 1,
-              transform: 'scale(1)'
+              opacity: 1
             }
           ]
         })}
@@ -165,22 +164,20 @@ export class NightlyMainPage extends LitElement {
         .sessionId=${this.sessionId}
         .relay=${this.relay}
         ${animate({
-          properties: ['opacity', 'transform'],
+          properties: ['opacity'],
+          keyframeOptions: { duration: 320 },
           skipInitial: true,
           in: [
             {
-              opacity: 0,
-              transform: 'scale(0.9)'
+              opacity: 0
             },
             {
-              offset: 0.1,
-              opacity: 0,
-              transform: 'scale(0.9)'
+              offset: 0.4,
+              opacity: 0
             },
             {
               offset: 1,
-              opacity: 1,
-              transform: 'scale(1)'
+              opacity: 1
             }
           ]
         })}
@@ -196,22 +193,20 @@ export class NightlyMainPage extends LitElement {
         .sessionId=${this.sessionId}
         .relay=${this.relay}
         ${animate({
-          properties: ['opacity', 'transform'],
+          properties: ['opacity'],
+          keyframeOptions: { duration: 320 },
           skipInitial: true,
           in: [
             {
-              opacity: 0,
-              transform: 'scale(0.9)'
+              opacity: 0
             },
             {
-              offset: 0.1,
-              opacity: 0,
-              transform: 'scale(0.9)'
+              offset: 0.4,
+              opacity: 0
             },
             {
               offset: 1,
-              opacity: 1,
-              transform: 'scale(1)'
+              opacity: 1
             }
           ]
         })}
@@ -229,6 +224,11 @@ export class NightlyMainPage extends LitElement {
           style=${styleMap(
             window.innerWidth <= 640 ? { height: this.mobileContentHeight + 'px' } : {}
           )}
+          ${animate({
+            properties: ['height'],
+            keyframeOptions: { duration: 200 },
+            skipInitial: true
+          })}
         >
           ${this.connectingViewOpen ? this.renderConnect() : this.renderSelect()}
         </div>
