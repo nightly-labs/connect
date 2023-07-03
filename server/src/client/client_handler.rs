@@ -114,7 +114,7 @@ pub async fn client_handler(
                     for session_id in user_sessions {
                         let mut session = match sessions.get_mut(&session_id) {
                             Some(session) => session,
-                            None => continue,
+                            None => return,
                         };
                         session
                             .send_to_app(user_disconnected_event.clone())
@@ -132,7 +132,7 @@ pub async fn client_handler(
                 for session_id in user_sessions {
                     let mut session = match sessions.get_mut(&session_id) {
                         Some(session) => session,
-                        None => continue,
+                        None => return,
                     };
                     session
                         .send_to_app(user_disconnected_event.clone())
@@ -156,7 +156,7 @@ pub async fn client_handler(
                 for session_id in user_sessions {
                     let mut session = match sessions.get_mut(&session_id) {
                         Some(session) => session,
-                        None => continue,
+                        None => return,
                     };
                     session
                         .send_to_app(user_disconnected_event.clone())
