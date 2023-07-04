@@ -77,10 +77,16 @@ export class NightlyMainPage extends LitElement {
     this.onWalletClick(name)
   }
 
+  closeHandler = () => {
+    this.onClose()
+    this.connectingViewOpen = false
+  }
+
   constructor() {
     super()
     this.onSelectWallet = this.onSelectWallet.bind(this)
     this.tryAgainClick = this.tryAgainClick.bind(this)
+    this.closeHandler = this.closeHandler.bind(this)
   }
 
   @query('#modalConnect')
@@ -159,7 +165,6 @@ export class NightlyMainPage extends LitElement {
         class="modalMobile"
         .network=${this.network}
         .onWalletClick=${this.onSelectWallet}
-        .onClose=${this.onClose}
         .selectorItems=${this.selectorItems}
         .sessionId=${this.sessionId}
         .relay=${this.relay}
@@ -187,7 +192,6 @@ export class NightlyMainPage extends LitElement {
         .chainIcon=${this.chainIcon}
         .chainName=${this.chainName}
         .network=${this.network}
-        .onClose=${this.onClose}
         .onWalletClick=${this.onSelectWallet}
         .selectorItems=${this.selectorItems}
         .sessionId=${this.sessionId}

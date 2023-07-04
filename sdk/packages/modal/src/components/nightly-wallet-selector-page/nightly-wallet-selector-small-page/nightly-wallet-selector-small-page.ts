@@ -12,10 +12,6 @@ import { animate } from '@lit-labs/motion'
 export class NightlyWalletSelectorSmallPage extends LitElement {
   static styles = tailwindElement(style)
 
-  @property({})
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  onClose = () => {}
-
   @state()
   showAll = false
 

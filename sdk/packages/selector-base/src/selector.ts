@@ -1,13 +1,12 @@
 import '@nightlylabs/wallet-selector-modal'
-import { NightlyMainPage } from '@nightlylabs/wallet-selector-modal'
-import { modalStyle, triggerConnect, isMobileBrowser } from './utils'
+import { type NightlySelector, getNightlySelectorElement } from '@nightlylabs/wallet-selector-modal'
+import { triggerConnect, isMobileBrowser } from './utils'
 import { getWallet, getWalletsList } from './detection'
 import { Adapter, AppInitData, MetadataWallet, NetworkData } from './types'
 import { Wallet } from '@wallet-standard/core'
 
 export class NCBaseSelector<A extends Adapter> {
-  _modal: NightlyMainPage | undefined
-  _modalRoot: HTMLDivElement | undefined
+  _modal: NightlySelector | undefined
   _metadataWallets: MetadataWallet[]
   _adapterCreator: (wallet: Wallet) => A
   _walletsFilterCb: (wallet: Wallet) => boolean
@@ -39,8 +38,8 @@ export class NCBaseSelector<A extends Adapter> {
   }
 
   public openModal = () => {
-    if (!this._modalRoot) {
-      this._modal = document.createElement('nightly-main-page')
+    if (!this._modal) {
+      this._modal = getNightlySelectorElement()
       this._modal.onClose = this.closeModal
 
       this._modal.network = this._networkData.network
@@ -100,27 +99,16 @@ export class NCBaseSelector<A extends Adapter> {
         }
       }
 
-      const style = document.createElement('style')
-      style.textContent = modalStyle
-      document.head.appendChild(style)
-
-      this._modalRoot = document.createElement('div')
-      this._modalRoot.classList.add('nightlyConnectSelectorOverlay')
-
-      this._modal.classList.add('nightlyConnectSelector')
-      this._modalRoot.appendChild(this._modal)
-
-      document.body.appendChild(this._modalRoot)
+      document.body.appendChild(this._modal)
     } else {
-      this._modalRoot.style.display = 'block'
+      this._modal.style.display = 'block'
     }
     this.onOpen?.()
   }
 
   public closeModal = () => {
-    if (this._modalRoot) {
-      this._modalRoot.style.display = 'none'
-      this._modal!.connectingViewOpen = false
+    if (this._modal) {
+      this._modal.style.display = 'none'
       this.onClose?.()
     }
   }
