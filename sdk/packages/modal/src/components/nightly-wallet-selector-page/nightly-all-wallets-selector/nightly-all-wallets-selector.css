@@ -29,7 +29,22 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
 }
+
+.inputContainer::before {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(180deg, #17182b 0%, #17182b 50%, #17182b00 100%);
+  opacity: 1;
+  pointer-events: none;
+  z-index: 1;
+}
+
 
 .textContainer span {
   font-family: 'Prompt';
