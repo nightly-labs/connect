@@ -72,6 +72,8 @@ export class NightlyMainPage extends LitElement {
     this.currentWalletName = wallet?.name ?? ''
     this.link = wallet?.link ?? ''
 
+    this.useConnectTransition = true
+
     this.connectingViewOpen = true
 
     this.onWalletClick(name)
@@ -97,6 +99,9 @@ export class NightlyMainPage extends LitElement {
 
   @state()
   mobileContentHeight = 318
+
+  @state()
+  useConnectTransition = false
 
   connectObserver: ResizeObserver | undefined
   selectObserver: ResizeObserver | undefined
@@ -226,7 +231,12 @@ export class NightlyMainPage extends LitElement {
           id="contentWrapper"
           class="contentWrapper"
           style=${styleMap(
-            window.innerWidth <= 640 ? { height: this.mobileContentHeight + 'px' } : {}
+            window.innerWidth <= 640
+              ? {
+                  height: this.mobileContentHeight + 'px',
+                  transition: this.useConnectTransition ? 'height 250ms' : 'none'
+                }
+              : {}
           )}
           ${animate({
             properties: ['height'],
@@ -241,6 +251,9 @@ export class NightlyMainPage extends LitElement {
   }
 
   backToPage = () => {
+    setTimeout(() => {
+      this.useConnectTransition = false
+    }, 300)
     this.connectingViewOpen = false
   }
 }
