@@ -1,4 +1,4 @@
-name: extension-preview-docs
+name: connect-docs-preview
 
 on:
   pull_request:
