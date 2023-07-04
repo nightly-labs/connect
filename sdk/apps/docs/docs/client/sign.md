@@ -9,7 +9,7 @@ import TabItem from '@theme/TabItem';
 Client is listening to the event `client.on('signTransactions')`, which returns data about transactions that are being requested.
 
 When user accepts and signs a transaction with keyPair, the transaction is approved and sent to the blockchain.
-To resolve the transaction client needs to pass in requestId (signature) and signed transaction.
+To resolve the transaction client needs to pass in requestId and signed transaction.
 
 <Tabs>
 
