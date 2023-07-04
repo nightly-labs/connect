@@ -1,8 +1,8 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const lightCodeTheme = require('prism-react-renderer/themes/github');
-const darkCodeTheme = require('prism-react-renderer/themes/dracula');
+const lightCodeTheme = require('prism-react-renderer/themes/github')
+const darkCodeTheme = require('prism-react-renderer/themes/dracula')
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -11,13 +11,13 @@ const config = {
   favicon: 'img/logo.png',
   url: 'https://nightly.app',
   baseUrl: '/',
-  organizationName: 'Nightly Connect', 
-  projectName: 'Nightly Connect', 
+  organizationName: 'Nightly Connect',
+  projectName: 'Nightly Connect',
   onBrokenLinks: 'ignore',
   onBrokenMarkdownLinks: 'warn',
   i18n: {
     defaultLocale: 'en',
-    locales: ['en'],
+    locales: ['en']
   },
 
   presets: [
@@ -65,7 +65,7 @@ const config = {
             position: 'left'
           },
           {
-            href: 'https://twitter.com/Nightly_app',
+            href: 'https://twitter.com/NightlyConnect',
             label: 'Twitter',
             position: 'right'
           },
@@ -75,11 +75,11 @@ const config = {
             position: 'right'
           },
           {
-            href: 'https://github.com/nightly-labs',
+            href: 'https://github.com/nightly-labs/connect',
             label: 'GitHub',
             position: 'right'
           }
-        ],
+        ]
       },
       // algolia: {
       //   apiKey: '57f60c8df985aec6f8f44287f6b98c16',
@@ -108,7 +108,7 @@ const config = {
               },
               {
                 label: 'Twitter',
-                href: 'https://twitter.com/Nightly_app'
+                href: 'https://twitter.com/NightlyConnect'
               }
             ]
           },
@@ -117,7 +117,7 @@ const config = {
             items: [
               {
                 label: 'GitHub',
-                href: 'https://github.com/nightly-labs'
+                href: 'https://github.com/nightly-labs/connect'
               }
             ]
           }
@@ -126,9 +126,9 @@ const config = {
       },
       prism: {
         theme: lightCodeTheme,
-        darkTheme: darkCodeTheme,
-      },
-    }),
-};
+        darkTheme: darkCodeTheme
+      }
+    })
+}
 
-module.exports = config;
+module.exports = config

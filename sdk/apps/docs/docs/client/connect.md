@@ -6,9 +6,14 @@ slug: client/connect
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-To get started, first we establish Connection with server `create()`. Create function takes optional parameters: `clientId?: string; url?: string; timeout?: number;`.
+:::info
+This part of documentation is targeted to clients/wallets that want to enable nightly connect
+as way of interaction with external applications.
+:::
 
-After that we can query the info with `getInfo()`, which required 1 argument, sessionId (the one from the QR code). Response received is `GetInfoResponse` type, it provides you with all required information on this connection request.
+To get started, first we establish Connection with server `create()`. This enables use interactions with our sessions.
+
+After that we can query session info with `getInfo()`, which requires 1 argument, sessionId (the one from the QR code).
 
 Once client decides to connect and approves the request, call the `connect()` method.
 

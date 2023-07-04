@@ -23,8 +23,6 @@ import TabItem from '@theme/TabItem';
 Secure way to communicate between wallets and dapps.
 Nightly Connect can be easily adapted on any blockchain. Right now we are supporting wallets on Sui and Solana.
 
-Nightly Connect is a remote signer protocol which communicates securely between dapps and web3 wallets. The protocol establishes a remote pairing between two dapps and/or devices. Payloads are encrypted through a shared sessionId between the two sides. The connection is initiated by one peer displaying a QR Code and is established when the counter-party approves the request.
-
 ### Get started
 
 :::info

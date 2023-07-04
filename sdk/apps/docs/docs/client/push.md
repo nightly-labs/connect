@@ -3,6 +3,10 @@ title: Push notifications
 slug: client/push
 ---
 
+:::info
+Post request is send only if client does not have established WS connection.
+:::
+
 Application sends POST request to user Endpoint, which contains data on request.
 In order to display the connect push notification on user device `connect()` function required notificationEndpoint and token.
 
@@ -19,12 +23,23 @@ interface Notification {
   token: string;
   notificationEndpoint: string;
 }
+
+interface NotificationPayload {
+  token: string
+  network: Network
+  sessionId: string
+  appMetadata: AppMetadata
+  device: Device
+  request: string // serialized RequestContent
+  requestId: string
+}
+
 ```
 
-POST call example:
+Firebase push notification example:
 
 ```js
-const app = initializeApp(undefined, 'trigger-notification')
+const firebase = initializeApp(undefined, 'trigger-notification')
 export const triggerNotification = onRequest(async (request, response) => {
   try {
     if (request.method !== 'POST') {
@@ -32,7 +47,7 @@ export const triggerNotification = onRequest(async (request, response) => {
       return
     }
     const payload = request.body as NotificationPayload
-    const messaging = getMessaging(app)
+    const messaging = getMessaging(firebase)
     const requestContent = JSON.parse(payload.request) as RequestContent
     await messaging.send({
       token: payload.token,

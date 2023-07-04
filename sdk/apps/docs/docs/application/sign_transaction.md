@@ -1,20 +1,18 @@
 ---
-title: Send Transaction
+title: Sign Transaction
 slug: application/send
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-To transfer tokens, first application needs to create a transaction, which has to be signed by client.
-Client on its side will fetch the transaction data and parse it to information (amount, tokens, value, icon, recipient address) to be displayed to the user.
+Sending a signTransaction requires established connection with user wallet.
 
-Transaction are sent to the client as Promises. Client can accept or reject the request. Once client signs transaction, `signTransaction()` method returns resolved promise with Signed Transaction.
+Transaction are sent to the client via wallet interface. Client can accept or reject the request. Once client signs transaction, `signTransaction()` method returns resolved promise with Signed Transaction.
 
+Example:
 <Tabs>
 <TabItem value="Solana" label="Solana">
-  To transfer tokens, application needs to provide following information:
-  recipient and sender public keys, the amount of lamports per transaction, feePayer and recentBlockhash.
 
 ```js
 import {
@@ -41,7 +39,6 @@ const signed: VersionedTransaction = await app.signTransaction(tx)
 </TabItem>
 
 <TabItem value="SUI" label="SUI">
-  To transfer tokens, application needs to provide following information: transactionBlock, wallet account and chain.
 
 ```js
 import { TransactionBlock } from '@mysten/sui.js'
