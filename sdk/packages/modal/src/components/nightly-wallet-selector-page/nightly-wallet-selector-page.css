@@ -35,7 +35,6 @@
   flex-direction: column;
   height: 100%;
   overflow-x: hidden;
-  padding-bottom: 16px;
   scrollbar-width: none;
 }
 
@@ -83,7 +82,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 0 16px 8px 16px;
+  margin: 0 16px;
   padding: 8px;
   width: 256px;
   height: 32px;
@@ -181,5 +180,25 @@
   max-height: 100%;
   overflow-y: scroll;
   scrollbar-width: none;
+  padding-top: 8px;
+  padding-bottom: 16px;
+}
+
+.walletInputSearchWrapper {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.walletInputSearchWrapper::before {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(180deg, #202137 0%, #202137 50%, #20213700 100%);
+  opacity: 1;
+  pointer-events: none;
+  z-index: 1;
 }
 

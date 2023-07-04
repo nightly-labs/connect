@@ -48,13 +48,15 @@ export class NightlyWalletSelectorPage extends LitElement {
               <span>${this.chainName}</span>
             </div>
           </div>
-          <div class="walletInputSearchContainer">
-            <input
-              placeholder="Search"
-              class="walletInputSearch"
-              @input=${this.handleSearchInput}
-            />
-            <img src="${search}" />
+          <div class="walletInputSearchWrapper">
+            <div class="walletInputSearchContainer">
+              <input
+                placeholder="Search"
+                class="walletInputSearch"
+                @input=${this.handleSearchInput}
+              />
+              <img src="${search}" />
+            </div>
           </div>
           ${this.filteredItems.length === 0
             ? this.renderNotFoundIcon()
