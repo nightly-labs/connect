@@ -2,7 +2,13 @@ import { AppSolana, SOLANA_NETWORK } from '@nightlylabs/nightly-connect-solana'
 import { StandardWalletAdapter } from '@solana/wallet-standard'
 import { NightlyConnectSolanaWallet } from './wallet'
 import { PublicKey } from '@solana/web3.js'
-import { AppInitData, MetadataWallet, NCBaseSelector, NETWORK, clearSessionIdForNetwork } from '@nightlylabs/wallet-selector-base'
+import {
+  AppInitData,
+  MetadataWallet,
+  NCBaseSelector,
+  NETWORK,
+  clearSessionIdForNetwork
+} from '@nightlylabs/wallet-selector-base'
 import { solanaWalletsFilter } from './detection'
 import { WalletAdapterCompatibleStandardWallet } from '@solana/wallet-adapter-base'
 
@@ -54,19 +60,19 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
   }
 
   public static build = async (appInitData: AppInitData) => {
-    const app = await AppSolana.build(appInitData)
-    const metadataWallets = await AppSolana.getWalletsMetadata(
-      'https://nc2.nightly.app/get_wallets_metadata'
-    )
-      .then((list) =>
-        list.map((wallet) => ({
-          name: wallet.name,
-          icon: wallet.image.default,
-          deeplink: wallet.mobile,
-          link: wallet.homepage
-        }))
-      )
-      .catch(() => [] as any)
+    const [app, metadataWallets] = await Promise.all([
+      AppSolana.build(appInitData),
+      AppSolana.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
+        .then((list) =>
+          list.map((wallet) => ({
+            name: wallet.name,
+            icon: wallet.image.default,
+            deeplink: wallet.mobile,
+            link: wallet.homepage
+          }))
+        )
+        .catch(() => [] as MetadataWallet[])
+    ])
     const selector = new NCSolanaSelector(appInitData, app, metadataWallets)
 
     return selector

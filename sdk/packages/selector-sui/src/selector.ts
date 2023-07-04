@@ -26,9 +26,9 @@ export class NCSuiSelector extends NCBaseSelector<StandardWalletAdapter> {
       appInitData,
       metadataWallets,
       (wallet) =>
-      new StandardWalletAdapter({
-        wallet: wallet as StandardWalletAdapterWallet
-      }),
+        new StandardWalletAdapter({
+          wallet: wallet as StandardWalletAdapterWallet
+        }),
       suiWalletsFilter,
       {
         network: NETWORK.SUI,
@@ -69,19 +69,19 @@ export class NCSuiSelector extends NCBaseSelector<StandardWalletAdapter> {
   }
 
   public static build = async (appInitData: AppInitData) => {
-    const app = await AppSui.build(appInitData)
-    const metadataWallets = await AppSui.getWalletsMetadata(
-      'https://nc2.nightly.app/get_wallets_metadata'
-    )
-      .then((list) =>
-        list.map((wallet) => ({
-          name: wallet.name,
-          icon: wallet.image.default,
-          deeplink: wallet.mobile,
-          link: wallet.homepage
-        }))
-      )
-      .catch(() => [] as any)
+    const [app, metadataWallets] = await Promise.all([
+      AppSui.build(appInitData),
+      AppSui.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
+        .then((list) =>
+          list.map((wallet) => ({
+            name: wallet.name,
+            icon: wallet.image.default,
+            deeplink: wallet.mobile,
+            link: wallet.homepage
+          }))
+        )
+        .catch(() => [] as MetadataWallet[])
+    ])
     const selector = new NCSuiSelector(appInitData, app, metadataWallets)
 
     return selector
