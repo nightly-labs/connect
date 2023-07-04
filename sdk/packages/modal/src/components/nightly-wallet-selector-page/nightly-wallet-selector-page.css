@@ -176,3 +176,10 @@
     width: 176px;
   }
 }
+
+.walletSelectorButtons {
+  max-height: 100%;
+  overflow-y: scroll;
+  scrollbar-width: none;
+}
+
