@@ -36,11 +36,13 @@ export class NightlyConnectWallet extends LitElement {
       <div class="mainContainer">
         <div class="wrapperConnectPage">
           <div class="headerContainer">
-            <div class="buttonContainer">
-              <button id="connect-wallet-fallback-button" @click=${this.fallback}>
-                <img class="vector" src=${vector} />
-              </button>
-            </div>
+            <button
+              class="buttonContainer"
+              id="connect-wallet-fallback-button"
+              @click=${this.fallback}
+            >
+              <img class="vector" src=${vector} />
+            </button>
             <div class="textContainer">
               <span>Connect wallet</span>
             </div>

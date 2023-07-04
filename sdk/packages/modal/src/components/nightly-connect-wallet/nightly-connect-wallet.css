@@ -39,7 +39,9 @@
 }
 
 .buttonContainer {
-  align-self: flex-start;
+  align-self: start;
+  height: 28px;
+  padding-inline: 7px;
 }
 
 .textContainer {

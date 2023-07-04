@@ -38,11 +38,9 @@ export class NightlyAllWalletsSelector extends LitElement {
     return html`
       <div class="walletSelectorButtons">
         <div class="headerContainer">
-          <div class="buttonContainer">
-            <button @click=${this.showAllWallets}>
-              <img src=${vector} />
-            </button>
-          </div>
+          <button class="buttonContainer" @click=${this.showAllWallets}>
+            <img src=${vector} />
+          </button>
           <div class="textContainer">
             <span> All wallets </span>
           </div>

@@ -30,6 +30,13 @@
   animation-direction: alternate;
   animation: slide 16s linear infinite;
 }
+
+@media (max-width: 640px) {
+  .cloudsAnimationHeader {
+    animation: slide 8s linear infinite;
+  }
+}
+
 @keyframes slide {
   0% {
     right: 99%;

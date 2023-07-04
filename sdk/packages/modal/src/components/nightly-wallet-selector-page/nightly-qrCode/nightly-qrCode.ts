@@ -26,11 +26,9 @@ export class NightlyQrCode extends LitElement {
     return html`
       <div class="headerQrCodeWrapper">
         <div class="headerContainer">
-          <div class="buttonContainer">
-            <button @click=${this.showAllWallets}>
-              <img src=${vector} />
-            </button>
-          </div>
+          <button class="buttonContainer" @click=${this.showAllWallets}>
+            <img src=${vector} />
+          </button>
           <div class="textContainer">
             <span> QR Code </span>
           </div>
