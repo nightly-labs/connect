@@ -57,11 +57,8 @@
   align-items: center;
 }
 .walletSelectorHeader span {
-  cursor: default;
-  font-family: 'Prompt';
-  font-style: normal;
   font-weight: 400;
-  font-size: 12px;
+  font-size: 16px;
   line-height: 22px;
   color: #707a8d;
 }
@@ -74,8 +71,8 @@
   color: #6067f9;
 }
 .walletSelectorBlockchain img {
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
   border-radius: 100%;
 }
 .walletInputSearchContainer {
@@ -101,8 +98,7 @@
 .walletInputSearch {
   background-color: #0f0f1a;
   color: #707a8d;
-  font-size: 12px;
-  font-weight: 400;
+  font-size: 14px;
   width: 99%;
   line-height: 22px;
   letter-spacing: 0.02em;

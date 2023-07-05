@@ -29,11 +29,11 @@ export function getBreakpointFromWidthInMainPage(screenWidth: number): Breakpoin
 export function getNumberOfItems(breakpoint: Breakpoint) {
   switch (breakpoint) {
     case 'xs':
-      return 5
+      return 2
     case 'sm':
-      return 7
+      return 3
     case 'lg':
     default:
-      return 9
+      return 4
   }
 }
