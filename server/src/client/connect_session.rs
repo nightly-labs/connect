@@ -35,6 +35,7 @@ pub async fn connect_session(
     State(client_to_sessions): State<ClientToSessions>,
     Json(request): Json<HttpConnectSessionRequest>,
 ) -> Result<Json<HttpConnectSessionResponse>, (StatusCode, String)> {
+    let mut sessions = sessions.write().await;
     let mut session = match sessions.get_mut(&request.session_id) {
         Some(session) => session,
         None => {
