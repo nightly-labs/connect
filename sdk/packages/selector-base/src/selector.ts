@@ -14,6 +14,7 @@ export class NCBaseSelector<A extends Adapter> {
   _appInitData: AppInitData
   _sessionId: string
   _connectDeeplink: (walletName: string, url: string) => void
+  _anchor: HTMLElement
 
   onConnected: ((adapter: A) => void) | undefined
   onOpen: (() => void) | undefined
@@ -36,10 +37,11 @@ export class NCBaseSelector<A extends Adapter> {
     this._networkData = networkData
     this._sessionId = sessionId
     this._connectDeeplink = connectDeeplink
-    this.createSelectorElement(anchorRef)
+    this._anchor = anchorRef ?? document.body
+    this.createSelectorElement()
   }
 
-  createSelectorElement = (anchorRef?: HTMLElement) => {
+  createSelectorElement = () => {
     this._modal = getNightlySelectorElement()
     this._modal.onClose = this.closeModal
 
@@ -99,24 +101,18 @@ export class NCBaseSelector<A extends Adapter> {
           })
       }
     }
-
-    this._modal.style.display = 'none'
-
-    const anchorElement = anchorRef ?? document.body
-
-    anchorElement.appendChild(this._modal)
   }
 
   public openModal = () => {
     if (this._modal) {
-      this._modal.style.display = 'block'
+      this._anchor.appendChild(this._modal)
     }
     this.onOpen?.()
   }
 
   public closeModal = () => {
     if (this._modal) {
-      this._modal.style.display = 'none'
+      this._anchor.removeChild(this._modal)
       this.onClose?.()
     }
   }

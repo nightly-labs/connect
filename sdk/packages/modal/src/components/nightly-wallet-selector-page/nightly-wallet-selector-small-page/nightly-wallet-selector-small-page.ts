@@ -57,6 +57,13 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
     this.isTopWalletsView = false
   }
 
+  disconnectedCallback(): void {
+    super.disconnectedCallback()
+    this.isTopWalletsView = true
+    this.isQrPageVisible = false
+    this.showAll = false
+  }
+
   renderView() {
     if (this.isTopWalletsView) {
       return html`
