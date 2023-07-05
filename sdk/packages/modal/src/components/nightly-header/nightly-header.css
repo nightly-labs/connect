@@ -33,7 +33,19 @@
 
 @media (max-width: 640px) {
   .cloudsAnimationHeader {
-    animation: slide 8s linear infinite;
+    animation-duration: 24s;
+  }
+}
+
+@media (max-width: 560px) {
+  .cloudsAnimationHeader {
+    animation-duration: 20s;
+  }
+}
+
+@media (max-width: 400px) {
+  .cloudsAnimationHeader {
+    animation-duration: 16s;
   }
 }
 
