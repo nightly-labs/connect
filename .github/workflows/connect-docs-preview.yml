@@ -1,0 +1,36 @@
+name: connect-docs-preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'sdk/apps/docs/**'
+
+jobs:
+  upload:
+    runs-on: [testing]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Deploy to Vercel Action
+        id: vercel-deploy
+        uses: BetaHuhn/deploy-to-vercel-action@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PREVIEW_NIGHTLY_CONNECT_DOCS }}
+          VERCEL_SCOPE: ${{ secrets.VERCEL_ORG_ID }}
+          PRODUCTION: false
+          CREATE_COMMENT: false
+          GITHUB_DEPLOYMENT: false
+      - uses: thollander/actions-comment-pull-request@v1
+        with:
+          message: 📖📖📖📖 CONNECT DOCS PREVIEW 📖📖📖📖
+            <table>
+            <tr>
+            <td><strong>✅ Preview:</strong></td>
+            <td><a href='${{ steps.vercel-deploy.outputs.PREVIEW_URL }}'>${{ steps.vercel-deploy.outputs.PREVIEW_URL }}</a></td>
+            </tr>
+            </table>
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

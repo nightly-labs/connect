@@ -6,7 +6,7 @@ slug: client/signMessage
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-Client can listen to the event `client.on('signMessages')`, which will returns user requests to sign messages. To resolve the transaction client needs to pass in requestId (signature) and signed message.
+Client can listen to the event `client.on('signMessages')`, which will returns user requests to sign messages. To resolve the transaction client needs to pass in requestId and signed message.
 
 <Tabs>
 

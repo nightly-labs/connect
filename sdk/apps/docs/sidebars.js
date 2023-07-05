@@ -14,20 +14,21 @@
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
   // By default, Docusaurus generates a sidebar from the docs folder structure
-  docs: [   
-     'home',
-  {
-    type: 'category',
-    label: '💻 Application',
-    collapsed: false,
-    items: ['application/connect', 'application/send']
-  },
-  {
-    type: 'category',
-    label: '📱 Client',
-    collapsed: false,
-    items: [ 'client/connect', 'client/sign', 'client/signMessage', 'client/push']
-  }],
+  docs: [
+    'home',
+    {
+      type: 'category',
+      label: '💻 Application',
+      collapsed: false,
+      items: ['application/connect', 'application/sign_transaction']
+    },
+    {
+      type: 'category',
+      label: '📱 Client',
+      collapsed: false,
+      items: ['client/connect', 'client/sign', 'client/signMessage', 'client/push']
+    }
+  ]
 
   // But you can create a sidebar manually
   /*
@@ -41,6 +42,6 @@ const sidebars = {
     },
   ],
    */
-};
+}
 
-module.exports = sidebars;
+module.exports = sidebars
