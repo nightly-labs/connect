@@ -26,7 +26,7 @@ export default [
       terser()
     ],
     external: [
-      '@nightlylabs/nightly-connect-solana',
+      '@nightlylabs/nightly-connect-base',
       '@wallet-standard/core',
       'isomorphic-localstorage'
     ]

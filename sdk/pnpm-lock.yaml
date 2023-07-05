@@ -130,7 +130,7 @@ importers:
         version: 0.7.9
       '@nightlylabs/wallet-selector-solana':
         specifier: 0.0.1
-        version: link:../../packages/selector-solana
+        version: 0.0.1(bs58@4.0.1)(react@18.2.0)
       '@nightlylabs/wallet-selector-sui':
         specifier: 0.0.1
         version: 0.0.1
@@ -493,7 +493,7 @@ importers:
         specifier: 0.0.16
         version: link:../../apps/solana
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.0.2
+        specifier: 0.0.3
         version: link:../selector-base
       '@solana/wallet-adapter-base':
         specifier: ^0.9.22
@@ -548,7 +548,7 @@ importers:
         specifier: 0.0.16
         version: link:../../apps/sui
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.0.2
+        specifier: 0.0.3
         version: link:../selector-base
       '@wallet-standard/core':
         specifier: ^1.0.3
@@ -1136,10 +1136,6 @@ packages:
     dependencies:
       '@babel/types': 7.22.5
 
-  /@babel/helper-string-parser@7.21.5:
-    resolution: {integrity: sha512-5pTUx3hAJaZIdW99sJ6ZUUgWq/Y+Hja7TowEnLNMm1VivRgZQL3vpBY3qUACVsvw+yQU6+YgfBVmcbLaZtrA1w==}
-    engines: {node: '>=6.9.0'}
-
   /@babel/helper-string-parser@7.22.5:
     resolution: {integrity: sha512-mM4COjgZox8U+JcXQwPijIZLElkgEpO5rsERVDJTc2qfCDfERyob6k5WegS14SX18IIjv+XD+GrqNumY5JRCDw==}
     engines: {node: '>=6.9.0'}
@@ -1194,7 +1190,7 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
     dependencies:
-      '@babel/types': 7.22.4
+      '@babel/types': 7.22.5
 
   /@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression@7.18.6(@babel/core@7.21.8):
     resolution: {integrity: sha512-Dgxsyg54Fx1d4Nge8UnvTrED63vrwOdPmyvPzlNN/boaliRP54pm3pGzZD1SJUwrBA+Cs/xdG8kXX6Mn/RfISQ==}
@@ -3171,18 +3167,10 @@ packages:
     resolution: {integrity: sha512-m4AfNvVF2mVC/F7fDEdH2El3HzUg9It/XsCxZiOTTA3m3qYfcSVSbTfM6Q9xG+hYDniZssYhlXKKUMD5m8tF4Q==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/helper-string-parser': 7.21.5
+      '@babel/helper-string-parser': 7.22.5
       '@babel/helper-validator-identifier': 7.22.5
       to-fast-properties: 2.0.0
     dev: true
-
-  /@babel/types@7.22.4:
-    resolution: {integrity: sha512-Tx9x3UBHTTsMSW85WB2kphxYQVvrZ/t1FxD88IpSgIjiUJlCm9z+xWIDwyo1vffTwSqteqyznB8ZE9vYYk16zA==}
-    engines: {node: '>=6.9.0'}
-    dependencies:
-      '@babel/helper-string-parser': 7.21.5
-      '@babel/helper-validator-identifier': 7.22.5
-      to-fast-properties: 2.0.0
 
   /@babel/types@7.22.5:
     resolution: {integrity: sha512-zo3MIHGOkPOfoRXitsgHLjEXmlDaD/5KU1Uzuc9GNiZPhSqVxVRtxuPaSBZDsYZ9qV88AjtMtWW7ww98loJ9KA==}
@@ -4674,6 +4662,20 @@ packages:
       - utf-8-validate
     dev: false
 
+  /@nightlylabs/nightly-connect-solana@0.0.16:
+    resolution: {integrity: sha512-hhykA5ShS38BGecEz9cvB0Nk+3rPv8NkGlR0jd4z43UEF0bB+YwDTCNjJ6/Vu0cmgENSsDhMRckr7OSdP9UMwQ==}
+    dependencies:
+      '@nightlylabs/nightly-connect-base': 0.0.16
+      '@solana/web3.js': 1.77.2
+      eventemitter3: 5.0.1
+      uuid: 9.0.0
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
+    dev: false
+
   /@nightlylabs/nightly-connect-sui@0.0.16:
     resolution: {integrity: sha512-u/it3e4f0l/vKlVVVY/NdQ4EZbrkmAKkbdrACp3U84itL9BRQOtK6qQ3zB1DKuqWNdF1R1ADbQcBlhfYI198uQ==}
     dependencies:
@@ -4723,6 +4725,25 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - ts-node
+    dev: false
+
+  /@nightlylabs/wallet-selector-solana@0.0.1(bs58@4.0.1)(react@18.2.0):
+    resolution: {integrity: sha512-FZgeUqm4OnFy4h9qVmgvIlsZ6CuFPSVvlEEixdPoCFNLuV95fGghcG9jR8O1D14+9GT3h5BsdALxKzpq0R9Opg==}
+    dependencies:
+      '@nightlylabs/nightly-connect-solana': 0.0.16
+      '@nightlylabs/wallet-selector-base': 0.0.1
+      '@solana/wallet-adapter-base': 0.9.22(@solana/web3.js@1.77.2)
+      '@solana/wallet-standard': 1.0.2(@solana/wallet-adapter-base@0.9.22)(@solana/web3.js@1.77.2)(bs58@4.0.1)(react@18.2.0)
+      '@solana/web3.js': 1.77.2
+      '@wallet-standard/core': 1.0.3
+    transitivePeerDependencies:
+      - bs58
+      - bufferutil
+      - encoding
+      - react
+      - supports-color
+      - ts-node
+      - utf-8-validate
     dev: false
 
   /@nightlylabs/wallet-selector-sui@0.0.1:
