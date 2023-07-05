@@ -133,7 +133,7 @@ importers:
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
         specifier: 0.0.1
-        version: link:../../packages/selector-sui
+        version: 0.0.1
       '@solana/wallet-standard':
         specifier: ^1.0.2
         version: 1.0.2(@solana/wallet-adapter-base@0.9.22)(@solana/web3.js@1.77.2)(bs58@4.0.1)(react@18.2.0)
@@ -453,7 +453,7 @@ importers:
         specifier: 0.0.16
         version: link:../../apps/base
       '@nightlylabs/wallet-selector-modal':
-        specifier: 0.0.1
+        specifier: 0.0.2
         version: link:../modal
       '@wallet-standard/core':
         specifier: ^1.0.3
@@ -493,7 +493,7 @@ importers:
         specifier: 0.0.16
         version: link:../../apps/solana
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.0.1
+        specifier: 0.0.2
         version: link:../selector-base
       '@solana/wallet-adapter-base':
         specifier: ^0.9.22
@@ -548,7 +548,7 @@ importers:
         specifier: 0.0.16
         version: link:../../apps/sui
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.0.1
+        specifier: 0.0.2
         version: link:../selector-base
       '@wallet-standard/core':
         specifier: ^1.0.3
@@ -4658,6 +4658,91 @@ packages:
       pump: 3.0.0
       tar-fs: 2.1.1
     dev: true
+
+  /@nightlylabs/nightly-connect-base@0.0.16:
+    resolution: {integrity: sha512-Ejj6tQBmuMfZzv97wwdhsBJRLlFqLRf8w50nSJHxowXY2otzBJClRW0G12PjJ4GT+fkvZWKrTgfHKeIKJ5eloQ==}
+    dependencies:
+      cross-fetch: 3.1.6
+      eventemitter3: 5.0.1
+      isomorphic-localstorage: 1.0.2
+      isomorphic-ws: 5.0.0(ws@8.13.0)
+      uuid: 9.0.0
+      ws: 8.13.0(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - utf-8-validate
+    dev: false
+
+  /@nightlylabs/nightly-connect-sui@0.0.16:
+    resolution: {integrity: sha512-u/it3e4f0l/vKlVVVY/NdQ4EZbrkmAKkbdrACp3U84itL9BRQOtK6qQ3zB1DKuqWNdF1R1ADbQcBlhfYI198uQ==}
+    dependencies:
+      '@mysten/sui.js': 0.35.1
+      '@mysten/wallet-standard': 0.5.9
+      '@nightlylabs/nightly-connect-base': 0.0.16
+      '@noble/hashes': 1.3.0
+      eventemitter3: 5.0.1
+      uuid: 9.0.0
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - utf-8-validate
+    dev: false
+
+  /@nightlylabs/qr-code@2.0.0:
+    resolution: {integrity: sha512-ib/rw/LKx0uMa5s9a4kBH8tImKdjUohOwcTPvac4fLZtCfp1J/H1yfoXCZ1IyfC2kTLX/jD5rjEDgmzIqlrKMg==}
+    dependencies:
+      qrcode-generator: 1.4.4
+    dev: false
+
+  /@nightlylabs/wallet-selector-base@0.0.1:
+    resolution: {integrity: sha512-Sw9BurY2Sg56VMc3aN7EqjtqoKaCSwFbkZN2+O+VykylDJobfMQzOVi60mPCh3HyGIFpeeKa6s6yYHS67tfFhw==}
+    dependencies:
+      '@nightlylabs/nightly-connect-base': 0.0.16
+      '@nightlylabs/wallet-selector-modal': 0.0.1
+      '@wallet-standard/core': 1.0.3
+      isomorphic-localstorage: 1.0.2
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - ts-node
+      - utf-8-validate
+    dev: false
+
+  /@nightlylabs/wallet-selector-modal@0.0.1:
+    resolution: {integrity: sha512-qh2TFw1SaA8QOs0LlsS7Dw1+CIH5GeK+m5+j3kSzs34JqhtfrcYpVJ4ZPMMmEaJpbBrMV0tsdeO49E+3c4QHDQ==}
+    dependencies:
+      '@lit-labs/motion': 1.0.3
+      '@nightlylabs/qr-code': 2.0.0
+      autoprefixer: 10.4.14(postcss@8.4.24)
+      lit: 2.7.2
+      postcss: 8.4.24
+      postcss-lit: 1.1.0(postcss@8.4.24)
+      tailwindcss: 3.3.2
+    transitivePeerDependencies:
+      - supports-color
+      - ts-node
+    dev: false
+
+  /@nightlylabs/wallet-selector-sui@0.0.1:
+    resolution: {integrity: sha512-ZO6iBFa0eCDD1DnI0/ubuODztHEwPcBHNPiRqnRJ0GOb0n8dYGrCmqNKcaYR0WgYKzzWoSfLzQEUENyb0LxrdA==}
+    dependencies:
+      '@mysten/sui.js': 0.35.1
+      '@mysten/wallet-adapter-wallet-standard': 0.7.9
+      '@mysten/wallet-standard': 0.5.9
+      '@nightlylabs/nightly-connect-sui': 0.0.16
+      '@nightlylabs/wallet-selector-base': 0.0.1
+      '@wallet-standard/core': 1.0.3
+      bs58: 4.0.1
+      events: 3.3.0
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - ts-node
+      - utf-8-validate
+    dev: false
 
   /@noble/curves@1.0.0:
     resolution: {integrity: sha512-2upgEu0iLiDVDZkNLeFV2+ht0BAVgQnEmCk6JsOch9Rp8xfkMCbvbAZlA2pBHQc73dbl+vFOXfqkf4uemdn0bw==}
