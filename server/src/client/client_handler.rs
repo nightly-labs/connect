@@ -112,10 +112,15 @@ pub async fn client_handler(
                         ServerToApp::UserDisconnectedEvent(UserDisconnectedEvent {});
                     let user_sessions = client_to_sessions.get_sessions(client_id.clone());
                     for session_id in user_sessions {
-                        let mut session = match sessions.get_mut(&session_id) {
+                        let mut sessions = sessions.write().await;
+                        let session = match sessions.get_mut(&session_id) {
                             Some(session) => session,
-                            None => return,
+                            None => {
+                                // Should never happen
+                                return;
+                            }
                         };
+
                         session
                             .send_to_app(user_disconnected_event.clone())
                             .await
@@ -130,9 +135,12 @@ pub async fn client_handler(
                     ServerToApp::UserDisconnectedEvent(UserDisconnectedEvent {});
                 let user_sessions = client_to_sessions.get_sessions(client_id.clone());
                 for session_id in user_sessions {
-                    let mut session = match sessions.get_mut(&session_id) {
+                    let mut sessions = sessions.write().await;
+                    let session = match sessions.get_mut(&session_id) {
                         Some(session) => session,
-                        None => return,
+                        None => {
+                            return;
+                        }
                     };
                     session
                         .send_to_app(user_disconnected_event.clone())
@@ -154,9 +162,12 @@ pub async fn client_handler(
                     ServerToApp::UserDisconnectedEvent(UserDisconnectedEvent {});
                 let user_sessions = client_to_sessions.get_sessions(client_id.clone());
                 for session_id in user_sessions {
-                    let mut session = match sessions.get_mut(&session_id) {
+                    let mut sessions = sessions.write().await;
+                    let session = match sessions.get_mut(&session_id) {
                         Some(session) => session,
-                        None => return,
+                        None => {
+                            return;
+                        }
                     };
                     session
                         .send_to_app(user_disconnected_event.clone())
@@ -176,7 +187,8 @@ pub async fn client_handler(
         };
         match app_msg {
             ClientToServer::ConnectRequest(connect_request) => {
-                let mut session = match sessions.get_mut(&connect_request.session_id) {
+                let mut sessions = sessions.write().await;
+                let session = match sessions.get_mut(&connect_request.session_id) {
                     Some(session) => session,
                     None => {
                         let error = ServerToClient::ErrorMessage(ErrorMessage {
@@ -190,6 +202,7 @@ pub async fn client_handler(
                         continue;
                     }
                 };
+
                 // Insert user socket
                 session.update_status(SessionStatus::ClientConnected);
                 session.client_state.device = connect_request.device.clone();
@@ -225,7 +238,8 @@ pub async fn client_handler(
                     .unwrap_or_default();
             }
             ClientToServer::NewPayloadEventReply(new_payload_event_reply) => {
-                let mut session = match sessions.get_mut(&new_payload_event_reply.session_id) {
+                let mut sessions = sessions.write().await;
+                let session = match sessions.get_mut(&new_payload_event_reply.session_id) {
                     Some(session) => session,
                     None => {
                         let error = ServerToClient::ErrorMessage(ErrorMessage {
@@ -272,6 +286,7 @@ pub async fn client_handler(
                     .unwrap_or_default();
             }
             ClientToServer::GetInfoRequest(get_info_request) => {
+                let sessions = sessions.read().await;
                 let session = match sessions.get(&get_info_request.session_id) {
                     Some(session) => session,
                     None => {
@@ -298,6 +313,7 @@ pub async fn client_handler(
                     .unwrap_or_default();
             }
             ClientToServer::GetPendingRequestsRequest(get_pending_requests_request) => {
+                let sessions = sessions.read().await;
                 let session = match sessions.get(&get_pending_requests_request.session_id) {
                     Some(session) => session,
                     None => {
@@ -316,7 +332,7 @@ pub async fn client_handler(
                     .pending_requests
                     .clone()
                     .iter()
-                    .map(|v| v.clone())
+                    .map(|(_, v)| v.clone())
                     .collect::<Vec<String>>();
                 let response =
                     ServerToClient::GetPendingRequestsResponse(GetPendingRequestsResponse {

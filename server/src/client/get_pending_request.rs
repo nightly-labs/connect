@@ -28,6 +28,7 @@ pub async fn get_pending_request(
     State(sessions): State<Sessions>,
     Json(request): Json<HttpGetPendingRequestRequest>,
 ) -> Result<Json<HttpGetPendingRequestResponse>, (StatusCode, String)> {
+    let sessions = sessions.read().await;
     let session = match sessions.get(&request.session_id) {
         Some(session) => session,
         None => {
@@ -55,7 +56,7 @@ pub async fn get_pending_request(
 
     Ok(Json(HttpGetPendingRequestResponse {
         request: PendingRequest {
-            request_id: pending_request.key().clone(),
+            request_id: request.request_id.clone(),
             content: pending_request.clone(),
         },
     }))

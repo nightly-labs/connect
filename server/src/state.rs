@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use crate::structs::{
     app_messages::{app_messages::ServerToApp, user_disconnected_event::UserDisconnectedEvent},
@@ -11,10 +11,11 @@ use axum::extract::ws::{Message, WebSocket};
 use axum_macros::FromRef;
 use dashmap::{DashMap, DashSet};
 use futures::{stream::SplitSink, SinkExt};
+use tokio::sync::RwLock;
 
 pub type SessionId = String;
 pub type ClientId = String;
-pub type Sessions = Arc<DashMap<SessionId, Session>>;
+pub type Sessions = Arc<RwLock<HashMap<SessionId, Session>>>;
 pub type ClientSockets = Arc<DashMap<ClientId, SplitSink<WebSocket, Message>>>;
 #[async_trait]
 pub trait DisconnectUser {
@@ -23,7 +24,8 @@ pub trait DisconnectUser {
 #[async_trait]
 impl DisconnectUser for Sessions {
     async fn disconnect_user(&self, session_id: SessionId) -> Result<()> {
-        let mut session = match self.get_mut(&session_id) {
+        let mut sessions = self.write().await;
+        let mut session = match sessions.get_mut(&session_id) {
             Some(session) => session,
             None => return Err(anyhow::anyhow!("Session does not exist")), // Session does not exist
         };
