@@ -25,10 +25,10 @@
   height: 56px;
   margin: auto;
   border-radius: 4px;
-  animation-name: slidein;
+  animation-name: slide;
   animation-iteration-count: infinite;
-  animation-direction: alternate;
-  animation: slide 16s linear infinite;
+  animation-duration: 32s;
+  animation-timing-function: linear;
 }
 
 @media (max-width: 640px) {
@@ -39,10 +39,10 @@
 
 @keyframes slide {
   0% {
-    right: 99%;
+    right: 201%;
   }
   100% {
-    right: 6%;
+    right: -1%;
   }
 }
 
