@@ -41,7 +41,7 @@ export class NightlyModal extends LitElement {
 
   onCopy = () => {
     navigator.clipboard.writeText(
-      'nc:' + this.sessionId + '?network=' + this.network + '?relay=' + this.relay
+      'nc:' + this.sessionId + '?network=' + this.network + '&relay=' + this.relay
     )
     this.copyMessage = 'Copied!'
     clearTimeout(this.timeoutRef)
@@ -65,7 +65,7 @@ export class NightlyModal extends LitElement {
               class="code"
               src=${svgToBase64(
                 generateQrCodeXml(
-                  'nc:' + this.sessionId + '?network=' + this.network + '?relay=' + this.relay,
+                  'nc:' + this.sessionId + '?network=' + this.network + '&relay=' + this.relay,
                   {
                     width: 400,
                     height: 400,
