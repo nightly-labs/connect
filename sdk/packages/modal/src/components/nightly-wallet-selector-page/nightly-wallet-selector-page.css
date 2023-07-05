@@ -51,6 +51,7 @@
 
 .walletSelectorHeader {
   padding: 16px;
+  padding-bottom: 10px;
   width: 100%;
   display: flex;
   justify-content: space-between;
@@ -143,6 +144,7 @@
   grid-template-columns: 1fr 1fr 1fr;
   justify-content: center;
   align-items: center;
+  row-gap: 4px;
 }
 
 .recentDetectedContainer {
@@ -155,6 +157,7 @@
   grid-template-columns: 1fr 1fr 1fr;
   justify-content: center;
   align-items: center;
+  row-gap: 4px;
 }
 
 @media (max-width: 1080px) {
