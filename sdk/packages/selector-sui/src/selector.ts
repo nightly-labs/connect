@@ -21,7 +21,12 @@ export const convertBase58toBase64 = (base58: string) => {
 export class NCSuiSelector extends NCBaseSelector<StandardWalletAdapter> {
   private _app: AppSui
 
-  constructor(appInitData: AppInitData, app: AppSui, metadataWallets: MetadataWallet[]) {
+  constructor(
+    appInitData: AppInitData,
+    app: AppSui,
+    metadataWallets: MetadataWallet[],
+    anchorRef?: HTMLElement
+  ) {
     super(
       appInitData,
       metadataWallets,
@@ -41,7 +46,8 @@ export class NCSuiSelector extends NCBaseSelector<StandardWalletAdapter> {
           walletName,
           url
         })
-      }
+      },
+      anchorRef
     )
     this._app = app
     this.setApp(app)
@@ -68,7 +74,7 @@ export class NCSuiSelector extends NCBaseSelector<StandardWalletAdapter> {
     })
   }
 
-  public static build = async (appInitData: AppInitData) => {
+  public static build = async (appInitData: AppInitData, anchorRef?: HTMLElement) => {
     const [app, metadataWallets] = await Promise.all([
       AppSui.build(appInitData),
       AppSui.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
@@ -82,7 +88,7 @@ export class NCSuiSelector extends NCBaseSelector<StandardWalletAdapter> {
         )
         .catch(() => [] as MetadataWallet[])
     ])
-    const selector = new NCSuiSelector(appInitData, app, metadataWallets)
+    const selector = new NCSuiSelector(appInitData, app, metadataWallets, anchorRef)
 
     return selector
   }

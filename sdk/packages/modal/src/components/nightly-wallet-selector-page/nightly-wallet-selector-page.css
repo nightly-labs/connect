@@ -180,6 +180,10 @@
   padding-bottom: 16px;
 }
 
+.walletSelectorButtons::-webkit-scrollbar {
+  display: none;
+}
+
 .walletInputSearchWrapper {
   position: relative;
   margin-bottom: 8px;

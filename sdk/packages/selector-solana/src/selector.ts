@@ -15,7 +15,12 @@ import { WalletAdapterCompatibleStandardWallet } from '@solana/wallet-adapter-ba
 export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
   private _app: AppSolana
 
-  constructor(appInitData: AppInitData, app: AppSolana, metadataWallets: MetadataWallet[]) {
+  constructor(
+    appInitData: AppInitData,
+    app: AppSolana,
+    metadataWallets: MetadataWallet[],
+    anchorRef?: HTMLElement
+  ) {
     super(
       appInitData,
       metadataWallets,
@@ -35,7 +40,8 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
           walletName,
           url
         })
-      }
+      },
+      anchorRef
     )
     this._app = app
     this.setApp(app)
@@ -59,7 +65,7 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
     })
   }
 
-  public static build = async (appInitData: AppInitData) => {
+  public static build = async (appInitData: AppInitData, anchorRef?: HTMLElement) => {
     const [app, metadataWallets] = await Promise.all([
       AppSolana.build(appInitData),
       AppSolana.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
@@ -73,7 +79,7 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
         )
         .catch(() => [] as MetadataWallet[])
     ])
-    const selector = new NCSolanaSelector(appInitData, app, metadataWallets)
+    const selector = new NCSolanaSelector(appInitData, app, metadataWallets, anchorRef)
 
     return selector
   }

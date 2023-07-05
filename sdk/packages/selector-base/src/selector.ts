@@ -26,7 +26,8 @@ export class NCBaseSelector<A extends Adapter> {
     walletsFilterCb: (wallet: Wallet) => boolean,
     networkData: NetworkData,
     sessionId: string,
-    connectDeeplink: (name: string, url: string) => void
+    connectDeeplink: (name: string, url: string) => void,
+    anchorRef?: HTMLElement
   ) {
     this._appInitData = appInitData
     this._metadataWallets = metadataWallets
@@ -35,72 +36,79 @@ export class NCBaseSelector<A extends Adapter> {
     this._networkData = networkData
     this._sessionId = sessionId
     this._connectDeeplink = connectDeeplink
+    this.createSelectorElement(anchorRef)
+  }
+
+  createSelectorElement = (anchorRef?: HTMLElement) => {
+    this._modal = getNightlySelectorElement()
+    this._modal.onClose = this.closeModal
+
+    this._modal.network = this._networkData.network
+    this._modal.sessionId = this._sessionId
+    this._modal.relay = this._appInitData.url ?? 'https://nc2.nightly.app'
+    this._modal.chainIcon = this._networkData.icon
+    this._modal.chainName = this._networkData.name
+    this._modal.selectorItems = getWalletsList(this._metadataWallets, this._walletsFilterCb).map(
+      (w) => ({
+        name: w.name,
+        icon: w.icon,
+        status: w.recent ? 'Recent' : w.detected ? 'Detected' : '',
+        link: w.link ?? ''
+      })
+    )
+    this._modal.onWalletClick = (name) => {
+      if (isMobileBrowser()) {
+        const walletData = this._metadataWallets.find((w) => w.name === name)
+
+        if (
+          typeof walletData === 'undefined' ||
+          walletData.deeplink === null ||
+          (walletData.deeplink.universal === null && walletData.deeplink.native === null)
+        ) {
+          return
+        }
+
+        this._connectDeeplink(
+          walletData.name,
+          walletData.deeplink.universal ?? walletData.deeplink.native!
+        )
+
+        triggerConnect(
+          walletData.deeplink.universal ?? walletData.deeplink.native!,
+          this._sessionId,
+          this._appInitData.url ?? 'https://nc2.nightly.app'
+        )
+
+        this._modal!.connecting = true
+      } else {
+        const wallet = getWallet(name)
+        if (typeof wallet === 'undefined') {
+          return
+        }
+
+        const adapter = this._adapterCreator(wallet)
+        this._modal!.connecting = true
+        adapter
+          .connect()
+          .then(() => {
+            this.onConnected?.(adapter)
+            this.closeModal()
+          })
+          .catch(() => {
+            this._modal!.connecting = false
+          })
+      }
+    }
+
+    this._modal.style.display = 'none'
+
+    const anchorElement = anchorRef ?? document.body
+
+    anchorElement.appendChild(this._modal)
   }
 
   public openModal = () => {
-    if (!this._modal) {
-      this._modal = getNightlySelectorElement()
-      this._modal.onClose = this.closeModal
-
-      this._modal.network = this._networkData.network
-      this._modal.sessionId = this._sessionId
-      this._modal.relay = this._appInitData.url ?? 'https://nc2.nightly.app'
-      this._modal.chainIcon = this._networkData.icon
-      this._modal.chainName = this._networkData.name
-      this._modal.selectorItems = getWalletsList(this._metadataWallets, this._walletsFilterCb).map(
-        (w) => ({
-          name: w.name,
-          icon: w.icon,
-          status: w.recent ? 'Recent' : w.detected ? 'Detected' : '',
-          link: w.link ?? ''
-        })
-      )
-      this._modal.onWalletClick = (name) => {
-        if (isMobileBrowser()) {
-          const walletData = this._metadataWallets.find((w) => w.name === name)
-
-          if (
-            typeof walletData === 'undefined' ||
-            walletData.deeplink === null ||
-            (walletData.deeplink.universal === null && walletData.deeplink.native === null)
-          ) {
-            return
-          }
-
-          this._connectDeeplink(
-            walletData.name,
-            walletData.deeplink.universal ?? walletData.deeplink.native!
-          )
-
-          triggerConnect(
-            walletData.deeplink.universal ?? walletData.deeplink.native!,
-            this._sessionId,
-            this._appInitData.url ?? 'https://nc2.nightly.app'
-          )
-
-          this._modal!.connecting = true
-        } else {
-          const wallet = getWallet(name)
-          if (typeof wallet === 'undefined') {
-            return
-          }
-
-          const adapter = this._adapterCreator(wallet)
-          this._modal!.connecting = true
-          adapter
-            .connect()
-            .then(() => {
-              this.onConnected?.(adapter)
-              this.closeModal()
-            })
-            .catch(() => {
-              this._modal!.connecting = false
-            })
-        }
-      }
-
-      document.body.appendChild(this._modal)
-    } else {
+    if (this._modal) {
       this._modal.style.display = 'block'
     }
     this.onOpen?.()

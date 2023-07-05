@@ -21,7 +21,9 @@ export default function Sui() {
         additionalInfo: 'Courtesy of Nightly Connect team'
       },
       url: 'https://nc2.nightly.app'
-    })
+    },
+    document.getElementById('modalAnchor') ?? undefined
+    )
     selector.onConnected = (newAdapter) => {
       setAdapter(newAdapter)
     }
@@ -29,6 +31,7 @@ export default function Sui() {
   return (
     <main>
       <Title>Sui Example</Title>
+      <div id="modalAnchor" />
       <Show
         when={!!adapter()}
         fallback={

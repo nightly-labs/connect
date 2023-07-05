@@ -3,7 +3,7 @@ import { Title } from 'solid-start'
 import { NCSolanaSelector } from '@nightlylabs/wallet-selector-solana'
 import { StandardWalletAdapter } from '@solana/wallet-standard'
 import { Connection, PublicKey, SystemProgram, Transaction as SolanaTx } from '@solana/web3.js'
-import toast from 'solid-toast';
+import toast from 'solid-toast'
 
 let selector: NCSolanaSelector
 
@@ -15,15 +15,18 @@ export default function Solana() {
     if (selector) {
       return
     }
-    selector = await NCSolanaSelector.build({
-      appMetadata: {
-        name: 'NCTestSolana',
-        description: 'Nightly Connect Test',
-        icon: 'https://docs.nightly.app/img/logo.png',
-        additionalInfo: 'Courtesy of Nightly Connect team'
+    selector = await NCSolanaSelector.build(
+      {
+        appMetadata: {
+          name: 'NCTestSolana',
+          description: 'Nightly Connect Test',
+          icon: 'https://docs.nightly.app/img/logo.png',
+          additionalInfo: 'Courtesy of Nightly Connect team'
+        },
+        url: 'https://nc2.nightly.app'
       },
-      url: 'https://nc2.nightly.app'
-    })
+      document.getElementById('modalAnchor') ?? undefined
+    )
     selector.onConnected = (newAdapter) => {
       setAdapter(newAdapter)
     }
@@ -31,6 +34,7 @@ export default function Solana() {
   return (
     <main>
       <Title>Solana Example</Title>
+      <div id="modalAnchor" />
       <Show
         when={!!adapter() && adapter()?.publicKey !== null}
         fallback={

@@ -79,16 +79,15 @@ export class NightlyMainPage extends LitElement {
     this.onWalletClick(name)
   }
 
-  closeHandler = () => {
-    this.onClose()
-    this.connectingViewOpen = false
-  }
-
   constructor() {
     super()
     this.onSelectWallet = this.onSelectWallet.bind(this)
     this.tryAgainClick = this.tryAgainClick.bind(this)
-    this.closeHandler = this.closeHandler.bind(this)
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback()
+    this.connectingViewOpen = false
   }
 
   @query('#modalConnect')
