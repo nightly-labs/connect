@@ -28,6 +28,7 @@ export default function Solana() {
       (newAdapter) => {
         setAdapter(newAdapter)
       },
+      true,
       document.getElementById('modalAnchor') ?? undefined
     )
   })

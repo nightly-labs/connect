@@ -11,22 +11,48 @@ export const getLocalStorage = () => {
   return _localStorage
 }
 
-export const persistRecentWalletForNetwork = (walletName: string, network: string) => {
+// recent wallet from standard
+
+export const persistRecentStandardWalletForNetwork = (walletName: string, network: string) => {
   const storage = getLocalStorage()
 
-  storage.setItem('NIGHTLY_CONNECT_SELECTOR_RECENT_WALLET_' + network, walletName)
+  storage.setItem('NIGHTLY_CONNECT_SELECTOR_RECENT_STANDARD_WALLET_' + network, walletName)
 }
 
-export const getRecentWalletForNetwork = (network: string) => {
+export const getRecentStandardWalletForNetwork = (network: string) => {
   const storage = getLocalStorage()
 
-  const item = storage.getItem('NIGHTLY_CONNECT_SELECTOR_RECENT_WALLET_' + network)
+  const item = storage.getItem('NIGHTLY_CONNECT_SELECTOR_RECENT_STANDARD_WALLET_' + network)
 
   return item
 }
+
+// clearing last nightly connect session id
 
 export const clearSessionIdForNetwork = (network: string) => {
   const storage = getLocalStorage()
 
   storage.removeItem(getSessionIdLocalStorageKey(network))
+}
+
+// usage of eager connect for recent standard wallet
+
+export const setUseStandardEagerForNetwork = (network: string) => {
+  const storage = getLocalStorage()
+
+  storage.setItem('NIGHTLY_CONNECT_SELECTOR_USE_STANDARD_EAGER_' + network, 'true')
+}
+
+export const getUserStandardEagerForNetwork = (network: string) => {
+  const storage = getLocalStorage()
+
+  const item = storage.getItem('NIGHTLY_CONNECT_SELECTOR_USE_STANDARD_EAGER_' + network)
+
+  return item
+}
+
+export const clearUseStandardEagerForNetwork = (network: string) => {
+  const storage = getLocalStorage()
+
+  storage.removeItem('NIGHTLY_CONNECT_SELECTOR_USE_STANDARD_EAGER_' + network)
 }

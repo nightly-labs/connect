@@ -4,7 +4,12 @@ import { triggerConnect, isMobileBrowser } from './utils'
 import { getWallet, getWalletsList } from './detection'
 import { Adapter, AppInitData, MetadataWallet, NetworkData } from './types'
 import { Wallet } from '@wallet-standard/core'
-import { getRecentWalletForNetwork, persistRecentWalletForNetwork } from './persistence'
+import {
+  getRecentStandardWalletForNetwork,
+  getUserStandardEagerForNetwork,
+  persistRecentStandardWalletForNetwork,
+  setUseStandardEagerForNetwork
+} from './persistence'
 
 export class NCBaseSelector<A extends Adapter> {
   _modal: NightlySelector | undefined
@@ -15,6 +20,7 @@ export class NCBaseSelector<A extends Adapter> {
   _appInitData: AppInitData
   _sessionId: string
   _connectDeeplink: (walletName: string, url: string) => void
+  _eagerConnect: boolean
   _anchor: HTMLElement
   _onConnected: (adapter: A) => void
   _onOpen: (() => void) | undefined
@@ -29,6 +35,7 @@ export class NCBaseSelector<A extends Adapter> {
     sessionId: string,
     connectDeeplink: (name: string, url: string) => void,
     onConnected: (adapter: A) => void,
+    eagerConnect?: boolean,
     anchorRef?: HTMLElement,
     onOpen?: () => void,
     onClose?: () => void
@@ -41,6 +48,7 @@ export class NCBaseSelector<A extends Adapter> {
     this._sessionId = sessionId
     this._connectDeeplink = connectDeeplink
     this._onConnected = onConnected
+    this._eagerConnect = eagerConnect ?? false
     this._anchor = anchorRef ?? document.body
     this._onOpen = onOpen
     this._onClose = onClose
@@ -59,9 +67,41 @@ export class NCBaseSelector<A extends Adapter> {
     }
   }
 
+  eagerConnectToRecent = () => {
+    const recentName = getRecentStandardWalletForNetwork(this._networkData.name)
+    if (
+      this._eagerConnect &&
+      getUserStandardEagerForNetwork(this._networkData.name) !== null &&
+      recentName !== null
+    ) {
+      this.connectToStandardWallet(recentName)
+    }
+  }
+
+  connectToStandardWallet = (name: string) => {
+    const wallet = getWallet(name)
+    if (typeof wallet === 'undefined') {
+      return
+    }
+
+    const adapter = this._adapterCreator(wallet)
+    this._modal!.connecting = true
+    adapter
+      .connect()
+      .then(() => {
+        persistRecentStandardWalletForNetwork(name, this._networkData.name)
+        setUseStandardEagerForNetwork(this._networkData.name)
+        this._onConnected(adapter)
+        this.closeModal()
+      })
+      .catch(() => {
+        this._modal!.connecting = false
+      })
+  }
+
   setSelectorStandardWallets = () => {
     if (this._modal) {
-      const recentName = getRecentWalletForNetwork(this._networkData.name)
+      const recentName = getRecentStandardWalletForNetwork(this._networkData.name)
       this._modal.selectorItems = getWalletsList(this._metadataWallets, this._walletsFilterCb).map(
         (w) => ({
           name: w.name,
@@ -112,23 +152,7 @@ export class NCBaseSelector<A extends Adapter> {
 
         this._modal!.connecting = true
       } else {
-        const wallet = getWallet(name)
-        if (typeof wallet === 'undefined') {
-          return
-        }
-
-        const adapter = this._adapterCreator(wallet)
-        this._modal!.connecting = true
-        adapter
-          .connect()
-          .then(() => {
-            persistRecentWalletForNetwork(name, this._networkData.name)
-            this._onConnected(adapter)
-            this.closeModal()
-          })
-          .catch(() => {
-            this._modal!.connecting = false
-          })
+        this.connectToStandardWallet(name)
       }
     }
   }

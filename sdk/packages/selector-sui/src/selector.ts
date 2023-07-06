@@ -1,6 +1,6 @@
 import { AppSui, SUI_NETWORK } from '@nightlylabs/nightly-connect-sui'
 import { StandardWalletAdapter } from '@mysten/wallet-adapter-wallet-standard'
-import { NightlyConnectSuiWallet } from './wallet'
+import { NightlyConnectSuiWallet, StandardAdapterWithDisconnectAction } from './wallet'
 import { publicKeyFromSerialized } from '@mysten/sui.js'
 import { suiWalletsFilter } from './detection'
 import {
@@ -9,7 +9,8 @@ import {
   NCBaseSelector,
   QueryNetwork,
   clearSessionIdForNetwork,
-  persistRecentWalletForNetwork
+  clearUseStandardEagerForNetwork,
+  persistRecentStandardWalletForNetwork
 } from '@nightlylabs/wallet-selector-base'
 import { StandardWalletAdapterWallet } from '@mysten/wallet-standard'
 import bs58 from 'bs58'
@@ -27,6 +28,7 @@ export class NCSuiSelector extends NCBaseSelector<StandardWalletAdapter> {
     app: AppSui,
     metadataWallets: MetadataWallet[],
     onConnected: (adapter: StandardWalletAdapter) => void,
+    eagerConnect?: boolean,
     anchorRef?: HTMLElement,
     onOpen?: () => void,
     onClose?: () => void
@@ -34,10 +36,15 @@ export class NCSuiSelector extends NCBaseSelector<StandardWalletAdapter> {
     super(
       appInitData,
       metadataWallets,
-      (wallet) =>
-        new StandardWalletAdapter({
-          wallet: wallet as StandardWalletAdapterWallet
-        }),
+      (wallet) => {
+        const adapter = new StandardAdapterWithDisconnectAction(
+          wallet as StandardWalletAdapterWallet,
+          () => {
+            clearUseStandardEagerForNetwork(SUI_NETWORK)
+          }
+        )
+        return adapter
+      },
       suiWalletsFilter,
       {
         network: QueryNetwork.SUI,
@@ -52,6 +59,7 @@ export class NCSuiSelector extends NCBaseSelector<StandardWalletAdapter> {
         })
       },
       onConnected,
+      eagerConnect,
       anchorRef,
       onOpen,
       onClose
@@ -67,9 +75,11 @@ export class NCSuiSelector extends NCBaseSelector<StandardWalletAdapter> {
       this.initNCAdapter(this._app.base.connectedPublicKeys)
     }
 
+    this.eagerConnectToRecent()
+
     this._app.on('userConnected', (e) => {
       if (this._chosenMobileWalletName) {
-        persistRecentWalletForNetwork(this._chosenMobileWalletName, SUI_NETWORK)
+        persistRecentStandardWalletForNetwork(this._chosenMobileWalletName, SUI_NETWORK)
       }
       this.initNCAdapter(e.publicKeys)
     })
@@ -96,6 +106,7 @@ export class NCSuiSelector extends NCBaseSelector<StandardWalletAdapter> {
   public static build = async (
     appInitData: AppInitData,
     onConnected: (adapter: StandardWalletAdapter) => void,
+    eagerConnectForStandardWallets?: boolean,
     anchorRef?: HTMLElement,
     onOpen?: () => void,
     onClose?: () => void
@@ -118,6 +129,7 @@ export class NCSuiSelector extends NCBaseSelector<StandardWalletAdapter> {
       app,
       metadataWallets,
       onConnected,
+      eagerConnectForStandardWallets,
       anchorRef,
       onOpen,
       onClose

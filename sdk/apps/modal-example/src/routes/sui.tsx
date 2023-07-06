@@ -26,6 +26,7 @@ export default function Sui() {
       (newAdapter) => {
         setAdapter(newAdapter)
       },
+      true,
       document.getElementById('modalAnchor') ?? undefined
     )
   })

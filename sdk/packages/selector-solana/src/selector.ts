@@ -8,7 +8,8 @@ import {
   NCBaseSelector,
   QueryNetwork,
   clearSessionIdForNetwork,
-  persistRecentWalletForNetwork
+  clearUseStandardEagerForNetwork,
+  persistRecentStandardWalletForNetwork
 } from '@nightlylabs/wallet-selector-base'
 import { solanaWalletsFilter } from './detection'
 import { WalletAdapterCompatibleStandardWallet } from '@solana/wallet-adapter-base'
@@ -21,6 +22,7 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
     app: AppSolana,
     metadataWallets: MetadataWallet[],
     onConnected: (adapter: StandardWalletAdapter) => void,
+    eagerConnect?: boolean,
     anchorRef?: HTMLElement,
     onOpen?: () => void,
     onClose?: () => void
@@ -28,10 +30,15 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
     super(
       appInitData,
       metadataWallets,
-      (wallet) =>
-        new StandardWalletAdapter({
+      (wallet) => {
+        const adapter = new StandardWalletAdapter({
           wallet: wallet as WalletAdapterCompatibleStandardWallet
-        }),
+        })
+        adapter.on('disconnect', () => {
+          clearUseStandardEagerForNetwork(SOLANA_NETWORK)
+        })
+        return adapter
+      },
       solanaWalletsFilter,
       {
         network: QueryNetwork.SOLANA,
@@ -46,6 +53,7 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
         })
       },
       onConnected,
+      eagerConnect,
       anchorRef,
       onOpen,
       onClose
@@ -62,9 +70,11 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
       this.initNCAdapter(this._app.base.connectedPublicKeys)
     }
 
+    this.eagerConnectToRecent()
+
     this._app.on('userConnected', (e) => {
       if (this._chosenMobileWalletName) {
-        persistRecentWalletForNetwork(this._chosenMobileWalletName, SOLANA_NETWORK)
+        persistRecentStandardWalletForNetwork(this._chosenMobileWalletName, SOLANA_NETWORK)
       }
       this.initNCAdapter(e.publicKeys)
     })
@@ -87,6 +97,7 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
   public static build = async (
     appInitData: AppInitData,
     onConnected: (adapter: StandardWalletAdapter) => void,
+    eagerConnectForStandardWallets?: boolean,
     anchorRef?: HTMLElement,
     onOpen?: () => void,
     onClose?: () => void
@@ -109,6 +120,7 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
       app,
       metadataWallets,
       onConnected,
+      eagerConnectForStandardWallets,
       anchorRef,
       onOpen,
       onClose
