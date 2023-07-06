@@ -1,4 +1,4 @@
-import { Transaction, VersionedTransaction } from '@solana/web3.js'
+import { PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js'
 import {
   AppBaseInitialize,
   BaseApp,
@@ -37,6 +37,12 @@ export class AppSolana extends EventEmitter<SolanaAppEvents> {
     this.base.on('serverDisconnected', () => {
       this.emit('serverDisconnected')
     })
+  }
+  public hasBeenRestored = () => {
+    return this.base.hasBeenRestored
+  }
+  public get connectedPublicKeys() {
+    return this.base.connectedPublicKeys.map((pk) => new PublicKey(pk))
   }
   public static getWalletsMetadata = async (url?: string): Promise<WalletMetadata[]> => {
     return getWalletsMetadata(url)

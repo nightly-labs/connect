@@ -147,12 +147,13 @@ pub async fn app_handler(
                 };
 
                 let mut created_session = sessions.get_mut(&session_id).expect("safe unwrap");
-
+                let public_keys = created_session.client_state.connected_public_keys.clone();
                 match created_session
                     .send_to_app(ServerToApp::InitializeResponse(InitializeResponse {
                         response_id: init_data.response_id,
                         session_id: session_id.clone(),
                         created_new: created_new,
+                        public_keys: public_keys,
                     }))
                     .await
                 {
