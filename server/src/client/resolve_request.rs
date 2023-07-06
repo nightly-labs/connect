@@ -26,7 +26,9 @@ pub async fn resolve_request(
     State(sessions): State<Sessions>,
     Json(request): Json<HttpResolveRequestRequest>,
 ) -> Result<Json<HttpResolveRequestResponse>, (StatusCode, String)> {
-    let mut session = match sessions.get_mut(&request.session_id) {
+    let mut sessions = sessions.write().await;
+
+    let session = match sessions.get_mut(&request.session_id) {
         Some(session) => session,
         None => {
             return Err((

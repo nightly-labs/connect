@@ -1,4 +1,4 @@
-use std::net::SocketAddr;
+use std::{collections::HashMap, net::SocketAddr};
 
 use axum::{
     extract::{
@@ -82,40 +82,42 @@ pub async fn app_handler(
             AppToServer::InitializeRequest(init_data) => {
                 let (session_id, created_new) = match init_data.persistent_session_id {
                     Some(session_id) => {
-                        let (session_id, created_new) = match sessions.get_mut(session_id.as_str())
-                        {
-                            Some(mut session) => {
-                                session.update_status(SessionStatus::AppConnected);
-                                session.app_state = AppState {
-                                    metadata: init_data.app_metadata,
-                                    app_socket: Some(sender),
-                                };
-                                // TODO decide if we want to do anything more here
-                                (session_id.clone(), false)
-                            }
-                            None => {
-                                let session_id = uuid7::uuid7().to_string();
-                                let session = Session {
-                                    session_id: session_id.clone(),
-                                    status: SessionStatus::WaitingForClient,
-                                    persistent: init_data.persistent,
-                                    app_state: AppState {
+                        let (session_id, created_new) = {
+                            let mut sessions = sessions.write().await;
+                            match sessions.get_mut(session_id.as_str()) {
+                                Some(mut session) => {
+                                    session.update_status(SessionStatus::AppConnected);
+                                    session.app_state = AppState {
                                         metadata: init_data.app_metadata,
                                         app_socket: Some(sender),
-                                    },
-                                    client_state: ClientState {
-                                        client_id: None,
-                                        device: None,
-                                        connected_public_keys: Vec::new(),
-                                    },
-                                    network: init_data.network,
-                                    version: init_data.version,
-                                    pending_requests: DashMap::new(),
-                                    notification: None,
-                                    creation_timestamp: get_timestamp_in_milliseconds(),
-                                };
-                                sessions.insert(session_id.clone(), session);
-                                (session_id.clone(), true)
+                                    };
+                                    // TODO decide if we want to do anything more here
+                                    (session_id.clone(), false)
+                                }
+                                None => {
+                                    let session_id = uuid7::uuid7().to_string();
+                                    let session = Session {
+                                        session_id: session_id.clone(),
+                                        status: SessionStatus::WaitingForClient,
+                                        persistent: init_data.persistent,
+                                        app_state: AppState {
+                                            metadata: init_data.app_metadata,
+                                            app_socket: Some(sender),
+                                        },
+                                        client_state: ClientState {
+                                            client_id: None,
+                                            device: None,
+                                            connected_public_keys: Vec::new(),
+                                        },
+                                        network: init_data.network,
+                                        version: init_data.version,
+                                        pending_requests: HashMap::new(),
+                                        notification: None,
+                                        creation_timestamp: get_timestamp_in_milliseconds(),
+                                    };
+                                    sessions.insert(session_id.clone(), session);
+                                    (session_id.clone(), true)
+                                }
                             }
                         };
                         (session_id, created_new)
@@ -137,17 +139,19 @@ pub async fn app_handler(
                             },
                             network: init_data.network,
                             version: init_data.version,
-                            pending_requests: DashMap::new(),
+                            pending_requests: HashMap::new(),
                             notification: None,
                             creation_timestamp: get_timestamp_in_milliseconds(),
                         };
-                        sessions.insert(session_id.clone(), session);
+                        sessions.write().await.insert(session_id.clone(), session);
                         (session_id.clone(), true)
                     }
                 };
 
-                let mut created_session = sessions.get_mut(&session_id).expect("safe unwrap");
+                let mut sessions = sessions.write().await;
+                let created_session = sessions.get_mut(&session_id).expect("safe unwrap");
                 let public_keys = created_session.client_state.connected_public_keys.clone();
+
                 match created_session
                     .send_to_app(ServerToApp::InitializeResponse(InitializeResponse {
                         response_id: init_data.response_id,
@@ -180,7 +184,8 @@ pub async fn app_handler(
                             session_id: session_id.clone(),
                             reason: "App disconnected".to_string(),
                         });
-                    let mut session = match sessions.get_mut(&session_id) {
+                    let mut sessions = sessions.write().await;
+                    let session = match sessions.get_mut(&session_id) {
                         Some(session) => session,
                         None => {
                             // Should never happen
@@ -220,7 +225,8 @@ pub async fn app_handler(
                         session_id: session_id.clone(),
                         reason: "App disconnected".to_string(),
                     });
-                let mut session = match sessions.get_mut(&session_id) {
+                let mut sessions = sessions.write().await;
+                let session = match sessions.get_mut(&session_id) {
                     Some(session) => session,
                     None => {
                         // Should never happen
@@ -266,7 +272,8 @@ pub async fn app_handler(
                         session_id: session_id.clone(),
                         reason: "App disconnected".to_string(),
                     });
-                let mut session = match sessions.get_mut(&session_id) {
+                let mut sessions = sessions.write().await;
+                let session = match sessions.get_mut(&session_id) {
                     Some(session) => session,
                     None => {
                         // Should never happen
@@ -302,11 +309,12 @@ pub async fn app_handler(
         };
         match app_msg {
             AppToServer::RequestPayload(sing_transactions_request) => {
-                let session = match sessions.get(&session_id) {
+                let mut sessions = sessions.write().await;
+                let session = match sessions.get_mut(&session_id) {
                     Some(session) => session,
                     None => {
                         // Should never happen
-                        continue;
+                        return;
                     }
                 };
                 let response_id: String = sing_transactions_request.response_id.clone();

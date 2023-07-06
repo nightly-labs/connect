@@ -32,7 +32,8 @@ pub async fn get_pending_requests(
     State(sessions): State<Sessions>,
     Json(request): Json<HttpGetPendingRequestsRequest>,
 ) -> Result<Json<HttpGetPendingRequestsResponse>, (StatusCode, String)> {
-    let session = match sessions.get_mut(&request.session_id) {
+    let sessions = sessions.read().await;
+    let session = match sessions.get(&request.session_id) {
         Some(session) => session,
         None => {
             return Err((
@@ -48,9 +49,9 @@ pub async fn get_pending_requests(
         ));
     }
     let mut pending_requests = Vec::new();
-    for pending_request in session.pending_requests.iter() {
+    for (key, pending_request) in session.pending_requests.iter() {
         pending_requests.push(PendingRequest {
-            request_id: pending_request.key().clone(),
+            request_id: key.clone(),
             content: pending_request.clone(),
         });
     }

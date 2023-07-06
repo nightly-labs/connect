@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::state::ClientId;
 
 use super::{
@@ -6,7 +8,6 @@ use super::{
 };
 use anyhow::Result;
 use axum::extract::ws::{Message, WebSocket};
-use dashmap::DashMap;
 use futures::{stream::SplitSink, SinkExt};
 
 #[derive(Debug)]
@@ -18,7 +19,7 @@ pub struct Session {
     pub version: Version,
     pub app_state: AppState,
     pub client_state: ClientState,
-    pub pending_requests: DashMap<String, String>,
+    pub pending_requests: HashMap<String, String>,
     pub notification: Option<Notification>,
     pub creation_timestamp: u64,
 }
