@@ -63,6 +63,7 @@
   letter-spacing: 0.32px;
   font-size: 14.7px;
   color: #707a8d;
+  margin-bottom: -2px;
 }
 .walletSelectorBlockchain {
   gap: 4px;
@@ -73,6 +74,7 @@
   color: #6067f9;
   letter-spacing: 0.32px;
   font-size: 14.7px;
+  margin-bottom: -2px;
 }
 .walletSelectorBlockchain img {
   width: 24px;
