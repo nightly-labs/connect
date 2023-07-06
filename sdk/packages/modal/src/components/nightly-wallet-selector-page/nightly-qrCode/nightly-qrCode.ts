@@ -32,6 +32,7 @@ export class NightlyQrCode extends LitElement {
           <div class="textContainer">
             <span> QR Code </span>
           </div>
+          <div class="buttonContainer"></div>
         </div>
         <div class="qrCodeWrapper">
           <img

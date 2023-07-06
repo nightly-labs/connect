@@ -55,7 +55,7 @@ export class NightlyWalletSelectorPage extends LitElement {
                 class="walletInputSearch"
                 @input=${this.handleSearchInput}
               />
-              <img src="${search}" />
+              <img class="walletInputIcon" src="${search}" />
             </div>
           </div>
           ${this.filteredItems.length === 0

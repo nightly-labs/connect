@@ -30,7 +30,7 @@
 .buttonContainer {
   align-self: start;
   height: 28px;
-  padding-inline: 7px;
+  min-width: 15px;
 }
 
 .textContainer {

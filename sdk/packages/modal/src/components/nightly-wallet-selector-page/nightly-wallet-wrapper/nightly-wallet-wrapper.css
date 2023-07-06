@@ -8,6 +8,7 @@
 }
 .infoConatiner {
   padding: 16px;
+  padding-bottom: 0px;
   display: flex;
   align-items: center;
   justify-content: space-between;

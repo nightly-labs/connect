@@ -26,6 +26,8 @@
   border-radius: 0px 0px 16px 16px;
   overflow: hidden;
   background-color: #17182b;
+  border: 1px solid #343551;
+  border-top: none;
 }
 
 @media (max-width: 640px) {

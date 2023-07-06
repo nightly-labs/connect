@@ -43,9 +43,9 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  font-size: 16px;
-  line-height: 22px;
   color: #707a8d;
+  letter-spacing: 0.32px;
+  font-size: 14.7px;
 }
 
 .scanImg {
@@ -56,8 +56,8 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  font-size: 16px;
-  line-height: 22px;
+  letter-spacing: 0.32px;
+  font-size: 14.7px;
   color: #6067f9;
   cursor: pointer;
 }
@@ -74,11 +74,13 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  height: 16px;
-  margin-bottom: 16px;
+  height: 24px;
+  margin-bottom: 10px;
 }
 
 .qrContainer {
-  padding: 16px;
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 12px;
   background-color: #17182b;
 }
