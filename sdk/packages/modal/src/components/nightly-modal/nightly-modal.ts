@@ -56,7 +56,10 @@ export class NightlyModal extends LitElement {
         <div class="bottomContainer">
           <div class="qrContainer">
             <div class="qrTop">
-              <div class="scan"><img class="scanImg" src=${scan} />Scan QR code</div>
+              <div class="scan">
+                <img class="scanImg" src=${scan} />
+                <span>Scan QR code</span>
+              </div>
               <button id="nightly-modal-copy-button" class="copy" @click=${this.onCopy}>
                 <img class="copyImg" src=${copy} />${this.copyMessage}
               </button>

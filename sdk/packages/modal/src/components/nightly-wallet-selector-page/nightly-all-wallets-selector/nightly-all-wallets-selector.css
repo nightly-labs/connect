@@ -16,7 +16,7 @@
 .buttonContainer {
   align-self: flex-start;
   height: 28px;
-  padding-inline: 7px;
+  min-width: 15px;
 }
 
 .textContainer {
@@ -41,12 +41,11 @@
   left: 0;
   right: 0;
   height: 20px;
-  background: linear-gradient(180deg, #17182b 0%, #17182b 50%, #17182b00 100%);
+  background: linear-gradient(180deg, #17182b 12.37%, rgba(32, 33, 55, 0) 100%);
   opacity: 1;
   pointer-events: none;
   z-index: 1;
 }
-
 
 .textContainer span {
   font-family: 'Prompt';
@@ -54,17 +53,18 @@
   font-weight: 400;
   font-size: 16px;
   line-height: 22px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.28px;
   color: #f7f7f7;
 }
 .walletInputSearchContainer {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 8px 16px 8px 16px;
-  padding: 8px;
+  margin: 0px 16px;
+  margin-bottom: 0px;
+  padding: 12px 16px;
   width: 100%;
-  height: 32px;
+  height: 40px;
   background-color: #0f0f1a;
   border-radius: 8px;
 }
@@ -75,25 +75,44 @@
 .walletInputSearch {
   background-color: #0f0f1a;
   color: #707a8d;
-  font-size: 16px;
+  font-size: 15px;
   width: 99%;
   line-height: 22px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.32px;
   border: 0;
+  opacity: 0.7;
+  margin-bottom: -2px;
 }
+.walletInputIcon {
+  margin-bottom: -2px;
+}
+
 .walletInputSearch:focus {
   outline: none;
 }
 
 .recentDetectedContainer {
   width: 100%;
-  padding: 24px 16px 0 16px;
+  padding: 16px 16px 0 16px;
   display: grid;
   overflow-y: auto;
 
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+.recentDetectedContainer::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  background: linear-gradient(180deg, rgba(15, 15, 26, 0) 0%, #0f0f1a 100%);
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: 1;
+}
+
 .recentDetectedContainer::-webkit-scrollbar {
   display: none;
 }
@@ -134,7 +153,7 @@
   font-weight: 700;
   font-size: 16px;
   line-height: 22px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.28px;
 }
 .NotFoundInfo {
   padding-top: 4px;
@@ -144,7 +163,7 @@
   font-weight: 400;
   font-size: 12px;
   line-height: 16px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.28px;
 }
 .NotFoundGif {
   width: 104px;
