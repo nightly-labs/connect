@@ -61,7 +61,7 @@
 .walletSelectorHeader span {
   font-weight: 400;
   letter-spacing: 0.32px;
-  font-size: 14.7px;
+  font-size: 16px;
   color: #707a8d;
   margin-bottom: -2px;
 }
@@ -73,7 +73,7 @@
 .walletSelectorBlockchain span {
   color: #6067f9;
   letter-spacing: 0.32px;
-  font-size: 14.7px;
+  font-size: 16px;
   margin-bottom: -2px;
 }
 .walletSelectorBlockchain img {
@@ -104,7 +104,7 @@
 .walletInputSearch {
   background-color: #0f0f1a;
   color: #707a8d;
-  font-size: 12.7px;
+  font-size: 14px;
   width: 100%;
   letter-spacing: 0.28px;
   border: 0;
@@ -130,7 +130,7 @@
   font-weight: 700;
   font-size: 16px;
   line-height: 22px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.28px;
 }
 .NotFoundInfo {
   padding-top: 4px;
@@ -140,7 +140,7 @@
   font-weight: 400;
   font-size: 12px;
   line-height: 16px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.28px;
 }
 .NotFoundGif {
   width: 104px;
@@ -160,13 +160,14 @@
   background-color: #343551;
   width: 264px;
   border-radius: 8px;
-  padding: 8px;
+  padding: 4px;
   margin-bottom: 12px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   justify-content: center;
   align-items: center;
   row-gap: 4px;
+  column-gap: 8px;
 }
 
 @media (max-width: 1080px) {
