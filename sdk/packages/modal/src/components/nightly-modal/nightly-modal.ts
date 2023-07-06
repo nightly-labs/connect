@@ -3,7 +3,7 @@ import { tailwindElement } from '../../shared/tailwind.element'
 import style from './nightly-modal.css'
 import { LitElement, html } from 'lit'
 import copy from '../../static/svg/copy.svg'
-import scan from '../../static/svg/scan.svg'
+import scan from '../../static/png/scan.png'
 import { svgToBase64 } from '../../utils/images'
 import { generateQrCodeXml } from '@nightlylabs/qr-code'
 import '../nightly-wallet-selector-page/nightly-wallet-selector-page'
@@ -41,7 +41,7 @@ export class NightlyModal extends LitElement {
 
   onCopy = () => {
     navigator.clipboard.writeText(
-      'nc:' + this.sessionId + '?network=' + this.network + '?relay=' + this.relay
+      'nc:' + this.sessionId + '?network=' + this.network + '&relay=' + this.relay
     )
     this.copyMessage = 'Copied!'
     clearTimeout(this.timeoutRef)
@@ -65,7 +65,7 @@ export class NightlyModal extends LitElement {
               class="code"
               src=${svgToBase64(
                 generateQrCodeXml(
-                  'nc:' + this.sessionId + '?network=' + this.network + '?relay=' + this.relay,
+                  'nc:' + this.sessionId + '?network=' + this.network + '&relay=' + this.relay,
                   {
                     width: 400,
                     height: 400,

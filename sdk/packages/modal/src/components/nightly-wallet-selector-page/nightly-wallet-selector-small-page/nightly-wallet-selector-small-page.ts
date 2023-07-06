@@ -12,10 +12,6 @@ import { animate } from '@lit-labs/motion'
 export class NightlyWalletSelectorSmallPage extends LitElement {
   static styles = tailwindElement(style)
 
-  @property({})
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  onClose = () => {}
-
   @state()
   showAll = false
 
@@ -61,6 +57,13 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
     this.isTopWalletsView = false
   }
 
+  disconnectedCallback(): void {
+    super.disconnectedCallback()
+    this.isTopWalletsView = true
+    this.isQrPageVisible = false
+    this.showAll = false
+  }
+
   renderView() {
     if (this.isTopWalletsView) {
       return html`
@@ -73,22 +76,19 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
           .openQrPage=${() => this.openQrPage()}
           .selectorItems=${this.selectorItems}
           ${animate({
-            properties: ['opacity', 'transform'],
-            skipInitial: true,
+            properties: ['opacity'],
+            keyframeOptions: { duration: 380 },
             in: [
               {
-                opacity: 0,
-                transform: 'scale(0.9)'
+                opacity: 0
               },
               {
-                offset: 0.1,
-                opacity: 0,
-                transform: 'scale(0.9)'
+                offset: 0.25,
+                opacity: 0
               },
               {
                 offset: 1,
-                opacity: 1,
-                transform: 'scale(1)'
+                opacity: 1
               }
             ]
           })}
@@ -103,21 +103,19 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
         .onWalletClick=${this.onWalletClick.bind(this)}
         .selectorItems=${this.selectorItems}
         ${animate({
-          properties: ['opacity', 'transform'],
+          properties: ['opacity'],
+          keyframeOptions: { duration: 380 },
           in: [
             {
-              opacity: 0,
-              transform: 'scale(0.9)'
+              opacity: 0
             },
             {
-              offset: 0.1,
-              opacity: 0,
-              transform: 'scale(0.9)'
+              offset: 0.25,
+              opacity: 0
             },
             {
               offset: 1,
-              opacity: 1,
-              transform: 'scale(1)'
+              opacity: 1
             }
           ]
         })}
@@ -132,21 +130,19 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
         .relay=${this.relay}
         .showAllWallets=${this.showAllWallets.bind(this)}
         ${animate({
-          properties: ['opacity', 'transform'],
+          properties: ['opacity'],
+          keyframeOptions: { duration: 380 },
           in: [
             {
-              opacity: 0,
-              transform: 'scale(0.9)'
+              opacity: 0
             },
             {
-              offset: 0.1,
-              opacity: 0,
-              transform: 'scale(0.9)'
+              offset: 0.25,
+              opacity: 0
             },
             {
               offset: 1,
-              opacity: 1,
-              transform: 'scale(1)'
+              opacity: 1
             }
           ]
         })}

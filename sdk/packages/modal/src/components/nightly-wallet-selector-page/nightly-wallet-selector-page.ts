@@ -1,7 +1,6 @@
 import { customElement, property, state } from 'lit/decorators.js'
 import { html } from 'lit/static-html.js'
 import { tailwindElement } from '../../shared/tailwind.element'
-import foxSadGIF from '../../static/gif/fox_sad.gif'
 import search from '../../static/svg/searchIcon.svg'
 import style from './nightly-wallet-selector-page.css'
 import '../nightly-wallet-selector-item/nightly-wallet-selector-item'
@@ -49,13 +48,15 @@ export class NightlyWalletSelectorPage extends LitElement {
               <span>${this.chainName}</span>
             </div>
           </div>
-          <div class="walletInputSearchContainer">
-            <input
-              placeholder="Search"
-              class="walletInputSearch"
-              @input=${this.handleSearchInput}
-            />
-            <img src="${search}" />
+          <div class="walletInputSearchWrapper">
+            <div class="walletInputSearchContainer">
+              <input
+                placeholder="Search"
+                class="walletInputSearch"
+                @input=${this.handleSearchInput}
+              />
+              <img src="${search}" />
+            </div>
           </div>
           ${this.filteredItems.length === 0
             ? this.renderNotFoundIcon()
@@ -106,7 +107,11 @@ export class NightlyWalletSelectorPage extends LitElement {
   renderNotFoundIcon() {
     return html`
       <div class="NotFoundContainer">
-        <img src="${foxSadGIF}" alt="Not Found" class="NotFoundGif" />
+        <img
+          src="https://registry.connect.nightly.app/images/fox_sad.gif"
+          alt="Not Found"
+          class="NotFoundGif"
+        />
         <span class="NotFoundHeading">Nothing found...</span>
         <span class="NotFoundInfo">Make sure you’ve typed the name correctly.</span>
       </div>

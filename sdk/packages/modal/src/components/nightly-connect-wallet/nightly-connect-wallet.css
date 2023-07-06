@@ -28,7 +28,6 @@
 }
 
 .wrapperConnectPage {
-  border: 1px solid #343551;
   background-color: #202137;
 }
 
@@ -39,7 +38,9 @@
 }
 
 .buttonContainer {
-  align-self: flex-start;
+  align-self: start;
+  height: 28px;
+  padding-inline: 7px;
 }
 
 .textContainer {

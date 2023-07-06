@@ -63,3 +63,6 @@ export const getLocalStorage = () => {
 
   return _localStorage
 }
+
+export const getSessionIdLocalStorageKey = (network: string) =>
+  'NIGHTLY_CONNECT_SESSION_ID_' + network

@@ -30,7 +30,9 @@ export default [
       }),
       litcss(),
       template(),
-      typescript(),
+      typescript({
+        exclude: ['.storybook', '**/*.stories.ts']
+      }),
       nodeResolve(),
       commonjs(),
       terser()

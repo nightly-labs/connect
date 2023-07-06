@@ -4,7 +4,6 @@ import { LitElement, html } from 'lit'
 import style from './nightly-all-wallets-selector.css'
 import vector from '../../../static/svg/backButton.svg'
 import search from '../../../static/svg/searchIcon.svg'
-import foxSadGIF from '../../../static/gif/fox_sad.gif'
 
 @customElement('nightly-all-wallets-selector')
 export class NightlyAllWalletsSelector extends LitElement {
@@ -39,11 +38,9 @@ export class NightlyAllWalletsSelector extends LitElement {
     return html`
       <div class="walletSelectorButtons">
         <div class="headerContainer">
-          <div class="buttonContainer">
-            <button @click=${this.showAllWallets}>
-              <img src=${vector} />
-            </button>
-          </div>
+          <button class="buttonContainer" @click=${this.showAllWallets}>
+            <img src=${vector} />
+          </button>
           <div class="textContainer">
             <span> All wallets </span>
           </div>
@@ -66,7 +63,11 @@ export class NightlyAllWalletsSelector extends LitElement {
   renderNotFoundIcon() {
     return html`
       <div class="NotFoundContainer">
-        <img src="${foxSadGIF}" alt="Not Found" class="NotFoundGif" />
+        <img
+          src="https://registry.connect.nightly.app/images/fox_sad.gif"
+          alt="Not Found"
+          class="NotFoundGif"
+        />
         <span class="NotFoundHeading">Nothing found...</span>
         <span class="NotFoundInfo">Make sure you’ve typed the name correctly.</span>
       </div>
@@ -78,13 +79,13 @@ export class NightlyAllWalletsSelector extends LitElement {
       <div class="recentDetectedContainer">
         ${this.filteredItems.map((item) => {
           return html`
-              <nightly-wallet-selector-item
-                class="nightlyWalletSelectorItem"
-                name=${item.name}
-                icon=${item.icon}
-                status=${item.status}
-                @click=${() => this.onWalletClick(item.name)}
-              ></nightly-wallet-selector-item>
+            <nightly-wallet-selector-item
+              class="nightlyWalletSelectorItem"
+              name=${item.name}
+              icon=${item.icon}
+              status=${item.status}
+              @click=${() => this.onWalletClick(item.name)}
+            ></nightly-wallet-selector-item>
           `
         })}
       </div>

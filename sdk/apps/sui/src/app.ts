@@ -42,6 +42,12 @@ export class AppSui extends EventEmitter<SuiAppEvents> {
       this.emit('serverDisconnected')
     })
   }
+  public hasBeenRestored = () => {
+    return this.base.hasBeenRestored
+  }
+  public get connectedPublicKeys() {
+    return this.base.connectedPublicKeys
+  }
   public static getWalletsMetadata = async (url?: string): Promise<WalletMetadata[]> => {
     return getWalletsMetadata(url)
   }

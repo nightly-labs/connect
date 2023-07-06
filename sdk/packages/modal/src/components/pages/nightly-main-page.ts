@@ -8,7 +8,6 @@ import '../nightly-wallet-selector-page/nightly-wallet-selector-small-page/night
 import '../nightly-header/nightly-header'
 import { animate } from '@lit-labs/motion'
 import { styleMap } from 'lit/directives/style-map.js'
-import { isMobileBrowser } from '../../utils/utils'
 
 export interface WalletSelectorItem {
   name: string
@@ -50,9 +49,6 @@ export class NightlyMainPage extends LitElement {
   @property({ type: Boolean })
   connecting = false
 
-  @property({ type: Boolean })
-  connected = false
-
   @state()
   link = ''
 
@@ -62,9 +58,9 @@ export class NightlyMainPage extends LitElement {
   @state()
   currentWalletName = ''
 
-  @property()
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  tryAgainClick = () => {}
+  tryAgainClick = () => {
+    this.onSelectWallet(this.currentWalletName)
+  }
 
   @state()
   connectingViewOpen = false
@@ -76,15 +72,9 @@ export class NightlyMainPage extends LitElement {
     this.currentWalletName = wallet?.name ?? ''
     this.link = wallet?.link ?? ''
 
-    if (
-      isMobileBrowser() ||
-      wallet?.status.toLowerCase() === 'recent' ||
-      wallet?.status.toLowerCase() === 'detected'
-    ) {
-      this.connectingViewOpen = true
-    } else {
-      console.log(wallet)
-    }
+    this.useConnectTransition = true
+
+    this.connectingViewOpen = true
 
     this.onWalletClick(name)
   }
@@ -92,6 +82,12 @@ export class NightlyMainPage extends LitElement {
   constructor() {
     super()
     this.onSelectWallet = this.onSelectWallet.bind(this)
+    this.tryAgainClick = this.tryAgainClick.bind(this)
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback()
+    this.connectingViewOpen = false
   }
 
   @query('#modalConnect')
@@ -102,6 +98,9 @@ export class NightlyMainPage extends LitElement {
 
   @state()
   mobileContentHeight = 318
+
+  @state()
+  useConnectTransition = false
 
   connectObserver: ResizeObserver | undefined
   selectObserver: ResizeObserver | undefined
@@ -131,21 +130,20 @@ export class NightlyMainPage extends LitElement {
         .nameLink=${this.currentWalletName}
         .walletIcon=${this.walletIcon}
         ${animate({
-          properties: ['opacity', 'transform'],
+          properties: ['opacity'],
+          keyframeOptions: { duration: 380 },
+          skipInitial: true,
           in: [
             {
-              opacity: 0,
-              transform: 'scale(0.9)'
+              opacity: 0
             },
             {
-              offset: 0.1,
-              opacity: 0,
-              transform: 'scale(0.9)'
+              offset: 0.25,
+              opacity: 0
             },
             {
               offset: 1,
-              opacity: 1,
-              transform: 'scale(1)'
+              opacity: 1
             }
           ]
         })}
@@ -171,27 +169,24 @@ export class NightlyMainPage extends LitElement {
         class="modalMobile"
         .network=${this.network}
         .onWalletClick=${this.onSelectWallet}
-        .onClose=${this.onClose}
         .selectorItems=${this.selectorItems}
         .sessionId=${this.sessionId}
         .relay=${this.relay}
         ${animate({
-          properties: ['opacity', 'transform'],
+          properties: ['opacity'],
+          keyframeOptions: { duration: 380 },
           skipInitial: true,
           in: [
             {
-              opacity: 0,
-              transform: 'scale(0.9)'
+              opacity: 0
             },
             {
-              offset: 0.1,
-              opacity: 0,
-              transform: 'scale(0.9)'
+              offset: 0.25,
+              opacity: 0
             },
             {
               offset: 1,
-              opacity: 1,
-              transform: 'scale(1)'
+              opacity: 1
             }
           ]
         })}
@@ -201,28 +196,25 @@ export class NightlyMainPage extends LitElement {
         .chainIcon=${this.chainIcon}
         .chainName=${this.chainName}
         .network=${this.network}
-        .onClose=${this.onClose}
         .onWalletClick=${this.onSelectWallet}
         .selectorItems=${this.selectorItems}
         .sessionId=${this.sessionId}
         .relay=${this.relay}
         ${animate({
-          properties: ['opacity', 'transform'],
+          properties: ['opacity'],
+          keyframeOptions: { duration: 250 },
           skipInitial: true,
           in: [
             {
-              opacity: 0,
-              transform: 'scale(0.9)'
+              opacity: 0
             },
             {
-              offset: 0.1,
-              opacity: 0,
-              transform: 'scale(0.9)'
+              offset: 0.25,
+              opacity: 0
             },
             {
               offset: 1,
-              opacity: 1,
-              transform: 'scale(1)'
+              opacity: 1
             }
           ]
         })}
@@ -238,8 +230,18 @@ export class NightlyMainPage extends LitElement {
           id="contentWrapper"
           class="contentWrapper"
           style=${styleMap(
-            window.innerWidth <= 640 ? { height: this.mobileContentHeight + 'px' } : {}
+            window.innerWidth <= 640
+              ? {
+                  height: this.mobileContentHeight + 'px',
+                  transition: this.useConnectTransition ? 'height 250ms' : 'none'
+                }
+              : {}
           )}
+          ${animate({
+            properties: ['height'],
+            keyframeOptions: { duration: 250 },
+            skipInitial: true
+          })}
         >
           ${this.connectingViewOpen ? this.renderConnect() : this.renderSelect()}
         </div>
@@ -248,6 +250,9 @@ export class NightlyMainPage extends LitElement {
   }
 
   backToPage = () => {
+    setTimeout(() => {
+      this.useConnectTransition = false
+    }, 300)
     this.connectingViewOpen = false
   }
 }

@@ -29,7 +29,10 @@
 
 .buttonContainer {
   align-self: start;
+  height: 28px;
+  padding-inline: 7px;
 }
+
 .textContainer {
   width: 100%;
   display: flex;
