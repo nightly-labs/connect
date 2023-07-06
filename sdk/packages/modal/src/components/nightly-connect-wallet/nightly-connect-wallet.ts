@@ -46,27 +46,34 @@ export class NightlyConnectWallet extends LitElement {
             <div class="textContainer">
               <span>Connect wallet</span>
             </div>
+            <button
+              class="buttonContainer"
+            >
           </div>
           <div class="coinInfoContainer">
             <img src=${this.walletIcon} />
             <span class="coinName">${this.coinName}</span>
-            ${this.connecting
-              ? html` <div class="connectingContainer">
-                  <span>Connecting... </span>
-                  <div class="custom-loader"></div>
-                </div>`
-              : html` <span class="error">Connecting failed</span> `}
+            ${
+              this.connecting
+                ? html` <div class="connectingContainer">
+                    <span>Connecting... </span>
+                    <div class="custom-loader"></div>
+                  </div>`
+                : html` <span class="error">Connecting failed</span> `
+            }
           </div>
           <div class="reConnectWrapper">
             <p>
               Connecting takes too long? Make sure ${this.nameLink} is installed on your device.
-              ${this.link.length
-                ? unsafeHTML(`Otherwise, visit
+              ${
+                this.link.length
+                  ? unsafeHTML(`Otherwise, visit
               <a id="connect-wallet-page-link-wallet-website" class="link" href="${this.link}"
                 >${this.nameLink} website</a
               >
               to download it.`)
-                : ''}
+                  : ''
+              }
             </p>
             <button id="connect-wallet-page-try-again-button" @click=${this.tryAgainClick}>
               Try again

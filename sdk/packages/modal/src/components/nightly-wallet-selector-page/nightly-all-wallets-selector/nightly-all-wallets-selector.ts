@@ -44,6 +44,7 @@ export class NightlyAllWalletsSelector extends LitElement {
           <div class="textContainer">
             <span> All wallets </span>
           </div>
+          <div class="buttonContainer"></div>
         </div>
         <div class="inputContainer">
           <div class="walletInputSearchContainer">
@@ -52,7 +53,7 @@ export class NightlyAllWalletsSelector extends LitElement {
               class="walletInputSearch"
               @input=${this.handleSearchInput}
             />
-            <img src="${search}" />
+            <img class="walletInputIcon" src="${search}" />
           </div>
         </div>
         ${this.filteredItems.length ? this.renderItems() : this.renderNotFoundIcon()}

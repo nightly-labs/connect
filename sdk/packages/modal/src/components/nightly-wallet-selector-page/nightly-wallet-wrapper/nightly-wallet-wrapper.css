@@ -8,6 +8,7 @@
 }
 .infoConatiner {
   padding: 16px;
+  padding-bottom: 0px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -20,7 +21,7 @@
   line-height: 22px;
   display: flex;
   align-items: center;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.28px;
   color: #6067f9;
   width: 89px;
   height: 30px;
@@ -34,7 +35,7 @@
   font-weight: 400;
   font-size: 16px;
   line-height: 22px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.28px;
   color: #f7f7f7;
 }
 .mainContainerWalletSellector {
@@ -105,7 +106,7 @@
   font-size: 12px;
   line-height: 16px;
   text-align: center;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.28px;
   color: #ffffff;
 }
 .buttonIcons {

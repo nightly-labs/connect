@@ -51,7 +51,8 @@
 
 .walletSelectorHeader {
   padding: 16px;
-  padding-bottom: 10px;
+  padding-bottom: 12px;
+  padding-top: 12px;
   width: 100%;
   display: flex;
   justify-content: space-between;
@@ -59,8 +60,8 @@
 }
 .walletSelectorHeader span {
   font-weight: 400;
+  letter-spacing: 0.32px;
   font-size: 16px;
-  line-height: 22px;
   color: #707a8d;
 }
 .walletSelectorBlockchain {
@@ -70,6 +71,9 @@
 }
 .walletSelectorBlockchain span {
   color: #6067f9;
+  letter-spacing: 0.32px;
+  font-size: 16px;
+  margin-bottom: -2px;
 }
 .walletSelectorBlockchain img {
   width: 24px;
@@ -100,10 +104,14 @@
   background-color: #0f0f1a;
   color: #707a8d;
   font-size: 14px;
-  width: 99%;
-  line-height: 22px;
-  letter-spacing: 0.02em;
+  width: 100%;
+  letter-spacing: 0.28px;
   border: 0;
+  opacity: 0.7;
+  margin-bottom: -2px;
+}
+.walletInputIcon {
+  margin-bottom: -2px;
 }
 .walletInputSearch:focus {
   outline: none;
@@ -121,7 +129,7 @@
   font-weight: 700;
   font-size: 16px;
   line-height: 22px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.28px;
 }
 .NotFoundInfo {
   padding-top: 4px;
@@ -131,7 +139,7 @@
   font-weight: 400;
   font-size: 12px;
   line-height: 16px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.28px;
 }
 .NotFoundGif {
   width: 104px;
@@ -151,13 +159,14 @@
   background-color: #343551;
   width: 264px;
   border-radius: 8px;
-  padding: 8px;
+  padding: 4px;
   margin-bottom: 12px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   justify-content: center;
   align-items: center;
   row-gap: 4px;
+  column-gap: 8px;
 }
 
 @media (max-width: 1080px) {
@@ -189,19 +198,17 @@
 
 .walletInputSearchWrapper {
   position: relative;
-  margin-bottom: 8px;
 }
 
 .walletInputSearchWrapper::before {
   content: '';
   position: absolute;
-  bottom: -20px;
+  bottom: -16px;
   left: 0;
   right: 0;
-  height: 20px;
-  background: linear-gradient(180deg, #202137 0%, #202137 50%, #20213700 100%);
+  height: 16px;
+  background: linear-gradient(180deg, #202137 12.37%, rgba(32, 33, 55, 0) 100%);
   opacity: 1;
   pointer-events: none;
   z-index: 1;
 }
-
