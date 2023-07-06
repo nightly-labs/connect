@@ -20,7 +20,7 @@ export interface MetadataWallet {
 }
 
 export interface NetworkData {
-    network: NETWORK,
-    name: string,
-    icon: string
+  network: NETWORK
+  name: string
+  icon: string
 }

@@ -19,7 +19,10 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
     appInitData: AppInitData,
     app: AppSolana,
     metadataWallets: MetadataWallet[],
-    anchorRef?: HTMLElement
+    onConnected: (adapter: StandardWalletAdapter) => void,
+    anchorRef?: HTMLElement,
+    onOpen?: () => void,
+    onClose?: () => void
   ) {
     super(
       appInitData,
@@ -41,7 +44,10 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
           url
         })
       },
-      anchorRef
+      onConnected,
+      anchorRef,
+      onOpen,
+      onClose
     )
     this._app = app
     this.setApp(app)
@@ -49,23 +55,38 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
 
   private setApp = (app: AppSolana) => {
     this._app = app
-    this._sessionId = app.sessionId
+    this.sessionId = app.sessionId
+
+    if (this._app.base.hasBeenRestored && !!this._app.base.connectedPublicKeys.length) {
+      this.initNCAdapter(this._app.base.connectedPublicKeys)
+    }
+
     this._app.on('userConnected', (e) => {
-      const adapter = new StandardWalletAdapter({
-        wallet: new NightlyConnectSolanaWallet(app, new PublicKey(e.publicKeys[0]), async () => {
-          clearSessionIdForNetwork(SOLANA_NETWORK)
-          const app = await AppSolana.build(this._appInitData)
-          this.setApp(app)
-        })
-      })
-      adapter.connect().then(() => {
-        this.onConnected?.(adapter)
-        this.closeModal()
-      })
+      this.initNCAdapter(e.publicKeys)
     })
   }
 
-  public static build = async (appInitData: AppInitData, anchorRef?: HTMLElement) => {
+  initNCAdapter = (publicKeys: string[]) => {
+    const adapter = new StandardWalletAdapter({
+      wallet: new NightlyConnectSolanaWallet(this._app, new PublicKey(publicKeys[0]), async () => {
+        clearSessionIdForNetwork(SOLANA_NETWORK)
+        const app = await AppSolana.build(this._appInitData)
+        this.setApp(app)
+      })
+    })
+    adapter.connect().then(() => {
+      this._onConnected(adapter)
+      this.closeModal()
+    })
+  }
+
+  public static build = async (
+    appInitData: AppInitData,
+    onConnected: (adapter: StandardWalletAdapter) => void,
+    anchorRef?: HTMLElement,
+    onOpen?: () => void,
+    onClose?: () => void
+  ) => {
     const [app, metadataWallets] = await Promise.all([
       AppSolana.build(appInitData),
       AppSolana.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
@@ -79,7 +100,15 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
         )
         .catch(() => [] as MetadataWallet[])
     ])
-    const selector = new NCSolanaSelector(appInitData, app, metadataWallets, anchorRef)
+    const selector = new NCSolanaSelector(
+      appInitData,
+      app,
+      metadataWallets,
+      onConnected,
+      anchorRef,
+      onOpen,
+      onClose
+    )
 
     return selector
   }

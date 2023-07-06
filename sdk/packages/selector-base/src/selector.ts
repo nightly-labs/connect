@@ -15,10 +15,9 @@ export class NCBaseSelector<A extends Adapter> {
   _sessionId: string
   _connectDeeplink: (walletName: string, url: string) => void
   _anchor: HTMLElement
-
-  onConnected: ((adapter: A) => void) | undefined
-  onOpen: (() => void) | undefined
-  onClose: (() => void) | undefined
+  _onConnected: (adapter: A) => void
+  _onOpen: (() => void) | undefined
+  _onClose: (() => void) | undefined
 
   constructor(
     appInitData: AppInitData,
@@ -28,7 +27,10 @@ export class NCBaseSelector<A extends Adapter> {
     networkData: NetworkData,
     sessionId: string,
     connectDeeplink: (name: string, url: string) => void,
-    anchorRef?: HTMLElement
+    onConnected: (adapter: A) => void,
+    anchorRef?: HTMLElement,
+    onOpen?: () => void,
+    onClose?: () => void
   ) {
     this._appInitData = appInitData
     this._metadataWallets = metadataWallets
@@ -37,8 +39,23 @@ export class NCBaseSelector<A extends Adapter> {
     this._networkData = networkData
     this._sessionId = sessionId
     this._connectDeeplink = connectDeeplink
+    this._onConnected = onConnected
     this._anchor = anchorRef ?? document.body
+    this._onOpen = onOpen
+    this._onClose = onClose
     this.createSelectorElement()
+  }
+
+  get sessionId() {
+    return this._sessionId
+  }
+
+  set sessionId(id: string) {
+    this._sessionId = id
+
+    if (this._modal) {
+      this._modal.sessionId = id
+    }
   }
 
   createSelectorElement = () => {
@@ -46,7 +63,7 @@ export class NCBaseSelector<A extends Adapter> {
     this._modal.onClose = this.closeModal
 
     this._modal.network = this._networkData.network
-    this._modal.sessionId = this._sessionId
+    this._modal.sessionId = this.sessionId
     this._modal.relay = this._appInitData.url ?? 'https://nc2.nightly.app'
     this._modal.chainIcon = this._networkData.icon
     this._modal.chainName = this._networkData.name
@@ -77,7 +94,7 @@ export class NCBaseSelector<A extends Adapter> {
 
         triggerConnect(
           walletData.deeplink.universal ?? walletData.deeplink.native!,
-          this._sessionId,
+          this.sessionId,
           this._appInitData.url ?? 'https://nc2.nightly.app'
         )
 
@@ -93,7 +110,7 @@ export class NCBaseSelector<A extends Adapter> {
         adapter
           .connect()
           .then(() => {
-            this.onConnected?.(adapter)
+            this._onConnected(adapter)
             this.closeModal()
           })
           .catch(() => {
@@ -107,13 +124,13 @@ export class NCBaseSelector<A extends Adapter> {
     if (this._modal) {
       this._anchor.appendChild(this._modal)
     }
-    this.onOpen?.()
+    this._onOpen?.()
   }
 
   public closeModal = () => {
     if (this._modal) {
       this._anchor.removeChild(this._modal)
-      this.onClose?.()
+      this._onClose?.()
     }
   }
 }
