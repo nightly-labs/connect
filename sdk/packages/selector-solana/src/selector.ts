@@ -6,7 +6,7 @@ import {
   AppInitData,
   MetadataWallet,
   NCBaseSelector,
-  NETWORK,
+  QueryNetwork,
   clearSessionIdForNetwork
 } from '@nightlylabs/wallet-selector-base'
 import { solanaWalletsFilter } from './detection'
@@ -33,7 +33,7 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
         }),
       solanaWalletsFilter,
       {
-        network: NETWORK.SOLANA,
+        network: QueryNetwork.SOLANA,
         name: 'Solana',
         icon: 'https://assets.coingecko.com/coins/images/4128/small/solana.png'
       },

@@ -8,13 +8,7 @@ import '../nightly-wallet-selector-page/nightly-wallet-selector-small-page/night
 import '../nightly-header/nightly-header'
 import { animate } from '@lit-labs/motion'
 import { styleMap } from 'lit/directives/style-map.js'
-
-export interface WalletSelectorItem {
-  name: string
-  icon: string
-  status: string
-  link: string
-}
+import { WalletSelectorItem } from '../../utils/types'
 
 @customElement('nightly-main-page')
 export class NightlyMainPage extends LitElement {

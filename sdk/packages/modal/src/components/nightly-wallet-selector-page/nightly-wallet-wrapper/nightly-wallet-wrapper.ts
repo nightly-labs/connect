@@ -1,8 +1,9 @@
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import { tailwindElement } from '../../../shared/tailwind.element'
 import { LitElement, html } from 'lit'
 import { Breakpoint, getBreakpointFromWidth, getNumberOfItems } from '../../../utils/utils'
 import style from './nightly-wallet-wrapper.css'
+import { WalletSelectorItem } from '../../../utils/types'
 
 @customElement('nightly-wallet-wrapper')
 export class NightlyWalletWrapper extends LitElement {
@@ -20,25 +21,23 @@ export class NightlyWalletWrapper extends LitElement {
   }
 
   @property({ type: Array })
-  get selectorItems(): { name: string; icon: string; status: string }[] {
+  get selectorItems(): WalletSelectorItem[] {
     return this._selectorItems
   }
 
-  set selectorItems(value: { name: string; icon: string; status: string }[]) {
-    const oldValue = this._selectorItems
+  set selectorItems(value: WalletSelectorItem[]) {
     this._selectorItems = value
-    this.filteredItems = [...value]
-    this.requestUpdate('selectorItems', oldValue)
   }
 
-  breakpoint: Breakpoint
+  @state()
+  breakpoint: Breakpoint = 'lg'
 
   constructor() {
     super()
-    // this.showAllWallets = this.showAllWallets.bind(this)
-    this.breakpoint = 'lg'
     this.updateBreakpoint()
-    this.resizeListener()
+    window.addEventListener('resize', () => {
+      this.updateBreakpoint()
+    })
   }
 
   updateBreakpoint() {
@@ -46,16 +45,8 @@ export class NightlyWalletWrapper extends LitElement {
     this.breakpoint = getBreakpointFromWidth(screenWidth)
   }
 
-  resizeListener() {
-    window.addEventListener('resize', () => {
-      this.updateBreakpoint()
-      this.requestUpdate()
-    })
-  }
+  private _selectorItems: WalletSelectorItem[] = []
 
-  private _selectorItems: { name: string; icon: string; status: string }[] = []
-  filteredItems: { name: string; icon: string; status: string }[] = []
-  showNotFoundIcon = false
   render() {
     const numberOfItems = getNumberOfItems(this.breakpoint)
     const totalItems = this._selectorItems.length
@@ -80,7 +71,7 @@ export class NightlyWalletWrapper extends LitElement {
                       class="topWalletsItem"
                       name=${wallet.name}
                       icon=${wallet.icon}
-                      status=${wallet.status}
+                      status=${wallet.recent ? 'Recent' : wallet.detected ? 'Detected' : ''}
                       @click=${() => this.onWalletClick(wallet.name)}
                     ></nightly-wallet-selector-item>
                   `

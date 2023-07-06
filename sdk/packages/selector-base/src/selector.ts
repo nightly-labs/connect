@@ -4,6 +4,7 @@ import { triggerConnect, isMobileBrowser } from './utils'
 import { getWallet, getWalletsList } from './detection'
 import { Adapter, AppInitData, MetadataWallet, NetworkData } from './types'
 import { Wallet } from '@wallet-standard/core'
+import { getRecentWalletForNetwork, persistRecentWalletForNetwork } from './persistence'
 
 export class NCBaseSelector<A extends Adapter> {
   _modal: NightlySelector | undefined
@@ -58,6 +59,21 @@ export class NCBaseSelector<A extends Adapter> {
     }
   }
 
+  setSelectorStandardWallets = () => {
+    if (this._modal) {
+      const recentName = getRecentWalletForNetwork(this._networkData.name)
+      this._modal.selectorItems = getWalletsList(this._metadataWallets, this._walletsFilterCb).map(
+        (w) => ({
+          name: w.name,
+          icon: w.icon,
+          link: w.link ?? '',
+          detected: w.detected,
+          recent: w.name === recentName
+        })
+      )
+    }
+  }
+
   createSelectorElement = () => {
     this._modal = getNightlySelectorElement()
     this._modal.onClose = this.closeModal
@@ -67,14 +83,6 @@ export class NCBaseSelector<A extends Adapter> {
     this._modal.relay = this._appInitData.url ?? 'https://nc2.nightly.app'
     this._modal.chainIcon = this._networkData.icon
     this._modal.chainName = this._networkData.name
-    this._modal.selectorItems = getWalletsList(this._metadataWallets, this._walletsFilterCb).map(
-      (w) => ({
-        name: w.name,
-        icon: w.icon,
-        status: w.recent ? 'Recent' : w.detected ? 'Detected' : '',
-        link: w.link ?? ''
-      })
-    )
     this._modal.onWalletClick = (name) => {
       if (isMobileBrowser()) {
         const walletData = this._metadataWallets.find((w) => w.name === name)
@@ -99,6 +107,8 @@ export class NCBaseSelector<A extends Adapter> {
         )
 
         this._modal!.connecting = true
+
+        persistRecentWalletForNetwork(name, this._networkData.name)
       } else {
         const wallet = getWallet(name)
         if (typeof wallet === 'undefined') {
@@ -110,6 +120,7 @@ export class NCBaseSelector<A extends Adapter> {
         adapter
           .connect()
           .then(() => {
+            persistRecentWalletForNetwork(name, this._networkData.name)
             this._onConnected(adapter)
             this.closeModal()
           })
@@ -122,6 +133,7 @@ export class NCBaseSelector<A extends Adapter> {
 
   public openModal = () => {
     if (this._modal) {
+      this.setSelectorStandardWallets()
       this._anchor.appendChild(this._modal)
     }
     this._onOpen?.()

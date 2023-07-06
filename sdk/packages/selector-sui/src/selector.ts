@@ -7,7 +7,7 @@ import {
   AppInitData,
   MetadataWallet,
   NCBaseSelector,
-  NETWORK,
+  QueryNetwork,
   clearSessionIdForNetwork
 } from '@nightlylabs/wallet-selector-base'
 import { StandardWalletAdapterWallet } from '@mysten/wallet-standard'
@@ -39,7 +39,7 @@ export class NCSuiSelector extends NCBaseSelector<StandardWalletAdapter> {
         }),
       suiWalletsFilter,
       {
-        network: NETWORK.SUI,
+        network: QueryNetwork.SUI,
         name: 'Sui',
         icon: 'https://assets.coingecko.com/coins/images/26375/small/sui_asset.jpeg'
       },
