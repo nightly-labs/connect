@@ -7,7 +7,8 @@ import {
   MetadataWallet,
   NCBaseSelector,
   QueryNetwork,
-  clearSessionIdForNetwork
+  clearSessionIdForNetwork,
+  persistRecentWalletForNetwork
 } from '@nightlylabs/wallet-selector-base'
 import { solanaWalletsFilter } from './detection'
 import { WalletAdapterCompatibleStandardWallet } from '@solana/wallet-adapter-base'
@@ -62,6 +63,9 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
     }
 
     this._app.on('userConnected', (e) => {
+      if (this._chosenMobileWalletName) {
+        persistRecentWalletForNetwork(this._chosenMobileWalletName, SOLANA_NETWORK)
+      }
       this.initNCAdapter(e.publicKeys)
     })
   }

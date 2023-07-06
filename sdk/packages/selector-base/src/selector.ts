@@ -74,6 +74,8 @@ export class NCBaseSelector<A extends Adapter> {
     }
   }
 
+  _chosenMobileWalletName: string | undefined
+
   createSelectorElement = () => {
     this._modal = getNightlySelectorElement()
     this._modal.onClose = this.closeModal
@@ -100,6 +102,8 @@ export class NCBaseSelector<A extends Adapter> {
           walletData.deeplink.universal ?? walletData.deeplink.native!
         )
 
+        this._chosenMobileWalletName = name
+
         triggerConnect(
           walletData.deeplink.universal ?? walletData.deeplink.native!,
           this.sessionId,
@@ -107,8 +111,6 @@ export class NCBaseSelector<A extends Adapter> {
         )
 
         this._modal!.connecting = true
-
-        persistRecentWalletForNetwork(name, this._networkData.name)
       } else {
         const wallet = getWallet(name)
         if (typeof wallet === 'undefined') {

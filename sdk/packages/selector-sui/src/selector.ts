@@ -8,7 +8,8 @@ import {
   MetadataWallet,
   NCBaseSelector,
   QueryNetwork,
-  clearSessionIdForNetwork
+  clearSessionIdForNetwork,
+  persistRecentWalletForNetwork
 } from '@nightlylabs/wallet-selector-base'
 import { StandardWalletAdapterWallet } from '@mysten/wallet-standard'
 import bs58 from 'bs58'
@@ -67,6 +68,9 @@ export class NCSuiSelector extends NCBaseSelector<StandardWalletAdapter> {
     }
 
     this._app.on('userConnected', (e) => {
+      if (this._chosenMobileWalletName) {
+        persistRecentWalletForNetwork(this._chosenMobileWalletName, SUI_NETWORK)
+      }
       this.initNCAdapter(e.publicKeys)
     })
   }
