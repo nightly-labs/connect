@@ -6,6 +6,7 @@ import style from './nightly-wallet-selector-page.css'
 import '../nightly-wallet-selector-item/nightly-wallet-selector-item'
 import { LitElement } from 'lit'
 import { WalletSelectorItem } from '../../utils/types'
+import { walletsSort } from '../../utils/utils'
 
 @customElement('nightly-wallet-selector-page')
 export class NightlyWalletSelectorPage extends LitElement {
@@ -68,12 +69,10 @@ export class NightlyWalletSelectorPage extends LitElement {
   }
 
   renderSelectorItems() {
-    const recentDetectedItems = this.filteredItems.filter(
-      (item) => item.recent || item.detected
-    )
-    const otherItems = this.filteredItems.filter(
-      (item) => !item.recent && !item.detected
-    )
+    const recentDetectedItems = this.filteredItems
+      .filter((item) => item.recent || item.detected)
+      .sort(walletsSort)
+    const otherItems = this.filteredItems.filter((item) => !item.recent && !item.detected)
 
     return html`
       <div class="walletSelectorButtons">

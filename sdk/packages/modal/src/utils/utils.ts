@@ -1,3 +1,5 @@
+import { WalletSelectorItem } from './types'
+
 export type Breakpoint = 'xs' | 'sm' | 'lg'
 
 export function getBreakpointFromWidth(screenWidth: number): Breakpoint {
@@ -36,4 +38,24 @@ export function getNumberOfItems(breakpoint: Breakpoint) {
     default:
       return 4
   }
+}
+
+export const walletsSort = (a: WalletSelectorItem, b: WalletSelectorItem) => {
+  if (a.recent) {
+    return -1
+  }
+
+  if (b.recent) {
+    return 1
+  }
+
+  if (a.detected) {
+    return -1
+  }
+
+  if (b.detected) {
+    return 1
+  }
+
+  return 0
 }

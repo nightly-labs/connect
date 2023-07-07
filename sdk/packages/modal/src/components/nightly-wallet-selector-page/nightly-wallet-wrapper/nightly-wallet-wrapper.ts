@@ -1,7 +1,12 @@
 import { customElement, property, state } from 'lit/decorators.js'
 import { tailwindElement } from '../../../shared/tailwind.element'
 import { LitElement, html } from 'lit'
-import { Breakpoint, getBreakpointFromWidth, getNumberOfItems } from '../../../utils/utils'
+import {
+  Breakpoint,
+  getBreakpointFromWidth,
+  getNumberOfItems,
+  walletsSort
+} from '../../../utils/utils'
 import style from './nightly-wallet-wrapper.css'
 import { WalletSelectorItem } from '../../../utils/types'
 
@@ -63,6 +68,7 @@ export class NightlyWalletWrapper extends LitElement {
           </div>
           <div class="mainContainerWalletSellector">
             ${this._selectorItems
+              .sort(walletsSort)
               .slice(0, numberOfItems)
               .map(
                 (wallet) =>

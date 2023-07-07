@@ -5,6 +5,7 @@ import style from './nightly-all-wallets-selector.css'
 import vector from '../../../static/svg/backButton.svg'
 import search from '../../../static/svg/searchIcon.svg'
 import { WalletSelectorItem } from '../../../utils/types'
+import { walletsSort } from 'src/utils/utils'
 
 @customElement('nightly-all-wallets-selector')
 export class NightlyAllWalletsSelector extends LitElement {
@@ -27,25 +28,7 @@ export class NightlyAllWalletsSelector extends LitElement {
       .filter((item) => {
         return item.name.toLowerCase().includes(this.searchText)
       })
-      .sort((a, b) => {
-        if (a.recent) {
-          return -1
-        }
-
-        if (b.recent) {
-          return 1
-        }
-
-        if (a.detected) {
-          return -1
-        }
-
-        if (b.detected) {
-          return 1
-        }
-
-        return 0
-      })
+      .sort(walletsSort)
   }
 
   private _selectorItems: WalletSelectorItem[] = []
@@ -123,25 +106,7 @@ export class NightlyAllWalletsSelector extends LitElement {
       .filter((item) => {
         return item.name.toLowerCase().includes(searchText)
       })
-      .sort((a, b) => {
-        if (a.recent) {
-          return -1
-        }
-
-        if (b.recent) {
-          return 1
-        }
-
-        if (a.detected) {
-          return -1
-        }
-
-        if (b.detected) {
-          return 1
-        }
-
-        return 0
-      })
+      .sort(walletsSort)
   }
 }
 
