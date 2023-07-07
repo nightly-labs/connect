@@ -3,13 +3,7 @@ import { customElement, property } from 'lit/decorators.js'
 import { tailwindElement } from '../../shared/tailwind.element'
 import style from './nightly-selector.css'
 import '../pages/nightly-main-page'
-
-export interface WalletSelectorItem {
-  name: string
-  icon: string
-  status: string
-  link: string
-}
+import { QueryNetwork, WalletSelectorItem } from '../../utils/types'
 
 @customElement('nightly-selector')
 export class NightlySelector extends LitElement {
@@ -36,7 +30,7 @@ export class NightlySelector extends LitElement {
   sessionId = ''
 
   @property({ type: String })
-  network = ''
+  network: QueryNetwork = QueryNetwork.SOLANA
 
   @property({ type: String })
   relay = ''

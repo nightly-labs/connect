@@ -25,11 +25,12 @@ export default function Solana() {
         },
         url: 'https://nc2.nightly.app'
       },
+      (newAdapter) => {
+        setAdapter(newAdapter)
+      },
+      true,
       document.getElementById('modalAnchor') ?? undefined
     )
-    selector.onConnected = (newAdapter) => {
-      setAdapter(newAdapter)
-    }
   })
   return (
     <main>

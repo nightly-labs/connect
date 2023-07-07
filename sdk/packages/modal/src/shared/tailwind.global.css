@@ -4,4 +4,7 @@
 
 * {
   font-family: 'Prompt';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-smooth: never;
 }

@@ -4,6 +4,8 @@ import { LitElement, html } from 'lit'
 import style from './nightly-all-wallets-selector.css'
 import vector from '../../../static/svg/backButton.svg'
 import search from '../../../static/svg/searchIcon.svg'
+import { WalletSelectorItem } from '../../../utils/types'
+import { walletsSort } from 'src/utils/utils'
 
 @customElement('nightly-all-wallets-selector')
 export class NightlyAllWalletsSelector extends LitElement {
@@ -16,21 +18,23 @@ export class NightlyAllWalletsSelector extends LitElement {
   onWalletClick!: (name: string) => void
 
   @property({ type: Array })
-  get selectorItems(): { name: string; icon: string; status: string }[] {
+  get selectorItems(): WalletSelectorItem[] {
     return this._selectorItems
   }
 
-  set selectorItems(value: { name: string; icon: string; status: string }[]) {
+  set selectorItems(value: WalletSelectorItem[]) {
     this._selectorItems = value
-    this.filteredItems = value.filter((item) => {
-      return item.name.toLowerCase().includes(this.searchText)
-    })
+    this.filteredItems = value
+      .filter((item) => {
+        return item.name.toLowerCase().includes(this.searchText)
+      })
+      .sort(walletsSort)
   }
 
-  private _selectorItems: { name: string; icon: string; status: string }[] = []
+  private _selectorItems: WalletSelectorItem[] = []
 
   @state()
-  filteredItems: { name: string; icon: string; status: string }[] = []
+  filteredItems: WalletSelectorItem[] = []
   @state()
   searchText = ''
 
@@ -84,7 +88,7 @@ export class NightlyAllWalletsSelector extends LitElement {
               class="nightlyWalletSelectorItem"
               name=${item.name}
               icon=${item.icon}
-              status=${item.status}
+              status=${item.recent ? 'Recent' : item.detected ? 'Detected' : ''}
               @click=${() => this.onWalletClick(item.name)}
             ></nightly-wallet-selector-item>
           `
@@ -98,9 +102,11 @@ export class NightlyAllWalletsSelector extends LitElement {
     const searchText = searchInput.value.toLowerCase()
     this.searchText = searchText
 
-    this.filteredItems = this.selectorItems.filter((item) => {
-      return item.name.toLowerCase().includes(searchText)
-    })
+    this.filteredItems = this.selectorItems
+      .filter((item) => {
+        return item.name.toLowerCase().includes(searchText)
+      })
+      .sort(walletsSort)
   }
 }
 

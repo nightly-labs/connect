@@ -5,6 +5,8 @@ import search from '../../static/svg/searchIcon.svg'
 import style from './nightly-wallet-selector-page.css'
 import '../nightly-wallet-selector-item/nightly-wallet-selector-item'
 import { LitElement } from 'lit'
+import { WalletSelectorItem } from '../../utils/types'
+import { walletsSort } from '../../utils/utils'
 
 @customElement('nightly-wallet-selector-page')
 export class NightlyWalletSelectorPage extends LitElement {
@@ -15,21 +17,21 @@ export class NightlyWalletSelectorPage extends LitElement {
   @property({ type: String })
   chainName = ''
   @property({ type: Array })
-  get selectorItems(): { name: string; icon: string; status: string }[] {
+  get selectorItems(): WalletSelectorItem[] {
     return this._selectorItems
   }
 
-  set selectorItems(value: { name: string; icon: string; status: string }[]) {
+  set selectorItems(value: WalletSelectorItem[]) {
     this._selectorItems = value
     this.filteredItems = value.filter((item) => {
       return item.name.toLowerCase().includes(this.searchText)
     })
   }
 
-  private _selectorItems: { name: string; icon: string; status: string }[] = []
+  private _selectorItems: WalletSelectorItem[] = []
 
   @state()
-  filteredItems: { name: string; icon: string; status: string }[] = []
+  filteredItems: WalletSelectorItem[] = []
   @state()
   searchText = ''
 
@@ -67,12 +69,10 @@ export class NightlyWalletSelectorPage extends LitElement {
   }
 
   renderSelectorItems() {
-    const recentDetectedItems = this.filteredItems.filter(
-      (item) => item.status.toLowerCase() === 'recent' || item.status.toLowerCase() === 'detected'
-    )
-    const otherItems = this.filteredItems.filter(
-      (item) => item.status.toLowerCase() !== 'recent' && item.status.toLowerCase() !== 'detected'
-    )
+    const recentDetectedItems = this.filteredItems
+      .filter((item) => item.recent || item.detected)
+      .sort(walletsSort)
+    const otherItems = this.filteredItems.filter((item) => !item.recent && !item.detected)
 
     return html`
       <div class="walletSelectorButtons">
@@ -82,7 +82,7 @@ export class NightlyWalletSelectorPage extends LitElement {
               <nightly-wallet-selector-item
                 name=${item.name}
                 icon=${item.icon}
-                status=${item.status}
+                status=${item.recent ? 'Recent' : item.detected ? 'Detected' : ''}
                 @click=${() => this.onWalletClick(item.name)}
               ></nightly-wallet-selector-item>
             `
@@ -94,7 +94,7 @@ export class NightlyWalletSelectorPage extends LitElement {
               <nightly-wallet-selector-item
                 name=${item.name}
                 icon=${item.icon}
-                status=${item.status}
+                status=${item.recent ? 'Recent' : item.detected ? 'Detected' : ''}
                 @click=${() => this.onWalletClick(item.name)}
               ></nightly-wallet-selector-item>
             `

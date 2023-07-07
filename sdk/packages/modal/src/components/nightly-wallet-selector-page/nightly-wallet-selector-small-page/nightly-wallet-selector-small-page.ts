@@ -7,6 +7,7 @@ import '../nightly-wallet-wrapper/nightly-wallet-wrapper'
 import style from './nightly-wallet-selector-small-page.css'
 import { LitElement } from 'lit'
 import { animate } from '@lit-labs/motion'
+import { WalletSelectorItem } from '../../../utils/types'
 
 @customElement('nightly-wallet-selector-small-page')
 export class NightlyWalletSelectorSmallPage extends LitElement {
@@ -38,7 +39,7 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
   onWalletClick: (name: string) => void = () => {}
 
   @property({ type: Array })
-  selectorItems: { name: string; icon: string; status: string }[] = []
+  selectorItems: WalletSelectorItem[] = []
 
   showAllWallets() {
     if (this.isQrPageVisible) {

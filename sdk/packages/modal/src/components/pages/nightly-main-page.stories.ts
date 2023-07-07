@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/web-components'
 import { html } from 'lit'
-import { NightlyMainPage, WalletSelectorItem } from './nightly-main-page'
+import { NightlyMainPage } from './nightly-main-page'
 import './nightly-main-page'
 import Phantom from '../../static/svg/PhantomIcon.svg'
 import MetaMask from '../../static/svg/MetaMaskIcon.svg'
@@ -12,6 +12,7 @@ import Binance from '../../static/svg/BinanceIcon.svg'
 import Sollet from '../../static/svg/SolletIcon.svg'
 import NightlyIcon from '../../static/svg/NightlyIcon.svg'
 import ChainIcon from '../../static/svg/ChainIcon.svg'
+import { WalletSelectorItem } from '../../utils/types'
 
 const meta = {
   title: 'nightly-main-page',
@@ -61,44 +62,42 @@ export const Default: Story = {
     open: true,
     onClose: () => console.log('close'),
     selectorItems: [
-      { name: 'Phantom', icon: Phantom, status: 'recent', link: `https://www.binance.com/en` },
+      { name: 'Phantom', icon: Phantom, recent: true, link: `https://www.binance.com/en` },
       {
         name: 'Nightly Wallet',
         icon: NightlyIcon,
-        status: 'recent',
         link: `https://www.binance.com/en`
       },
-      { name: 'MetaMask', icon: MetaMask, status: '', link: `https://www.binance.com/en` },
-      { name: 'Glow', icon: Glow, status: '', link: `https://www.binance.com/en` },
-      { name: 'ZenGO', icon: ZenGO, status: 'detected', link: `https://www.binance.com/en` },
-      { name: 'Trust', icon: Trust, status: '', link: `https://www.binance.com/en` },
-      { name: 'Binance', icon: Binance, status: '', link: `https://www.binance.com/en` },
-      { name: 'Sollet', icon: Sollet, status: '', link: `https://www.binance.com/en` },
-      { name: 'Phantom2', icon: Phantom, status: '', link: `https://www.binance.com/en` },
-      { name: 'MetaMask2', icon: MetaMask, status: 'recent', link: `https://www.binance.com/en` },
-      { name: 'Coinbase', icon: Coinbase, status: '', link: `https://www.binance.com/en` },
-      { name: 'ZenGO2', icon: ZenGO, status: '', link: `https://www.binance.com/en` },
-      { name: 'Trust2', icon: Trust, status: 'detected', link: `https://www.binance.com/en` },
-      { name: 'Binance2', icon: Binance, status: '', link: `https://www.binance.com/en` },
-      { name: 'Phantom3', icon: Phantom, status: 'recent', link: `https://www.binance.com/en` },
+      { name: 'MetaMask', icon: MetaMask, link: `https://www.binance.com/en` },
+      { name: 'Glow', icon: Glow, link: `https://www.binance.com/en` },
+      { name: 'ZenGO', icon: ZenGO, detected: true, link: `https://www.binance.com/en` },
+      { name: 'Trust', icon: Trust, link: `https://www.binance.com/en` },
+      { name: 'Binance', icon: Binance, link: `https://www.binance.com/en` },
+      { name: 'Sollet', icon: Sollet, link: `https://www.binance.com/en` },
+      { name: 'Phantom2', icon: Phantom, link: `https://www.binance.com/en` },
+      { name: 'MetaMask2', icon: MetaMask, link: `https://www.binance.com/en` },
+      { name: 'Coinbase', icon: Coinbase, link: `https://www.binance.com/en` },
+      { name: 'ZenGO2', icon: ZenGO, link: `https://www.binance.com/en` },
+      { name: 'Trust2', icon: Trust, detected: true, link: `https://www.binance.com/en` },
+      { name: 'Binance2', icon: Binance, link: `https://www.binance.com/en` },
+      { name: 'Phantom3', icon: Phantom, link: `https://www.binance.com/en` },
       {
         name: 'Nightly Wallet2',
         icon: NightlyIcon,
-        status: 'recent',
         link: `https://www.binance.com/en`
       },
-      { name: 'MetaMask2', icon: MetaMask, status: '', link: `https://www.binance.com/en` },
-      { name: 'Glow2', icon: Glow, status: '', link: `https://www.binance.com/en` },
-      { name: 'ZenGO3', icon: ZenGO, status: 'detected', link: `https://www.binance.com/en` },
-      { name: 'Trust3', icon: Trust, status: '', link: `https://www.binance.com/en` },
-      { name: 'Binance3', icon: Binance, status: '', link: `https://www.binance.com/en` },
-      { name: 'Sollet2', icon: Sollet, status: '', link: `https://www.binance.com/en` },
-      { name: 'Phantom4', icon: Phantom, status: '', link: `https://www.binance.com/en` },
-      { name: 'MetaMask3', icon: MetaMask, status: 'recent', link: `https://www.binance.com/en` },
-      { name: 'Coinbase2', icon: Coinbase, status: '', link: `https://www.binance.com/en` },
-      { name: 'ZenGO4', icon: ZenGO, status: '', link: `https://www.binance.com/en` },
-      { name: 'Trust4', icon: Trust, status: 'detected', link: `https://www.binance.com/en` },
-      { name: 'Binance4', icon: Binance, status: '', link: `https://www.binance.com/en` }
+      { name: 'MetaMask2', icon: MetaMask, link: `https://www.binance.com/en` },
+      { name: 'Glow2', icon: Glow, link: `https://www.binance.com/en` },
+      { name: 'ZenGO3', icon: ZenGO, detected: true, link: `https://www.binance.com/en` },
+      { name: 'Trust3', icon: Trust, link: `https://www.binance.com/en` },
+      { name: 'Binance3', icon: Binance, link: `https://www.binance.com/en` },
+      { name: 'Sollet2', icon: Sollet, link: `https://www.binance.com/en` },
+      { name: 'Phantom4', icon: Phantom, link: `https://www.binance.com/en` },
+      { name: 'MetaMask3', icon: MetaMask, link: `https://www.binance.com/en` },
+      { name: 'Coinbase2', icon: Coinbase, link: `https://www.binance.com/en` },
+      { name: 'ZenGO4', icon: ZenGO, link: `https://www.binance.com/en` },
+      { name: 'Trust4', icon: Trust, detected: true, link: `https://www.binance.com/en` },
+      { name: 'Binance4', icon: Binance, link: `https://www.binance.com/en` }
     ],
     onWalletClick: (name: string) => {
       console.log('Item clicked:', name)

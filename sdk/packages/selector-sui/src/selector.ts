@@ -1,14 +1,16 @@
 import { AppSui, SUI_NETWORK } from '@nightlylabs/nightly-connect-sui'
 import { StandardWalletAdapter } from '@mysten/wallet-adapter-wallet-standard'
-import { NightlyConnectSuiWallet } from './wallet'
+import { NightlyConnectSuiWallet, StandardAdapterWithDisconnectAction } from './wallet'
 import { publicKeyFromSerialized } from '@mysten/sui.js'
 import { suiWalletsFilter } from './detection'
 import {
   AppInitData,
   MetadataWallet,
   NCBaseSelector,
-  NETWORK,
-  clearSessionIdForNetwork
+  QueryNetwork,
+  clearSessionIdForNetwork,
+  clearUseStandardEagerForNetwork,
+  persistRecentStandardWalletForNetwork
 } from '@nightlylabs/wallet-selector-base'
 import { StandardWalletAdapterWallet } from '@mysten/wallet-standard'
 import bs58 from 'bs58'
@@ -25,18 +27,27 @@ export class NCSuiSelector extends NCBaseSelector<StandardWalletAdapter> {
     appInitData: AppInitData,
     app: AppSui,
     metadataWallets: MetadataWallet[],
-    anchorRef?: HTMLElement
+    onConnected: (adapter: StandardWalletAdapter) => void,
+    eagerConnect?: boolean,
+    anchorRef?: HTMLElement,
+    onOpen?: () => void,
+    onClose?: () => void
   ) {
     super(
       appInitData,
       metadataWallets,
-      (wallet) =>
-        new StandardWalletAdapter({
-          wallet: wallet as StandardWalletAdapterWallet
-        }),
+      (wallet) => {
+        const adapter = new StandardAdapterWithDisconnectAction(
+          wallet as StandardWalletAdapterWallet,
+          () => {
+            clearUseStandardEagerForNetwork(SUI_NETWORK)
+          }
+        )
+        return adapter
+      },
       suiWalletsFilter,
       {
-        network: NETWORK.SUI,
+        network: QueryNetwork.SUI,
         name: 'Sui',
         icon: 'https://assets.coingecko.com/coins/images/26375/small/sui_asset.jpeg'
       },
@@ -47,7 +58,11 @@ export class NCSuiSelector extends NCBaseSelector<StandardWalletAdapter> {
           url
         })
       },
-      anchorRef
+      onConnected,
+      eagerConnect,
+      anchorRef,
+      onOpen,
+      onClose
     )
     this._app = app
     this.setApp(app)
@@ -55,26 +70,47 @@ export class NCSuiSelector extends NCBaseSelector<StandardWalletAdapter> {
 
   private setApp = (app: AppSui) => {
     this._app = app
+    this.sessionId = app.sessionId
+    if (this._app.base.hasBeenRestored && !!this._app.base.connectedPublicKeys.length) {
+      this.initNCAdapter(this._app.base.connectedPublicKeys)
+    }
+
+    this.eagerConnectToRecent()
+
     this._app.on('userConnected', (e) => {
-      const adapter = new StandardWalletAdapter({
-        wallet: new NightlyConnectSuiWallet(
-          app,
-          e.publicKeys.map((pk) => publicKeyFromSerialized('ED25519', convertBase58toBase64(pk))),
-          async () => {
-            clearSessionIdForNetwork(SUI_NETWORK)
-            const app = await AppSui.build(this._appInitData)
-            this.setApp(app)
-          }
-        )
-      })
-      adapter.connect().then(() => {
-        this.onConnected?.(adapter)
-        this.closeModal()
-      })
+      if (this._chosenMobileWalletName) {
+        persistRecentStandardWalletForNetwork(this._chosenMobileWalletName, SUI_NETWORK)
+      }
+      this.initNCAdapter(e.publicKeys)
     })
   }
 
-  public static build = async (appInitData: AppInitData, anchorRef?: HTMLElement) => {
+  initNCAdapter = (publicKeys: string[]) => {
+    const adapter = new StandardWalletAdapter({
+      wallet: new NightlyConnectSuiWallet(
+        this._app,
+        publicKeys.map((pk) => publicKeyFromSerialized('ED25519', convertBase58toBase64(pk))),
+        async () => {
+          clearSessionIdForNetwork(SUI_NETWORK)
+          const app = await AppSui.build(this._appInitData)
+          this.setApp(app)
+        }
+      )
+    })
+    adapter.connect().then(() => {
+      this._onConnected(adapter)
+      this.closeModal()
+    })
+  }
+
+  public static build = async (
+    appInitData: AppInitData,
+    onConnected: (adapter: StandardWalletAdapter) => void,
+    eagerConnectForStandardWallets?: boolean,
+    anchorRef?: HTMLElement,
+    onOpen?: () => void,
+    onClose?: () => void
+  ) => {
     const [app, metadataWallets] = await Promise.all([
       AppSui.build(appInitData),
       AppSui.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
@@ -88,7 +124,16 @@ export class NCSuiSelector extends NCBaseSelector<StandardWalletAdapter> {
         )
         .catch(() => [] as MetadataWallet[])
     ])
-    const selector = new NCSuiSelector(appInitData, app, metadataWallets, anchorRef)
+    const selector = new NCSuiSelector(
+      appInitData,
+      app,
+      metadataWallets,
+      onConnected,
+      eagerConnectForStandardWallets,
+      anchorRef,
+      onOpen,
+      onClose
+    )
 
     return selector
   }

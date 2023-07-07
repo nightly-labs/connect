@@ -11,34 +11,48 @@ export const getLocalStorage = () => {
   return _localStorage
 }
 
-export interface IBaseSessionData {
-  publicKey: string
-  walletName: string
-}
+// recent wallet from standard
 
-export const persistSessionDataForNetwork = <T extends IBaseSessionData>(
-  sessionData: T,
-  network: string
-) => {
+export const persistRecentStandardWalletForNetwork = (walletName: string, network: string) => {
   const storage = getLocalStorage()
 
-  storage.setItem('NIGHTLY_CONNECT_SELECTOR_SESSION_DATA_' + network, JSON.stringify(sessionData))
+  storage.setItem('NIGHTLY_CONNECT_SELECTOR_RECENT_STANDARD_WALLET_' + network, walletName)
 }
 
-export const getSessionDataForNetwork = <T extends IBaseSessionData>(network: string) => {
+export const getRecentStandardWalletForNetwork = (network: string) => {
   const storage = getLocalStorage()
 
-  const item = storage.getItem('NIGHTLY_CONNECT_SELECTOR_SESSION_DATA_' + network)
+  const item = storage.getItem('NIGHTLY_CONNECT_SELECTOR_RECENT_STANDARD_WALLET_' + network)
 
-  return item === null ? null : (JSON.parse(item) as T)
+  return item
 }
 
-export const clearSessionDataForNetwork = (network: string) => {
-  localStorage.removeItem('NIGHTLY_CONNECT_SELECTOR_SESSION_DATA_' + network)
-}
+// clearing last nightly connect session id
 
 export const clearSessionIdForNetwork = (network: string) => {
   const storage = getLocalStorage()
 
   storage.removeItem(getSessionIdLocalStorageKey(network))
+}
+
+// usage of eager connect for recent standard wallet
+
+export const setUseStandardEagerForNetwork = (network: string) => {
+  const storage = getLocalStorage()
+
+  storage.setItem('NIGHTLY_CONNECT_SELECTOR_USE_STANDARD_EAGER_' + network, 'true')
+}
+
+export const getUseStandardEagerForNetwork = (network: string) => {
+  const storage = getLocalStorage()
+
+  const item = storage.getItem('NIGHTLY_CONNECT_SELECTOR_USE_STANDARD_EAGER_' + network)
+
+  return item
+}
+
+export const clearUseStandardEagerForNetwork = (network: string) => {
+  const storage = getLocalStorage()
+
+  storage.removeItem('NIGHTLY_CONNECT_SELECTOR_USE_STANDARD_EAGER_' + network)
 }

@@ -6,8 +6,10 @@ import {
   AppInitData,
   MetadataWallet,
   NCBaseSelector,
-  NETWORK,
-  clearSessionIdForNetwork
+  QueryNetwork,
+  clearSessionIdForNetwork,
+  clearUseStandardEagerForNetwork,
+  persistRecentStandardWalletForNetwork
 } from '@nightlylabs/wallet-selector-base'
 import { solanaWalletsFilter } from './detection'
 import { WalletAdapterCompatibleStandardWallet } from '@solana/wallet-adapter-base'
@@ -19,18 +21,27 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
     appInitData: AppInitData,
     app: AppSolana,
     metadataWallets: MetadataWallet[],
-    anchorRef?: HTMLElement
+    onConnected: (adapter: StandardWalletAdapter) => void,
+    eagerConnect?: boolean,
+    anchorRef?: HTMLElement,
+    onOpen?: () => void,
+    onClose?: () => void
   ) {
     super(
       appInitData,
       metadataWallets,
-      (wallet) =>
-        new StandardWalletAdapter({
+      (wallet) => {
+        const adapter = new StandardWalletAdapter({
           wallet: wallet as WalletAdapterCompatibleStandardWallet
-        }),
+        })
+        adapter.on('disconnect', () => {
+          clearUseStandardEagerForNetwork(SOLANA_NETWORK)
+        })
+        return adapter
+      },
       solanaWalletsFilter,
       {
-        network: NETWORK.SOLANA,
+        network: QueryNetwork.SOLANA,
         name: 'Solana',
         icon: 'https://assets.coingecko.com/coins/images/4128/small/solana.png'
       },
@@ -41,7 +52,11 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
           url
         })
       },
-      anchorRef
+      onConnected,
+      eagerConnect,
+      anchorRef,
+      onOpen,
+      onClose
     )
     this._app = app
     this.setApp(app)
@@ -49,23 +64,44 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
 
   private setApp = (app: AppSolana) => {
     this._app = app
-    this._sessionId = app.sessionId
+    this.sessionId = app.sessionId
+
+    if (this._app.base.hasBeenRestored && !!this._app.base.connectedPublicKeys.length) {
+      this.initNCAdapter(this._app.base.connectedPublicKeys)
+    }
+
+    this.eagerConnectToRecent()
+
     this._app.on('userConnected', (e) => {
-      const adapter = new StandardWalletAdapter({
-        wallet: new NightlyConnectSolanaWallet(app, new PublicKey(e.publicKeys[0]), async () => {
-          clearSessionIdForNetwork(SOLANA_NETWORK)
-          const app = await AppSolana.build(this._appInitData)
-          this.setApp(app)
-        })
-      })
-      adapter.connect().then(() => {
-        this.onConnected?.(adapter)
-        this.closeModal()
-      })
+      if (this._chosenMobileWalletName) {
+        persistRecentStandardWalletForNetwork(this._chosenMobileWalletName, SOLANA_NETWORK)
+      }
+      this.initNCAdapter(e.publicKeys)
     })
   }
 
-  public static build = async (appInitData: AppInitData, anchorRef?: HTMLElement) => {
+  initNCAdapter = (publicKeys: string[]) => {
+    const adapter = new StandardWalletAdapter({
+      wallet: new NightlyConnectSolanaWallet(this._app, new PublicKey(publicKeys[0]), async () => {
+        clearSessionIdForNetwork(SOLANA_NETWORK)
+        const app = await AppSolana.build(this._appInitData)
+        this.setApp(app)
+      })
+    })
+    adapter.connect().then(() => {
+      this._onConnected(adapter)
+      this.closeModal()
+    })
+  }
+
+  public static build = async (
+    appInitData: AppInitData,
+    onConnected: (adapter: StandardWalletAdapter) => void,
+    eagerConnectForStandardWallets?: boolean,
+    anchorRef?: HTMLElement,
+    onOpen?: () => void,
+    onClose?: () => void
+  ) => {
     const [app, metadataWallets] = await Promise.all([
       AppSolana.build(appInitData),
       AppSolana.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
@@ -79,7 +115,16 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
         )
         .catch(() => [] as MetadataWallet[])
     ])
-    const selector = new NCSolanaSelector(appInitData, app, metadataWallets, anchorRef)
+    const selector = new NCSolanaSelector(
+      appInitData,
+      app,
+      metadataWallets,
+      onConnected,
+      eagerConnectForStandardWallets,
+      anchorRef,
+      onOpen,
+      onClose
+    )
 
     return selector
   }

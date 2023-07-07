@@ -13,20 +13,22 @@ export default function Sui() {
     if (selector) {
       return
     }
-    selector = await NCSuiSelector.build({
-      appMetadata: {
-        name: 'NCTestSui',
-        description: 'Nightly Connect Test',
-        icon: 'https://docs.nightly.app/img/logo.png',
-        additionalInfo: 'Courtesy of Nightly Connect team'
+    selector = await NCSuiSelector.build(
+      {
+        appMetadata: {
+          name: 'NCTestSui',
+          description: 'Nightly Connect Test',
+          icon: 'https://docs.nightly.app/img/logo.png',
+          additionalInfo: 'Courtesy of Nightly Connect team'
+        },
+        url: 'https://nc2.nightly.app'
       },
-      url: 'https://nc2.nightly.app'
-    },
-    document.getElementById('modalAnchor') ?? undefined
+      (newAdapter) => {
+        setAdapter(newAdapter)
+      },
+      true,
+      document.getElementById('modalAnchor') ?? undefined
     )
-    selector.onConnected = (newAdapter) => {
-      setAdapter(newAdapter)
-    }
   })
   return (
     <main>
