@@ -27,6 +27,7 @@ export default [
     ],
     external: [
       '@nightlylabs/nightly-connect-base',
+      '@nightlylabs/wallet-selector-modal',
       '@wallet-standard/core',
       'isomorphic-localstorage'
     ]
