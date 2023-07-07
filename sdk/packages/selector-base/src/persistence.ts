@@ -43,7 +43,7 @@ export const setUseStandardEagerForNetwork = (network: string) => {
   storage.setItem('NIGHTLY_CONNECT_SELECTOR_USE_STANDARD_EAGER_' + network, 'true')
 }
 
-export const getUserStandardEagerForNetwork = (network: string) => {
+export const getUseStandardEagerForNetwork = (network: string) => {
   const storage = getLocalStorage()
 
   const item = storage.getItem('NIGHTLY_CONNECT_SELECTOR_USE_STANDARD_EAGER_' + network)
