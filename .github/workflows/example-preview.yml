@@ -8,9 +8,6 @@ jobs:
   upload:
     runs-on: [testing]
     steps:
-      - name: FIX BULLSHIT PERMISSION
-        run: |
-          echo ${{secrets.TESTING_LAPTOP_PASSWORD}} | sudo -S chown -R $USER:$USER /home/syncomp/runners
       - name: Checkout
         uses: actions/checkout@v3
       - name: Deploy to Vercel Action

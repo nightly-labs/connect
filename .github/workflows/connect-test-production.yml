@@ -12,15 +12,13 @@ jobs:
     timeout-minutes: 10
     runs-on: [testing]
     steps:
-      - name: FIX BULLSHIT PERMISSION
-        run: |
-          echo ${{secrets.TESTING_LAPTOP_PASSWORD}} | sudo -S chown -R $USER:$USER /home/syncomp/runners
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: '16'
       - uses: pnpm/action-setup@v2
         name: Install pnpm
+        continue-on-error: true
         id: pnpm-install
         with:
           version: 8
