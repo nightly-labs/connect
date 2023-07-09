@@ -6,10 +6,11 @@ export interface IWalletListItem {
   link?: string
   recent?: boolean
   detected?: boolean
+  standardWallet?: Wallet
 }
 
 export const getWalletsList = (
-  presetList: Omit<IWalletListItem, 'recent' | 'detected'>[],
+  presetList: Omit<IWalletListItem, 'recent' | 'detected' | 'wallet'>[],
   walletsFilterCb: (wallet: Wallet) => boolean,
   recentWalletName?: string
 ) => {
@@ -29,7 +30,8 @@ export const getWalletsList = (
         icon: wallet.icon
       }),
       detected: true,
-      recent: recentWalletName === wallet.name
+      recent: recentWalletName === wallet.name,
+      standardWallet: wallet
     }
   })
 

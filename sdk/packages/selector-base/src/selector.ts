@@ -1,7 +1,11 @@
 import '@nightlylabs/wallet-selector-modal'
-import { type NightlySelector, getNightlySelectorElement } from '@nightlylabs/wallet-selector-modal'
+import {
+  type NightlySelector,
+  getNightlySelectorElement,
+  WalletSelectorItem
+} from '@nightlylabs/wallet-selector-modal'
 import { triggerConnect, isMobileBrowser } from './utils'
-import { getWallet, getWalletsList } from './detection'
+import { getWalletsList } from './detection'
 import { Adapter, AppInitData, MetadataWallet, NetworkData } from './types'
 import { Wallet } from '@wallet-standard/core'
 import {
@@ -25,6 +29,7 @@ export class NCBaseSelector<A extends Adapter> {
   _onConnected: (adapter: A) => void
   _onOpen: (() => void) | undefined
   _onClose: (() => void) | undefined
+  _selectorWalletsList: Array<WalletSelectorItem & { standardWallet?: Wallet }> = []
 
   constructor(
     appInitData: AppInitData,
@@ -79,12 +84,12 @@ export class NCBaseSelector<A extends Adapter> {
   }
 
   connectToStandardWallet = (name: string) => {
-    const wallet = getWallet(name)
-    if (typeof wallet === 'undefined') {
+    const wallet = this._selectorWalletsList.find((w) => w.name === name)
+    if (typeof wallet?.standardWallet === 'undefined') {
       return
     }
 
-    const adapter = this._adapterCreator(wallet)
+    const adapter = this._adapterCreator(wallet.standardWallet)
     this._modal!.connecting = true
     adapter
       .connect()
@@ -102,15 +107,17 @@ export class NCBaseSelector<A extends Adapter> {
   setSelectorStandardWallets = () => {
     if (this._modal) {
       const recentName = getRecentStandardWalletForNetwork(this._networkData.name)
-      this._modal.selectorItems = getWalletsList(this._metadataWallets, this._walletsFilterCb).map(
+      this._selectorWalletsList = getWalletsList(this._metadataWallets, this._walletsFilterCb).map(
         (w) => ({
           name: w.name,
           icon: w.icon,
           link: w.link ?? '',
           detected: w.detected,
-          recent: w.name === recentName
+          recent: w.name === recentName,
+          standardWallet: w.standardWallet
         })
       )
+      this._modal.selectorItems = this._selectorWalletsList
     }
   }
 
