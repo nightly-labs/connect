@@ -31,7 +31,7 @@ export class NightlyWalletWrapper extends LitElement {
   }
 
   set selectorItems(value: WalletSelectorItem[]) {
-    this._selectorItems = value
+    this._selectorItems = [...value].sort(walletsSort)
   }
 
   @state()
@@ -68,7 +68,6 @@ export class NightlyWalletWrapper extends LitElement {
           </div>
           <div class="mainContainerWalletSellector">
             ${this._selectorItems
-              .sort(walletsSort)
               .slice(0, numberOfItems)
               .map(
                 (wallet) =>

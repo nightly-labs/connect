@@ -79,6 +79,7 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
           ${animate({
             properties: ['opacity'],
             keyframeOptions: { duration: 380 },
+            skipInitial: true,
             in: [
               {
                 opacity: 0

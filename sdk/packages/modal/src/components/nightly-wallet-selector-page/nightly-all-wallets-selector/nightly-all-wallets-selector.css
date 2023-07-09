@@ -14,9 +14,9 @@
 }
 
 .buttonContainer {
-  align-self: flex-start;
-  height: 28px;
-  min-width: 15px;
+  height: 32px;
+  min-width: 32px;
+  padding-inline: 8px;
 }
 
 .textContainer {
@@ -174,4 +174,5 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  height: fit-content;
 }
