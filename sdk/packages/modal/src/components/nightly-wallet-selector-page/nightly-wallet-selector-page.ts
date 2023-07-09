@@ -22,7 +22,7 @@ export class NightlyWalletSelectorPage extends LitElement {
   }
 
   set selectorItems(value: WalletSelectorItem[]) {
-    this._selectorItems = value.sort(walletsSort)
+    this._selectorItems = [...value].sort(walletsSort)
     this.filteredItems = this._selectorItems.filter((item) => {
       return item.name.toLowerCase().includes(this.searchText)
     })

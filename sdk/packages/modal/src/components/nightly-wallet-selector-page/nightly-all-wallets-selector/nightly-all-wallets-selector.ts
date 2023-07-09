@@ -23,12 +23,10 @@ export class NightlyAllWalletsSelector extends LitElement {
   }
 
   set selectorItems(value: WalletSelectorItem[]) {
-    this._selectorItems = value
-    this.filteredItems = value
-      .filter((item) => {
-        return item.name.toLowerCase().includes(this.searchText)
-      })
-      .sort(walletsSort)
+    this._selectorItems = [...value].sort(walletsSort)
+    this.filteredItems = this._selectorItems.filter((item) => {
+      return item.name.toLowerCase().includes(this.searchText)
+    })
   }
 
   private _selectorItems: WalletSelectorItem[] = []
@@ -102,11 +100,9 @@ export class NightlyAllWalletsSelector extends LitElement {
     const searchText = searchInput.value.toLowerCase()
     this.searchText = searchText
 
-    this.filteredItems = this.selectorItems
-      .filter((item) => {
-        return item.name.toLowerCase().includes(searchText)
-      })
-      .sort(walletsSort)
+    this.filteredItems = this.selectorItems.filter((item) => {
+      return item.name.toLowerCase().includes(searchText)
+    })
   }
 }
 
