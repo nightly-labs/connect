@@ -42,14 +42,13 @@ export class NightlySelector extends LitElement {
   fireClosingAnimation = false
 
   handleClose = () => {
-    if (window.matchMedia('(max-width: 640px)')) {
-      this.fireClosingAnimation = true
-      setTimeout(() => {
+    this.fireClosingAnimation = true
+    setTimeout(
+      () => {
         this.onClose()
-      }, 300)
-    } else {
-      this.onClose()
-    }
+      },
+      window.matchMedia('(max-width: 640px)') ? 240 : 80
+    )
   }
 
   constructor() {
@@ -64,7 +63,7 @@ export class NightlySelector extends LitElement {
 
   render() {
     return html`
-      <div class="nightlySelectorOverlay">
+      <div class="nightlySelectorOverlay ${this.fireClosingAnimation ? 'fadeOutOpacity' : ''}">
         <nightly-main-page
           class="nightlySelector"
           .onClose=${this.handleClose}
