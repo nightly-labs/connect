@@ -5,7 +5,7 @@ import style from './nightly-all-wallets-selector.css'
 import vector from '../../../static/svg/backButton.svg'
 import search from '../../../static/svg/searchIcon.svg'
 import { WalletSelectorItem } from '../../../utils/types'
-import { walletsSort } from 'src/utils/utils'
+import { walletsSort } from '../../../utils/utils'
 
 @customElement('nightly-all-wallets-selector')
 export class NightlyAllWalletsSelector extends LitElement {
