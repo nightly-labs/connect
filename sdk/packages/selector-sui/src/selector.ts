@@ -99,7 +99,7 @@ export class NCSuiSelector extends NCBaseSelector<StandardWalletAdapter> {
     })
     adapter.connect().then(() => {
       this._onConnected(adapter)
-      this.closeModal()
+      this._modal?.handleClose()
     })
   }
 

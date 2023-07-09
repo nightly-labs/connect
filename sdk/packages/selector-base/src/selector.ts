@@ -92,7 +92,7 @@ export class NCBaseSelector<A extends Adapter> {
         persistRecentStandardWalletForNetwork(name, this._networkData.name)
         setUseStandardEagerForNetwork(this._networkData.name)
         this._onConnected(adapter)
-        this.closeModal()
+        this._modal?.handleClose()
       })
       .catch(() => {
         this._modal!.connecting = false
@@ -167,6 +167,7 @@ export class NCBaseSelector<A extends Adapter> {
 
   public closeModal = () => {
     if (this._modal) {
+      this._modal.connecting = true
       this._anchor.removeChild(this._modal)
       this._onClose?.()
     }

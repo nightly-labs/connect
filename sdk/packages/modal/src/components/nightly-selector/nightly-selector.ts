@@ -1,5 +1,5 @@
 import { LitElement, html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import { tailwindElement } from '../../shared/tailwind.element'
 import style from './nightly-selector.css'
 import '../pages/nightly-main-page'
@@ -38,12 +38,36 @@ export class NightlySelector extends LitElement {
   @property({ type: Boolean })
   connecting = false
 
+  @state()
+  fireClosingAnimation = false
+
+  handleClose = () => {
+    if (window.matchMedia('(max-width: 640px)')) {
+      this.fireClosingAnimation = true
+      setTimeout(() => {
+        this.onClose()
+      }, 300)
+    } else {
+      this.onClose()
+    }
+  }
+
+  constructor() {
+    super()
+    this.handleClose = this.handleClose.bind(this)
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback()
+    this.fireClosingAnimation = false
+  }
+
   render() {
     return html`
       <div class="nightlySelectorOverlay">
         <nightly-main-page
           class="nightlySelector"
-          .onClose=${this.onClose}
+          .onClose=${this.handleClose}
           .selectorItems=${this.selectorItems}
           .onWalletClick=${this.onWalletClick}
           .chainIcon=${this.chainIcon}
@@ -52,6 +76,7 @@ export class NightlySelector extends LitElement {
           .network=${this.network}
           ?connecting=${this.connecting}
           .relay=${this.relay}
+          ?fireClosingAnimation=${this.fireClosingAnimation}
         ></nightly-main-page>
       </div>
     `

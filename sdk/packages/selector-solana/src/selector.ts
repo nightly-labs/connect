@@ -90,7 +90,7 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
     })
     adapter.connect().then(() => {
       this._onConnected(adapter)
-      this.closeModal()
+      this._modal?.handleClose()
     })
   }
 
