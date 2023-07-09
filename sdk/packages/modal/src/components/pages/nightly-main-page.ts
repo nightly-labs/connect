@@ -106,13 +106,13 @@ export class NightlyMainPage extends LitElement {
 
   renderConnect() {
     setTimeout(() => {
-      this.mobileContentHeight = this._modalConnect.scrollHeight
+      this.mobileContentHeight = Math.max(this._modalConnect.scrollHeight, 186)
       if (!this.connectObserver) {
         this.connectObserver = new ResizeObserver(() => {
           if (!this._modalConnect) {
             return
           }
-          this.mobileContentHeight = this._modalConnect.scrollHeight
+          this.mobileContentHeight = Math.max(this._modalConnect.scrollHeight, 186)
         })
       }
       this.connectObserver.observe(this._modalConnect)
@@ -152,13 +152,13 @@ export class NightlyMainPage extends LitElement {
 
   renderSelect() {
     setTimeout(() => {
-      this.mobileContentHeight = this._modalSelect.scrollHeight
+      this.mobileContentHeight = Math.max(this._modalSelect.scrollHeight, 186)
       if (!this.selectObserver) {
         this.selectObserver = new ResizeObserver(() => {
           if (!this._modalSelect) {
             return
           }
-          this.mobileContentHeight = this._modalSelect.scrollHeight
+          this.mobileContentHeight = Math.max(this._modalSelect.scrollHeight, 186)
         })
       }
       this.selectObserver.observe(this._modalSelect)
