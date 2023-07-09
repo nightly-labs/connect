@@ -81,6 +81,7 @@ export class NightlyMainPage extends LitElement {
 
   disconnectedCallback(): void {
     super.disconnectedCallback()
+    this.useConnectTransition = false
     this.connectingViewOpen = false
     this.mobileContentHeight = 186
   }

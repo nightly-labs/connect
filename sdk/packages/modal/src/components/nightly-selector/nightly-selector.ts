@@ -63,8 +63,14 @@ export class NightlySelector extends LitElement {
 
   render() {
     return html`
-      <div class="nightlySelectorOverlay ${this.fireClosingAnimation ? 'fadeOutOpacity' : ''}">
+      <div
+        class="nightlySelectorOverlay ${this.fireClosingAnimation ? 'fadeOutOpacity' : ''}"
+        @click=${this.handleClose}
+      >
         <nightly-main-page
+          @click=${(e: MouseEvent) => {
+            e.stopPropagation()
+          }}
           class="nightlySelector"
           .onClose=${this.handleClose}
           .selectorItems=${this.selectorItems}
