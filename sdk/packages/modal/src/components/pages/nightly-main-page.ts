@@ -77,11 +77,14 @@ export class NightlyMainPage extends LitElement {
     super()
     this.onSelectWallet = this.onSelectWallet.bind(this)
     this.tryAgainClick = this.tryAgainClick.bind(this)
+    this.handleClose = this.handleClose.bind(this)
   }
 
   disconnectedCallback(): void {
     super.disconnectedCallback()
     this.connectingViewOpen = false
+    this.mobileContentHeight = 186
+    this.slideOutMobile = false
   }
 
   @query('#modalConnect')
@@ -91,10 +94,24 @@ export class NightlyMainPage extends LitElement {
   _modalSelect!: HTMLElement
 
   @state()
-  mobileContentHeight = 318
+  mobileContentHeight = 186
 
   @state()
   useConnectTransition = false
+
+  @state()
+  slideOutMobile = false
+
+  handleClose = () => {
+    if (window.matchMedia('(max-width: 640px)')) {
+      this.slideOutMobile = true
+      setTimeout(() => {
+        this.onClose()
+      }, 300)
+    } else {
+      this.onClose()
+    }
+  }
 
   connectObserver: ResizeObserver | undefined
   selectObserver: ResizeObserver | undefined
@@ -218,8 +235,8 @@ export class NightlyMainPage extends LitElement {
 
   render() {
     return html`
-      <div class="nightlyModal">
-        <nightly-header .onClose=${this.onClose}></nightly-header>
+      <div class="nightlyModal ${this.slideOutMobile ? 'slideOutMobile' : ''}">
+        <nightly-header .onClose=${this.handleClose}></nightly-header>
         <div
           id="contentWrapper"
           class="contentWrapper"

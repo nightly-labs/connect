@@ -19,6 +19,30 @@
 @media (max-width: 640px) {
   .nightlyModal {
     max-width: 100%;
+    transform-origin: 0 100%;
+    animation: 300ms ease-out 0s 1 slideIn;
+  }
+
+  .slideOutMobile {
+    animation: 300ms ease-out 0s 1 slideOut;
+  }
+}
+
+@keyframes slideIn {
+  0% {
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideOut {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100%);
   }
 }
 
