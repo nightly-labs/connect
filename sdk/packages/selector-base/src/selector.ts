@@ -30,6 +30,7 @@ export class NCBaseSelector<A extends Adapter> {
   _onOpen: (() => void) | undefined
   _onClose: (() => void) | undefined
   _selectorWalletsList: Array<WalletSelectorItem & { standardWallet?: Wallet }> = []
+  _open = false
 
   constructor(
     appInitData: AppInitData,
@@ -58,6 +59,7 @@ export class NCBaseSelector<A extends Adapter> {
     this._onOpen = onOpen
     this._onClose = onClose
     this.createSelectorElement()
+    this.setSelectorStandardWallets()
   }
 
   get sessionId() {
@@ -97,7 +99,7 @@ export class NCBaseSelector<A extends Adapter> {
         persistRecentStandardWalletForNetwork(name, this._networkData.name)
         setUseStandardEagerForNetwork(this._networkData.name)
         this._onConnected(adapter)
-        this._modal?.handleClose()
+        this.closeModal()
       })
       .catch(() => {
         this._modal!.connecting = false
@@ -105,18 +107,18 @@ export class NCBaseSelector<A extends Adapter> {
   }
 
   setSelectorStandardWallets = () => {
+    const recentName = getRecentStandardWalletForNetwork(this._networkData.name)
+    this._selectorWalletsList = getWalletsList(this._metadataWallets, this._walletsFilterCb).map(
+      (w) => ({
+        name: w.name,
+        icon: w.icon,
+        link: w.link ?? '',
+        detected: w.detected,
+        recent: w.name === recentName,
+        standardWallet: w.standardWallet
+      })
+    )
     if (this._modal) {
-      const recentName = getRecentStandardWalletForNetwork(this._networkData.name)
-      this._selectorWalletsList = getWalletsList(this._metadataWallets, this._walletsFilterCb).map(
-        (w) => ({
-          name: w.name,
-          icon: w.icon,
-          link: w.link ?? '',
-          detected: w.detected,
-          recent: w.name === recentName,
-          standardWallet: w.standardWallet
-        })
-      )
       this._modal.selectorItems = this._selectorWalletsList
     }
   }
@@ -125,7 +127,7 @@ export class NCBaseSelector<A extends Adapter> {
 
   createSelectorElement = () => {
     this._modal = getNightlySelectorElement()
-    this._modal.onClose = this.closeModal
+    this._modal.onClose = this.onCloseModal
 
     this._modal.network = this._networkData.network
     this._modal.sessionId = this.sessionId
@@ -165,18 +167,26 @@ export class NCBaseSelector<A extends Adapter> {
   }
 
   public openModal = () => {
-    if (this._modal) {
+    if (this._modal && this._open === false) {
       this.setSelectorStandardWallets()
       this._anchor.appendChild(this._modal)
+      this._open = true
+      this._onOpen?.()
     }
-    this._onOpen?.()
+  }
+
+  public onCloseModal = () => {
+    if (this._modal && this._open === true) {
+      this._modal.connecting = true
+      this._anchor.removeChild(this._modal)
+      this._open = false
+      this._onClose?.()
+    }
   }
 
   public closeModal = () => {
-    if (this._modal) {
-      this._modal.connecting = true
-      this._anchor.removeChild(this._modal)
-      this._onClose?.()
+    if (this._modal && this._open === true) {
+      this._modal.handleClose()
     }
   }
 }
