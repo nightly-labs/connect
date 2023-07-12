@@ -74,18 +74,20 @@ export class NightlyWalletSelectorPage extends LitElement {
 
     return html`
       <div class="walletSelectorButtons">
-        <div class="recentDetectedContainer">
-          ${recentDetectedItems.map((item) => {
-            return html`
-              <nightly-wallet-selector-item
-                name=${item.name}
-                icon=${item.icon}
-                status=${item.recent ? 'Recent' : item.detected ? 'Detected' : ''}
-                @click=${() => this.onWalletClick(item.name)}
-              ></nightly-wallet-selector-item>
-            `
-          })}
-        </div>
+        ${recentDetectedItems.length
+          ? html`<div class="recentDetectedContainer">
+              ${recentDetectedItems.map((item) => {
+                return html`
+                  <nightly-wallet-selector-item
+                    name=${item.name}
+                    icon=${item.icon}
+                    status=${item.recent ? 'Recent' : item.detected ? 'Detected' : ''}
+                    @click=${() => this.onWalletClick(item.name)}
+                  ></nightly-wallet-selector-item>
+                `
+              })}
+            </div>`
+          : null}
         <div class="otherItemsContainer">
           ${otherItems.map((item) => {
             return html`
