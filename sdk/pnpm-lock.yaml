@@ -129,7 +129,7 @@ importers:
         specifier: ^0.7.9
         version: 0.7.9
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.0.9
+        specifier: 0.0.10
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
         specifier: 0.0.9
@@ -493,7 +493,7 @@ importers:
   packages/selector-solana:
     dependencies:
       '@nightlylabs/nightly-connect-solana':
-        specifier: 0.0.17
+        specifier: 0.0.18
         version: link:../../apps/solana
       '@nightlylabs/wallet-selector-base':
         specifier: 0.0.9
