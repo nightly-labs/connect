@@ -1,4 +1,4 @@
-import { PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js'
+import { Keypair, PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js'
 import {
   AppBaseInitialize,
   BaseApp,
@@ -69,8 +69,11 @@ export class AppSolana extends EventEmitter<SolanaAppEvents> {
       transaction: Buffer.from(transaction.serialize()).toString('hex')
     }
     const signedTxs = await this.base.signTransactions([transactionToSign])
-
-    return VersionedTransaction.deserialize(Buffer.from(signedTxs[0].transaction, 'hex'))
+    const signed = VersionedTransaction.deserialize(Buffer.from(signedTxs[0].transaction, 'hex'))
+    VersionedTransaction.prototype['partialSign'] = function (this, keypair: Keypair) {
+      return this.sign([keypair])
+    }
+    return signed
   }
 
   signAllTransactions = async (transactions: Transaction[]) => {
@@ -90,7 +93,12 @@ export class AppSolana extends EventEmitter<SolanaAppEvents> {
       transaction: Buffer.from(tx.serialize()).toString('hex')
     }))
     const signedTx = await this.base.signTransactions(transactionsToSign)
-    const parsed = signedTx.map((tx) => Transaction.from(Buffer.from(tx.transaction, 'hex')))
+    const parsed = signedTx.map((tx) => {
+      VersionedTransaction.prototype['partialSign'] = function (this, keypair: Keypair) {
+        return this.sign([keypair])
+      }
+      return VersionedTransaction.deserialize(Uint8Array.from(Buffer.from(tx.transaction, 'hex')))
+    })
     return parsed
   }
 
