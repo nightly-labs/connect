@@ -17,7 +17,7 @@
   "dependencies": {
     "@mysten/sui.js": "^0.35.1",
     "@mysten/wallet-adapter-wallet-standard": "^0.7.9",
-    "@nightlylabs/wallet-selector-solana": "0.0.10",
+    "@nightlylabs/wallet-selector-solana": "0.0.11",
     "@nightlylabs/wallet-selector-sui": "0.0.9",
     "@solana/wallet-standard": "^1.0.2",
     "@solana/web3.js": "^1.77.2",

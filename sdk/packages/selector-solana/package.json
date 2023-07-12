@@ -1,6 +1,6 @@
 {
   "name": "@nightlylabs/wallet-selector-solana",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "",
   "type": "module",
   "main": "dist/cjs/index.cjs",
@@ -16,7 +16,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@nightlylabs/nightly-connect-solana": "0.0.18",
+    "@nightlylabs/nightly-connect-solana": "0.0.19",
     "@nightlylabs/wallet-selector-base": "0.0.9",
     "@solana/wallet-adapter-base": "^0.9.22",
     "@solana/wallet-standard": "^1.0.2",
