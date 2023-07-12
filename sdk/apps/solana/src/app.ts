@@ -56,8 +56,11 @@ export class AppSolana extends EventEmitter<SolanaAppEvents> {
     this.base.connectDeeplink(data)
   }
   signTransaction = async (transaction: Transaction) => {
+    const serialized = Buffer.from(
+      transaction.serialize({ requireAllSignatures: false, verifySignatures: false })
+    ).toString('hex')
     return await this.signVersionedTransaction(
-      new VersionedTransaction(transaction.compileMessage())
+      VersionedTransaction.deserialize(Buffer.from(serialized, 'hex'))
     )
   }
 
@@ -72,7 +75,12 @@ export class AppSolana extends EventEmitter<SolanaAppEvents> {
 
   signAllTransactions = async (transactions: Transaction[]) => {
     return await this.signAllVersionedTransactions(
-      transactions.map((tx) => new VersionedTransaction(tx.compileMessage()))
+      transactions.map((tx) => {
+        const serialized = Buffer.from(
+          tx.serialize({ requireAllSignatures: false, verifySignatures: false })
+        ).toString('hex')
+        return VersionedTransaction.deserialize(Buffer.from(serialized, 'hex'))
+      })
     )
   }
 
