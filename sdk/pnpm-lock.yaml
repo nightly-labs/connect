@@ -129,10 +129,10 @@ importers:
         specifier: ^0.7.9
         version: 0.7.9
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.0.12
+        specifier: 0.0.13
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
-        specifier: 0.0.10
+        specifier: 0.0.11
         version: link:../../packages/selector-sui
       '@solana/wallet-standard':
         specifier: ^1.0.2
@@ -496,7 +496,7 @@ importers:
         specifier: 0.0.19
         version: link:../../apps/solana
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.0.10
+        specifier: 0.0.11
         version: link:../selector-base
       '@solana/wallet-adapter-base':
         specifier: ^0.9.22
@@ -551,7 +551,7 @@ importers:
         specifier: 0.0.17
         version: link:../../apps/sui
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.0.10
+        specifier: 0.0.11
         version: link:../selector-base
       '@wallet-standard/core':
         specifier: ^1.0.3

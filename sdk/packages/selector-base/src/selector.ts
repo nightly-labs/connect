@@ -10,9 +10,7 @@ import { Adapter, AppInitData, MetadataWallet, NetworkData } from './types'
 import { Wallet } from '@wallet-standard/core'
 import {
   getRecentStandardWalletForNetwork,
-  getUseStandardEagerForNetwork,
-  persistRecentStandardWalletForNetwork,
-  setUseStandardEagerForNetwork
+  persistRecentStandardWalletForNetwork
 } from './persistence'
 
 export class NCBaseSelector<A extends Adapter> {
@@ -76,11 +74,7 @@ export class NCBaseSelector<A extends Adapter> {
 
   eagerConnectToRecent = () => {
     const recentName = getRecentStandardWalletForNetwork(this._networkData.name)
-    if (
-      this._eagerConnect &&
-      getUseStandardEagerForNetwork(this._networkData.name) !== null &&
-      recentName !== null
-    ) {
+    if (this._eagerConnect && recentName !== null) {
       this.connectToStandardWallet(recentName)
     }
   }
@@ -97,7 +91,6 @@ export class NCBaseSelector<A extends Adapter> {
       .connect()
       .then(() => {
         persistRecentStandardWalletForNetwork(name, this._networkData.name)
-        setUseStandardEagerForNetwork(this._networkData.name)
         this._onConnected(adapter)
         this.closeModal()
       })
@@ -187,6 +180,20 @@ export class NCBaseSelector<A extends Adapter> {
   public closeModal = () => {
     if (this._modal && this._open === true) {
       this._modal.handleClose()
+    }
+  }
+
+  public eagerConnectDeeplink = (network: string) => {
+    if (isMobileBrowser()) {
+      const mobileWalletName = getRecentStandardWalletForNetwork(network)
+      const wallet = this._metadataWallets.find((w) => w.name === mobileWalletName)
+      if (
+        typeof wallet !== 'undefined' &&
+        wallet.deeplink !== null &&
+        (wallet.deeplink.universal !== null || wallet.deeplink.native !== null)
+      ) {
+        this._connectDeeplink(wallet.name, wallet.deeplink.universal ?? wallet.deeplink.native!)
+      }
     }
   }
 }

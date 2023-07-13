@@ -7,8 +7,8 @@ import {
   MetadataWallet,
   NCBaseSelector,
   QueryNetwork,
+  clearRecentStandardWalletForNetwork,
   clearSessionIdForNetwork,
-  clearUseStandardEagerForNetwork,
   persistRecentStandardWalletForNetwork
 } from '@nightlylabs/wallet-selector-base'
 import { solanaWalletsFilter } from './detection'
@@ -30,15 +30,10 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
     super(
       appInitData,
       metadataWallets,
-      (wallet) => {
-        const adapter = new StandardWalletAdapter({
+      (wallet) =>
+        new StandardWalletAdapter({
           wallet: wallet as WalletAdapterCompatibleStandardWallet
-        })
-        adapter.on('disconnect', () => {
-          clearUseStandardEagerForNetwork(SOLANA_NETWORK)
-        })
-        return adapter
-      },
+        }),
       solanaWalletsFilter,
       {
         network: QueryNetwork.SOLANA,
@@ -67,6 +62,7 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
     this.sessionId = app.sessionId
 
     if (this._app.base.hasBeenRestored && !!this._app.base.connectedPublicKeys.length) {
+      this.eagerConnectDeeplink(SOLANA_NETWORK)
       this.initNCAdapter(this._app.base.connectedPublicKeys)
     }
 
@@ -75,6 +71,8 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
     this._app.on('userConnected', (e) => {
       if (this._chosenMobileWalletName) {
         persistRecentStandardWalletForNetwork(this._chosenMobileWalletName, SOLANA_NETWORK)
+      } else {
+        clearRecentStandardWalletForNetwork(SOLANA_NETWORK)
       }
       this.initNCAdapter(e.publicKeys)
     })
