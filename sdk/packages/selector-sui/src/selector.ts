@@ -1,6 +1,6 @@
 import { AppSui, SUI_NETWORK } from '@nightlylabs/nightly-connect-sui'
 import { StandardWalletAdapter } from '@mysten/wallet-adapter-wallet-standard'
-import { NightlyConnectSuiWallet } from './wallet'
+import { NightlyConnectSuiWallet, StandardAdapterWithDisconnectAction } from './wallet'
 import { publicKeyFromSerialized } from '@mysten/sui.js'
 import { suiWalletsFilter } from './detection'
 import {
@@ -10,6 +10,7 @@ import {
   QueryNetwork,
   clearRecentStandardWalletForNetwork,
   clearSessionIdForNetwork,
+  persistDesktopDisconnectForNetwork,
   persistRecentStandardWalletForNetwork
 } from '@nightlylabs/wallet-selector-base'
 import { StandardWalletAdapterWallet } from '@mysten/wallet-standard'
@@ -36,7 +37,15 @@ export class NCSuiSelector extends NCBaseSelector<StandardWalletAdapter> {
     super(
       appInitData,
       metadataWallets,
-      (wallet) => new StandardWalletAdapter({ wallet: wallet as StandardWalletAdapterWallet }),
+      (wallet) => {
+        const adapter = new StandardAdapterWithDisconnectAction(
+          wallet as StandardWalletAdapterWallet,
+          () => {
+            persistDesktopDisconnectForNetwork(SUI_NETWORK)
+          }
+        )
+        return adapter
+      },
       suiWalletsFilter,
       {
         network: QueryNetwork.SUI,

@@ -1,4 +1,5 @@
 import type {
+  StandardWalletAdapterWallet,
   SuiSignAndExecuteTransactionBlockFeature,
   SuiSignAndExecuteTransactionBlockMethod,
   SuiSignMessageFeature,
@@ -22,6 +23,7 @@ import type {
 } from '@wallet-standard/core'
 import { AppSui } from '@nightlylabs/nightly-connect-sui'
 import { PublicKey } from '@mysten/sui.js'
+import { StandardWalletAdapter } from '@mysten/wallet-adapter-wallet-standard'
 
 export class NightlyConnectSuiWallet implements Wallet {
   #app: AppSui
@@ -139,5 +141,19 @@ export class NightlyConnectSuiWallet implements Wallet {
     const signed = await this.#app.signMessage(input)
 
     return signed
+  }
+}
+
+export class StandardAdapterWithDisconnectAction extends StandardWalletAdapter {
+  _disconnectCb: () => void
+
+  constructor(wallet: StandardWalletAdapterWallet, disconnectCb: () => void) {
+    super({ wallet })
+    this._disconnectCb = disconnectCb
+  }
+
+  disconnect = async () => {
+    super.disconnect()
+    this._disconnectCb()
   }
 }

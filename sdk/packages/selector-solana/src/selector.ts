@@ -9,6 +9,7 @@ import {
   QueryNetwork,
   clearRecentStandardWalletForNetwork,
   clearSessionIdForNetwork,
+  persistDesktopDisconnectForNetwork,
   persistRecentStandardWalletForNetwork
 } from '@nightlylabs/wallet-selector-base'
 import { solanaWalletsFilter } from './detection'
@@ -30,10 +31,15 @@ export class NCSolanaSelector extends NCBaseSelector<StandardWalletAdapter> {
     super(
       appInitData,
       metadataWallets,
-      (wallet) =>
-        new StandardWalletAdapter({
+      (wallet) => {
+        const adapter = new StandardWalletAdapter({
           wallet: wallet as WalletAdapterCompatibleStandardWallet
-        }),
+        })
+        adapter.on('disconnect', () => {
+          persistDesktopDisconnectForNetwork(SOLANA_NETWORK)
+        })
+        return adapter
+      },
       solanaWalletsFilter,
       {
         network: QueryNetwork.SOLANA,

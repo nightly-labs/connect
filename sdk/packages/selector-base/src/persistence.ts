@@ -11,7 +11,7 @@ export const getLocalStorage = () => {
   return _localStorage
 }
 
-// recent wallet from standard
+// recent wallet from standard (not nightly connect through qr code)
 
 export const persistRecentStandardWalletForNetwork = (walletName: string, network: string) => {
   const storage = getLocalStorage()
@@ -39,4 +39,26 @@ export const clearSessionIdForNetwork = (network: string) => {
   const storage = getLocalStorage()
 
   storage.removeItem(getSessionIdLocalStorageKey(network))
+}
+
+// info if any desktop wallet is connected (not mobile or nightly connect through qr code)
+
+export const persistDesktopConnectForNetwork = (network: string) => {
+  const storage = getLocalStorage()
+
+  storage.setItem('NIGHTLY_CONNECT_SELECTOR_IS_DESKTOP_CONNECTED_' + network, 'true')
+}
+
+export const isDesktopConnectedForNetwork = (network: string) => {
+  const storage = getLocalStorage()
+
+  const item = storage.getItem('NIGHTLY_CONNECT_SELECTOR_IS_DESKTOP_CONNECTED_' + network)
+
+  return item !== null
+}
+
+export const persistDesktopDisconnectForNetwork = (network: string) => {
+  const storage = getLocalStorage()
+
+  storage.removeItem('NIGHTLY_CONNECT_SELECTOR_IS_DESKTOP_CONNECTED_' + network)
 }
