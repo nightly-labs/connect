@@ -28,7 +28,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       : WalletReadyState.Loadable
 
   private _app: AppSolana | undefined
-  private _ncSessionActive: boolean
+  private _appSessionActive: boolean
   private _innerStandardAdapter: StandardWalletAdapter | undefined
 
   private _appInitData: AppInitData
@@ -39,7 +39,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     this._connected = false
     this._publicKey = null
     this._appInitData = appInitData
-    this._ncSessionActive = false
+    this._appSessionActive = false
   }
 
   get connecting() {
@@ -56,6 +56,30 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   get publicKey() {
     return this._publicKey
+  }
+
+  public static async build(
+    appInitData: AppInitData,
+    eagerConnectForStandardWallets?: boolean,
+    anchorRef?: HTMLElement,
+    onOpen?: () => void,
+    onClose?: () => void
+  ) {
+    const adapter = new NightlyConnectAdapter(appInitData)
+
+    return adapter
+  }
+
+  public static buildLazy(
+    appInitData: AppInitData,
+    eagerConnectForStandardWallets?: boolean,
+    anchorRef?: HTMLElement,
+    onOpen?: () => void,
+    onClose?: () => void
+  ) {
+    const adapter = new NightlyConnectAdapter(appInitData)
+
+    return adapter
   }
 
   async connect() {
@@ -99,12 +123,16 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   async disconnect() {
     if (this.connected) {
-      this._app = undefined
+      if (this._app) {
+        this._app = undefined
+        this._appSessionActive = false
+      }
+      if (this._innerStandardAdapter) {
+        await this._innerStandardAdapter.disconnect()
+        this._innerStandardAdapter = undefined
+      }
       this._publicKey = null
       this._connected = false
-      this._ncSessionActive = false
-      await this._innerStandardAdapter?.disconnect()
-      this._innerStandardAdapter = undefined
 
       this.emit('disconnect')
     }
@@ -112,12 +140,12 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   async signTransaction<T extends Transaction | VersionedTransaction>(transaction: T) {
     try {
-      if (!(this._app && this._ncSessionActive) && !this._innerStandardAdapter) {
+      if (!(this._app && this._appSessionActive) && !this._innerStandardAdapter) {
         throw new WalletNotConnectedError()
       }
 
       try {
-        if (this._app && this._ncSessionActive) {
+        if (this._app && this._appSessionActive) {
           if (isVersionedTransaction(transaction)) {
             return (await this._app.signVersionedTransaction(transaction)) as T
           } else {
@@ -138,12 +166,12 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   async signAllTransactions<T extends Transaction | VersionedTransaction>(transactions: T[]) {
     try {
-      if (!(this._app && this._ncSessionActive) && !this._innerStandardAdapter) {
+      if (!(this._app && this._appSessionActive) && !this._innerStandardAdapter) {
         throw new WalletNotConnectedError()
       }
 
       try {
-        if (this._app && this._ncSessionActive) {
+        if (this._app && this._appSessionActive) {
           if (isVersionedTransaction(transactions[0])) {
             return (await this._app.signAllVersionedTransactions(
               transactions as VersionedTransaction[]
@@ -168,12 +196,12 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   async signMessage(message: Uint8Array): Promise<Uint8Array> {
     try {
-      if (!(this._app && this._ncSessionActive) && !this._innerStandardAdapter) {
+      if (!(this._app && this._appSessionActive) && !this._innerStandardAdapter) {
         throw new WalletNotConnectedError()
       }
 
       try {
-        if (this._app && this._ncSessionActive) {
+        if (this._app && this._appSessionActive) {
           return await this._app.signMessage(new TextDecoder().decode(message))
         } else {
           return await this._innerStandardAdapter!.signMessage!(message)

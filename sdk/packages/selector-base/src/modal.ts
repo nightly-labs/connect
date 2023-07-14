@@ -1,0 +1,72 @@
+import '@nightlylabs/wallet-selector-modal'
+import { type NightlySelector, getNightlySelectorElement } from '@nightlylabs/wallet-selector-modal'
+import { NetworkData } from './types'
+import { IWalletListItem } from './detection'
+
+export class NightlyConnectSelectorModal {
+  _modal: NightlySelector | undefined
+
+  _anchor: HTMLElement
+  _onSelectWallet: (name: string) => void
+  _onOpen: (() => void) | undefined
+  _onClose: (() => void) | undefined
+  _networkData: NetworkData
+  _relay: string
+  _walletsList: IWalletListItem[]
+
+  _open = false
+
+  constructor(
+    walletsList: IWalletListItem[],
+    relay: string,
+    networkData: NetworkData,
+    onSelectWallet: (name: string) => void,
+    anchorRef?: HTMLElement,
+    onOpen?: () => void,
+    onClose?: () => void
+  ) {
+    this._walletsList = walletsList
+    this._relay = relay
+    this._networkData = networkData
+    this._onSelectWallet = onSelectWallet
+    this._anchor = anchorRef ?? document.body
+    this._onOpen = onOpen
+    this._onClose = onClose
+  }
+
+  createSelectorElement = () => {
+    this._modal = getNightlySelectorElement()
+    this._modal.onClose = this.onCloseModal
+
+    this._modal.network = this._networkData.network
+    this._modal.relay = this._relay
+    this._modal.chainIcon = this._networkData.icon
+    this._modal.chainName = this._networkData.name
+    this._modal.selectorItems = this._walletsList
+    this._modal.onWalletClick = this._onSelectWallet
+  }
+
+  public openModal = (sessionId: string) => {
+    if (this._modal && this._open === false) {
+      this._modal.sessionId = sessionId
+      this._anchor.appendChild(this._modal)
+      this._open = true
+      this._onOpen?.()
+    }
+  }
+
+  public onCloseModal = () => {
+    if (this._modal && this._open === true) {
+      this._modal.connecting = true
+      this._anchor.removeChild(this._modal)
+      this._open = false
+      this._onClose?.()
+    }
+  }
+
+  public closeModal = () => {
+    if (this._modal && this._open === true) {
+      this._modal.handleClose()
+    }
+  }
+}

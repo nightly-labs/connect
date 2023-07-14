@@ -1,16 +1,14 @@
 import { Wallet, getWallets } from '@wallet-standard/core'
+import { MetadataWallet } from './types'
 
-export interface IWalletListItem {
-  name: string
-  icon: string
-  link?: string
+export interface IWalletListItem extends MetadataWallet {
   recent?: boolean
   detected?: boolean
   standardWallet?: Wallet
 }
 
 export const getWalletsList = (
-  presetList: Omit<IWalletListItem, 'recent' | 'detected' | 'wallet'>[],
+  presetList: MetadataWallet[],
   walletsFilterCb: (wallet: Wallet) => boolean,
   recentWalletName?: string
 ) => {
@@ -27,7 +25,9 @@ export const getWalletsList = (
     walletsData[wallet.name] = {
       ...(walletsData?.[wallet.name] ?? {
         name: wallet.name,
-        icon: wallet.icon
+        icon: wallet.icon,
+        link: '',
+        deeplink: null
       }),
       detected: true,
       recent: recentWalletName === wallet.name,
@@ -36,11 +36,4 @@ export const getWalletsList = (
   })
 
   return Object.values(walletsData)
-}
-
-export const getWallet = (name: string) => {
-  const { get } = getWallets()
-  const windowWallets = get()
-
-  return windowWallets.find((w) => w.name === name)
 }
