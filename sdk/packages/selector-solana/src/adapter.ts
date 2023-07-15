@@ -216,14 +216,27 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     if (isMobileBrowser() && this._app) {
       const mobileWalletName = getRecentStandardWalletForNetwork(network)
       const wallet = this._walletsList.find((w) => w.name === mobileWalletName)
-      if (
-        typeof wallet !== 'undefined' &&
-        wallet.deeplink !== null &&
-        (wallet.deeplink.universal !== null || wallet.deeplink.native !== null)
-      ) {
+
+      if (typeof wallet === 'undefined') {
+        return
+      }
+
+      if (wallet.deeplink === null) {
+        return
+      }
+
+      if (wallet.deeplink.universal !== null) {
         this._app.connectDeeplink({
           walletName: wallet.name,
-          url: wallet.deeplink.universal ?? wallet.deeplink.native!
+          url: wallet.deeplink.universal
+        })
+        return
+      }
+
+      if (wallet.deeplink.native !== null) {
+        this._app.connectDeeplink({
+          walletName: wallet.name,
+          url: wallet.deeplink.native
         })
       }
     }
@@ -234,29 +247,46 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       this._modal.setStandardWalletConnectProgress(true)
     }
 
-    const walletData = this._walletsList.find((w) => w.name === walletName)
+    const wallet = this._walletsList.find((w) => w.name === walletName)
 
-    if (
-      !this._app ||
-      typeof walletData === 'undefined' ||
-      walletData.deeplink === null ||
-      (walletData.deeplink.universal === null && walletData.deeplink.native === null)
-    ) {
+    if (!this._app || typeof wallet === 'undefined') {
       return
     }
 
-    this._app.connectDeeplink({
-      walletName,
-      url: walletData.deeplink.universal ?? walletData.deeplink.native!
-    })
+    if (wallet.deeplink === null) {
+      return
+    }
 
-    this._chosenMobileWalletName = walletName
+    if (wallet.deeplink.universal !== null) {
+      this._app.connectDeeplink({
+        walletName: wallet.name,
+        url: wallet.deeplink.universal
+      })
 
-    triggerConnect(
-      walletData.deeplink.universal ?? walletData.deeplink.native!,
-      this._app.sessionId,
-      this._appInitData.url ?? 'https://nc2.nightly.app'
-    )
+      this._chosenMobileWalletName = walletName
+
+      triggerConnect(
+        wallet.deeplink.universal,
+        this._app.sessionId,
+        this._appInitData.url ?? 'https://nc2.nightly.app'
+      )
+      return
+    }
+
+    if (wallet.deeplink.native !== null) {
+      this._app.connectDeeplink({
+        walletName: wallet.name,
+        url: wallet.deeplink.native
+      })
+
+      this._chosenMobileWalletName = walletName
+
+      triggerConnect(
+        wallet.deeplink.native,
+        this._app.sessionId,
+        this._appInitData.url ?? 'https://nc2.nightly.app'
+      )
+    }
   }
 
   connectToStandardWallet = async (walletName: string) => {
