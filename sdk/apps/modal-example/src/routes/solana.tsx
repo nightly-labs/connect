@@ -1,21 +1,17 @@
-import { createSignal, onMount, Show } from 'solid-js'
+import { createEffect, createSignal, onMount, Show } from 'solid-js'
 import { Title } from 'solid-start'
-import { NCSolanaSelector } from '@nightlylabs/wallet-selector-solana'
-import { StandardWalletAdapter } from '@solana/wallet-standard'
+import { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-solana'
 import { Connection, PublicKey, SystemProgram, Transaction as SolanaTx } from '@solana/web3.js'
 import toast from 'solid-toast'
-
-let selector: NCSolanaSelector
 
 const connection = new Connection('https://api.devnet.solana.com')
 
 export default function Solana() {
-  const [adapter, setAdapter] = createSignal<StandardWalletAdapter>()
+  const [adapter, setAdapter] = createSignal<NightlyConnectAdapter>()
+  const [eagerConnect, setEagerConnect] = createSignal(false)
+  const [publicKey, setPublicKey] = createSignal<PublicKey>()
   onMount(async () => {
-    if (selector) {
-      return
-    }
-    selector = await NCSolanaSelector.build(
+    NightlyConnectAdapter.build(
       {
         appMetadata: {
           name: 'NCTestSolana',
@@ -25,28 +21,46 @@ export default function Solana() {
         },
         url: 'https://nc2.nightly.app'
       },
-      (newAdapter) => {
-        setAdapter(newAdapter)
-      },
       true,
+      (canEagerConnect) => {
+        setEagerConnect(canEagerConnect)
+      },
       document.getElementById('modalAnchor') ?? undefined
-    )
+    ).then((adapter) => {
+      console.log(adapter)
+      setAdapter(adapter)
+      adapter.on('connect', (pk) => {
+        setPublicKey(pk)
+      })
+
+      adapter.on('disconnect', () => {
+        setPublicKey(undefined)
+      })
+    })
+  })
+
+  createEffect(() => {
+    const currentAdapter = adapter()
+
+    if (currentAdapter && eagerConnect()) {
+      currentAdapter.connect()
+    }
   })
   return (
     <main>
       <Title>Solana Example</Title>
       <div id="modalAnchor" />
       <Show
-        when={!!adapter() && adapter()?.publicKey !== null}
+        when={!!publicKey()}
         fallback={
           <button
             onClick={() => {
-              selector.openModal()
+              adapter()?.connect()
             }}>
             Connect
           </button>
         }>
-        <h1>Current public key: {adapter()?.publicKey?.toString()}</h1>
+        <h1>Current public key: {publicKey()!.toString()}</h1>
         <button
           onClick={async () => {
             try {
@@ -86,7 +100,6 @@ export default function Solana() {
         <button
           onClick={() => {
             adapter()?.disconnect()
-            setAdapter(undefined)
           }}>
           Disconnect
         </button>
