@@ -4,12 +4,10 @@ import {
   clearRecentStandardWalletForNetwork,
   clearSessionIdForNetwork,
   getRecentStandardWalletForNetwork,
-  isDesktopConnectedForNetwork,
   isMobileBrowser,
   IWalletListItem,
   logoBase64,
   NightlyConnectSelectorModal,
-  persistDesktopConnectForNetwork,
   persistRecentStandardWalletForNetwork,
   triggerConnect
 } from '@nightlylabs/wallet-selector-base'
@@ -82,9 +80,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
   public static async build(
     appInitData: AppInitData,
     eagerConnectForStandardWallets?: boolean,
-    anchorRef?: HTMLElement,
-    onOpen?: () => void,
-    onClose?: () => void
+    anchorRef?: HTMLElement
   ) {
     const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets)
 
@@ -96,9 +92,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
   public static buildLazy(
     appInitData: AppInitData,
     eagerConnectForStandardWallets?: boolean,
-    anchorRef?: HTMLElement,
-    onOpen?: () => void,
-    onClose?: () => void
+    anchorRef?: HTMLElement
   ) {
     const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets)
 
@@ -177,7 +171,6 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       .connect()
       .then(() => {
         persistRecentStandardWalletForNetwork(walletName, SOLANA_NETWORK)
-        persistDesktopConnectForNetwork(SOLANA_NETWORK)
         this._innerStandardAdapter = adapter
         this._publicKey = adapter.publicKey
         this._connected = true
@@ -193,16 +186,16 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   async connect() {
     try {
-      if (this.connected || this.connecting) {
+      if (this.connected || this.connecting || !this._app) {
         return
       }
       if (this._readyState !== WalletReadyState.Installed) throw new WalletNotReadyError()
 
       this._connecting = true
 
-      if (this._app!.base.hasBeenRestored && !!this._app!.base.connectedPublicKeys.length) {
+      if (this._app.base.hasBeenRestored && !!this._app.base.connectedPublicKeys.length) {
         this.eagerConnectDeeplink(SOLANA_NETWORK)
-        this._publicKey = new PublicKey(this._app!.base.connectedPublicKeys[0])
+        this._publicKey = new PublicKey(this._app.base.connectedPublicKeys[0])
         this._connected = true
         this._connecting = false
         this.emit('connect', this._publicKey)
@@ -210,11 +203,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       }
 
       const recentName = getRecentStandardWalletForNetwork(SOLANA_NETWORK)
-      if (
-        this._eagerConnectForStandardWallets &&
-        recentName !== null &&
-        isDesktopConnectedForNetwork(SOLANA_NETWORK)
-      ) {
+      if (this._eagerConnectForStandardWallets && recentName !== null && !isMobileBrowser()) {
         await this.connectToStandardWallet(recentName)
 
         if (this._connected) {
@@ -222,7 +211,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         }
       }
 
-      this._app!.on!('userConnected', (e) => {
+      this._app.on('userConnected', (e) => {
         if (this._chosenMobileWalletName) {
           persistRecentStandardWalletForNetwork(this._chosenMobileWalletName, SOLANA_NETWORK)
         } else {
@@ -234,7 +223,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         this.emit('connect', this._publicKey)
       })
 
-      this._modal!.openModal(this._app!.sessionId, (walletName) => {
+      this._modal!.openModal(this._app.sessionId, (walletName) => {
         if (isMobileBrowser()) {
           this.connectToMobileWallet(walletName)
         } else {
