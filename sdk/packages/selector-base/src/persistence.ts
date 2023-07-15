@@ -11,7 +11,7 @@ export const getLocalStorage = () => {
   return _localStorage
 }
 
-// recent wallet from standard (not nightly connect through qr code)
+// recent wallet from standard
 
 export const persistRecentStandardWalletForNetwork = (walletName: string, network: string) => {
   const storage = getLocalStorage()
@@ -41,7 +41,7 @@ export const clearSessionIdForNetwork = (network: string) => {
   storage.removeItem(getSessionIdLocalStorageKey(network))
 }
 
-// info if any desktop wallet is connected (not mobile or nightly connect through qr code)
+// info if any wallet from standard is connected
 
 export const persistStandardConnectForNetwork = (network: string) => {
   const storage = getLocalStorage()
