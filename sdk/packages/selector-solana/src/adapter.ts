@@ -80,6 +80,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
   public static async build(
     appInitData: AppInitData,
     eagerConnectForStandardWallets?: boolean,
+    onCanEagerConnect?: (canEagerConnect: boolean) => void, // I've tried to do this using events, but was unable to because of inability to extend solana adapter events interface
     anchorRef?: HTMLElement
   ) {
     const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets)
@@ -92,6 +93,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
   public static buildLazy(
     appInitData: AppInitData,
     eagerConnectForStandardWallets?: boolean,
+    onCanEagerConnect?: (canEagerConnect: boolean) => void, // I've tried to do this using events, but was unable to because of inability to extend solana adapter events interface
     anchorRef?: HTMLElement
   ) {
     const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets)
