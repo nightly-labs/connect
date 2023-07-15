@@ -388,12 +388,12 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   async disconnect() {
     if (this.connected) {
-      if (this._app && this._appSessionActive) {
+      if (this._appSessionActive) {
         clearSessionIdForNetwork(SOLANA_NETWORK)
         this._appSessionActive = false
         AppSolana.build(this._appInitData).then(
           (app) => {
-            this._app === app
+            this._app = app
           },
           (err) => {
             console.log(err)
