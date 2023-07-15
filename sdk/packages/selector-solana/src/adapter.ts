@@ -167,21 +167,19 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       wallet: wallet.standardWallet as WalletAdapterCompatibleStandardWallet
     })
 
-    await adapter
-      .connect()
-      .then(() => {
-        persistRecentStandardWalletForNetwork(walletName, SOLANA_NETWORK)
-        this._innerStandardAdapter = adapter
-        this._publicKey = adapter.publicKey
-        this._connected = true
-        this._connecting = false
-        this.emit('connect', this._publicKey!)
-      })
-      .catch(() => {
-        if (this._modal) {
-          this._modal.setStandardWalletConnectProgress(false)
-        }
-      })
+    try {
+      await adapter.connect()
+      persistRecentStandardWalletForNetwork(walletName, SOLANA_NETWORK)
+      this._innerStandardAdapter = adapter
+      this._publicKey = adapter.publicKey
+      this._connected = true
+      this._connecting = false
+      this.emit('connect', this._publicKey!)
+    } catch {
+      if (this._modal) {
+        this._modal.setStandardWalletConnectProgress(false)
+      }
+    }
   }
 
   async connect() {
