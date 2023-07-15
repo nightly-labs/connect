@@ -10,7 +10,7 @@ export default function Solana() {
   const [adapter, setAdapter] = createSignal<NightlyConnectAdapter>()
   const [eagerConnect, setEagerConnect] = createSignal(false)
   const [publicKey, setPublicKey] = createSignal<PublicKey>()
-  onMount(async () => {
+  onMount(() => {
     NightlyConnectAdapter.build(
       {
         appMetadata: {
@@ -22,12 +22,10 @@ export default function Solana() {
         url: 'https://nc2.nightly.app'
       },
       true,
-      (canEagerConnect) => {
-        setEagerConnect(canEagerConnect)
-      },
       document.getElementById('modalAnchor') ?? undefined
     ).then((adapter) => {
-      console.log(adapter)
+      setEagerConnect(adapter.canEagerConnect())
+
       adapter.on('connect', (pk) => {
         setPublicKey(pk)
       })
