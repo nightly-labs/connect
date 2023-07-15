@@ -212,9 +212,9 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     return false
   }
 
-  eagerConnectDeeplink = (network: string) => {
+  eagerConnectDeeplink = () => {
     if (isMobileBrowser() && this._app) {
-      const mobileWalletName = getRecentStandardWalletForNetwork(network)
+      const mobileWalletName = getRecentStandardWalletForNetwork(SOLANA_NETWORK)
       const wallet = this._walletsList.find((w) => w.name === mobileWalletName)
 
       if (typeof wallet === 'undefined') {
@@ -329,9 +329,9 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
       this._connecting = true
 
-      if (this._app.base.hasBeenRestored && !!this._app.base.connectedPublicKeys.length) {
-        this.eagerConnectDeeplink(SOLANA_NETWORK)
-        this._publicKey = new PublicKey(this._app.base.connectedPublicKeys[0])
+      if (this._app.hasBeenRestored() && !!this._app.connectedPublicKeys.length) {
+        this.eagerConnectDeeplink()
+        this._publicKey = this._app.connectedPublicKeys[0]
         this._connected = true
         this._connecting = false
         this._appSessionActive = true
@@ -414,10 +414,6 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   async signTransaction<T extends Transaction | VersionedTransaction>(transaction: T) {
     try {
-      if (!(this._app && this._appSessionActive) && !this._innerStandardAdapter) {
-        throw new WalletNotConnectedError()
-      }
-
       try {
         if (this._app && this._appSessionActive) {
           if (isVersionedTransaction(transaction)) {
@@ -426,8 +422,10 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
             const signedVersioned = await this._app.signTransaction(transaction)
             return Transaction.from(signedVersioned.serialize()) as T
           }
+        } else if (this._innerStandardAdapter) {
+          return this._innerStandardAdapter.signTransaction!(transaction)
         } else {
-          return this._innerStandardAdapter!.signTransaction!(transaction)
+          throw new WalletNotConnectedError()
         }
       } catch (error: any) {
         throw new WalletSignTransactionError(error?.message, error)
@@ -440,10 +438,6 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   async signAllTransactions<T extends Transaction | VersionedTransaction>(transactions: T[]) {
     try {
-      if (!(this._app && this._appSessionActive) && !this._innerStandardAdapter) {
-        throw new WalletNotConnectedError()
-      }
-
       try {
         if (this._app && this._appSessionActive) {
           if (isVersionedTransaction(transactions[0])) {
@@ -456,8 +450,10 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
             )
             return signedVersioned.map((t) => Transaction.from(t.serialize()) as T)
           }
+        } else if (this._innerStandardAdapter) {
+          return await this._innerStandardAdapter.signAllTransactions!(transactions)
         } else {
-          return await this._innerStandardAdapter!.signAllTransactions!(transactions)
+          throw new WalletNotConnectedError()
         }
       } catch (error: any) {
         throw new WalletSignTransactionError(error?.message, error)
@@ -470,15 +466,13 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   async signMessage(message: Uint8Array): Promise<Uint8Array> {
     try {
-      if (!(this._app && this._appSessionActive) && !this._innerStandardAdapter) {
-        throw new WalletNotConnectedError()
-      }
-
       try {
         if (this._app && this._appSessionActive) {
           return await this._app.signMessage(new TextDecoder().decode(message))
+        } else if (this._innerStandardAdapter) {
+          return await this._innerStandardAdapter.signMessage!(message)
         } else {
-          return await this._innerStandardAdapter!.signMessage!(message)
+          throw new WalletNotConnectedError()
         }
       } catch (error: any) {
         throw new WalletSignTransactionError(error?.message, error)
