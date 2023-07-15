@@ -282,6 +282,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       this._connected = true
       this._connecting = false
       this.emit('connect', this._publicKey!)
+      this._modal?.closeModal()
     } catch {
       if (this._modal) {
         this._modal.setStandardWalletConnectProgress(false)
@@ -329,12 +330,17 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         this._publicKey = new PublicKey(e.publicKeys[0])
         this._connected = true
         this._connecting = false
+        this._appSessionActive = true
         this.emit('connect', this._publicKey)
+        this._modal?.closeModal()
       })
 
       if (this._modal) {
         this._modal.openModal(this._app.sessionId, (walletName) => {
-          if (isMobileBrowser()) {
+          if (
+            isMobileBrowser() &&
+            !this._walletsList.find((w) => w.name === walletName)?.standardWallet
+          ) {
             this.connectToMobileWallet(walletName)
           } else {
             this.connectToStandardWallet(walletName)

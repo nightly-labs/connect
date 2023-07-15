@@ -28,6 +28,7 @@ export class NightlyConnectSelectorModal {
     this._anchor = anchorRef ?? document.body
     this._onOpen = onOpen
     this._onClose = onClose
+    this.createSelectorElement()
   }
 
   createSelectorElement = () => {
