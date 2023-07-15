@@ -11,8 +11,11 @@ import {
   MetadataWallet,
   NightlyConnectSelectorModal,
   persistRecentStandardWalletForNetwork,
+  persistStandardConnectForNetwork,
+  isStandardConnectedForNetwork,
   QueryNetwork,
-  triggerConnect
+  triggerConnect,
+  persistStandardDisconnectForNetwork
 } from '@nightlylabs/wallet-selector-base'
 import {
   BaseMessageSignerWalletAdapter,
@@ -201,7 +204,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     if (
       this._eagerConnectForStandardWallets &&
       getRecentStandardWalletForNetwork(SOLANA_NETWORK) !== null &&
-      !isMobileBrowser()
+      isStandardConnectedForNetwork(SOLANA_NETWORK)
     ) {
       return true
     }
@@ -273,6 +276,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     try {
       await adapter.connect()
       persistRecentStandardWalletForNetwork(walletName, SOLANA_NETWORK)
+      persistStandardConnectForNetwork(SOLANA_NETWORK)
       this._innerStandardAdapter = adapter
       this._publicKey = adapter.publicKey
       this._connected = true
@@ -304,7 +308,11 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       }
 
       const recentName = getRecentStandardWalletForNetwork(SOLANA_NETWORK)
-      if (this._eagerConnectForStandardWallets && recentName !== null && !isMobileBrowser()) {
+      if (
+        this._eagerConnectForStandardWallets &&
+        recentName !== null &&
+        isStandardConnectedForNetwork(SOLANA_NETWORK)
+      ) {
         await this.connectToStandardWallet(recentName)
 
         if (this._connected) {
@@ -358,6 +366,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       if (this._innerStandardAdapter) {
         await this._innerStandardAdapter.disconnect()
         this._innerStandardAdapter = undefined
+        persistStandardDisconnectForNetwork(SOLANA_NETWORK)
       }
       this._publicKey = null
       this._connected = false
