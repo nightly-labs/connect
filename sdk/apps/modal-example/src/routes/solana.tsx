@@ -28,7 +28,6 @@ export default function Solana() {
       document.getElementById('modalAnchor') ?? undefined
     ).then((adapter) => {
       console.log(adapter)
-      setAdapter(adapter)
       adapter.on('connect', (pk) => {
         setPublicKey(pk)
       })
@@ -36,6 +35,7 @@ export default function Solana() {
       adapter.on('disconnect', () => {
         setPublicKey(undefined)
       })
+      setAdapter(adapter)
     })
   })
 
