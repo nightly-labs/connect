@@ -1,11 +1,5 @@
 import { Wallet, getWallets } from '@wallet-standard/core'
-import { MetadataWallet } from './types'
-
-export interface IWalletListItem extends MetadataWallet {
-  recent?: boolean
-  detected?: boolean
-  standardWallet?: Wallet
-}
+import { IWalletListItem, MetadataWallet } from './types'
 
 export const getWalletsList = (
   presetList: MetadataWallet[],

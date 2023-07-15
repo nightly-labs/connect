@@ -1,7 +1,21 @@
-import { AppSolana } from '@nightlylabs/nightly-connect-solana'
-import { AppInitData, logoBase64 } from '@nightlylabs/wallet-selector-base'
+import { AppSolana, SOLANA_NETWORK } from '@nightlylabs/nightly-connect-solana'
+import {
+  AppInitData,
+  clearRecentStandardWalletForNetwork,
+  clearSessionIdForNetwork,
+  getRecentStandardWalletForNetwork,
+  isDesktopConnectedForNetwork,
+  isMobileBrowser,
+  IWalletListItem,
+  logoBase64,
+  NightlyConnectSelectorModal,
+  persistDesktopConnectForNetwork,
+  persistRecentStandardWalletForNetwork,
+  triggerConnect
+} from '@nightlylabs/wallet-selector-base'
 import {
   BaseMessageSignerWalletAdapter,
+  WalletAdapterCompatibleStandardWallet,
   WalletName,
   WalletNotConnectedError,
   WalletNotReadyError,
@@ -30,15 +44,22 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
   private _app: AppSolana | undefined
   private _appSessionActive: boolean
   private _innerStandardAdapter: StandardWalletAdapter | undefined
+  private _modal: NightlyConnectSelectorModal | undefined
 
   private _appInitData: AppInitData
+  private _eagerConnectForStandardWallets: boolean
 
-  constructor(appInitData: AppInitData) {
+  private _walletsList: IWalletListItem[] = []
+
+  private _chosenMobileWalletName: string | undefined
+
+  constructor(appInitData: AppInitData, eagerConnectForStandardWallets?: boolean) {
     super()
     this._connecting = false
     this._connected = false
     this._publicKey = null
     this._appInitData = appInitData
+    this._eagerConnectForStandardWallets = !!eagerConnectForStandardWallets
     this._appSessionActive = false
   }
 
@@ -65,7 +86,9 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     onOpen?: () => void,
     onClose?: () => void
   ) {
-    const adapter = new NightlyConnectAdapter(appInitData)
+    const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets)
+
+    await adapter.eagerConnectToRecentStandardWallet()
 
     adapter._readyState = WalletReadyState.Installed
 
@@ -79,15 +102,107 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     onOpen?: () => void,
     onClose?: () => void
   ) {
-    const adapter = new NightlyConnectAdapter(appInitData)
+    const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets)
 
     if (adapter._readyState !== WalletReadyState.Unsupported) {
       // TODO - use this in then after build and get wallets finish
-      adapter._readyState = WalletReadyState.Installed
-      adapter.emit('readyStateChange', adapter._readyState)
+      adapter.eagerConnectToRecentStandardWallet().then(() => {
+        adapter._readyState = WalletReadyState.Installed
+
+        adapter.emit('readyStateChange', adapter._readyState)
+      })
     }
 
     return adapter
+  }
+
+  eagerConnectDeeplink = (network: string) => {
+    if (isMobileBrowser() && this._app) {
+      const mobileWalletName = getRecentStandardWalletForNetwork(network)
+      const wallet = this._walletsList.find((w) => w.name === mobileWalletName)
+      if (
+        typeof wallet !== 'undefined' &&
+        wallet.deeplink !== null &&
+        (wallet.deeplink.universal !== null || wallet.deeplink.native !== null)
+      ) {
+        this._app.connectDeeplink({
+          walletName: wallet.name,
+          url: wallet.deeplink.universal ?? wallet.deeplink.native!
+        })
+      }
+    }
+  }
+
+  connectToMobileWallet = (walletName: string) => {
+    if (this._modal) {
+      this._modal.setStandardWalletConnectProgress(true)
+    }
+
+    const walletData = this._walletsList.find((w) => w.name === walletName)
+
+    if (
+      !this._app ||
+      typeof walletData === 'undefined' ||
+      walletData.deeplink === null ||
+      (walletData.deeplink.universal === null && walletData.deeplink.native === null)
+    ) {
+      return
+    }
+
+    this._app.connectDeeplink({
+      walletName,
+      url: walletData.deeplink.universal ?? walletData.deeplink.native!
+    })
+
+    this._chosenMobileWalletName = walletName
+
+    triggerConnect(
+      walletData.deeplink.universal ?? walletData.deeplink.native!,
+      this._app.sessionId,
+      this._appInitData.url ?? 'https://nc2.nightly.app'
+    )
+  }
+
+  eagerConnectToRecentStandardWallet = async () => {
+    const recentName = getRecentStandardWalletForNetwork(SOLANA_NETWORK)
+    if (
+      this._eagerConnectForStandardWallets &&
+      recentName !== null &&
+      isDesktopConnectedForNetwork(SOLANA_NETWORK)
+    ) {
+      await this.connectToStandardWallet(recentName, (adapter) => {
+        this._innerStandardAdapter = adapter
+      })
+    }
+  }
+
+  connectToStandardWallet = async (
+    walletName: string,
+    onSuccess: (adapter: StandardWalletAdapter) => void
+  ) => {
+    if (this._modal) {
+      this._modal.setStandardWalletConnectProgress(true)
+    }
+
+    const wallet = this._walletsList.find((w) => w.name === walletName)
+    if (typeof wallet?.standardWallet === 'undefined') {
+      return
+    }
+
+    const adapter = new StandardWalletAdapter({
+      wallet: wallet.standardWallet as WalletAdapterCompatibleStandardWallet
+    })
+
+    await adapter
+      .connect()
+      .then(() => {
+        onSuccess(adapter)
+      })
+      .catch(() => {
+        if (this._modal) {
+          this._modal.setStandardWalletConnectProgress(false)
+        }
+      })
   }
 
   async connect() {
@@ -97,29 +212,56 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
           resolve()
           return
         }
-        if (this._readyState !== WalletReadyState.Loadable) throw new WalletNotReadyError()
+        if (this._readyState !== WalletReadyState.Installed) throw new WalletNotReadyError()
 
         this._connecting = true
 
-        if (!this._app) {
-          AppSolana.build(this._appInitData)
-            .then((app) => {
-              this._app = app
-              this._app.on('userConnected', (e) => {
-                this._publicKey = new PublicKey(e.publicKeys[0])
-                this._connected = true
-                this._connecting = false
-              })
-            })
-            .catch((error) => {
-              this._connecting = false
-
-              this.emit('error', error)
-              reject(error)
-            })
-        } else {
-          // this.modal.openModal(this._app.sessionId, NETWORK.SOLANA)
+        if (this._app!.base.hasBeenRestored && !!this._app!.base.connectedPublicKeys.length) {
+          this.eagerConnectDeeplink(SOLANA_NETWORK)
+          this._publicKey = new PublicKey(this._app!.base.connectedPublicKeys[0])
+          this._connected = true
+          this._connecting = false
+          this.emit('connect', this._publicKey)
+          resolve()
+          return
+        } else if (this._innerStandardAdapter) {
+          this._publicKey = this._innerStandardAdapter.publicKey
+          this._connected = true
+          this._connecting = false
+          this.emit('connect', this._publicKey!)
+          resolve()
+          return
         }
+
+        this._app!.on!('userConnected', (e) => {
+          if (this._chosenMobileWalletName) {
+            persistRecentStandardWalletForNetwork(this._chosenMobileWalletName, SOLANA_NETWORK)
+          } else {
+            clearRecentStandardWalletForNetwork(SOLANA_NETWORK)
+          }
+          this._publicKey = new PublicKey(e.publicKeys[0])
+          this._connected = true
+          this._connecting = false
+          this.emit('connect', this._publicKey)
+          resolve()
+        })
+
+        this._modal!.openModal(this._app!.sessionId, (walletName) => {
+          if (isMobileBrowser()) {
+            this.connectToMobileWallet(walletName)
+          } else {
+            this.connectToStandardWallet(walletName, (adapter) => {
+              persistRecentStandardWalletForNetwork(walletName, SOLANA_NETWORK)
+              persistDesktopConnectForNetwork(SOLANA_NETWORK)
+              this._innerStandardAdapter = adapter
+              this._publicKey = adapter.publicKey
+              this._connected = true
+              this._connecting = false
+              this.emit('connect', this._publicKey!)
+              resolve()
+            })
+          }
+        })
       } catch (error: any) {
         this._connecting = false
 
@@ -131,9 +273,17 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   async disconnect() {
     if (this.connected) {
-      if (this._app) {
-        this._app = undefined
+      if (this._app && this._appSessionActive) {
+        clearSessionIdForNetwork(SOLANA_NETWORK)
         this._appSessionActive = false
+        AppSolana.build(this._appInitData).then(
+          (app) => {
+            this._app === app
+          },
+          (err) => {
+            console.log(err)
+          }
+        )
       }
       if (this._innerStandardAdapter) {
         await this._innerStandardAdapter.disconnect()

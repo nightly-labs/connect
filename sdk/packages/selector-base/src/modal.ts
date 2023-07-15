@@ -1,13 +1,11 @@
 import '@nightlylabs/wallet-selector-modal'
 import { type NightlySelector, getNightlySelectorElement } from '@nightlylabs/wallet-selector-modal'
-import { NetworkData } from './types'
-import { IWalletListItem } from './detection'
+import { IWalletListItem, NetworkData } from './types'
 
 export class NightlyConnectSelectorModal {
   _modal: NightlySelector | undefined
 
   _anchor: HTMLElement
-  _onSelectWallet: (name: string) => void
   _onOpen: (() => void) | undefined
   _onClose: (() => void) | undefined
   _networkData: NetworkData
@@ -20,7 +18,6 @@ export class NightlyConnectSelectorModal {
     walletsList: IWalletListItem[],
     relay: string,
     networkData: NetworkData,
-    onSelectWallet: (name: string) => void,
     anchorRef?: HTMLElement,
     onOpen?: () => void,
     onClose?: () => void
@@ -28,7 +25,6 @@ export class NightlyConnectSelectorModal {
     this._walletsList = walletsList
     this._relay = relay
     this._networkData = networkData
-    this._onSelectWallet = onSelectWallet
     this._anchor = anchorRef ?? document.body
     this._onOpen = onOpen
     this._onClose = onClose
@@ -43,11 +39,17 @@ export class NightlyConnectSelectorModal {
     this._modal.chainIcon = this._networkData.icon
     this._modal.chainName = this._networkData.name
     this._modal.selectorItems = this._walletsList
-    this._modal.onWalletClick = this._onSelectWallet
   }
 
-  public openModal = (sessionId: string) => {
+  setStandardWalletConnectProgress = (isConnectingToStandardWallet: boolean) => {
+    if (this._modal) {
+      this._modal.connecting = isConnectingToStandardWallet
+    }
+  }
+
+  public openModal = (sessionId: string, onSelectListWallet: (name: string) => void) => {
     if (this._modal && this._open === false) {
+      this._modal.onWalletClick = onSelectListWallet
       this._modal.sessionId = sessionId
       this._anchor.appendChild(this._modal)
       this._open = true
@@ -57,7 +59,6 @@ export class NightlyConnectSelectorModal {
 
   public onCloseModal = () => {
     if (this._modal && this._open === true) {
-      this._modal.connecting = true
       this._anchor.removeChild(this._modal)
       this._open = false
       this._onClose?.()
