@@ -25,7 +25,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
   private _readyState: WalletReadyState =
     typeof window === 'undefined' || typeof document === 'undefined'
       ? WalletReadyState.Unsupported
-      : WalletReadyState.Loadable
+      : WalletReadyState.NotDetected
 
   private _app: AppSolana | undefined
   private _appSessionActive: boolean
@@ -67,6 +67,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
   ) {
     const adapter = new NightlyConnectAdapter(appInitData)
 
+    adapter._readyState = WalletReadyState.Installed
+
     return adapter
   }
 
@@ -78,6 +80,12 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     onClose?: () => void
   ) {
     const adapter = new NightlyConnectAdapter(appInitData)
+
+    if (adapter._readyState !== WalletReadyState.Unsupported) {
+      // TODO - use this in then after build and get wallets finish
+      adapter._readyState = WalletReadyState.Installed
+      adapter.emit('readyStateChange', adapter._readyState)
+    }
 
     return adapter
   }
