@@ -304,6 +304,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         this._publicKey = new PublicKey(this._app.base.connectedPublicKeys[0])
         this._connected = true
         this._connecting = false
+        this._appSessionActive = true
         this.emit('connect', this._publicKey)
         return
       }
