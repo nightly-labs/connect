@@ -45,7 +45,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
   private _readyState: WalletReadyState =
     typeof window === 'undefined' || typeof document === 'undefined'
       ? WalletReadyState.Unsupported
-      : WalletReadyState.Loadable
+      : WalletReadyState.NotDetected
 
   private _app: AppSolana | undefined
   private _appSessionActive: boolean
@@ -99,6 +99,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       return adapter
     }
 
+    adapter._readyState = WalletReadyState.Installed
+
     const [app, metadataWallets] = await Promise.all([
       AppSolana.build(appInitData),
       AppSolana.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
@@ -151,6 +153,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     }
 
     adapter._loading = true
+
+    adapter._readyState = WalletReadyState.Installed
 
     Promise.all([
       AppSolana.build(appInitData),
@@ -304,10 +308,10 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   async connect() {
     try {
-      if (this._readyState !== WalletReadyState.Loadable) throw new WalletNotReadyError()
+      if (this._readyState !== WalletReadyState.Installed) throw new WalletNotReadyError()
 
       if (this._loading) { // we do it to ensure proper connect flow in case if adapter is lazily built, but e. g. solana wallets selector uses its own eager connect
-        for (let i = 0; i < 50; i++) {
+        for (let i = 0; i < 200; i++) {
           await sleep(10)
 
           if (!this._loading) {
