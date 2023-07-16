@@ -87,9 +87,13 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
   public static async build(
     appInitData: AppInitData,
     eagerConnectForStandardWallets?: boolean,
-    anchorRef?: HTMLElement
+    anchorRef?: HTMLElement | null
   ) {
     const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets)
+
+    if (adapter._readyState === WalletReadyState.Unsupported) {
+      return adapter
+    }
 
     const [app, metadataWallets] = await Promise.all([
       AppSolana.build(appInitData),
@@ -136,9 +140,13 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
   public static buildLazy(
     appInitData: AppInitData,
     eagerConnectForStandardWallets?: boolean,
-    anchorRef?: HTMLElement
+    anchorRef?: HTMLElement | null
   ) {
     const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets)
+
+    if (adapter._readyState === WalletReadyState.Unsupported) {
+      return adapter
+    }
 
     Promise.all([
       AppSolana.build(appInitData),
@@ -176,11 +184,9 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         }
       )
 
-      if (adapter._readyState !== WalletReadyState.Unsupported) {
-        adapter._readyState = WalletReadyState.Installed
+      adapter._readyState = WalletReadyState.Installed
 
-        adapter.emit('readyStateChange', adapter._readyState)
-      }
+      adapter.emit('readyStateChange', adapter._readyState)
     })
 
     return adapter

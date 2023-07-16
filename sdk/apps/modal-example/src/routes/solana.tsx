@@ -22,7 +22,7 @@ export default function Solana() {
         url: 'https://nc2.nightly.app'
       },
       true,
-      document.getElementById('modalAnchor') ?? undefined
+      document.getElementById('modalAnchor')
     ).then((adapter) => {
       setEagerConnect(adapter.canEagerConnect())
 

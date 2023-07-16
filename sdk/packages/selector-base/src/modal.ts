@@ -18,7 +18,7 @@ export class NightlyConnectSelectorModal {
     walletsList: IWalletListItem[],
     relay: string,
     networkData: NetworkData,
-    anchorRef?: HTMLElement,
+    anchorRef?: HTMLElement | null,
     onOpen?: () => void,
     onClose?: () => void
   ) {
