@@ -306,7 +306,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     try {
       if (this._readyState !== WalletReadyState.Loadable) throw new WalletNotReadyError()
 
-      if (this._loading) {
+      if (this._loading) { // we do it to ensure proper connect flow in case if adapter is lazily built, but e. g. solana wallets selector uses its own eager connect
         for (let i = 0; i < 50; i++) {
           await sleep(10)
 
