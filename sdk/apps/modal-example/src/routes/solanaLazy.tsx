@@ -1,4 +1,4 @@
-import { createEffect, createSignal, onMount, Show } from 'solid-js'
+import { createSignal, onMount, Show } from 'solid-js'
 import { Title } from 'solid-start'
 import { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-solana'
 import { Connection, PublicKey, SystemProgram, Transaction as SolanaTx } from '@solana/web3.js'
@@ -8,8 +8,6 @@ const connection = new Connection('https://api.devnet.solana.com')
 
 export default function SolanaLazy() {
   const [adapter, setAdapter] = createSignal<NightlyConnectAdapter>()
-  const [eagerConnect, setEagerConnect] = createSignal(false)
-  const [initialized, setInitialized] = createSignal(false)
   const [publicKey, setPublicKey] = createSignal<PublicKey>()
   onMount(() => {
     const adapter = NightlyConnectAdapter.buildLazy(
@@ -26,13 +24,6 @@ export default function SolanaLazy() {
       document.getElementById('modalAnchor')
     )
 
-    adapter.on('readyStateChange', (state) => {
-      if (state === 'Installed') {
-        setInitialized(true)
-        setEagerConnect(adapter.canEagerConnect())
-      }
-    })
-
     adapter.on('connect', (pk) => {
       setPublicKey(pk)
     })
@@ -40,16 +31,12 @@ export default function SolanaLazy() {
     adapter.on('disconnect', () => {
       setPublicKey(undefined)
     })
+
+    adapter.connect()
+
     setAdapter(adapter)
   })
 
-  createEffect(() => {
-    const currentAdapter = adapter()
-
-    if (currentAdapter && eagerConnect()) {
-      currentAdapter.connect()
-    }
-  })
   return (
     <main>
       <Title>Solana With Lazy Adapter Build Example</Title>
@@ -57,16 +44,12 @@ export default function SolanaLazy() {
       <Show
         when={!!publicKey()}
         fallback={
-          <Show
-            when={initialized()}
-            fallback={<h1>Adapter initialization in progress...</h1>}>
-            <button
-              onClick={() => {
-                adapter()?.connect()
-              }}>
-              Connect
-            </button>
-          </Show>
+          <button
+            onClick={() => {
+              adapter()?.connect()
+            }}>
+            Connect
+          </button>
         }>
         <h1>Current public key: {publicKey()!.toString()}</h1>
         <button

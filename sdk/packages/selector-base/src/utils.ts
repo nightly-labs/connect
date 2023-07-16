@@ -9,3 +9,10 @@ export const triggerConnect = (path: string, sessionId: string, relay: string) =
     deeplinkParams: { sessionId, relay }
   })
 }
+
+export const sleep = (timeout: number) =>
+  new Promise<void>((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, timeout)
+  })

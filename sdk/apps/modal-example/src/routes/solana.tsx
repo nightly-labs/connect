@@ -1,4 +1,4 @@
-import { createEffect, createSignal, onMount, Show } from 'solid-js'
+import { createSignal, onMount, Show } from 'solid-js'
 import { Title } from 'solid-start'
 import { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-solana'
 import { Connection, PublicKey, SystemProgram, Transaction as SolanaTx } from '@solana/web3.js'
@@ -8,7 +8,6 @@ const connection = new Connection('https://api.devnet.solana.com')
 
 export default function Solana() {
   const [adapter, setAdapter] = createSignal<NightlyConnectAdapter>()
-  const [eagerConnect, setEagerConnect] = createSignal(false)
   const [publicKey, setPublicKey] = createSignal<PublicKey>()
   onMount(() => {
     NightlyConnectAdapter.build(
@@ -24,8 +23,6 @@ export default function Solana() {
       true,
       document.getElementById('modalAnchor')
     ).then((adapter) => {
-      setEagerConnect(adapter.canEagerConnect())
-
       adapter.on('connect', (pk) => {
         setPublicKey(pk)
       })
@@ -33,17 +30,13 @@ export default function Solana() {
       adapter.on('disconnect', () => {
         setPublicKey(undefined)
       })
+
+      adapter.connect()
+
       setAdapter(adapter)
     })
   })
 
-  createEffect(() => {
-    const currentAdapter = adapter()
-
-    if (currentAdapter && eagerConnect()) {
-      currentAdapter.connect()
-    }
-  })
   return (
     <main>
       <Title>Solana Example</Title>

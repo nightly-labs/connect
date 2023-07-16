@@ -15,7 +15,8 @@ import {
   isStandardConnectedForNetwork,
   QueryNetwork,
   triggerConnect,
-  persistStandardDisconnectForNetwork
+  persistStandardDisconnectForNetwork,
+  sleep
 } from '@nightlylabs/wallet-selector-base'
 import {
   BaseMessageSignerWalletAdapter,
@@ -44,7 +45,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
   private _readyState: WalletReadyState =
     typeof window === 'undefined' || typeof document === 'undefined'
       ? WalletReadyState.Unsupported
-      : WalletReadyState.NotDetected
+      : WalletReadyState.Loadable
 
   private _app: AppSolana | undefined
   private _appSessionActive: boolean
@@ -58,6 +59,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   private _chosenMobileWalletName: string | undefined
 
+  private _loading: boolean
+
   constructor(appInitData: AppInitData, eagerConnectForStandardWallets?: boolean) {
     super()
     this._connecting = false
@@ -66,6 +69,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     this._appInitData = appInitData
     this._eagerConnectForStandardWallets = !!eagerConnectForStandardWallets
     this._appSessionActive = false
+    this._loading = false
   }
 
   get connecting() {
@@ -132,8 +136,6 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       }
     )
 
-    adapter._readyState = WalletReadyState.Installed
-
     return adapter
   }
 
@@ -147,6 +149,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     if (adapter._readyState === WalletReadyState.Unsupported) {
       return adapter
     }
+
+    adapter._loading = true
 
     Promise.all([
       AppSolana.build(appInitData),
@@ -184,32 +188,10 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         }
       )
 
-      adapter._readyState = WalletReadyState.Installed
-
-      adapter.emit('readyStateChange', adapter._readyState)
+      adapter._loading = false
     })
 
     return adapter
-  }
-
-  canEagerConnect = () => {
-    if (
-      this._app &&
-      this._app.base.hasBeenRestored &&
-      !!this._app.base.connectedPublicKeys.length
-    ) {
-      return true
-    }
-
-    if (
-      this._eagerConnectForStandardWallets &&
-      getRecentStandardWalletForNetwork(SOLANA_NETWORK) !== null &&
-      isStandardConnectedForNetwork(SOLANA_NETWORK)
-    ) {
-      return true
-    }
-
-    return false
   }
 
   eagerConnectDeeplink = () => {
@@ -322,10 +304,25 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   async connect() {
     try {
+      if (this._readyState !== WalletReadyState.Loadable) throw new WalletNotReadyError()
+
+      if (this._loading) {
+        for (let i = 0; i < 50; i++) {
+          await sleep(10)
+
+          if (!this._loading) {
+            break
+          }
+        }
+
+        if (this._loading) {
+          throw new WalletNotReadyError()
+        }
+      }
+
       if (this.connected || this.connecting || !this._app) {
         return
       }
-      if (this._readyState !== WalletReadyState.Installed) throw new WalletNotReadyError()
 
       this._connecting = true
 
