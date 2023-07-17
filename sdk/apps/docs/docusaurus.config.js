@@ -38,6 +38,11 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      colorMode: {
+        defaultMode: 'dark',
+        disableSwitch: false,
+        respectPrefersColorScheme: false
+      },
       image: 'img/docusaurus-social-card.jpg',
       navbar: {
         title: 'Nightly Connect',

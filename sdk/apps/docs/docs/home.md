@@ -35,10 +35,10 @@ Simply integrate Nightly Connect to your application or wallet with our [Nightly
 
 ```bash
 # Using NPM
-npm i @nightlylabs/nightly-connect-solana
+npm i @nightlylabs/wallet-selector-solana
 
 # Using Yarn
-yarn add @nightlylabs/nightly-connect-solana
+yarn add @nightlylabs/wallet-selector-solana
 
 ```
 
