@@ -427,14 +427,19 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       if (this._appSessionActive) {
         clearSessionIdForNetwork(SOLANA_NETWORK)
         this._appSessionActive = false
-        AppSolana.build(this._appInitData).then(
-          (app) => {
-            this._app = app
-          },
-          (err) => {
-            console.log(err)
-          }
-        )
+        this._loading = true
+        AppSolana.build(this._appInitData)
+          .then(
+            (app) => {
+              this._app = app
+            },
+            (err) => {
+              console.log(err)
+            }
+          )
+          .finally(() => {
+            this._loading = false
+          })
       }
       if (this._innerStandardAdapter) {
         await this._innerStandardAdapter.disconnect()
