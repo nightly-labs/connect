@@ -1,8 +1,18 @@
 'use client'
 
 import styles from './page.module.css'
-import { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-solana'
-import { useEffect, useState } from 'react'
+// import { AppSolana } from '@nightlylabs/nightly-connect-solana'
+// console.log('#####################')
+// console.log('#####################')
+// console.log('#####################')
+// console.log('#####################')
+// console.log('#####################')
+// console.log('#####################')
+// console.log('#####################')
+// console.log(AppSolana)
+import type { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-solana'
+
+import { lazy, useEffect, useState } from 'react'
 import { Connection, PublicKey, SystemProgram, Transaction as SolanaTx } from '@solana/web3.js'
 
 export default function Home() {
@@ -11,36 +21,69 @@ export default function Home() {
   const [publicKey, setPublicKey] = useState<PublicKey>()
 
   const connection = new Connection('https://api.devnet.solana.com')
-
   useEffect(() => {
-    NightlyConnectAdapter.build(
-      {
-        appMetadata: {
-          name: 'NCTestSolana',
-          description: 'Nightly Connect Test',
-          icon: 'https://docs.nightly.app/img/logo.png',
-          additionalInfo: 'Courtesy of Nightly Connect team'
+    const solanaTokenLazy = async () => {
+      const nightly = await import('@nightlylabs/wallet-selector-solana')
+      console.log(nightly)
+      nightly.NightlyConnectAdapter.build(
+        {
+          appMetadata: {
+            name: 'NCTestSolana',
+            description: 'Nightly Connect Test',
+            icon: 'https://docs.nightly.app/img/logo.png',
+            additionalInfo: 'Courtesy of Nightly Connect team'
+          },
+          url: 'https://nc2.nightly.app'
         },
-        url: 'https://nc2.nightly.app'
-      },
-      true,
-      document.getElementById('modalAnchor')
-    ).then((adapter) => {
-      adapter.on('connect', (pk) => {
-        setPublicKey(pk)
-      })
+        true,
+        document.getElementById('modalAnchor')
+      ).then((adapter) => {
+        adapter.on('connect', (pk) => {
+          setPublicKey(pk)
+        })
 
-      adapter.on('disconnect', () => {
-        setPublicKey(undefined)
-      })
+        adapter.on('disconnect', () => {
+          setPublicKey(undefined)
+        })
 
-      adapter.canEagerConnect().then((canEagerConnect) => {
-        setEager(canEagerConnect)
-      })
+        adapter.canEagerConnect().then((canEagerConnect) => {
+          setEager(canEagerConnect)
+        })
 
-      setAdapter(adapter)
-    })
+        setAdapter(adapter)
+      })
+    }
+    solanaTokenLazy()
   }, [])
+  // useEffect(() => {
+  //   Nightly.NightlyConnectAdapter.build(
+  //     {
+  //       appMetadata: {
+  //         name: 'NCTestSolana',
+  //         description: 'Nightly Connect Test',
+  //         icon: 'https://docs.nightly.app/img/logo.png',
+  //         additionalInfo: 'Courtesy of Nightly Connect team'
+  //       },
+  //       url: 'https://nc2.nightly.app'
+  //     },
+  //     true,
+  //     document.getElementById('modalAnchor')
+  //   ).then((adapter) => {
+  //     adapter.on('connect', (pk) => {
+  //       setPublicKey(pk)
+  //     })
+
+  //     adapter.on('disconnect', () => {
+  //       setPublicKey(undefined)
+  //     })
+
+  //     adapter.canEagerConnect().then((canEagerConnect) => {
+  //       setEager(canEagerConnect)
+  //     })
+
+  //     setAdapter(adapter)
+  //   })
+  // }, [])
 
   useEffect(() => {
     if (eager) {
