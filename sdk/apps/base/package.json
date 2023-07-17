@@ -2,11 +2,6 @@
   "name": "@nightlylabs/nightly-connect-base",
   "version": "0.0.17",
   "type": "module",
-  "browser": {
-    "dist/cjs/index.cjs": "dist/browser/cjs/index.cjs",
-    "dist/esm/index.mjs": "dist/browser/esm/index.mjs"
-  },
-  "react-native": "dist/browser/cjs/index.cjs",
   "exports": {
     ".": {
       "import": "./dist/esm/index.mjs",
