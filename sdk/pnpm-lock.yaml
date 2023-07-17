@@ -1,4 +1,4 @@
-lockfileVersion: '6.0'
+lockfileVersion: '6.1'
 
 settings:
   autoInstallPeers: true
@@ -183,12 +183,6 @@ importers:
 
   apps/nextjs-example:
     dependencies:
-      '@nightlylabs/nightly-connect-base':
-        specifier: 0.0.17
-        version: link:../base
-      '@nightlylabs/nightly-connect-solana':
-        specifier: 0.0.19
-        version: link:../solana
       '@nightlylabs/wallet-selector-solana':
         specifier: 0.1.3
         version: link:../../packages/selector-solana

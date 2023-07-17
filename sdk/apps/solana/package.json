@@ -12,9 +12,9 @@
     "./dist/index.cjs.js": "./dist/index.browser.cjs.js",
     "./dist/index.mjs.js": "./dist/index.browser.mjs.js"
   },
-  "react-native": "dist/index.browser.cjs.j",
+  "react-native": "dist/index.browser.cjs.js",
   "main": "dist/index.cjs.js",
-  "module": "dist/index.esm.js",
+  "module": "dist/index.mjs.js",
   "types": "dist/index.d.ts",
   "typings": "dist/index.d.ts",
   "files": [

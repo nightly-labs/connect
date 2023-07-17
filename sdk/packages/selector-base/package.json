@@ -5,10 +5,13 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/esm/index.mjs",
-      "require": "./dist/cjs/index.cjs"
+      "import": "./dist/index.mjs.js",
+      "require": "./dist/index.cjs.js"
     }
   },
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.mjs.js",
+  "types": "dist/index.d.ts",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"

@@ -1,5 +1,5 @@
 import { AppBaseInitialize } from '@nightlylabs/nightly-connect-base'
-import { Deeplink } from '@nightlylabs/nightly-connect-base/dist/browser/cjs/types/bindings/Deeplink'
+import { Deeplink } from '@nightlylabs/nightly-connect-base/dist/types/bindings/Deeplink'
 import { QueryNetwork } from '@nightlylabs/wallet-selector-modal'
 import { Wallet } from '@wallet-standard/core'
 
