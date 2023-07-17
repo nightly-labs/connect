@@ -129,14 +129,11 @@ importers:
         specifier: ^0.7.9
         version: 0.7.9
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.0.14
+        specifier: 0.1.2
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
         specifier: 0.0.12
         version: link:../../packages/selector-sui
-      '@solana/wallet-standard':
-        specifier: ^1.0.2
-        version: 1.0.2(@solana/wallet-adapter-base@0.9.22)(@solana/web3.js@1.77.2)(bs58@4.0.1)(react@18.2.0)
       '@solana/web3.js':
         specifier: ^1.77.2
         version: 1.77.2
@@ -496,7 +493,7 @@ importers:
         specifier: 0.0.19
         version: link:../../apps/solana
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.0.12
+        specifier: 0.0.14
         version: link:../selector-base
       '@solana/wallet-adapter-base':
         specifier: ^0.9.22
@@ -551,7 +548,7 @@ importers:
         specifier: 0.0.17
         version: link:../../apps/sui
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.0.12
+        specifier: 0.0.14
         version: link:../selector-base
       '@wallet-standard/core':
         specifier: ^1.0.3

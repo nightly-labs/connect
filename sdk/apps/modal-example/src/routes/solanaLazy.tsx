@@ -6,12 +6,12 @@ import toast from 'solid-toast'
 
 const connection = new Connection('https://api.devnet.solana.com')
 
-export default function Solana() {
+export default function SolanaLazy() {
   const [adapter, setAdapter] = createSignal<NightlyConnectAdapter>()
   const [eager, setEager] = createSignal(false)
   const [publicKey, setPublicKey] = createSignal<PublicKey>()
-  onMount(async () => {
-    NightlyConnectAdapter.build(
+  onMount(() => {
+    const adapter = NightlyConnectAdapter.buildLazy(
       {
         appMetadata: {
           name: 'NCTestSolana',
@@ -23,21 +23,21 @@ export default function Solana() {
       },
       true,
       document.getElementById('modalAnchor')
-    ).then((adapter) => {
-      adapter.on('connect', (pk) => {
-        setPublicKey(pk)
-      })
+    )
 
-      adapter.on('disconnect', () => {
-        setPublicKey(undefined)
-      })
-
-      adapter.canEagerConnect().then((canEagerConnect) => {
-        setEager(canEagerConnect)
-      })
-
-      setAdapter(adapter)
+    adapter.on('connect', (pk) => {
+      setPublicKey(pk)
     })
+
+    adapter.on('disconnect', () => {
+      setPublicKey(undefined)
+    })
+
+    adapter.canEagerConnect().then((canEagerConnect) => {
+      setEager(canEagerConnect)
+    })
+
+    setAdapter(adapter)
   })
 
   createEffect(() => {
@@ -48,7 +48,7 @@ export default function Solana() {
 
   return (
     <main>
-      <Title>Solana Example</Title>
+      <Title>Solana With Lazy Adapter Build Example</Title>
       <div id="modalAnchor" />
       <Show
         when={!!publicKey()}

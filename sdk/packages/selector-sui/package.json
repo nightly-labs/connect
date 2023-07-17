@@ -20,7 +20,7 @@
     "@mysten/wallet-adapter-wallet-standard": "^0.7.9",
     "@mysten/wallet-standard": "^0.5.7",
     "@nightlylabs/nightly-connect-sui": "0.0.17",
-    "@nightlylabs/wallet-selector-base": "0.0.12",
+    "@nightlylabs/wallet-selector-base": "0.0.14",
     "@wallet-standard/core": "^1.0.3",
     "bs58": "^4.0.1",
     "events": "^3.3.0"

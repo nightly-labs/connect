@@ -10,8 +10,8 @@ import { Adapter, AppInitData, MetadataWallet, NetworkData } from './types'
 import { Wallet } from '@wallet-standard/core'
 import {
   getRecentStandardWalletForNetwork,
-  isDesktopConnectedForNetwork,
-  persistDesktopConnectForNetwork,
+  isStandardConnectedForNetwork,
+  persistStandardConnectForNetwork,
   persistRecentStandardWalletForNetwork
 } from './persistence'
 
@@ -79,7 +79,7 @@ export class NCBaseSelector<A extends Adapter> {
     if (
       this._eagerConnect &&
       recentName !== null &&
-      isDesktopConnectedForNetwork(this._networkData.name)
+      isStandardConnectedForNetwork(this._networkData.name)
     ) {
       this.connectToStandardWallet(recentName)
     }
@@ -97,7 +97,7 @@ export class NCBaseSelector<A extends Adapter> {
       .connect()
       .then(() => {
         persistRecentStandardWalletForNetwork(name, this._networkData.name)
-        persistDesktopConnectForNetwork(this._networkData.name)
+        persistStandardConnectForNetwork(this._networkData.name)
         this._onConnected(adapter)
         this.closeModal()
       })

@@ -8,6 +8,9 @@ export default function Home() {
       <A href="/solana">
         <button>Solana</button>
       </A>
+      <A href="/solanaLazy">
+        <button>Solana - lazy adapter build</button>
+      </A>
       <A href="/sui">
         <button>Sui</button>
       </A>
