@@ -15,7 +15,7 @@ export default [
         interop: 'compat'
       },
       {
-        file: 'dist/esm/index.js',
+        file: 'dist/esm/index.mjs',
         format: 'esm',
         sourcemap: true
       }
@@ -42,7 +42,7 @@ export default [
         interop: 'compat'
       },
       {
-        file: 'dist/browser/esm/index.js',
+        file: 'dist/browser/esm/index.mjs',
         format: 'esm',
         sourcemap: true
       }

@@ -3,8 +3,12 @@
   "version": "0.0.14",
   "description": "",
   "type": "module",
-  "main": "dist/cjs/index.cjs",
-  "module": "dist/esm/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.mjs",
+      "require": "./dist/cjs/index.cjs"
+    }
+  },
   "typings": "dist/index.d.ts",
   "files": [
     "dist"

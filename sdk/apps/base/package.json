@@ -4,11 +4,15 @@
   "type": "module",
   "browser": {
     "dist/cjs/index.cjs": "dist/browser/cjs/index.cjs",
-    "dist/esm/index.js": "dist/browser/esm/index.js"
+    "dist/esm/index.mjs": "dist/browser/esm/index.mjs"
   },
   "react-native": "dist/browser/cjs/index.cjs",
-  "main": "dist/cjs/index.cjs",
-  "module": "dist/esm/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.mjs",
+      "require": "./dist/cjs/index.cjs"
+    }
+  },
   "typings": "dist/index.d.ts",
   "files": [
     "dist"

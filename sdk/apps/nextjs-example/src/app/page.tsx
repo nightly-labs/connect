@@ -1,95 +1,109 @@
-import Image from 'next/image'
+'use client'
+
 import styles from './page.module.css'
+import { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-solana'
+import { useEffect, useState } from 'react'
+import { Connection, PublicKey, SystemProgram, Transaction as SolanaTx } from '@solana/web3.js'
 
 export default function Home() {
+  const [adapter, setAdapter] = useState<NightlyConnectAdapter>()
+  const [eager, setEager] = useState(false)
+  const [publicKey, setPublicKey] = useState<PublicKey>()
+
+  const connection = new Connection('https://api.devnet.solana.com')
+
+  useEffect(() => {
+    NightlyConnectAdapter.build(
+      {
+        appMetadata: {
+          name: 'NCTestSolana',
+          description: 'Nightly Connect Test',
+          icon: 'https://docs.nightly.app/img/logo.png',
+          additionalInfo: 'Courtesy of Nightly Connect team'
+        },
+        url: 'https://nc2.nightly.app'
+      },
+      true,
+      document.getElementById('modalAnchor')
+    ).then((adapter) => {
+      adapter.on('connect', (pk) => {
+        setPublicKey(pk)
+      })
+
+      adapter.on('disconnect', () => {
+        setPublicKey(undefined)
+      })
+
+      adapter.canEagerConnect().then((canEagerConnect) => {
+        setEager(canEagerConnect)
+      })
+
+      setAdapter(adapter)
+    })
+  }, [])
+
+  useEffect(() => {
+    if (eager) {
+      adapter?.connect()
+    }
+  }, [eager])
+
   return (
     <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+      {publicKey ? (
+        <>
+          <h1>Current public key: {publicKey.toString()}</h1>
+          <button
+            onClick={async () => {
+              try {
+                const ix = SystemProgram.transfer({
+                  fromPubkey: adapter!.publicKey!,
+                  lamports: 1e6,
+                  toPubkey: new PublicKey('147oKbjwGDHEthw7sRKNrzYiRiGqYksk1ravTMFkpAnv')
+                })
+                const tx = new SolanaTx().add(ix).add(ix).add(ix).add(ix).add(ix)
+                const a = await connection.getRecentBlockhash()
+                tx.recentBlockhash = a.blockhash
+                tx.feePayer = adapter!.publicKey!
+                const signedTx = await adapter!.signTransaction!(tx)
+                await connection.sendRawTransaction(signedTx!.serialize())
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+                window.alert('Transaction was signed and sent!')
+              } catch (e) {
+                window.alert("Error: couldn't sign and send transaction!")
+                console.log(e)
+              }
+            }}>
+            Send 0.005 SOL
+          </button>
+          <button
+            onClick={async () => {
+              try {
+                await adapter?.signMessage!(new TextEncoder().encode('I love Nightly'))
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+                window.alert('Message was signed!')
+              } catch (e) {
+                window.alert("Error: couldn't sign message!")
+                console.log(e)
+              }
+            }}>
+            Sign message
+          </button>
+          <button
+            onClick={() => {
+              adapter?.disconnect()
+            }}>
+            Disconnect
+          </button>
+        </>
+      ) : (
+        <button
+          onClick={() => {
+            adapter?.connect()
+          }}>
+          Connect
+        </button>
+      )}
     </main>
   )
 }

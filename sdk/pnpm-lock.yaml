@@ -183,6 +183,12 @@ importers:
 
   apps/nextjs-example:
     dependencies:
+      '@nightlylabs/wallet-selector-solana':
+        specifier: 0.1.3
+        version: link:../../packages/selector-solana
+      '@solana/web3.js':
+        specifier: ^1.77.2
+        version: 1.77.2
       '@types/node':
         specifier: 20.4.2
         version: 20.4.2

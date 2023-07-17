@@ -3,8 +3,12 @@
   "version": "2.0.0",
   "description": "Nightly QR codes generator",
   "type": "module",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.mjs",
+      "require": "./dist/cjs/index.cjs"
+    }
+  },
   "typings": "dist/index.d.ts",
   "files": [
     "dist"
