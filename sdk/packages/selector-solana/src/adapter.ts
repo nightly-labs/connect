@@ -198,6 +198,37 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     return adapter
   }
 
+  canEagerConnect = async () => {
+    // utility for case if somebody wants to fire connect asap, but doesn't want to show modal if e. g. there was no user connected on the device yet
+    if (this._loading) {
+      for (let i = 0; i < 200; i++) {
+        await sleep(10)
+
+        if (!this._loading) {
+          break
+        }
+      }
+    }
+
+    if (this._loading) {
+      false
+    }
+
+    if (this._app && this._app.hasBeenRestored() && !!this._app.connectedPublicKeys.length) {
+      return true
+    }
+
+    if (
+      this._eagerConnectForStandardWallets &&
+      getRecentStandardWalletForNetwork(SOLANA_NETWORK) !== null &&
+      isStandardConnectedForNetwork(SOLANA_NETWORK)
+    ) {
+      return true
+    }
+
+    return false
+  }
+
   eagerConnectDeeplink = () => {
     if (isMobileBrowser() && this._app) {
       const mobileWalletName = getRecentStandardWalletForNetwork(SOLANA_NETWORK)
@@ -310,7 +341,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     try {
       if (this._readyState !== WalletReadyState.Installed) throw new WalletNotReadyError()
 
-      if (this._loading) { // we do it to ensure proper connect flow in case if adapter is lazily built, but e. g. solana wallets selector uses its own eager connect
+      if (this._loading) {
+        // we do it to ensure proper connect flow in case if adapter is lazily built, but e. g. solana wallets selector uses its own eager connect
         for (let i = 0; i < 200; i++) {
           await sleep(10)
 
