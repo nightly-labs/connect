@@ -31,6 +31,17 @@ export class NightlyConnectSelectorModal {
     this.createSelectorElement()
   }
 
+  get walletsList() {
+    return this._walletsList
+  }
+
+  set walletsList(list: IWalletListItem[]) {
+    this._walletsList = list
+    if (this._modal) {
+      this._modal.selectorItems = list
+    }
+  }
+
   createSelectorElement = () => {
     this._modal = getNightlySelectorElement()
     this._modal.onClose = this.onCloseModal

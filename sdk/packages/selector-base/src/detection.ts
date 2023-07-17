@@ -12,7 +12,10 @@ export const getWalletsList = (
   const walletsData: Record<string, IWalletListItem> = {}
 
   presetList.forEach((wallet) => {
-    walletsData[wallet.name] = wallet
+    walletsData[wallet.name] = {
+      ...wallet,
+      recent: recentWalletName === wallet.name
+    }
   })
 
   windowWallets.filter(walletsFilterCb).forEach((wallet) => {
@@ -21,10 +24,10 @@ export const getWalletsList = (
         name: wallet.name,
         icon: wallet.icon,
         link: '',
-        deeplink: null
+        deeplink: null,
+        recent: recentWalletName === wallet.name
       }),
       detected: true,
-      recent: recentWalletName === wallet.name,
       standardWallet: wallet
     }
   })

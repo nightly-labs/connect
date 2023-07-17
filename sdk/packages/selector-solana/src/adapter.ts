@@ -55,6 +55,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
   private _appInitData: AppInitData
   private _eagerConnectForStandardWallets: boolean
 
+  private _metadataWallets: MetadataWallet[] = []
   private _walletsList: IWalletListItem[] = []
 
   private _chosenMobileWalletName: string | undefined
@@ -116,6 +117,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     ])
 
     adapter._app = app
+    adapter._metadataWallets = metadataWallets
 
     adapter._walletsList = getWalletsList(
       metadataWallets,
@@ -170,6 +172,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         .catch(() => [] as MetadataWallet[])
     ]).then(([app, metadataWallets]) => {
       adapter._app = app
+      adapter._metadataWallets = metadataWallets
 
       adapter._walletsList = getWalletsList(
         metadataWallets,
@@ -437,6 +440,14 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         await this._innerStandardAdapter.disconnect()
         this._innerStandardAdapter = undefined
         persistStandardDisconnectForNetwork(SOLANA_NETWORK)
+      }
+      this._walletsList = getWalletsList(
+        this._metadataWallets,
+        solanaWalletsFilter,
+        getRecentStandardWalletForNetwork(SOLANA_NETWORK) ?? undefined
+      )
+      if (this._modal) {
+        this._modal.walletsList = this._walletsList
       }
       this._publicKey = null
       this._connected = false
