@@ -25,6 +25,7 @@ import {
   WalletNotConnectedError,
   WalletNotReadyError,
   WalletReadyState,
+  WalletSignMessageError,
   WalletSignTransactionError,
   isVersionedTransaction
 } from '@solana/wallet-adapter-base'
@@ -524,7 +525,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
           throw new WalletNotConnectedError()
         }
       } catch (error: any) {
-        throw new WalletSignTransactionError(error?.message, error)
+        throw new WalletSignMessageError(error?.message, error)
       }
     } catch (error: any) {
       this.emit('error', error)
