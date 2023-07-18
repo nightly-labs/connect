@@ -90,11 +90,11 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     return this._publicKey
   }
 
-  public static async build(
+  public static build = async (
     appInitData: AppInitData,
     eagerConnectForStandardWallets?: boolean,
     anchorRef?: HTMLElement | null
-  ) {
+  ) => {
     const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets)
 
     if (adapter._readyState === WalletReadyState.Unsupported) {
@@ -144,11 +144,11 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     return adapter
   }
 
-  public static buildLazy(
+  public static buildLazy = async (
     appInitData: AppInitData,
     eagerConnectForStandardWallets?: boolean,
     anchorRef?: HTMLElement | null
-  ) {
+  ) => {
     const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets)
 
     if (adapter._readyState === WalletReadyState.Unsupported) {
@@ -341,7 +341,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     }
   }
 
-  async connect() {
+  connect = async () => {
     try {
       if (this._readyState !== WalletReadyState.Installed) throw new WalletNotReadyError()
 
@@ -423,7 +423,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     }
   }
 
-  async disconnect() {
+  disconnect = async () => {
     if (this.connected) {
       if (this._appSessionActive) {
         clearSessionIdForNetwork(SOLANA_NETWORK)
@@ -462,7 +462,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     }
   }
 
-  async signTransaction<T extends Transaction | VersionedTransaction>(transaction: T) {
+  signTransaction = async <T extends Transaction | VersionedTransaction>(transaction: T) => {
     try {
       try {
         if (this._app && this._appSessionActive) {
@@ -486,7 +486,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     }
   }
 
-  async signAllTransactions<T extends Transaction | VersionedTransaction>(transactions: T[]) {
+  signAllTransactions = async <T extends Transaction | VersionedTransaction>(transactions: T[]) => {
     try {
       try {
         if (this._app && this._appSessionActive) {
@@ -514,7 +514,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     }
   }
 
-  async signMessage(message: Uint8Array): Promise<Uint8Array> {
+  signMessage = async (message: Uint8Array): Promise<Uint8Array> => {
     try {
       try {
         if (this._app && this._appSessionActive) {

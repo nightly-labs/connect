@@ -5,13 +5,7 @@ import { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-solana'
 
 import { useEffect, useState } from 'react'
 import { Connection, PublicKey, SystemProgram, Transaction as SolanaTx } from '@solana/web3.js'
-import dynamic from 'next/dynamic'
-// const DynamicComponentWithNoSSR = dynamic(() => import('@nightlylabs/wallet-selector-solana'), {
-//   ssr: false
-// })
-// const NightlyConnectAdapter = dynamic(() =>
-//   import('@nightlylabs/wallet-selector-solana').then((module) => module.NightlyConnectAdapter)
-// )
+
 export default function Home() {
   const [adapter, setAdapter] = useState<NightlyConnectAdapter>()
   const [eager, setEager] = useState(false)
