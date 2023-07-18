@@ -72,7 +72,7 @@ export class BaseApp extends EventEmitter<BaseEvents> {
       const persistentSessionId = persistent
         ? localStorage.getItem(getSessionIdLocalStorageKey(baseInitialize.network)) ?? undefined
         : undefined
-      const url = baseInitialize.url ?? 'https://relay.nightly.app'
+      const url = baseInitialize.url ?? 'https://nc2.nightly.app'
       // get domain from url
       const path = url.replace('https://', 'wss://').replace('http://', 'ws://')
       const ws = new WebSocket(path + '/app')
@@ -169,7 +169,7 @@ export class BaseApp extends EventEmitter<BaseEvents> {
         triggerDeeplink({
           path: this.deeplink.url,
           deeplinkParams: {
-            relay: 'relay.nightly.app',
+            relay: 'https://nc2.nightly.app',
             sessionId: this.sessionId,
             requestId: message.responseId
           }

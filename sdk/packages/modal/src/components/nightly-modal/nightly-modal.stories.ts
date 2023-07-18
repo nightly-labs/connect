@@ -90,6 +90,6 @@ export const Default: Story = {
     chainName: 'Solana',
     sessionId: '6a82dc5a-c013-4c17-b6ff-45fe0f45bddb',
     network: 'SOLANA',
-    relay: 'https://relay.nightly.app'
+    relay: 'https://nc2.nightly.app'
   }
 }

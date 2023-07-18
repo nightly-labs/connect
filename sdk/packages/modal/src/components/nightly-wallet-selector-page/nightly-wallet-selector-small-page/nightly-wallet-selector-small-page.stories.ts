@@ -91,5 +91,5 @@ Default.args = {
   sessionId:
     'fsdhfdzfsdhgfzghggdfhbgchgbdfnvfbxhncvfjhzxdhgbhghfgfvzhfgjhgszdhgzxdfhgfzxdjfuhdfhgd',
   network: 'SOLANA',
-  relay: 'https://relay.nightly.app'
+  relay: 'https://nc2.nightly.app'
 }
