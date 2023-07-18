@@ -1,6 +1,5 @@
-import '@nightlylabs/wallet-selector-modal'
-import { type NightlySelector, getNightlySelectorElement } from '@nightlylabs/wallet-selector-modal'
-import { IWalletListItem, NetworkData } from './types'
+import { type NightlySelector } from '@nightlylabs/wallet-selector-modal'
+import { type IWalletListItem, type NetworkData } from './types'
 
 export class NightlyConnectSelectorModal {
   _modal: NightlySelector | undefined
@@ -43,14 +42,16 @@ export class NightlyConnectSelectorModal {
   }
 
   createSelectorElement = () => {
-    this._modal = getNightlySelectorElement()
-    this._modal.onClose = this.onCloseModal
+    import('@nightlylabs/wallet-selector-modal').then(({ getNightlySelectorElement }) => {
+      this._modal = getNightlySelectorElement()
+      this._modal.onClose = this.onCloseModal
 
-    this._modal.network = this._networkData.network
-    this._modal.relay = this._relay
-    this._modal.chainIcon = this._networkData.icon
-    this._modal.chainName = this._networkData.name
-    this._modal.selectorItems = this._walletsList
+      this._modal.network = this._networkData.network
+      this._modal.relay = this._relay
+      this._modal.chainIcon = this._networkData.icon
+      this._modal.chainName = this._networkData.name
+      this._modal.selectorItems = this._walletsList
+    })
   }
 
   setStandardWalletConnectProgress = (isConnectingToStandardWallet: boolean) => {

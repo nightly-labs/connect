@@ -27,7 +27,11 @@ export const createDeeplinkUrl = ({ deeplinkParams, path }: TriggerDeeplink) => 
 }
 export const triggerDeeplink = ({ deeplinkParams, path }: TriggerDeeplink) => {
   const url = createDeeplinkUrl({ deeplinkParams, path })
-  window.open(url, '_self', 'noreferrer noopener')
+  if (window) {
+    window.open(url, '_self', 'noreferrer noopener')
+  } else {
+    console.warn('window is undefined')
+  }
 }
 export const parseDeeplink = (url: string): DeeplinkParams => {
   const urlObj = new URL(url)
