@@ -1,6 +1,6 @@
 {
   "name": "@nightlylabs/wallet-selector-modal",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "type": "module",
   "exports": {
     ".": {
@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@lit-labs/motion": "^1.0.3",
-    "@nightlylabs/qr-code": "2.0.0",
+    "@nightlylabs/qr-code": "2.0.1",
     "autoprefixer": "^10.4.14",
     "lit": "^2.7.2",
     "postcss": "^8.4.24",
