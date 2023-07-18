@@ -57,7 +57,7 @@ export default function Sui() {
               transactionBlock.transferObjects(
                 [coin],
                 transactionBlock.pure(
-                  '0x5635a39dfd0b9e2302453695497b1979fa1af481a0fbfed9d0dd5a99accb2fc0'
+                  '0xd85c7ad90905e0bd49b72420deb5f4077cab62840fb3917ca2945e41d8854013'
                 )
               )
               await adapter()!.signAndExecuteTransactionBlock({
