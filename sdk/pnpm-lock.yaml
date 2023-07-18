@@ -1,4 +1,4 @@
-lockfileVersion: '6.0'
+lockfileVersion: '6.1'
 
 settings:
   autoInstallPeers: true
@@ -128,17 +128,11 @@ importers:
       '@mysten/wallet-adapter-wallet-standard':
         specifier: ^0.7.9
         version: 0.7.9
-      '@nightlylabs/nightly-connect-solana':
-        specifier: 0.0.21
-        version: link:../solana
-      '@nightlylabs/nightly-connect-sui':
-        specifier: 0.0.19
-        version: link:../sui
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.1.6
+        specifier: 0.1.7
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
-        specifier: 0.0.14
+        specifier: 0.0.15
         version: link:../../packages/selector-sui
       '@solana/web3.js':
         specifier: ^1.77.2
@@ -190,7 +184,7 @@ importers:
   apps/nextjs-example:
     dependencies:
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.1.6
+        specifier: 0.1.7
         version: link:../../packages/selector-solana
       '@solana/web3.js':
         specifier: ^1.77.2
@@ -373,7 +367,7 @@ importers:
         specifier: ^1.0.3
         version: 1.0.3
       '@nightlylabs/qr-code':
-        specifier: 2.0.1
+        specifier: 2.0.2
         version: link:../qr-codes
       autoprefixer:
         specifier: ^10.4.14
@@ -495,7 +489,7 @@ importers:
         specifier: 0.0.19
         version: link:../../apps/base
       '@nightlylabs/wallet-selector-modal':
-        specifier: 0.0.9
+        specifier: 0.0.10
         version: link:../modal
       '@wallet-standard/core':
         specifier: ^1.0.3
@@ -535,7 +529,7 @@ importers:
         specifier: 0.0.21
         version: link:../../apps/solana
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.0.16
+        specifier: 0.0.17
         version: link:../selector-base
       '@solana/wallet-adapter-base':
         specifier: ^0.9.22
@@ -590,7 +584,7 @@ importers:
         specifier: 0.0.19
         version: link:../../apps/sui
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.0.16
+        specifier: 0.0.17
         version: link:../selector-base
       '@wallet-standard/core':
         specifier: ^1.0.3
