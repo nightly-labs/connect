@@ -129,10 +129,10 @@ importers:
         specifier: ^0.7.9
         version: 0.7.9
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.1.5
+        specifier: 0.1.6
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
-        specifier: 0.0.13
+        specifier: 0.0.14
         version: link:../../packages/selector-sui
       '@solana/web3.js':
         specifier: ^1.77.2
@@ -184,7 +184,7 @@ importers:
   apps/nextjs-example:
     dependencies:
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.1.5
+        specifier: 0.1.6
         version: link:../../packages/selector-solana
       '@solana/web3.js':
         specifier: ^1.77.2
@@ -233,7 +233,7 @@ importers:
   apps/solana:
     dependencies:
       '@nightlylabs/nightly-connect-base':
-        specifier: 0.0.18
+        specifier: 0.0.19
         version: link:../base
       '@solana/web3.js':
         specifier: ^1.77.2
@@ -294,7 +294,7 @@ importers:
         specifier: ^0.5.9
         version: 0.5.9
       '@nightlylabs/nightly-connect-base':
-        specifier: 0.0.18
+        specifier: 0.0.19
         version: link:../base
       '@noble/hashes':
         specifier: ^1.3.0
@@ -486,7 +486,7 @@ importers:
   packages/selector-base:
     dependencies:
       '@nightlylabs/nightly-connect-base':
-        specifier: 0.0.18
+        specifier: 0.0.19
         version: link:../../apps/base
       '@nightlylabs/wallet-selector-modal':
         specifier: 0.0.9
@@ -526,10 +526,10 @@ importers:
   packages/selector-solana:
     dependencies:
       '@nightlylabs/nightly-connect-solana':
-        specifier: 0.0.20
+        specifier: 0.0.21
         version: link:../../apps/solana
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.0.15
+        specifier: 0.0.16
         version: link:../selector-base
       '@solana/wallet-adapter-base':
         specifier: ^0.9.22
@@ -581,10 +581,10 @@ importers:
         specifier: ^0.5.7
         version: 0.5.9
       '@nightlylabs/nightly-connect-sui':
-        specifier: 0.0.18
+        specifier: 0.0.19
         version: link:../../apps/sui
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.0.15
+        specifier: 0.0.16
         version: link:../selector-base
       '@wallet-standard/core':
         specifier: ^1.0.3
