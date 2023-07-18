@@ -6,7 +6,7 @@ export interface DeeplinkParams {
   relay: string
 }
 
-// export const exampleDeeplink = `https://nightly.app/nc?sessionId=0x123&requestId=0x456&relay=relay.nightly.app`
+// export const exampleDeeplink = `https://nightly.app/nc?sessionId=0x123&requestId=0x456&relay=https://nc2.nightly.app`
 export interface TriggerDeeplink {
   path: string // https://nightly.app or nightly
   deeplinkParams: DeeplinkParams

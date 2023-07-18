@@ -108,6 +108,6 @@ export const Default: Story = {
       'fsdhfdzfsdhgfzghggdfhbgchgbdfnvfbxhncvfjhzxdhgbhghfgfvzhfgjhgszdhgzxdfhgfzxdjfuhdfhgd',
     network: 'SOLANA',
     connecting: true,
-    relay: 'https://relay.nightly.app'
+    relay: 'https://nc2.nightly.app'
   }
 }

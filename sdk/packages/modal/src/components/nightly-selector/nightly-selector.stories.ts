@@ -116,6 +116,6 @@ Default.args = {
     'fsdhfdzfsdhgfzghggdfhbgchgbdfnvfbxhncvfjhzxdhgbhghfgfvzhfgjhgszdhgzxdfhgfzxdjfuhdfhgd',
   network: QueryNetwork.SOLANA,
   connecting: true,
-  relay: 'https://relay.nightly.app',
+  relay: 'https://nc2.nightly.app',
   open: true
 }
