@@ -1,10 +1,17 @@
 {
   "name": "@nightlylabs/wallet-selector-base",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "",
   "type": "module",
-  "main": "dist/cjs/index.cjs",
-  "module": "dist/esm/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs.js",
+      "require": "./dist/index.cjs.js"
+    }
+  },
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.mjs.js",
+  "types": "dist/index.d.ts",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"
@@ -16,8 +23,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@nightlylabs/nightly-connect-base": "0.0.17",
-    "@nightlylabs/wallet-selector-modal": "0.0.8",
+    "@nightlylabs/nightly-connect-base": "0.0.18",
+    "@nightlylabs/wallet-selector-modal": "0.0.9",
     "@wallet-standard/core": "^1.0.3",
     "isomorphic-localstorage": "^1.0.2"
   },

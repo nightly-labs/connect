@@ -1,9 +1,16 @@
 {
   "name": "@nightlylabs/wallet-selector-modal",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "type": "module",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs.js",
+      "require": "./dist/index.cjs.js"
+    }
+  },
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.mjs.js",
+  "types": "dist/index.d.ts",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"
@@ -17,7 +24,7 @@
   },
   "dependencies": {
     "@lit-labs/motion": "^1.0.3",
-    "@nightlylabs/qr-code": "2.0.0",
+    "@nightlylabs/qr-code": "2.0.1",
     "autoprefixer": "^10.4.14",
     "lit": "^2.7.2",
     "postcss": "^8.4.24",

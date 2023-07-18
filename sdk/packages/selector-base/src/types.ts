@@ -1,12 +1,14 @@
-import { AppBaseInitialize } from '@nightlylabs/nightly-connect-base'
-import { Deeplink } from '@nightlylabs/nightly-connect-base/dist/browser/cjs/types/bindings/Deeplink'
-import { QueryNetwork } from '@nightlylabs/wallet-selector-modal'
-import { Wallet } from '@wallet-standard/core'
+import { type AppBaseInitialize } from '@nightlylabs/nightly-connect-base'
+import { type Deeplink } from '@nightlylabs/nightly-connect-base/dist/types/bindings/Deeplink'
+import { type Wallet } from '@wallet-standard/core'
 
 export interface Adapter {
   connect: () => Promise<void>
 }
-
+export enum QueryNetwork {
+  SOLANA = 'SOLANA',
+  SUI = 'SUI'
+}
 export type AppInitData = Omit<AppBaseInitialize, 'network'>
 
 export interface MetadataWallet {
@@ -27,5 +29,3 @@ export interface NetworkData {
   name: string
   icon: string
 }
-
-export { QueryNetwork }

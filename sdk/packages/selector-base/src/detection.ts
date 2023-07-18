@@ -1,5 +1,5 @@
 import { Wallet, getWallets } from '@wallet-standard/core'
-import { IWalletListItem, MetadataWallet } from './types'
+import { type IWalletListItem, type MetadataWallet } from './types'
 
 export const getWalletsList = (
   presetList: MetadataWallet[],

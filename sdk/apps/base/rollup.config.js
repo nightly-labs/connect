@@ -9,13 +9,13 @@ export default [
     input: 'src/index.ts',
     output: [
       {
-        file: 'dist/cjs/index.cjs',
+        file: 'dist/index.cjs.js',
         format: 'cjs',
         sourcemap: true,
         interop: 'compat'
       },
       {
-        file: 'dist/esm/index.js',
+        file: 'dist/index.mjs.js',
         format: 'esm',
         sourcemap: true
       }
@@ -34,13 +34,13 @@ export default [
     input: 'src/index.ts',
     output: [
       {
-        file: 'dist/browser/cjs/index.cjs',
+        file: 'dist/index.browser.cjs.js',
         format: 'cjs',
         sourcemap: true,
         interop: 'compat'
       },
       {
-        file: 'dist/browser/esm/index.js',
+        file: 'dist/index.browser.mjs.js',
         format: 'esm',
         sourcemap: true
       }
@@ -61,7 +61,7 @@ export default [
     ]
   },
   {
-    input: 'dist/esm/types/apps/base/src/index.d.ts',
+    input: 'dist/types/apps/base/src/index.d.ts',
     output: [{ file: 'dist/index.d.ts', format: 'esm' }],
     plugins: [dts()]
   }
