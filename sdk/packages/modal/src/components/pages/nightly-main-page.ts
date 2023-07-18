@@ -130,7 +130,7 @@ export class NightlyMainPage extends LitElement {
         .walletIcon=${this.walletIcon}
         ${animate({
           properties: ['opacity'],
-          keyframeOptions: { duration: 380 },
+          keyframeOptions: { duration: 320 },
           skipInitial: true,
           in: [
             {
@@ -173,7 +173,7 @@ export class NightlyMainPage extends LitElement {
         .relay=${this.relay}
         ${animate({
           properties: ['opacity'],
-          keyframeOptions: { duration: 380 },
+          keyframeOptions: { duration: 320 },
           skipInitial: true,
           in: [
             {
@@ -238,7 +238,7 @@ export class NightlyMainPage extends LitElement {
           )}
           ${animate({
             properties: ['height'],
-            keyframeOptions: { duration: 250 },
+            keyframeOptions: { duration: 0 },
             skipInitial: true
           })}
         >
