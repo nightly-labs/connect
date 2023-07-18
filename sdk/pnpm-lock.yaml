@@ -129,7 +129,7 @@ importers:
         specifier: ^0.7.9
         version: 0.7.9
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.1.4
+        specifier: 0.1.5
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
         specifier: 0.0.13
@@ -184,7 +184,7 @@ importers:
   apps/nextjs-example:
     dependencies:
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.1.4
+        specifier: 0.1.5
         version: link:../../packages/selector-solana
       '@solana/web3.js':
         specifier: ^1.77.2

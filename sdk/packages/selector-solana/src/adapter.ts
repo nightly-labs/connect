@@ -144,7 +144,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     return adapter
   }
 
-  public static buildLazy = async (
+  public static buildLazy = (
     appInitData: AppInitData,
     eagerConnectForStandardWallets?: boolean,
     anchorRef?: HTMLElement | null
