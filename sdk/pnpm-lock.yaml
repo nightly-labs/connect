@@ -131,6 +131,9 @@ importers:
       '@nightlylabs/nightly-connect-solana':
         specifier: 0.0.21
         version: link:../solana
+      '@nightlylabs/nightly-connect-sui':
+        specifier: 0.0.19
+        version: link:../sui
       '@nightlylabs/wallet-selector-solana':
         specifier: 0.1.6
         version: link:../../packages/selector-solana
