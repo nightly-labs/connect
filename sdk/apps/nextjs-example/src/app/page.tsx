@@ -44,7 +44,14 @@ export default function Home() {
 
   useEffect(() => {
     if (eager) {
-      adapter?.connect()
+      adapter?.connect().then(
+        () => {
+          console.log('connect resolved successfully')
+        },
+        () => {
+          console.log('connect rejected')
+        }
+      )
     }
   }, [eager])
 
@@ -99,7 +106,14 @@ export default function Home() {
       ) : (
         <button
           onClick={() => {
-            adapter?.connect()
+            adapter?.connect().then(
+              () => {
+                console.log('connect resolved successfully')
+              },
+              () => {
+                console.log('connect rejected')
+              }
+            )
           }}>
           Connect
         </button>
