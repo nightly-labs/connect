@@ -27,6 +27,7 @@ import {
   WalletReadyState,
   WalletSignMessageError,
   WalletSignTransactionError,
+  WalletWindowClosedError,
   isVersionedTransaction
 } from '@solana/wallet-adapter-base'
 import { StandardWalletAdapter } from '@solana/wallet-standard'
@@ -134,11 +135,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         name: SOLANA_NETWORK,
         icon: 'https://assets.coingecko.com/coins/images/4128/small/solana.png'
       },
-      anchorRef,
-      undefined,
-      () => {
-        adapter._connecting = false
-      }
+      anchorRef
     )
 
     return adapter
@@ -189,11 +186,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
           name: SOLANA_NETWORK,
           icon: 'https://assets.coingecko.com/coins/images/4128/small/solana.png'
         },
-        anchorRef,
-        undefined,
-        () => {
-          adapter._connecting = false
-        }
+        anchorRef
       )
 
       adapter._loading = false
@@ -310,7 +303,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     }
   }
 
-  connectToStandardWallet = async (walletName: string) => {
+  connectToStandardWallet = async (walletName: string, onSuccess: () => void) => {
     if (this._modal) {
       this._modal.setStandardWalletConnectProgress(true)
     }
@@ -334,6 +327,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       this._connecting = false
       this.emit('connect', this._publicKey!)
       this._modal?.closeModal()
+      onSuccess()
     } catch {
       if (this._modal) {
         this._modal.setStandardWalletConnectProgress(false)
@@ -341,87 +335,109 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     }
   }
 
-  connect = async () => {
-    try {
-      if (this._readyState !== WalletReadyState.Installed) throw new WalletNotReadyError()
+  connect = async () =>
+    new Promise<void>((resolve, reject) => {
+      const innerConnect = async () => {
+        try {
+          if (this._readyState !== WalletReadyState.Installed) throw new WalletNotReadyError()
 
-      if (this._loading) {
-        // we do it to ensure proper connect flow in case if adapter is lazily built, but e. g. solana wallets selector uses its own eager connect
-        for (let i = 0; i < 200; i++) {
-          await sleep(10)
+          if (this._loading) {
+            // we do it to ensure proper connect flow in case if adapter is lazily built, but e. g. solana wallets selector uses its own eager connect
+            for (let i = 0; i < 200; i++) {
+              await sleep(10)
 
-          if (!this._loading) {
-            break
+              if (!this._loading) {
+                break
+              }
+            }
+
+            if (this._loading) {
+              throw new WalletNotReadyError()
+            }
           }
-        }
 
-        if (this._loading) {
-          throw new WalletNotReadyError()
-        }
-      }
+          if (!this._app) {
+            throw new WalletNotReadyError()
+          }
 
-      if (this.connected || this.connecting || !this._app) {
-        return
-      }
+          if (this.connected || this.connecting) {
+            resolve()
+            return
+          }
 
-      this._connecting = true
+          this._connecting = true
 
-      if (this._app.hasBeenRestored() && !!this._app.connectedPublicKeys.length) {
-        this.eagerConnectDeeplink()
-        this._publicKey = this._app.connectedPublicKeys[0]
-        this._connected = true
-        this._connecting = false
-        this._appSessionActive = true
-        this.emit('connect', this._publicKey)
-        return
-      }
+          if (this._app.hasBeenRestored() && !!this._app.connectedPublicKeys.length) {
+            this.eagerConnectDeeplink()
+            this._publicKey = this._app.connectedPublicKeys[0]
+            this._connected = true
+            this._connecting = false
+            this._appSessionActive = true
+            this.emit('connect', this._publicKey)
+            resolve()
+            return
+          }
 
-      const recentName = getRecentStandardWalletForNetwork(SOLANA_NETWORK)
-      if (
-        this._eagerConnectForStandardWallets &&
-        recentName !== null &&
-        isStandardConnectedForNetwork(SOLANA_NETWORK)
-      ) {
-        await this.connectToStandardWallet(recentName)
-
-        if (this._connected) {
-          return
-        }
-      }
-
-      this._app.on('userConnected', (e) => {
-        if (this._chosenMobileWalletName) {
-          persistRecentStandardWalletForNetwork(this._chosenMobileWalletName, SOLANA_NETWORK)
-        } else {
-          clearRecentStandardWalletForNetwork(SOLANA_NETWORK)
-        }
-        this._publicKey = new PublicKey(e.publicKeys[0])
-        this._connected = true
-        this._connecting = false
-        this._appSessionActive = true
-        this.emit('connect', this._publicKey)
-        this._modal?.closeModal()
-      })
-
-      if (this._modal) {
-        this._modal.openModal(this._app.sessionId, (walletName) => {
+          const recentName = getRecentStandardWalletForNetwork(SOLANA_NETWORK)
           if (
-            isMobileBrowser() &&
-            !this._walletsList.find((w) => w.name === walletName)?.standardWallet
+            this._eagerConnectForStandardWallets &&
+            recentName !== null &&
+            isStandardConnectedForNetwork(SOLANA_NETWORK)
           ) {
-            this.connectToMobileWallet(walletName)
-          } else {
-            this.connectToStandardWallet(walletName)
-          }
-        })
-      }
-    } catch (error: any) {
-      this._connecting = false
+            await this.connectToStandardWallet(recentName, resolve)
 
-      this.emit('error', error)
-      throw error
-    }
-  }
+            if (this._connected) {
+              return
+            }
+          }
+
+          this._app.on('userConnected', (e) => {
+            if (this._chosenMobileWalletName) {
+              persistRecentStandardWalletForNetwork(this._chosenMobileWalletName, SOLANA_NETWORK)
+            } else {
+              clearRecentStandardWalletForNetwork(SOLANA_NETWORK)
+            }
+            this._publicKey = new PublicKey(e.publicKeys[0])
+            this._connected = true
+            this._connecting = false
+            this._appSessionActive = true
+            this.emit('connect', this._publicKey)
+            this._modal?.closeModal()
+            resolve()
+          })
+
+          if (this._modal) {
+            this._modal._onClose = () => {
+              if (this._connecting) {
+                this._connecting = false
+
+                const error = new WalletWindowClosedError()
+
+                this.emit('error', error)
+                reject(error)
+              }
+            }
+            this._modal.openModal(this._app.sessionId, (walletName) => {
+              if (
+                isMobileBrowser() &&
+                !this._walletsList.find((w) => w.name === walletName)?.standardWallet
+              ) {
+                this.connectToMobileWallet(walletName)
+              } else {
+                this.connectToStandardWallet(walletName, resolve)
+              }
+            })
+          }
+        } catch (error: any) {
+          this._connecting = false
+
+          this.emit('error', error)
+          reject(error)
+        }
+      }
+
+      innerConnect()
+    })
 
   disconnect = async () => {
     if (this.connected) {
