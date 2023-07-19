@@ -98,8 +98,7 @@ const Context: FC<{ children: ReactNode }> = ({ children }) => {
             description: 'Solana Adapter Test',
             icon: 'https://docs.nightly.app/img/logo.png',
             additionalInfo: 'Courtesy of Nightly Connect team'
-          },
-          url: 'https://nc2.nightly.app'
+          }
         },
         true
       )
