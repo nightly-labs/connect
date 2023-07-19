@@ -42,7 +42,16 @@ export default function SolanaLazy() {
 
   createEffect(() => {
     if (eager()) {
-      adapter()?.connect()
+      adapter()
+        ?.connect()
+        .then(
+          () => {
+            console.log('connect resolved successfully')
+          },
+          () => {
+            console.log('connect rejected')
+          }
+        )
     }
   })
 
@@ -55,7 +64,16 @@ export default function SolanaLazy() {
         fallback={
           <button
             onClick={() => {
-              adapter()?.connect()
+              adapter()
+                ?.connect()
+                .then(
+                  () => {
+                    console.log('connect resolved successfully')
+                  },
+                  () => {
+                    console.log('connect rejected')
+                  }
+                )
             }}>
             Connect
           </button>
