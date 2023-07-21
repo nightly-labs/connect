@@ -1,6 +1,6 @@
 {
   "name": "@nightlylabs/wallet-selector-sui",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "",
   "type": "module",
   "exports": {
@@ -23,9 +23,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@mysten/sui.js": "^0.35.1",
-    "@mysten/wallet-adapter-wallet-standard": "^0.7.9",
-    "@mysten/wallet-standard": "^0.5.7",
+    "@mysten/sui.js": "^0.37.1",
+    "@mysten/wallet-adapter-wallet-standard": "^0.7.12",
+    "@mysten/wallet-standard": "^0.5.12",
+    "@mysten/wallet-adapter-base": "^0.7.12",
     "@nightlylabs/nightly-connect-sui": "0.0.19",
     "@nightlylabs/wallet-selector-base": "0.0.17",
     "@wallet-standard/core": "^1.0.3",

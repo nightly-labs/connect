@@ -169,7 +169,9 @@ export class NCBaseSelector<A extends Adapter> {
       this._anchor.appendChild(this._modal)
       this._open = true
       this._onOpen?.()
+      return true
     }
+    return false
   }
 
   public onCloseModal = () => {

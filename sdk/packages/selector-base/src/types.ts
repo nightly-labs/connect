@@ -29,3 +29,8 @@ export interface NetworkData {
   name: string
   icon: string
 }
+
+export enum ConnectionType {
+  Nightly = 'Nightly',
+  WalletStandard = 'WalletStandard'
+}
