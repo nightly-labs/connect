@@ -12,34 +12,34 @@ export default function Home() {
   const [publicKey, setPublicKey] = useState<PublicKey>()
 
   const connection = new Connection('https://api.devnet.solana.com')
-  // useEffect(() => {
-  //   NightlyConnectAdapter.build(
-  //     {
-  //       appMetadata: {
-  //         name: 'NCTestSolana',
-  //         description: 'Nightly Connect Test',
-  //         icon: 'https://docs.nightly.app/img/logo.png',
-  //         additionalInfo: 'Courtesy of Nightly Connect team'
-  //       },
-  //       url: 'https://nc2.nightly.app'
-  //     },
-  //     true
-  //   ).then((adapter) => {
-  //     adapter.on('connect', (pk) => {
-  //       setPublicKey(pk)
-  //     })
+  useEffect(() => {
+    NightlyConnectAdapter.build(
+      {
+        appMetadata: {
+          name: 'NCTestSolana',
+          description: 'Nightly Connect Test',
+          icon: 'https://docs.nightly.app/img/logo.png',
+          additionalInfo: 'Courtesy of Nightly Connect team'
+        },
+        url: 'https://nc2.nightly.app'
+      },
+      true
+    ).then((adapter) => {
+      adapter.on('connect', (pk) => {
+        setPublicKey(pk)
+      })
 
-  //     adapter.on('disconnect', () => {
-  //       setPublicKey(undefined)
-  //     })
+      adapter.on('disconnect', () => {
+        setPublicKey(undefined)
+      })
 
-  //     adapter.canEagerConnect().then((canEagerConnect) => {
-  //       setEager(canEagerConnect)
-  //     })
+      adapter.canEagerConnect().then((canEagerConnect) => {
+        setEager(canEagerConnect)
+      })
 
-  //     setAdapter(adapter)
-  //   })
-  // }, [])
+      setAdapter(adapter)
+    })
+  }, [])
 
   useEffect(() => {
     if (eager) {
