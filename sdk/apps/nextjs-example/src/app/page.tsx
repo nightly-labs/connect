@@ -23,8 +23,7 @@ export default function Home() {
         },
         url: 'https://nc2.nightly.app'
       },
-      true,
-      document.getElementById('modalAnchor')
+      true
     ).then((adapter) => {
       adapter.on('connect', (pk) => {
         setPublicKey(pk)

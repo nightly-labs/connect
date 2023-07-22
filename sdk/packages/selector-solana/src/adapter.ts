@@ -211,7 +211,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       false
     }
 
-    if (this._app && this._app.hasBeenRestored() && !!this._app.connectedPublicKeys.length) {
+    if (this._app && this._app.hasBeenRestored() && this._app.connectedPublicKeys.length > 0) {
       return true
     }
 
@@ -366,8 +366,9 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
           }
 
           this._connecting = true
-
-          if (this._app.hasBeenRestored() && !!this._app.connectedPublicKeys.length) {
+          console.log(this._app.hasBeenRestored())
+          console.log(this._app.connectedPublicKeys.length)
+          if (this._app.hasBeenRestored() && this._app.connectedPublicKeys.length > 0) {
             this.eagerConnectDeeplink()
             this._publicKey = this._app.connectedPublicKeys[0]
             this._connected = true
@@ -428,6 +429,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
               }
             })
           }
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
           this._connecting = false
 

@@ -9,6 +9,7 @@ import {
 import {
   AppBaseInitialize,
   BaseApp,
+  DeeplinkConnect,
   getWalletsMetadata,
   MessageToSign,
   TransactionToSign
@@ -55,7 +56,9 @@ export class AppSui extends EventEmitter<SuiAppEvents> {
     const base = await BaseApp.build({ ...initData, network: SUI_NETWORK })
     return new AppSui(base)
   }
-
+  connectDeeplink = async (data: DeeplinkConnect) => {
+    this.base.connectDeeplink(data)
+  }
   signTransactionBlock = async (
     input: SuiSignTransactionBlockInput
   ): Promise<SignedTransaction> => {
