@@ -179,18 +179,25 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
           }
 
           this._app.on('userConnected', (e) => {
-            if (this._chosenMobileWalletName) {
-              persistRecentStandardWalletForNetwork(this._chosenMobileWalletName, SUI_NETWORK)
-            } else {
-              clearRecentStandardWalletForNetwork(SUI_NETWORK)
+            try {
+              if (this._chosenMobileWalletName) {
+                persistRecentStandardWalletForNetwork(this._chosenMobileWalletName, SUI_NETWORK)
+              } else {
+                clearRecentStandardWalletForNetwork(SUI_NETWORK)
+              }
+              this._accounts = e.publicKeys.map((pk) => createSuiWalletAccountFromString(pk))
+              this.connected = true
+              this._connecting = false
+              this.connecting = false
+              this._connectionType = ConnectionType.Nightly
+              this._modal?.closeModal()
+              resolve()
+            } catch (e) {
+              this._connecting = false
+              this.connecting = false
+              this._modal?.closeModal()
+              reject(e)
             }
-            this._accounts = e.publicKeys.map((pk) => createSuiWalletAccountFromString(pk))
-            this.connected = true
-            this._connecting = false
-            this.connecting = false
-            this._connectionType = ConnectionType.Nightly
-            this._modal?.closeModal()
-            resolve()
           })
           if (!this._modal) {
             this._connecting = false
