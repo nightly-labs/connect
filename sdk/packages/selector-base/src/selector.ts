@@ -166,7 +166,6 @@ export class NCBaseSelector<A extends Adapter> {
   public openModal = () => {
     if (this._modal && this._open === false) {
       this.setSelectorStandardWallets()
-      this._anchor.appendChild(this._modal)
       this._open = true
       this._onOpen?.()
       return true

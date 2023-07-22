@@ -465,7 +465,6 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         this._innerStandardAdapter = undefined
         persistStandardDisconnectForNetwork(SOLANA_NETWORK)
       }
-      // Adrian why do we need this?
       this._walletsList = getWalletsList(
         this._metadataWallets,
         solanaWalletsFilter,

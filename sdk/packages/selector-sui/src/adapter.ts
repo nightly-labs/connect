@@ -58,6 +58,8 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
   private _chosenMobileWalletName: string | undefined
   private _accounts: WalletAccount[] = []
   private _connectionType: ConnectionType | undefined
+  private _metadataWallets: MetadataWallet[] = []
+
   // We need internal _connecting since sui messes with connecting state
   private _connecting = false
   constructor(appInitData: AppInitData, eagerConnectForStandardWallets?: boolean) {
@@ -100,7 +102,7 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
         .catch(() => [] as MetadataWallet[])
     ]).then(([app, metadataWallets]) => {
       adapter._app = app
-
+      adapter._metadataWallets = metadataWallets
       adapter._walletsList = getWalletsList(
         metadataWallets,
         suiWalletsFilter,
@@ -124,11 +126,7 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
     return adapter
   }
   connect = async () => {
-    console.log('try connect')
-    console.log('window', window)
-    console.log('document', document)
     return new Promise<void>((resolve, reject) => {
-      console.log(this)
       const innerConnect = async () => {
         try {
           if (this._loading) {
@@ -157,9 +155,6 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
 
           this._connecting = true
           this.connecting = true
-          console.log('Setting true')
-          console.log(this._app.hasBeenRestored())
-          console.log(this._app.connectedPublicKeys)
           if (this._app.hasBeenRestored() && this._app.connectedPublicKeys.length > 0) {
             this.eagerConnectDeeplink()
             // TODO add support for Secp256k1 key and features detection
@@ -173,10 +168,7 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
             resolve()
             return
           }
-          console.log('open modal')
-          console.log(isStandardConnectedForNetwork(SUI_NETWORK))
           const recentName = getRecentStandardWalletForNetwork(SUI_NETWORK)
-          console.log(recentName)
           if (
             this._eagerConnectForStandardWallets &&
             recentName !== null &&
@@ -200,7 +192,6 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
             this._modal?.closeModal()
             resolve()
           })
-          console.log('modal', this._modal)
           if (!this._modal) {
             this._connecting = false
             this.connecting = false
@@ -251,6 +242,7 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
     }
     switch (this._connectionType) {
       case ConnectionType.Nightly: {
+        clearSessionIdForNetwork(SUI_NETWORK)
         // Refresh app session
         this._app = await AppSui.build(this._appInitData)
 
@@ -260,13 +252,17 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
         if (this._innerStandardAdapter) {
           await this._innerStandardAdapter.disconnect()
           persistStandardDisconnectForNetwork(SUI_NETWORK)
+          this._walletsList = getWalletsList(
+            this._metadataWallets,
+            suiWalletsFilter,
+            getRecentStandardWalletForNetwork(SUI_NETWORK) ?? undefined
+          )
         }
+        clearRecentStandardWalletForNetwork(SUI_NETWORK)
         break
       }
     }
     this._innerStandardAdapter = undefined
-    clearSessionIdForNetwork(SUI_NETWORK)
-    clearRecentStandardWalletForNetwork(SUI_NETWORK)
     this._connectionType = undefined
     this.connected = false
     this._connecting = false
