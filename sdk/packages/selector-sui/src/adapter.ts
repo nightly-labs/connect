@@ -265,7 +265,6 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
             getRecentStandardWalletForNetwork(SUI_NETWORK) ?? undefined
           )
         }
-        clearRecentStandardWalletForNetwork(SUI_NETWORK)
         break
       }
     }
