@@ -79,6 +79,53 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
     return this._innerStandardAdapter.on(event, listener)
   }
 
+  public static build = async (
+    appInitData: AppInitData,
+    eagerConnectForStandardWallets?: boolean,
+    anchorRef?: HTMLElement | null
+  ) => {
+    const adapter = new NightlyConnectSuiAdapter(appInitData, eagerConnectForStandardWallets)
+
+    adapter._loading = true
+
+    const [app, metadataWallets] = await Promise.all([
+      AppSui.build(appInitData),
+      AppSui.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
+        .then((list) =>
+          list.map((wallet) => ({
+            name: wallet.name,
+            icon: wallet.image.default,
+            deeplink: wallet.mobile,
+            link: wallet.homepage
+          }))
+        )
+        .catch(() => [] as MetadataWallet[])
+    ])
+
+    adapter._app = app
+    adapter._metadataWallets = metadataWallets
+    adapter._walletsList = getWalletsList(
+      metadataWallets,
+      suiWalletsFilter,
+      getRecentStandardWalletForNetwork(SUI_NETWORK) ?? undefined
+    )
+
+    adapter._modal = new NightlyConnectSelectorModal(
+      adapter._walletsList,
+      appInitData.url ?? 'https://nc2.nightly.app',
+      {
+        network: QueryNetwork.SUI,
+        name: SUI_NETWORK,
+        icon: 'https://registry.connect.nightly.app/networks/sui.png'
+      },
+      anchorRef
+    )
+
+    adapter._loading = false
+
+    return adapter
+  }
+
   public static buildLazy = (
     appInitData: AppInitData,
     eagerConnectForStandardWallets?: boolean,

@@ -1,7 +1,6 @@
 export * from './detection'
 export * from './persistence'
 export * from './utils'
-export * from './selector'
 export * from './types'
 export * from './logoBase64'
 export * from './modal'

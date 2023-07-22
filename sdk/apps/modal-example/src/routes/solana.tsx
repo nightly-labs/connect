@@ -18,8 +18,7 @@ export default function Solana() {
           description: 'Nightly Connect Test',
           icon: 'https://docs.nightly.app/img/logo.png',
           additionalInfo: 'Courtesy of Nightly Connect team'
-        },
-        url: 'https://nc2.nightly.app'
+        }
       },
       true,
       document.getElementById('modalAnchor')

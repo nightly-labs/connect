@@ -1,52 +1,77 @@
-import { createSignal, onMount, Show } from 'solid-js'
+import { createEffect, createSignal, onMount, Show } from 'solid-js'
 import { Title } from 'solid-start'
-import { NCSuiSelector } from '@nightlylabs/wallet-selector-sui'
-import { StandardWalletAdapter } from '@mysten/wallet-adapter-wallet-standard'
+import { NightlyConnectSuiAdapter } from '@nightlylabs/wallet-selector-sui'
 import { TransactionBlock } from '@mysten/sui.js'
 import toast from 'solid-toast'
 
-let selector: NCSuiSelector
-
 export default function Sui() {
-  const [adapter, setAdapter] = createSignal<StandardWalletAdapter>()
+  const [adapter, setAdapter] = createSignal<NightlyConnectSuiAdapter>()
+  const [eager, setEager] = createSignal(false)
+  const [publicKey, setPublicKey] = createSignal<string>()
   onMount(async () => {
-    if (selector) {
-      return
-    }
-    selector = await NCSuiSelector.build(
+    NightlyConnectSuiAdapter.build(
       {
         appMetadata: {
           name: 'NCTestSui',
           description: 'Nightly Connect Test',
           icon: 'https://docs.nightly.app/img/logo.png',
           additionalInfo: 'Courtesy of Nightly Connect team'
-        },
-        url: 'https://nc2.nightly.app'
-      },
-      (newAdapter) => {
-        setAdapter(newAdapter)
+        }
       },
       true,
-      document.getElementById('modalAnchor') ?? undefined
-    )
+      document.getElementById('modalAnchor')
+    ).then(async (adapter) => {
+      adapter.canEagerConnect().then((canEagerConnect) => {
+        setEager(canEagerConnect)
+      })
+
+      setAdapter(adapter)
+    })
   })
+
+  createEffect(() => {
+    if (eager()) {
+      adapter()
+        ?.connect()
+        .then(
+          async () => {
+            const accounts = await adapter()!.getAccounts()
+            setPublicKey(accounts[0].address)
+            console.log('connect resolved successfully')
+          },
+          () => {
+            console.log('connect rejected')
+          }
+        )
+    }
+  })
+
   return (
     <main>
       <Title>Sui Example</Title>
       <div id="modalAnchor" />
       <Show
-        when={!!adapter()}
+        when={!!publicKey()}
         fallback={
           <button
             onClick={() => {
-              selector.openModal()
+              adapter()
+                ?.connect()
+                .then(
+                  async () => {
+                    const accounts = await adapter()!.getAccounts()
+                    setPublicKey(accounts[0].address)
+                    console.log('connect resolved successfully')
+                  },
+                  () => {
+                    console.log('connect rejected')
+                  }
+                )
             }}>
             Connect
           </button>
         }>
-        <h1>
-          Current address (first one of all in your app): {adapter()?.wallet.accounts[0].address}
-        </h1>
+        <h1>Current address: {publicKey()}</h1>
         <button
           onClick={async () => {
             try {
@@ -60,10 +85,11 @@ export default function Sui() {
                   '0xd85c7ad90905e0bd49b72420deb5f4077cab62840fb3917ca2945e41d8854013'
                 )
               )
+              const accounts = await adapter()!.getAccounts()
               await adapter()!.signAndExecuteTransactionBlock({
                 transactionBlock,
                 chain: 'sui:testnet',
-                account: adapter()!.wallet.accounts[0]
+                account: accounts[0]
               })
 
               toast.success('Transaction was signed and sent!')
@@ -77,9 +103,10 @@ export default function Sui() {
         <button
           onClick={async () => {
             try {
+              const accounts = await adapter()!.getAccounts()
               await adapter()!.signMessage!({
                 message: new TextEncoder().encode('I love Nightly'),
-                account: adapter()!.wallet.accounts[0]
+                account: accounts[0]
               })
 
               toast.success('Message was signed!')
@@ -93,7 +120,7 @@ export default function Sui() {
         <button
           onClick={() => {
             adapter()?.disconnect()
-            setAdapter(undefined)
+            setPublicKey(undefined)
           }}>
           Disconnect
         </button>
