@@ -123,14 +123,36 @@ const Content: FC = () => {
 
 <TabItem value="SUI" label="SUI">
 
+You can implement nightly connect as full selector or use it with popular sui adapter https://github.com/MystenLabs/sui/tree/main/sdk/wallet-adapter
+
 ```js
-import { AppSui } from '@nightlylabs/nightly-connect-sui'
-
-type AppSuiInitialize = Omit<AppBaseInitialize, 'network'>
-
-const app: AppSui = await AppSui.build(TEST_APP_INITIALIZE)
-app.on('userConnected', async (userPublicKeys) => {
-  console.log(userPublicKeys)
+import { WalletStandardAdapterProvider } from '@mysten/wallet-adapter-wallet-standard'
+import { WalletKitProvider } from '@mysten/wallet-kit'
+import { NightlyConnectSuiAdapter } from '@nightlylabs/wallet-selector-sui'
+import dynamic from 'next/dynamic'
+export const SuiProvider = ({ children }: any) => {
+  return (
+    <WalletKitProvider
+      adapters={[
+        new WalletStandardAdapterProvider(),
+        NightlyConnectSuiAdapter.buildLazy(
+          {
+            appMetadata: {
+              name: 'NCTestSui',
+              description: 'Nightly Connect Test',
+              icon: 'https://docs.nightly.app/img/logo.png',
+              additionalInfo: 'Courtesy of Nightly Connect team'
+            }
+          },
+          true
+        )
+      ]}>
+      {children}
+    </WalletKitProvider>
+  )
+}
+export default dynamic(() => Promise.resolve(SuiProvider), {
+  ssr: false
 })
 ```
 

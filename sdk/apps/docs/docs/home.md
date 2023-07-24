@@ -31,7 +31,7 @@ Install with code below in your terminal to get started.
 <Tabs>
 <TabItem value="Solana" label="Solana">
 
-Simply integrate Nightly Connect to your application or wallet with our [Nightly Solana Connect package](https://www.npmjs.com/package/@nightlylabs/nightly-connect-solana).
+Simply integrate Nightly Connect to your application or wallet with our [Nightly Solana Connect package](https://www.npmjs.com/package/@nightlylabs/wallet-selector-solana).
 
 ```bash
 # Using NPM
@@ -45,14 +45,14 @@ yarn add @nightlylabs/wallet-selector-solana
 </TabItem>
 <TabItem value="SUI" label="SUI">
 
-Simply integrate Nightly Connect to your application or wallet with our [Nightly Sui Connect package](https://www.npmjs.com/package/@nightlylabs/nightly-connect-sui).
+Simply integrate Nightly Connect to your application or wallet with our [Nightly Sui Connect package](https://www.npmjs.com/package/@nightlylabs/wallet-selector-sui).
 
 ```bash
 # Using NPM
-npm i @nightlylabs/nightly-connect-sui
+npm i @nightlylabs/wallet-selector-sui
 
 # Using Yarn
-yarn add @nightlylabs/nightly-connect-sui
+yarn add @nightlylabs/wallet-selector-sui
 ```
 
 </TabItem>
