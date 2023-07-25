@@ -23,11 +23,10 @@ The other peer needs just to scan the QR code on its device. Extension wallets a
 
 ### Connect
 
-Server sends a request to connect with the client. On the client side all information passed from application regarding the request will be displayed (website name, url, data).
+Application builds a connection using `build()` or `buildLazy()` function that returns interface to communicated with remote user. App should define `AppMetadata` so wallets will be able to show it to user.
 
-Application builds a connection using `build()` function that returns interface to communicated with remote user.
 To start sending request like `signTransaction` user first need to connect to session.
-Once user establishes connection, application will get public key and the connection is now confirmed.
+Once user establishes connection, application will get public key and the connection will be confirmed.
 
 API of application client is fit to match currently existing standards of corresponding blockchains
 
@@ -38,15 +37,6 @@ interface AppMetadata {
   description?: string;
   icon?: string; // Url of app image
   additionalInfo?: string;
-}
-
-interface AppBaseInitialize {
-  appMetadata: AppMetadata;
-  network?: Network;
-  url?: string; // Relay endpoint default nc2.nightly.app
-  timeout?: number;
-  persistentSessionId?: string; // Apps can reuse old connection to skip connect step.
-  persistent?: boolean; // Makes session valid for 14 days
 }
 ```
 
