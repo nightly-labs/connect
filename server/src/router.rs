@@ -6,6 +6,7 @@ use axum::{
     Router,
 };
 use tower::ServiceBuilder;
+use tracing_subscriber::EnvFilter;
 
 use crate::{
     app::app_handler::on_new_app_connection,
@@ -32,8 +33,11 @@ pub async fn get_router() -> Router {
     // Start cleaning outdated sessions
     start_cleaning_sessions(state.sessions.clone(), state.client_to_sessions.clone());
     let cors = get_cors();
+    let filter: EnvFilter = "server=debug,tower_http=trace"
+        .parse()
+        .expect("filter should parse");
 
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt().with_env_filter(filter).init();
 
     return Router::new()
         .route("/client", get(on_new_client_connection))
