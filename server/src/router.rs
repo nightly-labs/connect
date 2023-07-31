@@ -33,7 +33,8 @@ pub async fn get_router() -> Router {
     // Start cleaning outdated sessions
     start_cleaning_sessions(state.sessions.clone(), state.client_to_sessions.clone());
     let cors = get_cors();
-    let filter: EnvFilter = "server=debug,tower_http=trace"
+
+    let filter: EnvFilter = "debug,tower_http=trace,hyper=warn"
         .parse()
         .expect("filter should parse");
 
