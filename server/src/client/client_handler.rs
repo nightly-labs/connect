@@ -8,6 +8,7 @@ use axum::{
     response::Response,
 };
 use futures::StreamExt;
+use log::info;
 
 use crate::{
     errors::NightlyError,
@@ -54,7 +55,7 @@ pub async fn client_handler(
     let (sender, mut receiver) = socket.split();
     // Handle the new app connection here
     // Wait for initialize message
-    let client_id = loop {
+    let client_id: String = loop {
         let msg = match receiver.next().await {
             Some(msg) => match msg {
                 Ok(msg) => msg,
@@ -101,6 +102,7 @@ pub async fn client_handler(
             }
         }
     };
+    info!("Client connected: {}", client_id);
     // Main loop request handler
     loop {
         let sessions = sessions.clone();
@@ -185,6 +187,8 @@ pub async fn client_handler(
                 continue;
             }
         };
+        info!("Client {} new msg {:?}", client_id, app_msg);
+
         match app_msg {
             ClientToServer::ConnectRequest(connect_request) => {
                 let mut sessions = sessions.write().await;
@@ -199,6 +203,12 @@ pub async fn client_handler(
                             .send_to_client(client_id.clone(), error)
                             .await
                             .unwrap_or_default();
+
+                        info!(
+                            "Client {} session does not exist {}",
+                            client_id, connect_request.session_id
+                        );
+
                         continue;
                     }
                 };
@@ -250,6 +260,10 @@ pub async fn client_handler(
                             .send_to_client(client_id.clone(), error)
                             .await
                             .unwrap_or_default();
+                        info!(
+                            "Client {} session does not exist {}",
+                            client_id, new_payload_event_reply.session_id
+                        );
                         continue;
                     }
                 };
@@ -298,6 +312,10 @@ pub async fn client_handler(
                             .send_to_client(client_id.clone(), error)
                             .await
                             .unwrap_or_default();
+                        info!(
+                            "Client {} session does not exist {}",
+                            client_id, get_info_request.session_id
+                        );
                         continue;
                     }
                 };
@@ -325,6 +343,10 @@ pub async fn client_handler(
                             .send_to_client(client_id.clone(), error)
                             .await
                             .unwrap_or_default();
+                        info!(
+                            "Client {} session does not exist {}",
+                            client_id, get_pending_requests_request.session_id
+                        );
                         continue;
                     }
                 };
@@ -386,5 +408,6 @@ pub async fn client_handler(
                     .unwrap_or_default();
             }
         }
+        info!("Client {} msg handled", client_id);
     }
 }
