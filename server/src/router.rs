@@ -32,9 +32,8 @@ pub async fn get_router() -> Router {
     // Start cleaning outdated sessions
     start_cleaning_sessions(state.sessions.clone(), state.client_to_sessions.clone());
     let cors = get_cors();
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
-        .init();
+
+    tracing_subscriber::fmt::init();
 
     return Router::new()
         .route("/client", get(on_new_client_connection))
