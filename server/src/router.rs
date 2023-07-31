@@ -22,7 +22,7 @@ use crate::{
     structs::http_endpoints::HttpEndpoint,
     utils::get_cors,
 };
-
+use tower_http::trace::TraceLayer;
 pub async fn get_router() -> Router {
     let state = ServerState {
         sessions: Default::default(),
@@ -32,6 +32,9 @@ pub async fn get_router() -> Router {
     // Start cleaning outdated sessions
     start_cleaning_sessions(state.sessions.clone(), state.client_to_sessions.clone());
     let cors = get_cors();
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .init();
 
     return Router::new()
         .route("/client", get(on_new_client_connection))
@@ -62,14 +65,12 @@ pub async fn get_router() -> Router {
             &HttpEndpoint::GetWalletsMetadata.to_string(),
             get(get_wallets_metadata),
         )
+        .with_state(state)
+        .layer(TraceLayer::new_for_http())
         .layer(
             ServiceBuilder::new()
                 .layer(HandleErrorLayer::new(handle_error))
-                .load_shed()
-                .concurrency_limit(1024)
-                .timeout(Duration::from_secs(10))
-                .into_inner(),
+                .timeout(Duration::from_secs(10)),
         )
-        .with_state(state)
         .layer(cors);
 }

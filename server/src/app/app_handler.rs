@@ -178,7 +178,6 @@ pub async fn app_handler(
             Some(msg) => match msg {
                 Ok(msg) => msg,
                 Err(_e) => {
-                    println!("App disconnected");
                     let app_disconnected_event =
                         ServerToClient::AppDisconnectedEvent(AppDisconnectedEvent {
                             session_id: session_id.clone(),
