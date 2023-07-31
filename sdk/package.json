@@ -1,4 +1,5 @@
 {
+  "name": "sdk",
   "scripts": {
     "bindings": "rm -rf ./bindings && cp -r ../server/bindings ./bindings",
     "build": "turbo run build",
