@@ -2,7 +2,7 @@ import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
 import {
   BaseClient,
   ClientBaseInitialize,
-  Connect,
+  Connect as ConnectBase,
   SignMessagesEvent
 } from '@nightlylabs/nightly-connect-base'
 import { EventEmitter } from 'eventemitter3'
@@ -10,6 +10,8 @@ import { POLKADOT_NETWORK } from './utils'
 import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
 import { GetPendingRequestsResponse } from '../../../bindings/GetPendingRequestsResponse'
 import { SignerPayloadJSON, SignerPayloadRaw, SignerResult } from '@polkadot/types/types'
+import { KeypairType } from '@polkadot/util-crypto/types'
+import { InjectedAccount } from '@polkadot/extension-inject/types'
 
 export interface SignPolkadotTransactionEvent {
   requestId: string
@@ -72,7 +74,12 @@ export class ClientPolkadot extends EventEmitter<ClientPolkadotEvents> {
     return response
   }
   public connect = async (connect: Connect) => {
-    await this.baseClient.connect(connect)
+    const connectMsg: ConnectBase = {
+      ...connect,
+      publicKeys: connect.walletsMetadata.map((wallet) => wallet.address),
+      metadata: JSON.stringify(connect.walletsMetadata)
+    }
+    await this.baseClient.connect(connectMsg)
     this.sessionId = connect.sessionId
   }
   public getPendingRequests = async (sessionId?: string): Promise<GetPendingRequestsResponse> => {
@@ -120,7 +127,9 @@ export class ClientPolkadot extends EventEmitter<ClientPolkadotEvents> {
     return await this.baseClient.dropSessions(sessionsToDrop)
   }
 }
-
+export type Connect = ConnectBase & {
+  walletsMetadata: InjectedAccount[]
+}
 export interface RejectRequest {
   requestId: string
   reason?: string

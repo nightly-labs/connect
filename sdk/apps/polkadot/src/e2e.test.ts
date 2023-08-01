@@ -1,25 +1,35 @@
-import { Connect, RELAY_ENDPOINT, smartDelay } from '@nightlylabs/nightly-connect-base'
+import { RELAY_ENDPOINT, smartDelay } from '@nightlylabs/nightly-connect-base'
+import { ApiPromise, WsProvider } from '@polkadot/api'
+import { Keyring } from '@polkadot/keyring'
+import { SignerPayloadRaw } from '@polkadot/types/types'
+import { u8aToHex } from '@polkadot/util'
+import { cryptoWaitReady, decodeAddress, signatureVerify } from '@polkadot/util-crypto'
 import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { AppPolkadot } from './app'
-import { ClientPolkadot } from './client'
+import { ClientPolkadot, Connect } from './client'
 import { POLKADOT_NETWORK, TEST_APP_INITIALIZE } from './utils'
-import { Keyring } from '@polkadot/keyring'
-import { stringToU8a, u8aToHex } from '@polkadot/util'
-import { signatureVerify } from '@polkadot/util-crypto'
-import { SignerPayloadJSON, SignerPayloadRaw } from '@polkadot/types/types'
-import { TypeRegistry } from '@polkadot/types'
 
 // Edit an assertion and save to see HMR in action
 const alice_keypair = new Keyring()
-const aliceKayringPair = alice_keypair.createFromUri('//Alice')
+alice_keypair.setSS58Format(42)
+const aliceKeyringPair = alice_keypair.createFromUri('//Alice')
+const RECEIVER = '5CFRopxy991HCJj1HYtUQjaaBMw9iRLE9jxPndBsgdCjeJj5'
 describe('Base Client tests', () => {
   let app: AppPolkadot
   let client: ClientPolkadot
+  let provider: WsProvider
+  let polkadotApi: ApiPromise
+
   beforeAll(async () => {
+    await cryptoWaitReady()
     app = await AppPolkadot.build(TEST_APP_INITIALIZE)
     expect(app).toBeDefined()
     assert(app.sessionId !== '')
     client = await ClientPolkadot.create({ url: RELAY_ENDPOINT })
+    provider = new WsProvider('wss://ws.test.azero.dev/')
+    polkadotApi = await ApiPromise.create({
+      provider
+    })
   })
   beforeEach(async () => {
     await smartDelay()
@@ -36,87 +46,47 @@ describe('Base Client tests', () => {
   })
   test('#connect()', async () => {
     const msg: Connect = {
-      publicKeys: ['1', '2'],
-      sessionId: app.sessionId
+      publicKeys: [aliceKeyringPair.address],
+      sessionId: app.sessionId,
+      walletsMetadata: [
+        {
+          address: aliceKeyringPair.address,
+          name: 'Alice',
+          type: 'ed25519'
+        }
+      ]
     }
     await client.connect(msg)
   })
 
-  test('#on("signPayload")', async () => {
-    const payloadToSign: SignerPayloadJSON = {
-      address: aliceKayringPair.address,
-      blockHash: '0xe1b1dda72998846487e4d858909d4f9a6bbd6e338e4588e5d809de16b1317b80',
-      blockNumber: '0x00000393',
-      era: '0x3601',
-      genesisHash: '0x242a54b35e1aad38f37b884eddeb71f6f9931b02fac27bf52dfb62ef754e5e62',
-      method: '0x040105fa8eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a4882380100',
-      nonce: '0x0000000000000000',
-      signedExtensions: [
-        'CheckSpecVersion',
-        'CheckTxVersion',
-        'CheckGenesis',
-        'CheckMortality',
-        'CheckNonce',
-        'CheckWeight',
-        'ChargeTransactionPayment'
-      ],
-      specVersion: '0x00000026',
-      tip: '0x00000000000000000000000000000000',
-      transactionVersion: '0x00000005',
-      version: 4
-    }
-    const registry = new TypeRegistry()
+  test('#on("signTransactions")', async () => {
+    const payload = polkadotApi.tx.balances.transfer(RECEIVER, 50000000)
 
-    const signatureExpected = registry
-      .createType('ExtrinsicPayload', payloadToSign, { version: payloadToSign.version })
-      .sign(aliceKayringPair)
+    let payloadToSign = ''
 
     client.on('signTransactions', async (e) => {
       // resolve
-      const payload = e.transactions[0]
-      const signature = registry
-        .createType('ExtrinsicPayload', payload, { version: payload.version })
-        .sign(aliceKayringPair)
+      const payload = e.transactions[0] as SignerPayloadRaw
+      payloadToSign = payload.data
+      const signature = aliceKeyringPair.sign(payload.data, { withType: true })
 
+      // TODO seems like signature is 65 bytes long, but it should be 64
+      // console.log('signature', u8aToHex(signature.slice(1, 64)))
       await client.resolveSignTransaction({
         requestId: e.requestId,
-        signedTransactions: [{ signature: signature.signature, id: new Date().getTime() }]
+        // TODO Not sure what id here means
+        signedTransactions: [{ signature: u8aToHex(signature), id: new Date().getTime() }]
       })
     })
-
     await smartDelay()
-    const signed = await app.signPayload(payloadToSign)
-
-    expect(signed.signature).toEqual(signatureExpected.signature)
-    client.removeListener('signTransactions')
-  })
-
-  test('#on("signRaw")', async () => {
-    const messageBytes = stringToU8a('LOVE NIGHTLY')
-    const payload: SignerPayloadRaw = {
-      type: 'bytes',
-      data: u8aToHex(messageBytes),
-      address: aliceKayringPair.address
-    }
-    client.on('signTransactions', async (e) => {
-      // resolve
-
-      const signedBytes = aliceKayringPair.sign(e.transactions[0].data)
-      const signature = u8aToHex(signedBytes)
-      await client.resolveSignTransaction({
-        requestId: e.requestId,
-        signedTransactions: [{ signature: signature, id: new Date().getTime() }]
-      })
-    })
-
-    await smartDelay()
-    const signed = await app.signRaw(payload)
-    const isSignatureValid = signatureVerify(
-      payload.data,
+    const signed = await payload.signAsync(RECEIVER, { signer: app.signer })
+    const verify = signatureVerify(
+      payloadToSign,
       signed.signature,
-      aliceKayringPair.address
+      u8aToHex(decodeAddress(aliceKeyringPair.address))
     )
 
-    assert(isSignatureValid.isValid)
+    expect(verify.isValid).toBeTruthy()
+    client.removeListener('signTransactions')
   })
 })

@@ -1,78 +1,104 @@
 import {
   AppBaseInitialize,
   BaseApp,
-  getWalletsMetadata,
-  TransactionToSign,
-  DeeplinkConnect
+  DeeplinkConnect,
+  getWalletsMetadata
 } from '@nightlylabs/nightly-connect-base'
-import { POLKADOT_NETWORK } from './utils'
+import { InjectedAccount, InjectedExtension } from '@polkadot/extension-inject/types'
 import { EventEmitter } from 'eventemitter3'
 import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
-import { UserConnectedEvent } from '../../../bindings/UserConnectedEvent'
 import { WalletMetadata } from '../../../bindings/WalletMetadata'
-import { SignerPayloadJSON, SignerPayloadRaw, SignerResult } from '@polkadot/types/types'
+import Accounts from './Accounts'
+import Signer from './Signer'
+import { POLKADOT_NETWORK } from './utils'
 
 export type AppPolkadotInitialize = Omit<AppBaseInitialize, 'network'>
 interface PolkadotAppEvents {
-  userConnected: (e: UserConnectedEvent) => void
+  userConnected: (e: InjectedAccount[]) => void
   userDisconnected: (e: UserDisconnectedEvent) => void
   serverDisconnected: () => void
 }
-export class AppPolkadot extends EventEmitter<PolkadotAppEvents> {
+export class AppPolkadot extends EventEmitter<PolkadotAppEvents> implements InjectedExtension {
   sessionId: string
-  base: BaseApp
-  transactionId = 0
+  initData: AppPolkadotInitialize
+  // Polkadot specific
+  name = 'Nightly Connect'
+  version = '0.0.1'
+  accounts: Accounts
+  // metadata?: InjectedMetadata
+  // provider?: InjectedProvider
+  signer: Signer
 
-  constructor(base: BaseApp) {
+  constructor(base: BaseApp, initData: AppPolkadotInitialize) {
     super()
-
-    this.base = base
-    this.sessionId = base.sessionId
-    this.base.on('userConnected', (e) => {
-      this.emit('userConnected', e)
+    this.initData = initData
+    base.on('userConnected', (e) => {
+      if (e.metadata) {
+        const accounts = JSON.parse(e.metadata) as InjectedAccount[]
+        this.accounts.updateActiveAccounts(accounts)
+        this.emit('userConnected', accounts)
+      } else {
+        const accounts = e.publicKeys.map((pk) => ({ address: pk })) as InjectedAccount[]
+        this.accounts.updateActiveAccounts(accounts)
+        this.emit('userConnected', accounts)
+      }
     })
-    this.base.on('userDisconnected', (e) => {
+    base.on('userDisconnected', (e) => {
       this.emit('userDisconnected', e)
     })
-    this.base.on('serverDisconnected', () => {
-      this.emit('serverDisconnected')
+    base.on('serverDisconnected', async () => {
+      // We need this because of power saving mode on mobile
+      await this.tryReconnect()
     })
+    this.accounts = new Accounts()
+    this.signer = new Signer(base)
+    this.sessionId = base.sessionId
+  }
+  private tryReconnect = async () => {
+    try {
+      const base = await BaseApp.build({ ...this.initData, network: POLKADOT_NETWORK })
+      // On reconnect, if the base has not been restored, emit serverDisconnected
+      if (!base.hasBeenRestored) {
+        this.emit('serverDisconnected')
+        return
+      }
+      base.on('userConnected', (e) => {
+        if (e.metadata) {
+          const accounts = JSON.parse(e.metadata) as InjectedAccount[]
+          this.accounts.updateActiveAccounts(accounts)
+          this.emit('userConnected', accounts)
+        } else {
+          const accounts = e.publicKeys.map((pk) => ({ address: pk })) as InjectedAccount[]
+          this.accounts.updateActiveAccounts(accounts)
+          this.emit('userConnected', accounts)
+        }
+      })
+      base.on('userDisconnected', (e) => {
+        this.emit('userDisconnected', e)
+      })
+      base.on('serverDisconnected', async () => {
+        await this.tryReconnect()
+      })
+      // If there is a deeplink, reconnect to it
+      if (this.signer.base.deeplink) {
+        base.connectDeeplink(this.signer.base.deeplink)
+      }
+      this.signer.base = base
+      return
+    } catch (_) {
+      this.emit('serverDisconnected')
+    }
   }
   public static getWalletsMetadata = async (url?: string): Promise<WalletMetadata[]> => {
     return getWalletsMetadata(url)
   }
+
   public static build = async (initData: AppPolkadotInitialize): Promise<AppPolkadot> => {
     const base = await BaseApp.build({ ...initData, network: POLKADOT_NETWORK })
-    base.connectDeeplink
-    return new AppPolkadot(base)
+    return new AppPolkadot(base, initData)
   }
+
   connectDeeplink = async (data: DeeplinkConnect) => {
-    this.base.connectDeeplink(data)
-  }
-
-  signPayload = async (payload: SignerPayloadJSON): Promise<SignerResult> => {
-    const id = ++this.transactionId
-    const transactionToSign: TransactionToSign = {
-      transaction: JSON.stringify(payload)
-    }
-    const signedTxs = await this.base.signTransactions([transactionToSign])
-    const result = JSON.parse(signedTxs[0].transaction) as SignerResult
-    return {
-      ...result,
-      id
-    }
-  }
-
-  signRaw = async (payload: SignerPayloadRaw): Promise<SignerResult> => {
-    const id = ++this.transactionId
-    const transactionToSign: TransactionToSign = {
-      transaction: JSON.stringify(payload)
-    }
-    const signedTxs = await this.base.signTransactions([transactionToSign])
-    const result = JSON.parse(signedTxs[0].transaction) as SignerResult
-    return {
-      ...result,
-      id
-    }
+    this.signer.base.connectDeeplink(data)
   }
 }
