@@ -23,6 +23,14 @@ describe('Base App tests', () => {
     expect(baseApp).toBeDefined()
     assert(baseApp.sessionId !== '')
     const sessionId = baseApp.sessionId // Save the session id
+    // Connect user
+    const client = await BaseClient.build(testClientBaseInitialize)
+    const msg: Connect = {
+      publicKeys: ['1', '2'],
+      sessionId: baseApp.sessionId
+    }
+    await client.connect(msg)
+    await smartDelay()
     // Disconnect
     await baseApp.ws.terminate() // close() does not emit close event
     const disconnecFn = vi.fn()
@@ -34,6 +42,12 @@ describe('Base App tests', () => {
     // Reconnect
     persistInitialize.persistentSessionId = sessionId // Set the session id
     const baseApp2 = await BaseApp.build(persistInitialize)
+    baseApp2.hasBeenRestored
+    assert(baseApp2.hasBeenRestored == true)
+    // Check public keys
+    assert(baseApp2.connectedPublicKeys[0] === '1')
+    assert(baseApp2.connectedPublicKeys[1] === '2')
+
     expect(baseApp2).toBeDefined()
     assert(baseApp2.sessionId == sessionId)
   })

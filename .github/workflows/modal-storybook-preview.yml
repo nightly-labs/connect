@@ -10,12 +10,10 @@ jobs:
   upload:
     runs-on: [testing]
     steps:
-      - name: FIX BULLSHIT PERMISSION
-        run: |
-          echo ${{secrets.TESTING_LAPTOP_PASSWORD}} | sudo -S chown -R $USER:$USER /home/syncomp/runners
       - name: Checkout
         uses: actions/checkout@v3
       - name: Deploy to Vercel Action
+        id: vercel-deploy
         uses: BetaHuhn/deploy-to-vercel-action@v1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -24,3 +22,15 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_NIGHTLY_CONNECT_MODAL_STORYBOOK }}
           VERCEL_SCOPE: ${{ secrets.VERCEL_ORG_ID }}
           PRODUCTION: false
+          CREATE_COMMENT: false
+          GITHUB_DEPLOYMENT: false
+      - uses: thollander/actions-comment-pull-request@v1
+        with:
+          message: 🤙🤙🤙🤙 STORYBOOK 🤙🤙🤙🤙
+            <table>
+            <tr>
+            <td><strong>✅ Preview:</strong></td>
+            <td><a href='${{ steps.vercel-deploy.outputs.PREVIEW_URL }}'>${{ steps.vercel-deploy.outputs.PREVIEW_URL }}</a></td>
+            </tr>
+            </table>
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

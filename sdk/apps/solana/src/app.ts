@@ -1,4 +1,4 @@
-import { Transaction, VersionedTransaction } from '@solana/web3.js'
+import { Keypair, PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js'
 import {
   AppBaseInitialize,
   BaseApp,
@@ -22,10 +22,10 @@ interface SolanaAppEvents {
 export class AppSolana extends EventEmitter<SolanaAppEvents> {
   sessionId: string
   base: BaseApp
-
-  constructor(base: BaseApp) {
+  initData: AppSolanaInitialize
+  constructor(base: BaseApp, initData: AppSolanaInitialize) {
     super()
-
+    this.initData = initData
     this.base = base
     this.sessionId = base.sessionId
     this.base.on('userConnected', (e) => {
@@ -34,24 +34,60 @@ export class AppSolana extends EventEmitter<SolanaAppEvents> {
     this.base.on('userDisconnected', (e) => {
       this.emit('userDisconnected', e)
     })
-    this.base.on('serverDisconnected', () => {
-      this.emit('serverDisconnected')
+    this.base.on('serverDisconnected', async () => {
+      // We need this because of power saving mode on mobile
+      await this.tryReconnect()
     })
+  }
+  private tryReconnect = async () => {
+    try {
+      const base = await BaseApp.build({ ...this.initData, network: SOLANA_NETWORK })
+      // On reconnect, if the base has not been restored, emit serverDisconnected
+      if (!base.hasBeenRestored) {
+        this.emit('serverDisconnected')
+        return
+      }
+      base.on('userConnected', (e) => {
+        this.emit('userConnected', e)
+      })
+      base.on('userDisconnected', (e) => {
+        this.emit('userDisconnected', e)
+      })
+      base.on('serverDisconnected', async () => {
+        await this.tryReconnect()
+      })
+      // If there is a deeplink, reconnect to it
+      if (this.base.deeplink) {
+        base.connectDeeplink(this.base.deeplink)
+      }
+      this.base = base
+      return
+    } catch (_) {
+      this.emit('serverDisconnected')
+    }
+  }
+  public hasBeenRestored = () => {
+    return this.base.hasBeenRestored
+  }
+  public get connectedPublicKeys() {
+    return this.base.connectedPublicKeys.map((pk) => new PublicKey(pk))
   }
   public static getWalletsMetadata = async (url?: string): Promise<WalletMetadata[]> => {
     return getWalletsMetadata(url)
   }
   public static build = async (initData: AppSolanaInitialize): Promise<AppSolana> => {
     const base = await BaseApp.build({ ...initData, network: SOLANA_NETWORK })
-    base.connectDeeplink
-    return new AppSolana(base)
+    return new AppSolana(base, initData)
   }
   connectDeeplink = async (data: DeeplinkConnect) => {
     this.base.connectDeeplink(data)
   }
   signTransaction = async (transaction: Transaction) => {
+    const serialized = Buffer.from(
+      transaction.serialize({ requireAllSignatures: false, verifySignatures: false })
+    ).toString('hex')
     return await this.signVersionedTransaction(
-      new VersionedTransaction(transaction.compileMessage())
+      VersionedTransaction.deserialize(Buffer.from(serialized, 'hex'))
     )
   }
 
@@ -60,13 +96,21 @@ export class AppSolana extends EventEmitter<SolanaAppEvents> {
       transaction: Buffer.from(transaction.serialize()).toString('hex')
     }
     const signedTxs = await this.base.signTransactions([transactionToSign])
-
-    return VersionedTransaction.deserialize(Buffer.from(signedTxs[0].transaction, 'hex'))
+    const signed = VersionedTransaction.deserialize(Buffer.from(signedTxs[0].transaction, 'hex'))
+    VersionedTransaction.prototype['partialSign'] = function (this, keypair: Keypair) {
+      return this.sign([keypair])
+    }
+    return signed
   }
 
   signAllTransactions = async (transactions: Transaction[]) => {
     return await this.signAllVersionedTransactions(
-      transactions.map((tx) => new VersionedTransaction(tx.compileMessage()))
+      transactions.map((tx) => {
+        const serialized = Buffer.from(
+          tx.serialize({ requireAllSignatures: false, verifySignatures: false })
+        ).toString('hex')
+        return VersionedTransaction.deserialize(Buffer.from(serialized, 'hex'))
+      })
     )
   }
 
@@ -76,7 +120,12 @@ export class AppSolana extends EventEmitter<SolanaAppEvents> {
       transaction: Buffer.from(tx.serialize()).toString('hex')
     }))
     const signedTx = await this.base.signTransactions(transactionsToSign)
-    const parsed = signedTx.map((tx) => Transaction.from(Buffer.from(tx.transaction, 'hex')))
+    const parsed = signedTx.map((tx) => {
+      VersionedTransaction.prototype['partialSign'] = function (this, keypair: Keypair) {
+        return this.sign([keypair])
+      }
+      return VersionedTransaction.deserialize(Uint8Array.from(Buffer.from(tx.transaction, 'hex')))
+    })
     return parsed
   }
 

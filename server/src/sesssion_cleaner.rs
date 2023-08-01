@@ -20,16 +20,17 @@ pub fn start_cleaning_sessions(sessions: Sessions, client_to_sessions: ClientToS
             let mut sessions_to_remove = vec![];
             // Remove all sessions that expired
             let now = get_timestamp_in_milliseconds();
-            for session in sessions.iter() {
+            let mut sessions = sessions.write().await;
+            for (session_id, session) in sessions.iter() {
                 // Check if the session expired
                 // Default session time is two weeks
                 if session.creation_timestamp + 1000 * 60 * 60 * 24 * 14 < now {
-                    sessions_to_remove.push(session.key().clone());
+                    sessions_to_remove.push(session_id.clone());
                 }
             }
             // Remove all sessions that expired
             for session_id in sessions_to_remove {
-                let mut session = sessions.get_mut(&session_id).unwrap();
+                let session = sessions.get_mut(&session_id).unwrap();
                 // Remove session from client_to_sessions
                 match &session.client_state.client_id {
                     Some(client_id) => {

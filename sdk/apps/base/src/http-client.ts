@@ -40,7 +40,7 @@ export class HttpBaseClient {
   public constructor({ clientId, timeout, url }: HttpBaseClientInitialize) {
     this.timeout = timeout || 10000
     this.clientId = clientId || getRandomId()
-    this.url = url || 'https://relay.nightly.app/'
+    this.url = url || 'https://nc2.nightly.app'
   }
 
   send = async (request: object, endpoint: HttpEndpoint, method = 'POST'): Promise<any> => {

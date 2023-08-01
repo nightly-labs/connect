@@ -1,21 +1,15 @@
 <style>
-  @font-face {
-    font-family: 'Prompt';
-    src: url('src/utils/fonts/Prompt/Prompt-Light.ttf') format('truetype');
-    font-style: normal;
-    font-weight: normal;
-  }
-
-  @font-face {
-    font-family: 'Prompt';
-    src: url('src/utils/fonts/Prompt/Prompt-SemiBold.ttf') format('truetype');
-    font-style: normal;
-    font-weight: bold;
-  }
+  @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;600&display=swap');
 
   /* Firefox */
   * {
     font-family: 'Prompt';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-smooth: never;
+  }
+  body {
+    background-color: black;
   }
   #storybook-root {
     width: 100%;

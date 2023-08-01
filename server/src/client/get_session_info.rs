@@ -28,6 +28,7 @@ pub async fn get_session_info(
     State(sessions): State<Sessions>,
     Json(request): Json<HttpGetSessionInfoRequest>,
 ) -> Result<Json<HttpGetSessionInfoResponse>, (StatusCode, String)> {
+    let sessions = sessions.read().await;
     let session = match sessions.get(&request.session_id) {
         Some(session) => session,
         None => {

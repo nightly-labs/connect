@@ -1,0 +1,85 @@
+.nightlyModal {
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 1080px) and (min-width: 960px) {
+  .nightlyModal {
+    max-width: 636px;
+  }
+}
+
+@media (max-width: 960px) and (min-width: 640px) {
+  .nightlyModal {
+    max-width: 540px;
+  }
+}
+
+@media (max-width: 640px) {
+  .nightlyModal {
+    max-width: 100%;
+    transform-origin: 0 100%;
+    animation: 250ms ease-out 0s 1 slideIn normal forwards;
+  }
+
+  .slideOutMobile {
+    animation: 250ms ease-out 0s 1 slideOut normal forwards;
+  }
+}
+
+@keyframes slideIn {
+  0% {
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideOut {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+.contentWrapper {
+  border-radius: 0px 0px 16px 16px;
+  overflow: hidden;
+  background-color: #17182b;
+  border: 1px solid #343551;
+  border-top: none;
+}
+
+@media (max-width: 640px) {
+  .contentWrapper {
+    top: -20px;
+    position: relative;
+    border-radius: 16px 16px 0 0;
+  }
+}
+
+.modalConnect {
+  display: block;
+}
+
+.modalDesktop {
+  display: block;
+}
+
+.modalMobile {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .modalDesktop {
+    display: none;
+  }
+
+  .modalMobile {
+    display: block;
+  }
+}

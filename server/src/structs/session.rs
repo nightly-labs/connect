@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::state::ClientId;
 
 use super::{
@@ -6,8 +8,8 @@ use super::{
 };
 use anyhow::Result;
 use axum::extract::ws::{Message, WebSocket};
-use dashmap::DashMap;
 use futures::{stream::SplitSink, SinkExt};
+use log::info;
 
 #[derive(Debug)]
 pub struct Session {
@@ -18,18 +20,21 @@ pub struct Session {
     pub version: Version,
     pub app_state: AppState,
     pub client_state: ClientState,
-    pub pending_requests: DashMap<String, String>,
+    pub pending_requests: HashMap<String, String>,
     pub notification: Option<Notification>,
     pub creation_timestamp: u64,
 }
 impl Session {
     pub async fn send_to_app(&mut self, msg: ServerToApp) -> Result<()> {
         match &mut self.app_state.app_socket {
-            Some(app_socket) => Ok(app_socket
-                .send(Message::Text(
-                    serde_json::to_string(&msg).expect("Serialization should work"),
-                ))
-                .await?),
+            Some(app_socket) => {
+                info!("Send to app {}, msg: {:?}", self.session_id, msg);
+                return Ok(app_socket
+                    .send(Message::Text(
+                        serde_json::to_string(&msg).expect("Serialization should work"),
+                    ))
+                    .await?);
+            }
             None => Err(anyhow::anyhow!("No app socket found for session")),
         }
     }

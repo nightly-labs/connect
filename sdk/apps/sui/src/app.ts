@@ -9,6 +9,7 @@ import {
 import {
   AppBaseInitialize,
   BaseApp,
+  DeeplinkConnect,
   getWalletsMetadata,
   MessageToSign,
   TransactionToSign
@@ -26,10 +27,10 @@ interface SuiAppEvents {
 export class AppSui extends EventEmitter<SuiAppEvents> {
   sessionId: string
   base: BaseApp
-
-  constructor(base: BaseApp) {
+  initData: AppSuiInitialize
+  constructor(base: BaseApp, initData: AppSuiInitialize) {
     super()
-
+    this.initData = initData
     this.base = base
     this.sessionId = base.sessionId
     this.base.on('userConnected', (e) => {
@@ -38,18 +39,54 @@ export class AppSui extends EventEmitter<SuiAppEvents> {
     this.base.on('userDisconnected', (e) => {
       this.emit('userDisconnected', e)
     })
-    this.base.on('serverDisconnected', () => {
-      this.emit('serverDisconnected')
+    this.base.on('serverDisconnected', async () => {
+      // We need this because of power saving mode on mobile
+      await this.tryReconnect()
     })
+  }
+  private tryReconnect = async () => {
+    try {
+      const base = await BaseApp.build({ ...this.initData, network: SUI_NETWORK })
+      // On reconnect, if the base has not been restored, emit serverDisconnected
+      if (!base.hasBeenRestored) {
+        this.emit('serverDisconnected')
+        return
+      }
+      base.on('userConnected', (e) => {
+        this.emit('userConnected', e)
+      })
+      base.on('userDisconnected', (e) => {
+        this.emit('userDisconnected', e)
+      })
+      base.on('serverDisconnected', async () => {
+        await this.tryReconnect()
+      })
+      // If there is a deeplink, reconnect to it
+      if (this.base.deeplink) {
+        base.connectDeeplink(this.base.deeplink)
+      }
+      this.base = base
+      return
+    } catch (_) {
+      this.emit('serverDisconnected')
+    }
+  }
+  public hasBeenRestored = () => {
+    return this.base.hasBeenRestored
+  }
+  public get connectedPublicKeys() {
+    return this.base.connectedPublicKeys
   }
   public static getWalletsMetadata = async (url?: string): Promise<WalletMetadata[]> => {
     return getWalletsMetadata(url)
   }
   public static build = async (initData: AppSuiInitialize): Promise<AppSui> => {
     const base = await BaseApp.build({ ...initData, network: SUI_NETWORK })
-    return new AppSui(base)
+    return new AppSui(base, initData)
   }
-
+  connectDeeplink = async (data: DeeplinkConnect) => {
+    this.base.connectDeeplink(data)
+  }
   signTransactionBlock = async (
     input: SuiSignTransactionBlockInput
   ): Promise<SignedTransaction> => {

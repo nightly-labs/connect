@@ -6,7 +6,7 @@ export interface DeeplinkParams {
   relay: string
 }
 
-// export const exampleDeeplink = `https://nightly.app/nc?sessionId=0x123&requestId=0x456&relay=relay.nightly.app`
+// export const exampleDeeplink = `https://nightly.app/nc?sessionId=0x123&requestId=0x456&relay=https://nc2.nightly.app`
 export interface TriggerDeeplink {
   path: string // https://nightly.app or nightly
   deeplinkParams: DeeplinkParams
@@ -27,7 +27,11 @@ export const createDeeplinkUrl = ({ deeplinkParams, path }: TriggerDeeplink) => 
 }
 export const triggerDeeplink = ({ deeplinkParams, path }: TriggerDeeplink) => {
   const url = createDeeplinkUrl({ deeplinkParams, path })
-  window.open(url, '_self', 'noreferrer noopener')
+  if (window) {
+    window.open(url, '_self', 'noreferrer noopener')
+  } else {
+    console.warn('window is undefined')
+  }
 }
 export const parseDeeplink = (url: string): DeeplinkParams => {
   const urlObj = new URL(url)

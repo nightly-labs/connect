@@ -1,0 +1,84 @@
+.nightlySelectorOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  animation: 100ms ease-out 0s 1 fadeIn normal forwards;
+  z-index: 100;
+  background-color: rgba(15, 15, 26, 0.4);
+  backdrop-filter: blur(10px);
+}
+
+.fadeOutOpacity {
+  animation: 100ms ease-out 0s 1 fadeOut normal forwards;
+}
+
+@media (max-width: 640px) {
+  .nightlySelectorOverlay {
+    animation: 250ms ease-out 0s 1 fadeInMobile normal forwards;
+    background-color: rgba(15, 15, 26, 0);
+    backdrop-filter: blur(0);
+  }
+
+  .fadeOutOpacity {
+    animation: 250ms ease-out 0s 1 fadeOutMobile normal forwards;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeInMobile {
+  0% {
+    background-color: rgba(15, 15, 26, 0);
+    backdrop-filter: blur(0);
+  }
+  100% {
+    background-color: rgba(15, 15, 26, 0.4);
+    backdrop-filter: blur(10px);
+  }
+}
+
+@keyframes fadeOutMobile {
+  0% {
+    background-color: rgba(15, 15, 26, 0.4);
+    backdrop-filter: blur(10px);
+  }
+  100% {
+    background-color: rgba(15, 15, 26, 0);
+    backdrop-filter: blur(0);
+  }
+}
+
+.nightlySelector {
+  margin: auto;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  width: fit-content;
+  display: block;
+}
+
+@media (max-width: 640px) {
+  .nightlySelector {
+    top: 100%;
+    transform: translateY(calc(-100% + 20px));
+    width: unset;
+  }
+}

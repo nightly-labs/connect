@@ -1,0 +1,178 @@
+.walletSelectorButtons {
+  display: flex;
+  flex-direction: column;
+  z-index: 2;
+  background-color: #17182b;
+  width: 100%;
+  height: 526px;
+}
+
+.headerContainer {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.buttonContainer {
+  height: 32px;
+  min-width: 32px;
+  padding-inline: 8px;
+}
+
+.textContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.inputContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.inputContainer::before {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(180deg, #17182b 12.37%, rgba(32, 33, 55, 0) 100%);
+  opacity: 1;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.textContainer span {
+  font-family: 'Prompt';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22px;
+  letter-spacing: 0.28px;
+  color: #f7f7f7;
+}
+.walletInputSearchContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0px 16px;
+  margin-bottom: 0px;
+  padding: 12px 16px;
+  width: 100%;
+  height: 40px;
+  background-color: #0f0f1a;
+  border-radius: 8px;
+}
+.walletInputSearchContainer img {
+  width: 20px;
+  height: 20px;
+}
+.walletInputSearch {
+  background-color: #0f0f1a;
+  color: #707a8d;
+  font-size: 15px;
+  width: 99%;
+  line-height: 22px;
+  letter-spacing: 0.32px;
+  border: 0;
+  opacity: 0.7;
+  margin-bottom: -2px;
+}
+.walletInputIcon {
+  margin-bottom: -2px;
+}
+
+.walletInputSearch:focus {
+  outline: none;
+}
+
+.recentDetectedContainer {
+  width: 100%;
+  padding: 16px 16px 0 16px;
+  display: grid;
+  overflow-y: auto;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.recentDetectedContainer::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  background: linear-gradient(180deg, rgba(15, 15, 26, 0) 0%, #0f0f1a 100%);
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.recentDetectedContainer::-webkit-scrollbar {
+  display: none;
+}
+@media (min-width: 640px) {
+  .recentDetectedContainer {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (min-width: 482px) and (max-width: 639px) {
+  .recentDetectedContainer {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 374px) and (max-width: 482px) {
+  .recentDetectedContainer {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 374px) {
+  .recentDetectedContainer {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.NotFoundContainer {
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.NotFoundHeading {
+  padding-top: 16px;
+  color: #f7f7f7;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 22px;
+  letter-spacing: 0.28px;
+}
+.NotFoundInfo {
+  padding-top: 4px;
+  width: 171px;
+  color: #707a8d;
+  text-align: center;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.28px;
+}
+.NotFoundGif {
+  width: 104px;
+  height: 216px;
+}
+
+.nightlyWalletSelectorItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: fit-content;
+}

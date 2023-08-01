@@ -27,4 +27,6 @@ pub struct InitializeResponse {
     pub session_id: String,
     #[serde(rename = "createdNew")]
     pub created_new: bool, // if the session was created new or if it was restored
+    #[serde(rename = "publicKeys")]
+    pub public_keys: Vec<String>, // if session was restored, this is the list of public keys that were restored
 }

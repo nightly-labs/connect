@@ -12,18 +12,14 @@ import ZenGO from '../../../static/svg/ZenGOIcon.svg'
 import '../../nightly-wallet-selector-item/nightly-wallet-selector-item'
 import './nightly-wallet-selector-small-page'
 import { NightlyWalletSelectorSmallPage } from './nightly-wallet-selector-small-page'
-
-interface WalletSelectorItem {
-  name: string
-  icon: string
-  status: string
-}
+import { WalletSelectorItem } from '../../../utils/types'
 
 interface NightlyWalletSelectorListArgs {
   walletSelectorItems: WalletSelectorItem[]
-  onWalletClick: (event: Event) => void
+  onWalletClick: (name: string) => void
   sessionId: string
   network: string
+  relay: string
   onClose: () => void
 }
 
@@ -37,8 +33,6 @@ const meta: Meta<NightlyWalletSelectorSmallPage> = {
 export default meta
 
 export const Default = (args: NightlyWalletSelectorListArgs) => {
-  console.log(args.walletSelectorItems)
-
   return html`
     <div style="100%">
       <nightly-wallet-selector-small-page
@@ -47,46 +41,55 @@ export const Default = (args: NightlyWalletSelectorListArgs) => {
         .sessionId=${args.sessionId}
         .network=${args.network}
         .onClose=${args.onClose}
+        .relay=${args.relay}
       ></nightly-wallet-selector-small-page>
     </div>
   `
 }
 Default.args = {
   walletSelectorItems: [
-    { name: 'Phantom', icon: Phantom, status: 'recent' },
-    { name: 'Nightly Wallet', icon: NightlyIcon, status: 'recent' },
-    { name: 'MetaMask', icon: MetaMask, status: '' },
-    { name: 'Glow', icon: Glow, status: '' },
-    { name: 'ZenGO', icon: ZenGO, status: 'detected' },
-    { name: 'Trust', icon: Trust, status: '' },
-    { name: 'Binance', icon: Binance, status: '' },
-    { name: 'Sollet', icon: Sollet, status: '' },
-    { name: 'Phantom', icon: Phantom, status: '' },
-    { name: 'MetaMask', icon: MetaMask, status: 'recent' },
-    { name: 'Coinbase', icon: Coinbase, status: '' },
-    { name: 'ZenGO', icon: ZenGO, status: '' },
-    { name: 'Trust', icon: Trust, status: 'detected' },
-    { name: 'Binance', icon: Binance, status: '' },
-    { name: 'Phantom', icon: Phantom, status: 'recent' },
-    { name: 'Nightly Wallet', icon: NightlyIcon, status: 'recent' },
-    { name: 'MetaMask', icon: MetaMask, status: '' },
-    { name: 'Glow', icon: Glow, status: '' },
-    { name: 'ZenGO', icon: ZenGO, status: 'detected' },
-    { name: 'Trust', icon: Trust, status: '' },
-    { name: 'Binance', icon: Binance, status: '' },
-    { name: 'Sollet', icon: Sollet, status: '' },
-    { name: 'Phantom', icon: Phantom, status: '' },
-    { name: 'MetaMask', icon: MetaMask, status: 'recent' },
-    { name: 'Coinbase', icon: Coinbase, status: '' },
-    { name: 'ZenGO', icon: ZenGO, status: '' },
-    { name: 'Trust', icon: Trust, status: 'detected' },
-    { name: 'Binance', icon: Binance, status: '' }
+    { name: 'Phantom', icon: Phantom, recent: true, link: `https://www.binance.com/en` },
+    {
+      name: 'Nightly Wallet',
+      icon: NightlyIcon,
+      link: `https://www.binance.com/en`
+    },
+    { name: 'MetaMask', icon: MetaMask, link: `https://www.binance.com/en` },
+    { name: 'Glow', icon: Glow, link: `https://www.binance.com/en` },
+    { name: 'ZenGO', icon: ZenGO, detected: true, link: `https://www.binance.com/en` },
+    { name: 'Trust', icon: Trust, link: `https://www.binance.com/en` },
+    { name: 'Binance', icon: Binance, link: `https://www.binance.com/en` },
+    { name: 'Sollet', icon: Sollet, link: `https://www.binance.com/en` },
+    { name: 'Phantom2', icon: Phantom, link: `https://www.binance.com/en` },
+    { name: 'MetaMask2', icon: MetaMask, link: `https://www.binance.com/en` },
+    { name: 'Coinbase', icon: Coinbase, link: `https://www.binance.com/en` },
+    { name: 'ZenGO2', icon: ZenGO, link: `https://www.binance.com/en` },
+    { name: 'Trust2', icon: Trust, detected: true, link: `https://www.binance.com/en` },
+    { name: 'Binance2', icon: Binance, link: `https://www.binance.com/en` },
+    { name: 'Phantom3', icon: Phantom, link: `https://www.binance.com/en` },
+    {
+      name: 'Nightly Wallet2',
+      icon: NightlyIcon,
+      link: `https://www.binance.com/en`
+    },
+    { name: 'MetaMask2', icon: MetaMask, link: `https://www.binance.com/en` },
+    { name: 'Glow2', icon: Glow, link: `https://www.binance.com/en` },
+    { name: 'ZenGO3', icon: ZenGO, detected: true, link: `https://www.binance.com/en` },
+    { name: 'Trust3', icon: Trust, link: `https://www.binance.com/en` },
+    { name: 'Binance3', icon: Binance, link: `https://www.binance.com/en` },
+    { name: 'Sollet2', icon: Sollet, link: `https://www.binance.com/en` },
+    { name: 'Phantom4', icon: Phantom, link: `https://www.binance.com/en` },
+    { name: 'MetaMask3', icon: MetaMask, link: `https://www.binance.com/en` },
+    { name: 'Coinbase2', icon: Coinbase, link: `https://www.binance.com/en` },
+    { name: 'ZenGO4', icon: ZenGO, link: `https://www.binance.com/en` },
+    { name: 'Trust4', icon: Trust, detected: true, link: `https://www.binance.com/en` },
+    { name: 'Binance4', icon: Binance, link: `https://www.binance.com/en` }
   ],
-  onWalletClick: (event: Event) => {
-    const target = event.target as HTMLElement
-    console.log('Item clicked:', target.getAttribute('name'))
+  onWalletClick: (name: string) => {
+    console.log(name)
   },
   sessionId:
     'fsdhfdzfsdhgfzghggdfhbgchgbdfnvfbxhncvfjhzxdhgbhghfgfvzhfgjhgszdhgzxdfhgfzxdjfuhdfhgd',
-  network: 'SOLANA'
+  network: 'SOLANA',
+  relay: 'https://nc2.nightly.app'
 }

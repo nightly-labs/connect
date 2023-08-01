@@ -1,17 +1,16 @@
 .walletSelectorItem {
   display: flex;
   align-items: center;
-  justify-content: center;
   flex-direction: column;
   border-radius: 8px;
   width: 80px;
-  padding: 4px 8px;
-  height: 104px;
+  padding: 4px 0px;
+  height: 108px;
   background-color: transparent;
 }
 
 .walletSelectorItem img {
-  padding-bottom: 8px;
+  margin-bottom: 6px;
   width: 64px;
   height: 64px;
 }
@@ -26,16 +25,17 @@
   text-overflow: ellipsis;
   width: 100%;
   font-weight: bold;
-  font-size: 12px;
-  line-height: 16px;
-  letter-spacing: 0.02em;
+  font-size: 14px;
+  letter-spacing: 0.28px;
   color: #ffffff;
+  flex-shrink: 0;
 }
 
 .walletSelectorInfo {
   font-weight: normal;
   font-size: 10px;
-  line-height: 16px;
-  letter-spacing: 0.02em;
+  line-height: 13px;
+  letter-spacing: 0.28px;
   color: #6067f9;
+  margin-top: -2px;
 }

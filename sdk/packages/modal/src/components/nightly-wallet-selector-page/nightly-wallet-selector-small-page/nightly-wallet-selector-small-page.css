@@ -1,324 +1,34 @@
-.mainContainer {
+.selectorView {
+  display: block;
+  position: absolute;
+  top: 0;
   width: 100%;
 }
 
-.walletWrapper {
-  display: flex;
-  flex-flow: row wrap;
-  flex-direction: column;
-  width: 100%;
-  top: -20px;
-  position: relative;
-  z-index: 2;
-  background-color: #17182b;
-  border-radius: 16px 16px 0px 0px;
-}
-.nightly-headerContainer {
-  width: 100%;
+.selectorWrapper {
+  transition: height 380ms;
 }
 
-.infoConatiner {
-  padding: 16px;
-  display: flex;
-  justify-content: space-between;
-}
-.infoConatiner button {
-  font-family: 'Prompt';
-  font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 22px;
-  display: flex;
-  align-items: center;
-  letter-spacing: 0.02em;
-  color: #6067f9;
-  width: 89px;
-  height: 30px;
-  background: rgba(96, 103, 249, 0.25);
-  border-radius: 4px;
-  padding: 4px 8px;
-}
-.infoConatiner p {
-  font-family: 'Prompt';
-  font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 22px;
-  letter-spacing: 0.02em;
-  color: #f7f7f7;
+.topView {
+  height: 182px;
 }
 
-.mainContainerWalletSellector {
-  display: grid;
-  grid-gap: 16px;
-  padding: 16px;
-}
-
-@media (min-width: 640px) {
-  .mainContainerWalletSellector {
-    grid-template-columns: repeat(5, 1fr);
-  }
-
-  .recentDetectedContainer {
-    grid-template-columns: repeat(5, 1fr);
-  }
-}
-
-@media (min-width: 482px) and (max-width: 639px) {
-  .mainContainerWalletSellector {
-    grid-gap: 0px;
-    grid-template-columns: repeat(5, 1fr);
-  }
-  .recentDetectedContainer {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-@media (min-width: 374px) and (max-width: 482px) {
-  .mainContainerWalletSellector {
-    grid-gap: 0px;
-    grid-template-columns: repeat(4, 1fr);
-  }
-  .recentDetectedContainer {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-@media (max-width: 374px) {
-  .mainContainerWalletSellector {
-    grid-gap: 0px;
-    grid-template-columns: repeat(3, 1fr);
-  }
-  .recentDetectedContainer {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.nightlyWalletSelectorItem {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.topWalletsItem {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.buttonContainer {
-  align-self: flex-start;
-}
-
-.textContainer {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.textContainer span {
-  font-family: 'Prompt';
-  font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 22px;
-  letter-spacing: 0.02em;
-  color: #f7f7f7;
-}
-
-.walletSelectorButtons {
-  display: flex;
-  flex-direction: column;
-  top: -20px;
-  border-radius: 16px 16px 0px 0px;
-  position: relative;
-  z-index: 2;
-  background-color: #17182b;
-  width: 100%;
-  height: 526px;
-}
-
-.recentDetectedContainer {
-  width: 100%;
-  padding: 24px 16px 0 16px;
-  display: grid;
-  border-radius: 16px 16px 0px 0px;
-  overflow-y: auto;
-
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.recentDetectedContainer::-webkit-scrollbar {
-  display: none;
-}
-
-.NotFoundContainer {
-  top: -20px;
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  height: 526px;
-  background-color: #17182b;
-  border-radius: 16px 16px 0px 0px;
-  padding-top: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-.NotFoundHeading {
-  padding-top: 16px;
-  color: #f7f7f7;
-  font-weight: 700;
-  font-size: 16px;
-  line-height: 22px;
-  letter-spacing: 0.02em;
-}
-.NotFoundInfo {
-  padding-top: 4px;
-  width: 171px;
-  color: #707a8d;
-  text-align: center;
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 16px;
-  letter-spacing: 0.02em;
-}
-.NotFoundGif {
-  width: 104px;
-  height: 216px;
-}
-.inputContainer {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.walletInputSearchContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 8px 16px 8px 16px;
-  padding: 8px;
-  width: 100%;
-  height: 32px;
-  background-color: #0f0f1a;
-  border-radius: 8px;
-}
-.walletInputSearchContainer img {
-  width: 20px;
-  height: 20px;
-}
-.walletInputSearch {
-  background-color: #0f0f1a;
-  color: #707a8d;
-  font-size: 12px;
-  font-weight: 400;
-  width: 99%;
-  line-height: 22px;
-  letter-spacing: 0.02em;
-  border: 0;
-}
-.walletInputSearch:focus {
-  outline: none;
-}
-.showListButtonContainer {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-.showListButton {
-  display: grid;
-  padding-bottom: 8px;
-  grid-template-columns: repeat(2, 1fr);
-  grid-auto-rows: 24px;
-  justify-items: center;
-  align-items: center;
-  gap: 4px;
-}
-
-.buttonIcons {
-  width: 24px;
-  height: 24px;
-}
-
-.showListButtonContainer span {
-  cursor: pointer;
-  font-family: 'Prompt';
-  font-style: normal;
-  font-weight: 700;
-  font-size: 12px;
-  line-height: 16px;
-  text-align: center;
-  letter-spacing: 0.02em;
-  color: #ffffff;
-}
-
-.qrCodeWrapper {
-  padding-bottom: 16px;
-  height: 432px;
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  align-items: center;
-}
-
-.code {
-  border-radius: 16px;
-  border: 1px solid #343551;
-  padding: 4px;
-  width: 432px;
-  height: 432px;
-}
-
-/* Medium screens */
-@media (max-width: 482px) and (min-width: 374px) {
-  .code {
-    width: 342px;
-    height: 342px;
-  }
-  .qrCodeWrapper {
-    height: 342px;
-  }
-}
-
-/* Small screens */
-@media (max-width: 373px) {
-  .code {
-    width: 248px;
-    height: 248px;
-  }
-  .qrCodeWrapper {
-    height: 248px;
-  }
-}
-
-.headerContainer {
-  padding: 16px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.headerQrCodeWrapper {
+.qrView {
   height: 510px;
-  top: -20px;
-  position: relative;
-  z-index: 2;
-  background: #17182b;
-  border-radius: 16px 16px 0px 0px;
 }
 
 @media (max-width: 482px) and (min-width: 374px) {
-  .headerQrCodeWrapper {
+  .qrView {
     height: 420px;
   }
 }
 
-/* Small screens */
 @media (max-width: 373px) {
-  .headerQrCodeWrapper {
+  .qrView {
     height: 332px;
   }
+}
+
+.walletsView {
+  height: 526px;
 }

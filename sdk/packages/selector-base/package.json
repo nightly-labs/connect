@@ -1,0 +1,41 @@
+{
+  "name": "@nightlylabs/wallet-selector-base",
+  "version": "0.1.0",
+  "description": "",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs.js",
+      "require": "./dist/index.cjs.js"
+    }
+  },
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.mjs.js",
+  "types": "dist/index.d.ts",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rm -rf ./dist && rollup -c"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@nightlylabs/nightly-connect-base": "0.0.19",
+    "@nightlylabs/wallet-selector-modal": "0.0.10",
+    "@wallet-standard/core": "^1.0.3",
+    "isomorphic-localstorage": "^1.0.2"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-node-resolve": "^15.1.0",
+    "@rollup/plugin-terser": "^0.4.3",
+    "@rollup/plugin-typescript": "^11.1.1",
+    "rollup": "^3.23.1",
+    "rollup-plugin-dts": "^5.3.0",
+    "tslib": "^2.5.3",
+    "typescript": "^5.1.3"
+  }
+}

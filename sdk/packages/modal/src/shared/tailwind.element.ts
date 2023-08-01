@@ -1,10 +1,5 @@
-import { LitElement, unsafeCSS } from 'lit'
+import { unsafeCSS } from 'lit'
 
-import style from './tailwind.global.css?inline'
+import style from './tailwind.global.css'
 
-const tailwindElement = unsafeCSS(style)
-
-export const TailwindElement = (style: any) =>
-  class extends LitElement {
-    static styles = [tailwindElement, unsafeCSS(style)]
-  }
+export const tailwindElement = (customStyle: string) => [unsafeCSS(style), unsafeCSS(customStyle)]

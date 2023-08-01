@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use crate::structs::{
     app_messages::{app_messages::ServerToApp, user_disconnected_event::UserDisconnectedEvent},
@@ -11,10 +11,12 @@ use axum::extract::ws::{Message, WebSocket};
 use axum_macros::FromRef;
 use dashmap::{DashMap, DashSet};
 use futures::{stream::SplitSink, SinkExt};
+use log::info;
+use tokio::sync::RwLock;
 
 pub type SessionId = String;
 pub type ClientId = String;
-pub type Sessions = Arc<DashMap<SessionId, Session>>;
+pub type Sessions = Arc<RwLock<HashMap<SessionId, Session>>>;
 pub type ClientSockets = Arc<DashMap<ClientId, SplitSink<WebSocket, Message>>>;
 #[async_trait]
 pub trait DisconnectUser {
@@ -23,7 +25,8 @@ pub trait DisconnectUser {
 #[async_trait]
 impl DisconnectUser for Sessions {
     async fn disconnect_user(&self, session_id: SessionId) -> Result<()> {
-        let mut session = match self.get_mut(&session_id) {
+        let mut sessions = self.write().await;
+        let mut session = match sessions.get_mut(&session_id) {
             Some(session) => session,
             None => return Err(anyhow::anyhow!("Session does not exist")), // Session does not exist
         };
@@ -48,11 +51,14 @@ pub trait SendToClient {
 impl SendToClient for ClientSockets {
     async fn send_to_client(&self, client_id: ClientId, msg: ServerToClient) -> Result<()> {
         match &mut self.get_mut(&client_id) {
-            Some(client_socket) => Ok(client_socket
-                .send(Message::Text(
-                    serde_json::to_string(&msg).expect("Serialization should work"),
-                ))
-                .await?),
+            Some(client_socket) => {
+                info!("Send to client {}, msg: {:?}", client_id, msg);
+                return Ok(client_socket
+                    .send(Message::Text(
+                        serde_json::to_string(&msg).expect("Serialization should work"),
+                    ))
+                    .await?);
+            }
             None => Err(anyhow::anyhow!("No client socket found for session")),
         }
     }

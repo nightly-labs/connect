@@ -65,7 +65,7 @@ export class BaseClient extends EventEmitter<BaseEvents> {
 
   public static build = async (baseInitialize: ClientBaseInitialize): Promise<BaseClient> => {
     return new Promise((resolve, reject) => {
-      const url = baseInitialize.url ?? 'https://relay.nightly.app'
+      const url = baseInitialize.url ?? 'https://nc2.nightly.app'
       // get domain from url
       const path = url.replace('https://', 'wss://').replace('http://', 'ws://')
       const ws = new WebSocket(path + '/client')

@@ -62,10 +62,10 @@ pub static WALLETS_METADATA: Lazy<Vec<WalletMetadata>> = Lazy::new(|| {
                 universal: Some("https://wallet.nightly.app".to_string()),
             }),
             image: Images {
-                default: format!("https://registry.connect.nightly.app/wallets/nightly/default.svg"),
-                sm: format!("https://registry.connect.nightly.app/wallets/nightly/sm.svg"),
-                md: format!("https://registry.connect.nightly.app/wallets/nightly/md.svg"),
-                lg: format!("https://registry.connect.nightly.app/wallets/nightly/lg.svg"),
+                default: format!("https://registry.connect.nightly.app/wallets/nightly/default.png"),
+                sm: format!("https://registry.connect.nightly.app/wallets/nightly/sm.png"),
+                md: format!("https://registry.connect.nightly.app/wallets/nightly/md.png"),
+                lg: format!("https://registry.connect.nightly.app/wallets/nightly/lg.png"),
             },
             inject_path: HashMap::from([
                 (Network::new("solana"),"window.nightly.solana".to_string()),

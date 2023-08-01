@@ -1,3 +1,5 @@
+import { WalletSelectorItem } from './types'
+
 export type Breakpoint = 'xs' | 'sm' | 'lg'
 
 export function getBreakpointFromWidth(screenWidth: number): Breakpoint {
@@ -18,14 +20,42 @@ export function getBreakpointFromWidthInConnectWallet(screenWidth: number): Brea
   }
 }
 
+export function getBreakpointFromWidthInMainPage(screenWidth: number): Breakpoint {
+  if (screenWidth < 640) {
+    return 'xs'
+  } else {
+    return 'sm'
+  }
+}
+
 export function getNumberOfItems(breakpoint: Breakpoint) {
   switch (breakpoint) {
     case 'xs':
-      return 5
+      return 2
     case 'sm':
-      return 7
+      return 3
     case 'lg':
     default:
-      return 9
+      return 4
   }
+}
+
+export const walletsSort = (a: WalletSelectorItem, b: WalletSelectorItem) => {
+  if (a.recent) {
+    return -1
+  }
+
+  if (b.recent) {
+    return 1
+  }
+
+  if (a.detected) {
+    return -1
+  }
+
+  if (b.detected) {
+    return 1
+  }
+
+  return 0
 }
