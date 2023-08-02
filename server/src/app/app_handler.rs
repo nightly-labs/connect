@@ -107,6 +107,7 @@ pub async fn app_handler(
                                             client_id: None,
                                             device: None,
                                             connected_public_keys: Vec::new(),
+                                            metadata: None,
                                         },
                                         network: init_data.network,
                                         version: init_data.version,
@@ -135,6 +136,7 @@ pub async fn app_handler(
                                 client_id: None,
                                 device: None,
                                 connected_public_keys: Vec::new(),
+                                metadata: None,
                             },
                             network: init_data.network,
                             version: init_data.version,
@@ -150,6 +152,7 @@ pub async fn app_handler(
                 let mut sessions = sessions.write().await;
                 let created_session = sessions.get_mut(&session_id).expect("safe unwrap");
                 let public_keys = created_session.client_state.connected_public_keys.clone();
+                let metadata = created_session.client_state.metadata.clone();
 
                 match created_session
                     .send_to_app(ServerToApp::InitializeResponse(InitializeResponse {
@@ -157,6 +160,7 @@ pub async fn app_handler(
                         session_id: session_id.clone(),
                         created_new: created_new,
                         public_keys: public_keys,
+                        metadata: metadata,
                     }))
                     .await
                 {

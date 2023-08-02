@@ -217,6 +217,7 @@ pub async fn client_handler(
                 session.update_status(SessionStatus::ClientConnected);
                 session.client_state.device = connect_request.device.clone();
                 session.client_state.connected_public_keys = connect_request.public_keys.clone();
+                session.client_state.metadata = connect_request.metadata.clone();
                 session.client_state.client_id = Some(connect_request.client_id.clone());
                 // Setup notification
                 match &connect_request.notification {

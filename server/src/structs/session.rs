@@ -79,5 +79,5 @@ pub struct ClientState {
     pub client_id: Option<ClientId>,
     pub device: Option<Device>,
     pub connected_public_keys: Vec<String>,
-    // TODO add metadata
+    pub metadata: Option<String>,
 }
