@@ -5,6 +5,7 @@ import { HttpGetPendingRequestsRequest } from '../../../bindings/HttpGetPendingR
 import { HttpGetPendingRequestRequest } from '../../../bindings/HttpGetPendingRequestRequest'
 import { HttpGetSessionInfoResponse } from '../../../bindings/HttpGetSessionInfoResponse'
 import { SignerResult } from '@polkadot/types/types'
+import { InjectedAccount } from '@polkadot/extension-inject/types'
 
 export class HttpClientPolkadot {
   baseClient: HttpBaseClient
@@ -17,7 +18,7 @@ export class HttpClientPolkadot {
     const response = await this.baseClient.getInfo(sessionId)
     return response
   }
-  public connect = async (connect: Omit<HttpConnectSessionRequest, 'clientId'>) => {
+  public connect = async (connect: HttpConnect) => {
     await this.baseClient.connect(connect)
   }
   public getPendingRequests = async (request: Omit<HttpGetPendingRequestsRequest, 'clientId'>) => {
@@ -31,11 +32,9 @@ export class HttpClientPolkadot {
     signedTransactions,
     sessionId
   }: ResolveSignPolkadotTransactions) => {
-    const serializedTxs = signedTransactions
-      .map((tx) => tx)
-      .map((tx) => {
-        return { network: POLKADOT_NETWORK, transaction: tx }
-      })
+    const serializedTxs = signedTransactions.map((tx) => {
+      return { network: POLKADOT_NETWORK, transaction: tx }
+    })
 
     await this.baseClient.resolveSignTransactions({
       requestId: requestId,
@@ -49,6 +48,9 @@ export class HttpClientPolkadot {
   public rejectRequest = async ({ requestId, reason, sessionId }: RejectRequest) => {
     await this.baseClient.reject({ requestId: requestId, reason, sessionId: sessionId })
   }
+}
+export type HttpConnect = Omit<HttpConnectSessionRequest, 'clientId'> & {
+  walletsMetadata: InjectedAccount[]
 }
 export interface RejectRequest {
   requestId: string
