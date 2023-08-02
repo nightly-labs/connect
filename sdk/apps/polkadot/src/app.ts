@@ -52,9 +52,18 @@ export class AppPolkadot extends EventEmitter<PolkadotAppEvents> implements Inje
     })
     this.accounts = new Accounts()
     if (base.hasBeenRestored && base.connectedPublicKeys) {
-      base.connectedPublicKeys.forEach((pk) => {
-        this.accounts.addAccount({ address: pk }) // TODO get metadata
-      })
+      // If the base has been restored, we can get the accounts from the metadata
+      // Polkadot specific
+      if (base.clientMetadata) {
+        const accounts = JSON.parse(base.clientMetadata) as InjectedAccount[]
+        this.accounts.updateActiveAccounts(accounts)
+      } else {
+        // Fall back to the public keys
+        const accounts = base.connectedPublicKeys.map((pk) => ({
+          address: pk
+        })) as InjectedAccount[]
+        this.accounts.updateActiveAccounts(accounts)
+      }
     }
 
     this.signer = new Signer(base)

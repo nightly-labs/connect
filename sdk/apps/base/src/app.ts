@@ -55,6 +55,7 @@ export class BaseApp extends EventEmitter<BaseEvents> {
   deeplink: DeeplinkConnect | undefined
   connectedPublicKeys: string[] = []
   hasBeenRestored = false
+  clientMetadata: string | undefined
   // TODO add info about the app
   private constructor(url: string, ws: WebSocket, timeout: number) {
     super()
@@ -130,6 +131,7 @@ export class BaseApp extends EventEmitter<BaseEvents> {
             if (!response.createdNew) {
               baseApp.hasBeenRestored = true
               baseApp.connectedPublicKeys = response.publicKeys
+              baseApp.clientMetadata = response.metadata
             }
             // Save the session id
             if (persistent)
