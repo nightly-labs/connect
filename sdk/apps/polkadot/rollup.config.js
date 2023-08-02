@@ -9,31 +9,42 @@ export default [
     input: 'src/index.ts',
     output: [
       {
-        file: 'dist/cjs/index.cjs',
+        file: 'dist/index.cjs.js',
         format: 'cjs',
         sourcemap: true,
         interop: 'compat'
       },
       {
-        file: 'dist/esm/index.js',
+        file: 'dist/index.mjs.js',
         format: 'esm',
         sourcemap: true
       }
     ],
     plugins: [typescript(), nodeResolve(), commonjs(), terser()],
-    external: ['@nightlylabs/nightly-connect-base', 'uuid', 'eventemitter3', 'isomorphic-ws', 'ws']
+    external: [
+      '@polkadot/api',
+      '@polkadot/types',
+      '@polkadot/util',
+      '@polkadot/util-crypto',
+      '@polkadot/extension-inject',
+      '@nightlylabs/nightly-connect-base',
+      'uuid',
+      'eventemitter3',
+      'isomorphic-ws',
+      'ws'
+    ]
   },
   {
     input: 'src/index.ts',
     output: [
       {
-        file: 'dist/browser/cjs/index.cjs',
+        file: 'dist/index.browser.cjs.js',
         format: 'cjs',
         sourcemap: true,
         interop: 'compat'
       },
       {
-        file: 'dist/browser/esm/index.js',
+        file: 'dist/index.browser.mjs.js',
         format: 'esm',
         sourcemap: true
       }
@@ -44,6 +55,22 @@ export default [
       commonjs(),
       terser()
     ],
-    external: ['@nightlylabs/nightly-connect-base', 'uuid', 'eventemitter3', 'isomorphic-ws', 'ws']
+    external: [
+      '@polkadot/api',
+      '@polkadot/types',
+      '@polkadot/util',
+      '@polkadot/util-crypto',
+      '@polkadot/extension-inject',
+      '@nightlylabs/nightly-connect-base',
+      'uuid',
+      'eventemitter3',
+      'isomorphic-ws',
+      'ws'
+    ]
+  },
+  {
+    input: 'dist/types/apps/polkadot/src/index.d.ts',
+    output: [{ file: 'dist/index.d.ts', format: 'esm' }],
+    plugins: [dts()]
   }
 ]

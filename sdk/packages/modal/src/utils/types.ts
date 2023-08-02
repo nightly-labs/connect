@@ -1,6 +1,7 @@
 export enum QueryNetwork {
   SOLANA = 'SOLANA',
-  SUI = 'SUI'
+  SUI = 'SUI',
+  POLKADOT = 'POLKADOT'
 }
 
 export interface WalletSelectorItem {

@@ -5,9 +5,11 @@ import { type Wallet } from '@wallet-standard/core'
 export interface Adapter {
   connect: () => Promise<void>
 }
+// TODO we have two types of QueryNetwork
 export enum QueryNetwork {
   SOLANA = 'SOLANA',
-  SUI = 'SUI'
+  SUI = 'SUI',
+  POLKADOT = 'POLKADOT'
 }
 export type AppInitData = Omit<AppBaseInitialize, 'network'>
 

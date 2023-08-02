@@ -1,15 +1,20 @@
+import { getPolkadotWallets, NightlyConnectAdapter } from '@nightlylabs/wallet-selector-polkadot'
+import { ApiPromise, WsProvider } from '@polkadot/api'
 import { createEffect, createSignal, onMount, Show } from 'solid-js'
 import { Title } from 'solid-start'
-import { NightlyConnectSuiAdapter } from '@nightlylabs/wallet-selector-sui'
-import { TransactionBlock } from '@mysten/sui.js'
 import toast from 'solid-toast'
 
-export default function Sui() {
-  const [adapter, setAdapter] = createSignal<NightlyConnectSuiAdapter>()
+const RECEIVER = '5CFRopxy991HCJj1HYtUQjaaBMw9iRLE9jxPndBsgdCjeJj5'
+
+export default function Polkadot() {
+  const [adapter, setAdapter] = createSignal<NightlyConnectAdapter>()
   const [eager, setEager] = createSignal(false)
   const [publicKey, setPublicKey] = createSignal<string>()
+  const [api, setApi] = createSignal<ApiPromise>()
+  const provider = new WsProvider('wss://ws.test.azero.dev/')
+
   onMount(async () => {
-    NightlyConnectSuiAdapter.build(
+    const adapter = NightlyConnectAdapter.buildLazy(
       {
         appMetadata: {
           name: 'NCTestSui',
@@ -20,22 +25,27 @@ export default function Sui() {
       },
       true,
       document.getElementById('modalAnchor')
-    ).then(async (adapter) => {
-      adapter.canEagerConnect().then((canEagerConnect) => {
-        setEager(canEagerConnect)
-      })
+    )
 
-      setAdapter(adapter)
+    adapter.canEagerConnect().then((canEagerConnect) => {
+      setEager(canEagerConnect)
+    })
+    setAdapter(adapter)
+
+    ApiPromise.create({
+      provider
+    }).then((api) => {
+      setApi(api)
     })
   })
-
   createEffect(() => {
     if (eager()) {
       adapter()
         ?.connect()
         .then(
           async () => {
-            const accounts = await adapter()!.getAccounts()
+            const accounts = await adapter()!.accounts.get()
+            console.log(accounts)
             setPublicKey(accounts[0].address)
             console.log('connect resolved successfully')
           },
@@ -54,19 +64,13 @@ export default function Sui() {
         when={!!publicKey()}
         fallback={
           <button
-            onClick={() => {
-              adapter()
-                ?.connect()
-                .then(
-                  async () => {
-                    const accounts = await adapter()!.getAccounts()
-                    setPublicKey(accounts[0].address)
-                    console.log('connect resolved successfully')
-                  },
-                  () => {
-                    console.log('connect rejected')
-                  }
-                )
+            onClick={async () => {
+              console.log(getPolkadotWallets())
+              await adapter()!.connect()
+              const accounts = await adapter()!.accounts.get()
+              console.log(accounts)
+              setPublicKey(accounts[0].address)
+              console.log('adapter', adapter())
             }}>
             Connect
           </button>
@@ -75,32 +79,18 @@ export default function Sui() {
         <button
           onClick={async () => {
             try {
-              const transactionBlock = new TransactionBlock()
-              const coin = transactionBlock.splitCoins(transactionBlock.gas, [
-                transactionBlock.pure(50000000)
-              ])
-              transactionBlock.transferObjects(
-                [coin],
-                transactionBlock.pure(
-                  '0xd85c7ad90905e0bd49b72420deb5f4077cab62840fb3917ca2945e41d8854013'
-                )
-              )
-              const accounts = await adapter()!.getAccounts()
-              await adapter()!.signAndExecuteTransactionBlock({
-                transactionBlock,
-                chain: 'sui:testnet',
-                account: accounts[0]
-              })
-
+              const payload = api()!.tx.balances.transfer(RECEIVER, 500)
+              const signed = await payload.signAsync(publicKey()!, { signer: adapter()!.signer })
+              console.log({ signed })
               toast.success('Transaction was signed and sent!')
             } catch (e) {
               toast.error("Error: couldn't sign and send transaction!")
               console.log(e)
             }
           }}>
-          Send 0.05 SUI
+          Send test transfer
         </button>
-        <button
+        {/* <button
           onClick={async () => {
             try {
               const accounts = await adapter()!.getAccounts()
@@ -116,15 +106,15 @@ export default function Sui() {
             }
           }}>
           Sign message
-        </button>
-        <button
-          onClick={() => {
-            adapter()?.disconnect()
-            setPublicKey(undefined)
-          }}>
-          Disconnect
-        </button>
+        </button> */}
       </Show>
+      <button
+        onClick={() => {
+          adapter()?.disconnect()
+          setPublicKey(undefined)
+        }}>
+        Disconnect
+      </button>
     </main>
   )
 }

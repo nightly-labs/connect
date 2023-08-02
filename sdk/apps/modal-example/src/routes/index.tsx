@@ -14,6 +14,9 @@ export default function Home() {
       <A href="/sui">
         <button>Sui</button>
       </A>
+      <A href="/aleph">
+        <button>Aleph</button>
+      </A>
     </main>
   )
 }

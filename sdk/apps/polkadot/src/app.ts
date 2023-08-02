@@ -8,8 +8,8 @@ import { InjectedAccount, InjectedExtension } from '@polkadot/extension-inject/t
 import { EventEmitter } from 'eventemitter3'
 import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
 import { WalletMetadata } from '../../../bindings/WalletMetadata'
-import Accounts from './Accounts'
-import Signer from './Signer'
+import { Accounts } from './Accounts'
+import { Signer } from './Signer'
 import { POLKADOT_NETWORK } from './utils'
 
 export type AppPolkadotInitialize = Omit<AppBaseInitialize, 'network'>
@@ -51,6 +51,12 @@ export class AppPolkadot extends EventEmitter<PolkadotAppEvents> implements Inje
       await this.tryReconnect()
     })
     this.accounts = new Accounts()
+    if (base.hasBeenRestored && base.connectedPublicKeys) {
+      base.connectedPublicKeys.forEach((pk) => {
+        this.accounts.addAccount({ address: pk }) // TODO get metadata
+      })
+    }
+
     this.signer = new Signer(base)
     this.sessionId = base.sessionId
   }
@@ -89,6 +95,10 @@ export class AppPolkadot extends EventEmitter<PolkadotAppEvents> implements Inje
       this.emit('serverDisconnected')
     }
   }
+  public hasBeenRestored = () => {
+    return this.signer.base.hasBeenRestored
+  }
+
   public static getWalletsMetadata = async (url?: string): Promise<WalletMetadata[]> => {
     return getWalletsMetadata(url)
   }

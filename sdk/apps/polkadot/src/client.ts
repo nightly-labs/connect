@@ -1,17 +1,16 @@
-import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
 import {
   BaseClient,
   ClientBaseInitialize,
   Connect as ConnectBase,
   SignMessagesEvent
 } from '@nightlylabs/nightly-connect-base'
+import { InjectedAccount } from '@polkadot/extension-inject/types'
+import { SignerPayloadJSON, SignerPayloadRaw, SignerResult } from '@polkadot/types/types'
 import { EventEmitter } from 'eventemitter3'
-import { POLKADOT_NETWORK } from './utils'
+import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
 import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
 import { GetPendingRequestsResponse } from '../../../bindings/GetPendingRequestsResponse'
-import { SignerPayloadJSON, SignerPayloadRaw, SignerResult } from '@polkadot/types/types'
-import { KeypairType } from '@polkadot/util-crypto/types'
-import { InjectedAccount } from '@polkadot/extension-inject/types'
+import { POLKADOT_NETWORK } from './utils'
 
 export interface SignPolkadotTransactionEvent {
   requestId: string

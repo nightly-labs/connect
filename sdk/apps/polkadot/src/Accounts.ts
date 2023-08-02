@@ -1,6 +1,6 @@
 import type { InjectedAccount, InjectedAccounts, Unsubcall } from '@polkadot/extension-inject/types'
 
-export default class Accounts implements InjectedAccounts {
+export class Accounts implements InjectedAccounts {
   activeAccounts: InjectedAccount[]
   sub: { [key in string]: (accounts: InjectedAccount[]) => void } = {}
   constructor() {

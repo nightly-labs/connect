@@ -2,7 +2,7 @@ import { BaseApp, TransactionToSign } from '@nightlylabs/nightly-connect-base'
 import type { Signer as SignerInterface, SignerResult } from '@polkadot/api/types'
 import type { SignerPayloadJSON, SignerPayloadRaw } from '@polkadot/types/types'
 
-export default class Signer implements SignerInterface {
+export class Signer implements SignerInterface {
   base: BaseApp
   constructor(base: BaseApp) {
     this.base = base
