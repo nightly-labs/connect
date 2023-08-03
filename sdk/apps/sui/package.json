@@ -47,7 +47,7 @@
   "dependencies": {
     "@mysten/sui.js": "^0.37.1",
     "@mysten/wallet-standard": "^0.5.12",
-    "@nightlylabs/nightly-connect-base": "0.0.19",
+    "@nightlylabs/nightly-connect-base": "0.0.20",
     "@noble/hashes": "^1.3.0",
     "eventemitter3": "^5.0.1",
     "uuid": "^9.0.0"
