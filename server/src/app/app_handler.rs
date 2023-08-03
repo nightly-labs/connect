@@ -209,7 +209,8 @@ pub async fn app_handler(
                         }
                         None => {}
                     }
-
+                    // Close app socket
+                    session.close_app_socket().await.unwrap_or_default();
                     match session.persistent {
                         true => {
                             session.update_status(SessionStatus::AppDisconnected);
@@ -250,6 +251,8 @@ pub async fn app_handler(
                     }
                     None => {}
                 }
+                // Close app socket
+                session.close_app_socket().await.unwrap_or_default();
                 match session.persistent {
                     true => {
                         session.update_status(SessionStatus::AppDisconnected);
@@ -297,6 +300,8 @@ pub async fn app_handler(
                     }
                     None => {}
                 }
+                // Close app socket
+                session.close_app_socket().await.unwrap_or_default();
                 match session.persistent {
                     true => {
                         session.update_status(SessionStatus::AppDisconnected);

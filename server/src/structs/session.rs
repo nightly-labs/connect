@@ -9,7 +9,7 @@ use super::{
 use anyhow::Result;
 use axum::extract::ws::{Message, WebSocket};
 use futures::{stream::SplitSink, SinkExt};
-use log::info;
+use log::{info, warn};
 
 #[derive(Debug)]
 pub struct Session {
@@ -34,6 +34,18 @@ impl Session {
                         serde_json::to_string(&msg).expect("Serialization should work"),
                     ))
                     .await?);
+            }
+            None => Err(anyhow::anyhow!("No app socket found for session")),
+        }
+    }
+    pub async fn close_app_socket(&mut self) -> Result<()> {
+        info!("Drop app connection for session {}", self.session_id);
+        match &mut self.app_state.app_socket {
+            Some(app_socket) => {
+                app_socket.close().await?;
+                self.app_state.app_socket = None;
+                warn!("Drop app connection for session {}", self.session_id);
+                return Ok(());
             }
             None => Err(anyhow::anyhow!("No app socket found for session")),
         }

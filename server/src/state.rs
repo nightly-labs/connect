@@ -47,6 +47,7 @@ impl DisconnectUser for Sessions {
 #[async_trait]
 pub trait SendToClient {
     async fn send_to_client(&self, client_id: ClientId, msg: ServerToClient) -> Result<()>;
+    async fn close_client_socket(&self, client_id: ClientId) -> Result<()>;
 }
 #[async_trait]
 impl SendToClient for ClientSockets {
@@ -59,6 +60,15 @@ impl SendToClient for ClientSockets {
                         serde_json::to_string(&msg).expect("Serialization should work"),
                     ))
                     .await?);
+            }
+            None => Err(anyhow::anyhow!("No client socket found for session")),
+        }
+    }
+    async fn close_client_socket(&self, client_id: ClientId) -> Result<()> {
+        info!("Close client socket {}", client_id);
+        match &mut self.remove(&client_id) {
+            Some((_, client_socket)) => {
+                return Ok(client_socket.close().await?);
             }
             None => Err(anyhow::anyhow!("No client socket found for session")),
         }
