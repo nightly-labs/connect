@@ -8,7 +8,7 @@ use axum::{
     response::Response,
 };
 use futures::StreamExt;
-use log::info;
+use log::{debug, info};
 
 use crate::{
     errors::NightlyError,
@@ -41,8 +41,11 @@ pub async fn on_new_client_connection(
     State(client_to_sessions): State<ClientToSessions>,
     ws: WebSocketUpgrade,
 ) -> Response {
-    ws.on_upgrade(move |socket| {
-        client_handler(socket, sessions, client_sockets, client_to_sessions)
+    let ip = ip.clone().to_string().clone();
+    ws.on_upgrade(move |socket| async move {
+        debug!("OPEN client connection  from {}", ip);
+        client_handler(socket, sessions, client_sockets, client_to_sessions).await;
+        debug!("CLOSE client connection from {}", ip);
     })
 }
 

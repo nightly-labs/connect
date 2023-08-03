@@ -7,7 +7,8 @@ use axum::{
     },
     response::Response,
 };
-use futures::StreamExt;
+use futures::{SinkExt, StreamExt};
+use log::{debug, warn};
 
 use crate::{
     state::{ClientSockets, ClientToSessions, ModifySession, SendToClient, Sessions},
@@ -28,15 +29,18 @@ use crate::{
 };
 
 pub async fn on_new_app_connection(
-    ConnectInfo(_): ConnectInfo<SocketAddr>,
+    ConnectInfo(ip): ConnectInfo<SocketAddr>,
     State(sessions): State<Sessions>,
     State(client_sockets): State<ClientSockets>,
-
     State(client_to_sessions): State<ClientToSessions>,
-
     ws: WebSocketUpgrade,
 ) -> Response {
-    ws.on_upgrade(move |socket| app_handler(socket, sessions, client_sockets, client_to_sessions))
+    let ip = ip.clone().to_string().clone();
+    ws.on_upgrade(move |socket| async move {
+        debug!("OPEN app connection  from {}", ip);
+        app_handler(socket, sessions, client_sockets, client_to_sessions).await;
+        debug!("CLOSE app connection  from {}", ip);
+    })
 }
 
 pub async fn app_handler(
@@ -187,6 +191,7 @@ pub async fn app_handler(
                             reason: "App disconnected".to_string(),
                         });
                     let mut sessions = sessions.write().await;
+
                     let session = match sessions.get_mut(&session_id) {
                         Some(session) => session,
                         None => {
@@ -194,6 +199,7 @@ pub async fn app_handler(
                             return;
                         }
                     };
+
                     match &session.client_state.client_id {
                         Some(client_id) => {
                             client_sockets
