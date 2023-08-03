@@ -119,16 +119,20 @@ pub async fn client_handler(
                             Some(session) => session,
                             None => {
                                 // Should never happen
-                                return;
+                                continue;
                             }
                         };
-
                         session
                             .send_to_app(user_disconnected_event.clone())
                             .await
                             .unwrap_or_default();
                         session.update_status(SessionStatus::UserDisconnected);
                     }
+                    // Remove client socket
+                    client_sockets
+                        .close_client_socket(client_id.clone())
+                        .await
+                        .unwrap_or_default();
                     return;
                 }
             },
@@ -141,7 +145,7 @@ pub async fn client_handler(
                     let session = match sessions.get_mut(&session_id) {
                         Some(session) => session,
                         None => {
-                            return;
+                            continue;
                         }
                     };
                     session
@@ -150,6 +154,11 @@ pub async fn client_handler(
                         .unwrap_or_default();
                     session.update_status(SessionStatus::UserDisconnected);
                 }
+                // Remove client socket
+                client_sockets
+                    .close_client_socket(client_id.clone())
+                    .await
+                    .unwrap_or_default();
                 return;
             }
         };
@@ -168,7 +177,7 @@ pub async fn client_handler(
                     let session = match sessions.get_mut(&session_id) {
                         Some(session) => session,
                         None => {
-                            return;
+                            continue;
                         }
                     };
                     session
@@ -177,7 +186,11 @@ pub async fn client_handler(
                         .unwrap_or_default();
                     session.update_status(SessionStatus::UserDisconnected);
                 }
-
+                // Remove client socket
+                client_sockets
+                    .close_client_socket(client_id.clone())
+                    .await
+                    .unwrap_or_default();
                 return;
             }
             Message::Ping(_) => {
