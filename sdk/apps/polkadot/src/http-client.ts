@@ -1,11 +1,11 @@
 import { HttpBaseClient, HttpBaseClientInitialize } from '@nightlylabs/nightly-connect-base'
-import { POLKADOT_NETWORK } from './utils'
 import { HttpConnectSessionRequest } from '../../../bindings/HttpConnectSessionRequest'
 import { HttpGetPendingRequestsRequest } from '../../../bindings/HttpGetPendingRequestsRequest'
 import { HttpGetPendingRequestRequest } from '../../../bindings/HttpGetPendingRequestRequest'
 import { HttpGetSessionInfoResponse } from '../../../bindings/HttpGetSessionInfoResponse'
 import { SignerResult } from '@polkadot/types/types'
 import { InjectedAccount } from '@polkadot/extension-inject/types'
+import { Network } from '../../../bindings/Network'
 
 export class HttpClientPolkadot {
   baseClient: HttpBaseClient
@@ -30,10 +30,11 @@ export class HttpClientPolkadot {
   public resolveSignTransaction = async ({
     requestId,
     signedTransactions,
-    sessionId
+    sessionId,
+    network
   }: ResolveSignPolkadotTransactions) => {
     const serializedTxs = signedTransactions.map((tx) => {
-      return { network: POLKADOT_NETWORK, transaction: tx }
+      return { network: network, transaction: tx }
     })
 
     await this.baseClient.resolveSignTransactions({
@@ -61,4 +62,5 @@ export interface ResolveSignPolkadotTransactions {
   requestId: string
   signedTransactions: SignerResult[]
   sessionId: string
+  network: Network
 }

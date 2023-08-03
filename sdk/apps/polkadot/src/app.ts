@@ -10,9 +10,8 @@ import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
 import { WalletMetadata } from '../../../bindings/WalletMetadata'
 import { Accounts } from './Accounts'
 import { Signer } from './Signer'
-import { POLKADOT_NETWORK } from './utils'
 
-export type AppPolkadotInitialize = Omit<AppBaseInitialize, 'network'>
+export type AppPolkadotInitialize = AppBaseInitialize
 interface PolkadotAppEvents {
   userConnected: (e: InjectedAccount[]) => void
   userDisconnected: (e: UserDisconnectedEvent) => void
@@ -71,7 +70,7 @@ export class AppPolkadot extends EventEmitter<PolkadotAppEvents> implements Inje
   }
   private tryReconnect = async () => {
     try {
-      const base = await BaseApp.build({ ...this.initData, network: POLKADOT_NETWORK })
+      const base = await BaseApp.build({ ...this.initData })
       // On reconnect, if the base has not been restored, emit serverDisconnected
       if (!base.hasBeenRestored) {
         this.emit('serverDisconnected')
@@ -113,7 +112,7 @@ export class AppPolkadot extends EventEmitter<PolkadotAppEvents> implements Inje
   }
 
   public static build = async (initData: AppPolkadotInitialize): Promise<AppPolkadot> => {
-    const base = await BaseApp.build({ ...initData, network: POLKADOT_NETWORK })
+    const base = await BaseApp.build(initData)
     return new AppPolkadot(base, initData)
   }
 

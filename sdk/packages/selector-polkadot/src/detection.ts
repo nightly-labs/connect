@@ -7,7 +7,7 @@ export interface PolkadotWalletInjected {
   enable?: (origin: string) => Promise<Injected>
   version?: string
   // Custom should be provided by the wallet
-  name?: string
+  name: string
   icon?: WalletIcon
 }
 declare global {
@@ -18,6 +18,7 @@ declare global {
 export const getPolkadotWallets = (): PolkadotWalletInjected[] => {
   if (window && window.injectedWeb3) {
     return Object.entries(window.injectedWeb3).map(([key, value]) => {
+      // value.name might be undefined
       value.name = value.name ?? key
       return value
     })

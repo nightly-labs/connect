@@ -10,7 +10,7 @@ import { EventEmitter } from 'eventemitter3'
 import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
 import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
 import { GetPendingRequestsResponse } from '../../../bindings/GetPendingRequestsResponse'
-import { POLKADOT_NETWORK } from './utils'
+import { Network } from '../../../bindings/Network'
 
 export interface SignPolkadotTransactionEvent {
   requestId: string
@@ -25,8 +25,10 @@ export interface ClientPolkadotEvents {
 export class ClientPolkadot extends EventEmitter<ClientPolkadotEvents> {
   baseClient: BaseClient
   sessionId: string | undefined = undefined
-  private constructor(baseClient: BaseClient) {
+  network: Network
+  private constructor(baseClient: BaseClient, network: Network) {
     super()
+    this.network = network
     baseClient.on('signTransactions', (e) => {
       const event: SignPolkadotTransactionEvent = {
         sessionId: e.sessionId,
@@ -45,7 +47,8 @@ export class ClientPolkadot extends EventEmitter<ClientPolkadotEvents> {
   }
   public static build = async (
     sessionId: string,
-    initData: ClientBaseInitialize
+    initData: ClientBaseInitialize,
+    network: Network
   ): Promise<{
     client: ClientPolkadot
     data: GetInfoResponse
@@ -53,19 +56,19 @@ export class ClientPolkadot extends EventEmitter<ClientPolkadotEvents> {
     // Add prefix to client id
     const baseClient = await BaseClient.build({
       ...initData,
-      clientId: 'polkadot-' + initData.clientId
+      clientId: network + '-' + initData.clientId
     })
     const data = await baseClient.getInfo(sessionId)
-    const client = new ClientPolkadot(baseClient)
+    const client = new ClientPolkadot(baseClient, network)
     return { client, data }
   }
-  public static create = async (initData: ClientBaseInitialize) => {
+  public static create = async (initData: ClientBaseInitialize, network: Network) => {
     // Add prefix to client id
     const baseClient = await BaseClient.build({
       ...initData,
-      clientId: 'polkadot-' + initData.clientId
+      clientId: network + '-' + initData.clientId
     })
-    const client = new ClientPolkadot(baseClient)
+    const client = new ClientPolkadot(baseClient, network)
     return client
   }
   public getInfo = async (sessionId: string): Promise<GetInfoResponse> => {
@@ -96,7 +99,7 @@ export class ClientPolkadot extends EventEmitter<ClientPolkadotEvents> {
     sessionId
   }: ResolveSignPolkadotTransactions) => {
     const serializedTxs = signedTransactions.map((tx) => {
-      return { network: POLKADOT_NETWORK, transaction: tx }
+      return { network: this.network, transaction: tx }
     })
     const sessionIdToUse = sessionId || this.sessionId
     //Assert session id is defined

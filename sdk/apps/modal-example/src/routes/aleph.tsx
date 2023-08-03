@@ -21,7 +21,8 @@ export default function Polkadot() {
           description: 'Nightly Connect Test',
           icon: 'https://docs.nightly.app/img/logo.png',
           additionalInfo: 'Courtesy of Nightly Connect team'
-        }
+        },
+        network: 'AlephZero'
       },
       true,
       document.getElementById('modalAnchor')

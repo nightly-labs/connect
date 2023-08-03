@@ -1,8 +1,5 @@
 import { RELAY_ENDPOINT } from '@nightlylabs/nightly-connect-base'
-import { SignerPayloadJSON, SignerPayloadRaw } from '@polkadot/types/types'
 import { AppPolkadotInitialize } from './app'
-
-export const POLKADOT_NETWORK = 'Polkadot'
 
 export const TEST_APP_INITIALIZE: AppPolkadotInitialize = {
   appMetadata: {
@@ -11,6 +8,7 @@ export const TEST_APP_INITIALIZE: AppPolkadotInitialize = {
     icon: 'test-polkadot-app-icon',
     name: 'test-polkadot-app-name'
   },
+  network: 'POLKADOT',
   persistent: false,
   persistentSessionId: undefined,
   timeout: undefined,

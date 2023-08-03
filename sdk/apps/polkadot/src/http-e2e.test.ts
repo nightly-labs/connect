@@ -6,7 +6,7 @@ import {
 } from '@nightlylabs/nightly-connect-base'
 import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { AppPolkadot } from './app'
-import { POLKADOT_NETWORK, TEST_APP_INITIALIZE } from './utils'
+import { TEST_APP_INITIALIZE } from './utils'
 
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import Keyring from '@polkadot/keyring'
@@ -46,7 +46,7 @@ describe('Base Client tests', () => {
     assert(info.appMetadata.description === TEST_APP_INITIALIZE.appMetadata.description)
     assert(info.appMetadata.icon === TEST_APP_INITIALIZE.appMetadata.icon)
     assert(info.appMetadata.name === TEST_APP_INITIALIZE.appMetadata.name)
-    assert(info.network === POLKADOT_NETWORK)
+    assert(info.network === TEST_APP_INITIALIZE.network)
     // assert(info.version === testAppBaseInitialize.version)
   })
   test('#connect()', async () => {
@@ -81,7 +81,8 @@ describe('Base Client tests', () => {
     await client.resolveSignTransaction({
       requestId: pendingRequest.requestId,
       sessionId: app.sessionId,
-      signedTransactions: [{ signature: u8aToHex(signature), id: new Date().getTime() }]
+      signedTransactions: [{ signature: u8aToHex(signature), id: new Date().getTime() }],
+      network: TEST_APP_INITIALIZE.network
     })
     const signed = await promiseSignTransaction
     const verify = signatureVerify(

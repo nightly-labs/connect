@@ -7,7 +7,7 @@ import { cryptoWaitReady, decodeAddress, signatureVerify } from '@polkadot/util-
 import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { AppPolkadot } from './app'
 import { ClientPolkadot, Connect } from './client'
-import { POLKADOT_NETWORK, TEST_APP_INITIALIZE } from './utils'
+import { TEST_APP_INITIALIZE } from './utils'
 
 // Edit an assertion and save to see HMR in action
 const alice_keypair = new Keyring()
@@ -25,7 +25,7 @@ describe('Base Client tests', () => {
     app = await AppPolkadot.build(TEST_APP_INITIALIZE)
     expect(app).toBeDefined()
     assert(app.sessionId !== '')
-    client = await ClientPolkadot.create({ url: RELAY_ENDPOINT })
+    client = await ClientPolkadot.create({ url: RELAY_ENDPOINT }, TEST_APP_INITIALIZE.network)
     provider = new WsProvider('wss://ws.test.azero.dev/')
     polkadotApi = await ApiPromise.create({
       provider
@@ -41,7 +41,7 @@ describe('Base Client tests', () => {
     assert(info.appMetadata.description === TEST_APP_INITIALIZE.appMetadata.description)
     assert(info.appMetadata.icon === TEST_APP_INITIALIZE.appMetadata.icon)
     assert(info.appMetadata.name === TEST_APP_INITIALIZE.appMetadata.name)
-    assert(info.network === POLKADOT_NETWORK)
+    assert(info.network === TEST_APP_INITIALIZE.network)
     // assert(info.version === testAppBaseInitialize.version)
   })
   test('#connect()', async () => {

@@ -26,7 +26,7 @@ export default [
       terser()
     ],
     external: [
-      '@nightlylabs/nightly-connect-solana',
+      '@nightlylabs/nightly-connect-polkadot',
       '@nightlylabs/wallet-selector-base',
       '@solana/wallet-adapter-base',
       '@wallet-standard/core'
