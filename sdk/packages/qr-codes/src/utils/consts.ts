@@ -1,4 +1,4 @@
-import { ErrorCorrectionLevel, XMLOptions } from "./types"
+import { ErrorCorrectionLevel, XMLOptions } from './types'
 
 export const fennecXml = `<svg viewBox="0 0 151 166" fill="none"
 xmlns="http://www.w3.org/2000/svg">
@@ -21,7 +21,7 @@ export const defaultXMLOptions: XMLOptions = {
     color: '#6067F9'
   },
   cornersDotOptions: {
-    color: '#6067F9'
+    color: '#FFFFFF'
   },
   cornersSquareOptions: {
     color: '#FFFFFF'
@@ -30,14 +30,14 @@ export const defaultXMLOptions: XMLOptions = {
     color: '#17182B'
   },
   imageOptions: {
-    margin: 3,
+    margin: 4,
     imageSize: 0.4,
     hideBackgroundDots: true,
     crossOrigin: undefined
   },
   qrOptions: {
     typeNumber: 0,
-    errorCorrectionLevel: ErrorCorrectionLevel.Q
+    errorCorrectionLevel: ErrorCorrectionLevel.M
   },
   image: fennecXml,
   imageWidth: 1660, // workaround for problem with getting image size
