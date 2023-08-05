@@ -135,10 +135,10 @@ importers:
         specifier: 0.0.21
         version: link:../sui
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.1.10
+        specifier: 0.1.11
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
-        specifier: 0.1.1
+        specifier: 0.1.2
         version: link:../../packages/selector-sui
       '@solana/web3.js':
         specifier: ^1.77.2
@@ -202,10 +202,10 @@ importers:
         specifier: 0.4.12
         version: 0.4.12(react-dom@18.2.0)(react@18.2.0)
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.1.10
+        specifier: 0.1.11
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
-        specifier: 0.1.1
+        specifier: 0.1.2
         version: link:../../packages/selector-sui
       '@solana/web3.js':
         specifier: ^1.77.2
@@ -388,7 +388,7 @@ importers:
         specifier: ^1.0.3
         version: 1.0.3
       '@nightlylabs/qr-code':
-        specifier: 2.0.2
+        specifier: 2.0.3
         version: link:../qr-codes
       autoprefixer:
         specifier: ^10.4.14
@@ -510,7 +510,7 @@ importers:
         specifier: 0.0.19
         version: link:../../apps/base
       '@nightlylabs/wallet-selector-modal':
-        specifier: 0.0.10
+        specifier: 0.0.11
         version: link:../modal
       '@wallet-standard/core':
         specifier: ^1.0.3
@@ -550,7 +550,7 @@ importers:
         specifier: 0.0.22
         version: link:../../apps/solana
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.1.0
+        specifier: 0.1.1
         version: link:../selector-base
       '@solana/wallet-adapter-base':
         specifier: ^0.9.22
@@ -608,7 +608,7 @@ importers:
         specifier: 0.0.21
         version: link:../../apps/sui
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.1.0
+        specifier: 0.1.1
         version: link:../selector-base
       '@wallet-standard/core':
         specifier: ^1.0.3
