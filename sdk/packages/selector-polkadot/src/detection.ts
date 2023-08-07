@@ -1,6 +1,6 @@
 import { type Injected, type InjectedExtension } from '@polkadot/extension-inject/types'
 import { type WalletIcon } from '@wallet-standard/core'
-
+import { appToIcon } from './tempIcons'
 export interface PolkadotWalletInjected {
   // Default Polkadot standard
   connect?: (origin: string) => Promise<InjectedExtension> // Is this even used ?
@@ -10,6 +10,7 @@ export interface PolkadotWalletInjected {
   name: string
   icon?: WalletIcon
 }
+
 declare global {
   interface Window {
     injectedWeb3?: { [key in string]: PolkadotWalletInjected }
@@ -20,6 +21,7 @@ export const getPolkadotWallets = (): PolkadotWalletInjected[] => {
     return Object.entries(window.injectedWeb3).map(([key, value]) => {
       // value.name might be undefined
       value.name = value.name ?? key
+      value.icon = value.icon ?? appToIcon[key]
       return value
     })
   } else {

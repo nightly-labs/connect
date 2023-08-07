@@ -17,7 +17,7 @@ export default function Polkadot() {
     const adapter = NightlyConnectAdapter.buildLazy(
       {
         appMetadata: {
-          name: 'NCTestSui',
+          name: 'NC TEST AlephZero',
           description: 'Nightly Connect Test',
           icon: 'https://docs.nightly.app/img/logo.png',
           additionalInfo: 'Courtesy of Nightly Connect team'
