@@ -1,6 +1,6 @@
 {
   "name": "@nightlylabs/qr-code",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Nightly QR codes generator",
   "type": "module",
   "exports": {
