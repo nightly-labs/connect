@@ -23,7 +23,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@nightlylabs/nightly-connect-base": "0.0.19",
+    "@nightlylabs/nightly-connect-base": "0.0.20",
     "@nightlylabs/wallet-selector-modal": "0.0.10",
     "@wallet-standard/core": "^1.0.3",
     "isomorphic-localstorage": "^1.0.2"
