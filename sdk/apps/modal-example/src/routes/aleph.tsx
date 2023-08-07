@@ -59,7 +59,7 @@ export default function Polkadot() {
 
   return (
     <main>
-      <Title>Sui Example</Title>
+      <Title>Aleph Zero Example</Title>
       <div id="modalAnchor" />
       <Show
         when={!!publicKey()}
@@ -89,7 +89,7 @@ export default function Polkadot() {
               console.log(e)
             }
           }}>
-          Send test transfer
+          Sign test transfer
         </button>
         {/* <button
           onClick={async () => {
