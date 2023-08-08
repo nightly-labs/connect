@@ -85,6 +85,8 @@ pub async fn app_handler(
                             let mut sessions = sessions.write().await;
                             match sessions.get_mut(session_id.as_str()) {
                                 Some(mut session) => {
+                                    // Close previous app socket
+                                    session.close_app_socket().await;
                                     session.update_status(SessionStatus::AppConnected);
                                     session.app_state = AppState {
                                         metadata: init_data.app_metadata,
