@@ -1,3 +1,4 @@
+pub mod already_connected;
 pub mod app_messages;
 pub mod initialize;
 pub mod payload;

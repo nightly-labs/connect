@@ -4,6 +4,7 @@ use ts_rs::TS;
 use crate::structs::common::{AckMessage, ErrorMessage};
 
 use super::{
+    already_connected::AlreadyConnected,
     initialize::{InitializeRequest, InitializeResponse},
     payload::{RequestPayload, ResponsePayload},
     user_connected_event::UserConnectedEvent,
@@ -27,4 +28,5 @@ pub enum ServerToApp {
     ResponsePayload(ResponsePayload),
     ErrorMessage(ErrorMessage),
     AckMessage(AckMessage),
+    AlreadyConnected(AlreadyConnected),
 }

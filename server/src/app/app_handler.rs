@@ -7,12 +7,14 @@ use axum::{
     },
     response::Response,
 };
-use futures::StreamExt;
+use futures::{SinkExt, StreamExt};
+use log::warn;
 
 use crate::{
     state::{ClientSockets, ClientToSessions, ModifySession, SendToClient, Sessions},
     structs::{
         app_messages::{
+            already_connected::AlreadyConnected,
             app_messages::{AppToServer, ServerToApp},
             initialize::InitializeResponse,
         },
@@ -45,7 +47,7 @@ pub async fn app_handler(
     client_sockets: ClientSockets,
     client_to_sessions: ClientToSessions,
 ) {
-    let (sender, mut receiver) = socket.split();
+    let (mut sender, mut receiver) = socket.split();
     // Handle the new app connection here
     // Wait for initialize message
     let session_id = loop {
@@ -85,8 +87,24 @@ pub async fn app_handler(
                             let mut sessions = sessions.write().await;
                             match sessions.get_mut(session_id.as_str()) {
                                 Some(mut session) => {
-                                    // Close previous app socket
-                                    session.close_app_socket().await;
+                                    // Do not allow to connect to the same session twice
+                                    if session.app_state.app_socket.is_some() {
+                                        warn!("App tried to connect to the same session twice");
+                                        let response =
+                                            ServerToApp::AlreadyConnected(AlreadyConnected {
+                                                session_id: session_id.clone(),
+                                            });
+                                        sender
+                                            .send(Message::Text(
+                                                serde_json::to_string(&response)
+                                                    .expect("Serialization should work"),
+                                            ))
+                                            .await
+                                            .unwrap_or_default();
+                                        sender.close().await.unwrap_or_default();
+                                        return;
+                                    }
+
                                     session.update_status(SessionStatus::AppConnected);
                                     session.app_state = AppState {
                                         metadata: init_data.app_metadata,

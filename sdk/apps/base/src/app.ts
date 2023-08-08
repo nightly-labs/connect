@@ -100,6 +100,11 @@ export class BaseApp extends EventEmitter<BaseEvents> {
             case 'UserConnectedEvent': {
               baseApp.connectedPublicKeys = response.publicKeys
               baseApp.emit('userConnected', response)
+              break
+            }
+            case 'AlreadyConnected': {
+              reject(new Error('Already connected'))
+              break
             }
           }
         }
