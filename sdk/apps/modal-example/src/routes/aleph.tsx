@@ -80,9 +80,10 @@ export default function Polkadot() {
         <button
           onClick={async () => {
             try {
-              const payload = api()!.tx.balances.transfer(RECEIVER, 500)
+              const payload = api()!.tx.balances.transfer(RECEIVER, 5000000000000)
               const signed = await payload.signAsync(publicKey()!, { signer: adapter()!.signer })
               console.log({ signed })
+              await signed.send()
               toast.success('Transaction was signed and sent!')
             } catch (e) {
               toast.error("Error: couldn't sign and send transaction!")
