@@ -4,7 +4,6 @@ import {
   IWalletListItem,
   MetadataWallet,
   NightlyConnectSelectorModal,
-  QueryNetwork,
   clearRecentStandardWalletForNetwork,
   clearSessionIdForNetwork,
   getRecentStandardWalletForNetwork,
