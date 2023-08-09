@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { AppPolkadot, AppPolkadotInitialize } from '@nightlylabs/nightly-connect-polkadot'
 import {
-  IWalletListItem,
   MetadataWallet,
   NightlyConnectSelectorModal,
   clearRecentStandardWalletForNetwork,
@@ -20,7 +19,7 @@ import {
 import { type Signer as InjectedSigner } from '@polkadot/api/types'
 import { type Injected } from '@polkadot/extension-inject/types'
 import { WalletNotReadyError, WalletWindowClosedError } from '@solana/wallet-adapter-base'
-import { PolkadotWalletInjected, getPolkadotWallets } from './detection'
+import { IPolkadotWalletListItem, getPolkadotWalletsList } from './detection'
 import { networkToData, SupportedNetworks } from './utils'
 export type AppSelectorInitialize = Omit<AppPolkadotInitialize, 'network'> & {
   network: SupportedNetworks
@@ -42,8 +41,7 @@ export class NightlyConnectAdapter implements Injected {
   private _eagerConnectForStandardWallets: boolean
 
   private _metadataWallets: MetadataWallet[] = []
-  private _injectedWallets: PolkadotWalletInjected[] = []
-  private _walletsList: IWalletListItem[] = []
+  private _walletsList: IPolkadotWalletListItem[] = []
 
   private _chosenMobileWalletName: string | undefined
 
@@ -99,12 +97,33 @@ export class NightlyConnectAdapter implements Injected {
   get network() {
     return this._appInitData.network
   }
+  get walletsList() {
+    return this._walletsList
+  }
+
+  set walletsList(list: IPolkadotWalletListItem[]) {
+    this._walletsList = list
+    if (this._modal) {
+      this._modal.walletsList = list
+    }
+  }
   public static build = async (
     appInitData: AppSelectorInitialize,
     eagerConnectForStandardWallets?: boolean,
     anchorRef?: HTMLElement | null
   ) => {
     const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets)
+
+    adapter.walletsList = getPolkadotWalletsList(
+      [],
+      getRecentStandardWalletForNetwork(adapter.network) ?? undefined
+    )
+    adapter._modal = new NightlyConnectSelectorModal(
+      adapter.walletsList,
+      appInitData.url ?? 'https://nc2.nightly.app',
+      networkToData(adapter.network),
+      anchorRef
+    )
 
     const [app, metadataWallets] = await Promise.all([
       AppPolkadot.build(appInitData),
@@ -122,37 +141,10 @@ export class NightlyConnectAdapter implements Injected {
 
     adapter._app = app
     adapter._metadataWallets = metadataWallets
-    const recentWalletName = getRecentStandardWalletForNetwork(adapter.network) ?? undefined
 
-    const walletsData: Record<string, IWalletListItem> = {}
-    // wallets from api
-    metadataWallets.forEach((wallet) => {
-      walletsData[wallet.name] = {
-        ...wallet,
-        recent: recentWalletName === wallet.name
-      }
-    })
-
-    const detectedWallets = getPolkadotWallets()
-    adapter._injectedWallets = detectedWallets
-    // wallets from window
-    detectedWallets.forEach((wallet) => {
-      walletsData[wallet.name] = {
-        name: wallet.name,
-        icon: wallet.icon ?? 'https://registry.connect.nightly.app/networks/polkadot.png', // TODO add default icon
-        deeplink: null,
-        link: '',
-        recent: recentWalletName === wallet.name,
-        detected: true
-      }
-    })
-    adapter._walletsList = Object.values(walletsData)
-
-    adapter._modal = new NightlyConnectSelectorModal(
-      adapter._walletsList,
-      appInitData.url ?? 'https://nc2.nightly.app',
-      networkToData(adapter.network),
-      anchorRef
+    adapter.walletsList = getPolkadotWalletsList(
+      metadataWallets,
+      getRecentStandardWalletForNetwork(adapter.network) ?? undefined
     )
 
     return adapter
@@ -164,6 +156,17 @@ export class NightlyConnectAdapter implements Injected {
     anchorRef?: HTMLElement | null
   ) => {
     const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets)
+
+    adapter.walletsList = getPolkadotWalletsList(
+      [],
+      getRecentStandardWalletForNetwork(adapter.network) ?? undefined
+    )
+    adapter._modal = new NightlyConnectSelectorModal(
+      adapter.walletsList,
+      appInitData.url ?? 'https://nc2.nightly.app',
+      networkToData(adapter.network),
+      anchorRef
+    )
 
     adapter._loading = true
 
@@ -182,37 +185,9 @@ export class NightlyConnectAdapter implements Injected {
     ]).then(([app, metadataWallets]) => {
       adapter._app = app
       adapter._metadataWallets = metadataWallets
-      const recentWalletName = getRecentStandardWalletForNetwork(adapter.network) ?? undefined
-
-      const walletsData: Record<string, IWalletListItem> = {}
-      // wallets from api
-      metadataWallets.forEach((wallet) => {
-        walletsData[wallet.name] = {
-          ...wallet,
-          recent: recentWalletName === wallet.name
-        }
-      })
-
-      const detectedWallets = getPolkadotWallets()
-      adapter._injectedWallets = detectedWallets
-      // wallets from window
-      detectedWallets.forEach((wallet) => {
-        walletsData[wallet.name] = {
-          name: wallet.name,
-          icon: wallet.icon ?? 'https://registry.connect.nightly.app/networks/polkadot.png', // TODO add default icon
-          deeplink: null,
-          link: '',
-          recent: recentWalletName === wallet.name,
-          detected: true
-        }
-      })
-      adapter._walletsList = Object.values(walletsData)
-
-      adapter._modal = new NightlyConnectSelectorModal(
-        adapter._walletsList,
-        appInitData.url ?? 'https://nc2.nightly.app',
-        networkToData(adapter.network),
-        anchorRef
+      adapter.walletsList = getPolkadotWalletsList(
+        metadataWallets,
+        getRecentStandardWalletForNetwork(adapter.network) ?? undefined
       )
 
       adapter._loading = false
@@ -255,7 +230,7 @@ export class NightlyConnectAdapter implements Injected {
   eagerConnectDeeplink = () => {
     if (isMobileBrowser() && this._app) {
       const mobileWalletName = getRecentStandardWalletForNetwork(this.network)
-      const wallet = this._walletsList.find((w) => w.name === mobileWalletName)
+      const wallet = this.walletsList.find((w) => w.name === mobileWalletName)
 
       if (typeof wallet === 'undefined') {
         return
@@ -265,18 +240,19 @@ export class NightlyConnectAdapter implements Injected {
         return
       }
 
-      if (wallet.deeplink.universal !== null) {
-        this._app.connectDeeplink({
-          walletName: wallet.name,
-          url: wallet.deeplink.universal
-        })
-        return
-      }
-
       if (wallet.deeplink.native !== null) {
         this._app.connectDeeplink({
           walletName: wallet.name,
           url: wallet.deeplink.native
+        })
+
+        return
+      }
+
+      if (wallet.deeplink.universal !== null) {
+        this._app.connectDeeplink({
+          walletName: wallet.name,
+          url: wallet.deeplink.universal
         })
       }
     }
@@ -287,13 +263,30 @@ export class NightlyConnectAdapter implements Injected {
       this._modal.setStandardWalletConnectProgress(true)
     }
 
-    const wallet = this._walletsList.find((w) => w.name === walletName)
+    const wallet = this.walletsList.find((w) => w.name === walletName)
 
     if (!this._app || typeof wallet === 'undefined') {
       return
     }
 
     if (wallet.deeplink === null) {
+      return
+    }
+
+    if (wallet.deeplink.native !== null) {
+      this._app.connectDeeplink({
+        walletName: wallet.name,
+        url: wallet.deeplink.native
+      })
+
+      this._chosenMobileWalletName = walletName
+
+      triggerConnect(
+        wallet.deeplink.native,
+        this._app.sessionId,
+        this._appInitData.url ?? 'https://nc2.nightly.app'
+      )
+
       return
     }
 
@@ -312,21 +305,6 @@ export class NightlyConnectAdapter implements Injected {
       )
       return
     }
-
-    if (wallet.deeplink.native !== null) {
-      this._app.connectDeeplink({
-        walletName: wallet.name,
-        url: wallet.deeplink.native
-      })
-
-      this._chosenMobileWalletName = walletName
-
-      triggerConnect(
-        wallet.deeplink.native,
-        this._app.sessionId,
-        this._appInitData.url ?? 'https://nc2.nightly.app'
-      )
-    }
   }
 
   connectToStandardWallet = async (walletName: string, onSuccess: () => void) => {
@@ -335,7 +313,7 @@ export class NightlyConnectAdapter implements Injected {
       this._modal.setStandardWalletConnectProgress(true)
     }
     console.log({ walletName })
-    const adapter = this._injectedWallets.find((w) => w.name === walletName)
+    const adapter = this.walletsList.find((w) => w.name === walletName)?.injectedWallet
     if (typeof adapter === 'undefined') {
       if (this._modal) {
         this._modal.setStandardWalletConnectProgress(false)
@@ -413,7 +391,7 @@ export class NightlyConnectAdapter implements Injected {
             }
           }
 
-          this._app.on('userConnected', (e) => {
+          this._app.on('userConnected', () => {
             if (this._chosenMobileWalletName) {
               persistRecentStandardWalletForNetwork(this._chosenMobileWalletName, this.network)
             } else {
@@ -437,7 +415,7 @@ export class NightlyConnectAdapter implements Injected {
             this._modal.openModal(this._app.sessionId, (walletName) => {
               if (
                 isMobileBrowser() &&
-                !this._walletsList.find((w) => w.name === walletName)?.standardWallet
+                !this.walletsList.find((w) => w.name === walletName)?.injectedWallet
               ) {
                 this.connectToMobileWallet(walletName)
               } else {
@@ -479,13 +457,12 @@ export class NightlyConnectAdapter implements Injected {
         persistStandardDisconnectForNetwork(this.network)
       }
       // Update recent wallet
-      const recentWalletName = getRecentStandardWalletForNetwork(this.network)
-      this._walletsList = this._walletsList.map((wallet) => ({
-        ...wallet,
-        recent: wallet.name === recentWalletName
-      }))
+      this.walletsList = getPolkadotWalletsList(
+        this._metadataWallets,
+        getRecentStandardWalletForNetwork(this.network) ?? undefined
+      )
       if (this._modal) {
-        this._modal.walletsList = this._walletsList
+        this._modal.walletsList = this.walletsList
       }
       this._connected = false
     }
