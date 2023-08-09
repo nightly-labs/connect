@@ -30,7 +30,6 @@ const meta = {
           .chainIcon=${args.chainIcon}
           .chainName=${args.chainName}
           .sessionId=${args.sessionId}
-          .network=${args.network}
           ?connecting=${args.connecting}
           .relay=${args.relay}
         ></nightly-main-page>
@@ -50,7 +49,6 @@ interface NightlyModalArgs {
   chainIcon: string
   chainName: string
   sessionId: string
-  network: string
   connecting: boolean
   relay: string
 }
@@ -106,7 +104,6 @@ export const Default: Story = {
     chainName: 'Solana',
     sessionId:
       'fsdhfdzfsdhgfzghggdfhbgchgbdfnvfbxhncvfjhzxdhgbhghfgfvzhfgjhgszdhgzxdfhgfzxdjfuhdfhgd',
-    network: 'SOLANA',
     connecting: true,
     relay: 'https://nc2.nightly.app'
   }

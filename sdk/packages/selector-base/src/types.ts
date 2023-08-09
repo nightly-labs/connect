@@ -5,12 +5,6 @@ import { type Wallet } from '@wallet-standard/core'
 export interface Adapter {
   connect: () => Promise<void>
 }
-// TODO we have two types of QueryNetwork
-export enum QueryNetwork {
-  SOLANA = 'SOLANA',
-  SUI = 'SUI',
-  POLKADOT = 'POLKADOT'
-}
 export type AppInitData = Omit<AppBaseInitialize, 'network'>
 
 export interface MetadataWallet {
@@ -27,7 +21,6 @@ export interface IWalletListItem extends MetadataWallet {
 }
 
 export interface NetworkData {
-  network: QueryNetwork
   name: string
   icon: string
 }

@@ -14,10 +14,10 @@ export class NightlyQrCode extends LitElement {
   sessionId = ''
 
   @property({ type: String })
-  network = ''
+  relay = ''
 
   @property({ type: String })
-  relay = ''
+  chainName = ''
 
   @property({ type: Function })
   showAllWallets!: () => void
@@ -39,7 +39,12 @@ export class NightlyQrCode extends LitElement {
             class="code"
             src=${svgToBase64(
               generateQrCodeXml(
-                'nc:' + this.sessionId + '?network=' + this.network + '&relay=' + this.relay,
+                'nc:' +
+                  this.sessionId +
+                  '?network=' +
+                  this.chainName.replace(/\s/g, '') +
+                  '&relay=' +
+                  this.relay,
                 {
                   width: 432,
                   height: 432,

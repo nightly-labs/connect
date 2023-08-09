@@ -13,7 +13,7 @@ import Binance from '../../static/svg/BinanceIcon.svg'
 import Sollet from '../../static/svg/SolletIcon.svg'
 import NightlyIcon from '../../static/svg/NightlyIcon.svg'
 import ChainIcon from '../../static/svg/ChainIcon.svg'
-import { QueryNetwork, WalletSelectorItem } from '../../utils/types'
+import { WalletSelectorItem } from '../../utils/types'
 
 const meta = {
   title: 'nightly-selector',
@@ -36,7 +36,6 @@ interface NightlyModalArgs {
   chainIcon: string
   chainName: string
   sessionId: string
-  network: QueryNetwork
   connecting: boolean
   relay: string
 }
@@ -59,7 +58,6 @@ export const Default: Story = (args: NightlyModalArgs) => {
           .chainIcon=${args.chainIcon}
           .chainName=${args.chainName}
           .sessionId=${args.sessionId}
-          .network=${args.network}
           ?connecting=${args.connecting}
           .relay=${args.relay}
         ></nightly-selector>
@@ -114,7 +112,6 @@ Default.args = {
   chainName: 'Solana',
   sessionId:
     'fsdhfdzfsdhgfzghggdfhbgchgbdfnvfbxhncvfjhzxdhgbhghfgfvzhfgjhgszdhgzxdfhgfzxdjfuhdfhgd',
-  network: QueryNetwork.SOLANA,
   connecting: true,
   relay: 'https://nc2.nightly.app',
   open: true
