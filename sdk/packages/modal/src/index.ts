@@ -1,7 +1,7 @@
 import './components/nightly-selector/nightly-selector'
 import './shared/tailwind.global.css'
 export { type NightlySelector } from './components/nightly-selector/nightly-selector'
-export { QueryNetwork, type WalletSelectorItem } from './utils/types'
+export { type WalletSelectorItem } from './utils/types'
 
 export const getNightlySelectorElement = () => {
   const style = document.createElement('style')

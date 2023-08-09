@@ -35,9 +35,6 @@ export class NightlyMainPage extends LitElement {
   sessionId = ''
 
   @property({ type: String })
-  network = ''
-
-  @property({ type: String })
   relay = ''
 
   @property({ type: Boolean })
@@ -166,7 +163,6 @@ export class NightlyMainPage extends LitElement {
     return html`<div id="modalSelect">
       <nightly-wallet-selector-small-page
         class="modalMobile"
-        .network=${this.network}
         .onWalletClick=${this.onSelectWallet}
         .selectorItems=${this.selectorItems}
         .sessionId=${this.sessionId}
@@ -194,7 +190,6 @@ export class NightlyMainPage extends LitElement {
         class="modalDesktop"
         .chainIcon=${this.chainIcon}
         .chainName=${this.chainName}
-        .network=${this.network}
         .onWalletClick=${this.onSelectWallet}
         .selectorItems=${this.selectorItems}
         .sessionId=${this.sessionId}

@@ -18,7 +18,7 @@ interface NightlyWalletSelectorListArgs {
   walletSelectorItems: WalletSelectorItem[]
   onWalletClick: (name: string) => void
   sessionId: string
-  network: string
+  chainName: string
   relay: string
   onClose: () => void
 }
@@ -39,7 +39,7 @@ export const Default = (args: NightlyWalletSelectorListArgs) => {
         .selectorItems=${args.walletSelectorItems}
         .onWalletClick=${args.onWalletClick}
         .sessionId=${args.sessionId}
-        .network=${args.network}
+        .chainName=${args.chainName}
         .onClose=${args.onClose}
         .relay=${args.relay}
       ></nightly-wallet-selector-small-page>

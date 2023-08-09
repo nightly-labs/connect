@@ -21,7 +21,6 @@ import {
   IWalletListItem,
   MetadataWallet,
   NightlyConnectSelectorModal,
-  QueryNetwork,
   clearRecentStandardWalletForNetwork,
   clearSessionIdForNetwork,
   getRecentStandardWalletForNetwork,
@@ -106,7 +105,6 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
       adapter.walletsList,
       appInitData.url ?? 'https://nc2.nightly.app',
       {
-        network: QueryNetwork.SUI,
         name: SUI_NETWORK,
         icon: 'https://registry.connect.nightly.app/networks/sui.png'
       },
@@ -154,7 +152,6 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
       adapter.walletsList,
       appInitData.url ?? 'https://nc2.nightly.app',
       {
-        network: QueryNetwork.SUI,
         name: SUI_NETWORK,
         icon: 'https://registry.connect.nightly.app/networks/sui.png'
       },

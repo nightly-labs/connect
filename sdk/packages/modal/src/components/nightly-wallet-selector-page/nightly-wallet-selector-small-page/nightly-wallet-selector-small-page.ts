@@ -29,7 +29,7 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
   sessionId = ''
 
   @property({ type: String })
-  network = ''
+  chainName = ''
 
   @property({ type: String })
   relay = ''
@@ -70,7 +70,6 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
       return html`
         <nightly-wallet-wrapper
           class="selectorView"
-          .network=${this.network}
           .sessionId=${this.sessionId}
           .showAllWallets=${this.showAllWallets.bind(this)}
           .onWalletClick=${this.onWalletClick.bind(this)}
@@ -127,7 +126,7 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
     return html`
       <nightly-qr-code
         class="selectorView"
-        .network=${this.network}
+        .chainName=${this.chainName}
         .sessionId=${this.sessionId}
         .relay=${this.relay}
         .showAllWallets=${this.showAllWallets.bind(this)}
