@@ -90,6 +90,6 @@ Default.args = {
   },
   sessionId:
     'fsdhfdzfsdhgfzghggdfhbgchgbdfnvfbxhncvfjhzxdhgbhghfgfvzhfgjhgszdhgzxdfhgfzxdjfuhdfhgd',
-  network: 'SOLANA',
+  chainName: 'SOLANA',
   relay: 'https://nc2.nightly.app'
 }

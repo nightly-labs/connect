@@ -166,6 +166,7 @@ export class NightlyMainPage extends LitElement {
         .onWalletClick=${this.onSelectWallet}
         .selectorItems=${this.selectorItems}
         .sessionId=${this.sessionId}
+        .chainName=${this.chainName}
         .relay=${this.relay}
         ${animate({
           properties: ['opacity'],
