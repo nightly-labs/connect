@@ -52,7 +52,7 @@ describe('Base App tests', () => {
     assert(baseApp2.sessionId == sessionId)
   })
   test('#on("userConnected")', async () => {
-    const baseApp = await BaseApp.build(testAppBaseInitialize)
+    const baseApp = await BaseApp.build({ ...testAppBaseInitialize, persistent: false })
     expect(baseApp).toBeDefined()
     assert(baseApp.sessionId !== '')
     const userConnectedFn = vi.fn()
