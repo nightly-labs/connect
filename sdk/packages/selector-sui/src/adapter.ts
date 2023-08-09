@@ -60,6 +60,17 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
   private _connectionType: ConnectionType | undefined
   private _metadataWallets: MetadataWallet[] = []
 
+  get walletsList() {
+    return this._walletsList
+  }
+
+  set walletsList(list: IWalletListItem[]) {
+    this._walletsList = list
+    if (this._modal) {
+      this._modal.walletsList = list
+    }
+  }
+
   // We need internal _connecting since sui messes with connecting state
   private _connecting = false
   constructor(appInitData: AppInitData, eagerConnectForStandardWallets?: boolean) {
@@ -86,7 +97,21 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
   ) => {
     const adapter = new NightlyConnectSuiAdapter(appInitData, eagerConnectForStandardWallets)
 
-    adapter._loading = true
+    adapter.walletsList = getWalletsList(
+      [],
+      suiWalletsFilter,
+      getRecentStandardWalletForNetwork(SUI_NETWORK) ?? undefined
+    )
+    adapter._modal = new NightlyConnectSelectorModal(
+      adapter.walletsList,
+      appInitData.url ?? 'https://nc2.nightly.app',
+      {
+        network: QueryNetwork.SUI,
+        name: SUI_NETWORK,
+        icon: 'https://registry.connect.nightly.app/networks/sui.png'
+      },
+      anchorRef
+    )
 
     const [app, metadataWallets] = await Promise.all([
       AppSui.build(appInitData),
@@ -104,22 +129,11 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
 
     adapter._app = app
     adapter._metadataWallets = metadataWallets
-    adapter._walletsList = getWalletsList(
+    adapter.walletsList = getWalletsList(
       metadataWallets,
       suiWalletsFilter,
       getRecentStandardWalletForNetwork(SUI_NETWORK) ?? undefined
     )
-    adapter._modal = new NightlyConnectSelectorModal(
-      adapter._walletsList,
-      appInitData.url ?? 'https://nc2.nightly.app',
-      {
-        network: QueryNetwork.SUI,
-        name: SUI_NETWORK,
-        icon: 'https://registry.connect.nightly.app/networks/sui.png'
-      },
-      anchorRef
-    )
-    adapter._loading = false
 
     return adapter
   }
@@ -130,6 +144,22 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
     anchorRef?: HTMLElement | null
   ) => {
     const adapter = new NightlyConnectSuiAdapter(appInitData, eagerConnectForStandardWallets)
+
+    adapter.walletsList = getWalletsList(
+      [],
+      suiWalletsFilter,
+      getRecentStandardWalletForNetwork(SUI_NETWORK) ?? undefined
+    )
+    adapter._modal = new NightlyConnectSelectorModal(
+      adapter.walletsList,
+      appInitData.url ?? 'https://nc2.nightly.app',
+      {
+        network: QueryNetwork.SUI,
+        name: SUI_NETWORK,
+        icon: 'https://registry.connect.nightly.app/networks/sui.png'
+      },
+      anchorRef
+    )
 
     adapter._loading = true
 
@@ -148,20 +178,10 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
     ]).then(([app, metadataWallets]) => {
       adapter._app = app
       adapter._metadataWallets = metadataWallets
-      adapter._walletsList = getWalletsList(
+      adapter.walletsList = getWalletsList(
         metadataWallets,
         suiWalletsFilter,
         getRecentStandardWalletForNetwork(SUI_NETWORK) ?? undefined
-      )
-      adapter._modal = new NightlyConnectSelectorModal(
-        adapter._walletsList,
-        appInitData.url ?? 'https://nc2.nightly.app',
-        {
-          network: QueryNetwork.SUI,
-          name: SUI_NETWORK,
-          icon: 'https://registry.connect.nightly.app/networks/sui.png'
-        },
-        anchorRef
       )
       adapter._loading = false
     })
@@ -260,7 +280,7 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
           const opened = this._modal!.openModal(this._app!.sessionId, (walletName) => {
             if (
               isMobileBrowser() &&
-              !this._walletsList.find((w) => w.name === walletName)?.standardWallet
+              !this.walletsList.find((w) => w.name === walletName)?.standardWallet
             ) {
               this.connectToMobileWallet(walletName)
             } else {
@@ -302,7 +322,7 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
         if (this._innerStandardAdapter) {
           await this._innerStandardAdapter.disconnect()
           persistStandardDisconnectForNetwork(SUI_NETWORK)
-          this._walletsList = getWalletsList(
+          this.walletsList = getWalletsList(
             this._metadataWallets,
             suiWalletsFilter,
             getRecentStandardWalletForNetwork(SUI_NETWORK) ?? undefined
@@ -412,7 +432,7 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
   eagerConnectDeeplink = () => {
     if (isMobileBrowser() && this._app) {
       const mobileWalletName = getRecentStandardWalletForNetwork(SUI_NETWORK)
-      const wallet = this._walletsList.find((w) => w.name === mobileWalletName)
+      const wallet = this.walletsList.find((w) => w.name === mobileWalletName)
 
       if (typeof wallet === 'undefined') {
         return
@@ -444,7 +464,7 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
       this._modal.setStandardWalletConnectProgress(true)
     }
 
-    const wallet = this._walletsList.find((w) => w.name === walletName)
+    const wallet = this.walletsList.find((w) => w.name === walletName)
 
     if (!this._app || typeof wallet === 'undefined') {
       return
@@ -490,7 +510,7 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
     if (this._modal) {
       this._modal.setStandardWalletConnectProgress(true)
     }
-    const wallet = this._walletsList.find((w) => w.name === walletName)
+    const wallet = this.walletsList.find((w) => w.name === walletName)
     if (typeof wallet?.standardWallet === 'undefined') {
       return
     }
