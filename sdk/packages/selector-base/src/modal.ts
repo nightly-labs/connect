@@ -46,7 +46,6 @@ export class NightlyConnectSelectorModal {
       this._modal = getNightlySelectorElement()
       this._modal.onClose = this.onCloseModal
 
-      this._modal.network = this._networkData.network
       this._modal.relay = this._relay
       this._modal.chainIcon = this._networkData.icon
       this._modal.chainName = this._networkData.name

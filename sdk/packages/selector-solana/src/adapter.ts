@@ -13,7 +13,6 @@ import {
   persistRecentStandardWalletForNetwork,
   persistStandardConnectForNetwork,
   isStandardConnectedForNetwork,
-  QueryNetwork,
   triggerConnect,
   persistStandardDisconnectForNetwork,
   sleep
@@ -123,7 +122,6 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       adapter.walletsList,
       appInitData.url ?? 'https://nc2.nightly.app',
       {
-        network: QueryNetwork.SOLANA,
         name: SOLANA_NETWORK,
         icon: 'https://assets.coingecko.com/coins/images/4128/small/solana.png'
       },
@@ -177,7 +175,6 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       adapter.walletsList,
       appInitData.url ?? 'https://nc2.nightly.app',
       {
-        network: QueryNetwork.SOLANA,
         name: SOLANA_NETWORK,
         icon: 'https://assets.coingecko.com/coins/images/4128/small/solana.png'
       },
