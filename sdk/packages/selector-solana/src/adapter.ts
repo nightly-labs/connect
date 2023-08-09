@@ -234,20 +234,19 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       if (wallet.deeplink === null) {
         return
       }
-
+      if (wallet.deeplink.native !== null) {
+        this._app.connectDeeplink({
+          walletName: wallet.name,
+          url: wallet.deeplink.native
+        })
+        return
+      }
       if (wallet.deeplink.universal !== null) {
         this._app.connectDeeplink({
           walletName: wallet.name,
           url: wallet.deeplink.universal
         })
         return
-      }
-
-      if (wallet.deeplink.native !== null) {
-        this._app.connectDeeplink({
-          walletName: wallet.name,
-          url: wallet.deeplink.native
-        })
       }
     }
   }
@@ -267,6 +266,22 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       return
     }
 
+    if (wallet.deeplink.native !== null) {
+      this._app.connectDeeplink({
+        walletName: wallet.name,
+        url: wallet.deeplink.native
+      })
+
+      this._chosenMobileWalletName = walletName
+
+      triggerConnect(
+        wallet.deeplink.native,
+        this._app.sessionId,
+        this._appInitData.url ?? 'https://nc2.nightly.app'
+      )
+      return
+    }
+
     if (wallet.deeplink.universal !== null) {
       this._app.connectDeeplink({
         walletName: wallet.name,
@@ -281,21 +296,6 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         this._appInitData.url ?? 'https://nc2.nightly.app'
       )
       return
-    }
-
-    if (wallet.deeplink.native !== null) {
-      this._app.connectDeeplink({
-        walletName: wallet.name,
-        url: wallet.deeplink.native
-      })
-
-      this._chosenMobileWalletName = walletName
-
-      triggerConnect(
-        wallet.deeplink.native,
-        this._app.sessionId,
-        this._appInitData.url ?? 'https://nc2.nightly.app'
-      )
     }
   }
 
@@ -336,7 +336,6 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       const innerConnect = async () => {
         try {
           if (this._readyState !== WalletReadyState.Loadable) throw new WalletNotReadyError()
-
           if (this._loading) {
             // we do it to ensure proper connect flow in case if adapter is lazily built, but e. g. solana wallets selector uses its own eager connect
             for (let i = 0; i < 200; i++) {
@@ -362,8 +361,6 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
           }
 
           this._connecting = true
-          console.log(this._app.hasBeenRestored())
-          console.log(this._app.connectedPublicKeys.length)
           if (this._app.hasBeenRestored() && this._app.connectedPublicKeys.length > 0) {
             this.eagerConnectDeeplink()
             this._publicKey = this._app.connectedPublicKeys[0]
@@ -402,7 +399,6 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
             this._modal?.closeModal()
             resolve()
           })
-
           if (this._modal) {
             this._modal._onClose = () => {
               if (this._connecting) {

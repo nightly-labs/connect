@@ -109,7 +109,6 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
       suiWalletsFilter,
       getRecentStandardWalletForNetwork(SUI_NETWORK) ?? undefined
     )
-
     adapter._modal = new NightlyConnectSelectorModal(
       adapter._walletsList,
       appInitData.url ?? 'https://nc2.nightly.app',
@@ -120,7 +119,6 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
       },
       anchorRef
     )
-
     adapter._loading = false
 
     return adapter
@@ -155,7 +153,6 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
         suiWalletsFilter,
         getRecentStandardWalletForNetwork(SUI_NETWORK) ?? undefined
       )
-
       adapter._modal = new NightlyConnectSelectorModal(
         adapter._walletsList,
         appInitData.url ?? 'https://nc2.nightly.app',
@@ -166,7 +163,6 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
         },
         anchorRef
       )
-
       adapter._loading = false
     })
 
@@ -426,19 +422,19 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
         return
       }
 
+      if (wallet.deeplink.native !== null) {
+        this._app.connectDeeplink({
+          walletName: wallet.name,
+          url: wallet.deeplink.native
+        })
+        return
+      }
       if (wallet.deeplink.universal !== null) {
         this._app.connectDeeplink({
           walletName: wallet.name,
           url: wallet.deeplink.universal
         })
         return
-      }
-
-      if (wallet.deeplink.native !== null) {
-        this._app.connectDeeplink({
-          walletName: wallet.name,
-          url: wallet.deeplink.native
-        })
       }
     }
   }
@@ -458,6 +454,22 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
       return
     }
 
+    if (wallet.deeplink.native !== null) {
+      this._app.connectDeeplink({
+        walletName: wallet.name,
+        url: wallet.deeplink.native
+      })
+
+      this._chosenMobileWalletName = walletName
+
+      triggerConnect(
+        wallet.deeplink.native,
+        this._app.sessionId,
+        this._appInitData.url ?? 'https://nc2.nightly.app'
+      )
+      return
+    }
+
     if (wallet.deeplink.universal !== null) {
       this._app.connectDeeplink({
         walletName: wallet.name,
@@ -472,21 +484,6 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
         this._appInitData.url ?? 'https://nc2.nightly.app'
       )
       return
-    }
-
-    if (wallet.deeplink.native !== null) {
-      this._app.connectDeeplink({
-        walletName: wallet.name,
-        url: wallet.deeplink.native
-      })
-
-      this._chosenMobileWalletName = walletName
-
-      triggerConnect(
-        wallet.deeplink.native,
-        this._app.sessionId,
-        this._appInitData.url ?? 'https://nc2.nightly.app'
-      )
     }
   }
   connectToStandardWallet = async (walletName: string, onSuccess: () => void) => {

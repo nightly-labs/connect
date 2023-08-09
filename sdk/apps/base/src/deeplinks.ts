@@ -28,7 +28,11 @@ export const createDeeplinkUrl = ({ deeplinkParams, path }: TriggerDeeplink) => 
 export const triggerDeeplink = ({ deeplinkParams, path }: TriggerDeeplink) => {
   const url = createDeeplinkUrl({ deeplinkParams, path })
   if (window) {
-    window.open(url, '_self', 'noreferrer noopener')
+    if (url.startsWith('https://')) {
+      window.open(url, '_blank', 'noreferrer noopener')
+    } else {
+      window.open(url, '_self', 'noreferrer noopener')
+    }
   } else {
     console.warn('window is undefined')
   }
