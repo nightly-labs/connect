@@ -88,6 +88,7 @@ describe('Base Client tests', () => {
     assert(verified)
   })
   test('#getPendingRequests()', async () => {
+    client.removeListener('signTransactions')
     const RECEIVER = Keypair.generate()
     const ix = SystemProgram.transfer({
       fromPubkey: alice_keypair.publicKey,
