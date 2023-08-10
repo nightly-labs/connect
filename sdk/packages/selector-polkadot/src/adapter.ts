@@ -308,11 +308,9 @@ export class NightlyConnectAdapter implements Injected {
   }
 
   connectToStandardWallet = async (walletName: string, onSuccess: () => void) => {
-    console.log('connect to standard ')
     if (this._modal) {
       this._modal.setStandardWalletConnectProgress(true)
     }
-    console.log({ walletName })
     const adapter = this.walletsList.find((w) => w.name === walletName)?.injectedWallet
     if (typeof adapter === 'undefined') {
       if (this._modal) {
@@ -320,15 +318,25 @@ export class NightlyConnectAdapter implements Injected {
       }
       throw new Error('Wallet not found')
     }
-    console.log({ adapter })
-
     try {
       const inject = await adapter!.enable!('Nightly Connect') // TODO should we also use connect?
-      console.log({ inject })
 
       persistRecentStandardWalletForNetwork(walletName, this.network)
       persistStandardConnectForNetwork(this.network)
-      this._innerStandardAdapter = inject
+      this._innerStandardAdapter = {
+        ...inject,
+        signer: {
+          ...inject.signer,
+          signPayload: inject.signer.signPayload
+            ? // @ts-expect-error We want to also pass network to signPayload
+              (payload) => inject.signer.signPayload!(payload, this.network)
+            : undefined,
+          signRaw: inject.signer.signRaw
+            ? // @ts-expect-error We want to also pass network to signPayload
+              (payload) => inject.signer.signRaw!(payload, this.network)
+            : undefined
+        }
+      }
       this._connected = true
       this._connecting = false
       this._modal?.closeModal()
