@@ -9,7 +9,7 @@ import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
 import { GetPendingRequestsResponse } from '../../../bindings/GetPendingRequestsResponse'
 import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
 import { EventEmitter } from 'eventemitter3'
-import { MessageToSign, RequestContent, TransactionToSign } from './content'
+import { MessageToSign, RequestContent, RequestInternal, TransactionToSign } from './content'
 import {
   ResponseContent,
   ResponseContentType,
@@ -90,7 +90,7 @@ export class BaseClient extends EventEmitter<BaseEvents> {
               break
             }
             case 'NewPayloadEvent': {
-              const payload = JSON.parse(response.payload) as RequestContent
+              const payload = JSON.parse(response.payload) as RequestInternal
               switch (payload.type) {
                 case 'SignTransactions': {
                   baseClient.emit('signTransactions', {
@@ -212,7 +212,13 @@ export class BaseClient extends EventEmitter<BaseEvents> {
       sessionId: sessionId,
       type: 'GetPendingRequestsRequest'
     })) as GetPendingRequestsResponse
-    return response
+    const requests = response.requests.map((request) => {
+      return {
+        requestId: request.requestId,
+        content: JSON.parse(request.content)
+      } as unknown as RequestContent
+    })
+    return requests
   }
   resolveRequest = async (resolve: ResolveRequest) => {
     await this.send({

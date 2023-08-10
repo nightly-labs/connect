@@ -77,7 +77,7 @@ export class ClientSolana extends EventEmitter<ClientSolanaEvents> {
     await this.baseClient.connect(connect)
     this.sessionId = connect.sessionId
   }
-  public getPendingRequests = async (sessionId?: string): Promise<GetPendingRequestsResponse> => {
+  public getPendingRequests = async (sessionId?: string) => {
     const sessionIdToUse = sessionId || this.sessionId
     //Assert session id is defined
     if (sessionIdToUse === undefined) {

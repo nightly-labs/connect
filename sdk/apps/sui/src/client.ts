@@ -69,7 +69,7 @@ export class ClientSui extends EventEmitter<ClientSuiEvents> {
     await this.baseClient.connect(connect)
     this.sessionId = connect.sessionId
   }
-  public getPendingRequests = async (sessionId?: string): Promise<GetPendingRequestsResponse> => {
+  public getPendingRequests = async (sessionId?: string) => {
     const sessionIdToUse = sessionId || this.sessionId
 
     if (sessionIdToUse === undefined) {

@@ -24,5 +24,8 @@ export interface CustomContent {
   type: ContentType.Custom
   content?: string
 }
-
-export type RequestContent = SignMessagesContent | SignTransactionsContent | CustomContent
+export type RequestInternal = SignMessagesContent | SignTransactionsContent | CustomContent
+export interface RequestContent {
+  requestId: string
+  content: RequestInternal
+}

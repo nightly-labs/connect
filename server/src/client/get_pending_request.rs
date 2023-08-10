@@ -5,9 +5,8 @@ use ts_rs::TS;
 use crate::{
     errors::NightlyError,
     state::{ClientId, SessionId, Sessions},
+    structs::common::PendingRequest,
 };
-
-use super::get_pending_requests::PendingRequest;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
@@ -55,9 +54,6 @@ pub async fn get_pending_request(
     };
 
     Ok(Json(HttpGetPendingRequestResponse {
-        request: PendingRequest {
-            request_id: request.request_id.clone(),
-            content: pending_request.clone(),
-        },
+        request: pending_request.clone(),
     }))
 }

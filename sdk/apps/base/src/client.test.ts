@@ -2,7 +2,7 @@ import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vites
 import { BaseApp } from './app'
 import { sleep, smartDelay, testAppBaseInitialize, testClientBaseInitialize } from './utils'
 import { BaseClient, Connect } from './client'
-import { MessageToSign, TransactionToSign } from './content'
+import { ContentType, MessageToSign, TransactionToSign } from './content'
 import { SignedMessage, SignedTransaction } from './responseContent'
 
 // Edit an assertion and save to see HMR in action
@@ -74,7 +74,18 @@ describe('Base Client tests', () => {
     })
     await smartDelay()
     const signed = await baseApp.signMessages(randomSignMessage)
+
     assert(signed.length === 2)
+  })
+  test('#getPendingRequests', async () => {
+    const randomSignMessage: MessageToSign[] = [{ message: '1' }, { message: '13' }]
+    baseApp.signMessages(randomSignMessage)
+    await smartDelay()
+    const requests = await client.getPendingRequests(baseApp.sessionId)
+    expect(requests).toBeDefined()
+    assert(requests.length === 1)
+    assert(requests[0].requestId != undefined)
+    assert(requests[0].content.type === ContentType.SignMessages)
   })
   test('#reject', async () => {
     const randomSignTransaction: TransactionToSign[] = [{ transaction: '1' }, { transaction: '13' }]

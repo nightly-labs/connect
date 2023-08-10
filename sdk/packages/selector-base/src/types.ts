@@ -5,7 +5,6 @@ import { type Wallet } from '@wallet-standard/core'
 export interface Adapter {
   connect: () => Promise<void>
 }
-
 export type AppInitData = Omit<AppBaseInitialize, 'network'>
 
 export interface MetadataWallet {

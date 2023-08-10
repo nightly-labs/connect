@@ -8,7 +8,7 @@ use axum::{
     response::Response,
 };
 use futures::{SinkExt, StreamExt};
-use log::warn;
+use log::{debug, warn};
 
 use crate::{
     state::{ClientSockets, ClientToSessions, ModifySession, SendToClient, Sessions},
@@ -22,7 +22,7 @@ use crate::{
             app_disconnected_event::AppDisconnectedEvent, client_messages::ServerToClient,
             new_payload_event::NewPayloadEvent,
         },
-        common::{Device, SessionStatus},
+        common::{Device, PendingRequest, SessionStatus},
         notification_msg::{trigger_notification, NotificationPayload},
         session::{AppState, ClientState, Session},
     },
@@ -30,15 +30,18 @@ use crate::{
 };
 
 pub async fn on_new_app_connection(
-    ConnectInfo(_): ConnectInfo<SocketAddr>,
+    ConnectInfo(ip): ConnectInfo<SocketAddr>,
     State(sessions): State<Sessions>,
     State(client_sockets): State<ClientSockets>,
-
     State(client_to_sessions): State<ClientToSessions>,
-
     ws: WebSocketUpgrade,
 ) -> Response {
-    ws.on_upgrade(move |socket| app_handler(socket, sessions, client_sockets, client_to_sessions))
+    let ip = ip.clone().to_string().clone();
+    ws.on_upgrade(move |socket| async move {
+        debug!("OPEN app connection  from {}", ip);
+        app_handler(socket, sessions, client_sockets, client_to_sessions).await;
+        debug!("CLOSE app connection  from {}", ip);
+    })
 }
 
 pub async fn app_handler(
@@ -127,6 +130,7 @@ pub async fn app_handler(
                                             client_id: None,
                                             device: None,
                                             connected_public_keys: Vec::new(),
+                                            metadata: None,
                                         },
                                         network: init_data.network,
                                         version: init_data.version,
@@ -155,6 +159,7 @@ pub async fn app_handler(
                                 client_id: None,
                                 device: None,
                                 connected_public_keys: Vec::new(),
+                                metadata: None,
                             },
                             network: init_data.network,
                             version: init_data.version,
@@ -170,6 +175,7 @@ pub async fn app_handler(
                 let mut sessions = sessions.write().await;
                 let created_session = sessions.get_mut(&session_id).expect("safe unwrap");
                 let public_keys = created_session.client_state.connected_public_keys.clone();
+                let metadata = created_session.client_state.metadata.clone();
 
                 match created_session
                     .send_to_app(ServerToApp::InitializeResponse(InitializeResponse {
@@ -177,6 +183,7 @@ pub async fn app_handler(
                         session_id: session_id.clone(),
                         created_new: created_new,
                         public_keys: public_keys,
+                        metadata: metadata,
                     }))
                     .await
                 {
@@ -203,6 +210,7 @@ pub async fn app_handler(
                             reason: "App disconnected".to_string(),
                         });
                     let mut sessions = sessions.write().await;
+
                     let session = match sessions.get_mut(&session_id) {
                         Some(session) => session,
                         None => {
@@ -210,6 +218,7 @@ pub async fn app_handler(
                             return;
                         }
                     };
+
                     match &session.client_state.client_id {
                         Some(client_id) => {
                             client_sockets
@@ -344,7 +353,10 @@ pub async fn app_handler(
 
                 session.pending_requests.insert(
                     response_id.clone(),
-                    sing_transactions_request.content.clone(),
+                    PendingRequest {
+                        content: sing_transactions_request.content.clone(),
+                        request_id: sing_transactions_request.response_id.clone(),
+                    },
                 );
                 // Response will be sent by the client side
                 let sign_transactions_event = ServerToClient::NewPayloadEvent(NewPayloadEvent {

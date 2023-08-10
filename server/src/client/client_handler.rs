@@ -8,7 +8,7 @@ use axum::{
     response::Response,
 };
 use futures::StreamExt;
-use log::info;
+use log::{debug, info};
 
 use crate::{
     errors::NightlyError,
@@ -41,8 +41,11 @@ pub async fn on_new_client_connection(
     State(client_to_sessions): State<ClientToSessions>,
     ws: WebSocketUpgrade,
 ) -> Response {
-    ws.on_upgrade(move |socket| {
-        client_handler(socket, sessions, client_sockets, client_to_sessions)
+    let ip = ip.clone().to_string().clone();
+    ws.on_upgrade(move |socket| async move {
+        debug!("OPEN client connection  from {}", ip);
+        client_handler(socket, sessions, client_sockets, client_to_sessions).await;
+        debug!("CLOSE client connection from {}", ip);
     })
 }
 
@@ -230,6 +233,7 @@ pub async fn client_handler(
                 session.update_status(SessionStatus::ClientConnected);
                 session.client_state.device = connect_request.device.clone();
                 session.client_state.connected_public_keys = connect_request.public_keys.clone();
+                session.client_state.metadata = connect_request.metadata.clone();
                 session.client_state.client_id = Some(connect_request.client_id.clone());
                 // Setup notification
                 match &connect_request.notification {
@@ -368,7 +372,7 @@ pub async fn client_handler(
                     .clone()
                     .iter()
                     .map(|(_, v)| v.clone())
-                    .collect::<Vec<String>>();
+                    .collect::<Vec<_>>();
                 let response =
                     ServerToClient::GetPendingRequestsResponse(GetPendingRequestsResponse {
                         requests: pending_requests,

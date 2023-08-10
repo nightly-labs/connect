@@ -49,6 +49,7 @@ pub async fn connect_session(
     session.update_status(SessionStatus::ClientConnected);
     session.client_state.device = request.device.clone();
     session.client_state.connected_public_keys = request.public_keys.clone();
+    session.client_state.metadata = request.metadata.clone();
     session.client_state.client_id = Some(request.client_id.clone());
     // notification
     if let Some(notification) = request.notification.clone() {

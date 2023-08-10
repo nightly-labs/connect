@@ -13,7 +13,13 @@ import {
 } from './utils'
 import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
 import { AppMetadata } from '../../../bindings/AppMetadata'
-import { ContentType, MessageToSign, RequestContent, TransactionToSign } from './content'
+import {
+  ContentType,
+  MessageToSign,
+  RequestContent,
+  RequestInternal,
+  TransactionToSign
+} from './content'
 import { ResponsePayload } from '../../../bindings/ResponsePayload'
 import { WalletMetadata } from '../../../bindings/WalletMetadata'
 import {
@@ -55,12 +61,19 @@ export class BaseApp extends EventEmitter<BaseEvents> {
   deeplink: DeeplinkConnect | undefined
   connectedPublicKeys: string[] = []
   hasBeenRestored = false
+  clientMetadata: string | undefined
+  initializeData: AppBaseInitialize
   // TODO add info about the app
-  private constructor(url: string, ws: WebSocket, timeout: number) {
+  private constructor(initializeData: AppBaseInitialize) {
     super()
+    const url = initializeData.url ?? 'https://nc2.nightly.app'
+    // get domain from url
+    const path = url.replace('https://', 'wss://').replace('http://', 'ws://')
+    const ws = new WebSocket(path + '/app')
+    this.initializeData = initializeData
     this.url = url
     this.ws = ws
-    this.timeout = timeout
+    this.timeout = initializeData.timeout ?? 40000
   }
   public static getWalletsMetadata = async (url?: string): Promise<WalletMetadata[]> => {
     return getWalletsMetadata(url)
@@ -72,40 +85,41 @@ export class BaseApp extends EventEmitter<BaseEvents> {
       const persistentSessionId = persistent
         ? localStorage.getItem(getSessionIdLocalStorageKey(baseInitialize.network)) ?? undefined
         : undefined
-      const url = baseInitialize.url ?? 'https://nc2.nightly.app'
-      // get domain from url
-      const path = url.replace('https://', 'wss://').replace('http://', 'ws://')
-      const ws = new WebSocket(path + '/app')
-      const baseApp = new BaseApp(url, ws, baseInitialize.timeout ?? 40000)
+
+      const baseApp = new BaseApp(baseInitialize)
       baseApp.ws.onclose = () => {
         baseApp.emit('serverDisconnected')
       }
       baseApp.ws.onopen = () => {
         baseApp.ws.onmessage = ({ data }: { data: any }) => {
-          const response = JSON.parse(data) as ServerToApp
-          switch (response.type) {
-            case 'InitializeResponse':
-            case 'AckMessage': {
-              baseApp.events[response.responseId].resolve(response)
-              break
+          try {
+            const response = JSON.parse(data) as ServerToApp
+            switch (response.type) {
+              case 'InitializeResponse':
+              case 'AckMessage': {
+                baseApp.events[response.responseId].resolve(response)
+                break
+              }
+              case 'ErrorMessage': {
+                baseApp.events[response.responseId].reject(response)
+                break
+              }
+              case 'ResponsePayload': {
+                baseApp.events[response.responseId].resolve(response)
+                break
+              }
+              case 'UserConnectedEvent': {
+                baseApp.connectedPublicKeys = response.publicKeys
+                baseApp.emit('userConnected', response)
+                break
+              }
+              case 'AlreadyConnected': {
+                reject(new Error('Already connected'))
+                break
+              }
             }
-            case 'ErrorMessage': {
-              baseApp.events[response.responseId].reject(response)
-              break
-            }
-            case 'ResponsePayload': {
-              baseApp.events[response.responseId].resolve(response)
-              break
-            }
-            case 'UserConnectedEvent': {
-              baseApp.connectedPublicKeys = response.publicKeys
-              baseApp.emit('userConnected', response)
-              break
-            }
-            case 'AlreadyConnected': {
-              reject(new Error('Already connected'))
-              break
-            }
+          } catch (error) {
+            console.warn('Error parsing message', error)
           }
         }
         baseApp.ws.onclose = () => {
@@ -135,6 +149,7 @@ export class BaseApp extends EventEmitter<BaseEvents> {
             if (!response.createdNew) {
               baseApp.hasBeenRestored = true
               baseApp.connectedPublicKeys = response.publicKeys
+              baseApp.clientMetadata = response.metadata
             }
             // Save the session id
             if (persistent)
@@ -182,7 +197,7 @@ export class BaseApp extends EventEmitter<BaseEvents> {
       }
     })
   }
-  sendRequest = async (content: RequestContent) => {
+  sendRequest = async (content: RequestInternal) => {
     const response = (await this.send({
       responseId: getRandomId(),
       content: JSON.stringify(content),

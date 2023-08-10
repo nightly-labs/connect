@@ -34,6 +34,7 @@ impl DisconnectUser for Sessions {
             client_id: None,
             connected_public_keys: vec![],
             device: None,
+            metadata: None,
         };
         session.notification = None;
         session.pending_requests.clear();
