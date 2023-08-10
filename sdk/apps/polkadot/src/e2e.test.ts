@@ -90,7 +90,6 @@ describe('Base Client tests', () => {
     )
 
     expect(verify.isValid).toBeTruthy()
-    client.removeListener('signTransactions')
   })
   test('#getPendingRequests()', async () => {
     client.removeListener('signTransactions')

@@ -156,17 +156,8 @@ describe('SUI client tests', () => {
       chain: 'sui:testnet'
     })
   })
-  test('#on("appDisconnected")', async () => {
-    const disconnecFn = vi.fn()
-    client.on('appDisconnected', async () => {
-      disconnecFn()
-    })
-    app.base.ws.terminate()
-    app.base.ws.close()
-    await smartDelay()
-    expect(disconnecFn).toHaveBeenCalledOnce()
-  })
   test('#getPendingRequests()', async () => {
+    client.removeListener('signTransactions')
     const tx = new TransactionBlock()
     const coin = tx.splitCoins(tx.gas, [tx.pure(100)])
     tx.transferObjects([coin], tx.pure(RECEIVER_SUI_ADDRESS))
@@ -189,5 +180,15 @@ describe('SUI client tests', () => {
     expect(requests[1].type).toBe(ContentType.SignTransactions)
     const payload1 = requests[0] as SignTransactionsSuiRequest
     expect(payload1.transactions.length).toBe(1)
+  })
+  test('#on("appDisconnected")', async () => {
+    const disconnecFn = vi.fn()
+    client.on('appDisconnected', async () => {
+      disconnecFn()
+    })
+    app.base.ws.terminate()
+    app.base.ws.close()
+    await smartDelay()
+    expect(disconnecFn).toHaveBeenCalledOnce()
   })
 })
