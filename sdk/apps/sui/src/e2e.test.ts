@@ -1,4 +1,4 @@
-import { Connect, RELAY_ENDPOINT, smartDelay } from '@nightlylabs/nightly-connect-base'
+import { Connect, ContentType, RELAY_ENDPOINT, smartDelay } from '@nightlylabs/nightly-connect-base'
 import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { AppSui } from './app'
 import { ClientSui } from './client'
@@ -18,6 +18,7 @@ import { blake2b } from '@noble/hashes/blake2b'
 import { fetch } from 'cross-fetch'
 import { WalletAccount } from '@mysten/wallet-standard'
 import { hexToBytes } from '@noble/hashes/utils'
+import { SignTransactionsSuiRequest } from './requestTypes'
 
 global.fetch = fetch
 
@@ -164,5 +165,29 @@ describe('SUI client tests', () => {
     app.base.ws.close()
     await smartDelay()
     expect(disconnecFn).toHaveBeenCalledOnce()
+  })
+  test('#getPendingRequests()', async () => {
+    const tx = new TransactionBlock()
+    const coin = tx.splitCoins(tx.gas, [tx.pure(100)])
+    tx.transferObjects([coin], tx.pure(RECEIVER_SUI_ADDRESS))
+    tx.setSenderIfNotSet(RECEIVER_SUI_ADDRESS)
+    app.signTransactionBlock({
+      transactionBlock: tx,
+      account: aliceWalletAccount,
+      chain: 'sui:testnet'
+    })
+    app.signTransactionBlock({
+      transactionBlock: tx,
+      account: aliceWalletAccount,
+      chain: 'sui:testnet'
+    })
+    await smartDelay(500)
+    await smartDelay(500)
+    const requests = await client.getPendingRequests()
+    expect(requests.length).toBe(2)
+    expect(requests[0].type).toBe(ContentType.SignTransactions)
+    expect(requests[1].type).toBe(ContentType.SignTransactions)
+    const payload1 = requests[0] as SignTransactionsSuiRequest
+    expect(payload1.transactions.length).toBe(1)
   })
 })

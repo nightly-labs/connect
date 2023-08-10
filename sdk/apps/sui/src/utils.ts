@@ -8,8 +8,10 @@ import {
   Ed25519Keypair
 } from '@mysten/sui.js'
 import { blake2b } from '@noble/hashes/blake2b'
-import { AppSuiInitialize } from './app'
-import { RELAY_ENDPOINT } from '@nightlylabs/nightly-connect-base'
+import { AppBaseInitialize, ContentType, RELAY_ENDPOINT, RequestContent } from '@nightlylabs/nightly-connect-base'
+import { CustomSuiRequest, SignMessagesSuiRequest, SignTransactionsSuiRequest, SuiRequest } from './requestTypes'
+
+export type AppSuiInitialize = Omit<AppBaseInitialize, 'network'>
 
 export const SUI_NETWORK = 'Sui'
 
@@ -47,4 +49,36 @@ export const signTransactionBlock = async (tx: TransactionBlock, account: Ed2551
     pubKey: account.getPublicKey()
   })
   return { transactionBlockBytes, signature }
+}
+
+export const parseRequest = (request: RequestContent, sessionId: string): SuiRequest => {
+  switch (request.content.type) {
+    case ContentType.SignTransactions: {
+      const signTransactionsRequest: SignTransactionsSuiRequest = {
+        type: ContentType.SignTransactions,
+        requestId: request.requestId,
+        sessionId: sessionId,
+        transactions: request.content.transactions
+      }
+      return signTransactionsRequest
+    }
+    case ContentType.SignMessages: {
+      const signMessagesRequest: SignMessagesSuiRequest = {
+        type: ContentType.SignMessages,
+        requestId: request.requestId,
+        sessionId: sessionId,
+        messages: request.content.messages
+      }
+      return signMessagesRequest
+    }
+    case ContentType.Custom: {
+      const customRequest: CustomSuiRequest = {
+        type: ContentType.Custom,
+        content: request.content.content,
+        requestId: request.requestId,
+        sessionId: sessionId
+      }
+      return customRequest
+    }
+  }
 }
