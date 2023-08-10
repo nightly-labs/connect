@@ -6,8 +6,9 @@ import { u8aToHex } from '@polkadot/util'
 import { cryptoWaitReady, decodeAddress, signatureVerify } from '@polkadot/util-crypto'
 import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { AppPolkadot } from './app'
-import { ClientPolkadot, Connect, SignTransactionsPolkadotRequest } from './client'
+import { ClientPolkadot, Connect } from './client'
 import { TEST_APP_INITIALIZE } from './utils'
+import { SignTransactionsPolkadotRequest } from './requestTypes'
 
 // Edit an assertion and save to see HMR in action
 const alice_keypair = new Keyring()

@@ -6,7 +6,7 @@ import {
   SignMessagesPolkadotRequest,
   CustomPolkadotRequest,
   PolkadotRequest
-} from './client'
+} from './requestTypes'
 
 export const TEST_APP_INITIALIZE: AppPolkadotInitialize = {
   appMetadata: {

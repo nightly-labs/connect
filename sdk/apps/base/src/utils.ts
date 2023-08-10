@@ -1,9 +1,8 @@
 import { v4 as uuidv4 } from 'uuid'
-import { AppBaseInitialize } from './app'
-import { ClientBaseInitialize } from './client'
 import { getStorage, ILocalStorage } from 'isomorphic-localstorage'
 import { WalletMetadata } from '../../../bindings/WalletMetadata'
 import { fetch } from 'cross-fetch'
+import { AppBaseInitialize, ClientBaseInitialize } from './initializeTypes'
 
 export const getRandomId = () => uuidv4()
 export function sleep(ms: number) {
