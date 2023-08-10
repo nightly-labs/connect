@@ -18,7 +18,6 @@ import {
 
 import { type Signer as InjectedSigner } from '@polkadot/api/types'
 import { type Injected } from '@polkadot/extension-inject/types'
-import { WalletNotReadyError, WalletWindowClosedError } from '@solana/wallet-adapter-base'
 import { IPolkadotWalletListItem, getPolkadotWalletsList } from './detection'
 import { networkToData, SupportedNetworks } from './utils'
 export type AppSelectorInitialize = Omit<AppPolkadotInitialize, 'network'> & {
@@ -363,12 +362,12 @@ export class NightlyConnectAdapter implements Injected {
             }
 
             if (this._loading) {
-              throw new WalletNotReadyError()
+              throw new Error('Wallet not ready')
             }
           }
 
           if (!this._app) {
-            throw new WalletNotReadyError()
+            throw new Error('Wallet not ready')
           }
 
           if (this.connected || this.connecting) {
@@ -416,7 +415,7 @@ export class NightlyConnectAdapter implements Injected {
             this._modal._onClose = () => {
               if (this._connecting) {
                 this._connecting = false
-                const error = new WalletWindowClosedError()
+                const error = new Error('Connection cancelled')
                 reject(error)
               }
             }

@@ -28,7 +28,8 @@ export default [
     external: [
       '@nightlylabs/nightly-connect-polkadot',
       '@nightlylabs/wallet-selector-base',
-      '@solana/wallet-adapter-base',
+      '@polkadot/extension-inject',
+      '@polkadot/api',
       '@wallet-standard/core'
     ]
   },
