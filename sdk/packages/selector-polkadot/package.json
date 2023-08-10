@@ -24,7 +24,7 @@
   "license": "ISC",
   "dependencies": {
     "@nightlylabs/nightly-connect-polkadot": "0.0.1",
-    "@nightlylabs/wallet-selector-base": "0.1.1",
+    "@nightlylabs/wallet-selector-base": "0.1.2",
     "@solana/wallet-adapter-base": "^0.9.22",
     "@wallet-standard/core": "^1.0.3"
   },
