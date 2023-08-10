@@ -1,4 +1,4 @@
-import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
+import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { AppSolana } from './app'
 import { SOLANA_NETWORK, TEST_APP_INITIALIZE } from './utils'
 import {
@@ -13,7 +13,6 @@ import {
   LAMPORTS_PER_SOL,
   SystemProgram,
   Transaction,
-  VersionedTransaction
 } from '@solana/web3.js'
 import { HttpClientSolana } from './http-client'
 
@@ -63,13 +62,11 @@ describe('Base Client tests', () => {
     await smartDelay()
     // Query for request
     const pendingRequest = (await client.getPendingRequests({ sessionId: app.sessionId }))[0]
-    if (pendingRequest.content.type !== ContentType.SignTransactions) {
+    if (pendingRequest.type !== ContentType.SignTransactions) {
       throw new Error('Wrong content type')
     }
     // Wonder if this step should be done by the client
-    const txToSign = VersionedTransaction.deserialize(
-      Buffer.from(pendingRequest.content.transactions[0].transaction, 'hex')
-    )
+    const txToSign = pendingRequest.transactions[0]
     txToSign.sign([alice_keypair])
     await client.resolveSignTransaction({
       requestId: pendingRequest.requestId,

@@ -1,6 +1,6 @@
 import { VersionedTransaction } from '@solana/web3.js'
 import { HttpBaseClient, HttpBaseClientInitialize } from '@nightlylabs/nightly-connect-base'
-import { SOLANA_NETWORK } from './utils'
+import { SOLANA_NETWORK, parseRequest } from './utils'
 import { HttpConnectSessionRequest } from '../../../bindings/HttpConnectSessionRequest'
 import { HttpGetPendingRequestsRequest } from '../../../bindings/HttpGetPendingRequestsRequest'
 import { HttpGetPendingRequestRequest } from '../../../bindings/HttpGetPendingRequestRequest'
@@ -21,10 +21,12 @@ export class HttpClientSolana {
     await this.baseClient.connect(connect)
   }
   public getPendingRequests = async (request: Omit<HttpGetPendingRequestsRequest, 'clientId'>) => {
-    return await this.baseClient.getPendingRequests(request)
+    const requests = await this.baseClient.getPendingRequests(request)
+    return requests.map((rq) => parseRequest(rq, request.sessionId))
   }
   public getPendingRequest = async (request: Omit<HttpGetPendingRequestRequest, 'clientId'>) => {
-    return await this.baseClient.getPendingRequest(request)
+    const rq = await this.baseClient.getPendingRequest(request)
+    return parseRequest(rq, request.sessionId)
   }
   public resolveSignTransaction = async ({
     requestId,

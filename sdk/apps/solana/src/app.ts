@@ -1,19 +1,17 @@
 import { Keypair, PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js'
 import {
-  AppBaseInitialize,
   BaseApp,
   getWalletsMetadata,
   MessageToSign,
   TransactionToSign,
   DeeplinkConnect
 } from '@nightlylabs/nightly-connect-base'
-import { SOLANA_NETWORK } from './utils'
+import { AppSolanaInitialize, SOLANA_NETWORK } from './utils'
 import { EventEmitter } from 'eventemitter3'
 import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
 import { UserConnectedEvent } from '../../../bindings/UserConnectedEvent'
 import { WalletMetadata } from '../../../bindings/WalletMetadata'
 
-export type AppSolanaInitialize = Omit<AppBaseInitialize, 'network'>
 interface SolanaAppEvents {
   userConnected: (e: UserConnectedEvent) => void
   userDisconnected: (e: UserDisconnectedEvent) => void
