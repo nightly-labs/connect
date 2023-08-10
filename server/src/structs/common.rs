@@ -81,3 +81,11 @@ pub struct AppMetadata {
     #[ts(optional)]
     pub additional_info: Option<String>,
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub struct PendingRequest {
+    #[serde(rename = "requestId")]
+    pub request_id: String,
+    pub content: String,
+}

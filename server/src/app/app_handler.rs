@@ -22,7 +22,7 @@ use crate::{
             app_disconnected_event::AppDisconnectedEvent, client_messages::ServerToClient,
             new_payload_event::NewPayloadEvent,
         },
-        common::{Device, SessionStatus},
+        common::{Device, PendingRequest, SessionStatus},
         notification_msg::{trigger_notification, NotificationPayload},
         session::{AppState, ClientState, Session},
     },
@@ -353,7 +353,10 @@ pub async fn app_handler(
 
                 session.pending_requests.insert(
                     response_id.clone(),
-                    sing_transactions_request.content.clone(),
+                    PendingRequest {
+                        content: sing_transactions_request.content.clone(),
+                        request_id: sing_transactions_request.response_id.clone(),
+                    },
                 );
                 // Response will be sent by the client side
                 let sign_transactions_event = ServerToClient::NewPayloadEvent(NewPayloadEvent {

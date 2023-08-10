@@ -107,12 +107,13 @@ export class HttpBaseClient {
       payload,
       '/get_pending_requests'
     )) as HttpGetPendingRequestsResponse
-    return response.pendingRequests.map((r) => {
+    const requests = response.pendingRequests.map((request) => {
       return {
-        requestId: r.requestId,
-        content: JSON.parse(r.content) as RequestContent
-      }
-    }) as HttpPendingRequest[]
+        requestId: request.requestId,
+        content: JSON.parse(request.content)
+      } as unknown as RequestContent
+    })
+    return requests
   }
   getPendingRequest = async (
     request: Omit<HttpGetPendingRequestRequest, 'clientId'> | HttpGetPendingRequestRequest
@@ -125,10 +126,11 @@ export class HttpBaseClient {
       payload,
       '/get_pending_request'
     )) as HttpGetPendingRequestResponse
+
     return {
       requestId: response.request.requestId,
-      content: JSON.parse(response.request.content) as RequestContent
-    } as HttpPendingRequest
+      content: JSON.parse(response.request.content)
+    } as unknown as RequestContent
   }
   resolveSignTransactions = async ({
     requestId,

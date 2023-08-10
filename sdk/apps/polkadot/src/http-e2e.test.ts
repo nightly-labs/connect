@@ -67,15 +67,15 @@ describe('Base Client tests', () => {
     const payload = polkadotApi.tx.balances.transfer(RECEIVER, 50000000)
 
     const promiseSignTransaction = payload.signAsync(RECEIVER, { signer: app.signer })
-    await smartDelay(500)
+    await smartDelay(1000)
     // Query for request
     const pendingRequest = (await client.getPendingRequests({ sessionId: app.sessionId }))[0]
-    if (pendingRequest.content.type !== ContentType.SignTransactions) {
+    if (pendingRequest.type !== ContentType.SignTransactions) {
       throw new Error('Wrong content type')
     }
-    const transactionToSign = JSON.parse(
-      pendingRequest.content.transactions[0].transaction
-    ) as SignerPayloadRaw
+    // Assert network
+    expect(pendingRequest.network).toBe(TEST_APP_INITIALIZE.network)
+    const transactionToSign = pendingRequest.transactions[0] as SignerPayloadRaw
     const signature = aliceKeyringPair.sign(transactionToSign.data, { withType: true })
 
     await client.resolveSignTransaction({

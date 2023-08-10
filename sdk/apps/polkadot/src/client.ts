@@ -2,6 +2,8 @@ import {
   BaseClient,
   ClientBaseInitialize,
   Connect as ConnectBase,
+  ContentType,
+  MessageToSign,
   SignMessagesEvent
 } from '@nightlylabs/nightly-connect-base'
 import { InjectedAccount } from '@polkadot/extension-inject/types'
@@ -9,14 +11,16 @@ import { SignerPayloadJSON, SignerPayloadRaw, SignerResult } from '@polkadot/typ
 import { EventEmitter } from 'eventemitter3'
 import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
 import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
-import { GetPendingRequestsResponse } from '../../../bindings/GetPendingRequestsResponse'
 import { Network } from '../../../bindings/Network'
+import { parseRequest } from './utils'
 
 export interface SignPolkadotTransactionEvent {
   requestId: string
   transactions: Array<SignerPayloadRaw | SignerPayloadJSON>
   sessionId: string
+  network?: string
 }
+
 export type SignPolkadotMessageEvent = SignMessagesEvent
 export interface ClientPolkadotEvents {
   signTransactions: (e: SignPolkadotTransactionEvent) => void
@@ -36,7 +40,10 @@ export class ClientPolkadot extends EventEmitter<ClientPolkadotEvents> {
         transactions: e.transactions.map(
           (transaction) =>
             JSON.parse(transaction.transaction) as SignerPayloadRaw | SignerPayloadJSON
-        )
+        ),
+        network: e.transactions[0]?.metadata
+          ? JSON.parse(e.transactions[0]?.metadata).network
+          : undefined
       }
       this.emit('signTransactions', event)
     })
@@ -84,13 +91,14 @@ export class ClientPolkadot extends EventEmitter<ClientPolkadotEvents> {
     await this.baseClient.connect(connectMsg)
     this.sessionId = connect.sessionId
   }
-  public getPendingRequests = async (sessionId?: string): Promise<GetPendingRequestsResponse> => {
+  public getPendingRequests = async (sessionId?: string): Promise<PolkadotRequest[]> => {
     const sessionIdToUse = sessionId || this.sessionId
     //Assert session id is defined
     if (sessionIdToUse === undefined) {
       throw new Error('Session id is undefined')
     }
-    return await this.baseClient.getPendingRequests(sessionIdToUse)
+    const requests = await this.baseClient.getPendingRequests(sessionIdToUse)
+    return requests.map((request) => parseRequest(request, sessionIdToUse))
   }
 
   public resolveSignTransaction = async ({
@@ -129,6 +137,31 @@ export class ClientPolkadot extends EventEmitter<ClientPolkadotEvents> {
     return await this.baseClient.dropSessions(sessionsToDrop)
   }
 }
+export interface SignTransactionsPolkadotRequest {
+  type: ContentType.SignTransactions
+  requestId: string
+  transactions: Array<SignerPayloadRaw | SignerPayloadJSON>
+  sessionId: string
+  network?: string
+}
+export interface SignMessagesPolkadotRequest {
+  type: ContentType.SignMessages
+  requestId: string
+  messages: Array<MessageToSign>
+  sessionId: string
+  network?: string
+}
+export interface CustomPolkadotRequest {
+  type: ContentType.Custom
+  requestId: string
+  content?: string
+  sessionId: string
+  network?: string
+}
+export type PolkadotRequest =
+  | SignTransactionsPolkadotRequest
+  | SignMessagesPolkadotRequest
+  | CustomPolkadotRequest
 export type Connect = ConnectBase & {
   walletsMetadata: InjectedAccount[]
 }

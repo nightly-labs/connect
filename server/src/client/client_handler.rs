@@ -372,7 +372,7 @@ pub async fn client_handler(
                     .clone()
                     .iter()
                     .map(|(_, v)| v.clone())
-                    .collect::<Vec<String>>();
+                    .collect::<Vec<_>>();
                 let response =
                     ServerToClient::GetPendingRequestsResponse(GetPendingRequestsResponse {
                         requests: pending_requests,

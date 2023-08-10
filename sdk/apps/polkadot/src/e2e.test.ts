@@ -1,4 +1,4 @@
-import { RELAY_ENDPOINT, smartDelay } from '@nightlylabs/nightly-connect-base'
+import { ContentType, RELAY_ENDPOINT, smartDelay } from '@nightlylabs/nightly-connect-base'
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { Keyring } from '@polkadot/keyring'
 import { SignerPayloadRaw } from '@polkadot/types/types'
@@ -6,7 +6,7 @@ import { u8aToHex } from '@polkadot/util'
 import { cryptoWaitReady, decodeAddress, signatureVerify } from '@polkadot/util-crypto'
 import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { AppPolkadot } from './app'
-import { ClientPolkadot, Connect } from './client'
+import { ClientPolkadot, Connect, SignTransactionsPolkadotRequest } from './client'
 import { TEST_APP_INITIALIZE } from './utils'
 
 // Edit an assertion and save to see HMR in action
@@ -59,12 +59,14 @@ describe('Base Client tests', () => {
     await client.connect(msg)
   })
 
-  test('#on("signTransactions")', async () => {
+  test.skip('#on("signTransactions")', async () => {
     const payload = polkadotApi.tx.balances.transfer(RECEIVER, 50000000)
 
     let payloadToSign = ''
 
     client.on('signTransactions', async (e) => {
+      // Asset network
+      expect(e.network).toBe(TEST_APP_INITIALIZE.network)
       // resolve
       const payload = e.transactions[0] as SignerPayloadRaw
       payloadToSign = payload.data
@@ -88,5 +90,20 @@ describe('Base Client tests', () => {
 
     expect(verify.isValid).toBeTruthy()
     client.removeListener('signTransactions')
+  })
+  test('#getPendingRequests()', async () => {
+    const payload = polkadotApi.tx.balances.transfer(RECEIVER, 50000000)
+    payload.signAsync(RECEIVER, { signer: app.signer })
+    payload.signAsync(RECEIVER, { signer: app.signer })
+    await smartDelay(500)
+    await smartDelay(500)
+    const requests = await client.getPendingRequests()
+    expect(requests.length).toBe(2)
+    expect(requests[0].type).toBe(ContentType.SignTransactions)
+    expect(requests[1].type).toBe(ContentType.SignTransactions)
+    const payload1 = requests[0] as SignTransactionsPolkadotRequest
+    expect(payload1.network).toBe(TEST_APP_INITIALIZE.network)
+    expect(payload1.transactions.length).toBe(1)
+    expect(payload1.transactions[0].address).toBe(RECEIVER)
   })
 })

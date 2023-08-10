@@ -5,6 +5,7 @@ use ts_rs::TS;
 use crate::{
     errors::NightlyError,
     state::{ClientId, SessionId, Sessions},
+    structs::common::PendingRequest,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
@@ -15,13 +16,7 @@ pub struct HttpGetPendingRequestsRequest {
     #[serde(rename = "sessionId")]
     pub session_id: SessionId,
 }
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
-#[ts(export)]
-pub struct PendingRequest {
-    #[serde(rename = "requestId")]
-    pub request_id: String,
-    pub content: String,
-}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct HttpGetPendingRequestsResponse {
@@ -50,10 +45,7 @@ pub async fn get_pending_requests(
     }
     let mut pending_requests = Vec::new();
     for (key, pending_request) in session.pending_requests.iter() {
-        pending_requests.push(PendingRequest {
-            request_id: key.clone(),
-            content: pending_request.clone(),
-        });
+        pending_requests.push(pending_request.clone());
     }
     Ok(Json(HttpGetPendingRequestsResponse { pending_requests }))
 }

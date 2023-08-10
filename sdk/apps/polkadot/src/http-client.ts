@@ -6,6 +6,7 @@ import { HttpGetSessionInfoResponse } from '../../../bindings/HttpGetSessionInfo
 import { SignerResult } from '@polkadot/types/types'
 import { InjectedAccount } from '@polkadot/extension-inject/types'
 import { Network } from '../../../bindings/Network'
+import { parseRequest } from './utils'
 
 export class HttpClientPolkadot {
   baseClient: HttpBaseClient
@@ -22,10 +23,12 @@ export class HttpClientPolkadot {
     await this.baseClient.connect(connect)
   }
   public getPendingRequests = async (request: Omit<HttpGetPendingRequestsRequest, 'clientId'>) => {
-    return await this.baseClient.getPendingRequests(request)
+    const requests = await this.baseClient.getPendingRequests(request)
+    return requests.map((rq) => parseRequest(rq, request.sessionId))
   }
   public getPendingRequest = async (request: Omit<HttpGetPendingRequestRequest, 'clientId'>) => {
-    return await this.baseClient.getPendingRequest(request)
+    const rq = await this.baseClient.getPendingRequest(request)
+    return parseRequest(rq, request.sessionId)
   }
   public resolveSignTransaction = async ({
     requestId,

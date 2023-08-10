@@ -27,7 +27,6 @@ export class AppPolkadot extends EventEmitter<PolkadotAppEvents> implements Inje
   // metadata?: InjectedMetadata
   // provider?: InjectedProvider
   signer: Signer
-
   constructor(base: BaseApp, initData: AppPolkadotInitialize) {
     super()
     this.initData = initData

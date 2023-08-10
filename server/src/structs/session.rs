@@ -4,7 +4,7 @@ use crate::state::ClientId;
 
 use super::{
     app_messages::app_messages::ServerToApp,
-    common::{AppMetadata, Device, Network, Notification, SessionStatus, Version},
+    common::{AppMetadata, Device, Network, Notification, PendingRequest, SessionStatus, Version},
 };
 use anyhow::Result;
 use axum::extract::ws::{Message, WebSocket};
@@ -20,7 +20,7 @@ pub struct Session {
     pub version: Version,
     pub app_state: AppState,
     pub client_state: ClientState,
-    pub pending_requests: HashMap<String, String>,
+    pub pending_requests: HashMap<String, PendingRequest>,
     pub notification: Option<Notification>,
     pub creation_timestamp: u64,
 }
