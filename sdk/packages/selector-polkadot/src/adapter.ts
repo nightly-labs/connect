@@ -318,7 +318,8 @@ export class NightlyConnectAdapter implements Injected {
       throw new Error('Wallet not found')
     }
     try {
-      const inject = await adapter!.enable!('Nightly Connect') // TODO should we also use connect?
+      // @ts-expect-error we want to pass network to enable
+      const inject = await adapter!.enable!('Nightly Connect', this.network) // TODO should we also use connect?
 
       persistRecentStandardWalletForNetwork(walletName, this.network)
       persistStandardConnectForNetwork(this.network)
