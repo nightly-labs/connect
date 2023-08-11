@@ -27,6 +27,10 @@ export class Accounts implements InjectedAccounts {
   public subscribe(cb: (accounts: InjectedAccount[]) => unknown): Unsubcall {
     const id = Date.now().toString()
     this.sub[id] = cb
+    // Debounce first response to allow the subscriber to set up
+    setTimeout(() => {
+      this._triggerSubs()
+    }, 10)
     return (): void => {
       delete this.sub[id]
     }
