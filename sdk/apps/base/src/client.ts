@@ -21,12 +21,8 @@ import { GetSessionsRequest } from '../../../bindings/GetSessionsRequest'
 import { GetSessionsResponse } from '../../../bindings/GetSessionsResponse'
 import { DropSessionsRequest } from '../../../bindings/DropSessionsRequest'
 import { DropSessionsResponse } from '../../../bindings/DropSessionsResponse'
+import { ClientBaseInitialize } from './initializeTypes'
 
-export interface ClientBaseInitialize {
-  clientId?: string
-  url?: string
-  timeout?: number
-}
 export interface SignTransactionsEvent {
   responseId: string
   sessionId: string

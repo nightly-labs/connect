@@ -8,8 +8,9 @@ import {
   TransactionToSign
 } from '@nightlylabs/nightly-connect-base'
 import { EventEmitter } from 'eventemitter3'
-import { GetPendingRequestsResponse } from '../../../bindings/GetPendingRequestsResponse'
 import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
+import { SuiRequest } from './requestTypes'
+import { parseRequest } from './utils'
 export interface SignSuiTransactionEvent {
   sessionId: string
   requestId: string
@@ -69,13 +70,14 @@ export class ClientSui extends EventEmitter<ClientSuiEvents> {
     await this.baseClient.connect(connect)
     this.sessionId = connect.sessionId
   }
-  public getPendingRequests = async (sessionId?: string) => {
+  public getPendingRequests = async (sessionId?: string): Promise<SuiRequest[]> => {
     const sessionIdToUse = sessionId || this.sessionId
 
     if (sessionIdToUse === undefined) {
       throw new Error('Session id is undefined')
     }
-    return await this.baseClient.getPendingRequests(sessionIdToUse)
+    const requests = await this.baseClient.getPendingRequests(sessionIdToUse)
+    return requests.map((request) => parseRequest(request, sessionIdToUse))
   }
 
   public resolveSignTransaction = async ({

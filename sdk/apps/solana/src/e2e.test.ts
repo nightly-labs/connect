@@ -1,11 +1,12 @@
 import { Keypair, LAMPORTS_PER_SOL, SystemProgram, Transaction } from '@solana/web3.js'
-import { Connect, RELAY_ENDPOINT, smartDelay } from '@nightlylabs/nightly-connect-base'
+import { Connect, ContentType, RELAY_ENDPOINT, smartDelay } from '@nightlylabs/nightly-connect-base'
 import { sha256 } from 'js-sha256'
 import nacl from 'tweetnacl'
 import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { AppSolana } from './app'
 import { ClientSolana } from './client'
 import { SOLANA_NETWORK, TEST_APP_INITIALIZE } from './utils'
+import { SignTransactionsSolanaRequest } from './requestTypes'
 
 // Edit an assertion and save to see HMR in action
 const alice_keypair = Keypair.generate()
@@ -85,5 +86,26 @@ describe('Base Client tests', () => {
       alice_keypair.publicKey.toBuffer()
     )
     assert(verified)
+  })
+  test('#getPendingRequests()', async () => {
+    client.removeListener('signTransactions')
+    const RECEIVER = Keypair.generate()
+    const ix = SystemProgram.transfer({
+      fromPubkey: alice_keypair.publicKey,
+      lamports: LAMPORTS_PER_SOL,
+      toPubkey: RECEIVER.publicKey
+    })
+    const tx = new Transaction().add(ix)
+    tx.feePayer = alice_keypair.publicKey
+    tx.recentBlockhash = 'E6wypnGQkndknX5Urd5yXV8yxAkbHwD5MJ1aaNKWZBd5'
+    app.signTransaction(tx)
+    app.signTransaction(tx)
+    await smartDelay(500)
+    const requests = await client.getPendingRequests()
+    expect(requests.length).toBe(2)
+    expect(requests[0].type).toBe(ContentType.SignTransactions)
+    expect(requests[1].type).toBe(ContentType.SignTransactions)
+    const payload1 = requests[0] as SignTransactionsSolanaRequest
+    expect(payload1.transactions.length).toBe(1)
   })
 })
