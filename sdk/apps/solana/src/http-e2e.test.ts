@@ -8,12 +8,7 @@ import {
   smartDelay,
   ContentType
 } from '@nightlylabs/nightly-connect-base'
-import {
-  Keypair,
-  LAMPORTS_PER_SOL,
-  SystemProgram,
-  Transaction,
-} from '@solana/web3.js'
+import { Keypair, LAMPORTS_PER_SOL, SystemProgram, Transaction } from '@solana/web3.js'
 import { HttpClientSolana } from './http-client'
 
 // Edit an assertion and save to see HMR in action
@@ -65,7 +60,6 @@ describe('Base Client tests', () => {
     if (pendingRequest.type !== ContentType.SignTransactions) {
       throw new Error('Wrong content type')
     }
-    // Wonder if this step should be done by the client
     const txToSign = pendingRequest.transactions[0]
     txToSign.sign([alice_keypair])
     await client.resolveSignTransaction({

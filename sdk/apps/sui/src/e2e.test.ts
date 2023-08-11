@@ -173,7 +173,6 @@ describe('SUI client tests', () => {
       chain: 'sui:testnet'
     })
     await smartDelay(500)
-    await smartDelay(500)
     const requests = await client.getPendingRequests()
     expect(requests.length).toBe(2)
     expect(requests[0].type).toBe(ContentType.SignTransactions)
