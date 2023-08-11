@@ -9,7 +9,9 @@ import {
 import { EventEmitter } from 'eventemitter3'
 import { SOLANA_NETWORK } from './utils'
 import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
-import { GetPendingRequestsResponse } from '../../../bindings/GetPendingRequestsResponse'
+import { parseRequest } from './utils'
+import { SolanaRequest } from './requestTypes'
+
 export interface SignSolanaTransactionEvent {
   requestId: string
   transactions: Array<VersionedTransaction>
@@ -77,13 +79,14 @@ export class ClientSolana extends EventEmitter<ClientSolanaEvents> {
     await this.baseClient.connect(connect)
     this.sessionId = connect.sessionId
   }
-  public getPendingRequests = async (sessionId?: string) => {
+  public getPendingRequests = async (sessionId?: string): Promise<SolanaRequest[]> => {
     const sessionIdToUse = sessionId || this.sessionId
     //Assert session id is defined
     if (sessionIdToUse === undefined) {
       throw new Error('Session id is undefined')
     }
-    return await this.baseClient.getPendingRequests(sessionIdToUse)
+    const requests = await this.baseClient.getPendingRequests(sessionIdToUse)
+    return requests.map((request) => parseRequest(request, sessionIdToUse))
   }
 
   public resolveSignTransaction = async ({

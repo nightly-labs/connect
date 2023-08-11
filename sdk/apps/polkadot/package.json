@@ -1,6 +1,6 @@
 {
   "name": "@nightlylabs/nightly-connect-polkadot",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "exports": {
     ".": {
@@ -45,7 +45,7 @@
     "@polkadot/keyring": "^12.3.2"
   },
   "dependencies": {
-    "@nightlylabs/nightly-connect-base": "0.0.22",
+    "@nightlylabs/nightly-connect-base": "0.0.23",
     "@polkadot/api": "^10.9.1",
     "@polkadot/types": "^10.9.1",
     "@polkadot/util": "^12.3.2",

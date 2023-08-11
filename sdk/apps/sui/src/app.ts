@@ -7,7 +7,6 @@ import {
   SuiSignTransactionBlockInput
 } from '@mysten/wallet-standard'
 import {
-  AppBaseInitialize,
   BaseApp,
   DeeplinkConnect,
   getWalletsMetadata,
@@ -15,10 +14,10 @@ import {
   TransactionToSign
 } from '@nightlylabs/nightly-connect-base'
 import { EventEmitter } from 'eventemitter3'
-import { SUI_NETWORK } from './utils'
+import { AppSuiInitialize, SUI_NETWORK } from './utils'
 import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
 import { WalletMetadata } from '../../../bindings/WalletMetadata'
-export type AppSuiInitialize = Omit<AppBaseInitialize, 'network'>
+
 interface SuiAppEvents {
   userConnected: (e: UserConnectedEvent) => void
   userDisconnected: (e: UserDisconnectedEvent) => void

@@ -1,7 +1,6 @@
 import { AppToServer } from '../../../bindings/AppToServer'
 import { InitializeRequest } from '../../../bindings/InitializeRequest'
 import { InitializeResponse } from '../../../bindings/InitializeResponse'
-import { Network } from '../../../bindings/Network'
 import { ServerToApp } from '../../../bindings/ServerToApp'
 import { UserConnectedEvent } from '../../../bindings/UserConnectedEvent'
 import WebSocket from 'isomorphic-ws'
@@ -12,11 +11,9 @@ import {
   getWalletsMetadata
 } from './utils'
 import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
-import { AppMetadata } from '../../../bindings/AppMetadata'
 import {
   ContentType,
   MessageToSign,
-  RequestContent,
   RequestInternal,
   TransactionToSign
 } from './content'
@@ -33,15 +30,8 @@ import {
 } from './responseContent'
 import { triggerDeeplink } from './deeplinks'
 import { EventEmitter } from 'eventemitter3'
+import { AppBaseInitialize } from './initializeTypes'
 
-export interface AppBaseInitialize {
-  appMetadata: AppMetadata
-  network: Network
-  url?: string
-  timeout?: number
-  persistentSessionId?: string
-  persistent?: boolean
-}
 interface BaseEvents {
   userConnected: (e: UserConnectedEvent) => void
   userDisconnected: (e: UserDisconnectedEvent) => void

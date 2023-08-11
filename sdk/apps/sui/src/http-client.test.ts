@@ -70,10 +70,10 @@ describe('SUI http-client tests', () => {
     await smartDelay()
     // Query for request
     const pendingRequest = (await client.getPendingRequests({ sessionId: app.sessionId }))[0]
-    if (pendingRequest.content.type !== ContentType.SignTransactions) {
+    if (pendingRequest.type !== ContentType.SignTransactions) {
       throw new Error('Wrong content type')
     }
-    const pendingTx = pendingRequest.content.transactions[0].transaction
+    const pendingTx = pendingRequest.transactions[0].transaction
     const { signature, transactionBlockBytes } = await signTransactionBlock(
       TransactionBlock.from(pendingTx),
       alice_keypair

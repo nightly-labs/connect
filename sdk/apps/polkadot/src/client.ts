@@ -2,8 +2,6 @@ import {
   BaseClient,
   ClientBaseInitialize,
   Connect as ConnectBase,
-  ContentType,
-  MessageToSign,
   SignMessagesEvent
 } from '@nightlylabs/nightly-connect-base'
 import { InjectedAccount } from '@polkadot/extension-inject/types'
@@ -13,6 +11,7 @@ import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
 import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
 import { Network } from '../../../bindings/Network'
 import { parseRequest } from './utils'
+import { PolkadotRequest } from './requestTypes'
 
 export interface SignPolkadotTransactionEvent {
   requestId: string
@@ -137,31 +136,6 @@ export class ClientPolkadot extends EventEmitter<ClientPolkadotEvents> {
     return await this.baseClient.dropSessions(sessionsToDrop)
   }
 }
-export interface SignTransactionsPolkadotRequest {
-  type: ContentType.SignTransactions
-  requestId: string
-  transactions: Array<SignerPayloadRaw | SignerPayloadJSON>
-  sessionId: string
-  network?: string
-}
-export interface SignMessagesPolkadotRequest {
-  type: ContentType.SignMessages
-  requestId: string
-  messages: Array<MessageToSign>
-  sessionId: string
-  network?: string
-}
-export interface CustomPolkadotRequest {
-  type: ContentType.Custom
-  requestId: string
-  content?: string
-  sessionId: string
-  network?: string
-}
-export type PolkadotRequest =
-  | SignTransactionsPolkadotRequest
-  | SignMessagesPolkadotRequest
-  | CustomPolkadotRequest
 export type Connect = ConnectBase & {
   walletsMetadata: InjectedAccount[]
 }
