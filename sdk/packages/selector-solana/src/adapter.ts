@@ -63,7 +63,13 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   private _loading: boolean
 
-  constructor(appInitData: AppInitData, eagerConnectForStandardWallets?: boolean) {
+  private _initOnConnect: boolean
+
+  constructor(
+    appInitData: AppInitData,
+    eagerConnectForStandardWallets?: boolean,
+    initOnConnect = false
+  ) {
     super()
     this._connecting = false
     this._connected = false
@@ -72,6 +78,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     this._eagerConnectForStandardWallets = !!eagerConnectForStandardWallets
     this._appSessionActive = false
     this._loading = false
+    this._initOnConnect = initOnConnect
   }
 
   get connecting() {
@@ -207,6 +214,36 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
       adapter._loading = false
     })
+
+    return adapter
+  }
+
+  public static buildConnectLoadable = (
+    appInitData: AppInitData,
+    eagerConnectForStandardWallets?: boolean,
+    anchorRef?: HTMLElement | null
+  ) => {
+    const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets, true)
+
+    if (adapter._readyState === WalletReadyState.Unsupported) {
+      return adapter
+    }
+
+    adapter.walletsList = getWalletsList(
+      [],
+      solanaWalletsFilter,
+      getRecentStandardWalletForNetwork(SOLANA_NETWORK) ?? undefined
+    )
+
+    adapter._modal = new NightlyConnectSelectorModal(
+      adapter.walletsList,
+      appInitData.url ?? 'https://nc2.nightly.app',
+      {
+        name: SOLANA_NETWORK,
+        icon: 'https://assets.coingecko.com/coins/images/4128/small/solana.png'
+      },
+      anchorRef
+    )
 
     return adapter
   }
