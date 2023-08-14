@@ -11,6 +11,9 @@ export default function Home() {
       <A href="/solanaLazy">
         <button>Solana - lazy adapter build</button>
       </A>
+      <A href="/solanaInitOnConnect">
+        <button>Solana - init app on connect</button>
+      </A>
       <A href="/sui">
         <button>Sui</button>
       </A>

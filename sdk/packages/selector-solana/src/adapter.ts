@@ -63,7 +63,13 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   private _loading: boolean
 
-  constructor(appInitData: AppInitData, eagerConnectForStandardWallets?: boolean) {
+  private _initOnConnect: boolean
+
+  constructor(
+    appInitData: AppInitData,
+    eagerConnectForStandardWallets?: boolean,
+    initOnConnect = false
+  ) {
     super()
     this._connecting = false
     this._connected = false
@@ -72,6 +78,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     this._eagerConnectForStandardWallets = !!eagerConnectForStandardWallets
     this._appSessionActive = false
     this._loading = false
+    this._initOnConnect = initOnConnect
   }
 
   get connecting() {
@@ -207,6 +214,36 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
       adapter._loading = false
     })
+
+    return adapter
+  }
+
+  public static buildWithInitOnConnect = (
+    appInitData: AppInitData,
+    eagerConnectForStandardWallets?: boolean,
+    anchorRef?: HTMLElement | null
+  ) => {
+    const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets, true)
+
+    if (adapter._readyState === WalletReadyState.Unsupported) {
+      return adapter
+    }
+
+    adapter.walletsList = getWalletsList(
+      [],
+      solanaWalletsFilter,
+      getRecentStandardWalletForNetwork(SOLANA_NETWORK) ?? undefined
+    )
+
+    adapter._modal = new NightlyConnectSelectorModal(
+      adapter.walletsList,
+      appInitData.url ?? 'https://nc2.nightly.app',
+      {
+        name: SOLANA_NETWORK,
+        icon: 'https://assets.coingecko.com/coins/images/4128/small/solana.png'
+      },
+      anchorRef
+    )
 
     return adapter
   }
@@ -356,23 +393,55 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       const innerConnect = async () => {
         try {
           if (this._readyState !== WalletReadyState.Loadable) throw new WalletNotReadyError()
-          if (this._loading) {
-            // we do it to ensure proper connect flow in case if adapter is lazily built, but e. g. solana wallets selector uses its own eager connect
-            for (let i = 0; i < 200; i++) {
-              await sleep(10)
 
-              if (!this._loading) {
-                break
+          if (this._initOnConnect) {
+            try {
+              const [app, metadataWallets] = await Promise.all([
+                AppSolana.build(this._appInitData),
+                AppSolana.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
+                  .then((list) =>
+                    list.map((wallet) => ({
+                      name: wallet.name,
+                      icon: wallet.image.default,
+                      deeplink: wallet.mobile,
+                      link: wallet.homepage
+                    }))
+                  )
+                  .catch(() => [] as MetadataWallet[])
+              ])
+
+              this._app = app
+              this._metadataWallets = metadataWallets
+
+              this.walletsList = getWalletsList(
+                metadataWallets,
+                solanaWalletsFilter,
+                getRecentStandardWalletForNetwork(SOLANA_NETWORK) ?? undefined
+              )
+            } catch {
+              if (!this._app) {
+                throw new WalletNotReadyError()
+              }
+            }
+          } else {
+            if (this._loading) {
+              // we do it to ensure proper connect flow in case if adapter is lazily built, but e. g. solana wallets selector uses its own eager connect
+              for (let i = 0; i < 200; i++) {
+                await sleep(10)
+
+                if (!this._loading) {
+                  break
+                }
+              }
+
+              if (this._loading) {
+                throw new WalletNotReadyError()
               }
             }
 
-            if (this._loading) {
+            if (!this._app) {
               throw new WalletNotReadyError()
             }
-          }
-
-          if (!this._app) {
-            throw new WalletNotReadyError()
           }
 
           if (this.connected || this.connecting) {
