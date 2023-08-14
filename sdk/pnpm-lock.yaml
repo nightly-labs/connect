@@ -141,7 +141,7 @@ importers:
         specifier: 0.0.3
         version: link:../../packages/selector-polkadot
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.1.14
+        specifier: 0.1.15
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
         specifier: 0.1.4
@@ -214,7 +214,7 @@ importers:
         specifier: 0.4.12
         version: 0.4.12(react-dom@18.2.0)(react@18.2.0)
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.1.14
+        specifier: 0.1.15
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
         specifier: 0.1.4

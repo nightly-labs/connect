@@ -392,35 +392,45 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     new Promise<void>((resolve, reject) => {
       const innerConnect = async () => {
         try {
+          if (this.connected || this.connecting) {
+            resolve()
+            return
+          }
+
           if (this._readyState !== WalletReadyState.Loadable) throw new WalletNotReadyError()
 
           if (this._initOnConnect) {
-            try {
-              const [app, metadataWallets] = await Promise.all([
-                AppSolana.build(this._appInitData),
-                AppSolana.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
-                  .then((list) =>
-                    list.map((wallet) => ({
-                      name: wallet.name,
-                      icon: wallet.image.default,
-                      deeplink: wallet.mobile,
-                      link: wallet.homepage
-                    }))
-                  )
-                  .catch(() => [] as MetadataWallet[])
-              ])
+            this._connecting = true
 
-              this._app = app
-              this._metadataWallets = metadataWallets
+            if (!this._app) {
+              try {
+                const [app, metadataWallets] = await Promise.all([
+                  AppSolana.build(this._appInitData),
+                  AppSolana.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
+                    .then((list) =>
+                      list.map((wallet) => ({
+                        name: wallet.name,
+                        icon: wallet.image.default,
+                        deeplink: wallet.mobile,
+                        link: wallet.homepage
+                      }))
+                    )
+                    .catch(() => [] as MetadataWallet[])
+                ])
 
-              this.walletsList = getWalletsList(
-                metadataWallets,
-                solanaWalletsFilter,
-                getRecentStandardWalletForNetwork(SOLANA_NETWORK) ?? undefined
-              )
-            } catch {
-              if (!this._app) {
-                throw new WalletNotReadyError()
+                this._app = app
+                this._metadataWallets = metadataWallets
+
+                this.walletsList = getWalletsList(
+                  metadataWallets,
+                  solanaWalletsFilter,
+                  getRecentStandardWalletForNetwork(SOLANA_NETWORK) ?? undefined
+                )
+              } catch {
+                if (!this._app) {
+                  this._connecting = false
+                  throw new WalletNotReadyError()
+                }
               }
             }
           } else {
@@ -442,14 +452,10 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
             if (!this._app) {
               throw new WalletNotReadyError()
             }
+
+            this._connecting = true
           }
 
-          if (this.connected || this.connecting) {
-            resolve()
-            return
-          }
-
-          this._connecting = true
           if (this._app.hasBeenRestored() && this._app.connectedPublicKeys.length > 0) {
             this.eagerConnectDeeplink()
             this._publicKey = this._app.connectedPublicKeys[0]
