@@ -24,7 +24,7 @@ export default function Polkadot() {
         },
         network: 'AlephZero'
       },
-      true,
+      true, // change this to false to test disabling eager connect
       document.getElementById('modalAnchor')
     )
 

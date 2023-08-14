@@ -37,7 +37,7 @@ export class NightlyConnectAdapter implements Injected {
   private _modal: NightlyConnectSelectorModal | undefined
 
   private _appInitData: AppSelectorInitialize
-  private _eagerConnectForStandardWallets: boolean
+  private _useEagerConnect: boolean
 
   private _metadataWallets: MetadataWallet[] = []
   private _walletsList: IPolkadotWalletListItem[] = []
@@ -46,11 +46,11 @@ export class NightlyConnectAdapter implements Injected {
 
   private _loading: boolean
 
-  constructor(appInitData: AppSelectorInitialize, eagerConnectForStandardWallets?: boolean) {
+  constructor(appInitData: AppSelectorInitialize, useEagerConnect?: boolean) {
     this._connecting = false
     this._connected = false
     this._appInitData = appInitData
-    this._eagerConnectForStandardWallets = !!eagerConnectForStandardWallets
+    this._useEagerConnect = !!useEagerConnect
     this._appSessionActive = false
     this._loading = false
   }
@@ -108,10 +108,14 @@ export class NightlyConnectAdapter implements Injected {
   }
   public static build = async (
     appInitData: AppSelectorInitialize,
-    eagerConnectForStandardWallets?: boolean,
+    useEagerConnect?: boolean,
     anchorRef?: HTMLElement | null
   ) => {
-    const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets)
+    if (!useEagerConnect) {
+      clearSessionIdForNetwork(appInitData.network)
+    }
+
+    const adapter = new NightlyConnectAdapter(appInitData, useEagerConnect)
 
     adapter.walletsList = getPolkadotWalletsList(
       [],
@@ -151,10 +155,14 @@ export class NightlyConnectAdapter implements Injected {
 
   public static buildLazy = (
     appInitData: AppSelectorInitialize,
-    eagerConnectForStandardWallets?: boolean,
+    useEagerConnect?: boolean,
     anchorRef?: HTMLElement | null
   ) => {
-    const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets)
+    if (!useEagerConnect) {
+      clearSessionIdForNetwork(appInitData.network)
+    }
+
+    const adapter = new NightlyConnectAdapter(appInitData, useEagerConnect)
 
     adapter.walletsList = getPolkadotWalletsList(
       [],
@@ -196,6 +204,10 @@ export class NightlyConnectAdapter implements Injected {
   }
   // ensureLoaded = async () => {}
   canEagerConnect = async () => {
+    if (!this._useEagerConnect) {
+      return false
+    }
+
     // utility for case if somebody wants to fire connect asap, but doesn't want to show modal if e. g. there was no user connected on the device yet
     if (this._loading) {
       for (let i = 0; i < 200; i++) {
@@ -216,7 +228,6 @@ export class NightlyConnectAdapter implements Injected {
     }
 
     if (
-      this._eagerConnectForStandardWallets &&
       getRecentStandardWalletForNetwork(this.network) !== null &&
       isStandardConnectedForNetwork(this.network)
     ) {
@@ -388,7 +399,7 @@ export class NightlyConnectAdapter implements Injected {
 
           const recentName = getRecentStandardWalletForNetwork(this.network)
           if (
-            this._eagerConnectForStandardWallets &&
+            this._useEagerConnect &&
             recentName !== null &&
             isStandardConnectedForNetwork(this.network)
           ) {
