@@ -6,13 +6,11 @@ slug: application/send
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
+<Tabs>
+<TabItem value="Solana" label="Solana">
 Sending a signTransaction requires established connection with user wallet.
 
 Transaction are sent to the client via wallet interface. Client can accept or reject the request. Once client signs transaction, `signTransaction()` method returns resolved promise with Signed Transaction.
-
-Example:
-<Tabs>
-<TabItem value="Solana" label="Solana">
 
 ```js
 import {
@@ -39,6 +37,9 @@ const signed: VersionedTransaction = await app.signTransaction(tx)
 </TabItem>
 
 <TabItem value="SUI" label="SUI">
+Sending a signTransaction requires established connection with user wallet.
+
+Transaction are sent to the client via wallet interface. Client can accept or reject the request. Once client signs transaction, `signTransactionBlock()` method returns resolved promise with Signed Transaction.
 
 ```js
 import { TransactionBlock } from '@mysten/sui.js'
@@ -53,6 +54,21 @@ const signedTx: SignedTransaction = await app.signTransactionBlock({
   account: aliceWalletAccount, // WalletAccount
   chain: 'sui:testnet' // IdentifierString
 })
+```
+
+</TabItem>
+<TabItem value="Polkadot" label="Polkadot">
+
+Nightly connect automatically turns into remote signer after connection from client (Mobile/Extension).
+Signing transaction is as simple as passing `signer` object
+
+```js
+// Create transaction
+const payload = api.tx.balances.transfer(RECEIVER, 50000)
+// Sign transaction using adapter
+const signed = await payload.signAsync(SENDER, { signer: adapter.signer })
+// Send transaction
+await signed.send()
 ```
 
 </TabItem>

@@ -147,6 +147,34 @@ export default dynamic(() => Promise.resolve(SuiProvider), {
 ```
 
 </TabItem>
+<TabItem value="Polkadot" label="Polkadot">
+
+You can find example usage of this addapter here: https://github.com/nightly-labs/connect/blob/main/sdk/apps/modal-example/src/routes/aleph.tsx
+
+```js
+import { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-polkadot'
+const adapter = NightlyConnectAdapter.buildLazy(
+  {
+    appMetadata: {
+      name: 'NC TEST AlephZero',
+      description: 'Nightly Connect Test',
+      icon: 'https://docs.nightly.app/img/logo.png',
+      additionalInfo: 'Courtesy of Nightly Connect team'
+    },
+    network: 'AlephZero'
+  },
+  true // should session be persisted
+)
+// Trigger connection
+await adapter.connect()
+// After connection adapter turns into remote signer
+// Sign transaction
+await payload.signAsync(publicKey, { signer: adapter.signer })
+// Disconnect client if you want to end session
+await adapter.disconnect()
+```
+
+</TabItem>
 </Tabs>
 
 ### Disconnect
