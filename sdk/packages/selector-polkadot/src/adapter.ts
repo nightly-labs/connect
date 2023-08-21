@@ -17,7 +17,7 @@ import {
 } from '@nightlylabs/wallet-selector-base'
 
 import { type Signer as InjectedSigner } from '@polkadot/api/types'
-import { type Injected } from '@polkadot/extension-inject/types'
+import { InjectedAccounts, type Injected } from '@polkadot/extension-inject/types'
 import { IPolkadotWalletListItem, getPolkadotWalletsList } from './detection'
 import { networkToData, SupportedNetworks } from './utils'
 export type AppSelectorInitialize = Omit<AppPolkadotInitialize, 'network'> & {
@@ -55,7 +55,7 @@ export class NightlyConnectAdapter implements Injected {
     this._loading = false
   }
 
-  get accounts() {
+  get accounts(): InjectedAccounts {
     // Means that we are connected via standard wallet
     if (this._innerStandardAdapter) {
       return this._innerStandardAdapter.accounts

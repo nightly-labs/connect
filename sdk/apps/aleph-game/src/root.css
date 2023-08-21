@@ -1,0 +1,36 @@
+body {
+  font-family: 'Arial', 'Helvetica'
+}
+
+main {
+  text-align: center;
+  padding: 1em;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
+h1 {
+  color: #335d92;
+  font-size: 32px;
+  line-height: 1.1;
+}
+
+p {
+  margin: 2rem auto;
+  line-height: 1.35;
+}
+
+button {
+  background-color: cornflowerblue;
+  color: white;
+  font-size: 16px;
+  padding: 16px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  width: 300px;
+  cursor: pointer;
+}

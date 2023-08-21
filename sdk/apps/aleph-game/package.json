@@ -1,0 +1,37 @@
+{
+  "name": "aleph-game",
+  "scripts": {
+    "dev": "solid-start dev",
+    "build": "solid-start build",
+    "start": "solid-start start"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^18.11.18",
+    "esbuild": "^0.14.54",
+    "postcss": "^8.4.21",
+    "solid-start-node": "^0.2.19",
+    "typescript": "^4.9.4",
+    "vite": "^4.1.4"
+  },
+  "dependencies": {
+    "@nightlylabs/nightly-connect-polkadot": "0.0.4",
+    "@nightlylabs/wallet-selector-polkadot": "0.0.4",
+    "@supabase/supabase-js": "^2.32.0",
+    "@solidjs/meta": "^0.28.2",
+    "@solidjs/router": "^0.8.2",
+    "@polkadot/extension-inject": "^0.46.5",
+    "@polkadot/api": "^10.9.1",
+    "@polkadot/util": "^12.4.1",
+    "@polkadot/util-crypto": "^12.4.1",
+    "buffer": "^6.0.3",
+    "solid-js": "^1.7.2",
+    "solid-start": "^0.2.26",
+    "solid-start-vercel": "^0.2.26",
+    "solid-toast": "^0.5.0",
+    "undici": "^5.15.1"
+  },
+  "engines": {
+    "node": ">=16.8"
+  }
+}
