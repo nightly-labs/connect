@@ -16,7 +16,7 @@ export const LandingPage: Component<ILandingPageProps> = (props) => {
     <div class="mainContainer">
       <img class="headerImg" src={Logo} alt="" />
       <div class="landingDescription">
-        <span class="">
+        <span>
           Connect a wallet and <span class="landingMainText">start your adventure</span> with
           Nightly!
         </span>
