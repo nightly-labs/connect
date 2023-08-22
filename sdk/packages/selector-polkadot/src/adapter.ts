@@ -380,32 +380,34 @@ export class NightlyConnectAdapter implements Injected {
           if (this._initOnConnect) {
             this._connecting = true
 
-            try {
-              const [app, metadataWallets] = await Promise.all([
-                AppPolkadot.build(this._appInitData),
-                AppPolkadot.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
-                  .then((list) =>
-                    list.map((wallet) => ({
-                      name: wallet.name,
-                      icon: wallet.image.default,
-                      deeplink: wallet.mobile,
-                      link: wallet.homepage
-                    }))
-                  )
-                  .catch(() => [] as MetadataWallet[])
-              ])
+            if (!this._app) {
+              try {
+                const [app, metadataWallets] = await Promise.all([
+                  AppPolkadot.build(this._appInitData),
+                  AppPolkadot.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
+                    .then((list) =>
+                      list.map((wallet) => ({
+                        name: wallet.name,
+                        icon: wallet.image.default,
+                        deeplink: wallet.mobile,
+                        link: wallet.homepage
+                      }))
+                    )
+                    .catch(() => [] as MetadataWallet[])
+                ])
 
-              this._app = app
-              this._metadataWallets = metadataWallets
+                this._app = app
+                this._metadataWallets = metadataWallets
 
-              this.walletsList = getPolkadotWalletsList(
-                metadataWallets,
-                getRecentStandardWalletForNetwork(this.network) ?? undefined
-              )
-            } catch {
-              if (!this._app) {
-                this._connecting = false
-                throw new Error('Wallet not ready')
+                this.walletsList = getPolkadotWalletsList(
+                  metadataWallets,
+                  getRecentStandardWalletForNetwork(this.network) ?? undefined
+                )
+              } catch {
+                if (!this._app) {
+                  this._connecting = false
+                  throw new Error('Wallet not ready')
+                }
               }
             }
           } else {
