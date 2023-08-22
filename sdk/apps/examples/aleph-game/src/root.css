@@ -1,5 +1,5 @@
 body {
-  font-family: 'Arial', 'Helvetica'
+  font-family: 'Arial', 'Helvetica';
 }
 
 main {
@@ -30,7 +30,6 @@ button {
   font-size: 16px;
   padding: 16px;
   border-radius: 8px;
-  text-transform: uppercase;
   width: 300px;
   cursor: pointer;
 }

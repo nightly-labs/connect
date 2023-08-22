@@ -1,0 +1,93 @@
+.mainContainer {
+  background-color: #202137;
+  display: flex;
+  flex-direction: column;
+  max-width: 375px;
+  width: 100%;
+  min-height: 750px;
+  height: 100%;
+  justify-content: space-between;
+}
+
+.headerImg {
+  height: 48px;
+  margin: 24px 0 95px 0;
+}
+
+.landingDescription {
+  margin: 0 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #f7f7f7;
+  font-family: Prompt;
+  font-size: 31px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 40px;
+  letter-spacing: 0.62px;
+}
+
+.landingMainText {
+  color: #6067f9;
+}
+
+.landingTextInfo {
+  margin-top: 12px;
+  font-family: Prompt;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 22px;
+  letter-spacing: 0.32px;
+  color: #707a8d;
+}
+.landingButton {
+  margin: 0 16px;
+  text-align: center;
+  font-family: Prompt;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 22px;
+  letter-spacing: 0.32px;
+  margin-top: 40px;
+  border: 0px;
+  display: flex;
+  width: 357px;
+  height: 40px;
+  padding: 0px 7px 0px 8px;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  background-color: #6067f9;
+  color: #f7f7f7;
+}
+
+.fennecImg {
+  width: 363px;
+  height: 363px;
+}
+
+.landingClaimButton {
+  margin-top: 36px;
+  background-color: #5ab88b;
+  color: #0f0f1a;
+  display: flex;
+  width: 357px;
+  height: 40px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  text-align: center;
+  font-family: Prompt;
+  font-size: 16px;
+  border: 0px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 22px;
+  letter-spacing: 0.32px;
+}
