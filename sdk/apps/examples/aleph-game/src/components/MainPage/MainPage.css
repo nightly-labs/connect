@@ -1,0 +1,80 @@
+.mainGameContainer {
+  background-color: #202137;
+  display: flex;
+  flex-direction: column;
+  /* if you do a review then remove the max-height, min-height, max-width */
+  max-height: 760px;
+  max-width: 375px;
+  min-height: 760px;
+  height: 100%;
+  width: 100%;
+}
+
+.logo {
+  height: 48px;
+  margin: 24px 0 56px 0;
+}
+
+.title {
+  background-color: #202137;
+  width: 111px;
+  height: 111px;
+}
+
+.gameContainer {
+  margin: 0 16px 0 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: 343px;
+  height: 343px;
+  align-items: center;
+  gap: 5px;
+  justify-items: center;
+  background-image: url('../../static/svg/nightlyCoin.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 343px 343px;
+}
+
+.ticket-status-container {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  color: #f7f7f7;
+  font-family: Prompt;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 32px;
+  letter-spacing: 0.48px;
+}
+
+.ticketCounterText {
+  margin-bottom: 8px;
+  color: #5ab88b;
+}
+
+.textInfo {
+  margin-bottom: 8px;
+  font-family: Prompt;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 22px;
+  letter-spacing: 0.32px;
+  color: #707a8d;
+}
+
+.timeText {
+  margin-bottom: 56px;
+  font-family: Prompt;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 22px;
+  letter-spacing: 0.32px;
+}
+
+.timeCounterText {
+  color: #6067f9;
+}
