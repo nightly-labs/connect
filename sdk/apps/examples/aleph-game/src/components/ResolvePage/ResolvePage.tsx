@@ -29,9 +29,7 @@ export const ResolvePage: Component<IResolvePage> = (props) => {
         <img class="resolveLogo" src={Logo} alt="" />
         <div class="textResolveContainer">
           <span class="winHeader">Congratulations!</span>
-          <span class="loseTextInfo">
-            You’ve won lorem ipsum! Your reward will be automatically send on your wallet.
-          </span>
+          <span class="loseTextInfo">Your reward will be automatically send on your wallet.</span>
         </div>
         <img class="richFennec" src={richFennec} alt="" />
       </div>

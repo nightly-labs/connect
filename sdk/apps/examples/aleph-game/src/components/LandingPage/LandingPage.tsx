@@ -16,12 +16,9 @@ export const LandingPage: Component<ILandingPageProps> = (props) => {
     <div class="mainContainer">
       <img class="headerImg" src={Logo} alt="" />
       <div class="landingDescription">
-        <span>
-          Connect a wallet and <span class="landingMainText">start your adventure</span> with
-          Nightly!
-        </span>
+        <span>Get a chance to win $100!</span>
         <span class="landingTextInfo">
-          Scan QR codes and claim tickets! There’s 9 tickets to get. Good luck!
+          Connect your Nightly Wallet and claim your raffle ticket.
         </span>
         <Show when={props.isConnected && !props.hasTicketsToClaim}>
           <button onClick={props.onClaimTickets} class="landingButton">

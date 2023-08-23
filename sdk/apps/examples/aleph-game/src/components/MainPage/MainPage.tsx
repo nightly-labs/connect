@@ -48,7 +48,7 @@ export const MainPage: Component<IMainPage> = (props) => {
           {+props.counter < 4 && 'Don’t give up! You can do it!'}
           {+props.counter >= 4 && +props.counter < 9 && 'Keep looking... You’re almost there!'}
           {+props.counter === 9 &&
-            'Congratulations! Know Nightly better by downloading Nightly Wallet app for Android or iOS.'}
+            'Congratulations! Your job is here done, brave fennec. We are proud of you! Stay tuned for the results.'}
         </span>
         <span class="timeText">
           Time left:{' '}
