@@ -2,6 +2,7 @@ import { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-polkadot'
 import { Show, createEffect, createSignal, onMount } from 'solid-js'
 import toast from 'solid-toast'
 import { MainPage } from '~/components/MainPage/MainPage'
+import { ResolvePage } from '~/components/ResolvePage/ResolvePage'
 import { getAdapter } from '~/store/adapter'
 import { getUserTickets } from '~/store/dbClient'
 import { TICKETS_MAP } from '~/store/ticketsMap'
@@ -56,17 +57,23 @@ export default function Polkadot() {
     matrix[row].push(tableData[i])
   }
   return (
-    <Show when={loaded()}>
-      <MainPage
-        connected={user().loaded}
-        onConnect={async () => {
-          await adapter()!.connect()
-          const accounts = await adapter()!.accounts.get()
-          setPublicKey(accounts[0].address)
-        }}
-        counter={Object.values(user().tickets).length.toString()}
-        id={Object.values(user().tickets)}
-        time={timeLeft()}></MainPage>
-    </Show>
+    // <ResolvePage resolve={false} />
+    <MainPage
+      connected={user().loaded}
+      onConnect={async () => {
+        await adapter()!.connect()
+        const accounts = await adapter()!.accounts.get()
+        setPublicKey(accounts[0].address)
+      }}
+      counter={Object.values(user().tickets).length.toString()}
+      id={Object.values(user().tickets)}
+      time={9238974312734}></MainPage>
+    // <LandingPage
+    //   hasTicketsToClaim={true}
+    //   isConnected={true}
+    //   onAddTickets={() => {
+    //     console.log('')
+    //   }}
+    // />
   )
 }

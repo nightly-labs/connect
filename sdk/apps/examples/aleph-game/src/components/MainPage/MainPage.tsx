@@ -37,7 +37,7 @@ export const MainPage: Component<IMainPage> = (props) => {
       <img class="logo" src={Logo} alt="" />
       <div class="ticket-status-container">
         <Show when={!props.connected}>
-          <button class="landingButton" onClick={props.onConnect}>
+          <button class="connectButton" onClick={props.onConnect}>
             Connect wallet
           </button>
         </Show>
