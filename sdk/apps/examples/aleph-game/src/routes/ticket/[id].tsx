@@ -31,7 +31,16 @@ export default function Polkadot() {
       }
       setLoaded(true)
     } catch {
-      toast.error('Failed to connect please restart page')
+      try {
+        const _adapter = await getAdapter(false)
+        setAdapter(_adapter)
+        if (await _adapter.canEagerConnect()) {
+          setEager(true)
+        }
+        setLoaded(true)
+      } catch (error) {
+        toast.error('Failed to connect please restart page')
+      }
     }
   })
   createEffect(() => {
@@ -93,7 +102,7 @@ export default function Polkadot() {
             await addUserTicket(publicKey()!, ticketId)
             toast.success('Transaction was signed and sent!')
             // tigger with probability of 5%
-            if (Math.random() < 0.05) {
+            if (Math.random() < 0.02) {
               toast.success('You won a random price!')
               await setRandomWinner(publicKey()!)
             }

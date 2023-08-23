@@ -126,8 +126,8 @@ importers:
         specifier: 0.0.4
         version: link:../../polkadot
       '@nightlylabs/wallet-selector-polkadot':
-        specifier: 0.0.4
-        version: link:../../../packages/selector-polkadot
+        specifier: 0.0.5
+        version: 0.0.5(@polkadot/util@12.4.1)
       '@polkadot/api':
         specifier: ^10.9.1
         version: 10.9.1
@@ -5161,6 +5161,92 @@ packages:
     dev: false
     optional: true
 
+  /@nightlylabs/nightly-connect-base@0.0.23:
+    resolution: {integrity: sha512-kpL/lJcZ0VitqtC+Bi8sjMF6Yv+uwj5kN/ac1NS9gOcph8FXHOfDRLXtTQMuiz4UEqbVBitAKCa0GYFYX299pw==}
+    dependencies:
+      cross-fetch: 3.1.6
+      eventemitter3: 5.0.1
+      isomorphic-localstorage: 1.0.2
+      isomorphic-ws: 5.0.0(ws@8.13.0)
+      uuid: 9.0.0
+      ws: 8.13.0(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - utf-8-validate
+    dev: false
+
+  /@nightlylabs/nightly-connect-polkadot@0.0.4:
+    resolution: {integrity: sha512-v67vJHaELEWRbu6bqHouyxJpvDH/ZzV3pmnroXSU+jEPKjq4wYJeFq2MOX1p3AnfvwnotvXLcdzmLQKl8Zh1jA==}
+    dependencies:
+      '@nightlylabs/nightly-connect-base': 0.0.23
+      '@polkadot/api': 10.9.1
+      '@polkadot/extension-inject': 0.46.5(@polkadot/api@10.9.1)(@polkadot/util@12.4.1)
+      '@polkadot/types': 10.9.1
+      '@polkadot/util': 12.4.1
+      '@polkadot/util-crypto': 12.4.1(@polkadot/util@12.4.1)
+      eventemitter3: 5.0.1
+      uuid: 9.0.0
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
+    dev: false
+
+  /@nightlylabs/qr-code@2.0.3:
+    resolution: {integrity: sha512-/FK3hRIIeXsMHlhzq68BHBURLdbtJNygaSCQMEYatpDFWmONseIItEQl6yyRksSE3Ti5RD24zZJ679NE8b7esQ==}
+    dependencies:
+      qrcode-generator: 1.4.4
+    dev: false
+
+  /@nightlylabs/wallet-selector-base@0.1.4:
+    resolution: {integrity: sha512-HGH0NFayH/ueO6B/Rdi/4Ju0Rk02EdWoewcBrx+lmWc/C4owms3yZSgGfa5vytVvyPPU++XYMog27lm+qj23uA==}
+    dependencies:
+      '@nightlylabs/nightly-connect-base': 0.0.23
+      '@nightlylabs/wallet-selector-modal': 0.0.12
+      '@wallet-standard/core': 1.0.3
+      isomorphic-localstorage: 1.0.2
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - ts-node
+      - utf-8-validate
+    dev: false
+
+  /@nightlylabs/wallet-selector-modal@0.0.12:
+    resolution: {integrity: sha512-42yAMhs8ioYJHdrum0OSDovkguiO7qq5g0tvWejSxXUj2wJu/FAjWPMixk6+sqEGNti2N1VWfV2dt8M+4dokeA==}
+    dependencies:
+      '@lit-labs/motion': 1.0.3
+      '@nightlylabs/qr-code': 2.0.3
+      autoprefixer: 10.4.14(postcss@8.4.24)
+      lit: 2.7.2
+      postcss: 8.4.24
+      postcss-lit: 1.1.0(postcss@8.4.24)
+      tailwindcss: 3.3.2
+    transitivePeerDependencies:
+      - supports-color
+      - ts-node
+    dev: false
+
+  /@nightlylabs/wallet-selector-polkadot@0.0.5(@polkadot/util@12.4.1):
+    resolution: {integrity: sha512-/C81pJ+rCVW3/i6GJKH7geloHbCdK433QWo7G0VLx1OsteojP36VaZECt01Bm/XbzOKswIjMfirPA9Op0RSdDw==}
+    dependencies:
+      '@nightlylabs/nightly-connect-polkadot': 0.0.4
+      '@nightlylabs/wallet-selector-base': 0.1.4
+      '@polkadot/api': 10.9.1
+      '@polkadot/extension-inject': 0.46.5(@polkadot/api@10.9.1)(@polkadot/util@12.4.1)
+      '@wallet-standard/core': 1.0.3
+    transitivePeerDependencies:
+      - '@polkadot/util'
+      - bufferutil
+      - encoding
+      - supports-color
+      - ts-node
+      - utf-8-validate
+    dev: false
+
   /@noble/curves@1.0.0:
     resolution: {integrity: sha512-2upgEu0iLiDVDZkNLeFV2+ht0BAVgQnEmCk6JsOch9Rp8xfkMCbvbAZlA2pBHQc73dbl+vFOXfqkf4uemdn0bw==}
     dependencies:
@@ -7222,6 +7308,7 @@ packages:
 
   /@substrate/connect-extension-protocol@1.0.1:
     resolution: {integrity: sha512-161JhCC1csjH3GE5mPLEd7HbWtwNSPJBg3p1Ksz9SFlTzj/bgEwudiRN2y5i0MoLGCIJRYKyKGMxVnd29PzNjg==}
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -14276,6 +14363,7 @@ packages:
 
   /pako@2.1.0:
     resolution: {integrity: sha512-w+eufiZ1WuJYgPXbV/PO3NCMEc3xqylkKHzp8bxp1uW4qaSNQUkwmLLEc3kKsfz8lpV1F8Ht3U1Cm+9Srog2ug==}
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -16308,6 +16396,7 @@ packages:
 
   /smoldot@1.0.4:
     resolution: {integrity: sha512-N3TazI1C4GGrseFH/piWyZCCCRJTRx2QhDfrUKRT4SzILlW5m8ayZ3QTKICcz1C/536T9cbHHJyP7afxI6Mi1A==}
+    requiresBuild: true
     dependencies:
       pako: 2.1.0
       ws: 8.13.0(bufferutil@4.0.7)(utf-8-validate@5.0.10)

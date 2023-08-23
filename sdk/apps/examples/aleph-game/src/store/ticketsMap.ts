@@ -16,12 +16,12 @@ export type TicketsMapType = {
   TicketId?: number
 }
 
-// https://fountain-zimbabwe-kay-training.trycloudflare.com/ticket/uh3Rccil
-// https://fountain-zimbabwe-kay-training.trycloudflare.com/ticket/a8UISBYU
-// https://fountain-zimbabwe-kay-training.trycloudflare.com/ticket/NFKZcvMB
-// https://fountain-zimbabwe-kay-training.trycloudflare.com/ticket/5ryVaSo0
-// https://fountain-zimbabwe-kay-training.trycloudflare.com/ticket/z8aiJmga
-// https://fountain-zimbabwe-kay-training.trycloudflare.com/ticket/8wGsgPHa
-// https://fountain-zimbabwe-kay-training.trycloudflare.com/ticket/rK0IQ0LJ
-// https://fountain-zimbabwe-kay-training.trycloudflare.com/ticket/H6kwvuqg
-// https://fountain-zimbabwe-kay-training.trycloudflare.com/ticket/eibElg0N
+// https://aleph.game.nightly.app/ticket/uh3Rccil
+// https://aleph.game.nightly.app/ticket/a8UISBYU
+// https://aleph.game.nightly.app/ticket/NFKZcvMB
+// https://aleph.game.nightly.app/ticket/5ryVaSo0
+// https://aleph.game.nightly.app/ticket/z8aiJmga
+// https://aleph.game.nightly.app/ticket/8wGsgPHa
+// https://aleph.game.nightly.app/ticket/rK0IQ0LJ
+// https://aleph.game.nightly.app/ticket/H6kwvuqg
+// https://aleph.game.nightly.app/ticket/eibElg0N

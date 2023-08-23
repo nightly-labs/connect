@@ -2,7 +2,7 @@ import { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-polkadot'
 
 // Create a single supabase client for interacting with your database
 let _adapter: NightlyConnectAdapter | undefined
-export const getAdapter = async () => {
+export const getAdapter = async (persisted = true) => {
   if (_adapter) return _adapter
   _adapter = await NightlyConnectAdapter.build(
     {
@@ -14,8 +14,7 @@ export const getAdapter = async () => {
       },
       network: 'AlephZero'
     },
-    true, // change this to false to test disabling eager connect
-    document.getElementById('modalAnchor')
+    persisted
   )
   return _adapter
 }

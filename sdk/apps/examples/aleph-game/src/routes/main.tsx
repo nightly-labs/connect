@@ -31,7 +31,16 @@ export default function Polkadot() {
       }
       setLoaded(true)
     } catch {
-      toast.error('Failed to connect please restart page')
+      try {
+        const _adapter = await getAdapter(false)
+        setAdapter(_adapter)
+        if (await _adapter.canEagerConnect()) {
+          setEager(true)
+        }
+        setLoaded(true)
+      } catch (error) {
+        toast.error('Failed to connect please restart page')
+      }
     }
   })
   createEffect(() => {
