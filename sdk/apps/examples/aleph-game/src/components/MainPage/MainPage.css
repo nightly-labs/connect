@@ -8,7 +8,7 @@
 
 .logo {
   height: 48px;
-  margin: 24px 0 56px 0;
+  margin: 24px 0 36px 0;
 }
 
 .title {
@@ -37,6 +37,7 @@
   display: flex;
   flex-direction: column;
   text-align: center;
+  padding: 0 16px 0 16px;
   color: #f7f7f7;
   font-family: Prompt;
   font-size: 24px;
@@ -75,8 +76,7 @@
 .timeCounterText {
   color: #6067f9;
 }
-.landingButton {
-  margin: 0 16px;
+.connectButton {
   text-align: center;
   font-family: Prompt;
   font-size: 16px;
@@ -84,10 +84,10 @@
   font-weight: 600;
   line-height: 22px;
   letter-spacing: 0.32px;
-  margin-top: 40px;
+  margin-bottom: 20px;
   border: 0px;
   display: flex;
-  width: 357px;
+  width: 100%;
   height: 40px;
   padding: 0px 7px 0px 8px;
   justify-content: center;
