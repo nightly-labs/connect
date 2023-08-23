@@ -60,5 +60,12 @@ export default function Polkadot() {
       counter={Object.values(user().tickets).length.toString()}
       id={Object.values(user().tickets)}
       time={9238974312734}></MainPage>
+    // <LandingPage
+    //   hasTicketsToClaim={true}
+    //   isConnected={true}
+    //   onAddTickets={() => {
+    //     console.log('')
+    //   }}
+    // />
   )
 }
