@@ -135,6 +135,29 @@ export class NightlyConnectAdapter implements Injected {
       anchorRef
     )
 
+    const [app, metadataWallets] = await Promise.all([
+      AppPolkadot.build(appInitData),
+      AppPolkadot.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
+        .then((list) =>
+          list.map((wallet) => ({
+            name: wallet.name,
+            icon: wallet.image.default,
+            deeplink: wallet.mobile,
+            link: wallet.homepage
+          }))
+        )
+        .catch(() => [] as MetadataWallet[])
+    ])
+
+    adapter._app = app
+    adapter._metadataWallets = metadataWallets
+
+    adapter.walletsList = getPolkadotWalletsList(
+      metadataWallets,
+      getRecentStandardWalletForNetwork(adapter.network) ?? undefined
+    )
+
+
     return adapter
   }
 
