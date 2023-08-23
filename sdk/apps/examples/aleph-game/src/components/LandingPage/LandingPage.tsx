@@ -25,7 +25,7 @@ export const LandingPage: Component<ILandingPageProps> = (props) => {
         </span>
         <Show when={props.isConnected && !props.hasTicketsToClaim}>
           <button onClick={props.onClaimTickets} class="landingButton">
-            Connected! See your tickets
+            Already Claimed! See your tickets
           </button>
         </Show>
         <Show when={props.isConnected && props.hasTicketsToClaim}>

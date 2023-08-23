@@ -1,8 +1,6 @@
 import { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-polkadot'
-import { createEffect, createSignal, onMount, Show } from 'solid-js'
-import { Title } from 'solid-start'
+import { createEffect, createSignal, onMount } from 'solid-js'
 import toast from 'solid-toast'
-import { LandingPage } from '~/components/LandingPage/LandingPage'
 import { MainPage } from '~/components/MainPage/MainPage'
 import { getAdapter } from '~/store/adapter'
 import { getUserTickets } from '~/store/dbClient'
@@ -16,12 +14,16 @@ export default function Polkadot() {
   const [user, setUser] = createSignal({ address: '', tickets: {}, loaded: false })
 
   onMount(async () => {
-    const _adapter = await getAdapter()
-    setAdapter(_adapter)
-    if (await _adapter.canEagerConnect()) {
-      setEager(true)
+    try {
+      const _adapter = await getAdapter()
+      setAdapter(_adapter)
+      if (await _adapter.canEagerConnect()) {
+        setEager(true)
+      }
+      setLoaded(true)
+    } catch {
+      toast.error('Failed to connect please restart page')
     }
-    setLoaded(true)
   })
   createEffect(() => {
     if (eager()) {
@@ -43,7 +45,6 @@ export default function Polkadot() {
     if (publicKey()) {
       const tickets = await getUserTickets(publicKey()!)
       setUser({ address: publicKey()!, tickets, loaded: true })
-      console.log(user())
     }
   })
   const tableData = Object.entries(TICKETS_MAP)
@@ -53,10 +54,15 @@ export default function Polkadot() {
     const row = Math.floor(i / 3)
     matrix[row].push(tableData[i])
   }
-  console.log(user())
+
   return (
     <MainPage
-      collectedTicket={true}
+      connected={user().loaded}
+      onConnect={async () => {
+        await adapter()!.connect()
+        const accounts = await adapter()!.accounts.get()
+        setPublicKey(accounts[0].address)
+      }}
       counter={Object.values(user().tickets).length.toString()}
       id={Object.values(user().tickets)}
       time={9238974312734}></MainPage>

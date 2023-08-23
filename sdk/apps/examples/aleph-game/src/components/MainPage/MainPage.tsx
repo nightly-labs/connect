@@ -1,4 +1,4 @@
-import { Component } from 'solid-js'
+import { Component, Show } from 'solid-js'
 import Logo from '../../static/svg/Logo.svg'
 import { timeFormatter } from '../utils/formatting'
 import firstPicture from '../../static/svg/firstPicture.svg'
@@ -15,8 +15,9 @@ import './MainPage.css'
 export interface IMainPage {
   counter: string
   time: number
-  collectedTicket: boolean
+  connected: boolean
   id: number[]
+  onConnect: () => void
 }
 
 export const MainPage: Component<IMainPage> = (props) => {
@@ -36,6 +37,11 @@ export const MainPage: Component<IMainPage> = (props) => {
     <div class="mainGameContainer">
       <img class="logo" src={Logo} alt="" />
       <div class="ticket-status-container">
+        <Show when={!props.connected}>
+          <button class="landingButton" onClick={props.onConnect}>
+            Connect wallet
+          </button>
+        </Show>
         <span>
           Collected tickets: <span class="ticketCounterText">{props.counter}/9</span>
         </span>
@@ -54,7 +60,7 @@ export const MainPage: Component<IMainPage> = (props) => {
           <img
             class="title"
             style={
-              props.collectedTicket && props.id.includes(picture.id)
+              props.connected && props.id.includes(picture.id)
                 ? { visibility: 'hidden' }
                 : { display: 'grid' }
             }

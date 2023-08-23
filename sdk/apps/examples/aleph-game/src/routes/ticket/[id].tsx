@@ -1,12 +1,12 @@
-import { getPolkadotWallets, NightlyConnectAdapter } from '@nightlylabs/wallet-selector-polkadot'
-import { stringToU8a, u8aToHex } from '@polkadot/util'
-import { signatureVerify } from '@polkadot/util-crypto'
-import { createEffect, createSignal, onMount, Show } from 'solid-js'
+import { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-polkadot'
+import { createEffect, createSignal, onMount } from 'solid-js'
 import { useNavigate, useParams } from 'solid-start'
 import toast from 'solid-toast'
+import { LandingPage } from '../../components/LandingPage/LandingPage'
 import { getAdapter } from '~/store/adapter'
 import { addUserTicket, getUserTickets } from '~/store/dbClient'
 import { TicketId, TICKETS_MAP } from '~/store/ticketsMap'
+import { stringToU8a, u8aToHex } from '@polkadot/util'
 
 export default function Polkadot() {
   const [adapter, setAdapter] = createSignal<NightlyConnectAdapter>()
@@ -23,12 +23,16 @@ export default function Polkadot() {
   }
   const ticketId = params.id as TicketId
   onMount(async () => {
-    const _adapter = await getAdapter()
-    setAdapter(_adapter)
-    if (await _adapter.canEagerConnect()) {
-      setEager(true)
+    try {
+      const _adapter = await getAdapter()
+      setAdapter(_adapter)
+      if (await _adapter.canEagerConnect()) {
+        setEager(true)
+      }
+      setLoaded(true)
+    } catch {
+      toast.error('Failed to connect please restart page')
     }
-    setLoaded(true)
   })
   createEffect(() => {
     if (adapter()) {
@@ -54,72 +58,52 @@ export default function Polkadot() {
   createEffect(async () => {
     if (publicKey()) {
       const tickets = await getUserTickets(publicKey()!)
-      setUser({ address: publicKey()!, tickets, loaded: true })
+      console.log(tickets)
+      // @ts-expect-error ignore
+      console.log(!!tickets[params.id])
       // @ts-expect-error ignore
       setIsTicketClaimed(!!tickets[params.id])
+      setUser({ address: publicKey()!, tickets, loaded: true })
     }
   })
   createEffect(async () => {
     if (isTicketClaimed()) {
       setTimeout(() => {
-        navigate('/aleph')
-      }, 300)
+        navigate('/main')
+      }, 1000)
     }
   })
   return (
-    <Show when={loaded()} fallback={<div>Loading...</div>}>
-      <main>
-        <Show
-          when={!!publicKey()}
-          fallback={
-            <button
-              onClick={async () => {
-                console.log(getPolkadotWallets())
-                await adapter()!.connect()
-                const accounts = await adapter()!.accounts.get()
-                console.log(accounts)
-                setPublicKey(accounts[0].address)
-                console.log('adapter', adapter())
-              }}>
-              Connect
-            </button>
-          }>
-          <Show when={!isTicketClaimed()} fallback={<div>Ticket claimed</div>}>
-            <button
-              onClick={async () => {
-                try {
-                  const message = stringToU8a('this is our message')
-                  const signed = await adapter()!.signer!.signRaw!({
-                    address: publicKey()!,
-                    data: u8aToHex(message),
-                    type: 'bytes'
-                  })
-                  // verify the message using Alice's address
-                  const { isValid } = signatureVerify(message, signed.signature, publicKey()!)
-                  if (isValid) {
-                    setIsTicketClaimed(true)
-                    await addUserTicket(publicKey()!, ticketId)
-                    toast.success('Transaction was signed and sent!')
-                  } else {
-                    toast.error('Invalid signature')
-                  }
-                } catch (e) {
-                  toast.error("Error: couldn't sign and send transaction!")
-                  console.log(e)
-                }
-              }}>
-              Sign test transfer
-            </button>
-          </Show>
-        </Show>
-        <button
-          onClick={() => {
-            adapter()?.disconnect()
-            setPublicKey(undefined)
-          }}>
-          Disconnect
-        </button>
-      </main>
-    </Show>
+    <LandingPage
+      hasTicketsToClaim={!isTicketClaimed()}
+      isConnected={user().loaded && loaded()}
+      onAddTickets={async () => {
+        try {
+          const message = stringToU8a(ticketId)
+          const signed = await adapter()!.signer!.signRaw!({
+            address: publicKey()!,
+            data: u8aToHex(message),
+            type: 'bytes'
+          })
+          // verify the message using Alice's address
+          // Ignore verification for now
+          // const { isValid } = signatureVerify(message, signed.signature, publicKey()!)
+          setIsTicketClaimed(true)
+          await addUserTicket(publicKey()!, ticketId)
+          toast.success('Transaction was signed and sent!')
+        } catch (e) {
+          toast.error("Error: couldn't sign and send transaction!")
+          console.log(e)
+        }
+      }}
+      onClaimTickets={async () => {
+        navigate('/main')
+      }}
+      onConnectWallet={async () => {
+        await adapter()!.connect()
+        const accounts = await adapter()!.accounts.get()
+        setPublicKey(accounts[0].address)
+      }}
+    />
   )
 }

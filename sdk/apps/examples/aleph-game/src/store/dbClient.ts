@@ -46,10 +46,3 @@ export const getUserTickets = async (userAddress: string): Promise<TicketsMapTyp
     return {}
   }
 }
-createEffect(async () => {
-  await addUserTicket('33', 'uh3Rccil')
-  await addUserTicket('33', 'NFKZcvMB')
-  await addUserTicket('44', 'z8aiJmga')
-  const user = await getUserTickets('33')
-  console.log(user)
-})
