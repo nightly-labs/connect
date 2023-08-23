@@ -27,6 +27,24 @@ export interface Database {
         }
         Relationships: []
       }
+      winners: {
+        Row: {
+          addresses: string | null
+          created_at: string
+          name: string
+        }
+        Insert: {
+          addresses?: string | null
+          created_at?: string
+          name: string
+        }
+        Update: {
+          addresses?: string | null
+          created_at?: string
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

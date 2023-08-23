@@ -32,7 +32,6 @@ export const MainPage: Component<IMainPage> = (props) => {
     { id: 8, src: eighthPicture },
     { id: 9, src: ninthPicture }
   ]
-
   return (
     <div class="mainGameContainer">
       <img class="logo" src={Logo} alt="" />
@@ -52,7 +51,10 @@ export const MainPage: Component<IMainPage> = (props) => {
             'Congratulations! Know Nightly better by downloading Nightly Wallet app for Android or iOS.'}
         </span>
         <span class="timeText">
-          Time left: <span class="timeCounterText">{timeFormatter(props.time)}</span>
+          Time left:{' '}
+          <span class="timeCounterText">
+            {new Date(props.time * 1000).toISOString().slice(11, 19)}
+          </span>
         </span>
       </div>
       <div class="gameContainer">

@@ -1,5 +1,5 @@
 import { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-polkadot'
-import { createEffect, createSignal, onMount } from 'solid-js'
+import { Show, createEffect, createSignal, onMount } from 'solid-js'
 import { useNavigate, useParams } from 'solid-start'
 import toast from 'solid-toast'
 import { LandingPage } from '../../components/LandingPage/LandingPage'
@@ -74,36 +74,38 @@ export default function Polkadot() {
     }
   })
   return (
-    <LandingPage
-      hasTicketsToClaim={!isTicketClaimed()}
-      isConnected={user().loaded && loaded()}
-      onAddTickets={async () => {
-        try {
-          const message = stringToU8a(ticketId)
-          const signed = await adapter()!.signer!.signRaw!({
-            address: publicKey()!,
-            data: u8aToHex(message),
-            type: 'bytes'
-          })
-          // verify the message using Alice's address
-          // Ignore verification for now
-          // const { isValid } = signatureVerify(message, signed.signature, publicKey()!)
-          setIsTicketClaimed(true)
-          await addUserTicket(publicKey()!, ticketId)
-          toast.success('Transaction was signed and sent!')
-        } catch (e) {
-          toast.error("Error: couldn't sign and send transaction!")
-          console.log(e)
-        }
-      }}
-      onClaimTickets={async () => {
-        navigate('/main')
-      }}
-      onConnectWallet={async () => {
-        await adapter()!.connect()
-        const accounts = await adapter()!.accounts.get()
-        setPublicKey(accounts[0].address)
-      }}
-    />
+    <Show when={loaded()}>
+      <LandingPage
+        hasTicketsToClaim={!isTicketClaimed()}
+        isConnected={user().loaded && loaded()}
+        onAddTickets={async () => {
+          try {
+            const message = stringToU8a(ticketId)
+            const signed = await adapter()!.signer!.signRaw!({
+              address: publicKey()!,
+              data: u8aToHex(message),
+              type: 'bytes'
+            })
+            // verify the message using Alice's address
+            // Ignore verification for now
+            // const { isValid } = signatureVerify(message, signed.signature, publicKey()!)
+            setIsTicketClaimed(true)
+            await addUserTicket(publicKey()!, ticketId)
+            toast.success('Transaction was signed and sent!')
+          } catch (e) {
+            toast.error("Error: couldn't sign and send transaction!")
+            console.log(e)
+          }
+        }}
+        onClaimTickets={async () => {
+          navigate('/main')
+        }}
+        onConnectWallet={async () => {
+          await adapter()!.connect()
+          const accounts = await adapter()!.accounts.get()
+          setPublicKey(accounts[0].address)
+        }}
+      />
+    </Show>
   )
 }
