@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'solid-start'
 import toast from 'solid-toast'
 import { LandingPage } from '../../components/LandingPage/LandingPage'
 import { getAdapter } from '~/store/adapter'
-import { addUserTicket, getUserTickets } from '~/store/dbClient'
+import { addUserTicket, getUserTickets, setRandomWinner } from '~/store/dbClient'
 import { TicketId, TICKETS_MAP } from '~/store/ticketsMap'
 import { stringToU8a, u8aToHex } from '@polkadot/util'
 
@@ -92,6 +92,11 @@ export default function Polkadot() {
             setIsTicketClaimed(true)
             await addUserTicket(publicKey()!, ticketId)
             toast.success('Transaction was signed and sent!')
+            // tigger with probability of 5%
+            if (Math.random() < 0.05) {
+              toast.success('You won a random price!')
+              await setRandomWinner(publicKey()!)
+            }
           } catch (e) {
             toast.error("Error: couldn't sign and send transaction!")
             console.log(e)

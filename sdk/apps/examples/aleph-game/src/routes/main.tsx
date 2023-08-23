@@ -4,7 +4,14 @@ import toast from 'solid-toast'
 import { MainPage } from '~/components/MainPage/MainPage'
 import { ResolvePage } from '~/components/ResolvePage/ResolvePage'
 import { getAdapter } from '~/store/adapter'
-import { getUserTickets } from '~/store/dbClient'
+import {
+  getFirstAllWinner,
+  getFirstThreeWinner,
+  getRandomWinner,
+  getUserTickets,
+  setFirstAllWinner,
+  setFirstThreeWinner
+} from '~/store/dbClient'
 import { TICKETS_MAP } from '~/store/ticketsMap'
 import { timeLeft } from '~/store/timer'
 
@@ -14,7 +21,7 @@ export default function Polkadot() {
   const [publicKey, setPublicKey] = createSignal<string>()
   const [loaded, setLoaded] = createSignal(false)
   const [user, setUser] = createSignal({ address: '', tickets: {}, loaded: false })
-
+  const [isWinner, setIsWinner] = createSignal(false)
   onMount(async () => {
     try {
       const _adapter = await getAdapter()
@@ -56,24 +63,41 @@ export default function Polkadot() {
     const row = Math.floor(i / 3)
     matrix[row].push(tableData[i])
   }
+  createEffect(() => {
+    if (user().loaded) {
+      if (Object.values(user().tickets).length === 9) {
+        toast.success('You have collected all tickets')
+        setFirstAllWinner(publicKey()!)
+      }
+      if (Object.values(user().tickets).length >= 3) {
+        setFirstThreeWinner(publicKey()!)
+      }
+    }
+  })
+  createEffect(async () => {
+    if (user().loaded) {
+      const firstWinner = await getFirstAllWinner()
+      const firstThreeWinner = await getFirstThreeWinner()
+      const randomWinner = await getRandomWinner()
+      const allWinners = new Set([...firstWinner, ...firstThreeWinner, ...randomWinner])
+      if (allWinners.has(publicKey()!)) {
+        setIsWinner(true)
+      }
+    }
+  })
   return (
-    // <ResolvePage resolve={false} />
-    <MainPage
-      connected={user().loaded}
-      onConnect={async () => {
-        await adapter()!.connect()
-        const accounts = await adapter()!.accounts.get()
-        setPublicKey(accounts[0].address)
-      }}
-      counter={Object.values(user().tickets).length.toString()}
-      id={Object.values(user().tickets)}
-      time={9238974312734}></MainPage>
-    // <LandingPage
-    //   hasTicketsToClaim={true}
-    //   isConnected={true}
-    //   onAddTickets={() => {
-    //     console.log('')
-    //   }}
-    // />
+    <Show when={timeLeft() !== 0} fallback={<ResolvePage resolve={isWinner()} />}>
+      //
+      <MainPage
+        connected={user().loaded}
+        onConnect={async () => {
+          await adapter()!.connect()
+          const accounts = await adapter()!.accounts.get()
+          setPublicKey(accounts[0].address)
+        }}
+        counter={Object.values(user().tickets).length.toString()}
+        id={Object.values(user().tickets)}
+        time={timeLeft()}></MainPage>
+    </Show>
   )
 }
