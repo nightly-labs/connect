@@ -14,7 +14,6 @@ import {
 } from 'solid-start'
 import { Toaster } from 'solid-toast'
 import './root.css'
-import { AllViewLandingPage } from './components/LandingPage/AllViewLandingPage/AllViewLandingPage'
 
 export default function Root() {
   return (
@@ -27,7 +26,6 @@ export default function Root() {
       <Body>
         <Suspense>
           <ErrorBoundary>
-            <A href="/">Index</A>
             <Toaster />
             <Routes>
               <FileRoutes />
@@ -35,7 +33,6 @@ export default function Root() {
           </ErrorBoundary>
         </Suspense>
         <Scripts />
-        <AllViewLandingPage />
       </Body>
     </Html>
   )

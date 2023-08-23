@@ -17,7 +17,7 @@
   "dependencies": {
     "@nightlylabs/nightly-connect-polkadot": "0.0.4",
     "@nightlylabs/wallet-selector-polkadot": "0.0.4",
-    "@supabase/supabase-js": "^2.32.0",
+    "@supabase/supabase-js": "^2.33.1",
     "@solidjs/meta": "^0.28.2",
     "@solidjs/router": "^0.8.2",
     "@polkadot/extension-inject": "^0.46.5",
@@ -29,7 +29,8 @@
     "solid-start": "^0.2.26",
     "solid-start-vercel": "^0.2.26",
     "solid-toast": "^0.5.0",
-    "undici": "^5.15.1"
+    "undici": "^5.15.1",
+    "vite-plugin-node-polyfills": "0.11.3"
   },
   "engines": {
     "node": ">=16.8"

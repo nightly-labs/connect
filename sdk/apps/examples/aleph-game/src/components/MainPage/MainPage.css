@@ -2,10 +2,6 @@
   background-color: #202137;
   display: flex;
   flex-direction: column;
-  /* if you do a review then remove the max-height, min-height, max-width */
-  max-height: 760px;
-  max-width: 375px;
-  min-height: 760px;
   height: 100%;
   width: 100%;
 }
