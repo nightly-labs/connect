@@ -46,13 +46,20 @@ export class NightlyConnectAdapter implements Injected {
 
   private _loading: boolean
 
-  constructor(appInitData: AppSelectorInitialize, useEagerConnect?: boolean) {
+  private _initOnConnect: boolean
+
+  constructor(
+    appInitData: AppSelectorInitialize,
+    useEagerConnect?: boolean,
+    initOnConnect = false
+  ) {
     this._connecting = false
     this._connected = false
     this._appInitData = appInitData
     this._useEagerConnect = !!useEagerConnect
     this._appSessionActive = false
     this._loading = false
+    this._initOnConnect = initOnConnect
   }
 
   get accounts(): InjectedAccounts {
@@ -128,28 +135,6 @@ export class NightlyConnectAdapter implements Injected {
       anchorRef
     )
 
-    const [app, metadataWallets] = await Promise.all([
-      AppPolkadot.build(appInitData),
-      AppPolkadot.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
-        .then((list) =>
-          list.map((wallet) => ({
-            name: wallet.name,
-            icon: wallet.image.default,
-            deeplink: wallet.mobile,
-            link: wallet.homepage
-          }))
-        )
-        .catch(() => [] as MetadataWallet[])
-    ])
-
-    adapter._app = app
-    adapter._metadataWallets = metadataWallets
-
-    adapter.walletsList = getPolkadotWalletsList(
-      metadataWallets,
-      getRecentStandardWalletForNetwork(adapter.network) ?? undefined
-    )
-
     return adapter
   }
 
@@ -199,6 +184,30 @@ export class NightlyConnectAdapter implements Injected {
 
       adapter._loading = false
     })
+
+    return adapter
+  }
+  public static buildWithInitOnConnect = (
+    appInitData: AppSelectorInitialize,
+    useEagerConnect?: boolean,
+    anchorRef?: HTMLElement | null
+  ) => {
+    if (!useEagerConnect) {
+      clearSessionIdForNetwork(appInitData.network)
+    }
+
+    const adapter = new NightlyConnectAdapter(appInitData, useEagerConnect, true)
+
+    adapter.walletsList = getPolkadotWalletsList(
+      [],
+      getRecentStandardWalletForNetwork(adapter.network) ?? undefined
+    )
+    adapter._modal = new NightlyConnectSelectorModal(
+      adapter.walletsList,
+      appInitData.url ?? 'https://nc2.nightly.app',
+      networkToData(adapter.network),
+      anchorRef
+    )
 
     return adapter
   }
@@ -363,31 +372,67 @@ export class NightlyConnectAdapter implements Injected {
     new Promise<void>((resolve, reject) => {
       const innerConnect = async () => {
         try {
-          if (this._loading) {
-            // we do it to ensure proper connect flow in case if adapter is lazily built, but e. g. solana wallets selector uses its own eager connect
-            for (let i = 0; i < 200; i++) {
-              await sleep(10)
-
-              if (!this._loading) {
-                break
-              }
-            }
-
-            if (this._loading) {
-              throw new Error('Wallet not ready')
-            }
-          }
-
-          if (!this._app) {
-            throw new Error('Wallet not ready')
-          }
-
           if (this.connected || this.connecting) {
             resolve()
             return
           }
 
-          this._connecting = true
+          if (this._initOnConnect) {
+            this._connecting = true
+
+            if (!this._app) {
+              try {
+                const [app, metadataWallets] = await Promise.all([
+                  AppPolkadot.build(this._appInitData),
+                  AppPolkadot.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
+                    .then((list) =>
+                      list.map((wallet) => ({
+                        name: wallet.name,
+                        icon: wallet.image.default,
+                        deeplink: wallet.mobile,
+                        link: wallet.homepage
+                      }))
+                    )
+                    .catch(() => [] as MetadataWallet[])
+                ])
+
+                this._app = app
+                this._metadataWallets = metadataWallets
+
+                this.walletsList = getPolkadotWalletsList(
+                  metadataWallets,
+                  getRecentStandardWalletForNetwork(this.network) ?? undefined
+                )
+              } catch {
+                if (!this._app) {
+                  this._connecting = false
+                  throw new Error('Wallet not ready')
+                }
+              }
+            }
+          } else {
+            if (this._loading) {
+              // we do it to ensure proper connect flow in case if adapter is lazily built, but e. g. polkadot wallets selector uses its own eager connect
+              for (let i = 0; i < 200; i++) {
+                await sleep(10)
+
+                if (!this._loading) {
+                  break
+                }
+              }
+
+              if (this._loading) {
+                throw new Error('Wallet not ready')
+              }
+            }
+
+            if (!this._app) {
+              throw new Error('Wallet not ready')
+            }
+
+            this._connecting = true
+          }
+
           if (this._app.hasBeenRestored() && this._app.accounts.activeAccounts.length > 0) {
             this.eagerConnectDeeplink()
             this._connected = true

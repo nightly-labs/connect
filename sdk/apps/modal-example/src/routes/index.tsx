@@ -17,8 +17,11 @@ export default function Home() {
       <A href="/sui">
         <button>Sui</button>
       </A>
-      <A href="/aleph">
-        <button>Aleph</button>
+      <A href="/suiInitOnConnect">
+        <button>Sui - init app on connect</button>
+      </A>
+      <A href="/alephInitOnConnect">
+        <button>Aleph - init app on connect</button>
       </A>
     </main>
   )

@@ -58,6 +58,7 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
   private _accounts: WalletAccount[] = []
   private _connectionType: ConnectionType | undefined
   private _metadataWallets: MetadataWallet[] = []
+  private _initOnConnect: boolean
 
   get walletsList() {
     return this._walletsList
@@ -72,13 +73,18 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
 
   // We need internal _connecting since sui messes with connecting state
   private _connecting = false
-  constructor(appInitData: AppInitData, eagerConnectForStandardWallets?: boolean) {
+  constructor(
+    appInitData: AppInitData,
+    eagerConnectForStandardWallets?: boolean,
+    initOnConnect = false
+  ) {
     this._connecting = false
     this.connecting = false
     this.connected = false
     this._appInitData = appInitData
     this._eagerConnectForStandardWallets = eagerConnectForStandardWallets ?? true
     this._loading = false
+    this._initOnConnect = initOnConnect
   }
 
   on: StandardEventsOnMethod = (event, listener) => {
@@ -185,36 +191,99 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
 
     return adapter
   }
+  public static buildWithInitOnConnect = (
+    appInitData: AppInitData,
+    eagerConnectForStandardWallets?: boolean,
+    anchorRef?: HTMLElement | null
+  ) => {
+    const adapter = new NightlyConnectSuiAdapter(appInitData, eagerConnectForStandardWallets, true)
+
+    adapter.walletsList = getWalletsList(
+      [],
+      suiWalletsFilter,
+      getRecentStandardWalletForNetwork(SUI_NETWORK) ?? undefined
+    )
+
+    adapter._modal = new NightlyConnectSelectorModal(
+      adapter.walletsList,
+      appInitData.url ?? 'https://nc2.nightly.app',
+      {
+        name: SUI_NETWORK,
+        icon: 'https://registry.connect.nightly.app/networks/sui.png'
+      },
+      anchorRef
+    )
+
+    return adapter
+  }
   connect = async () => {
     return new Promise<void>((resolve, reject) => {
       const innerConnect = async () => {
         try {
-          if (this._loading) {
-            // we do it to ensure proper connect flow in case if adapter is lazily built, but e. g. solana wallets selector uses its own eager connect
-            for (let i = 0; i < 200; i++) {
-              await sleep(10)
-
-              if (!this._loading) {
-                break
-              }
-            }
-
-            if (this._loading) {
-              throw new Error('Wallet not ready')
-            }
-          }
-
-          if (!this._app) {
-            throw new Error('Wallet not ready')
-          }
-
           if (this.connected || this._connecting) {
             resolve()
             return
           }
 
-          this._connecting = true
-          this.connecting = true
+          if (this._initOnConnect) {
+            this._connecting = true
+            this.connecting = true
+
+            if (!this._app) {
+              try {
+                const [app, metadataWallets] = await Promise.all([
+                  AppSui.build(this._appInitData),
+                  AppSui.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
+                    .then((list) =>
+                      list.map((wallet) => ({
+                        name: wallet.name,
+                        icon: wallet.image.default,
+                        deeplink: wallet.mobile,
+                        link: wallet.homepage
+                      }))
+                    )
+                    .catch(() => [] as MetadataWallet[])
+                ])
+
+                this._app = app
+                this._metadataWallets = metadataWallets
+                this.walletsList = getWalletsList(
+                  metadataWallets,
+                  suiWalletsFilter,
+                  getRecentStandardWalletForNetwork(SUI_NETWORK) ?? undefined
+                )
+              } catch {
+                if (!this._app) {
+                  this._connecting = false
+                  this.connecting = false
+                  throw new Error('Wallet not ready')
+                }
+              }
+            }
+          } else {
+            if (this._loading) {
+              // we do it to ensure proper connect flow in case if adapter is lazily built, but e. g. sui wallets selector uses its own eager connect
+              for (let i = 0; i < 200; i++) {
+                await sleep(10)
+
+                if (!this._loading) {
+                  break
+                }
+              }
+
+              if (this._loading) {
+                throw new Error('Wallet not ready')
+              }
+            }
+
+            if (!this._app) {
+              throw new Error('Wallet not ready')
+            }
+
+            this._connecting = true
+            this.connecting = true
+          }
+
           if (this._app.hasBeenRestored() && this._app.connectedPublicKeys.length > 0) {
             this.eagerConnectDeeplink()
             // TODO add support for Secp256k1 key and features detection
