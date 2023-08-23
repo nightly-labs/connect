@@ -4,7 +4,7 @@ import { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-polkadot'
 let _adapter: NightlyConnectAdapter | undefined
 export const getAdapter = async (persisted = true) => {
   if (_adapter) return _adapter
-  _adapter = await NightlyConnectAdapter.buildLazy(
+  _adapter = await NightlyConnectAdapter.build(
     {
       appMetadata: {
         name: 'NC TEST AlephZero',

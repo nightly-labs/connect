@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@nightlylabs/nightly-connect-polkadot": "0.0.4",
-    "@nightlylabs/wallet-selector-polkadot": "0.0.5",
+    "@nightlylabs/wallet-selector-polkadot": "0.0.6",
     "@supabase/supabase-js": "^2.33.1",
     "@solidjs/meta": "^0.28.2",
     "@solidjs/router": "^0.8.2",
