@@ -2,6 +2,7 @@ import { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-polkadot'
 import { createEffect, createSignal, onMount } from 'solid-js'
 import toast from 'solid-toast'
 import { MainPage } from '~/components/MainPage/MainPage'
+import { ResolvePage } from '~/components/ResolvePage/ResolvePage'
 import { getAdapter } from '~/store/adapter'
 import { getUserTickets } from '~/store/dbClient'
 import { TICKETS_MAP } from '~/store/ticketsMap'
@@ -56,6 +57,7 @@ export default function Polkadot() {
   }
 
   return (
+    // <ResolvePage resolve={false} />
     <MainPage
       connected={user().loaded}
       onConnect={async () => {
