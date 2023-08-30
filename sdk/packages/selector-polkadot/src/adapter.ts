@@ -157,7 +157,6 @@ export class NightlyConnectAdapter implements Injected {
       getRecentStandardWalletForNetwork(adapter.network) ?? undefined
     )
 
-
     return adapter
   }
 
@@ -426,7 +425,7 @@ export class NightlyConnectAdapter implements Injected {
                   metadataWallets,
                   getRecentStandardWalletForNetwork(this.network) ?? undefined
                 )
-              } catch {
+              } catch (e) {
                 if (!this._app) {
                   this._connecting = false
                   throw new Error('Wallet not ready')
