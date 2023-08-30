@@ -11,14 +11,16 @@ describe('multiple session tests', () => {
   let app2: BaseApp
   let app3: BaseApp
   test('userConnected', async () => {
-    app1 = await BaseApp.build({ ...testAppBaseInitialize, persistent: true })
+    app1 = await BaseApp.build({ ...testAppBaseInitialize, network: 'para', persistent: true })
     app2 = await BaseApp.build({
       ...testAppBaseInitialize,
+      network: 'para',
       persistent: true,
       persistentSessionId: app1.sessionId
     })
     app3 = await BaseApp.build({
       ...testAppBaseInitialize,
+      network: 'para',
       persistent: true,
       persistentSessionId: app1.sessionId
     })
