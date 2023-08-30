@@ -157,7 +157,6 @@ export class NightlyConnectAdapter implements Injected {
       getRecentStandardWalletForNetwork(adapter.network) ?? undefined
     )
 
-
     return adapter
   }
 
@@ -394,6 +393,7 @@ export class NightlyConnectAdapter implements Injected {
   connect = async () =>
     new Promise<void>((resolve, reject) => {
       const innerConnect = async () => {
+        console.log(this)
         try {
           if (this.connected || this.connecting) {
             resolve()
@@ -426,7 +426,10 @@ export class NightlyConnectAdapter implements Injected {
                   metadataWallets,
                   getRecentStandardWalletForNetwork(this.network) ?? undefined
                 )
-              } catch {
+              } catch (e) {
+                console.log(e)
+                console.log("Couldn't initialize app")
+                console.log(this)
                 if (!this._app) {
                   this._connecting = false
                   throw new Error('Wallet not ready')
@@ -445,11 +448,15 @@ export class NightlyConnectAdapter implements Injected {
               }
 
               if (this._loading) {
+                console.log('_loading')
+                console.log(this)
                 throw new Error('Wallet not ready')
               }
             }
 
             if (!this._app) {
+              console.log('_app')
+              console.log(this)
               throw new Error('Wallet not ready')
             }
 

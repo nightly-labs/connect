@@ -39,12 +39,11 @@ pub fn start_cleaning_sessions(sessions: Sessions, client_to_sessions: ClientToS
                     None => {}
                 }
                 // Disconnect app
-                match &mut session.app_state.app_socket {
-                    Some(app_socket) => {
-                        let _ = app_socket.close();
-                    }
-                    None => {}
+                // Send to all apps
+                for (_, socket) in &mut session.app_state.app_socket {
+                    let _ = socket.close();
                 }
+
                 drop(session);
                 sessions.remove(&session_id);
             }
