@@ -14,7 +14,7 @@ describe('Base App tests', () => {
     baseApp.removeAllListeners()
   })
   test('persistent session', async () => {
-    const persistInitialize = testAppBaseInitialize
+    const persistInitialize = { ...testAppBaseInitialize, persist: true }
     // Random string as app name to avoid conflicts
     const appName = Math.random().toString(36)
     persistInitialize.appMetadata.name = appName
