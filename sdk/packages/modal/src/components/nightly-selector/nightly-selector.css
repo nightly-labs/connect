@@ -14,6 +14,50 @@
   animation: 100ms ease-out 0s 1 fadeOut normal forwards;
 }
 
+.nightlySelectorWrapper {
+  margin: auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  width: fit-content;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+}
+
+.nightlySelectorContent {
+  border-radius: 0px 0px 16px 16px;
+  overflow: hidden;
+  background-color: #17182b;
+  border: 1px solid #343551;
+  border-top: none;
+}
+
+.modalConnect {
+  display: block;
+}
+
+.modalDesktop {
+  display: block;
+}
+
+.modalMobile {
+  display: none;
+}
+
+@media (max-width: 1080px) and (min-width: 960px) {
+  .nightlySelectorWrapper {
+    max-width: 636px;
+  }
+}
+
+@media (max-width: 960px) and (min-width: 640px) {
+  .nightlySelectorWrapper {
+    max-width: 540px;
+  }
+}
+
 @media (max-width: 640px) {
   .nightlySelectorOverlay {
     animation: 250ms ease-out 0s 1 fadeInMobile normal forwards;
@@ -23,6 +67,34 @@
 
   .fadeOutOpacity {
     animation: 250ms ease-out 0s 1 fadeOutMobile normal forwards;
+  }
+
+  .nightlySelectorWrapper {
+    top: unset;
+    left: unset;
+    bottom: -20px;
+    width: 100%;
+    max-width: 100%;
+    transform-origin: 0 100%;
+    animation: 250ms ease-out 0s 1 slideIn normal forwards;
+  }
+
+  .slideOutMobile {
+    animation: 250ms ease-out 0s 1 slideOut normal forwards;
+  }
+
+  .nightlySelectorContent {
+    top: -20px;
+    position: relative;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .modalDesktop {
+    display: none;
+  }
+
+  .modalMobile {
+    display: block;
   }
 }
 
@@ -66,19 +138,20 @@
   }
 }
 
-.nightlySelector {
-  margin: auto;
-  position: relative;
-  top: 50%;
-  transform: translateY(-50%);
-  width: fit-content;
-  display: block;
+@keyframes slideIn {
+  0% {
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(0);
+  }
 }
 
-@media (max-width: 640px) {
-  .nightlySelector {
-    top: 100%;
-    transform: translateY(calc(-100% + 20px));
-    width: unset;
+@keyframes slideOut {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100%);
   }
 }
