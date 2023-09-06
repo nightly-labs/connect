@@ -61,20 +61,42 @@ export class NightlySelector extends LitElement {
   currentWalletName = ''
 
   @state()
-  hasMovedOnceToConnecting = false
+  canAnimateDesktopInitialView = false
 
   @state()
   currentView = SelectorView.DESKTOP_SELECT
+
 
   // queried elements
 
   @query('#innerHeightObserverEl')
   _innerHeightObserverEl!: HTMLElement
 
-  // observers
-  innerHeightObserver: ResizeObserver | undefined
+  // media queries
+
+  isMobile = window.matchMedia('(max-width: 640px)')
+  isSmallerMobile = window.matchMedia('(max-width: 482px)')
+  isSmallestMobile = window.matchMedia('(max-width: 374px)')
 
   // callbacks
+
+  calcMobileContentHeight = () => {
+    switch (this.currentView) {
+      case SelectorView.MOBILE_QR:
+        return this.isSmallestMobile.matches ? 332 : this.isSmallerMobile.matches ? 420 : 510
+      case SelectorView.MOBILE_ALL:
+        return 526
+      case SelectorView.CONNECTING:
+        return this.isSmallestMobile.matches ? 440 : this.isSmallerMobile.matches ? 420 : 400
+      default:
+        return 182
+    }
+  }
+
+  setCurrentView = (val: SelectorView) => {
+    this.currentView = val
+    this.mobileContentHeight = this.calcMobileContentHeight()
+  }
 
   handleClose = () => {
     this.fireClosingAnimation = true
@@ -82,7 +104,7 @@ export class NightlySelector extends LitElement {
       () => {
         this.onClose()
       },
-      window.matchMedia('(max-width: 640px)').matches ? 240 : 80
+      this.isMobile.matches ? 240 : 80
     )
   }
 
@@ -93,9 +115,9 @@ export class NightlySelector extends LitElement {
     this.currentWalletName = wallet?.name ?? ''
     this.link = wallet?.link ?? ''
 
-    this.currentView = SelectorView.CONNECTING
+    this.setCurrentView(SelectorView.CONNECTING)
 
-    this.hasMovedOnceToConnecting = true
+    this.canAnimateDesktopInitialView = true
 
     this.onWalletClick(name)
   }
@@ -105,23 +127,23 @@ export class NightlySelector extends LitElement {
   }
 
   backToPage = () => {
-    if (window.matchMedia('(max-width: 640px)').matches) {
-      this.currentView = SelectorView.MOBILE_INIT
+    if (this.isMobile.matches) {
+      this.setCurrentView(SelectorView.MOBILE_INIT)
     } else {
-      this.currentView = SelectorView.DESKTOP_SELECT
+      this.setCurrentView(SelectorView.DESKTOP_SELECT)
     }
   }
 
   returnToMobileInit = () => {
-    this.currentView = SelectorView.MOBILE_INIT
+    this.setCurrentView(SelectorView.MOBILE_INIT)
   }
 
   goToMobileQr = () => {
-    this.currentView = SelectorView.MOBILE_QR
+    this.setCurrentView(SelectorView.MOBILE_QR)
   }
 
   goToMobileAll = () => {
-    this.currentView = SelectorView.MOBILE_ALL
+    this.setCurrentView(SelectorView.MOBILE_ALL)
   }
 
   // lifecycle callbacks
@@ -137,49 +159,37 @@ export class NightlySelector extends LitElement {
     this.goToMobileAll = this.goToMobileAll.bind(this)
     this.goToMobileQr = this.goToMobileQr.bind(this)
 
-    if (window.matchMedia('(max-width: 640px)').matches) {
-      this.currentView = SelectorView.MOBILE_INIT
+    if (this.isMobile.matches) {
+      this.setCurrentView(SelectorView.MOBILE_INIT)
     }
 
-    window.addEventListener('resize', () => {
-      if (window.innerWidth <= 640 && this.currentView === SelectorView.DESKTOP_SELECT) {
-        this.currentView = SelectorView.MOBILE_INIT
-      } else if (
-        window.innerWidth > 640 &&
-        (this.currentView === SelectorView.MOBILE_INIT ||
-          this.currentView === SelectorView.MOBILE_QR ||
-          this.currentView === SelectorView.MOBILE_ALL)
-      ) {
-        this.currentView = SelectorView.DESKTOP_SELECT
+    this.isMobile.addEventListener('change', () => {
+      if (this.currentView !== SelectorView.CONNECTING) {
+        this.setCurrentView(this.isMobile.matches
+          ? SelectorView.MOBILE_INIT
+          : SelectorView.DESKTOP_SELECT)
       }
-    })
-  }
 
-  connectedCallback(): void {
-    super.connectedCallback()
-    setTimeout(() => {
-      this.mobileContentHeight = Math.max(this._innerHeightObserverEl.scrollHeight, 186)
-      if (!this.innerHeightObserver) {
-        this.innerHeightObserver = new ResizeObserver(() => {
-          if (!this._innerHeightObserverEl) {
-            return
-          }
-          this.mobileContentHeight = Math.max(this._innerHeightObserverEl.scrollHeight, 186)
-        })
-      }
-      this.innerHeightObserver.observe(this._innerHeightObserverEl)
-    }, 0)
+      this.mobileContentHeight = this.calcMobileContentHeight()
+    })
+
+    this.isSmallerMobile.addEventListener('change', () => {
+      this.mobileContentHeight = this.calcMobileContentHeight()
+    })
+
+    this.isSmallestMobile.addEventListener('change', () => {
+      this.mobileContentHeight = this.calcMobileContentHeight()
+    })
   }
 
   disconnectedCallback(): void {
     super.disconnectedCallback()
     this.fireClosingAnimation = false
-    if (window.matchMedia('(max-width: 640px)').matches) {
-      this.currentView = SelectorView.MOBILE_INIT
+    if (this.isMobile.matches) {
+      this.setCurrentView(SelectorView.MOBILE_INIT)
     } else {
-      this.currentView = SelectorView.DESKTOP_SELECT
+      this.setCurrentView(SelectorView.DESKTOP_SELECT)
     }
-    this.mobileContentHeight = 186
   }
 
   renderConnect() {
@@ -201,7 +211,7 @@ export class NightlySelector extends LitElement {
     return html`
       <nightly-modal
         id="modalDesktop"
-        class="${this.hasMovedOnceToConnecting && this.currentView !== SelectorView.CONNECTING
+        class="${this.canAnimateDesktopInitialView && this.currentView !== SelectorView.CONNECTING
           ? 'desktopFade'
           : ''}"
         .chainIcon=${this.chainIcon}
@@ -215,18 +225,18 @@ export class NightlySelector extends LitElement {
   }
 
   renderMobileAll() {
-    return html`<div class="walletsView">
-      <nightly-all-wallets-selector
+    return html`
+    <nightly-all-wallets-selector
         class="selectorView"
         .showAllWallets=${this.returnToMobileInit.bind(this)}
         .onWalletClick=${this.onSelectWallet}
         .selectorItems=${this.selectorItems}
       ></nightly-all-wallets-selector>
-    </div>`
+      `
   }
 
   renderMobileInit() {
-    return html`<div class="topView">
+    return html`
       <nightly-wallet-wrapper
         class="selectorView"
         .sessionId=${this.sessionId}
@@ -235,11 +245,11 @@ export class NightlySelector extends LitElement {
         .openQrPage=${this.goToMobileQr}
         .selectorItems=${this.selectorItems}
       ></nightly-wallet-wrapper>
-    </div>`
+    `
   }
 
   renderMobileQr() {
-    return html`<div class="qrView">
+    return html`
       <nightly-qr-code
         class="selectorView"
         .chainName=${this.chainName}
@@ -247,7 +257,7 @@ export class NightlySelector extends LitElement {
         .relay=${this.relay}
         .showAllWallets=${this.returnToMobileInit}
       ></nightly-qr-code>
-    </div>`
+    `
   }
 
   renderCurrent() {

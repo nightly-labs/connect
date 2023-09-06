@@ -50,25 +50,13 @@
   animation: 320ms ease-out 0s 1 global_viewsFadeIn normal forwards;
 }
 
-.topView {
-  height: 182px;
-}
-
-.qrView {
-  height: 510px;
-}
-
-.walletsView {
-  height: 526px;
-}
-
-@media (max-width: 1080px) and (min-width: 960px) {
+@media (max-width: 1080px) {
   .nightlySelectorWrapper {
     max-width: 636px;
   }
 }
 
-@media (max-width: 960px) and (min-width: 640px) {
+@media (max-width: 960px) {
   .nightlySelectorWrapper {
     max-width: 540px;
   }
@@ -103,18 +91,6 @@
     top: -20px;
     position: relative;
     border-radius: 16px 16px 0 0;
-  }
-}
-
-@media (max-width: 482px) and (min-width: 374px) {
-  .qrView {
-    height: 420px;
-  }
-}
-
-@media (max-width: 373px) {
-  .qrView {
-    height: 332px;
   }
 }
 
