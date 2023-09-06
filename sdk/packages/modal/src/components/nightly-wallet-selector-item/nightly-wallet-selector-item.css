@@ -1,4 +1,4 @@
-.walletSelectorItem {
+.nc_walletButton {
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -9,17 +9,17 @@
   background-color: transparent;
 }
 
-.walletSelectorItem img {
+.nc_walletButton:hover {
+  background-color: #47486a;
+}
+
+.nc_walletButtonIcon {
   margin-bottom: 6px;
   width: 64px;
   height: 64px;
 }
 
-.walletSelectorItem:hover {
-  background-color: #47486a;
-}
-
-.walletSelectorName {
+.nc_walletButtonName {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -31,7 +31,7 @@
   flex-shrink: 0;
 }
 
-.walletSelectorInfo {
+.nc_walletButtonStatus {
   font-weight: normal;
   font-size: 10px;
   line-height: 13px;

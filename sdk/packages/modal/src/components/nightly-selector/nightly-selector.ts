@@ -216,7 +216,7 @@ export class NightlySelector extends LitElement {
       <nightly-modal
         id="modalDesktop"
         class="${this.canAnimateDesktopInitialView && this.currentView !== SelectorView.CONNECTING
-          ? 'desktopFade'
+          ? 'fadeEntry'
           : ''}"
         .chainIcon=${this.chainIcon}
         .chainName=${this.chainName}
@@ -231,7 +231,7 @@ export class NightlySelector extends LitElement {
   renderMobileAll() {
     return html`
       <nightly-all-wallets-selector
-        class="selectorView"
+        class="fadeEntry"
         .showAllWallets=${this.returnToMobileInit.bind(this)}
         .onWalletClick=${this.onSelectWallet}
         .selectorItems=${this.selectorItems}
@@ -242,7 +242,7 @@ export class NightlySelector extends LitElement {
   renderMobileInit() {
     return html`
       <nightly-wallet-wrapper
-        class="selectorView"
+        class="fadeEntry"
         .sessionId=${this.sessionId}
         .showAllWallets=${this.goToMobileAll}
         .onWalletClick=${this.onSelectWallet}
@@ -255,7 +255,7 @@ export class NightlySelector extends LitElement {
   renderMobileQr() {
     return html`
       <nightly-qr-code
-        class="selectorView"
+        class="fadeEntry"
         .chainName=${this.chainName}
         .sessionId=${this.sessionId}
         .relay=${this.relay}
@@ -282,18 +282,18 @@ export class NightlySelector extends LitElement {
   render() {
     return html`
       <div
-        class="nightlySelectorOverlay ${this.fireClosingAnimation ? 'fadeOutOpacity' : ''}"
+        class="nc_modalOverlay ${this.fireClosingAnimation ? 'fadeOutOpacity' : ''}"
         @click=${this.handleClose}
       >
         <div
           @click=${(e: MouseEvent) => {
             e.stopPropagation()
           }}
-          class="nightlySelectorWrapper ${this.fireClosingAnimation ? 'slideOutMobile' : ''}"
+          class="nc_modalWrapper ${this.fireClosingAnimation ? 'slideOutMobile' : ''}"
         >
           <nightly-header .onClose=${this.handleClose}></nightly-header>
           <div
-            class="nightlySelectorContent"
+            class="nc_modalContent"
             style=${styleMap(
               this.isMobile
                 ? {
