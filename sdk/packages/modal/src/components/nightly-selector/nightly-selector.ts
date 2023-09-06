@@ -66,6 +66,8 @@ export class NightlySelector extends LitElement {
   @state()
   currentView = SelectorView.DESKTOP_SELECT
 
+  @state()
+  isMobile = false
 
   // queried elements
 
@@ -74,20 +76,20 @@ export class NightlySelector extends LitElement {
 
   // media queries
 
-  isMobile = window.matchMedia('(max-width: 640px)')
-  isSmallerMobile = window.matchMedia('(max-width: 482px)')
-  isSmallestMobile = window.matchMedia('(max-width: 374px)')
+  mobileQuery = window.matchMedia('(max-width: 640px)')
+  smallerMobileQuery = window.matchMedia('(max-width: 482px)')
+  smallestMobileQuery = window.matchMedia('(max-width: 374px)')
 
   // callbacks
 
   calcMobileContentHeight = () => {
     switch (this.currentView) {
       case SelectorView.MOBILE_QR:
-        return this.isSmallestMobile.matches ? 332 : this.isSmallerMobile.matches ? 420 : 510
+        return this.smallestMobileQuery.matches ? 332 : this.smallerMobileQuery.matches ? 420 : 510
       case SelectorView.MOBILE_ALL:
         return 526
       case SelectorView.CONNECTING:
-        return this.isSmallestMobile.matches ? 440 : this.isSmallerMobile.matches ? 420 : 400
+        return this.smallestMobileQuery.matches ? 440 : this.smallerMobileQuery.matches ? 420 : 400
       default:
         return 182
     }
@@ -104,7 +106,7 @@ export class NightlySelector extends LitElement {
       () => {
         this.onClose()
       },
-      this.isMobile.matches ? 240 : 80
+      this.mobileQuery.matches ? 240 : 80
     )
   }
 
@@ -127,7 +129,7 @@ export class NightlySelector extends LitElement {
   }
 
   backToPage = () => {
-    if (this.isMobile.matches) {
+    if (this.mobileQuery.matches) {
       this.setCurrentView(SelectorView.MOBILE_INIT)
     } else {
       this.setCurrentView(SelectorView.DESKTOP_SELECT)
@@ -159,25 +161,27 @@ export class NightlySelector extends LitElement {
     this.goToMobileAll = this.goToMobileAll.bind(this)
     this.goToMobileQr = this.goToMobileQr.bind(this)
 
-    if (this.isMobile.matches) {
+    if (this.mobileQuery.matches) {
+      this.isMobile = true
       this.setCurrentView(SelectorView.MOBILE_INIT)
     }
 
-    this.isMobile.addEventListener('change', () => {
+    this.mobileQuery.addEventListener('change', () => {
+      this.isMobile = this.mobileQuery.matches
       if (this.currentView !== SelectorView.CONNECTING) {
-        this.setCurrentView(this.isMobile.matches
-          ? SelectorView.MOBILE_INIT
-          : SelectorView.DESKTOP_SELECT)
+        this.setCurrentView(
+          this.mobileQuery.matches ? SelectorView.MOBILE_INIT : SelectorView.DESKTOP_SELECT
+        )
       }
 
       this.mobileContentHeight = this.calcMobileContentHeight()
     })
 
-    this.isSmallerMobile.addEventListener('change', () => {
+    this.smallerMobileQuery.addEventListener('change', () => {
       this.mobileContentHeight = this.calcMobileContentHeight()
     })
 
-    this.isSmallestMobile.addEventListener('change', () => {
+    this.smallestMobileQuery.addEventListener('change', () => {
       this.mobileContentHeight = this.calcMobileContentHeight()
     })
   }
@@ -185,7 +189,7 @@ export class NightlySelector extends LitElement {
   disconnectedCallback(): void {
     super.disconnectedCallback()
     this.fireClosingAnimation = false
-    if (this.isMobile.matches) {
+    if (this.mobileQuery.matches) {
       this.setCurrentView(SelectorView.MOBILE_INIT)
     } else {
       this.setCurrentView(SelectorView.DESKTOP_SELECT)
@@ -226,13 +230,13 @@ export class NightlySelector extends LitElement {
 
   renderMobileAll() {
     return html`
-    <nightly-all-wallets-selector
+      <nightly-all-wallets-selector
         class="selectorView"
         .showAllWallets=${this.returnToMobileInit.bind(this)}
         .onWalletClick=${this.onSelectWallet}
         .selectorItems=${this.selectorItems}
       ></nightly-all-wallets-selector>
-      `
+    `
   }
 
   renderMobileInit() {
@@ -291,7 +295,7 @@ export class NightlySelector extends LitElement {
           <div
             class="nightlySelectorContent"
             style=${styleMap(
-              window.innerWidth <= 640
+              this.isMobile
                 ? {
                     height: this.mobileContentHeight + 'px'
                   }
