@@ -32,10 +32,7 @@
   background-color: #17182b;
   border: 1px solid #343551;
   border-top: none;
-}
-
-.modalMobile {
-  display: none;
+  transition: height 250ms;
 }
 
 .desktopFade {
@@ -44,6 +41,25 @@
 
 .mobileFade {
   animation: 320ms ease-out 0s 1 global_viewsFadeIn normal forwards;
+}
+
+.selectorView {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  animation: 320ms ease-out 0s 1 global_viewsFadeIn normal forwards;
+}
+
+.topView {
+  height: 182px;
+}
+
+.qrView {
+  height: 510px;
+}
+
+.walletsView {
+  height: 526px;
 }
 
 @media (max-width: 1080px) and (min-width: 960px) {
@@ -88,13 +104,17 @@
     position: relative;
     border-radius: 16px 16px 0 0;
   }
+}
 
-  .modalDesktop {
-    display: none;
+@media (max-width: 482px) and (min-width: 374px) {
+  .qrView {
+    height: 420px;
   }
+}
 
-  .modalMobile {
-    display: unset;
+@media (max-width: 373px) {
+  .qrView {
+    height: 332px;
   }
 }
 
