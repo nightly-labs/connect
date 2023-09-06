@@ -3,6 +3,7 @@
   position: absolute;
   top: 0;
   width: 100%;
+  animation: 320ms ease-out 0s 1 global_viewsFadeIn normal forwards;
 }
 
 .selectorWrapper {

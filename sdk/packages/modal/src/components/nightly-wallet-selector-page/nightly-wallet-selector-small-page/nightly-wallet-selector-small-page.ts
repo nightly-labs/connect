@@ -6,7 +6,6 @@ import '../nightly-qrCode/nightly-qrCode'
 import '../nightly-wallet-wrapper/nightly-wallet-wrapper'
 import style from './nightly-wallet-selector-small-page.css'
 import { LitElement } from 'lit'
-import { animate } from '@lit-labs/motion'
 import { WalletSelectorItem } from '../../../utils/types'
 
 @customElement('nightly-wallet-selector-small-page')
@@ -75,24 +74,6 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
           .onWalletClick=${this.onWalletClick.bind(this)}
           .openQrPage=${() => this.openQrPage()}
           .selectorItems=${this.selectorItems}
-          ${animate({
-            properties: ['opacity'],
-            keyframeOptions: { duration: 380 },
-            skipInitial: true,
-            in: [
-              {
-                opacity: 0
-              },
-              {
-                offset: 0.25,
-                opacity: 0
-              },
-              {
-                offset: 1,
-                opacity: 1
-              }
-            ]
-          })}
         ></nightly-wallet-wrapper>
       `
     }
@@ -103,23 +84,6 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
         .showAllWallets=${this.showAllWallets.bind(this)}
         .onWalletClick=${this.onWalletClick.bind(this)}
         .selectorItems=${this.selectorItems}
-        ${animate({
-          properties: ['opacity'],
-          keyframeOptions: { duration: 380 },
-          in: [
-            {
-              opacity: 0
-            },
-            {
-              offset: 0.25,
-              opacity: 0
-            },
-            {
-              offset: 1,
-              opacity: 1
-            }
-          ]
-        })}
       ></nightly-all-wallets-selector>`
     }
 
@@ -130,23 +94,6 @@ export class NightlyWalletSelectorSmallPage extends LitElement {
         .sessionId=${this.sessionId}
         .relay=${this.relay}
         .showAllWallets=${this.showAllWallets.bind(this)}
-        ${animate({
-          properties: ['opacity'],
-          keyframeOptions: { duration: 380 },
-          in: [
-            {
-              opacity: 0
-            },
-            {
-              offset: 0.25,
-              opacity: 0
-            },
-            {
-              offset: 1,
-              opacity: 1
-            }
-          ]
-        })}
       ></nightly-qr-code>
     `
   }

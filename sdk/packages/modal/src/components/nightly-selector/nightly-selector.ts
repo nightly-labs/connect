@@ -65,6 +65,9 @@ export class NightlySelector extends LitElement {
   @state()
   currentWalletName = ''
 
+  @state()
+  hasMovedToConnecting = false
+
   // queried elements
 
   @query('#innerHeightObserverEl')
@@ -95,6 +98,8 @@ export class NightlySelector extends LitElement {
     this.useConnectTransition = true
 
     this.connectingViewOpen = true
+
+    this.hasMovedToConnecting = true
 
     this.onWalletClick(name)
   }
@@ -162,58 +167,26 @@ export class NightlySelector extends LitElement {
     return html`
       <nightly-wallet-selector-small-page
         id="modalMobile"
-        class="modalMobile"
+        class="modalMobile ${this.hasMovedToConnecting && !this.connectingViewOpen
+          ? 'mobileFade'
+          : ''}"
         .onWalletClick=${this.onSelectWallet}
         .selectorItems=${this.selectorItems}
         .sessionId=${this.sessionId}
         .chainName=${this.chainName}
         .relay=${this.relay}
-        ${animate({
-          properties: ['opacity'],
-          keyframeOptions: { duration: 320 },
-          skipInitial: true,
-          in: [
-            {
-              opacity: 0
-            },
-            {
-              offset: 0.25,
-              opacity: 0
-            },
-            {
-              offset: 1,
-              opacity: 1
-            }
-          ]
-        })}
       ></nightly-wallet-selector-small-page>
       <nightly-modal
         id="modalDesktop"
-        class="modalDesktop"
+        class="modalDesktop ${this.hasMovedToConnecting && !this.connectingViewOpen
+          ? 'desktopFade'
+          : ''}"
         .chainIcon=${this.chainIcon}
         .chainName=${this.chainName}
         .onWalletClick=${this.onSelectWallet}
         .selectorItems=${this.selectorItems}
         .sessionId=${this.sessionId}
         .relay=${this.relay}
-        ${animate({
-          properties: ['opacity'],
-          keyframeOptions: { duration: 250 },
-          skipInitial: true,
-          in: [
-            {
-              opacity: 0
-            },
-            {
-              offset: 0.25,
-              opacity: 0
-            },
-            {
-              offset: 1,
-              opacity: 1
-            }
-          ]
-        })}
       ></nightly-modal>
     `
   }

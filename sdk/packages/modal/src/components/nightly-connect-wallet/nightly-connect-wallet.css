@@ -1,4 +1,5 @@
 .mainContainer {
+  animation: 320ms ease-out 0s 1 global_viewsFadeIn normal forwards;
   height: 464px;
   width: 100%;
 }

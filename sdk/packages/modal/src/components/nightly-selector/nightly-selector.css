@@ -38,6 +38,14 @@
   display: none;
 }
 
+.desktopFade {
+  animation: 250ms ease-out 0s 1 global_viewsFadeIn normal forwards;
+}
+
+.mobileFade {
+  animation: 320ms ease-out 0s 1 global_viewsFadeIn normal forwards;
+}
+
 @media (max-width: 1080px) and (min-width: 960px) {
   .nightlySelectorWrapper {
     max-width: 636px;
