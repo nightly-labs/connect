@@ -467,8 +467,8 @@ importers:
   packages/modal:
     dependencies:
       '@lit-labs/motion':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: ^1.0.4
+        version: 1.0.4
       '@nightlylabs/qr-code':
         specifier: 2.0.3
         version: link:../qr-codes
@@ -4755,10 +4755,10 @@ packages:
     resolution: {integrity: sha512-Hcv+nVC0kZnQ3tD9GVu5xSMR4VVYOteQIr/hwFPVEvPdlXqgGEuRjiheChHgdM+JyqdgNcmzZOX/tnl0JOiI7A==}
     dev: false
 
-  /@lit-labs/motion@1.0.3:
-    resolution: {integrity: sha512-y62SxlUTeFtoQTS8/KqAnOnOTdm0FpB23PgFFc99lPj9T5Gg0uktzRmmmqxPaGoNeRg2cLcPpbvK8iEo8CWMoQ==}
+  /@lit-labs/motion@1.0.4:
+    resolution: {integrity: sha512-cZrA6u/qR71ZIqk0PGINBLWPDxT8oHB706QzWHJKo7nCOi3KCsd7CSuR5H09I0t6E+bd2nVB+zJPGd2wVjNSsA==}
     dependencies:
-      lit: 2.7.2
+      lit: 2.8.0
     dev: false
 
   /@lit-labs/ssr-dom-shim@1.1.1:
@@ -12586,12 +12586,26 @@ packages:
     dependencies:
       '@types/trusted-types': 2.0.3
 
+  /lit-html@2.8.0:
+    resolution: {integrity: sha512-o9t+MQM3P4y7M7yNzqAyjp7z+mQGa4NS4CxiyLqFPyFWyc4O+nodLrkrxSaCTrla6M5YOLaT3RpbbqjszB5g3Q==}
+    dependencies:
+      '@types/trusted-types': 2.0.3
+    dev: false
+
   /lit@2.7.2:
     resolution: {integrity: sha512-9QnZmG5mIKPRja96cpndMclLSi0Qrz2BXD6EbqNqCKMMjOWVm/BwAeXufFk2jqFsNmY07HOzU8X+8aTSVt3yrA==}
     dependencies:
       '@lit/reactive-element': 1.6.2
       lit-element: 3.3.2
       lit-html: 2.7.4
+
+  /lit@2.8.0:
+    resolution: {integrity: sha512-4Sc3OFX9QHOJaHbmTMk28SYgVxLN3ePDjg7hofEft2zWlehFL3LiAuapWc4U/kYwMYJSh2hTCPZ6/LIC7ii0MA==}
+    dependencies:
+      '@lit/reactive-element': 1.6.2
+      lit-element: 3.3.2
+      lit-html: 2.8.0
+    dev: false
 
   /loader-runner@4.3.0:
     resolution: {integrity: sha512-3R/1M+yS3j5ou80Me59j7F9IMs4PXs3VqRrm0TU3AbKPxlmpoY1TNscJV/oGJXo8qCatFGTfDbY6W6ipGOYXfg==}
