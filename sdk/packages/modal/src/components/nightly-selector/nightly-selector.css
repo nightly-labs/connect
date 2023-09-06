@@ -34,14 +34,6 @@
   border-top: none;
 }
 
-.modalConnect {
-  display: block;
-}
-
-.modalDesktop {
-  display: block;
-}
-
 .modalMobile {
   display: none;
 }
@@ -94,7 +86,7 @@
   }
 
   .modalMobile {
-    display: block;
+    display: unset;
   }
 }
 

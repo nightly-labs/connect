@@ -66,16 +66,12 @@ export class NightlySelector extends LitElement {
   currentWalletName = ''
 
   // queried elements
-  @query('#modalConnect')
-  _modalConnect!: HTMLElement
 
-  @query('#modalSelect')
-  _modalSelect!: HTMLElement
+  @query('#innerHeightObserverEl')
+  _innerHeightObserverEl!: HTMLElement
 
   // observers
-
-  connectObserver: ResizeObserver | undefined
-  selectObserver: ResizeObserver | undefined
+  innerHeightObserver: ResizeObserver | undefined
 
   // callbacks
 
@@ -123,6 +119,21 @@ export class NightlySelector extends LitElement {
     this.tryAgainClick = this.tryAgainClick.bind(this)
     this.backToPage = this.backToPage.bind(this)
   }
+  connectedCallback(): void {
+    super.connectedCallback()
+    setTimeout(() => {
+      this.mobileContentHeight = Math.max(this._innerHeightObserverEl.scrollHeight, 186)
+      if (!this.innerHeightObserver) {
+        this.innerHeightObserver = new ResizeObserver(() => {
+          if (!this._innerHeightObserverEl) {
+            return
+          }
+          this.mobileContentHeight = Math.max(this._innerHeightObserverEl.scrollHeight, 186)
+        })
+      }
+      this.innerHeightObserver.observe(this._innerHeightObserverEl)
+    }, 0)
+  }
 
   disconnectedCallback(): void {
     super.disconnectedCallback()
@@ -133,22 +144,8 @@ export class NightlySelector extends LitElement {
   }
 
   renderConnect() {
-    setTimeout(() => {
-      this.mobileContentHeight = Math.max(this._modalConnect.scrollHeight, 186)
-      if (!this.connectObserver) {
-        this.connectObserver = new ResizeObserver(() => {
-          if (!this._modalConnect) {
-            return
-          }
-          this.mobileContentHeight = Math.max(this._modalConnect.scrollHeight, 186)
-        })
-      }
-      this.connectObserver.observe(this._modalConnect)
-    }, 0)
     return html`
       <nightly-connect-wallet
-        id="modalConnect"
-        class="modalConnect"
         .coinName=${this.currentWalletName}
         .connecting=${this.connecting}
         .tryAgainClick=${this.tryAgainClick}
@@ -179,19 +176,7 @@ export class NightlySelector extends LitElement {
   }
 
   renderSelect() {
-    setTimeout(() => {
-      this.mobileContentHeight = Math.max(this._modalSelect.scrollHeight, 186)
-      if (!this.selectObserver) {
-        this.selectObserver = new ResizeObserver(() => {
-          if (!this._modalSelect) {
-            return
-          }
-          this.mobileContentHeight = Math.max(this._modalSelect.scrollHeight, 186)
-        })
-      }
-      this.selectObserver.observe(this._modalSelect)
-    }, 0)
-    return html`<div id="modalSelect">
+    return html`
       <nightly-wallet-selector-small-page
         class="modalMobile"
         .onWalletClick=${this.onSelectWallet}
@@ -245,7 +230,7 @@ export class NightlySelector extends LitElement {
           ]
         })}
       ></nightly-modal>
-    </div>`
+    `
   }
 
   render() {
@@ -277,7 +262,9 @@ export class NightlySelector extends LitElement {
               skipInitial: true
             })}
           >
-            ${this.connectingViewOpen ? this.renderConnect() : this.renderSelect()}
+            <div id="innerHeightObserverEl">
+              ${this.connectingViewOpen ? this.renderConnect() : this.renderSelect()}
+            </div>
           </div>
         </div>
       </div>
