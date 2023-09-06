@@ -146,6 +146,7 @@ export class NightlySelector extends LitElement {
   renderConnect() {
     return html`
       <nightly-connect-wallet
+        id="modalConnect"
         .coinName=${this.currentWalletName}
         .connecting=${this.connecting}
         .tryAgainClick=${this.tryAgainClick}
@@ -153,24 +154,6 @@ export class NightlySelector extends LitElement {
         .link=${this.link}
         .nameLink=${this.currentWalletName}
         .walletIcon=${this.walletIcon}
-        ${animate({
-          properties: ['opacity'],
-          keyframeOptions: { duration: 320 },
-          skipInitial: true,
-          in: [
-            {
-              opacity: 0
-            },
-            {
-              offset: 0.25,
-              opacity: 0
-            },
-            {
-              offset: 1,
-              opacity: 1
-            }
-          ]
-        })}
       ></nightly-connect-wallet>
     `
   }
@@ -178,6 +161,7 @@ export class NightlySelector extends LitElement {
   renderSelect() {
     return html`
       <nightly-wallet-selector-small-page
+        id="modalMobile"
         class="modalMobile"
         .onWalletClick=${this.onSelectWallet}
         .selectorItems=${this.selectorItems}
@@ -204,6 +188,7 @@ export class NightlySelector extends LitElement {
         })}
       ></nightly-wallet-selector-small-page>
       <nightly-modal
+        id="modalDesktop"
         class="modalDesktop"
         .chainIcon=${this.chainIcon}
         .chainName=${this.chainName}

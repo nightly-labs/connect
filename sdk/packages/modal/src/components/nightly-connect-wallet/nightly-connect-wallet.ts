@@ -4,6 +4,7 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js'
 import { tailwindElement } from '../../shared/tailwind.element'
 import vector from '../../static/svg/backButton.svg'
 import style from './nightly-connect-wallet.css'
+import { animate } from '@lit-labs/motion'
 @customElement('nightly-connect-wallet')
 export class NightlyConnectWallet extends LitElement {
   static styles = tailwindElement(style)
@@ -33,7 +34,25 @@ export class NightlyConnectWallet extends LitElement {
 
   render() {
     return html`
-      <div class="mainContainer">
+      <div class="mainContainer"
+      ${animate({
+        properties: ['opacity'],
+        keyframeOptions: { duration: 320 },
+        in: [
+          {
+            opacity: 0
+          },
+          {
+            offset: 0.25,
+            opacity: 0
+          },
+          {
+            offset: 1,
+            opacity: 1
+          }
+        ]
+      })}
+      >
         <div class="wrapperConnectPage">
           <div class="headerContainer">
             <button
