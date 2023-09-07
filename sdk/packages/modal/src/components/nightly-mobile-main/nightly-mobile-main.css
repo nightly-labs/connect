@@ -30,6 +30,7 @@
   display: grid;
   padding: 16px;
   grid-template-columns: repeat(5, 1fr);
+  justify-items: center;
 }
 
 .nc_mobileMainShowAllButton {
