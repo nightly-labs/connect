@@ -9,7 +9,18 @@ import { walletsSort } from '../../utils/utils'
 
 @customElement('nightly-mobile-all-wallets')
 export class NightlyMobileAllWallets extends LitElement {
-  static styles = tailwindElement(style)
+  static styles = tailwindElement(
+    style,
+    `
+  .nc_mobileAllWalletsBackButton {
+    background-image: url('${vector}');
+  }
+
+  .nc_mobileAllWalletsInputIcon {
+    background-image: url('${search}');
+  }
+  `
+  )
 
   @property({ type: Function })
   showAllWallets!: () => void
@@ -33,57 +44,40 @@ export class NightlyMobileAllWallets extends LitElement {
 
   @state()
   filteredItems: WalletSelectorItem[] = []
+
   @state()
   searchText = ''
 
-  render() {
-    return html`
-      <div class="walletSelectorButtons">
-        <div class="headerContainer">
-          <button class="buttonContainer" @click=${this.showAllWallets}>
-            <img src=${vector} />
-          </button>
-          <div class="textContainer">
-            <span> All wallets </span>
-          </div>
-          <div class="buttonContainer"></div>
-        </div>
-        <div class="inputContainer">
-          <div class="walletInputSearchContainer">
-            <input
-              placeholder="Search"
-              class="walletInputSearch"
-              @input=${this.handleSearchInput}
-            />
-            <img class="walletInputIcon" src="${search}" />
-          </div>
-        </div>
-        ${this.filteredItems.length ? this.renderItems() : this.renderNotFoundIcon()}
-      </div>
-    `
+  handleSearchInput(event: InputEvent) {
+    const searchInput = event.target as HTMLInputElement
+    const searchText = searchInput.value.toLowerCase()
+    this.searchText = searchText
+
+    this.filteredItems = this.selectorItems.filter((item) => {
+      return item.name.toLowerCase().includes(searchText)
+    })
   }
 
   renderNotFoundIcon() {
     return html`
-      <div class="NotFoundContainer">
+      <div class="nc_mobileAllWalletsEmptyListWrapper">
         <img
           src="https://registry.connect.nightly.app/images/fox_sad.gif"
           alt="Not Found"
-          class="NotFoundGif"
+          class="nc_mobileAllWalletsEmptyListImage"
         />
-        <span class="NotFoundHeading">Nothing found...</span>
-        <span class="NotFoundInfo">Make sure you’ve typed the name correctly.</span>
+        <span class="nc_mobileAllWalletsEmptyListHeading">Nothing found...</span>
+        <span class="nc_mobileAllWalletsEmptyListDesc">Make sure you've typed the name correctly.</span>
       </div>
     `
   }
 
   renderItems() {
     return html`
-      <div class="recentDetectedContainer">
+      <div class="nc_mobileAllWalletsListGrid">
         ${this.filteredItems.map((item) => {
           return html`
             <nightly-wallet-selector-item
-              class="nightlyWalletSelectorItem"
               name=${item.name}
               icon=${item.icon}
               status=${item.recent ? 'Recent' : item.detected ? 'Detected' : ''}
@@ -95,14 +89,27 @@ export class NightlyMobileAllWallets extends LitElement {
     `
   }
 
-  handleSearchInput(event: InputEvent) {
-    const searchInput = event.target as HTMLInputElement
-    const searchText = searchInput.value.toLowerCase()
-    this.searchText = searchText
-
-    this.filteredItems = this.selectorItems.filter((item) => {
-      return item.name.toLowerCase().includes(searchText)
-    })
+  render() {
+    return html`
+      <div class="nc_mobileAllWalletsWrapper">
+        <div class="nc_mobileAllWalletsTopBar">
+          <button class="nc_mobileAllWalletsBackButton" @click=${this.showAllWallets}></button>
+          <span class="nc_mobileAllWalletsTitle">All wallets</span>
+          <div class="nc_mobileAllWalletsTopJustify"></div>
+        </div>
+        <div class="nc_mobileAllWalletsSearchBar">
+          <div class="nc_mobileAllWalletsInputWrapper">
+            <input
+              placeholder="Search"
+              class="nc_mobileAllWalletsInnerInput"
+              @input=${this.handleSearchInput}
+            />
+            <div class="nc_mobileAllWalletsInputIcon"></div>
+          </div>
+        </div>
+        ${this.filteredItems.length ? this.renderItems() : this.renderNotFoundIcon()}
+      </div>
+    `
   }
 }
 
