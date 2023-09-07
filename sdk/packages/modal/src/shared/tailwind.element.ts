@@ -8,8 +8,8 @@ export const setStylesOverride = (override: string) => {
   _stylesOverride = override
 }
 
-export const tailwindElement = (customStyle: string) => [
+export const tailwindElement = (...customStyle: string[]) => [
   unsafeCSS(style),
-  unsafeCSS(customStyle),
+  ...customStyle.map((s) => unsafeCSS(s)),
   unsafeCSS(_stylesOverride)
 ]
