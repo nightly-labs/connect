@@ -24,36 +24,34 @@ export class NightlyMobileQr extends LitElement {
 
   render() {
     return html`
-      <div class="headerQrCodeWrapper">
-        <div class="headerContainer">
-          <button class="buttonContainer" @click=${this.showAllWallets}>
+      <div class="nc_mobileQrWrapper">
+        <div class="nc_mobileQrTopBar">
+          <button class="nc_mobileQrBackButton" @click=${this.showAllWallets}>
             <img src=${vector} />
           </button>
-          <div class="textContainer">
-            <span>QR Code</span>
-          </div>
-          <div class="buttonContainer"></div>
+          <span class="nc_mobileQrTitle">
+            QR Code
+          </span>
+          <div class="nc_mobileQrBackButton"></div>
         </div>
-        <div class="qrCodeWrapper">
-          <img
-            class="code"
-            src=${svgToBase64(
-              generateQrCodeXml(
-                'nc:' +
-                  this.sessionId +
-                  '?network=' +
-                  this.chainName.replace(/\s/g, '') +
-                  '&relay=' +
-                  this.relay,
-                {
-                  width: 432,
-                  height: 432,
-                  margin: 5
-                }
-              )
-            )}
-          />
-        </div>
+        <img
+          class="nc_mobileQrCode"
+          src=${svgToBase64(
+            generateQrCodeXml(
+              'nc:' +
+                this.sessionId +
+                '?network=' +
+                this.chainName.replace(/\s/g, '') +
+                '&relay=' +
+                this.relay,
+              {
+                width: 500,
+                height: 500,
+                margin: 10
+              }
+            )
+          )}
+        />
       </div>
     `
   }

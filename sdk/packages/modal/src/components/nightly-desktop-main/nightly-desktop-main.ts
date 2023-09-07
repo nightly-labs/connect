@@ -88,8 +88,8 @@ export class NightlyDesktopMain extends LitElement {
                   '&relay=' +
                   this.relay,
                 {
-                  width: 400,
-                  height: 400,
+                  width: 500,
+                  height: 500,
                   margin: 10
                 }
               )
