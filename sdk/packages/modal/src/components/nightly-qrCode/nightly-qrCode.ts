@@ -1,9 +1,9 @@
 import { LitElement, html } from 'lit'
-import { tailwindElement } from '../../../shared/tailwind.element'
+import { tailwindElement } from '../../shared/tailwind.element'
 import { customElement, property } from 'lit/decorators.js'
-import { svgToBase64 } from '../../../utils/images'
+import { svgToBase64 } from '../../utils/images'
 import { generateQrCodeXml } from '@nightlylabs/qr-code'
-import vector from '../../../static/svg/backButton.svg'
+import vector from '../../static/svg/backButton.svg'
 import style from './nightly-qrCode.css'
 
 @customElement('nightly-qr-code')

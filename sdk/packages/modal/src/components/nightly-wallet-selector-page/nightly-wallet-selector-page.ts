@@ -14,8 +14,14 @@ export class NightlyWalletSelectorPage extends LitElement {
 
   @property({ type: String })
   chainIcon = ''
+
   @property({ type: String })
   chainName = ''
+
+  @property({ type: Function })
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  onWalletClick: (name: string) => void = () => {}
+
   @property({ type: Array })
   get selectorItems(): WalletSelectorItem[] {
     return this._selectorItems
@@ -32,40 +38,18 @@ export class NightlyWalletSelectorPage extends LitElement {
 
   @state()
   filteredItems: WalletSelectorItem[] = []
+
   @state()
   searchText = ''
 
-  @property({ type: Function })
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  onWalletClick: (name: string) => void = () => {}
+  handleSearchInput(event: InputEvent) {
+    const searchInput = event.target as HTMLInputElement
+    const searchText = searchInput.value.toLowerCase()
+    this.searchText = searchText
 
-  render() {
-    return html`
-      <div class="walletSelectorPage">
-        <div class="contentContainer">
-          <div class="walletSelectorHeader">
-            <span>Wallets</span>
-            <div class="walletSelectorBlockchain">
-              <img src=${this.chainIcon} />
-              <span>${this.chainName}</span>
-            </div>
-          </div>
-          <div class="walletInputSearchWrapper">
-            <div class="walletInputSearchContainer">
-              <input
-                placeholder="Search"
-                class="walletInputSearch"
-                @input=${this.handleSearchInput}
-              />
-              <img class="walletInputIcon" src="${search}" />
-            </div>
-          </div>
-          ${this.filteredItems.length === 0
-            ? this.renderNotFoundIcon()
-            : this.renderSelectorItems()}
-        </div>
-      </div>
-    `
+    this.filteredItems = this.selectorItems.filter((item) => {
+      return item.name.toLowerCase().includes(searchText)
+    })
   }
 
   renderSelectorItems() {
@@ -118,14 +102,33 @@ export class NightlyWalletSelectorPage extends LitElement {
     `
   }
 
-  handleSearchInput(event: InputEvent) {
-    const searchInput = event.target as HTMLInputElement
-    const searchText = searchInput.value.toLowerCase()
-    this.searchText = searchText
-
-    this.filteredItems = this.selectorItems.filter((item) => {
-      return item.name.toLowerCase().includes(searchText)
-    })
+  render() {
+    return html`
+      <div class="walletSelectorPage">
+        <div class="contentContainer">
+          <div class="walletSelectorHeader">
+            <span>Wallets</span>
+            <div class="walletSelectorBlockchain">
+              <img src=${this.chainIcon} />
+              <span>${this.chainName}</span>
+            </div>
+          </div>
+          <div class="walletInputSearchWrapper">
+            <div class="walletInputSearchContainer">
+              <input
+                placeholder="Search"
+                class="walletInputSearch"
+                @input=${this.handleSearchInput}
+              />
+              <img class="walletInputIcon" src="${search}" />
+            </div>
+          </div>
+          ${this.filteredItems.length === 0
+            ? this.renderNotFoundIcon()
+            : this.renderSelectorItems()}
+        </div>
+      </div>
+    `
   }
 }
 

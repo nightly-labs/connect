@@ -1,5 +1,5 @@
 import { LitElement, html } from 'lit'
-import { customElement, property, query, state } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import { tailwindElement } from '../../shared/tailwind.element'
 import style from './nightly-selector.css'
 import { SelectorView, WalletSelectorItem } from '../../utils/types'
@@ -7,9 +7,9 @@ import { styleMap } from 'lit/directives/style-map.js'
 import '../nightly-desktop-main/nightly-desktop-main'
 import '../nightly-connect-wallet/nightly-connect-wallet'
 import '../nightly-header/nightly-header'
-import '../nightly-wallet-selector-page/nightly-all-wallets-selector/nightly-all-wallets-selector'
-import '../nightly-wallet-selector-page/nightly-qrCode/nightly-qrCode'
-import '../nightly-wallet-selector-page/nightly-wallet-wrapper/nightly-wallet-wrapper'
+import '../nightly-all-wallets-selector/nightly-all-wallets-selector'
+import '../nightly-qrCode/nightly-qrCode'
+import '../nightly-mobile-main/nightly-mobile-main'
 
 @customElement('nightly-selector')
 export class NightlySelector extends LitElement {
@@ -49,7 +49,7 @@ export class NightlySelector extends LitElement {
   fireClosingAnimation = false
 
   @state()
-  mobileContentHeight = 186
+  mobileContentHeight = 182
 
   @state()
   link = ''
@@ -61,18 +61,13 @@ export class NightlySelector extends LitElement {
   currentWalletName = ''
 
   @state()
-  canAnimateDesktopInitialView = false
+  canAnimateInitialView = false
 
   @state()
   currentView = SelectorView.DESKTOP_MAIN
 
   @state()
   isMobile = false
-
-  // queried elements
-
-  @query('#innerHeightObserverEl')
-  _innerHeightObserverEl!: HTMLElement
 
   // media queries
 
@@ -119,7 +114,7 @@ export class NightlySelector extends LitElement {
 
     this.setCurrentView(SelectorView.CONNECTING)
 
-    this.canAnimateDesktopInitialView = true
+    this.canAnimateInitialView = true
 
     this.onWalletClick(name)
   }
@@ -142,10 +137,12 @@ export class NightlySelector extends LitElement {
 
   goToMobileQr = () => {
     this.setCurrentView(SelectorView.MOBILE_QR)
+    this.canAnimateInitialView = true
   }
 
   goToMobileAll = () => {
     this.setCurrentView(SelectorView.MOBILE_ALL)
+    this.canAnimateInitialView = true
   }
 
   // lifecycle callbacks
@@ -189,11 +186,13 @@ export class NightlySelector extends LitElement {
   disconnectedCallback(): void {
     super.disconnectedCallback()
     this.fireClosingAnimation = false
+    this.canAnimateInitialView = false
     if (this.mobileQuery.matches) {
       this.setCurrentView(SelectorView.MOBILE_MAIN)
     } else {
       this.setCurrentView(SelectorView.DESKTOP_MAIN)
     }
+    this.mobileContentHeight = 182
   }
 
   renderConnect() {
@@ -216,7 +215,7 @@ export class NightlySelector extends LitElement {
     return html`
       <nightly-desktop-main
         id="modalDesktop"
-        class="${this.canAnimateDesktopInitialView && this.currentView !== SelectorView.CONNECTING
+        class="${this.canAnimateInitialView && this.currentView === SelectorView.DESKTOP_MAIN
           ? 'nc_modalViewEntryTransition'
           : ''}"
         .chainIcon=${this.chainIcon}
@@ -242,14 +241,16 @@ export class NightlySelector extends LitElement {
 
   renderMobileInit() {
     return html`
-      <nightly-wallet-wrapper
-        class="nc_modalViewEntryTransition"
+      <nightly-mobile-main
+        class="${this.canAnimateInitialView && this.currentView === SelectorView.MOBILE_MAIN
+          ? 'nc_modalViewEntryTransition'
+          : ''}"
         .sessionId=${this.sessionId}
         .showAllWallets=${this.goToMobileAll}
         .onWalletClick=${this.onSelectWallet}
         .openQrPage=${this.goToMobileQr}
         .selectorItems=${this.selectorItems}
-      ></nightly-wallet-wrapper>
+      ></nightly-mobile-main>
     `
   }
 
@@ -305,7 +306,7 @@ export class NightlySelector extends LitElement {
                 : {}
             )}
           >
-            <div id="innerHeightObserverEl">${this.renderCurrent()}</div>
+            ${this.renderCurrent()}
           </div>
         </div>
       </div>

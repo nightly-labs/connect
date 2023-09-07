@@ -12,11 +12,6 @@ export interface WalletSelectorItem {
   recent?: boolean
 }
 
-export enum WalletStatus {
-  RECENT = 'Recent',
-  DETECTED = 'Detected'
-}
-
 export enum SelectorView {
   DESKTOP_MAIN,
   MOBILE_MAIN,

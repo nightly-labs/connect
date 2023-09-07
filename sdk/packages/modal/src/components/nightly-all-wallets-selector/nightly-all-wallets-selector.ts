@@ -1,11 +1,11 @@
 import { customElement, property, state } from 'lit/decorators.js'
-import { tailwindElement } from '../../../shared/tailwind.element'
+import { tailwindElement } from '../../shared/tailwind.element'
 import { LitElement, html } from 'lit'
 import style from './nightly-all-wallets-selector.css'
-import vector from '../../../static/svg/backButton.svg'
-import search from '../../../static/svg/searchIcon.svg'
-import { WalletSelectorItem } from '../../../utils/types'
-import { walletsSort } from '../../../utils/utils'
+import vector from '../../static/svg/backButton.svg'
+import search from '../../static/svg/searchIcon.svg'
+import { WalletSelectorItem } from '../../utils/types'
+import { walletsSort } from '../../utils/utils'
 
 @customElement('nightly-all-wallets-selector')
 export class NightlyAllWalletsSelector extends LitElement {
