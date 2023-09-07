@@ -4,7 +4,7 @@ import { tailwindElement } from '../../shared/tailwind.element'
 import style from './nightly-selector.css'
 import { SelectorView, WalletSelectorItem } from '../../utils/types'
 import { styleMap } from 'lit/directives/style-map.js'
-import '../nightly-modal/nightly-modal'
+import '../nightly-desktop-main/nightly-desktop-main'
 import '../nightly-connect-wallet/nightly-connect-wallet'
 import '../nightly-header/nightly-header'
 import '../nightly-wallet-selector-page/nightly-all-wallets-selector/nightly-all-wallets-selector'
@@ -64,7 +64,7 @@ export class NightlySelector extends LitElement {
   canAnimateDesktopInitialView = false
 
   @state()
-  currentView = SelectorView.DESKTOP_SELECT
+  currentView = SelectorView.DESKTOP_MAIN
 
   @state()
   isMobile = false
@@ -130,14 +130,14 @@ export class NightlySelector extends LitElement {
 
   backToPage = () => {
     if (this.mobileQuery.matches) {
-      this.setCurrentView(SelectorView.MOBILE_INIT)
+      this.setCurrentView(SelectorView.MOBILE_MAIN)
     } else {
-      this.setCurrentView(SelectorView.DESKTOP_SELECT)
+      this.setCurrentView(SelectorView.DESKTOP_MAIN)
     }
   }
 
   returnToMobileInit = () => {
-    this.setCurrentView(SelectorView.MOBILE_INIT)
+    this.setCurrentView(SelectorView.MOBILE_MAIN)
   }
 
   goToMobileQr = () => {
@@ -163,14 +163,14 @@ export class NightlySelector extends LitElement {
 
     if (this.mobileQuery.matches) {
       this.isMobile = true
-      this.setCurrentView(SelectorView.MOBILE_INIT)
+      this.setCurrentView(SelectorView.MOBILE_MAIN)
     }
 
     this.mobileQuery.addEventListener('change', () => {
       this.isMobile = this.mobileQuery.matches
       if (this.currentView !== SelectorView.CONNECTING) {
         this.setCurrentView(
-          this.mobileQuery.matches ? SelectorView.MOBILE_INIT : SelectorView.DESKTOP_SELECT
+          this.mobileQuery.matches ? SelectorView.MOBILE_MAIN : SelectorView.DESKTOP_MAIN
         )
       }
 
@@ -190,9 +190,9 @@ export class NightlySelector extends LitElement {
     super.disconnectedCallback()
     this.fireClosingAnimation = false
     if (this.mobileQuery.matches) {
-      this.setCurrentView(SelectorView.MOBILE_INIT)
+      this.setCurrentView(SelectorView.MOBILE_MAIN)
     } else {
-      this.setCurrentView(SelectorView.DESKTOP_SELECT)
+      this.setCurrentView(SelectorView.DESKTOP_MAIN)
     }
   }
 
@@ -200,7 +200,7 @@ export class NightlySelector extends LitElement {
     return html`
       <nightly-connect-wallet
         id="modalConnect"
-        class="fadeEntry"
+        class="nc_modalViewEntryTransition"
         .coinName=${this.currentWalletName}
         .connecting=${this.connecting}
         .tryAgainClick=${this.tryAgainClick}
@@ -214,10 +214,10 @@ export class NightlySelector extends LitElement {
 
   renderDesktop() {
     return html`
-      <nightly-modal
+      <nightly-desktop-main
         id="modalDesktop"
         class="${this.canAnimateDesktopInitialView && this.currentView !== SelectorView.CONNECTING
-          ? 'fadeEntry'
+          ? 'nc_modalViewEntryTransition'
           : ''}"
         .chainIcon=${this.chainIcon}
         .chainName=${this.chainName}
@@ -225,14 +225,14 @@ export class NightlySelector extends LitElement {
         .selectorItems=${this.selectorItems}
         .sessionId=${this.sessionId}
         .relay=${this.relay}
-      ></nightly-modal>
+      ></nightly-desktop-main>
     `
   }
 
   renderMobileAll() {
     return html`
       <nightly-all-wallets-selector
-        class="fadeEntry"
+        class="nc_modalViewEntryTransition"
         .showAllWallets=${this.returnToMobileInit.bind(this)}
         .onWalletClick=${this.onSelectWallet}
         .selectorItems=${this.selectorItems}
@@ -243,7 +243,7 @@ export class NightlySelector extends LitElement {
   renderMobileInit() {
     return html`
       <nightly-wallet-wrapper
-        class="fadeEntry"
+        class="nc_modalViewEntryTransition"
         .sessionId=${this.sessionId}
         .showAllWallets=${this.goToMobileAll}
         .onWalletClick=${this.onSelectWallet}
@@ -256,7 +256,7 @@ export class NightlySelector extends LitElement {
   renderMobileQr() {
     return html`
       <nightly-qr-code
-        class="fadeEntry"
+        class="nc_modalViewEntryTransition"
         .chainName=${this.chainName}
         .sessionId=${this.sessionId}
         .relay=${this.relay}
@@ -267,11 +267,11 @@ export class NightlySelector extends LitElement {
 
   renderCurrent() {
     switch (this.currentView) {
-      case SelectorView.DESKTOP_SELECT:
+      case SelectorView.DESKTOP_MAIN:
         return this.renderDesktop()
       case SelectorView.CONNECTING:
         return this.renderConnect()
-      case SelectorView.MOBILE_INIT:
+      case SelectorView.MOBILE_MAIN:
         return this.renderMobileInit()
       case SelectorView.MOBILE_QR:
         return this.renderMobileQr()
@@ -283,14 +283,16 @@ export class NightlySelector extends LitElement {
   render() {
     return html`
       <div
-        class="nc_modalOverlay ${this.fireClosingAnimation ? 'fadeOutOpacity' : ''}"
+        class="nc_modalOverlay ${this.fireClosingAnimation ? 'nc_modalClosingAnimation' : ''}"
         @click=${this.handleClose}
       >
         <div
           @click=${(e: MouseEvent) => {
             e.stopPropagation()
           }}
-          class="nc_modalWrapper ${this.fireClosingAnimation ? 'slideOutMobile' : ''}"
+          class="nc_modalWrapper ${this.fireClosingAnimation
+            ? 'nc_modalMobileSlideOutAnimation'
+            : ''}"
         >
           <nightly-header .onClose=${this.handleClose}></nightly-header>
           <div

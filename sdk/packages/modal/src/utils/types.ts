@@ -18,8 +18,8 @@ export enum WalletStatus {
 }
 
 export enum SelectorView {
-  DESKTOP_SELECT,
-  MOBILE_INIT,
+  DESKTOP_MAIN,
+  MOBILE_MAIN,
   MOBILE_QR,
   MOBILE_ALL,
   CONNECTING

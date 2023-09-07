@@ -30,11 +30,11 @@
   transition: height 250ms;
 }
 
-.fadeOutOpacity {
+.nc_modalClosingAnimation {
   animation: 100ms ease-out 0s 1 fadeOut normal forwards;
 }
 
-.fadeEntry {
+.nc_modalViewEntryTransition {
   animation: 300ms ease-out 0s 1 viewsFadeIn normal forwards;
 }
 
@@ -72,11 +72,11 @@
     border-radius: 16px 16px 0 0;
   }
 
-  .fadeOutOpacity {
+  .nc_modalClosingAnimation {
     animation: 250ms ease-out 0s 1 fadeOutMobile normal forwards;
   }
 
-  .slideOutMobile {
+  .nc_modalMobileSlideOutAnimation {
     animation: 250ms ease-out 0s 1 slideOut normal forwards;
   }
 }
