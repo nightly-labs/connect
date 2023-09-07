@@ -4,10 +4,10 @@ import { customElement, property } from 'lit/decorators.js'
 import { svgToBase64 } from '../../utils/images'
 import { generateQrCodeXml } from '@nightlylabs/qr-code'
 import vector from '../../static/svg/backButton.svg'
-import style from './nightly-qrCode.css'
+import style from './nightly-mobile-qr.css'
 
-@customElement('nightly-qr-code')
-export class NightlyQrCode extends LitElement {
+@customElement('nightly-mobile-qr')
+export class NightlyMobileQr extends LitElement {
   static styles = tailwindElement(style)
 
   @property({ type: String })
@@ -30,7 +30,7 @@ export class NightlyQrCode extends LitElement {
             <img src=${vector} />
           </button>
           <div class="textContainer">
-            <span> QR Code </span>
+            <span>QR Code</span>
           </div>
           <div class="buttonContainer"></div>
         </div>
@@ -61,6 +61,6 @@ export class NightlyQrCode extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'nightly-qr-code': NightlyQrCode
+    'nightly-mobile-qr': NightlyMobileQr
   }
 }

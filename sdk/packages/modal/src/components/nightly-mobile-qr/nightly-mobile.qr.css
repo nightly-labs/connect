@@ -4,19 +4,6 @@
   background: #17182b;
 }
 
-@media (max-width: 482px) and (min-width: 374px) {
-  .headerQrCodeWrapper {
-    height: 420px;
-  }
-}
-
-/* Small screens */
-@media (max-width: 373px) {
-  .headerQrCodeWrapper {
-    height: 332px;
-  }
-}
-
 .nightly-headerContainer {
   width: 100%;
 }
@@ -66,8 +53,10 @@
   height: 432px;
 }
 
-/* Medium screens */
-@media (max-width: 482px) and (min-width: 374px) {
+@media (max-width: 482px) {
+  .headerQrCodeWrapper {
+    height: 420px;
+  }
   .code {
     width: 342px;
     height: 342px;
@@ -77,8 +66,10 @@
   }
 }
 
-/* Small screens */
-@media (max-width: 373px) {
+@media (max-width: 374px) {
+  .headerQrCodeWrapper {
+    height: 332px;
+  }
   .code {
     width: 248px;
     height: 248px;

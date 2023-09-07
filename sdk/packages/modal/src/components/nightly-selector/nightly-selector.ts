@@ -7,8 +7,8 @@ import { styleMap } from 'lit/directives/style-map.js'
 import '../nightly-desktop-main/nightly-desktop-main'
 import '../nightly-connect-wallet/nightly-connect-wallet'
 import '../nightly-header/nightly-header'
-import '../nightly-all-wallets-selector/nightly-all-wallets-selector'
-import '../nightly-qrCode/nightly-qrCode'
+import '../nightly-mobile-all-wallets/nightly-mobile-all-wallets'
+import '../nightly-mobile-qr/nightly-mobile-qr'
 import '../nightly-mobile-main/nightly-mobile-main'
 
 @customElement('nightly-selector')
@@ -230,12 +230,12 @@ export class NightlySelector extends LitElement {
 
   renderMobileAll() {
     return html`
-      <nightly-all-wallets-selector
+      <nightly-mobile-all-wallets
         class="nc_modalViewEntryTransition"
         .showAllWallets=${this.returnToMobileInit.bind(this)}
         .onWalletClick=${this.onSelectWallet}
         .selectorItems=${this.selectorItems}
-      ></nightly-all-wallets-selector>
+      ></nightly-mobile-all-wallets>
     `
   }
 
@@ -256,13 +256,13 @@ export class NightlySelector extends LitElement {
 
   renderMobileQr() {
     return html`
-      <nightly-qr-code
+      <nightly-mobile-qr
         class="nc_modalViewEntryTransition"
         .chainName=${this.chainName}
         .sessionId=${this.sessionId}
         .relay=${this.relay}
         .showAllWallets=${this.returnToMobileInit}
-      ></nightly-qr-code>
+      ></nightly-mobile-qr>
     `
   }
 
