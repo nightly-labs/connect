@@ -200,6 +200,7 @@ export class NightlySelector extends LitElement {
     return html`
       <nightly-connect-wallet
         id="modalConnect"
+        class="fadeEntry"
         .coinName=${this.currentWalletName}
         .connecting=${this.connecting}
         .tryAgainClick=${this.tryAgainClick}

@@ -10,10 +10,6 @@
   backdrop-filter: blur(10px);
 }
 
-.fadeOutOpacity {
-  animation: 100ms ease-out 0s 1 fadeOut normal forwards;
-}
-
 .nc_modalWrapper {
   margin: auto;
   position: absolute;
@@ -35,8 +31,12 @@
   transition: height 250ms;
 }
 
+.fadeOutOpacity {
+  animation: 100ms ease-out 0s 1 fadeOut normal forwards;
+}
+
 .fadeEntry {
-  animation: 300ms ease-out 0s 1 global_viewsFadeIn normal forwards;
+  animation: 300ms ease-out 0s 1 viewsFadeIn normal forwards;
 }
 
 @media (max-width: 1080px) {
@@ -58,10 +58,6 @@
     backdrop-filter: blur(0);
   }
 
-  .fadeOutOpacity {
-    animation: 250ms ease-out 0s 1 fadeOutMobile normal forwards;
-  }
-
   .nc_modalWrapper {
     top: unset;
     left: unset;
@@ -72,14 +68,18 @@
     animation: 250ms ease-out 0s 1 slideIn normal forwards;
   }
 
-  .slideOutMobile {
-    animation: 250ms ease-out 0s 1 slideOut normal forwards;
-  }
-
   .nc_modalContent {
     top: -20px;
     position: relative;
     border-radius: 16px 16px 0 0;
+  }
+
+  .fadeOutOpacity {
+    animation: 250ms ease-out 0s 1 fadeOutMobile normal forwards;
+  }
+
+  .slideOutMobile {
+    animation: 250ms ease-out 0s 1 slideOut normal forwards;
   }
 }
 
@@ -138,5 +138,17 @@
   }
   100% {
     transform: translateY(100%);
+  }
+}
+
+@keyframes viewsFadeIn {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
   }
 }
