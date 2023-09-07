@@ -84,7 +84,7 @@ export class NightlySelector extends LitElement {
       case SelectorView.MOBILE_ALL:
         return 526
       case SelectorView.CONNECTING:
-        return this.smallestMobileQuery.matches ? 440 : this.smallerMobileQuery.matches ? 420 : 400
+        return this.smallestMobileQuery.matches ? 440 : this.smallerMobileQuery.matches ? 430 : 420
       default:
         return 182
     }
@@ -203,7 +203,7 @@ export class NightlySelector extends LitElement {
         .coinName=${this.currentWalletName}
         .connecting=${this.connecting}
         .tryAgainClick=${this.tryAgainClick}
-        .fallback=${this.backToPage}
+        .goBack=${this.backToPage}
         .link=${this.link}
         .nameLink=${this.currentWalletName}
         .walletIcon=${this.walletIcon}

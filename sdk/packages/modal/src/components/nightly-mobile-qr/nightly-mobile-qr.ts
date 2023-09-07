@@ -35,7 +35,7 @@ export class NightlyMobileQr extends LitElement {
           <span class="nc_mobileQrTitle">
             QR Code
           </span>
-          <div class="nc_rightAligner"></div>
+          <div class="nc_mobileQrTopJustify"></div>
         </div>
         <img
           class="nc_mobileQrCode"

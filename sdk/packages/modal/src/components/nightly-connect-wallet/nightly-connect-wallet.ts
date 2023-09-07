@@ -7,7 +7,14 @@ import style from './nightly-connect-wallet.css'
 
 @customElement('nightly-connect-wallet')
 export class NightlyConnectWallet extends LitElement {
-  static styles = tailwindElement(style)
+  static styles = tailwindElement(
+    style,
+    `
+  .nc_connectBackButton {
+    background-image: url('${vector}');
+  }
+  `
+  )
 
   @property({ type: Boolean })
   connecting = false
@@ -30,56 +37,38 @@ export class NightlyConnectWallet extends LitElement {
 
   @property()
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  fallback = () => {}
+  goBack = () => {}
 
   render() {
     return html`
-      <div class="mainContainer">
-        <div class="wrapperConnectPage">
-          <div class="headerContainer">
-            <button
-              class="buttonContainer"
-              id="connect-wallet-fallback-button"
-              @click=${this.fallback}
+      <div class="nc_connectWrapper">
+        <div class="nc_connectTopBar">
+          <button class="nc_connectBackButton" @click=${this.goBack}></button>
+          <span class="nc_connectTitle">Connect wallet</span>
+          <div class="nc_connectTopJustify"></div>
+        </div>
+        <div class="nc_connectWalletInfo">
+          <img class="nc_connectWalletIcon" src=${this.walletIcon} />
+          <span class="nc_connectWalletName">${this.coinName}</span>
+          ${this.connecting
+            ? html`<div class="nc_connectProgress">
+                Connecting...
+                <div class="nc_connectProgressLoader"></div>
+              </div>`
+            : html` <span class="nc_connectFail">Connecting failed</span> `}
+        </div>
+        <div class="nc_connectBottomInfo">
+          <p class="nc_connectBottomInfoText">
+            Connecting takes too long? Make sure ${this.nameLink} is installed on your device.
+            ${this.link.length
+              ? unsafeHTML(`Otherwise, visit
+            <a class="nc_connectWalletLink" href="${this.link}"
+              >${this.nameLink} website</a
             >
-              <img class="vector" src=${vector} />
-            </button>
-            <div class="textContainer">
-              <span>Connect wallet</span>
-            </div>
-            <button
-              class="buttonContainer"
-            >
-          </div>
-          <div class="coinInfoContainer">
-            <img src=${this.walletIcon} />
-            <span class="coinName">${this.coinName}</span>
-            ${
-              this.connecting
-                ? html` <div class="connectingContainer">
-                    <span>Connecting... </span>
-                    <div class="custom-loader"></div>
-                  </div>`
-                : html` <span class="error">Connecting failed</span> `
-            }
-          </div>
-          <div class="reConnectWrapper">
-            <p>
-              Connecting takes too long? Make sure ${this.nameLink} is installed on your device.
-              ${
-                this.link.length
-                  ? unsafeHTML(`Otherwise, visit
-              <a id="connect-wallet-page-link-wallet-website" class="link" href="${this.link}"
-                >${this.nameLink} website</a
-              >
-              to download it.`)
-                  : ''
-              }
-            </p>
-            <button id="connect-wallet-page-try-again-button" @click=${this.tryAgainClick}>
-              Try again
-            </button>
-          </div>
+            to download it.`)
+              : ''}
+          </p>
+          <button class="nc_connectTryAgainButton" @click=${this.tryAgainClick}>Try again</button>
         </div>
       </div>
     `

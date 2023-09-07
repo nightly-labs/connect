@@ -1,63 +1,35 @@
-.mainContainer {
+.nc_connectWrapper {
   height: 464px;
   width: 100%;
-}
-
-@media (max-width: 960px) {
-  .mainContainer {
-    height: 368px;
-  }
-}
-
-.wrapperConnectPage {
   background-color: #202137;
+  display: flex;
+  flex-direction: column;
 }
 
-.headerContainer {
+.nc_connectTopBar {
   padding: 16px;
   display: flex;
   justify-content: space-between;
-}
-
-.buttonContainer {
-  height: 32px;
-  min-width: 32px;
-  padding-inline: 8px;
-}
-
-.textContainer {
-  width: 100%;
-  display: flex;
-  justify-content: center;
   align-items: center;
 }
 
-.textContainer span {
-  font-family: 'Prompt';
-  font-style: normal;
-  font-weight: 400;
+.nc_connectBackButton {
+  height: 32px;
+  width: 32px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.nc_connectTitle {
   font-size: 16px;
-  line-height: 22px;
-  letter-spacing: 0.28px;
   color: #f7f7f7;
 }
 
-.custom-loader {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 2px solid;
-  border-color: transparent;
-  border-right-color: #ffffff;
-  animation: s2 1s infinite linear;
-}
-@keyframes s2 {
-  to {
-    transform: rotate(1turn);
-  }
+.nc_connectTopJustify {
+  width: 32px;
 }
 
-.coinInfoContainer {
+.nc_connectWalletInfo {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -66,121 +38,93 @@
   margin-bottom: 36px;
 }
 
-.coinInfoContainer img {
+.nc_connectWalletIcon {
   width: 144px;
   height: 144px;
 }
 
+.nc_connectWalletName {
+  font-weight: 600;
+  font-size: 24px;
+  color: #ffffff;
+  margin-top: 14px;
+}
+
+.nc_connectProgress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #707a8d;
+  font-size: 16px;
+  gap: 8px;
+}
+
+.nc_connectProgressLoader {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid;
+  border-color: transparent;
+  border-right-color: #ffffff;
+  animation: spin 1s infinite linear;
+}
+
+.nc_connectFail {
+  color: #d25858;
+  font-size: 16px;
+}
+
+.nc_connectBottomInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #17182b;
+  flex: 1;
+}
+
+.nc_connectBottomInfoText {
+  color: #707a8d;
+  text-align: center;
+  padding: 16px;
+}
+
+.nc_connectWalletLink {
+  color: #6067f9;
+}
+
+.nc_connectTryAgainButton {
+  width: 128px;
+  height: 32px;
+  background: #6067f9;
+  color: #f7f7f7;
+  border-radius: 8px;
+}
+
 @media (max-width: 960px) {
-  .coinInfoContainer {
+  .nc_connectWrapper {
+    height: 368px;
+  }
+
+  .nc_connectWalletInfo {
     padding-top: 4px;
     margin-bottom: 16px;
   }
 
-  .coinInfoContainer img {
+  .nc_connectWalletIcon {
     width: 72px;
     height: 72px;
   }
 }
 
 @media (max-width: 640px) {
-  .coinInfoContainer img {
+  .nc_connectWalletIcon {
     width: 104px;
     height: 104px;
   }
 }
 
-.coinName {
-  font-style: normal;
-  font-weight: 600;
-  font-size: 24px;
-  line-height: 32px;
-  letter-spacing: 0.28px;
-  color: #ffffff;
-  margin-top: 14px;
-}
-
-@media (min-width: 640px) and (max-width: 960px) {
-  .coinName {
-    font-size: 18px;
-    line-height: 24px;
-    letter-spacing: 0.28px;
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
   }
-
-  .connectingContainer span {
-    font-size: 12px;
-    line-height: 16px;
-  }
-}
-
-.connectInfo {
-  margin-top: 4px;
-}
-
-.reConnectWrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: #17182b;
-}
-
-.reConnectWrapper p {
-  color: #707a8d;
-  text-align: center;
-  padding: 24px 16px 16px 16px;
-}
-
-@media (max-width: 640px) {
-  .reConnectWrapper p {
-    padding: 16px;
-  }
-}
-
-.reConnectWrapper button {
-  width: 128px;
-  height: 32px;
-  background: #6067f9;
-  color: #f7f7f7;
-  border-radius: 8px;
-  margin-bottom: 24px;
-}
-
-.link {
-  color: #6067f9;
-}
-
-.connectingContainer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.connectingContainer span {
-  color: #707a8d;
-  font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 22px;
-  letter-spacing: 0.28px;
-  margin-right: 8px;
-}
-
-.error {
-  color: #d25858;
-  font-style: normal;
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 22px;
-  letter-spacing: 0.28px;
-}
-
-.wrapperPage {
-  display: flex;
-  flex-flow: row wrap;
-  flex-direction: column;
-  width: 100%;
-  z-index: 2;
-  background-color: #202137;
-  border-radius: 16px;
 }
