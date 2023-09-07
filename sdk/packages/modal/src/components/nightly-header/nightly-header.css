@@ -49,7 +49,6 @@
   height: 56px;
   background-repeat: no-repeat;
   background-position: top;
-  margin: auto;
   animation: fade-in-out 4s ease-in-out infinite;
 }
 

@@ -8,7 +8,11 @@ import style from './nightly-mobile-qr.css'
 
 @customElement('nightly-mobile-qr')
 export class NightlyMobileQr extends LitElement {
-  static styles = tailwindElement(style)
+  static styles = tailwindElement(style, `
+  .nc_mobileQrBackButton {
+    background-image: url('${vector}');
+  }
+  `)
 
   @property({ type: String })
   sessionId = ''
@@ -27,12 +31,11 @@ export class NightlyMobileQr extends LitElement {
       <div class="nc_mobileQrWrapper">
         <div class="nc_mobileQrTopBar">
           <button class="nc_mobileQrBackButton" @click=${this.showAllWallets}>
-            <img src=${vector} />
           </button>
           <span class="nc_mobileQrTitle">
             QR Code
           </span>
-          <div class="nc_mobileQrBackButton"></div>
+          <div class="nc_rightAligner"></div>
         </div>
         <img
           class="nc_mobileQrCode"

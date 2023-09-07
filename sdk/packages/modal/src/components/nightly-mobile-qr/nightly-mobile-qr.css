@@ -7,17 +7,23 @@
   padding: 16px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .nc_mobileQrBackButton {
   height: 32px;
-  min-width: 32px;
-  padding-inline: 8px;
+  width: 32px;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 .nc_mobileQrTitle {
   font-size: 16px;
   color: #f7f7f7;
+}
+
+.nc_rightAligner {
+  width: 32px
 }
 
 .nc_mobileQrCode {
