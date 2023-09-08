@@ -3,7 +3,9 @@
 @tailwind utilities;
 
 * {
-  font-family: 'Prompt';
+  --nc-font-family: Prompt;
+
+  font-family: var(--nc-font-family);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-smooth: never;
