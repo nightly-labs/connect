@@ -14,11 +14,11 @@ export class NightlyDesktopMain extends LitElement {
     style,
     `
   .nc_desktopMainQrScanInfoIcon {
-    background-image: url('${scan}');
+    background-image: url("${scan}");
   }
 
   .nc_desktopMainQrCopyInfoIcon {
-    background-image: url('${copy}');
+    background-image: url("${copy}");
   }
   `
   )

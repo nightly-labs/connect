@@ -13,19 +13,19 @@ export class NightlyHeader extends LitElement {
     style,
     `
     .nc_headerLogo {
-      background-image: url('${Logo}');
+      background-image: url("${Logo}");
     }
 
     .nc_headerCloseButton {
-      background-image: url('${Close}');
+      background-image: url("${Close}");
     }
 
       .nc_headerAnimatedBgBackground {
-        background-image: url('${Stars}');
+        background-image: url("${Stars}");
       }
 
       .nc_headerAnimatedBgForeground {
-        background-image: url('${Clouds}');
+        background-image: url("${Clouds}");
       }
     `
   )

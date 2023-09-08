@@ -14,7 +14,7 @@ export class NightlyWalletSelectorPage extends LitElement {
     style,
     `
   .nc_desktopListInputIcon {
-    background-image: url('${search}');
+    background-image: url("${search}");
   }
   `
   )

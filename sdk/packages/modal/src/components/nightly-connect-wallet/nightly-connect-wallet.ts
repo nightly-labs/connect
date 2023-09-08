@@ -11,7 +11,7 @@ export class NightlyConnectWallet extends LitElement {
     style,
     `
   .nc_connectBackButton {
-    background-image: url('${vector}');
+    background-image: url("${vector}");
   }
   `
   )

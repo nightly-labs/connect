@@ -13,11 +13,11 @@ export class NightlyMobileAllWallets extends LitElement {
     style,
     `
   .nc_mobileAllWalletsBackButton {
-    background-image: url('${vector}');
+    background-image: url("${vector}");
   }
 
   .nc_mobileAllWalletsInputIcon {
-    background-image: url('${search}');
+    background-image: url("${search}");
   }
   `
   )

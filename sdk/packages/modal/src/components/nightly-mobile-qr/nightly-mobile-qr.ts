@@ -12,7 +12,7 @@ export class NightlyMobileQr extends LitElement {
     style,
     `
   .nc_mobileQrBackButton {
-    background-image: url('${vector}');
+    background-image: url("${vector}");
   }
   `
   )
