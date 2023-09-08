@@ -23,7 +23,7 @@ export class NightlyMobileAllWallets extends LitElement {
   )
 
   @property({ type: Function })
-  showAllWallets!: () => void
+  goBack!: () => void
 
   @property({ type: Function })
   onWalletClick!: (name: string) => void
@@ -67,7 +67,9 @@ export class NightlyMobileAllWallets extends LitElement {
           class="nc_mobileAllWalletsEmptyListImage"
         />
         <span class="nc_mobileAllWalletsEmptyListHeading">Nothing found...</span>
-        <span class="nc_mobileAllWalletsEmptyListDesc">Make sure you've typed the name correctly.</span>
+        <span class="nc_mobileAllWalletsEmptyListDesc"
+          >Make sure you've typed the name correctly.</span
+        >
       </div>
     `
   }
@@ -93,7 +95,7 @@ export class NightlyMobileAllWallets extends LitElement {
     return html`
       <div class="nc_mobileAllWalletsWrapper">
         <div class="nc_mobileAllWalletsTopBar">
-          <button class="nc_mobileAllWalletsBackButton" @click=${this.showAllWallets}></button>
+          <button class="nc_mobileAllWalletsBackButton" @click=${this.goBack}></button>
           <span class="nc_mobileAllWalletsTitle">All wallets</span>
           <div class="nc_mobileAllWalletsTopJustify"></div>
         </div>

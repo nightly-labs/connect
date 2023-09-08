@@ -232,7 +232,7 @@ export class NightlySelector extends LitElement {
     return html`
       <nightly-mobile-all-wallets
         class="nc_modalViewEntryTransition"
-        .showAllWallets=${this.returnToMobileInit.bind(this)}
+        .goBack=${this.returnToMobileInit}
         .onWalletClick=${this.onSelectWallet}
         .selectorItems=${this.selectorItems}
       ></nightly-mobile-all-wallets>

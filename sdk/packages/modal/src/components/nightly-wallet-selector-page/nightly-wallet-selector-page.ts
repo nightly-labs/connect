@@ -10,7 +10,14 @@ import { walletsSort } from '../../utils/utils'
 
 @customElement('nightly-wallet-selector-page')
 export class NightlyWalletSelectorPage extends LitElement {
-  static styles = tailwindElement(style)
+  static styles = tailwindElement(
+    style,
+    `
+  .nc_desktopListInputIcon {
+    background-image: url('${search}');
+  }
+  `
+  )
 
   @property({ type: String })
   chainIcon = ''
@@ -57,9 +64,9 @@ export class NightlyWalletSelectorPage extends LitElement {
     const otherItems = this.filteredItems.filter((item) => !item.recent && !item.detected)
 
     return html`
-      <div class="walletSelectorButtons">
+      <div class="nc_desktopListWalletsListWrapper">
         ${recentDetectedItems.length
-          ? html`<div class="recentDetectedContainer">
+          ? html`<div class="nc_desktopListRecentGrid">
               ${recentDetectedItems.map((item) => {
                 return html`
                   <nightly-wallet-selector-item
@@ -72,7 +79,7 @@ export class NightlyWalletSelectorPage extends LitElement {
               })}
             </div>`
           : null}
-        <div class="otherItemsContainer">
+        <div class="nc_desktopListNotDetectedGrid">
           ${otherItems.map((item) => {
             return html`
               <nightly-wallet-selector-item
@@ -90,43 +97,39 @@ export class NightlyWalletSelectorPage extends LitElement {
 
   renderNotFoundIcon() {
     return html`
-      <div class="NotFoundContainer">
+      <div class="nc_desktopListEmptyListWrapper">
         <img
           src="https://registry.connect.nightly.app/images/fox_sad.gif"
           alt="Not Found"
-          class="NotFoundGif"
+          class="nc_desktopListEmptyListImage"
         />
-        <span class="NotFoundHeading">Nothing found...</span>
-        <span class="NotFoundInfo">Make sure you’ve typed the name correctly.</span>
+        <span class="nc_desktopListEmptyListHeading">Nothing found...</span>
+        <span class="nc_desktopListEmptyListDesc">Make sure you’ve typed the name correctly.</span>
       </div>
     `
   }
 
   render() {
     return html`
-      <div class="walletSelectorPage">
-        <div class="contentContainer">
-          <div class="walletSelectorHeader">
-            <span>Wallets</span>
-            <div class="walletSelectorBlockchain">
-              <img src=${this.chainIcon} />
-              <span>${this.chainName}</span>
-            </div>
+      <div class="nc_desktopListWrapper">
+        <div class="nc_desktopListTopBar">
+          Wallets
+          <div class="nc_desktopListTopBarChain">
+            <img class="nc_desktopListTopBarChainIcon" src=${this.chainIcon} />
+            ${this.chainName}
           </div>
-          <div class="walletInputSearchWrapper">
-            <div class="walletInputSearchContainer">
-              <input
-                placeholder="Search"
-                class="walletInputSearch"
-                @input=${this.handleSearchInput}
-              />
-              <img class="walletInputIcon" src="${search}" />
-            </div>
-          </div>
-          ${this.filteredItems.length === 0
-            ? this.renderNotFoundIcon()
-            : this.renderSelectorItems()}
         </div>
+        <div class="nc_desktopListSearchBar">
+          <div class="nc_desktopListInputWrapper">
+            <input
+              placeholder="Search"
+              class="nc_desktopListInnerInput"
+              @input=${this.handleSearchInput}
+            />
+            <div class="nc_desktopListInputIcon"></div>
+          </div>
+        </div>
+        ${this.filteredItems.length === 0 ? this.renderNotFoundIcon() : this.renderSelectorItems()}
       </div>
     `
   }

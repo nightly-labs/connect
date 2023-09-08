@@ -42,7 +42,7 @@
   bottom: -20px;
   left: 0;
   height: 20px;
-  background: linear-gradient(180deg, #17182b 12.37%, rgba(32, 33, 55, 0) 100%);
+  background: linear-gradient(180deg, #17182b 12.37%, transparent 100%);
   opacity: 1;
   pointer-events: none;
   z-index: 1;
@@ -97,7 +97,7 @@
   position: absolute;
   bottom: 0;
   height: 32px;
-  background: linear-gradient(180deg, rgba(15, 15, 26, 0) 0%, #0f0f1a 100%);
+  background: linear-gradient(180deg, transparent 0%, #0f0f1a 100%);
   opacity: 0.7;
   pointer-events: none;
   z-index: 1;
