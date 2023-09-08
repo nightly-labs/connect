@@ -10,6 +10,7 @@ import '../nightly-header/nightly-header'
 import '../nightly-mobile-all-wallets/nightly-mobile-all-wallets'
 import '../nightly-mobile-qr/nightly-mobile-qr'
 import '../nightly-mobile-main/nightly-mobile-main'
+import { XMLOptions } from '@nightlylabs/qr-code'
 
 @customElement('nightly-selector')
 export class NightlySelector extends LitElement {
@@ -42,6 +43,9 @@ export class NightlySelector extends LitElement {
 
   @property({ type: Boolean })
   connecting = false
+
+  @property({ type: Object })
+  qrConfigOverride: Partial<XMLOptions> = {}
 
   // state
 
@@ -224,6 +228,7 @@ export class NightlySelector extends LitElement {
         .selectorItems=${this.selectorItems}
         .sessionId=${this.sessionId}
         .relay=${this.relay}
+        .qrConfigOverride=${this.qrConfigOverride}
       ></nightly-desktop-main>
     `
   }
@@ -262,6 +267,7 @@ export class NightlySelector extends LitElement {
         .sessionId=${this.sessionId}
         .relay=${this.relay}
         .showAllWallets=${this.returnToMobileInit}
+        .qrConfigOverride=${this.qrConfigOverride}
       ></nightly-mobile-qr>
     `
   }

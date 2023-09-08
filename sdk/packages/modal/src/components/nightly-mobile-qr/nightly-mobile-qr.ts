@@ -2,17 +2,20 @@ import { LitElement, html } from 'lit'
 import { tailwindElement } from '../../shared/tailwind.element'
 import { customElement, property } from 'lit/decorators.js'
 import { svgToBase64 } from '../../utils/images'
-import { generateQrCodeXml } from '@nightlylabs/qr-code'
+import { XMLOptions, generateQrCodeXml } from '@nightlylabs/qr-code'
 import vector from '../../static/svg/backButton.svg'
 import style from './nightly-mobile-qr.css'
 
 @customElement('nightly-mobile-qr')
 export class NightlyMobileQr extends LitElement {
-  static styles = tailwindElement(style, `
+  static styles = tailwindElement(
+    style,
+    `
   .nc_mobileQrBackButton {
     background-image: url('${vector}');
   }
-  `)
+  `
+  )
 
   @property({ type: String })
   sessionId = ''
@@ -26,15 +29,15 @@ export class NightlyMobileQr extends LitElement {
   @property({ type: Function })
   showAllWallets!: () => void
 
+  @property({ type: Object })
+  qrConfigOverride: Partial<XMLOptions> = {}
+
   render() {
     return html`
       <div class="nc_mobileQrWrapper">
         <div class="nc_mobileQrTopBar">
-          <button class="nc_mobileQrBackButton" @click=${this.showAllWallets}>
-          </button>
-          <span class="nc_mobileQrTitle">
-            QR Code
-          </span>
+          <button class="nc_mobileQrBackButton" @click=${this.showAllWallets}></button>
+          <span class="nc_mobileQrTitle"> QR Code </span>
           <div class="nc_mobileQrTopJustify"></div>
         </div>
         <img
@@ -50,7 +53,8 @@ export class NightlyMobileQr extends LitElement {
               {
                 width: 500,
                 height: 500,
-                margin: 10
+                margin: 10,
+                ...this.qrConfigOverride
               }
             )
           )}

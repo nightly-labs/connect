@@ -5,7 +5,7 @@ import { LitElement, html } from 'lit'
 import copy from '../../static/svg/copy.svg'
 import scan from '../../static/png/scan.png'
 import { svgToBase64 } from '../../utils/images'
-import { generateQrCodeXml } from '@nightlylabs/qr-code'
+import { XMLOptions, generateQrCodeXml } from '@nightlylabs/qr-code'
 import '../nightly-wallet-selector-page/nightly-wallet-selector-page'
 
 @customElement('nightly-desktop-main')
@@ -41,6 +41,9 @@ export class NightlyDesktopMain extends LitElement {
 
   @property({ type: String })
   relay = ''
+
+  @property({ type: Object })
+  qrConfigOverride: Partial<XMLOptions> = {}
 
   @state()
   copyMessage = 'Copy'
@@ -90,7 +93,8 @@ export class NightlyDesktopMain extends LitElement {
                 {
                   width: 500,
                   height: 500,
-                  margin: 10
+                  margin: 10,
+                  ...this.qrConfigOverride
                 }
               )
             )}
