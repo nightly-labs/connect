@@ -2,8 +2,6 @@ import { unsafeCSS } from 'lit'
 
 import style from './tailwind.global.css'
 
-let _stylesOverride = ''
-
 const _overrides = new CSSStyleSheet()
 
 export const setVariablesOverride = (override: object) => {
@@ -18,7 +16,17 @@ export const setVariablesOverride = (override: object) => {
 }
 
 export const setStylesOverride = (override: string) => {
-  _stylesOverride = override
+  override.split('}').forEach((rule) => {
+    try {
+      if (!rule.trim().length) {
+        return
+      }
+  
+      _overrides.insertRule(rule + '}')
+    } catch (error) {
+      console.log('[custom rule error]:', error)
+    }
+  })
 }
 
 export const tailwindElement = (...customStyle: string[]) => [
