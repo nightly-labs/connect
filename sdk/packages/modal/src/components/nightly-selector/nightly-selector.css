@@ -6,7 +6,7 @@
   height: 100%;
   animation: 100ms ease-out 0s 1 fadeIn normal forwards;
   z-index: 100;
-  background-color: rgba(15, 15, 26, 0.4);
+  background-color: var(--nc-color-overlay);
   backdrop-filter: blur(10px);
 }
 
@@ -23,8 +23,8 @@
 .nc_modalContent {
   border-radius: 0px 0px 16px 16px;
   overflow: hidden;
-  background-color: #17182b;
-  border: 1px solid #343551;
+  background-color: var(--nc-color-elements-2);
+  border: 1px solid var(--nc-color-elements-4);
   border-top: none;
   transition: height 250ms;
 }
@@ -52,7 +52,7 @@
 @media (max-width: 640px) {
   .nc_modalOverlay {
     animation: 250ms ease-out 0s 1 fadeInMobile normal forwards;
-    background-color: rgba(15, 15, 26, 0);
+    background-color: transparent;
     backdrop-filter: blur(0);
   }
 
@@ -100,22 +100,22 @@
 
 @keyframes fadeInMobile {
   0% {
-    background-color: rgba(15, 15, 26, 0);
+    background-color: transparent;
     backdrop-filter: blur(0);
   }
   100% {
-    background-color: rgba(15, 15, 26, 0.4);
+    background-color: var(--nc-color-overlay);
     backdrop-filter: blur(10px);
   }
 }
 
 @keyframes fadeOutMobile {
   0% {
-    background-color: rgba(15, 15, 26, 0.4);
+    background-color: var(--nc-color-overlay);
     backdrop-filter: blur(10px);
   }
   100% {
-    background-color: rgba(15, 15, 26, 0);
+    background-color: transparent;
     backdrop-filter: blur(0);
   }
 }

@@ -10,7 +10,7 @@
 }
 
 .nc_walletButton:hover {
-  background-color: #47486a;
+  background-color: var(--nc-color-elements-5);
 }
 
 .nc_walletButtonIcon {
@@ -25,17 +25,15 @@
   text-overflow: ellipsis;
   width: 100%;
   font-weight: bold;
-  font-size: 14px;
+  font-size: var(--nc-font-size-3);
   letter-spacing: 0.28px;
-  color: #ffffff;
+  color: var(--nc-color-elements-8);
   flex-shrink: 0;
 }
 
 .nc_walletButtonStatus {
-  font-weight: normal;
-  font-size: 10px;
+  font-size: var(--nc-font-size-1);
   line-height: 13px;
-  letter-spacing: 0.28px;
-  color: #6067f9;
+  color: var(--nc-color-primary);
   margin-top: -2px;
 }

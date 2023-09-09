@@ -10,7 +10,7 @@
   padding-left: 16px;
   padding-right: 16px;
   padding-top: 12px;
-  background-color: #17182b;
+  background-color: var(--nc-color-elements-2);
 }
 
 .nc_desktopMainQrTopBar {
@@ -19,14 +19,14 @@
   justify-content: space-between;
   height: 24px;
   margin-bottom: 10px;
-  font-size: 16px;
+  font-size: var(--nc-font-size-4);
 }
 
 .nc_desktopMainQrScanInfo {
   display: flex;
   flex-direction: row;
   align-items: center;
-  color: #707a8d;
+  color: var(--nc-color-elements-6);
 }
 
 .nc_desktopMainQrScanInfoIcon {
@@ -39,7 +39,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  color: #6067f9;
+  color: var(--nc-color-primary);
   cursor: pointer;
 }
 
@@ -55,7 +55,7 @@
 
 .nc_desktopMainQrCode {
   border-radius: 20px;
-  border: 1px solid #343551;
+  border: 1px solid var(--nc-color-elements-4);
   width: 400px;
   height: 400px;
 }

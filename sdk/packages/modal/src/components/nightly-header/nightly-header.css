@@ -4,7 +4,7 @@
   position: relative;
   overflow: hidden;
   border-radius: 16px 16px 0px 0px;
-  background-color: #6067f9;
+  background-color: var(--nc-color-primary);
   display: flex;
   justify-content: space-between;
   padding: 16px;

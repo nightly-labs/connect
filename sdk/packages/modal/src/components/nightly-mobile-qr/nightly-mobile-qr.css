@@ -1,6 +1,6 @@
 .nc_mobileQrWrapper {
   height: 510px;
-  background: #17182b;
+  background: var(--nc-color-elements-2);
 }
 
 .nc_mobileQrTopBar {
@@ -18,8 +18,8 @@
 }
 
 .nc_mobileQrTitle {
-  font-size: 16px;
-  color: #f7f7f7;
+  font-size: var(--nc-font-size-4);
+  color: var(--nc-color-elements-7);
 }
 
 .nc_mobileQrTopJustify {
@@ -28,7 +28,7 @@
 
 .nc_mobileQrCode {
   border-radius: 16px;
-  border: 1px solid #343551;
+  border: 1px solid var(--nc-color-elements-4);
   padding: 4px;
   width: 432px;
   height: 432px;
