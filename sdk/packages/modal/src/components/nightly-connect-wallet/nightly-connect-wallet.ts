@@ -2,19 +2,11 @@ import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'
 import { tailwindElement } from '../../shared/tailwind.element'
-import vector from '../../static/svg/backButton.svg'
 import style from './nightly-connect-wallet.css'
 
 @customElement('nightly-connect-wallet')
 export class NightlyConnectWallet extends LitElement {
-  static styles = tailwindElement(
-    style,
-    `
-  .nc_connectBackButton {
-    background-image: url("${vector}");
-  }
-  `
-  )
+  static styles = tailwindElement(style)
 
   @property({ type: Boolean })
   connecting = false

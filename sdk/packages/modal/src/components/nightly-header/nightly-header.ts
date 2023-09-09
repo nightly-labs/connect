@@ -2,33 +2,10 @@ import { customElement, property } from 'lit/decorators.js'
 import { tailwindElement } from '../../shared/tailwind.element'
 import style from './nightly-header.css'
 import { LitElement, html } from 'lit'
-import Logo from '../../static/svg/Logo.svg'
-import Close from '../../static/svg/Close.svg'
-import Clouds from '../../static/svg/Clouds.svg'
-import Stars from '../../static/svg/Stars.svg'
 
 @customElement('nightly-header')
 export class NightlyHeader extends LitElement {
-  static styles = tailwindElement(
-    style,
-    `
-    .nc_headerLogo {
-      background-image: url("${Logo}");
-    }
-
-    .nc_headerCloseButton {
-      background-image: url("${Close}");
-    }
-
-      .nc_headerAnimatedBgBackground {
-        background-image: url("${Stars}");
-      }
-
-      .nc_headerAnimatedBgForeground {
-        background-image: url("${Clouds}");
-      }
-    `
-  )
+  static styles = tailwindElement(style)
 
   @property()
   // eslint-disable-next-line @typescript-eslint/no-empty-function

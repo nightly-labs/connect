@@ -2,26 +2,13 @@ import { customElement, property, state } from 'lit/decorators.js'
 import { tailwindElement } from '../../shared/tailwind.element'
 import style from './nightly-desktop-main.css'
 import { LitElement, html } from 'lit'
-import copy from '../../static/svg/copy.svg'
-import scan from '../../static/png/scan.png'
 import { svgToBase64 } from '../../utils/images'
 import { XMLOptions, generateQrCodeXml } from '@nightlylabs/qr-code'
 import '../nightly-wallet-selector-page/nightly-wallet-selector-page'
 
 @customElement('nightly-desktop-main')
 export class NightlyDesktopMain extends LitElement {
-  static styles = tailwindElement(
-    style,
-    `
-  .nc_desktopMainQrScanInfoIcon {
-    background-image: url("${scan}");
-  }
-
-  .nc_desktopMainQrCopyInfoIcon {
-    background-image: url("${copy}");
-  }
-  `
-  )
+  static styles = tailwindElement(style)
 
   @property({ type: Array })
   selectorItems = []

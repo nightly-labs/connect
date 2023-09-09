@@ -2,25 +2,12 @@ import { customElement, property, state } from 'lit/decorators.js'
 import { tailwindElement } from '../../shared/tailwind.element'
 import { LitElement, html } from 'lit'
 import style from './nightly-mobile-all-wallets.css'
-import vector from '../../static/svg/backButton.svg'
-import search from '../../static/svg/searchIcon.svg'
 import { WalletSelectorItem } from '../../utils/types'
 import { walletsSort } from '../../utils/utils'
 
 @customElement('nightly-mobile-all-wallets')
 export class NightlyMobileAllWallets extends LitElement {
-  static styles = tailwindElement(
-    style,
-    `
-  .nc_mobileAllWalletsBackButton {
-    background-image: url("${vector}");
-  }
-
-  .nc_mobileAllWalletsInputIcon {
-    background-image: url("${search}");
-  }
-  `
-  )
+  static styles = tailwindElement(style)
 
   @property({ type: Function })
   goBack!: () => void

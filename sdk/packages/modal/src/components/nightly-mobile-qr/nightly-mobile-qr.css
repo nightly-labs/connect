@@ -15,6 +15,7 @@
   width: 32px;
   background-repeat: no-repeat;
   background-position: center;
+  background-image: var(--nc-img-back);
 }
 
 .nc_mobileQrTitle {

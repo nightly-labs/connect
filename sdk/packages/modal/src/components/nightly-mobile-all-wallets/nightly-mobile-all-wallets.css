@@ -19,6 +19,7 @@
   width: 32px;
   background-repeat: no-repeat;
   background-position: center;
+  background-image: var(--nc-img-back);
 }
 
 .nc_mobileAllWalletsTitle {
@@ -78,6 +79,7 @@
   width: 20px;
   height: 20px;
   margin-bottom: -2px;
+  background-image: var(--nc-img-search);
 }
 
 .nc_mobileAllWalletsListGrid {

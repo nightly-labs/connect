@@ -1,7 +1,6 @@
 import { customElement, property, state } from 'lit/decorators.js'
 import { html } from 'lit/static-html.js'
 import { tailwindElement } from '../../shared/tailwind.element'
-import search from '../../static/svg/searchIcon.svg'
 import style from './nightly-wallet-selector-page.css'
 import '../nightly-wallet-selector-item/nightly-wallet-selector-item'
 import { LitElement } from 'lit'
@@ -10,14 +9,7 @@ import { walletsSort } from '../../utils/utils'
 
 @customElement('nightly-wallet-selector-page')
 export class NightlyWalletSelectorPage extends LitElement {
-  static styles = tailwindElement(
-    style,
-    `
-  .nc_desktopListInputIcon {
-    background-image: url("${search}");
-  }
-  `
-  )
+  static styles = tailwindElement(style)
 
   @property({ type: String })
   chainIcon = ''

@@ -3,19 +3,11 @@ import { tailwindElement } from '../../shared/tailwind.element'
 import { customElement, property } from 'lit/decorators.js'
 import { svgToBase64 } from '../../utils/images'
 import { XMLOptions, generateQrCodeXml } from '@nightlylabs/qr-code'
-import vector from '../../static/svg/backButton.svg'
 import style from './nightly-mobile-qr.css'
 
 @customElement('nightly-mobile-qr')
 export class NightlyMobileQr extends LitElement {
-  static styles = tailwindElement(
-    style,
-    `
-  .nc_mobileQrBackButton {
-    background-image: url("${vector}");
-  }
-  `
-  )
+  static styles = tailwindElement(style)
 
   @property({ type: String })
   sessionId = ''

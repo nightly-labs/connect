@@ -14,12 +14,14 @@
   width: 98px;
   height: 24px;
   z-index: 2;
+  background-image: var(--nc-img-logo);
 }
 
 .nc_headerCloseButton {
   width: 24px;
   height: 24px;
   z-index: 2;
+  background-image: var(--nc-img-close);
 }
 
 .nc_headerAnimatedBgWrapper {
@@ -40,6 +42,7 @@
   animation-iteration-count: infinite;
   animation-duration: 32s;
   animation-timing-function: linear;
+  background-image: var(--nc-img-header-fg);
 }
 
 .nc_headerAnimatedBgBackground {
@@ -51,6 +54,7 @@
   background-repeat: no-repeat;
   background-position: top;
   animation: fade-in-out 4s ease-in-out infinite;
+  background-image: var(--nc-img-header-bg);
 }
 
 @media (max-width: 640px) {
