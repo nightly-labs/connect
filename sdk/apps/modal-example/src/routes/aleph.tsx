@@ -25,7 +25,28 @@ export default function Polkadot() {
         network: 'AlephZero'
       },
       true, // change this to false to test disabling eager connect
-      document.getElementById('modalAnchor')
+      document.getElementById('modalAnchor'),
+      {
+        variablesOverride: {
+          '--nc-color-primary': 'green'
+        },
+        stylesOverride: `
+        .nc_headerWrapper {
+          background-color: red;
+        }
+
+        .nc_modalContent {
+          border-radius: 0;
+          background-color: var(--nc-color-elements-8);
+          border: 3px solid var(--nc-color-primary);
+        }
+        `,
+        qrConfigOverride: {
+          dotsOptions: {
+            color: 'gold'
+          }
+        }
+      }
     )
 
     adapter.canEagerConnect().then((canEagerConnect) => {
