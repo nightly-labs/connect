@@ -15,7 +15,8 @@ import {
   isStandardConnectedForNetwork,
   triggerConnect,
   persistStandardDisconnectForNetwork,
-  sleep
+  sleep,
+  XMLOptions
 } from '@nightlylabs/wallet-selector-base'
 import {
   BaseMessageSignerWalletAdapter,
@@ -111,7 +112,12 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
   public static build = async (
     appInitData: AppInitData,
     eagerConnectForStandardWallets?: boolean,
-    anchorRef?: HTMLElement | null
+    anchorRef?: HTMLElement | null,
+    uiOverrides?: {
+      variablesOverride?: object
+      stylesOverride?: string
+      qrConfigOverride?: Partial<XMLOptions>
+    }
   ) => {
     const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets)
 
@@ -132,7 +138,10 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         name: SOLANA_NETWORK,
         icon: 'https://assets.coingecko.com/coins/images/4128/small/solana.png'
       },
-      anchorRef
+      anchorRef,
+      uiOverrides?.variablesOverride,
+      uiOverrides?.stylesOverride,
+      uiOverrides?.qrConfigOverride
     )
 
     const [app, metadataWallets] = await Promise.all([
@@ -164,7 +173,12 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
   public static buildLazy = (
     appInitData: AppInitData,
     eagerConnectForStandardWallets?: boolean,
-    anchorRef?: HTMLElement | null
+    anchorRef?: HTMLElement | null,
+    uiOverrides?: {
+      variablesOverride?: object
+      stylesOverride?: string
+      qrConfigOverride?: Partial<XMLOptions>
+    }
   ) => {
     const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets)
 
@@ -185,7 +199,10 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         name: SOLANA_NETWORK,
         icon: 'https://assets.coingecko.com/coins/images/4128/small/solana.png'
       },
-      anchorRef
+      anchorRef,
+      uiOverrides?.variablesOverride,
+      uiOverrides?.stylesOverride,
+      uiOverrides?.qrConfigOverride
     )
 
     adapter._loading = true
@@ -221,7 +238,12 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
   public static buildWithInitOnConnect = (
     appInitData: AppInitData,
     eagerConnectForStandardWallets?: boolean,
-    anchorRef?: HTMLElement | null
+    anchorRef?: HTMLElement | null,
+    uiOverrides?: {
+      variablesOverride?: object
+      stylesOverride?: string
+      qrConfigOverride?: Partial<XMLOptions>
+    }
   ) => {
     const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets, true)
 
@@ -242,7 +264,10 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         name: SOLANA_NETWORK,
         icon: 'https://assets.coingecko.com/coins/images/4128/small/solana.png'
       },
-      anchorRef
+      anchorRef,
+      uiOverrides?.variablesOverride,
+      uiOverrides?.stylesOverride,
+      uiOverrides?.qrConfigOverride
     )
 
     return adapter
@@ -495,7 +520,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
             resolve()
           })
           if (this._modal) {
-            this._modal._onClose = () => {
+            this._modal.onClose = () => {
               if (this._connecting) {
                 this._connecting = false
 

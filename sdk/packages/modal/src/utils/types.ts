@@ -11,3 +11,11 @@ export interface WalletSelectorItem {
   detected?: boolean
   recent?: boolean
 }
+
+export enum SelectorView {
+  DESKTOP_MAIN,
+  MOBILE_MAIN,
+  MOBILE_QR,
+  MOBILE_ALL,
+  CONNECTING
+}

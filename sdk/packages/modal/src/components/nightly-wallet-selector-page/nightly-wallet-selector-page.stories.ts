@@ -11,9 +11,7 @@ import Binance from '../../static/svg/BinanceIcon.svg'
 import Sollet from '../../static/svg/SolletIcon.svg'
 import NightlyIcon from '../../static/svg/NightlyIcon.svg'
 import ChainIcon from '../../static/svg/ChainIcon.svg'
-
 import './nightly-wallet-selector-page'
-import '../nightly-chain-menu-item/nightly-chain-menu-item'
 import { WalletSelectorItem } from '../../utils/types'
 
 interface NightlyWalletSelectorListArgs {

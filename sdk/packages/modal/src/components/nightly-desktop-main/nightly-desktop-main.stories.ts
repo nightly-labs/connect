@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/web-components'
 import { html } from 'lit/static-html.js'
-import './nightly-modal'
-import { NightlyModal } from './nightly-modal'
+import './nightly-desktop-main'
+import { NightlyDesktopMain } from './nightly-desktop-main'
 import Phantom from '../../static/svg/PhantomIcon.svg'
 import MetaMask from '../../static/svg/MetaMaskIcon.svg'
 import Coinbase from '../../static/svg/CoinbaseIcon.svg'
@@ -14,21 +14,21 @@ import NightlyIcon from '../../static/svg/NightlyIcon.svg'
 import ChainIcon from '../../static/svg/ChainIcon.svg'
 
 const meta = {
-  title: 'nightly-modal',
+  title: 'nightly-desktop-main',
   parameters: {
     layout: 'centered'
   },
   render: (args) => {
-    return html`<nightly-modal
+    return html`<nightly-desktop-main
       .selectorItems=${args.selectorItems}
       .onWalletClick=${args.onWalletClick}
       .chainIcon=${args.chainIcon}
       .chainName=${args.chainName}
       .sessionId=${args.sessionId}
       .relay=${args.relay}
-    ></nightly-modal>`
+    ></nightly-desktop-main>`
   }
-} satisfies Meta<NightlyModal>
+} satisfies Meta<NightlyDesktopMain>
 
 export default meta
 

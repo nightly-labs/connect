@@ -3,7 +3,28 @@
 @tailwind utilities;
 
 * {
-  font-family: 'Prompt';
+  --nc-font-family: Prompt;
+  --nc-font-size-1: 10px;
+  --nc-font-size-2: 12px;
+  --nc-font-size-3: 14px;
+  --nc-font-size-4: 16px;
+  --nc-font-size-5: 24px;
+
+  --nc-color-elements-1: #0f0f1a;
+  --nc-color-elements-2: #17182b;
+  --nc-color-elements-3: #202137;
+  --nc-color-elements-4: #343551;
+  --nc-color-elements-5: #47486a;
+  --nc-color-elements-6: #707a8d;
+  --nc-color-elements-7: #f7f7f7;
+  --nc-color-elements-8: #ffffff;
+
+  --nc-color-primary: #6067f9;
+  --nc-color-primary-a25: #6067f940;
+  --nc-color-error: #d25858;
+  --nc-color-overlay: rgba(15, 15, 26, 0.4);
+
+  font-family: var(--nc-font-family);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-smooth: never;
