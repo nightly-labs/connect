@@ -28,11 +28,16 @@ export default function Polkadot() {
       document.getElementById('modalAnchor'),
       {
         variablesOverride: {
-          '--nc-color-primary': 'green'
+          '--nc-color-primary': 'green',
+          '--nc-img-logo': 'url(https://alephzero.org/aleph-design/brand-elements/logo-day.svg)'
         },
         stylesOverride: `
         .nc_headerWrapper {
           background-color: red;
+        }
+
+        .nc_headerLogo {
+          width: 200px;
         }
 
         .nc_modalContent {

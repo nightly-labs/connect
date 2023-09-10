@@ -12,6 +12,8 @@
 
 .nc_headerLogo {
   width: 98px;
+  background-size: 100%;
+  background-repeat: no-repeat;
   height: 24px;
   z-index: 2;
   background-image: var(--nc-img-logo);
@@ -40,6 +42,7 @@
   height: 56px;
   animation-name: slide;
   animation-iteration-count: infinite;
+  background-repeat: no-repeat;
   animation-duration: 32s;
   animation-timing-function: linear;
   background-image: var(--nc-img-header-fg);
