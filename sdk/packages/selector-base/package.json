@@ -1,6 +1,6 @@
 {
   "name": "@nightlylabs/wallet-selector-base",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "",
   "type": "module",
   "exports": {
@@ -24,7 +24,7 @@
   "license": "ISC",
   "dependencies": {
     "@nightlylabs/nightly-connect-base": "0.0.24",
-    "@nightlylabs/wallet-selector-modal": "0.0.12",
+    "@nightlylabs/wallet-selector-modal": "0.1.0",
     "@wallet-standard/core": "^1.0.3",
     "isomorphic-localstorage": "^1.0.2"
   },

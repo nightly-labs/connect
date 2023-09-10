@@ -1,6 +1,6 @@
 {
   "name": "@nightlylabs/wallet-selector-sui",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "description": "",
   "type": "module",
   "exports": {
@@ -28,7 +28,7 @@
     "@mysten/wallet-standard": "^0.5.12",
     "@mysten/wallet-adapter-base": "^0.7.12",
     "@nightlylabs/nightly-connect-sui": "0.0.24",
-    "@nightlylabs/wallet-selector-base": "0.1.5",
+    "@nightlylabs/wallet-selector-base": "0.2.0",
     "@wallet-standard/core": "^1.0.3",
     "bs58": "^4.0.1",
     "events": "^3.3.0"

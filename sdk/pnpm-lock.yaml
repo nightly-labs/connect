@@ -138,13 +138,13 @@ importers:
         specifier: 0.0.24
         version: link:../sui
       '@nightlylabs/wallet-selector-polkadot':
-        specifier: 0.0.7
+        specifier: 0.1.0
         version: link:../../packages/selector-polkadot
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.1.16
+        specifier: 0.2.0
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
-        specifier: 0.1.6
+        specifier: 0.2.0
         version: link:../../packages/selector-sui
       '@polkadot/api':
         specifier: ^10.9.1
@@ -214,10 +214,10 @@ importers:
         specifier: 0.4.12
         version: 0.4.12(react-dom@18.2.0)(react@18.2.0)
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.1.16
+        specifier: 0.2.0
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
-        specifier: 0.1.6
+        specifier: 0.2.0
         version: link:../../packages/selector-sui
       '@solana/web3.js':
         specifier: ^1.77.2
@@ -331,7 +331,7 @@ importers:
         version: 5.1.3
       vite:
         specifier: ^4.3.9
-        version: 4.3.9(@types/node@18.11.18)
+        version: 4.3.9(@types/node@20.4.2)
 
   apps/solana:
     dependencies:
@@ -550,7 +550,7 @@ importers:
         version: 5.0.2
       vite:
         specifier: ^4.3.9
-        version: 4.3.9(@types/node@18.11.18)
+        version: 4.3.9(@types/node@20.4.2)
 
   packages/qr-codes:
     dependencies:
@@ -589,7 +589,7 @@ importers:
         specifier: 0.0.24
         version: link:../../apps/base
       '@nightlylabs/wallet-selector-modal':
-        specifier: 0.0.12
+        specifier: 0.1.0
         version: link:../modal
       '@wallet-standard/core':
         specifier: ^1.0.3
@@ -629,7 +629,7 @@ importers:
         specifier: 0.0.5
         version: link:../../apps/polkadot
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.1.5
+        specifier: 0.2.0
         version: link:../selector-base
       '@polkadot/api':
         specifier: 10.9.1
@@ -672,7 +672,7 @@ importers:
         specifier: 0.0.25
         version: link:../../apps/solana
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.1.5
+        specifier: 0.2.0
         version: link:../selector-base
       '@solana/wallet-adapter-base':
         specifier: ^0.9.22
@@ -730,7 +730,7 @@ importers:
         specifier: 0.0.24
         version: link:../../apps/sui
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.1.5
+        specifier: 0.2.0
         version: link:../selector-base
       '@wallet-standard/core':
         specifier: ^1.0.3
@@ -6327,7 +6327,7 @@ packages:
       remark-slug: 6.1.0
       rollup: 3.23.1
       typescript: 5.0.2
-      vite: 4.3.9(@types/node@18.11.18)
+      vite: 4.3.9(@types/node@20.4.2)
     transitivePeerDependencies:
       - supports-color
     dev: true
