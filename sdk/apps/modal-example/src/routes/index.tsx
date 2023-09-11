@@ -20,8 +20,14 @@ export default function Home() {
       <A href="/suiInitOnConnect">
         <button>Sui - init app on connect</button>
       </A>
+      <A href="/aleph">
+        <button>Aleph</button>
+      </A>
       <A href="/alephInitOnConnect">
         <button>Aleph - init app on connect</button>
+      </A>
+      <A href="/alephCustom">
+        <button>Aleph - customized modal</button>
       </A>
     </main>
   )

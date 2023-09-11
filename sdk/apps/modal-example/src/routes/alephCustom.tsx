@@ -25,7 +25,32 @@ export default function Polkadot() {
         network: 'AlephZero'
       },
       true, // change this to false to test disabling eager connect
-      document.getElementById('modalAnchor')
+      document.getElementById('modalAnchor'),
+      {
+        variablesOverride: {
+          '--nc-color-primary': 'green',
+          '--nc-img-logo': 'url(https://alephzero.org/aleph-design/brand-elements/logo-day.svg)'
+        },
+        stylesOverride: `
+        .nc_headerWrapper {
+          background-color: red;
+        }
+
+        .nc_headerLogo {
+          width: 200px;
+        }
+
+        .nc_modalContent {
+          border-radius: 0;
+          border: 3px dashed var(--nc-color-primary);
+        }
+        `,
+        qrConfigOverride: {
+          dotsOptions: {
+            color: 'gold'
+          }
+        }
+      }
     )
 
     adapter.canEagerConnect().then((canEagerConnect) => {
