@@ -42,8 +42,7 @@ export default function Polkadot() {
 
         .nc_modalContent {
           border-radius: 0;
-          background-color: var(--nc-color-elements-8);
-          border: 3px solid var(--nc-color-primary);
+          border: 3px dashed var(--nc-color-primary);
         }
         `,
         qrConfigOverride: {
