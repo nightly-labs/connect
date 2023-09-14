@@ -22,7 +22,8 @@ export const getPolkadotWallets = (): PolkadotWalletInjected[] => {
     return Object.entries(window.injectedWeb3).map(([key, value]) => {
       // value.name might be undefined
       value.name = value.name ?? key
-      value.icon = value.icon ?? appToIcon[key] ?? 'https://registry.connect.nightly.app/networks/polkadot.png' // TODO add default icon
+      value.icon =
+        value.icon ?? appToIcon[key] ?? 'https://registry.nightly.app/networks/polkadot.png' // TODO add default icon
       return value
     })
   } else {

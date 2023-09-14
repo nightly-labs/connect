@@ -118,7 +118,7 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
       appInitData.url ?? 'https://nc2.nightly.app',
       {
         name: SUI_NETWORK,
-        icon: 'https://registry.connect.nightly.app/networks/sui.png'
+        icon: 'https://registry.nightly.app/networks/sui.png'
       },
       anchorRef,
       uiOverrides?.variablesOverride,
@@ -173,7 +173,7 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
       appInitData.url ?? 'https://nc2.nightly.app',
       {
         name: SUI_NETWORK,
-        icon: 'https://registry.connect.nightly.app/networks/sui.png'
+        icon: 'https://registry.nightly.app/networks/sui.png'
       },
       anchorRef,
       uiOverrides?.variablesOverride,
@@ -231,7 +231,7 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
       appInitData.url ?? 'https://nc2.nightly.app',
       {
         name: SUI_NETWORK,
-        icon: 'https://registry.connect.nightly.app/networks/sui.png'
+        icon: 'https://registry.nightly.app/networks/sui.png'
       },
       anchorRef,
       uiOverrides?.variablesOverride,

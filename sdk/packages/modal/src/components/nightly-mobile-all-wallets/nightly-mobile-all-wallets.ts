@@ -49,7 +49,7 @@ export class NightlyMobileAllWallets extends LitElement {
     return html`
       <div class="nc_mobileAllWalletsEmptyListWrapper">
         <img
-          src="https://registry.connect.nightly.app/images/fox_sad.gif"
+          src="https://registry.nightly.app/images/fox_sad.gif"
           alt="Not Found"
           class="nc_mobileAllWalletsEmptyListImage"
         />

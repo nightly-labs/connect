@@ -91,7 +91,7 @@ export class NightlyWalletSelectorPage extends LitElement {
     return html`
       <div class="nc_desktopListEmptyListWrapper">
         <img
-          src="https://registry.connect.nightly.app/images/fox_sad.gif"
+          src="https://registry.nightly.app/images/fox_sad.gif"
           alt="Not Found"
           class="nc_desktopListEmptyListImage"
         />
