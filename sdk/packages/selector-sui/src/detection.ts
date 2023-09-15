@@ -2,9 +2,12 @@ import { Wallet } from '@wallet-standard/core'
 
 import { isStandardWalletAdapterCompatibleWallet } from '@mysten/wallet-standard'
 
-export const suiWalletsFilter = (wallet: Wallet) =>
-  isStandardWalletAdapterCompatibleWallet(wallet, [
+export const suiWalletsFilter = (wallet: Wallet) => {
+  const is = isStandardWalletAdapterCompatibleWallet(wallet, [
     'sui:signAndExecuteTransactionBlock',
-    'sui:signTransactionBlock',
-    'sui:signMessage'
+    'sui:signTransactionBlock'
   ])
+  console.log(wallet)
+  console.log(is)
+  return is
+}
