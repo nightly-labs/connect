@@ -19,7 +19,7 @@ export default function Root() {
   return (
     <Html lang="en">
       <Head>
-        <Title>SolidStart - Bare</Title>
+        <Title>Near event</Title>
         <Meta charset="utf-8" />
         <Meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
