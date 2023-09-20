@@ -21,19 +21,25 @@ export const LandingPage: Component<ILandingPageProps> = (props) => {
           Connect your Nightly Wallet and claim your raffle ticket.
         </span>
         <Show when={props.isConnected && !props.hasTicketsToClaim}>
-          <button onClick={props.onClaimTickets} class="landingButton">
-            Already Claimed! See your tickets
-          </button>
+          <div style={{ display: 'flex', 'justify-content': 'center' }}>
+            <button onClick={props.onClaimTickets} class="landingButton">
+              Already Claimed! See your tickets
+            </button>
+          </div>
         </Show>
         <Show when={props.isConnected && props.hasTicketsToClaim}>
-          <button onClick={props.onAddTickets} class="landingClaimButton">
-            Claim ticket!
-          </button>
+          <div style={{ display: 'flex', 'justify-content': 'center' }}>
+            <button onClick={props.onAddTickets} class="landingClaimButton">
+              Claim ticket!
+            </button>
+          </div>
         </Show>
         <Show when={!props.isConnected}>
-          <button class="landingButton" onClick={props.onConnectWallet}>
-            Connect wallet
-          </button>
+          <div style={{ display: 'flex', 'justify-content': 'center' }}>
+            <button class="landingButton" onClick={props.onConnectWallet}>
+              Connect wallet
+            </button>
+          </div>
         </Show>
       </div>
       <img class="fennecImg" src={artFennec} alt="" />

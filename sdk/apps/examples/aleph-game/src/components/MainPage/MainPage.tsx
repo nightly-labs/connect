@@ -37,9 +37,11 @@ export const MainPage: Component<IMainPage> = (props) => {
       <img class="logo" src={Logo} alt="" />
       <div class="ticket-status-container">
         <Show when={!props.connected}>
-          <button class="connectButton" onClick={props.onConnect}>
-            Connect wallet
-          </button>
+          <div style={{ 'justify-content': 'center', display: 'flex' }}>
+            <button class="connectButton" onClick={props.onConnect}>
+              Connect wallet
+            </button>
+          </div>
         </Show>
         <span>
           Collected tickets: <span class="ticketCounterText">{props.counter}/9</span>

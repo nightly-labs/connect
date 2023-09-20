@@ -1,9 +1,7 @@
-import { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-polkadot'
-import { Show, createEffect, createSignal, onMount } from 'solid-js'
+import { Show, createEffect, createSignal } from 'solid-js'
 import toast from 'solid-toast'
 import { MainPage } from '~/components/MainPage/MainPage'
 import { ResolvePage } from '~/components/ResolvePage/ResolvePage'
-import { getAdapter } from '~/store/adapter'
 import {
   getFirstAllWinner,
   getFirstThreeWinner,
@@ -16,53 +14,32 @@ import { TICKETS_MAP } from '~/store/ticketsMap'
 import { timeLeft } from '~/store/timer'
 
 export default function Polkadot() {
-  const [adapter, setAdapter] = createSignal<NightlyConnectAdapter>()
-  const [eager, setEager] = createSignal(false)
-  const [publicKey, setPublicKey] = createSignal<string>()
-  const [loaded, setLoaded] = createSignal(false)
+  const [accountData, setAccountData] = createSignal<{ publicKey: string; accountId: string }>()
   const [user, setUser] = createSignal({ address: '', tickets: {}, loaded: false })
   const [isWinner, setIsWinner] = createSignal(false)
-  onMount(async () => {
-    try {
-      const _adapter = await getAdapter()
-      setAdapter(_adapter)
-      if (await _adapter.canEagerConnect()) {
-        setEager(true)
-      }
-      setLoaded(true)
-    } catch {
-      try {
-        const _adapter = await getAdapter(false)
-        setAdapter(_adapter)
-        if (await _adapter.canEagerConnect()) {
-          setEager(true)
-        }
-        setLoaded(true)
-      } catch (error) {
-        toast.error('Failed to connect please restart page')
-      }
+
+  const connectWallet = async () => {
+    // @ts-expect-error ignore
+    if (window?.nightly?.near) {
+      // @ts-expect-error ignore
+      await window.nightly.near.connect().then((res: any) => {
+        console.log(res)
+        setAccountData(res)
+        toast.success('Wallet connected')
+      })
     }
-  })
+  }
+
   createEffect(() => {
-    if (eager()) {
-      adapter()
-        ?.connect()
-        .then(
-          async () => {
-            const accounts = await adapter()!.accounts.get()
-            setPublicKey(accounts[0].address)
-            toast.success('Wallet connected')
-          },
-          () => {
-            toast.error('Connect rejected')
-          }
-        )
-    }
+    connectWallet().catch((err) => {
+      console.log(err)
+      toast.error('Connect rejected')
+    })
   })
   createEffect(async () => {
-    if (publicKey()) {
-      const tickets = await getUserTickets(publicKey()!)
-      setUser({ address: publicKey()!, tickets, loaded: true })
+    if (accountData()) {
+      const tickets = await getUserTickets(accountData()?.accountId ?? '')
+      setUser({ address: accountData()?.accountId ?? '', tickets, loaded: true })
     }
   })
   const tableData = Object.entries(TICKETS_MAP)
@@ -76,10 +53,10 @@ export default function Polkadot() {
     if (user().loaded) {
       if (Object.values(user().tickets).length === 9) {
         toast.success('You have collected all tickets')
-        setFirstAllWinner(publicKey()!)
+        setFirstAllWinner(accountData()?.accountId ?? '')
       }
       if (Object.values(user().tickets).length >= 3) {
-        setFirstThreeWinner(publicKey()!)
+        setFirstThreeWinner(accountData()?.accountId ?? '')
       }
     }
   })
@@ -89,7 +66,7 @@ export default function Polkadot() {
       const firstThreeWinner = await getFirstThreeWinner()
       const randomWinner = await getRandomWinner()
       const allWinners = new Set([...firstWinner, ...firstThreeWinner, ...randomWinner])
-      if (allWinners.has(publicKey()!)) {
+      if (allWinners.has(accountData()?.accountId ?? '')) {
         setIsWinner(true)
       }
     }
@@ -100,9 +77,7 @@ export default function Polkadot() {
       <MainPage
         connected={user().loaded}
         onConnect={async () => {
-          await adapter()!.connect()
-          const accounts = await adapter()!.accounts.get()
-          setPublicKey(accounts[0].address)
+          await connectWallet()
         }}
         counter={Object.values(user().tickets).length.toString()}
         id={Object.values(user().tickets)}
