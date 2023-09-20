@@ -3,6 +3,7 @@ import { AppPolkadot, AppPolkadotInitialize } from '@nightlylabs/nightly-connect
 import {
   MetadataWallet,
   NightlyConnectSelectorModal,
+  XMLOptions,
   clearRecentStandardWalletForNetwork,
   clearSessionIdForNetwork,
   getRecentStandardWalletForNetwork,
@@ -116,7 +117,12 @@ export class NightlyConnectAdapter implements Injected {
   public static build = async (
     appInitData: AppSelectorInitialize,
     useEagerConnect?: boolean,
-    anchorRef?: HTMLElement | null
+    anchorRef?: HTMLElement | null,
+    uiOverrides?: {
+      variablesOverride?: object
+      stylesOverride?: string
+      qrConfigOverride?: Partial<XMLOptions>
+    }
   ) => {
     if (!useEagerConnect) {
       clearSessionIdForNetwork(appInitData.network)
@@ -132,7 +138,10 @@ export class NightlyConnectAdapter implements Injected {
       adapter.walletsList,
       appInitData.url ?? 'https://nc2.nightly.app',
       networkToData(adapter.network),
-      anchorRef
+      anchorRef,
+      uiOverrides?.variablesOverride,
+      uiOverrides?.stylesOverride,
+      uiOverrides?.qrConfigOverride
     )
 
     const [app, metadataWallets] = await Promise.all([
@@ -157,14 +166,18 @@ export class NightlyConnectAdapter implements Injected {
       getRecentStandardWalletForNetwork(adapter.network) ?? undefined
     )
 
-
     return adapter
   }
 
   public static buildLazy = (
     appInitData: AppSelectorInitialize,
     useEagerConnect?: boolean,
-    anchorRef?: HTMLElement | null
+    anchorRef?: HTMLElement | null,
+    uiOverrides?: {
+      variablesOverride?: object
+      stylesOverride?: string
+      qrConfigOverride?: Partial<XMLOptions>
+    }
   ) => {
     if (!useEagerConnect) {
       clearSessionIdForNetwork(appInitData.network)
@@ -180,7 +193,10 @@ export class NightlyConnectAdapter implements Injected {
       adapter.walletsList,
       appInitData.url ?? 'https://nc2.nightly.app',
       networkToData(adapter.network),
-      anchorRef
+      anchorRef,
+      uiOverrides?.variablesOverride,
+      uiOverrides?.stylesOverride,
+      uiOverrides?.qrConfigOverride
     )
 
     adapter._loading = true
@@ -213,7 +229,12 @@ export class NightlyConnectAdapter implements Injected {
   public static buildWithInitOnConnect = (
     appInitData: AppSelectorInitialize,
     useEagerConnect?: boolean,
-    anchorRef?: HTMLElement | null
+    anchorRef?: HTMLElement | null,
+    uiOverrides?: {
+      variablesOverride?: object
+      stylesOverride?: string
+      qrConfigOverride?: Partial<XMLOptions>
+    }
   ) => {
     if (!useEagerConnect) {
       clearSessionIdForNetwork(appInitData.network)
@@ -229,7 +250,10 @@ export class NightlyConnectAdapter implements Injected {
       adapter.walletsList,
       appInitData.url ?? 'https://nc2.nightly.app',
       networkToData(adapter.network),
-      anchorRef
+      anchorRef,
+      uiOverrides?.variablesOverride,
+      uiOverrides?.stylesOverride,
+      uiOverrides?.qrConfigOverride
     )
 
     return adapter
@@ -426,7 +450,7 @@ export class NightlyConnectAdapter implements Injected {
                   metadataWallets,
                   getRecentStandardWalletForNetwork(this.network) ?? undefined
                 )
-              } catch {
+              } catch (e) {
                 if (!this._app) {
                   this._connecting = false
                   throw new Error('Wallet not ready')
@@ -492,7 +516,7 @@ export class NightlyConnectAdapter implements Injected {
           })
 
           if (this._modal) {
-            this._modal._onClose = () => {
+            this._modal.onClose = () => {
               if (this._connecting) {
                 this._connecting = false
                 const error = new Error('Connection cancelled')

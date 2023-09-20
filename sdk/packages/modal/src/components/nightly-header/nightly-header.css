@@ -1,50 +1,83 @@
-.mainContainer-header {
+.nc_headerWrapper {
   width: 100%;
-  /* max-width: 720px; */
   height: 56px;
   position: relative;
   overflow: hidden;
   border-radius: 16px 16px 0px 0px;
-  background-color: #6067f9;
+  background-color: var(--nc-color-primary);
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
 }
 
-@media (max-width: 640px) {
-  .mainContainer-header {
-    height: 76px;
-  }
+.nc_headerLogo {
+  width: 98px;
+  background-size: 100%;
+  background-repeat: no-repeat;
+  height: 24px;
+  z-index: 2;
+  background-image: var(--nc-img-logo);
 }
 
-.cloudsAnimationHeader {
+.nc_headerCloseButton {
+  width: 24px;
+  height: 24px;
+  z-index: 2;
+  background-image: var(--nc-img-close);
+}
+
+.nc_headerAnimatedBgWrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 56px;
+  width: 100%;
+  z-index: 1;
+}
+
+.nc_headerAnimatedBgForeground {
   z-index: 2;
   position: relative;
-  right: 100%;
-  background-repeat: no-repeat;
-  background-position: top;
-  background-position-y: -14px;
   width: 1525px;
   height: 56px;
-  margin: auto;
-  border-radius: 4px;
   animation-name: slide;
   animation-iteration-count: infinite;
+  background-repeat: no-repeat;
   animation-duration: 32s;
   animation-timing-function: linear;
+  background-image: var(--nc-img-header-fg);
+}
+
+.nc_headerAnimatedBgBackground {
+  position: absolute;
+  width: 100%;
+  z-index: 1;
+  background-color: none;
+  height: 56px;
+  background-repeat: no-repeat;
+  background-position: top;
+  animation: fade-in-out 4s ease-in-out infinite;
+  background-image: var(--nc-img-header-bg);
 }
 
 @media (max-width: 640px) {
-  .cloudsAnimationHeader {
+  .nc_headerWrapper {
+    height: 76px;
+  }
+
+  .nc_headerAnimatedBgForeground {
     animation-duration: 24s;
   }
 }
 
 @media (max-width: 560px) {
-  .cloudsAnimationHeader {
+  .nc_headerAnimatedBgForeground {
     animation-duration: 20s;
   }
 }
 
 @media (max-width: 400px) {
-  .cloudsAnimationHeader {
+  .nc_headerAnimatedBgForeground {
     animation-duration: 16s;
   }
 }
@@ -58,18 +91,6 @@
   }
 }
 
-.starsAnimationHeader {
-  position: absolute;
-  width: 100%;
-  z-index: 1;
-  background-color: none;
-  height: 56px;
-  background-repeat: no-repeat;
-  background-position: top;
-  margin: auto;
-  animation: fade-in-out 4s ease-in-out infinite;
-}
-
 @keyframes fade-in-out {
   0% {
     opacity: 10%;
@@ -80,23 +101,4 @@
   100% {
     opacity: 10%;
   }
-}
-
-.logoContainer {
-  z-index: 3;
-  width: 100%;
-  position: absolute;
-  top: 0;
-  display: flex;
-  justify-content: space-between;
-  padding: 16px;
-}
-
-.header-logo {
-  width: 98px;
-  height: 24px;
-}
-.closeButton {
-  width: 24px;
-  height: 24px;
 }

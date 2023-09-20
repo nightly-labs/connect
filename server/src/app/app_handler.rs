@@ -51,6 +51,7 @@ pub async fn app_handler(
     client_to_sessions: ClientToSessions,
 ) {
     let (mut sender, mut receiver) = socket.split();
+    let connection_id = uuid7::uuid7();
     // Handle the new app connection here
     // Wait for initialize message
     let session_id = loop {
@@ -90,29 +91,11 @@ pub async fn app_handler(
                             let mut sessions = sessions.write().await;
                             match sessions.get_mut(session_id.as_str()) {
                                 Some(mut session) => {
-                                    // Do not allow to connect to the same session twice
-                                    if session.app_state.app_socket.is_some() {
-                                        warn!("App tried to connect to the same session twice");
-                                        let response =
-                                            ServerToApp::AlreadyConnected(AlreadyConnected {
-                                                session_id: session_id.clone(),
-                                            });
-                                        sender
-                                            .send(Message::Text(
-                                                serde_json::to_string(&response)
-                                                    .expect("Serialization should work"),
-                                            ))
-                                            .await
-                                            .unwrap_or_default();
-                                        sender.close().await.unwrap_or_default();
-                                        return;
-                                    }
-
                                     session.update_status(SessionStatus::AppConnected);
-                                    session.app_state = AppState {
-                                        metadata: init_data.app_metadata,
-                                        app_socket: Some(sender),
-                                    };
+                                    session
+                                        .app_state
+                                        .app_socket
+                                        .insert(connection_id.clone(), sender);
                                     // TODO decide if we want to do anything more here
                                     (session_id.clone(), false)
                                 }
@@ -124,7 +107,10 @@ pub async fn app_handler(
                                         persistent: init_data.persistent,
                                         app_state: AppState {
                                             metadata: init_data.app_metadata,
-                                            app_socket: Some(sender),
+                                            app_socket: HashMap::from([(
+                                                connection_id.clone(),
+                                                sender,
+                                            )]),
                                         },
                                         client_state: ClientState {
                                             client_id: None,
@@ -153,7 +139,7 @@ pub async fn app_handler(
                             persistent: init_data.persistent,
                             app_state: AppState {
                                 metadata: init_data.app_metadata,
-                                app_socket: Some(sender),
+                                app_socket: HashMap::from([(connection_id.clone(), sender)]),
                             },
                             client_state: ClientState {
                                 client_id: None,
@@ -229,7 +215,10 @@ pub async fn app_handler(
                         None => {}
                     }
                     // Close app socket
-                    session.close_app_socket().await.unwrap_or_default();
+                    session
+                        .close_app_socket(&connection_id)
+                        .await
+                        .unwrap_or_default();
                     match session.persistent {
                         true => {
                             session.update_status(SessionStatus::AppDisconnected);
@@ -271,7 +260,10 @@ pub async fn app_handler(
                     None => {}
                 }
                 // Close app socket
-                session.close_app_socket().await.unwrap_or_default();
+                session
+                    .close_app_socket(&connection_id)
+                    .await
+                    .unwrap_or_default();
                 match session.persistent {
                     true => {
                         session.update_status(SessionStatus::AppDisconnected);
@@ -320,7 +312,10 @@ pub async fn app_handler(
                     None => {}
                 }
                 // Close app socket
-                session.close_app_socket().await.unwrap_or_default();
+                session
+                    .close_app_socket(&connection_id)
+                    .await
+                    .unwrap_or_default();
                 match session.persistent {
                     true => {
                         session.update_status(SessionStatus::AppDisconnected);

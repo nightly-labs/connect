@@ -24,13 +24,12 @@ export class NightlyWalletSelectorItem extends LitElement {
   render() {
     return html`
       <button
-        id="nightly-wallet-selector-item-button"
-        class="walletSelectorItem"
+        class="nc_walletButton"
         @click=${this.onClick}
       >
-        <img src=${this.icon} />
-        <span class="walletSelectorName">${this.name}</span>
-        ${this.status ? html`<span class="walletSelectorInfo">${this.status}</span>` : ''}
+        <img class="nc_walletButtonIcon" src=${this.icon} />
+        <span class="nc_walletButtonName">${this.name}</span>
+        <span class="nc_walletButtonStatus">${this.status}</span>
       </button>
     `
   }

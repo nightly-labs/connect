@@ -11,12 +11,7 @@ import {
   getWalletsMetadata
 } from './utils'
 import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
-import {
-  ContentType,
-  MessageToSign,
-  RequestInternal,
-  TransactionToSign
-} from './content'
+import { ContentType, MessageToSign, RequestInternal, TransactionToSign } from './content'
 import { ResponsePayload } from '../../../bindings/ResponsePayload'
 import { WalletMetadata } from '../../../bindings/WalletMetadata'
 import {
@@ -45,7 +40,7 @@ export interface DeeplinkConnect {
 export class BaseApp extends EventEmitter<BaseEvents> {
   url: string
   ws: WebSocket
-  events: { [key: string]: { resolve: (data: any) => void; reject: (data: any) => void } } = {}
+  events: Map<string, { resolve: (data: any) => void; reject: (data: any) => void }> = new Map()
   sessionId = ''
   timeout: number
   deeplink: DeeplinkConnect | undefined
@@ -87,15 +82,15 @@ export class BaseApp extends EventEmitter<BaseEvents> {
             switch (response.type) {
               case 'InitializeResponse':
               case 'AckMessage': {
-                baseApp.events[response.responseId].resolve(response)
+                baseApp.events.get(response.responseId)?.resolve(response)
                 break
               }
               case 'ErrorMessage': {
-                baseApp.events[response.responseId].reject(response)
+                baseApp.events.get(response.responseId)?.reject(response)
                 break
               }
               case 'ResponsePayload': {
-                baseApp.events[response.responseId].resolve(response)
+                baseApp.events.get(response.responseId)?.resolve(response)
                 break
               }
               case 'UserConnectedEvent': {
@@ -130,7 +125,7 @@ export class BaseApp extends EventEmitter<BaseEvents> {
         const timer = setTimeout(() => {
           reject(new Error(`Connection timed out after ${baseApp.timeout} ms`))
         }, baseApp.timeout)
-        baseApp.events[initializeRequest.responseId] = {
+        baseApp.events.set(initializeRequest.responseId, {
           reject: reject,
           resolve: (response: InitializeResponse) => {
             clearTimeout(timer)
@@ -149,7 +144,7 @@ export class BaseApp extends EventEmitter<BaseEvents> {
               )
             resolve(baseApp)
           }
-        }
+        })
         baseApp.ws.send(JSON.stringify(initializeRequest))
       }
     })
@@ -166,13 +161,13 @@ export class BaseApp extends EventEmitter<BaseEvents> {
       const timer = setTimeout(() => {
         reject(new Error(`Request timed out after ${this.timeout} ms`))
       }, this.timeout)
-      this.events[message.responseId] = {
+      this.events.set(message.responseId, {
         reject: reject,
         resolve: (response: ServerToApp) => {
           clearTimeout(timer)
           resolve(response)
         }
-      }
+      })
       this.ws.send(request)
       // If deeplink is set, send the deeplink
       if (this.deeplink && message.type === 'RequestPayload') {

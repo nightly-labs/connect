@@ -1,33 +1,33 @@
-import { type NightlySelector } from '@nightlylabs/wallet-selector-modal'
+import { type XMLOptions, type NightlySelector } from '@nightlylabs/wallet-selector-modal'
 import { type IWalletListItem, type NetworkData } from './types'
 
 export class NightlyConnectSelectorModal {
   _modal: NightlySelector | undefined
 
   _anchor: HTMLElement
-  _onOpen: (() => void) | undefined
-  _onClose: (() => void) | undefined
   _networkData: NetworkData
   _relay: string
   _walletsList: IWalletListItem[]
 
   _open = false
 
+  onOpen: (() => void) | undefined
+  onClose: (() => void) | undefined
+
   constructor(
     walletsList: IWalletListItem[],
     relay: string,
     networkData: NetworkData,
     anchorRef?: HTMLElement | null,
-    onOpen?: () => void,
-    onClose?: () => void
+    variablesOverride?: object,
+    stylesOverride?: string,
+    qrConfigOverride?: Partial<XMLOptions>
   ) {
     this._walletsList = walletsList
     this._relay = relay
     this._networkData = networkData
     this._anchor = anchorRef ?? document.body
-    this._onOpen = onOpen
-    this._onClose = onClose
-    this.createSelectorElement()
+    this.createSelectorElement(variablesOverride, stylesOverride, qrConfigOverride)
   }
 
   get walletsList() {
@@ -41,9 +41,13 @@ export class NightlyConnectSelectorModal {
     }
   }
 
-  createSelectorElement = () => {
+  createSelectorElement = (
+    variablesOverride?: object,
+    stylesOverride?: string,
+    qrConfigOverride?: Partial<XMLOptions>
+  ) => {
     import('@nightlylabs/wallet-selector-modal').then(({ getNightlySelectorElement }) => {
-      this._modal = getNightlySelectorElement()
+      this._modal = getNightlySelectorElement(variablesOverride, stylesOverride, qrConfigOverride)
       this._modal.onClose = this.onCloseModal
 
       this._modal.relay = this._relay
@@ -65,7 +69,7 @@ export class NightlyConnectSelectorModal {
       this._modal.sessionId = sessionId
       this._anchor.appendChild(this._modal)
       this._open = true
-      this._onOpen?.()
+      this.onOpen?.()
       return true
     }
     return false
@@ -75,7 +79,7 @@ export class NightlyConnectSelectorModal {
     if (this._modal && this._open === true) {
       this._anchor.removeChild(this._modal)
       this._open = false
-      this._onClose?.()
+      this.onClose?.()
     }
   }
 

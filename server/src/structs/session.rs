@@ -10,6 +10,7 @@ use anyhow::Result;
 use axum::extract::ws::{Message, WebSocket};
 use futures::{stream::SplitSink, SinkExt};
 use log::{info, warn};
+use uuid7::Uuid;
 
 #[derive(Debug)]
 pub struct Session {
@@ -26,24 +27,24 @@ pub struct Session {
 }
 impl Session {
     pub async fn send_to_app(&mut self, msg: ServerToApp) -> Result<()> {
-        match &mut self.app_state.app_socket {
-            Some(app_socket) => {
-                info!("Send to app {}, msg: {:?}", self.session_id, msg);
-                return Ok(app_socket
-                    .send(Message::Text(
-                        serde_json::to_string(&msg).expect("Serialization should work"),
-                    ))
-                    .await?);
-            }
-            None => Err(anyhow::anyhow!("No app socket found for session")),
+        // Send to all apps
+        for (_, socket) in &mut self.app_state.app_socket {
+            info!("Send to app {}, msg: {:?}", self.session_id, msg);
+            socket
+                .send(Message::Text(
+                    serde_json::to_string(&msg).expect("Serialization should work"),
+                ))
+                .await
+                .unwrap_or_default();
         }
+
+        return Ok(());
     }
-    pub async fn close_app_socket(&mut self) -> Result<()> {
+    pub async fn close_app_socket(&mut self, id: &Uuid) -> Result<()> {
         info!("Drop app connection for session {}", self.session_id);
-        match &mut self.app_state.app_socket {
+        match &mut self.app_state.app_socket.remove(id) {
             Some(app_socket) => {
                 app_socket.close().await?;
-                self.app_state.app_socket = None;
                 warn!("Drop app connection for session {}", self.session_id);
                 return Ok(());
             }
@@ -84,7 +85,7 @@ impl Session {
 #[derive(Debug)]
 pub struct AppState {
     pub metadata: AppMetadata,
-    pub app_socket: Option<SplitSink<WebSocket, Message>>,
+    pub app_socket: HashMap<Uuid, SplitSink<WebSocket, Message>>,
 }
 #[derive(Debug)]
 pub struct ClientState {

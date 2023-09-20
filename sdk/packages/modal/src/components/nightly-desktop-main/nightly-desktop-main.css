@@ -1,0 +1,81 @@
+.nc_desktopMainWrapper {
+  max-width: 720px;
+  height: 464px;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+}
+
+.nc_desktopMainQrWrapper {
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 12px;
+  background-color: var(--nc-color-elements-2);
+}
+
+.nc_desktopMainQrTopBar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: 24px;
+  margin-bottom: 10px;
+  font-size: var(--nc-font-size-4);
+}
+
+.nc_desktopMainQrScanInfo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  color: var(--nc-color-elements-6);
+}
+
+.nc_desktopMainQrScanInfoIcon {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  background-image: var(--nc-img-scan);
+}
+
+.nc_desktopMainQrCopyInfo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  color: var(--nc-color-primary);
+  cursor: pointer;
+}
+
+.nc_desktopMainQrCopyInfoIcon {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  background-image: var(--nc-img-copy);
+}
+
+.nc_desktopMainQrCopyInfo:hover {
+  filter: brightness(1.5);
+}
+
+.nc_desktopMainQrCode {
+  border-radius: 20px;
+  border: 1px solid var(--nc-color-elements-4);
+  width: 400px;
+  height: 400px;
+}
+
+@media (max-width: 1080px) {
+  .nc_desktopMainWrapper {
+    max-width: 636px;
+  }
+}
+
+@media (max-width: 960px) {
+  .nc_desktopMainWrapper {
+    max-width: 540px;
+    height: 368px;
+  }
+
+  .nc_desktopMainQrCode {
+    width: 304px;
+    height: 304px;
+  }
+}

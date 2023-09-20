@@ -21,6 +21,7 @@ import {
   IWalletListItem,
   MetadataWallet,
   NightlyConnectSelectorModal,
+  XMLOptions,
   clearRecentStandardWalletForNetwork,
   clearSessionIdForNetwork,
   getRecentStandardWalletForNetwork,
@@ -98,7 +99,12 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
   public static build = async (
     appInitData: AppInitData,
     eagerConnectForStandardWallets?: boolean,
-    anchorRef?: HTMLElement | null
+    anchorRef?: HTMLElement | null,
+    uiOverrides?: {
+      variablesOverride?: object
+      stylesOverride?: string
+      qrConfigOverride?: Partial<XMLOptions>
+    }
   ) => {
     const adapter = new NightlyConnectSuiAdapter(appInitData, eagerConnectForStandardWallets)
 
@@ -112,9 +118,12 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
       appInitData.url ?? 'https://nc2.nightly.app',
       {
         name: SUI_NETWORK,
-        icon: 'https://registry.connect.nightly.app/networks/sui.png'
+        icon: 'https://registry.nightly.app/networks/sui.png'
       },
-      anchorRef
+      anchorRef,
+      uiOverrides?.variablesOverride,
+      uiOverrides?.stylesOverride,
+      uiOverrides?.qrConfigOverride
     )
 
     const [app, metadataWallets] = await Promise.all([
@@ -145,7 +154,12 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
   public static buildLazy = (
     appInitData: AppInitData,
     eagerConnectForStandardWallets?: boolean,
-    anchorRef?: HTMLElement | null
+    anchorRef?: HTMLElement | null,
+    uiOverrides?: {
+      variablesOverride?: object
+      stylesOverride?: string
+      qrConfigOverride?: Partial<XMLOptions>
+    }
   ) => {
     const adapter = new NightlyConnectSuiAdapter(appInitData, eagerConnectForStandardWallets)
 
@@ -159,9 +173,12 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
       appInitData.url ?? 'https://nc2.nightly.app',
       {
         name: SUI_NETWORK,
-        icon: 'https://registry.connect.nightly.app/networks/sui.png'
+        icon: 'https://registry.nightly.app/networks/sui.png'
       },
-      anchorRef
+      anchorRef,
+      uiOverrides?.variablesOverride,
+      uiOverrides?.stylesOverride,
+      uiOverrides?.qrConfigOverride
     )
 
     adapter._loading = true
@@ -194,7 +211,12 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
   public static buildWithInitOnConnect = (
     appInitData: AppInitData,
     eagerConnectForStandardWallets?: boolean,
-    anchorRef?: HTMLElement | null
+    anchorRef?: HTMLElement | null,
+    uiOverrides?: {
+      variablesOverride?: object
+      stylesOverride?: string
+      qrConfigOverride?: Partial<XMLOptions>
+    }
   ) => {
     const adapter = new NightlyConnectSuiAdapter(appInitData, eagerConnectForStandardWallets, true)
 
@@ -209,9 +231,12 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
       appInitData.url ?? 'https://nc2.nightly.app',
       {
         name: SUI_NETWORK,
-        icon: 'https://registry.connect.nightly.app/networks/sui.png'
+        icon: 'https://registry.nightly.app/networks/sui.png'
       },
-      anchorRef
+      anchorRef,
+      uiOverrides?.variablesOverride,
+      uiOverrides?.stylesOverride,
+      uiOverrides?.qrConfigOverride
     )
 
     return adapter
@@ -334,7 +359,7 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
             reject(new Error('Wallet not ready'))
           }
           // _modal is defined here
-          this._modal!._onClose = () => {
+          this._modal!.onClose = () => {
             if (this._connecting) {
               this._connecting = false
               this.connecting = false

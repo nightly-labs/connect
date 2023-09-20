@@ -1,7 +1,6 @@
 import { customElement, property, state } from 'lit/decorators.js'
 import { html } from 'lit/static-html.js'
 import { tailwindElement } from '../../shared/tailwind.element'
-import search from '../../static/svg/searchIcon.svg'
 import style from './nightly-wallet-selector-page.css'
 import '../nightly-wallet-selector-item/nightly-wallet-selector-item'
 import { LitElement } from 'lit'
@@ -14,8 +13,14 @@ export class NightlyWalletSelectorPage extends LitElement {
 
   @property({ type: String })
   chainIcon = ''
+
   @property({ type: String })
   chainName = ''
+
+  @property({ type: Function })
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  onWalletClick: (name: string) => void = () => {}
+
   @property({ type: Array })
   get selectorItems(): WalletSelectorItem[] {
     return this._selectorItems
@@ -32,40 +37,18 @@ export class NightlyWalletSelectorPage extends LitElement {
 
   @state()
   filteredItems: WalletSelectorItem[] = []
+
   @state()
   searchText = ''
 
-  @property({ type: Function })
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  onWalletClick: (name: string) => void = () => {}
+  handleSearchInput(event: InputEvent) {
+    const searchInput = event.target as HTMLInputElement
+    const searchText = searchInput.value.toLowerCase()
+    this.searchText = searchText
 
-  render() {
-    return html`
-      <div class="walletSelectorPage">
-        <div class="contentContainer">
-          <div class="walletSelectorHeader">
-            <span>Wallets</span>
-            <div class="walletSelectorBlockchain">
-              <img src=${this.chainIcon} />
-              <span>${this.chainName}</span>
-            </div>
-          </div>
-          <div class="walletInputSearchWrapper">
-            <div class="walletInputSearchContainer">
-              <input
-                placeholder="Search"
-                class="walletInputSearch"
-                @input=${this.handleSearchInput}
-              />
-              <img class="walletInputIcon" src="${search}" />
-            </div>
-          </div>
-          ${this.filteredItems.length === 0
-            ? this.renderNotFoundIcon()
-            : this.renderSelectorItems()}
-        </div>
-      </div>
-    `
+    this.filteredItems = this.selectorItems.filter((item) => {
+      return item.name.toLowerCase().includes(searchText)
+    })
   }
 
   renderSelectorItems() {
@@ -73,9 +56,9 @@ export class NightlyWalletSelectorPage extends LitElement {
     const otherItems = this.filteredItems.filter((item) => !item.recent && !item.detected)
 
     return html`
-      <div class="walletSelectorButtons">
+      <div class="nc_desktopListWalletsListWrapper">
         ${recentDetectedItems.length
-          ? html`<div class="recentDetectedContainer">
+          ? html`<div class="nc_desktopListRecentGrid">
               ${recentDetectedItems.map((item) => {
                 return html`
                   <nightly-wallet-selector-item
@@ -88,7 +71,7 @@ export class NightlyWalletSelectorPage extends LitElement {
               })}
             </div>`
           : null}
-        <div class="otherItemsContainer">
+        <div class="nc_desktopListNotDetectedGrid">
           ${otherItems.map((item) => {
             return html`
               <nightly-wallet-selector-item
@@ -106,26 +89,41 @@ export class NightlyWalletSelectorPage extends LitElement {
 
   renderNotFoundIcon() {
     return html`
-      <div class="NotFoundContainer">
+      <div class="nc_desktopListEmptyListWrapper">
         <img
-          src="https://registry.connect.nightly.app/images/fox_sad.gif"
+          src="https://registry.nightly.app/images/fox_sad.gif"
           alt="Not Found"
-          class="NotFoundGif"
+          class="nc_desktopListEmptyListImage"
         />
-        <span class="NotFoundHeading">Nothing found...</span>
-        <span class="NotFoundInfo">Make sure you’ve typed the name correctly.</span>
+        <span class="nc_desktopListEmptyListHeading">Nothing found...</span>
+        <span class="nc_desktopListEmptyListDesc">Make sure you’ve typed the name correctly.</span>
       </div>
     `
   }
 
-  handleSearchInput(event: InputEvent) {
-    const searchInput = event.target as HTMLInputElement
-    const searchText = searchInput.value.toLowerCase()
-    this.searchText = searchText
-
-    this.filteredItems = this.selectorItems.filter((item) => {
-      return item.name.toLowerCase().includes(searchText)
-    })
+  render() {
+    return html`
+      <div class="nc_desktopListWrapper">
+        <div class="nc_desktopListTopBar">
+          Wallets
+          <div class="nc_desktopListTopBarChain">
+            <img class="nc_desktopListTopBarChainIcon" src=${this.chainIcon} />
+            ${this.chainName}
+          </div>
+        </div>
+        <div class="nc_desktopListSearchBar">
+          <div class="nc_desktopListInputWrapper">
+            <input
+              placeholder="Search"
+              class="nc_desktopListInnerInput"
+              @input=${this.handleSearchInput}
+            />
+            <div class="nc_desktopListInputIcon"></div>
+          </div>
+        </div>
+        ${this.filteredItems.length === 0 ? this.renderNotFoundIcon() : this.renderSelectorItems()}
+      </div>
+    `
   }
 }
 

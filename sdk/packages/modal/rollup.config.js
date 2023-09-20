@@ -44,7 +44,6 @@ export default [
       'postcss',
       'postcss-lit',
       'tailwindcss',
-      '@lit-labs/motion',
       'lit/directives/style-map.js',
       'lit/directives/unsafe-html.js',
       'lit/decorators.js'
