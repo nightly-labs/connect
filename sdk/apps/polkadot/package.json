@@ -1,11 +1,12 @@
 {
   "name": "@nightlylabs/nightly-connect-polkadot",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "type": "module",
   "exports": {
     ".": {
       "import": "./dist/index.mjs.js",
-      "require": "./dist/index.cjs.js"
+      "require": "./dist/index.cjs.js",
+      "types": "./dist/index.d.ts"
     }
   },
   "browser": {
@@ -45,7 +46,7 @@
     "@polkadot/keyring": "^12.3.2"
   },
   "dependencies": {
-    "@nightlylabs/nightly-connect-base": "0.0.24",
+    "@nightlylabs/nightly-connect-base": "0.0.25",
     "@polkadot/api": "^10.9.1",
     "@polkadot/types": "^10.9.1",
     "@polkadot/util": "^12.3.2",

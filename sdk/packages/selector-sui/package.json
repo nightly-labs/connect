@@ -1,12 +1,13 @@
 {
   "name": "@nightlylabs/wallet-selector-sui",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "",
   "type": "module",
   "exports": {
     ".": {
       "import": "./dist/index.mjs.js",
-      "require": "./dist/index.cjs.js"
+      "require": "./dist/index.cjs.js",
+      "types": "./dist/index.d.ts"
     }
   },
   "main": "dist/index.cjs.js",
@@ -27,8 +28,8 @@
     "@mysten/wallet-adapter-wallet-standard": "^0.7.12",
     "@mysten/wallet-standard": "^0.5.12",
     "@mysten/wallet-adapter-base": "^0.7.12",
-    "@nightlylabs/nightly-connect-sui": "0.0.24",
-    "@nightlylabs/wallet-selector-base": "0.2.1",
+    "@nightlylabs/nightly-connect-sui": "0.0.25",
+    "@nightlylabs/wallet-selector-base": "0.2.2",
     "@wallet-standard/core": "^1.0.3",
     "bs58": "^4.0.1",
     "events": "^3.3.0"
