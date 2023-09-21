@@ -90,4 +90,23 @@ client.on('signTransactions', async (e) => {
 ```
 
 </TabItem>
+<TabItem value="Polkadot" label="Polkadot">
+
+```js
+
+const alice_keypair = new Keyring()
+alice_keypair.setSS58Format(42)
+const aliceKeyringPair = alice_keypair.createFromUri('//Alice')
+
+client.on('signTransactions', async (e) => {
+  const payload = e.transactions[0] as SignerPayloadRaw
+  const signature = aliceKeyringPair.sign(payload.data, { withType: true })
+   await client.resolveSignTransaction({
+      requestId: e.requestId,
+      signedTransactions: [{ signature: u8aToHex(signature), id: new Date().getTime() }]
+    })
+})
+```
+
+</TabItem>
 </Tabs>

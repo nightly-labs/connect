@@ -64,4 +64,7 @@ client.on('signMessages', async (e) => {
 ```
 
 </TabItem>
+<TabItem value="Polkadot" label="Polkadot">
+Signing messages on Polkadot works the same way as signing transactions
+</TabItem>
 </Tabs>

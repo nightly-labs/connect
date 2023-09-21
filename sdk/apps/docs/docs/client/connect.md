@@ -88,6 +88,31 @@ await client.connect(message)
 ```
 
 </TabItem>
+<TabItem value="Polkadot" label="Polkadot">
+
+```js
+import { ClientPolkadot } from '@nightlylabs/nightly-connect-polkadot'
+
+const client: ClientPolkadot = await ClientPolkadot.create({
+  url: RELAY_ENDPOINT // default: https://nc2.nightly.app
+})
+const info: GetInfoResponse = await client.getInfo(sessionId)
+
+const message: Connect = {
+  publicKeys: ['5EnRWxJwqLuexBZtbJVTmfAzzc6Fwpw2Gv9AYs1gYHsgvzfH'],
+  sessionId: sessionId,
+  walletsMetadata: [
+    {
+      address: '5EnRWxJwqLuexBZtbJVTmfAzzc6Fwpw2Gv9AYs1gYHsgvzfH',
+      name: 'Alice',
+      type: 'ed25519'
+    }
+  ]
+}
+await client.connect(message)
+```
+
+</TabItem>
 </Tabs>
 
 ### Disconnect
