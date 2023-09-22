@@ -347,8 +347,7 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
               this._modal?.closeModal()
               resolve()
             } catch (e) {
-              this._connecting = false
-              this.connecting = false
+              this.disconnect()
               this._modal?.closeModal()
               reject(e)
             }

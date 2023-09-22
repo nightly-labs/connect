@@ -503,16 +503,20 @@ export class NightlyConnectAdapter implements Injected {
           }
 
           this._app.on('userConnected', () => {
-            if (this._chosenMobileWalletName) {
-              persistRecentStandardWalletForNetwork(this._chosenMobileWalletName, this.network)
-            } else {
-              clearRecentStandardWalletForNetwork(this.network)
+            try {
+              if (this._chosenMobileWalletName) {
+                persistRecentStandardWalletForNetwork(this._chosenMobileWalletName, this.network)
+              } else {
+                clearRecentStandardWalletForNetwork(this.network)
+              }
+              this._connected = true
+              this._connecting = false
+              this._appSessionActive = true
+              this._modal?.closeModal()
+              resolve()
+            } catch {
+              this.disconnect()
             }
-            this._connected = true
-            this._connecting = false
-            this._appSessionActive = true
-            this._modal?.closeModal()
-            resolve()
           })
 
           if (this._modal) {
