@@ -32,6 +32,7 @@ export const MainPage: Component<IMainPage> = (props) => {
     { id: 8, src: eighthPicture },
     { id: 9, src: ninthPicture }
   ]
+
   return (
     <div class="mainGameContainer">
       <img class="logo" src={Logo} alt="" />
@@ -47,7 +48,7 @@ export const MainPage: Component<IMainPage> = (props) => {
           Collected tickets: <span class="ticketCounterText">{props.counter}/9</span>
         </span>
         <span class="textInfo">
-          {+props.counter < 4 && 'Don’t give up! You can do it!'}
+          {+props.counter < 4 && 'Every ticket increases your chance to win! You can do it!'}
           {+props.counter >= 4 && +props.counter < 9 && 'Keep looking... You’re almost there!'}
           {+props.counter === 9 &&
             'Congratulations! Your job is here done, brave fennec. We are proud of you! Stay tuned for the results.'}

@@ -5,6 +5,7 @@ import { LandingPage } from '../../components/LandingPage/LandingPage'
 
 import { addUserTicket, getUserTickets } from '~/store/dbClient'
 import { TicketId, TICKETS_MAP } from '~/store/ticketsMap'
+import { START_TIME } from '~/store/timer'
 
 export default function Polkadot() {
   const [accountData, setAccountData] = createSignal<{ publicKey: string; accountId: string }>()
@@ -16,6 +17,12 @@ export default function Polkadot() {
   if (!TICKETS_MAP[params.id]) {
     navigate('/near')
   }
+
+  // const actualDate = new Date().getTime() / 1000
+  // if (actualDate < START_TIME) {
+  //   navigate('/chilling')
+  // }
+
   const ticketId = params.id as TicketId
 
   const connectWallet = async () => {

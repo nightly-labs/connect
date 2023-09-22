@@ -22,6 +22,9 @@ export default function Root() {
         <Title>Near event</Title>
         <Meta charset="utf-8" />
         <Meta name="viewport" content="width=device-width, initial-scale=1" />
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;600&display=swap');
+        </style>
       </Head>
       <Body>
         <Suspense>

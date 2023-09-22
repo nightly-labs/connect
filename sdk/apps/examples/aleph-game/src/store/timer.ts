@@ -1,6 +1,7 @@
 import { createEffect, createMemo, createSignal } from 'solid-js'
 
-export const END_TIME = 1696197600 //timestamp
+export const END_TIME = 1696593600 //timestamp
+export const START_TIME = 1696248000 //timestamp
 // const currentTime = () => Math.floor(Date.now() / 1000);
 const [currentTime, setCurrentTime] = createSignal(Math.floor(Date.now() / 1000))
 createEffect(() => {

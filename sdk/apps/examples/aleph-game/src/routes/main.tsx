@@ -30,6 +30,11 @@ export default function Polkadot() {
     }
   }
 
+  // const actualDate = new Date().getTime() / 1000
+  // if (actualDate < START_TIME) {
+  //   navigate('/chilling')
+  // }
+
   createEffect(() => {
     connectWallet().catch((err) => {
       console.log(err)
