@@ -27,10 +27,11 @@
   align-items: center;
   gap: 2px;
   justify-items: center;
-  background-image: url('../../static/svg/nightlyCoin.svg');
+  background-image: url('../../static/svg/nearGameSquered.png');
   background-repeat: no-repeat;
   background-position: center;
   background-size: 343px 343px;
+  border-radius: 8px;
 }
 
 .ticket-status-container {
