@@ -1,7 +1,7 @@
 import { createEffect, createSignal, onMount, Show } from 'solid-js'
 import { Title } from 'solid-start'
 import { NightlyConnectSuiAdapter } from '@nightlylabs/wallet-selector-sui'
-import { TransactionBlock } from '@mysten/sui.js'
+import { TransactionBlock } from '@mysten/sui.js/transactions'
 import toast from 'solid-toast'
 
 export default function Sui() {
@@ -104,7 +104,7 @@ export default function Sui() {
           onClick={async () => {
             try {
               const accounts = await adapter()!.getAccounts()
-              await adapter()!.signMessage!({
+              await adapter()!.signPersonalMessage!({
                 message: new TextEncoder().encode('I love Nightly'),
                 account: accounts[0]
               })

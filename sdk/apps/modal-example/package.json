@@ -15,8 +15,8 @@
     "vite": "^4.1.4"
   },
   "dependencies": {
-    "@mysten/sui.js": "^0.37.1",
-    "@mysten/wallet-adapter-wallet-standard": "^0.7.9",
+    "@mysten/sui.js": "^0.42.0",
+    "@mysten/wallet-adapter-wallet-standard": "^0.8.0",
     "@nightlylabs/wallet-selector-solana": "0.2.2",
     "@nightlylabs/nightly-connect-solana": "0.0.26",
     "@nightlylabs/nightly-connect-sui": "0.0.25",

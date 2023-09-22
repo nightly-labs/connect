@@ -3,17 +3,11 @@ import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vites
 import { AppSui } from './app'
 import { ClientSui } from './client'
 import { signTransactionBlock, SUI_NETWORK, TEST_APP_INITIALIZE } from './utils'
-
-import {
-  Ed25519Keypair,
-  fromB64,
-  IntentScope,
-  messageWithIntent,
-  toB64,
-  toSerializedSignature,
-  TransactionBlock,
-  verifyMessage
-} from '@mysten/sui.js'
+import { fromB64, toB64 } from '@mysten/sui.js/utils'
+import { TransactionBlock } from '@mysten/sui.js/transactions'
+import { Ed25519Keypair } from '@mysten/sui.js/keypairs/ed25519'
+import { verifyPersonalMessage } from '@mysten/sui.js/verify'
+import { IntentScope, messageWithIntent, toSerializedSignature } from '@mysten/sui.js/cryptography'
 import { blake2b } from '@noble/hashes/blake2b'
 import { fetch } from 'cross-fetch'
 import { WalletAccount } from '@mysten/wallet-standard'
@@ -95,10 +89,9 @@ describe('SUI client tests', () => {
       chain: 'sui:testnet'
     })
 
-    const isValid = await verifyMessage(
-      signedTx.transactionBlockBytes,
-      signedTx.signature,
-      IntentScope.TransactionData
+    const isValid = await verifyPersonalMessage(
+      new TextEncoder().encode(signedTx.transactionBlockBytes),
+      signedTx.signature
     )
     expect(isValid).toBeTruthy()
   })
@@ -130,11 +123,7 @@ describe('SUI client tests', () => {
       account: aliceWalletAccount
     })
     const signData = new TextEncoder().encode(msgToSign)
-    const isValid = await verifyMessage(
-      signData,
-      signedMessage.signature,
-      IntentScope.PersonalMessage
-    )
+    const isValid = await verifyPersonalMessage(signData, signedMessage.signature)
     expect(isValid).toBe(true)
   })
   test('#on("signAndExecuteSignTransaction")', async () => {

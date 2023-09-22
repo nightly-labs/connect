@@ -1,5 +1,6 @@
 import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
-import { SignedMessage, SignedTransaction, SuiTransactionBlockResponse } from '@mysten/sui.js'
+import { SuiTransactionBlockResponse } from '@mysten/sui.js/client'
+import { SignedMessage, SignedTransaction } from '@mysten/sui.js/dist/cjs/signers/types'
 import {
   BaseClient,
   ClientBaseInitialize,
