@@ -7,7 +7,5 @@ export const suiWalletsFilter = (wallet: Wallet) => {
     'sui:signAndExecuteTransactionBlock',
     'sui:signTransactionBlock'
   ])
-  console.log(wallet)
-  console.log(is)
   return is
 }

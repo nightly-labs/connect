@@ -1,15 +1,13 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { publicKeyFromRawBytes } from '@mysten/sui.js/verify'
-import { SignedTransaction } from '@mysten/sui.js/dist/cjs/signers/types'
-import { SuiTransactionBlockResponse } from '@mysten/sui.js/client'
-// import { WalletAdapter } from '@mysten/wallet-adapter-base'
 import { StandardWalletAdapter } from '@mysten/wallet-adapter-wallet-standard'
 import type {
-  SignedPersonalMessage,
-  SuiSignAndExecuteTransactionBlockInput,
-  SuiSignPersonalMessageInput,
-  SuiSignTransactionBlockInput
+  SuiSignAndExecuteTransactionBlockMethod,
+  SuiSignPersonalMessageMethod,
+  SuiSignTransactionBlockMethod
 } from '@mysten/wallet-standard'
+
+import { type StandardWalletAdapterConfig } from '@mysten/wallet-adapter-wallet-standard/dist/StandardWalletAdapter'
 import { SUI_CHAINS } from '@mysten/wallet-standard'
 import { AppSui, SUI_NETWORK } from '@nightlylabs/nightly-connect-sui'
 import {
@@ -35,7 +33,6 @@ import {
 import type { StandardEventsOnMethod, WalletAccount } from '@wallet-standard/core'
 import bs58 from 'bs58'
 import { suiWalletsFilter } from './detection'
-import { StandardWalletAdapterConfig } from '@mysten/wallet-adapter-wallet-standard/dist/StandardWalletAdapter'
 
 export const convertBase58toBase64 = (base58: string) => {
   const buffer = bs58.decode(base58)
@@ -428,9 +425,7 @@ export class NightlyConnectSuiAdapter {
     this.connecting = false
   }
 
-  signPersonalMessage = async (
-    messageInput: SuiSignPersonalMessageInput
-  ): Promise<SignedPersonalMessage> => {
+  signPersonalMessage: SuiSignPersonalMessageMethod = async (messageInput) => {
     if (!this._app || !this._connectionType) {
       throw new Error('Wallet not ready')
     }
@@ -451,15 +446,15 @@ export class NightlyConnectSuiAdapter {
     }
   }
 
-  signTransactionBlock = async (
-    transactionInput: SuiSignTransactionBlockInput
-  ): Promise<SignedTransaction> => {
+  //
+  signTransactionBlock: SuiSignTransactionBlockMethod = async (transactionInput) => {
     if (!this._app || !this._connectionType) {
       throw new Error('Wallet not ready')
     }
     switch (this._connectionType) {
       case ConnectionType.Nightly: {
         return await this._app.signTransactionBlock(transactionInput)
+        // return { bytes: res.transactionBlockBytes, signature: res.signature }
       }
       case ConnectionType.WalletStandard: {
         if (!this._innerStandardAdapter) {
@@ -471,9 +466,9 @@ export class NightlyConnectSuiAdapter {
     }
   }
 
-  signAndExecuteTransactionBlock = async (
-    transactionInput: SuiSignAndExecuteTransactionBlockInput
-  ): Promise<SuiTransactionBlockResponse> => {
+  signAndExecuteTransactionBlock: SuiSignAndExecuteTransactionBlockMethod = async (
+    transactionInput
+  ) => {
     if (!this._app || !this._connectionType) {
       throw new Error('Wallet not ready')
     }

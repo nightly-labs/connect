@@ -27,11 +27,7 @@ export default [
     ],
     external: [
       '@mysten/sui.js',
-      '@mysten/sui.js/verify',
-      '@mysten/sui.js/dist/cjs/signers/types',
-      '@mysten/sui.js/client',
       '@mysten/wallet-adapter-wallet-standard',
-      '@mysten/wallet-adapter-wallet-standard/dist/StandardWalletAdapter',
       '@mysten/wallet-standard',
       '@nightlylabs/nightly-connect-sui',
       '@nightlylabs/wallet-selector-base',
