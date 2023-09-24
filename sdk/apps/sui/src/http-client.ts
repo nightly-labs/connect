@@ -3,7 +3,7 @@ import { SUI_NETWORK, parseRequest } from './utils'
 import { HttpConnectSessionRequest } from '../../../bindings/HttpConnectSessionRequest'
 import { HttpGetPendingRequestsRequest } from '../../../bindings/HttpGetPendingRequestsRequest'
 import { HttpGetPendingRequestRequest } from '../../../bindings/HttpGetPendingRequestRequest'
-import { SignedTransaction } from '@mysten/sui.js//dist/cjs/signers/types'
+import { type SignedTransaction } from '@mysten/sui.js/src/signers/types'
 import { HttpGetSessionInfoResponse } from '../../../bindings/HttpGetSessionInfoResponse'
 
 export class HttpClientSui {

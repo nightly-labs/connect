@@ -1,5 +1,6 @@
 import { UserConnectedEvent } from '../../../bindings/UserConnectedEvent'
-import { SignedMessage, SignedTransaction } from '@mysten/sui.js/dist/cjs/signers/types'
+// import { SignedMessage, SignedTransaction } from '@mysten/sui.js/dist/esm/signers/types'
+import type { SignedMessage, SignedTransaction } from '@mysten/sui.js/src/signers/types'
 import {
   SuiSignAndExecuteTransactionBlockInput,
   SuiSignAndExecuteTransactionBlockOutput,
