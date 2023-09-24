@@ -93,6 +93,39 @@ export class NightlyConnectSuiAdapter {
     return this._innerStandardAdapter.on(event, listener)
   }
 
+  public static initApp = async (appInitData: AppInitData): Promise<[AppSui, MetadataWallet[]]> => {
+    try {
+      return await Promise.all([
+        AppSui.build(appInitData),
+        AppSui.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
+          .then((list) =>
+            list.map((wallet) => ({
+              name: wallet.name,
+              icon: wallet.image.default,
+              deeplink: wallet.mobile,
+              link: wallet.homepage
+            }))
+          )
+          .catch(() => [] as MetadataWallet[])
+      ])
+    } catch {
+      clearSessionIdForNetwork(SUI_NETWORK)
+      return await Promise.all([
+        AppSui.build(appInitData),
+        AppSui.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
+          .then((list) =>
+            list.map((wallet) => ({
+              name: wallet.name,
+              icon: wallet.image.default,
+              deeplink: wallet.mobile,
+              link: wallet.homepage
+            }))
+          )
+          .catch(() => [] as MetadataWallet[])
+      ])
+    }
+  }
+
   public static build = async (
     appInitData: AppInitData,
     eagerConnectForStandardWallets?: boolean,
@@ -123,19 +156,7 @@ export class NightlyConnectSuiAdapter {
       uiOverrides?.qrConfigOverride
     )
 
-    const [app, metadataWallets] = await Promise.all([
-      AppSui.build(appInitData),
-      AppSui.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
-        .then((list) =>
-          list.map((wallet) => ({
-            name: wallet.name,
-            icon: wallet.image.default,
-            deeplink: wallet.mobile,
-            link: wallet.homepage
-          }))
-        )
-        .catch(() => [] as MetadataWallet[])
-    ])
+    const [app, metadataWallets] = await NightlyConnectSuiAdapter.initApp(appInitData)
 
     adapter._app = app
     adapter._metadataWallets = metadataWallets
@@ -180,19 +201,7 @@ export class NightlyConnectSuiAdapter {
 
     adapter._loading = true
 
-    Promise.all([
-      AppSui.build(appInitData),
-      AppSui.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
-        .then((list) =>
-          list.map((wallet) => ({
-            name: wallet.name,
-            icon: wallet.image.default,
-            deeplink: wallet.mobile,
-            link: wallet.homepage
-          }))
-        )
-        .catch(() => [] as MetadataWallet[])
-    ]).then(([app, metadataWallets]) => {
+    NightlyConnectSuiAdapter.initApp(appInitData).then(([app, metadataWallets]) => {
       adapter._app = app
       adapter._metadataWallets = metadataWallets
       adapter.walletsList = getWalletsList(
@@ -253,19 +262,9 @@ export class NightlyConnectSuiAdapter {
 
             if (!this._app) {
               try {
-                const [app, metadataWallets] = await Promise.all([
-                  AppSui.build(this._appInitData),
-                  AppSui.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
-                    .then((list) =>
-                      list.map((wallet) => ({
-                        name: wallet.name,
-                        icon: wallet.image.default,
-                        deeplink: wallet.mobile,
-                        link: wallet.homepage
-                      }))
-                    )
-                    .catch(() => [] as MetadataWallet[])
-                ])
+                const [app, metadataWallets] = await NightlyConnectSuiAdapter.initApp(
+                  this._appInitData
+                )
 
                 this._app = app
                 this._metadataWallets = metadataWallets

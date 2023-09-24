@@ -109,6 +109,41 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     }
   }
 
+  public static initApp = async (
+    appInitData: AppInitData
+  ): Promise<[AppSolana, MetadataWallet[]]> => {
+    try {
+      return await Promise.all([
+        AppSolana.build(appInitData),
+        AppSolana.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
+          .then((list) =>
+            list.map((wallet) => ({
+              name: wallet.name,
+              icon: wallet.image.default,
+              deeplink: wallet.mobile,
+              link: wallet.homepage
+            }))
+          )
+          .catch(() => [] as MetadataWallet[])
+      ])
+    } catch {
+      clearSessionIdForNetwork(SOLANA_NETWORK)
+      return await Promise.all([
+        AppSolana.build(appInitData),
+        AppSolana.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
+          .then((list) =>
+            list.map((wallet) => ({
+              name: wallet.name,
+              icon: wallet.image.default,
+              deeplink: wallet.mobile,
+              link: wallet.homepage
+            }))
+          )
+          .catch(() => [] as MetadataWallet[])
+      ])
+    }
+  }
+
   public static build = async (
     appInitData: AppInitData,
     eagerConnectForStandardWallets?: boolean,
@@ -144,19 +179,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       uiOverrides?.qrConfigOverride
     )
 
-    const [app, metadataWallets] = await Promise.all([
-      AppSolana.build(appInitData),
-      AppSolana.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
-        .then((list) =>
-          list.map((wallet) => ({
-            name: wallet.name,
-            icon: wallet.image.default,
-            deeplink: wallet.mobile,
-            link: wallet.homepage
-          }))
-        )
-        .catch(() => [] as MetadataWallet[])
-    ])
+    const [app, metadataWallets] = await NightlyConnectAdapter.initApp(appInitData)
 
     adapter._app = app
     adapter._metadataWallets = metadataWallets
@@ -207,19 +230,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
     adapter._loading = true
 
-    Promise.all([
-      AppSolana.build(appInitData),
-      AppSolana.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
-        .then((list) =>
-          list.map((wallet) => ({
-            name: wallet.name,
-            icon: wallet.image.default,
-            deeplink: wallet.mobile,
-            link: wallet.homepage
-          }))
-        )
-        .catch(() => [] as MetadataWallet[])
-    ]).then(([app, metadataWallets]) => {
+    NightlyConnectAdapter.initApp(appInitData).then(([app, metadataWallets]) => {
       adapter._app = app
       adapter._metadataWallets = metadataWallets
 
@@ -429,19 +440,9 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
             if (!this._app) {
               try {
-                const [app, metadataWallets] = await Promise.all([
-                  AppSolana.build(this._appInitData),
-                  AppSolana.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
-                    .then((list) =>
-                      list.map((wallet) => ({
-                        name: wallet.name,
-                        icon: wallet.image.default,
-                        deeplink: wallet.mobile,
-                        link: wallet.homepage
-                      }))
-                    )
-                    .catch(() => [] as MetadataWallet[])
-                ])
+                const [app, metadataWallets] = await NightlyConnectAdapter.initApp(
+                  this._appInitData
+                )
 
                 this._app = app
                 this._metadataWallets = metadataWallets
