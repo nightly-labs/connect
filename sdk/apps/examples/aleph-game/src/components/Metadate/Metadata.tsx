@@ -1,7 +1,7 @@
 import { Meta, Title } from 'solid-start'
 export const Metadata = () => {
   return (
-    <div>
+    <>
       <Title>Near event</Title>
       <Meta charset="utf-8" />
       <Meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -34,6 +34,6 @@ export const Metadata = () => {
         content="Enter Nightly's raffle on NEAR. Each ticket gives you a chance to win. Collect all nine tickets within Nightly Wallet and win token prize on NEAR blockchain."
       />
       <Meta property="og:image" content="https://near.game.nightly.app/graphicRaffleNear.png" />
-    </div>
+    </>
   )
 }

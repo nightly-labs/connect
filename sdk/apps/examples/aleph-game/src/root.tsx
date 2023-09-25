@@ -1,17 +1,6 @@
 // @refresh reload
 import { Suspense } from 'solid-js'
-import {
-  A,
-  Body,
-  ErrorBoundary,
-  FileRoutes,
-  Head,
-  Html,
-  Meta,
-  Routes,
-  Scripts,
-  Title
-} from 'solid-start'
+import { Body, ErrorBoundary, FileRoutes, Head, Html, Routes, Scripts } from 'solid-start'
 import { Toaster } from 'solid-toast'
 import { Metadata } from './components/Metadate/Metadata'
 import './root.css'
