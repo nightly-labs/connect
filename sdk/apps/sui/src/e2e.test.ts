@@ -140,23 +140,31 @@ describe('SUI client tests', () => {
     }
   })
   test('#on("signAndExecuteSignTransaction")', async () => {
+    client.removeListener('signTransactions')
     const tx = new TransactionBlock()
     const coin = tx.splitCoins(tx.gas, [tx.pure(100)])
     tx.transferObjects([coin], tx.pure(RECEIVER_SUI_ADDRESS))
     tx.setSenderIfNotSet(RECEIVER_SUI_ADDRESS)
-
+    const exampleDigest = "I'm a digest"
     client.on('signTransactions', async (e) => {
       const metadata = e.transactions[0].metadata
         ? JSON.parse(e.transactions[0].metadata)
         : undefined
-      assert.ok(metadata?.execute)
+      assert.ok(metadata?.execute === true)
+      // Send TX and resolve with digest
+      await client.resolveSignTransaction({
+        responseId: e.requestId,
+        signedTransactions: [{ digest: exampleDigest, confirmedLocalExecution: true }]
+      })
     })
 
-    await app.signAndExecuteTransactionBlock({
+    await smartDelay()
+    const response = await app.signAndExecuteTransactionBlock({
       transactionBlock: tx,
       account: aliceWalletAccount,
       chain: 'sui:testnet'
     })
+    assert.equal(response.digest, exampleDigest)
   })
   test('#getPendingRequests()', async () => {
     client.removeListener('signTransactions')
