@@ -2,7 +2,7 @@
 import { Suspense } from 'solid-js'
 import { Body, ErrorBoundary, FileRoutes, Head, Html, Routes, Scripts } from 'solid-start'
 import { Toaster } from 'solid-toast'
-import { Metadata } from './components/Metadate/Metadata'
+import { Metadata } from './components/Metadata/Metadata'
 import './root.css'
 
 export default function Root() {
