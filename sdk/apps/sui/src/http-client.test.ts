@@ -9,8 +9,10 @@ import {
   smartDelay
 } from '@nightlylabs/nightly-connect-base'
 import { HttpClientSui } from './http-client'
-
-import { Ed25519Keypair, IntentScope, toB64, TransactionBlock, verifyMessage } from '@mysten/sui.js'
+import { fromB64, toB64 } from '@mysten/sui.js/utils'
+import { TransactionBlock } from '@mysten/sui.js/transactions'
+import { Ed25519Keypair } from '@mysten/sui.js/keypairs/ed25519'
+import { verifyPersonalMessage, verifyTransactionBlock } from '@mysten/sui.js/verify'
 import { hexToBytes } from '@noble/hashes/utils'
 import { WalletAccount } from '@mysten/wallet-standard'
 
@@ -93,11 +95,11 @@ describe('SUI http-client tests', () => {
     await smartDelay()
     const signedTx = await promiseSignTransaction
 
-    const isValid = await verifyMessage(
-      signedTx.transactionBlockBytes,
-      signedTx.signature,
-      IntentScope.TransactionData
-    )
-    expect(isValid).toBeTruthy()
+    try {
+      // Will throw if invalid
+      await verifyTransactionBlock(fromB64(signedTx.transactionBlockBytes), signedTx.signature)
+    } catch (error) {
+      assert(false, 'Transaction block is invalid')
+    }
   })
 })

@@ -1,15 +1,20 @@
-import {
-  JsonRpcProvider,
-  Connection,
-  TransactionBlock,
-  messageWithIntent,
-  IntentScope,
-  toSerializedSignature,
-  Ed25519Keypair
-} from '@mysten/sui.js'
+import { type TransactionBlock } from '@mysten/sui.js/transactions'
+import { type Ed25519Keypair } from '@mysten/sui.js/keypairs/ed25519'
+import { IntentScope, messageWithIntent, toSerializedSignature } from '@mysten/sui.js/cryptography'
 import { blake2b } from '@noble/hashes/blake2b'
-import { AppBaseInitialize, ContentType, RELAY_ENDPOINT, RequestContent } from '@nightlylabs/nightly-connect-base'
-import { CustomSuiRequest, SignMessagesSuiRequest, SignTransactionsSuiRequest, SuiRequest } from './requestTypes'
+import {
+  AppBaseInitialize,
+  ContentType,
+  RELAY_ENDPOINT,
+  RequestContent
+} from '@nightlylabs/nightly-connect-base'
+import {
+  CustomSuiRequest,
+  SignMessagesSuiRequest,
+  SignTransactionsSuiRequest,
+  SuiRequest
+} from './requestTypes'
+import { SuiClient } from '@mysten/sui.js/client'
 
 export type AppSuiInitialize = Omit<AppBaseInitialize, 'network'>
 
@@ -31,9 +36,7 @@ export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-const suiConnection = new JsonRpcProvider(
-  new Connection({ fullnode: 'https://fullnode.testnet.sui.io/' })
-)
+const suiConnection = new SuiClient({ url: 'https://fullnode.testnet.sui.io/' })
 export const signTransactionBlock = async (tx: TransactionBlock, account: Ed25519Keypair) => {
   const transactionBlockBytes = await tx.build({
     provider: suiConnection,

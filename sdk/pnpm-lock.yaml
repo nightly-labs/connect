@@ -123,11 +123,11 @@ importers:
   apps/modal-example:
     dependencies:
       '@mysten/sui.js':
-        specifier: ^0.37.1
-        version: 0.37.1
+        specifier: ^0.42.0
+        version: 0.42.0
       '@mysten/wallet-adapter-wallet-standard':
-        specifier: ^0.7.9
-        version: 0.7.9
+        specifier: ^0.8.0
+        version: 0.8.0
       '@nightlylabs/nightly-connect-polkadot':
         specifier: 0.0.6
         version: link:../polkadot
@@ -135,16 +135,16 @@ importers:
         specifier: 0.0.26
         version: link:../solana
       '@nightlylabs/nightly-connect-sui':
-        specifier: 0.0.25
+        specifier: 0.0.26
         version: link:../sui
       '@nightlylabs/wallet-selector-polkadot':
-        specifier: 0.1.2
+        specifier: 0.1.3
         version: link:../../packages/selector-polkadot
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.2.2
+        specifier: 0.2.3
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
-        specifier: 0.2.2
+        specifier: 0.2.3
         version: link:../../packages/selector-sui
       '@polkadot/api':
         specifier: ^10.9.1
@@ -202,22 +202,22 @@ importers:
   apps/nextjs-example:
     dependencies:
       '@mysten/sui.js':
-        specifier: 0.37.1
-        version: 0.37.1
+        specifier: 0.42.0
+        version: 0.42.0
       '@mysten/wallet-adapter-base':
-        specifier: 0.7.12
-        version: 0.7.12
+        specifier: 0.9.0
+        version: 0.9.0
       '@mysten/wallet-adapter-wallet-standard':
-        specifier: 0.7.12
-        version: 0.7.12
+        specifier: 0.8.0
+        version: 0.8.0
       '@mysten/wallet-kit':
-        specifier: 0.4.12
-        version: 0.4.12(react-dom@18.2.0)(react@18.2.0)
+        specifier: 0.7.3
+        version: 0.7.3(react-dom@18.2.0)(react@18.2.0)
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.2.2
+        specifier: 0.2.3
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
-        specifier: 0.2.2
+        specifier: 0.2.3
         version: link:../../packages/selector-sui
       '@solana/web3.js':
         specifier: ^1.77.2
@@ -331,7 +331,7 @@ importers:
         version: 5.1.3
       vite:
         specifier: ^4.3.9
-        version: 4.3.9(@types/node@20.4.2)
+        version: 4.3.9(@types/node@18.11.18)
 
   apps/solana:
     dependencies:
@@ -391,11 +391,11 @@ importers:
   apps/sui:
     dependencies:
       '@mysten/sui.js':
-        specifier: ^0.37.1
-        version: 0.37.1
+        specifier: ^0.42.0
+        version: 0.42.0
       '@mysten/wallet-standard':
-        specifier: ^0.5.12
-        version: 0.5.12
+        specifier: ^0.8.0
+        version: 0.8.0
       '@nightlylabs/nightly-connect-base':
         specifier: 0.0.25
         version: link:../base
@@ -413,8 +413,8 @@ importers:
         specifier: ^25.0.0
         version: 25.0.0(rollup@3.23.1)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.1.0
-        version: 15.1.0(rollup@3.23.1)
+        specifier: ^15.2.1
+        version: 15.2.1(rollup@3.23.1)
       '@rollup/plugin-terser':
         specifier: ^0.4.3
         version: 0.4.3(rollup@3.23.1)
@@ -550,7 +550,7 @@ importers:
         version: 5.0.2
       vite:
         specifier: ^4.3.9
-        version: 4.3.9(@types/node@20.4.2)
+        version: 4.3.9(@types/node@18.11.18)
 
   packages/qr-codes:
     dependencies:
@@ -715,19 +715,19 @@ importers:
   packages/selector-sui:
     dependencies:
       '@mysten/sui.js':
-        specifier: ^0.37.1
-        version: 0.37.1
+        specifier: ^0.42.0
+        version: 0.42.0
       '@mysten/wallet-adapter-base':
-        specifier: ^0.7.12
-        version: 0.7.12
+        specifier: ^0.9.0
+        version: 0.9.0
       '@mysten/wallet-adapter-wallet-standard':
-        specifier: ^0.7.12
-        version: 0.7.12
+        specifier: ^0.8.0
+        version: 0.8.0
       '@mysten/wallet-standard':
-        specifier: ^0.5.12
-        version: 0.5.12
+        specifier: ^0.8.0
+        version: 0.8.0
       '@nightlylabs/nightly-connect-sui':
-        specifier: 0.0.25
+        specifier: 0.0.26
         version: link:../../apps/sui
       '@nightlylabs/wallet-selector-base':
         specifier: 0.2.2
@@ -4825,47 +4825,28 @@ packages:
     resolution: {integrity: sha512-H1rQc1ZOHANWBvPcW+JpGwr+juXSxM8Q8YCkm3GhZd8REu1fHR3z99CErO1p9pkcfcxZnMdIZdIsXkOHY0NilA==}
     dev: false
 
-  /@mysten/bcs@0.7.1:
-    resolution: {integrity: sha512-wFPb8bkhwrbiStfZMV5rFM7J+umpke59/dNjDp+UYJKykNlW23LCk2ePyEUvGdb62HGJM1jyOJ8g4egE3OmdKA==}
-    dependencies:
-      bs58: 5.0.0
-    dev: false
-
   /@mysten/bcs@0.7.3:
     resolution: {integrity: sha512-fbusBfsyc2MpTACi72H5edWJ670T84va+qn9jSPpb5BzZ+pzUM1Q0ApPrF5OT+mB1o5Ng+mxPQpBCZQkfiV2TA==}
     dependencies:
       bs58: 5.0.0
     dev: false
 
-  /@mysten/sui.js@0.35.1:
-    resolution: {integrity: sha512-1UQ65oJhO+G5Bt+EWYqMs5y3eqY1ZZxEdB2y4K+XJVeRZBOy32GjSLiYmZufUAR9o53gAlwAvvNRIzMzuiNQzw==}
-    engines: {node: '>=16'}
+  /@mysten/bcs@0.7.4:
+    resolution: {integrity: sha512-6DKzM4L10Au3Og5EJRBqJZmXWZ7hS/clVjbVUH4sA0aFtS3AZo2xc+r5fUFfdJbaWZUxVaDiQ8BNiEZWkAnEOw==}
     dependencies:
-      '@mysten/bcs': 0.7.1
-      '@noble/curves': 1.0.0
-      '@noble/hashes': 1.3.0
-      '@open-rpc/client-js': 1.8.1
-      '@scure/bip32': 1.3.0
-      '@scure/bip39': 1.2.0
-      '@suchipi/femver': 1.0.0
-      superstruct: 1.0.3
-      tweetnacl: 1.0.3
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - utf-8-validate
+      bs58: 5.0.0
     dev: false
 
-  /@mysten/sui.js@0.37.1:
-    resolution: {integrity: sha512-nEOqnjUqb/VJcVk23LgZOX1FmBib/mBCwAWaJhtsCHLwv2jIAfCPY/fpB9lJ62QHrM8UFclpWxsLkqcUkKyPgA==}
+  /@mysten/sui.js@0.40.0:
+    resolution: {integrity: sha512-PEGdMe+QgpIdDIpyO4/yb+CK4x3Hki+kYPbQ5n3DVsWyb2ztFwB+5oYdc7qG3QkniO1lnCrlSHqZ5mN+x3RzrQ==}
     engines: {node: '>=16'}
     dependencies:
       '@mysten/bcs': 0.7.3
-      '@noble/curves': 1.0.0
-      '@noble/hashes': 1.3.0
+      '@noble/curves': 1.1.0
+      '@noble/hashes': 1.3.1
       '@open-rpc/client-js': 1.8.1
-      '@scure/bip32': 1.3.0
-      '@scure/bip39': 1.2.0
+      '@scure/bip32': 1.3.2
+      '@scure/bip39': 1.2.1
       '@suchipi/femver': 1.0.0
       events: 3.3.0
       superstruct: 1.0.3
@@ -4876,91 +4857,73 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@mysten/wallet-adapter-base@0.7.12:
-    resolution: {integrity: sha512-5xDLaZ11+Sw65I9VSzmsHlue8jV0Kq/HiBJYmQes5TU2clwV0ClNBlw7CCipkMPi6IfhBSaaLXWZ9ftX0KG1TQ==}
+  /@mysten/sui.js@0.42.0:
+    resolution: {integrity: sha512-khYpfrWTRNk7WTuDWJx/KCbleqY1B40gVRt1DttqlNkD2lvg134xZn7F/r94jxgnUETbK+hVoQvBY7F36MsfRw==}
+    engines: {node: '>=16'}
     dependencies:
-      '@mysten/sui.js': 0.37.1
-      '@mysten/wallet-standard': 0.5.12
+      '@mysten/bcs': 0.7.4
+      '@noble/curves': 1.1.0
+      '@noble/hashes': 1.3.1
+      '@open-rpc/client-js': 1.8.1
+      '@scure/bip32': 1.3.2
+      '@scure/bip39': 1.2.1
+      '@suchipi/femver': 1.0.0
+      events: 3.3.0
+      superstruct: 1.0.3
+      tweetnacl: 1.0.3
     transitivePeerDependencies:
       - bufferutil
       - encoding
       - utf-8-validate
     dev: false
 
-  /@mysten/wallet-adapter-base@0.7.9:
-    resolution: {integrity: sha512-5ukbi59E/OObv0UPbgqQEh4L4wnFfuXnNt22oe9M/5EKwlQ/y82mtWRpPqEqfazPI2gVvtUyKLCf5uelA0aJIw==}
+  /@mysten/wallet-adapter-base@0.9.0:
+    resolution: {integrity: sha512-Obcfd30AC0Tcyvqc9+h0vvjrRB6Td2PNWhxRlTq/hSxDY66M3XqTLgoO8wDBtz+91oga4obAYvM02m7xV7X0Zw==}
+    deprecated: Wallet adapters have been deprecated in favor of the Wallet Standard. Please upgrade to the latest Wallet Kit versions.
     dependencies:
-      '@mysten/sui.js': 0.35.1
-      '@mysten/wallet-standard': 0.5.9
+      '@mysten/sui.js': 0.40.0
+      '@mysten/wallet-standard': 0.6.0
     transitivePeerDependencies:
       - bufferutil
       - encoding
       - utf-8-validate
     dev: false
 
-  /@mysten/wallet-adapter-unsafe-burner@0.8.12:
-    resolution: {integrity: sha512-s0ek8KIc483jK954INNguDtsCgMsA5L/Zow8gQ15gPQKCIzwSbFnv5JOhrBgHTqDrv5jkjPAfp4AeesXXQHOqg==}
+  /@mysten/wallet-adapter-wallet-standard@0.8.0:
+    resolution: {integrity: sha512-WPQSQTUvQCX2PPuVU8NHEzXg+mMCzIKqMG6llt0tLxc4enTtFHw9Do4i298NyZ00zWWzHdx9MXjBOl1OuybURg==}
+    deprecated: Wallet adapters have been deprecated in favor of the Wallet Standard. Please upgrade to the latest Wallet Kit versions.
     dependencies:
-      '@mysten/sui.js': 0.37.1
-      '@mysten/wallet-adapter-base': 0.7.12
-      '@mysten/wallet-standard': 0.5.12
+      '@mysten/sui.js': 0.40.0
+      '@mysten/wallet-adapter-base': 0.9.0
+      '@mysten/wallet-standard': 0.6.0
+      mitt: 3.0.1
     transitivePeerDependencies:
       - bufferutil
       - encoding
       - utf-8-validate
     dev: false
 
-  /@mysten/wallet-adapter-wallet-standard@0.7.12:
-    resolution: {integrity: sha512-3Km3nsbggIHoaefsPEX2rNFD7+bamk6JBs4jhtOfTFYzXWK3FjWisMEDZFwx+EvoQTH/9lhxgwVRJqPHCv4/yA==}
+  /@mysten/wallet-kit-core@0.6.3:
+    resolution: {integrity: sha512-Crm18bHFecxqDI6ZGhHCAOB8CpLQ84NB3RFpvYnyk0yDGzNcYahjaG37ns+M7cHp0jbg64ySRV/ETzOaGPfRIw==}
     dependencies:
-      '@mysten/sui.js': 0.37.1
-      '@mysten/wallet-adapter-base': 0.7.12
-      '@mysten/wallet-standard': 0.5.12
-      mitt: 3.0.0
+      '@mysten/sui.js': 0.42.0
+      '@mysten/wallet-standard': 0.8.0
     transitivePeerDependencies:
       - bufferutil
       - encoding
       - utf-8-validate
     dev: false
 
-  /@mysten/wallet-adapter-wallet-standard@0.7.9:
-    resolution: {integrity: sha512-+wTBzIr6mT9G2KvXDLr0yg1EsZ8PvAKM0nZFAwRf5htGILIITPR3UEX+2ugxc+Ec4Gx/+NQxYd/TfMSA+iHBNg==}
-    dependencies:
-      '@mysten/sui.js': 0.35.1
-      '@mysten/wallet-adapter-base': 0.7.9
-      '@mysten/wallet-standard': 0.5.9
-      mitt: 3.0.0
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - utf-8-validate
-    dev: false
-
-  /@mysten/wallet-kit-core@0.4.12:
-    resolution: {integrity: sha512-h2NXFiUdB3NpBpcHW8SkFCGFyqDkaj3WyML8IgT6otlYgc9v2hl7Wjm7Uc7V4kSf0pM/vwZnG8hh7vMCts7MFA==}
-    dependencies:
-      '@mysten/sui.js': 0.37.1
-      '@mysten/wallet-adapter-base': 0.7.12
-      '@mysten/wallet-standard': 0.5.12
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - utf-8-validate
-    dev: false
-
-  /@mysten/wallet-kit@0.4.12(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-D/Uh0m8HAVnL0mSdqoE5UsmJhtioqhVHVXDqPrnzbclUZWaq9+e16C8LiP/Bc5mf3/C/24boBTLf9kl/Zd0FiQ==}
+  /@mysten/wallet-kit@0.7.3(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-wkmVny9Cqu2AiLf7FW3wq11+XNOoCi/gQ6ZiKcMsRmTWT8uoP7BG89lsIkP98lOARUa/GaWjTItESiHBNYXcZw==}
     peerDependencies:
       react: '*'
       react-dom: '*'
     dependencies:
       '@headlessui/react': 1.7.15(react-dom@18.2.0)(react@18.2.0)
-      '@mysten/sui.js': 0.37.1
-      '@mysten/wallet-adapter-base': 0.7.12
-      '@mysten/wallet-adapter-unsafe-burner': 0.8.12
-      '@mysten/wallet-adapter-wallet-standard': 0.7.12
-      '@mysten/wallet-kit-core': 0.4.12
-      '@mysten/wallet-standard': 0.5.12
+      '@mysten/sui.js': 0.42.0
+      '@mysten/wallet-kit-core': 0.6.3
+      '@mysten/wallet-standard': 0.8.0
       '@stitches/react': 1.2.8(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -4970,10 +4933,10 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@mysten/wallet-standard@0.5.12:
-    resolution: {integrity: sha512-RDKEhBf8aNbCXgTGsDAA7uzpkll24O9M/C48wHFjeb9edIxhaDkiSeGty6flhg9G5ShAHP76dEbz5z6z3ODmCA==}
+  /@mysten/wallet-standard@0.6.0:
+    resolution: {integrity: sha512-xE/OijN9zIPoTjTWuxlYMHtp7kXPcAR8dDAbxOIH5h7EZCTk+G6p+SzDp8jV5magf50VcYP0cVjS4CQLx1wQuQ==}
     dependencies:
-      '@mysten/sui.js': 0.37.1
+      '@mysten/sui.js': 0.40.0
       '@wallet-standard/core': 1.0.3
     transitivePeerDependencies:
       - bufferutil
@@ -4981,10 +4944,10 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@mysten/wallet-standard@0.5.9:
-    resolution: {integrity: sha512-il7pgizfhSrCEX4yVEZu/8f4rs6/FUTP72oX34jtNjAHbRtYaI+aFSuLg8G2D0BbPqPumAjOSfluQ6OVyJGLfQ==}
+  /@mysten/wallet-standard@0.8.0:
+    resolution: {integrity: sha512-kFh1iybKxaY+lchN+rtVBT5+UL1IHorZ81Ktg9200tcLeUqLB3V/K1PRqkj2dk0eUGDaLEH+yWjBF9hnyH4rgQ==}
     dependencies:
-      '@mysten/sui.js': 0.35.1
+      '@mysten/sui.js': 0.42.0
       '@wallet-standard/core': 1.0.3
     transitivePeerDependencies:
       - bufferutil
@@ -5102,6 +5065,12 @@ packages:
     dependencies:
       '@noble/hashes': 1.3.1
 
+  /@noble/curves@1.2.0:
+    resolution: {integrity: sha512-oYclrNgRaM9SsBUBVbb8M6DTV7ZHRTKugureoYEncY5c65HOmRzvSiTE3y5CYaPYJA/GVkrhXEoF0M3Ya9PMnw==}
+    dependencies:
+      '@noble/hashes': 1.3.2
+    dev: false
+
   /@noble/hashes@1.3.0:
     resolution: {integrity: sha512-ilHEACi9DwqJB0pw7kv+Apvh50jiiSyR/cQ3y4W7lOR5mhvn/50FLUfsnfJz0BDZtl/RR16kXvptiv6q1msYZg==}
     dev: false
@@ -5109,6 +5078,11 @@ packages:
   /@noble/hashes@1.3.1:
     resolution: {integrity: sha512-EbqwksQwz9xDRGfDST86whPBgM65E0OH/pCgqW0GBVzO22bNE+NuIbeTb714+IfSjU3aRk47EUvXIb5bTsenKA==}
     engines: {node: '>= 16'}
+
+  /@noble/hashes@1.3.2:
+    resolution: {integrity: sha512-MVC8EAQp7MvEcm30KWENFjgR+Mkmf+D189XJTkFIlwohU5hcBbn1ZkKq7KVTi2Hme3PMGF390DaL52beVrIihQ==}
+    engines: {node: '>= 16'}
+    dev: false
 
   /@nodelib/fs.scandir@2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -5650,6 +5624,24 @@ packages:
       resolve: 1.22.2
       rollup: 3.23.1
 
+  /@rollup/plugin-node-resolve@15.2.1(rollup@3.23.1):
+    resolution: {integrity: sha512-nsbUg588+GDSu8/NS8T4UAshO6xeaOfINNuXeVHcKV02LJtoRaM1SiOacClw4kws1SFiNhdLGxlbMY9ga/zs/w==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^2.78.0||^3.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      '@rollup/pluginutils': 5.0.2(rollup@3.23.1)
+      '@types/resolve': 1.20.2
+      deepmerge: 4.3.1
+      is-builtin-module: 3.2.1
+      is-module: 1.0.0
+      resolve: 1.22.2
+      rollup: 3.23.1
+    dev: true
+
   /@rollup/plugin-terser@0.4.3(rollup@3.23.1):
     resolution: {integrity: sha512-EF0oejTMtkyhrkwCdg0HJ0IpkcaVg1MMSf2olHb2Jp+1mnLM04OhjpJWGma4HobiDTF0WCyViWuvadyE9ch2XA==}
     engines: {node: '>=14.0.0'}
@@ -5764,18 +5756,22 @@ packages:
   /@scure/base@1.1.1:
     resolution: {integrity: sha512-ZxOhsSyxYwLJj3pLZCefNitxsj093tb2vq90mp2txoYeBqbcjDjqFhyM8eUjq/uFm6zJ+mUuqxlS2FkuSY1MTA==}
 
-  /@scure/bip32@1.3.0:
-    resolution: {integrity: sha512-bcKpo1oj54hGholplGLpqPHRbIsnbixFtc06nwuNM5/dwSXOq/AAYoIBRsBmnZJSdfeNW5rnff7NTAz3ZCqR9Q==}
-    dependencies:
-      '@noble/curves': 1.0.0
-      '@noble/hashes': 1.3.0
-      '@scure/base': 1.1.1
+  /@scure/base@1.1.3:
+    resolution: {integrity: sha512-/+SgoRjLq7Xlf0CWuLHq2LUZeL/w65kfzAPG5NH9pcmBhs+nunQTn4gvdwgMTIXnt9b2C/1SeL2XiysZEyIC9Q==}
     dev: false
 
-  /@scure/bip39@1.2.0:
-    resolution: {integrity: sha512-SX/uKq52cuxm4YFXWFaVByaSHJh2w3BnokVSeUJVCv6K7WulT9u2BuNRBhuFl8vAuYnzx9bEu9WgpcNYTrYieg==}
+  /@scure/bip32@1.3.2:
+    resolution: {integrity: sha512-N1ZhksgwD3OBlwTv3R6KFEcPojl/W4ElJOeCZdi+vuI5QmTFwLq3OFf2zd2ROpKvxFdgZ6hUpb0dx9bVNEwYCA==}
     dependencies:
-      '@noble/hashes': 1.3.0
+      '@noble/curves': 1.2.0
+      '@noble/hashes': 1.3.2
+      '@scure/base': 1.1.3
+    dev: false
+
+  /@scure/bip39@1.2.1:
+    resolution: {integrity: sha512-Z3/Fsz1yr904dduJD0NpiyRHhRYHdcnyh73FZWiV+/qhWi83wNJ3NWolYqCEN+ZWsUz2TWwajJggcRE9r1zUYg==}
+    dependencies:
+      '@noble/hashes': 1.3.1
       '@scure/base': 1.1.1
     dev: false
 
@@ -6327,7 +6323,7 @@ packages:
       remark-slug: 6.1.0
       rollup: 3.23.1
       typescript: 5.0.2
-      vite: 4.3.9(@types/node@20.4.2)
+      vite: 4.3.9(@types/node@18.11.18)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -12951,8 +12947,8 @@ packages:
       minipass: 3.3.6
       yallist: 4.0.0
 
-  /mitt@3.0.0:
-    resolution: {integrity: sha512-7dX2/10ITVyqh4aOSVI9gdape+t9l2/8QxHrFmUXu4EEUpdlxl6RudZUPZoc+zuY2hk1j7XxVroIVIan/pD/SQ==}
+  /mitt@3.0.1:
+    resolution: {integrity: sha512-vKivATfr97l2/QBCYAkXYDbrIWPM2IIKEl7YPhjCvKlG3kE2gm+uBo6nEXK3M5/Ffh/FLpKExzOQ3JJoJGFKBw==}
     dev: false
 
   /mkdirp-classic@0.5.3:

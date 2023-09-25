@@ -1,9 +1,10 @@
 import { UserConnectedEvent } from '../../../bindings/UserConnectedEvent'
-import { SignedMessage, SignedTransaction } from '@mysten/sui.js'
+// import { SignedMessage, SignedTransaction } from '@mysten/sui.js/dist/esm/signers/types'
+import type { SignedMessage, SignedTransaction } from '@mysten/sui.js/src/signers/types'
 import {
   SuiSignAndExecuteTransactionBlockInput,
   SuiSignAndExecuteTransactionBlockOutput,
-  SuiSignMessageInput,
+  SuiSignPersonalMessageInput,
   SuiSignTransactionBlockInput
 } from '@mysten/wallet-standard'
 import {
@@ -98,7 +99,7 @@ export class AppSui extends EventEmitter<SuiAppEvents> {
     return JSON.parse(signedTx[0].transaction)
   }
 
-  signMessage = async (input: SuiSignMessageInput, encoding?: string) => {
+  signMessage = async (input: SuiSignPersonalMessageInput, encoding?: string) => {
     const request: MessageToSign = {
       message: new TextDecoder().decode(input.message),
       metadata: JSON.stringify({ encoding: encoding || 'hex', account: input.account })

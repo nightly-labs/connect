@@ -23,6 +23,7 @@ export default [
     plugins: [typescript(), nodeResolve(), commonjs(), terser()],
     external: [
       '@mysten/sui.js',
+      '@mysten/sui.js/client',
       '@mysten/wallet-standard',
       '@noble/hashes',
       '@nightlylabs/nightly-connect-base',
@@ -55,6 +56,7 @@ export default [
     ],
     external: [
       '@mysten/sui.js',
+      '@mysten/sui.js/client',
       '@mysten/wallet-standard',
       '@noble/hashes',
       '@nightlylabs/nightly-connect-base',

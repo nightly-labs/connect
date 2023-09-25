@@ -3,17 +3,16 @@ import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vites
 import { AppSui } from './app'
 import { ClientSui } from './client'
 import { signTransactionBlock, SUI_NETWORK, TEST_APP_INITIALIZE } from './utils'
-
+import { fromB64, toB64 } from '@mysten/sui.js/utils'
+import { TransactionBlock } from '@mysten/sui.js/transactions'
+import { Ed25519Keypair } from '@mysten/sui.js/keypairs/ed25519'
+import { verifyPersonalMessage, verifyTransactionBlock } from '@mysten/sui.js/verify'
 import {
-  Ed25519Keypair,
-  fromB64,
   IntentScope,
   messageWithIntent,
-  toB64,
-  toSerializedSignature,
-  TransactionBlock,
-  verifyMessage
-} from '@mysten/sui.js'
+  parseSerializedSignature,
+  toSerializedSignature
+} from '@mysten/sui.js/cryptography'
 import { blake2b } from '@noble/hashes/blake2b'
 import { fetch } from 'cross-fetch'
 import { WalletAccount } from '@mysten/wallet-standard'
@@ -95,25 +94,24 @@ describe('SUI client tests', () => {
       chain: 'sui:testnet'
     })
 
-    const isValid = await verifyMessage(
-      signedTx.transactionBlockBytes,
-      signedTx.signature,
-      IntentScope.TransactionData
-    )
-    expect(isValid).toBeTruthy()
+    try {
+      // Will throw if invalid
+      await verifyTransactionBlock(fromB64(signedTx.transactionBlockBytes), signedTx.signature)
+    } catch (error) {
+      assert(false, 'Transaction block is invalid')
+    }
   })
   test('#on("signMessages")', async () => {
-    const msgToSign = 'Hello World'
+    const msgToSign = 'I love Nightly'
     client.on('signMessages', async (e) => {
       const msg = e.messages[0].message
-      const msgTo64 = toB64(new TextEncoder().encode(msg))
-      const intentMessage = messageWithIntent(IntentScope.PersonalMessage, fromB64(msgTo64))
-      const digest = blake2b(intentMessage, { dkLen: 32 })
-      const signature = alice_keypair.signData(digest)
+      const msgTo64 = new TextEncoder().encode(msg)
+      const { signature } = await alice_keypair.signPersonalMessage(msgTo64)
+      await verifyPersonalMessage(msgTo64, signature)
       const signedMessage = {
         messageBytes: msg,
         signature: toSerializedSignature({
-          signature,
+          signature: fromB64(signature),
           signatureScheme: 'ED25519',
           pubKey: alice_keypair.getPublicKey()
         })
@@ -129,13 +127,17 @@ describe('SUI client tests', () => {
       message: new TextEncoder().encode(msgToSign),
       account: aliceWalletAccount
     })
-    const signData = new TextEncoder().encode(msgToSign)
-    const isValid = await verifyMessage(
-      signData,
-      signedMessage.signature,
-      IntentScope.PersonalMessage
-    )
-    expect(isValid).toBe(true)
+    try {
+      // We need to deserialize the signature
+      const parsedSignature = parseSerializedSignature(signedMessage.signature)
+      // Will throw if invalid
+      await verifyPersonalMessage(
+        new TextEncoder().encode(msgToSign),
+        toB64(parsedSignature.signature!)
+      )
+    } catch (error) {
+      assert(false, 'Message is invalid')
+    }
   })
   test('#on("signAndExecuteSignTransaction")', async () => {
     const tx = new TransactionBlock()

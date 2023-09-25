@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { AppPolkadot, AppPolkadotInitialize } from '@nightlylabs/nightly-connect-polkadot'
 import {
-  MetadataWallet,
+  type MetadataWallet,
   NightlyConnectSelectorModal,
   XMLOptions,
   clearRecentStandardWalletForNetwork,
@@ -114,6 +114,42 @@ export class NightlyConnectAdapter implements Injected {
       this._modal.walletsList = list
     }
   }
+
+  public static initApp = async (
+    appInitData: AppSelectorInitialize
+  ): Promise<[AppPolkadot, MetadataWallet[]]> => {
+    try {
+      return await Promise.all([
+        AppPolkadot.build(appInitData),
+        AppPolkadot.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
+          .then((list) =>
+            list.map((wallet) => ({
+              name: wallet.name,
+              icon: wallet.image.default,
+              deeplink: wallet.mobile,
+              link: wallet.homepage
+            }))
+          )
+          .catch(() => [] as MetadataWallet[])
+      ])
+    } catch {
+      clearSessionIdForNetwork(appInitData.network)
+      return await Promise.all([
+        AppPolkadot.build(appInitData),
+        AppPolkadot.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
+          .then((list) =>
+            list.map((wallet) => ({
+              name: wallet.name,
+              icon: wallet.image.default,
+              deeplink: wallet.mobile,
+              link: wallet.homepage
+            }))
+          )
+          .catch(() => [] as MetadataWallet[])
+      ])
+    }
+  }
+
   public static build = async (
     appInitData: AppSelectorInitialize,
     useEagerConnect?: boolean,
@@ -144,19 +180,7 @@ export class NightlyConnectAdapter implements Injected {
       uiOverrides?.qrConfigOverride
     )
 
-    const [app, metadataWallets] = await Promise.all([
-      AppPolkadot.build(appInitData),
-      AppPolkadot.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
-        .then((list) =>
-          list.map((wallet) => ({
-            name: wallet.name,
-            icon: wallet.image.default,
-            deeplink: wallet.mobile,
-            link: wallet.homepage
-          }))
-        )
-        .catch(() => [] as MetadataWallet[])
-    ])
+    const [app, metadataWallets] = await NightlyConnectAdapter.initApp(appInitData)
 
     adapter._app = app
     adapter._metadataWallets = metadataWallets
@@ -201,19 +225,7 @@ export class NightlyConnectAdapter implements Injected {
 
     adapter._loading = true
 
-    Promise.all([
-      AppPolkadot.build(appInitData),
-      AppPolkadot.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
-        .then((list) =>
-          list.map((wallet) => ({
-            name: wallet.name,
-            icon: wallet.image.default,
-            deeplink: wallet.mobile,
-            link: wallet.homepage
-          }))
-        )
-        .catch(() => [] as MetadataWallet[])
-    ]).then(([app, metadataWallets]) => {
+    NightlyConnectAdapter.initApp(appInitData).then(([app, metadataWallets]) => {
       adapter._app = app
       adapter._metadataWallets = metadataWallets
       adapter.walletsList = getPolkadotWalletsList(
@@ -429,19 +441,9 @@ export class NightlyConnectAdapter implements Injected {
 
             if (!this._app) {
               try {
-                const [app, metadataWallets] = await Promise.all([
-                  AppPolkadot.build(this._appInitData),
-                  AppPolkadot.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
-                    .then((list) =>
-                      list.map((wallet) => ({
-                        name: wallet.name,
-                        icon: wallet.image.default,
-                        deeplink: wallet.mobile,
-                        link: wallet.homepage
-                      }))
-                    )
-                    .catch(() => [] as MetadataWallet[])
-                ])
+                const [app, metadataWallets] = await NightlyConnectAdapter.initApp(
+                  this._appInitData
+                )
 
                 this._app = app
                 this._metadataWallets = metadataWallets
@@ -503,16 +505,20 @@ export class NightlyConnectAdapter implements Injected {
           }
 
           this._app.on('userConnected', () => {
-            if (this._chosenMobileWalletName) {
-              persistRecentStandardWalletForNetwork(this._chosenMobileWalletName, this.network)
-            } else {
-              clearRecentStandardWalletForNetwork(this.network)
+            try {
+              if (this._chosenMobileWalletName) {
+                persistRecentStandardWalletForNetwork(this._chosenMobileWalletName, this.network)
+              } else {
+                clearRecentStandardWalletForNetwork(this.network)
+              }
+              this._connected = true
+              this._connecting = false
+              this._appSessionActive = true
+              this._modal?.closeModal()
+              resolve()
+            } catch {
+              this.disconnect()
             }
-            this._connected = true
-            this._connecting = false
-            this._appSessionActive = true
-            this._modal?.closeModal()
-            resolve()
           })
 
           if (this._modal) {

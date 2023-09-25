@@ -1,18 +1,13 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import {
-  SignedMessage,
-  SignedTransaction,
-  SuiTransactionBlockResponse,
-  publicKeyFromSerialized
-} from '@mysten/sui.js'
-import { WalletAdapter } from '@mysten/wallet-adapter-base'
+import { publicKeyFromRawBytes } from '@mysten/sui.js/verify'
 import { StandardWalletAdapter } from '@mysten/wallet-adapter-wallet-standard'
 import type {
-  StandardWalletAdapterWallet,
-  SuiSignAndExecuteTransactionBlockInput,
-  SuiSignMessageInput,
-  SuiSignTransactionBlockInput
+  SuiSignAndExecuteTransactionBlockMethod,
+  SuiSignPersonalMessageMethod,
+  SuiSignTransactionBlockMethod
 } from '@mysten/wallet-standard'
+
+import { type StandardWalletAdapterConfig } from '@mysten/wallet-adapter-wallet-standard/dist/StandardWalletAdapter'
 import { SUI_CHAINS } from '@mysten/wallet-standard'
 import { AppSui, SUI_NETWORK } from '@nightlylabs/nightly-connect-sui'
 import {
@@ -38,11 +33,13 @@ import {
 import type { StandardEventsOnMethod, WalletAccount } from '@wallet-standard/core'
 import bs58 from 'bs58'
 import { suiWalletsFilter } from './detection'
+
 export const convertBase58toBase64 = (base58: string) => {
   const buffer = bs58.decode(base58)
   return buffer.toString('base64')
 }
-export class NightlyConnectSuiAdapter implements WalletAdapter {
+export class NightlyConnectSuiAdapter {
+  // TODO: add later "implements WalletAdapter"
   name = 'Nightly Connect' as const
   icon = logoBase64
   connected = false
@@ -96,6 +93,39 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
     return this._innerStandardAdapter.on(event, listener)
   }
 
+  public static initApp = async (appInitData: AppInitData): Promise<[AppSui, MetadataWallet[]]> => {
+    try {
+      return await Promise.all([
+        AppSui.build(appInitData),
+        AppSui.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
+          .then((list) =>
+            list.map((wallet) => ({
+              name: wallet.name,
+              icon: wallet.image.default,
+              deeplink: wallet.mobile,
+              link: wallet.homepage
+            }))
+          )
+          .catch(() => [] as MetadataWallet[])
+      ])
+    } catch {
+      clearSessionIdForNetwork(SUI_NETWORK)
+      return await Promise.all([
+        AppSui.build(appInitData),
+        AppSui.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
+          .then((list) =>
+            list.map((wallet) => ({
+              name: wallet.name,
+              icon: wallet.image.default,
+              deeplink: wallet.mobile,
+              link: wallet.homepage
+            }))
+          )
+          .catch(() => [] as MetadataWallet[])
+      ])
+    }
+  }
+
   public static build = async (
     appInitData: AppInitData,
     eagerConnectForStandardWallets?: boolean,
@@ -126,19 +156,7 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
       uiOverrides?.qrConfigOverride
     )
 
-    const [app, metadataWallets] = await Promise.all([
-      AppSui.build(appInitData),
-      AppSui.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
-        .then((list) =>
-          list.map((wallet) => ({
-            name: wallet.name,
-            icon: wallet.image.default,
-            deeplink: wallet.mobile,
-            link: wallet.homepage
-          }))
-        )
-        .catch(() => [] as MetadataWallet[])
-    ])
+    const [app, metadataWallets] = await NightlyConnectSuiAdapter.initApp(appInitData)
 
     adapter._app = app
     adapter._metadataWallets = metadataWallets
@@ -183,19 +201,7 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
 
     adapter._loading = true
 
-    Promise.all([
-      AppSui.build(appInitData),
-      AppSui.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
-        .then((list) =>
-          list.map((wallet) => ({
-            name: wallet.name,
-            icon: wallet.image.default,
-            deeplink: wallet.mobile,
-            link: wallet.homepage
-          }))
-        )
-        .catch(() => [] as MetadataWallet[])
-    ]).then(([app, metadataWallets]) => {
+    NightlyConnectSuiAdapter.initApp(appInitData).then(([app, metadataWallets]) => {
       adapter._app = app
       adapter._metadataWallets = metadataWallets
       adapter.walletsList = getWalletsList(
@@ -256,19 +262,9 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
 
             if (!this._app) {
               try {
-                const [app, metadataWallets] = await Promise.all([
-                  AppSui.build(this._appInitData),
-                  AppSui.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
-                    .then((list) =>
-                      list.map((wallet) => ({
-                        name: wallet.name,
-                        icon: wallet.image.default,
-                        deeplink: wallet.mobile,
-                        link: wallet.homepage
-                      }))
-                    )
-                    .catch(() => [] as MetadataWallet[])
-                ])
+                const [app, metadataWallets] = await NightlyConnectSuiAdapter.initApp(
+                  this._appInitData
+                )
 
                 this._app = app
                 this._metadataWallets = metadataWallets
@@ -347,8 +343,7 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
               this._modal?.closeModal()
               resolve()
             } catch (e) {
-              this._connecting = false
-              this.connecting = false
+              this.disconnect()
               this._modal?.closeModal()
               reject(e)
             }
@@ -429,45 +424,50 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
     this.connecting = false
   }
 
-  signMessage = async (messageInput: SuiSignMessageInput): Promise<SignedMessage> => {
+  signPersonalMessage: SuiSignPersonalMessageMethod = async (messageInput) => {
     if (!this._app || !this._connectionType) {
       throw new Error('Wallet not ready')
     }
     switch (this._connectionType) {
       case ConnectionType.Nightly: {
-        return await this._app.signMessage(messageInput)
+        const message = await this._app.signMessage(messageInput)
+        return {
+          bytes: message.messageBytes,
+          signature: message.signature
+        }
       }
       case ConnectionType.WalletStandard: {
         if (!this._innerStandardAdapter) {
           throw new Error('Wallet not ready')
         }
-        return await this._innerStandardAdapter.signMessage(messageInput)
+        return await this._innerStandardAdapter.signPersonalMessage(messageInput)
       }
     }
   }
 
-  signTransactionBlock = async (
-    transactionInput: SuiSignTransactionBlockInput
-  ): Promise<SignedTransaction> => {
+  //
+  signTransactionBlock: SuiSignTransactionBlockMethod = async (transactionInput) => {
     if (!this._app || !this._connectionType) {
       throw new Error('Wallet not ready')
     }
     switch (this._connectionType) {
       case ConnectionType.Nightly: {
         return await this._app.signTransactionBlock(transactionInput)
+        // return { bytes: res.transactionBlockBytes, signature: res.signature }
       }
       case ConnectionType.WalletStandard: {
         if (!this._innerStandardAdapter) {
           throw new Error('Wallet not ready')
         }
+        // @ts-expect-error(remove after standard will use 0.42)
         return await this._innerStandardAdapter.signTransactionBlock(transactionInput)
       }
     }
   }
 
-  signAndExecuteTransactionBlock = async (
-    transactionInput: SuiSignAndExecuteTransactionBlockInput
-  ): Promise<SuiTransactionBlockResponse> => {
+  signAndExecuteTransactionBlock: SuiSignAndExecuteTransactionBlockMethod = async (
+    transactionInput
+  ) => {
     if (!this._app || !this._connectionType) {
       throw new Error('Wallet not ready')
     }
@@ -479,6 +479,7 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
         if (!this._innerStandardAdapter) {
           throw new Error('Wallet not ready')
         }
+        // @ts-expect-error(remove after standard will use 0.42)
         return await this._innerStandardAdapter.signAndExecuteTransactionBlock(transactionInput)
       }
     }
@@ -607,8 +608,8 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
     }
 
     const adapter = new StandardWalletAdapter({
-      wallet: wallet.standardWallet as StandardWalletAdapterWallet
-    })
+      wallet: wallet.standardWallet
+    } as StandardWalletAdapterConfig)
 
     try {
       await adapter.connect()
@@ -636,7 +637,7 @@ export class NightlyConnectSuiAdapter implements WalletAdapter {
   }
 }
 export const createSuiWalletAccountFromString = (publicKey: string): WalletAccount => {
-  const suiPk = publicKeyFromSerialized('ED25519', convertBase58toBase64(publicKey))
+  const suiPk = publicKeyFromRawBytes('ED25519', bs58.decode(publicKey))
   return {
     address: suiPk.toSuiAddress(),
     publicKey: suiPk.toBytes(),
