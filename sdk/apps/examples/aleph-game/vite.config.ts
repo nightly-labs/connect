@@ -4,7 +4,7 @@ import { defineConfig } from 'vite'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 export default defineConfig({
   plugins: [
-    solid({ adapter: vercel({}), ssr: false }),
+    solid({ adapter: vercel({}), ssr: true }),
     nodePolyfills({
       // To exclude specific polyfills, add them to this list.
       exclude: [
