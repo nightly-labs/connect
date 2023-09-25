@@ -13,15 +13,14 @@ import {
   Title
 } from 'solid-start'
 import { Toaster } from 'solid-toast'
+import { Metadata } from './components/Metadate/Metadata'
 import './root.css'
 
 export default function Root() {
   return (
     <Html lang="en">
       <Head>
-        <Title>Near event</Title>
-        <Meta charset="utf-8" />
-        <Meta name="viewport" content="width=device-width, initial-scale=1" />
+        <Metadata />
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;600&display=swap');
         </style>
