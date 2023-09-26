@@ -70,6 +70,11 @@ const config = {
             position: 'left'
           },
           {
+            href: 'https://example.connect.nightly.app/',
+            label: 'Demo',
+            position: 'right'
+          },
+          {
             href: 'https://twitter.com/NightlyConnect',
             label: 'Twitter',
             position: 'right'

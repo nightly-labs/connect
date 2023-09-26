@@ -57,7 +57,7 @@ const signedTx: SignedTransaction = await app.signTransactionBlock({
 ```
 
 </TabItem>
-<TabItem value="Polkadot" label="Polkadot">
+<TabItem value="Substrate" label="Substrate">
 
 Nightly connect automatically turns into remote signer after connection from client (Mobile/Extension).
 Signing transaction is as simple as passing `signer` object

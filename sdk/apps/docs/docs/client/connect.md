@@ -88,7 +88,7 @@ await client.connect(message)
 ```
 
 </TabItem>
-<TabItem value="Polkadot" label="Polkadot">
+<TabItem value="Substrate" label="Substrate">
 
 ```js
 import { ClientPolkadot } from '@nightlylabs/nightly-connect-polkadot'

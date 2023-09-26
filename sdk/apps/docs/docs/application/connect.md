@@ -147,7 +147,7 @@ export default dynamic(() => Promise.resolve(SuiProvider), {
 ```
 
 </TabItem>
-<TabItem value="Polkadot" label="Polkadot">
+<TabItem value="Substrate" label="Substrate">
 
 You can find example usage of this addapter here: https://github.com/nightly-labs/connect/blob/main/sdk/apps/modal-example/src/routes/aleph.tsx
 

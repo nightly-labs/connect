@@ -90,7 +90,7 @@ client.on('signTransactions', async (e) => {
 ```
 
 </TabItem>
-<TabItem value="Polkadot" label="Polkadot">
+<TabItem value="Substrate" label="Substrate">
 
 ```js
 
