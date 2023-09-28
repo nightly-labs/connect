@@ -65,7 +65,17 @@
 }
 
 .timeText {
-  margin-bottom: 56px;
+  margin-bottom: 12px;
+  font-family: Prompt;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 22px;
+  letter-spacing: 0.32px;
+}
+
+.participantsText {
+  margin-bottom: 48px;
   font-family: Prompt;
   font-size: 16px;
   font-style: normal;

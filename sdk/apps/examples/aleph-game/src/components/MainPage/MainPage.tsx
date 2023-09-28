@@ -15,6 +15,7 @@ import './MainPage.css'
 export interface IMainPage {
   counter: string
   time: number
+  participants: number
   connected: boolean
   id: number[]
   onConnect: () => void
@@ -56,8 +57,11 @@ export const MainPage: Component<IMainPage> = (props) => {
         <span class="timeText">
           Time left:{' '}
           <span class="timeCounterText">
-            {new Date(props.time * 1000).toISOString().slice(11, 19)}
+            {new Date(props.time * 1000).toISOString().slice(8, 19).replace('T', ':')}
           </span>
+        </span>
+        <span class="participantsText">
+          Participants: <span class="timeCounterText">{props.participants}/1000</span>
         </span>
       </div>
       <div class="gameContainer">

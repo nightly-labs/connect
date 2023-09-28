@@ -3,6 +3,7 @@ import toast from 'solid-toast'
 import { MainPage } from '~/components/MainPage/MainPage'
 import { ResolvePage } from '~/components/ResolvePage/ResolvePage'
 import {
+  getAmountAllUsers,
   getFirstAllWinner,
   getFirstThreeWinner,
   getRandomWinner,
@@ -17,13 +18,12 @@ export default function Polkadot() {
   const [accountData, setAccountData] = createSignal<{ publicKey: string; accountId: string }>()
   const [user, setUser] = createSignal({ address: '', tickets: {}, loaded: false })
   const [isWinner, setIsWinner] = createSignal(false)
-
+  const [participants, setParticipants] = createSignal(0)
   const connectWallet = async () => {
     // @ts-expect-error ignore
     if (window?.nightly?.near) {
       // @ts-expect-error ignore
       await window.nightly.near.connect().then((res: any) => {
-        console.log(res)
         setAccountData(res)
         toast.success('Wallet connected')
       })
@@ -76,6 +76,12 @@ export default function Polkadot() {
       }
     }
   })
+
+  createEffect(() => {
+    getAmountAllUsers().then((res) => {
+      setParticipants(res ?? 0)
+    })
+  })
   return (
     <Show when={timeLeft() !== 0} fallback={<ResolvePage resolve={isWinner()} />}>
       //
@@ -86,7 +92,9 @@ export default function Polkadot() {
         }}
         counter={Object.values(user().tickets).length.toString()}
         id={Object.values(user().tickets)}
-        time={timeLeft()}></MainPage>
+        time={timeLeft()}
+        participants={participants()}
+      />
     </Show>
   )
 }

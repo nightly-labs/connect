@@ -61,6 +61,7 @@ export default function Polkadot() {
       }, 1000)
     }
   })
+
   return (
     <LandingPage
       hasTicketsToClaim={!isTicketClaimed()}

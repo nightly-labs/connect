@@ -18,6 +18,13 @@ export interface User {
   address: string
   tickets: { [key: string]: number }
 }
+
+export const getAmountAllUsers = async () => {
+  const db = getDb()
+  const { count } = await db.from('tickets').select('*', { count: 'exact' })
+  return count
+}
+
 export const addUserTicket = async (userAddress: string, ticketId: TicketId) => {
   const db = getDb()
   const user = await (
