@@ -10,6 +10,7 @@ export interface WalletSelectorItem {
   link: string
   detected?: boolean
   recent?: boolean
+  install?: boolean
 }
 
 export enum SelectorView {
