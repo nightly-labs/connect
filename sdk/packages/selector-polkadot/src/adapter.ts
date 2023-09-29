@@ -225,16 +225,21 @@ export class NightlyConnectAdapter implements Injected {
 
     adapter._loading = true
 
-    NightlyConnectAdapter.initApp(appInitData).then(([app, metadataWallets]) => {
-      adapter._app = app
-      adapter._metadataWallets = metadataWallets
-      adapter.walletsList = getPolkadotWalletsList(
-        metadataWallets,
-        getRecentStandardWalletForNetwork(adapter.network) ?? undefined
-      )
+    NightlyConnectAdapter.initApp(appInitData)
+      .then(([app, metadataWallets]) => {
+        adapter._app = app
+        adapter._metadataWallets = metadataWallets
+        adapter.walletsList = getPolkadotWalletsList(
+          metadataWallets,
+          getRecentStandardWalletForNetwork(adapter.network) ?? undefined
+        )
 
-      adapter._loading = false
-    })
+        adapter._loading = false
+      })
+      .catch(() => {
+        adapter._loading = false
+        throw new Error('Failed to initialize adapter')
+      })
 
     return adapter
   }
@@ -399,7 +404,10 @@ export class NightlyConnectAdapter implements Injected {
     try {
       // @ts-expect-error we want to pass network to enable
       const inject = await adapter!.enable!('Nightly Connect', this.network) // TODO should we also use connect?
-
+      // Assert that there is at least one account
+      if ((await inject.accounts.get()).length <= 0) {
+        throw new Error('No accounts found')
+      }
       persistRecentStandardWalletForNetwork(walletName, this.network)
       persistStandardConnectForNetwork(this.network)
       this._innerStandardAdapter = {
@@ -421,6 +429,8 @@ export class NightlyConnectAdapter implements Injected {
       this._modal?.closeModal()
       onSuccess()
     } catch {
+      // clear recent wallet
+      persistStandardDisconnectForNetwork(this.network)
       if (this._modal) {
         this._modal.setStandardWalletConnectProgress(false)
       }
@@ -453,10 +463,11 @@ export class NightlyConnectAdapter implements Injected {
                   getRecentStandardWalletForNetwork(this.network) ?? undefined
                 )
               } catch (e) {
+                this._connecting = false
                 if (!this._app) {
-                  this._connecting = false
                   throw new Error('Wallet not ready')
                 }
+                throw e
               }
             }
           } else {
@@ -511,6 +522,11 @@ export class NightlyConnectAdapter implements Injected {
               } else {
                 clearRecentStandardWalletForNetwork(this.network)
               }
+              if (!this._app || this._app.accounts.activeAccounts.length <= 0) {
+                this._connecting = false
+                // If user does not pass any accounts, we should disconnect
+                this.disconnect()
+              }
               this._connected = true
               this._connecting = false
               this._appSessionActive = true
@@ -551,37 +567,22 @@ export class NightlyConnectAdapter implements Injected {
     })
 
   disconnect = async () => {
-    if (this.connected) {
-      if (this._appSessionActive) {
-        clearSessionIdForNetwork(this.network)
-        this._appSessionActive = false
-        this._loading = true
-        AppPolkadot.build(this._appInitData)
-          .then(
-            (app) => {
-              this._app = app
-            },
-            (err) => {
-              console.log(err)
-            }
-          )
-          .finally(() => {
-            this._loading = false
-          })
-      }
-      if (this._innerStandardAdapter) {
-        this._innerStandardAdapter = undefined
-        persistStandardDisconnectForNetwork(this.network)
-      }
-      // Update recent wallet
-      this.walletsList = getPolkadotWalletsList(
-        this._metadataWallets,
-        getRecentStandardWalletForNetwork(this.network) ?? undefined
-      )
-      if (this._modal) {
-        this._modal.walletsList = this.walletsList
-      }
-      this._connected = false
+    // Some apps might use disconnect to reset state / recreate session
+    clearSessionIdForNetwork(this.network)
+    this._appSessionActive = false
+    this._app = await AppPolkadot.build(this._appInitData)
+    if (this._innerStandardAdapter) {
+      this._innerStandardAdapter = undefined
+      persistStandardDisconnectForNetwork(this.network)
     }
+    // Update recent wallet
+    this.walletsList = getPolkadotWalletsList(
+      this._metadataWallets,
+      getRecentStandardWalletForNetwork(this.network) ?? undefined
+    )
+    if (this._modal) {
+      this._modal.walletsList = this.walletsList
+    }
+    this._connected = false
   }
 }
