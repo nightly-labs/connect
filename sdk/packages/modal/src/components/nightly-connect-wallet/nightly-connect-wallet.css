@@ -113,6 +113,7 @@
 .nc_connectBottomButtonsContainer {
   align-items: center;
   display: flex;
+  font-size: var(--nc-font-size-3);
 }
 
 @media (max-width: 960px) {
