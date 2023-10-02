@@ -127,6 +127,10 @@ export class NightlySelector extends LitElement {
     this.onSelectWallet(this.currentWalletName)
   }
 
+  downloadApp = () => {
+    window.open(this.link, '_blank')
+  }
+
   backToPage = () => {
     if (this.mobileQuery.matches) {
       this.setCurrentView(SelectorView.MOBILE_MAIN)
@@ -157,6 +161,7 @@ export class NightlySelector extends LitElement {
     this.handleClose = this.handleClose.bind(this)
     this.onSelectWallet = this.onSelectWallet.bind(this)
     this.tryAgainClick = this.tryAgainClick.bind(this)
+    this.downloadApp = this.downloadApp.bind(this)
     this.backToPage = this.backToPage.bind(this)
     this.returnToMobileInit = this.returnToMobileInit.bind(this)
     this.goToMobileAll = this.goToMobileAll.bind(this)
@@ -208,6 +213,7 @@ export class NightlySelector extends LitElement {
         .connecting=${this.connecting}
         .tryAgainClick=${this.tryAgainClick}
         .goBack=${this.backToPage}
+        .downloadApp=${this.downloadApp}
         .link=${this.link}
         .nameLink=${this.currentWalletName}
         .walletIcon=${this.walletIcon}
