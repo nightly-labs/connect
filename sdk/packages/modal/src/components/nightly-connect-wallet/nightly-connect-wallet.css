@@ -96,9 +96,22 @@
 .nc_connectTryAgainButton {
   width: 128px;
   height: 32px;
+  background: var(--nc-color-elements-4);
+  color: var(--nc-color-elements-7);
+  border-radius: 8px;
+  margin-right: 16px;
+}
+
+.nc_connectDownloadAppButton {
+  width: 138px;
+  height: 32px;
   background: var(--nc-color-primary);
   color: var(--nc-color-elements-7);
   border-radius: 8px;
+}
+
+.nc_connectBottomButtonsContainer {
+  display: flex;
 }
 
 @media (max-width: 960px) {

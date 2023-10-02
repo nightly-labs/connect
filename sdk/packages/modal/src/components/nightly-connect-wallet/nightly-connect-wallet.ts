@@ -1,6 +1,5 @@
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { unsafeHTML } from 'lit/directives/unsafe-html.js'
 import { tailwindElement } from '../../shared/tailwind.element'
 import style from './nightly-connect-wallet.css'
 
@@ -11,17 +10,20 @@ export class NightlyConnectWallet extends LitElement {
   @property({ type: Boolean })
   connecting = false
 
-  @property({ type: String })
-  nameLink = ''
+  // @property({ type: String })
+  // nameLink = ''
 
-  @property({ type: String })
-  link = ''
+  // @property({ type: String })
+  // link = ''
 
   @property({ type: String })
   walletIcon = ''
 
   @property({ type: String })
   coinName = ''
+
+  @property({ type: Function })
+  downloadApp: () => void = () => {}
 
   @property()
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -51,16 +53,14 @@ export class NightlyConnectWallet extends LitElement {
         </div>
         <div class="nc_connectBottomInfo">
           <p class="nc_connectBottomInfoText">
-            Connecting takes too long? Make sure ${this.nameLink} is installed on your device.
-            ${this.link.length
-              ? unsafeHTML(`Otherwise, visit
-            <a class="nc_connectWalletLink" href="${this.link}"
-              >${this.nameLink} website</a
-            >
-            to download it.`)
-              : ''}
+            Connecting takes too long? Make sure Coinbase Wallet app is downloaded on your device.
           </p>
-          <button class="nc_connectTryAgainButton" @click=${this.tryAgainClick}>Try again</button>
+          <div class="nc_connectBottomButtonsContainer">
+            <button class="nc_connectTryAgainButton" @click=${this.tryAgainClick}>Try again</button>
+            <button class="nc_connectDownloadAppButton" @click=${this.downloadApp}>
+              Download app
+            </button>
+          </div>
         </div>
       </div>
     `
