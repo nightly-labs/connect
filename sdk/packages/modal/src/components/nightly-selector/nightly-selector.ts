@@ -128,12 +128,7 @@ export class NightlySelector extends LitElement {
   }
 
   downloadApp = () => {
-    const a = document.createElement('a')
-    a.href = this.link
-    a.download = this.link
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
+    window.open(this.link, '_blank')
   }
 
   backToPage = () => {
