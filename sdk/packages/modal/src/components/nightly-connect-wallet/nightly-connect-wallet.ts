@@ -10,19 +10,17 @@ export class NightlyConnectWallet extends LitElement {
   @property({ type: Boolean })
   connecting = false
 
-  // @property({ type: String })
-  // nameLink = ''
-
-  // @property({ type: String })
-  // link = ''
-
   @property({ type: String })
   walletIcon = ''
+
+  @property({ type: String })
+  nameLink = ''
 
   @property({ type: String })
   coinName = ''
 
   @property({ type: Function })
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   downloadApp: () => void = () => {}
 
   @property()
@@ -53,7 +51,7 @@ export class NightlyConnectWallet extends LitElement {
         </div>
         <div class="nc_connectBottomInfo">
           <p class="nc_connectBottomInfoText">
-            Connecting takes too long? Make sure Coinbase Wallet app is downloaded on your device.
+            Connecting takes too long? Make sure ${this.nameLink} app is downloaded on your device.
           </p>
           <div class="nc_connectBottomButtonsContainer">
             <button class="nc_connectTryAgainButton" @click=${this.tryAgainClick}>Try again</button>
