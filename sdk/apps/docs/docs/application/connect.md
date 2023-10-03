@@ -43,6 +43,14 @@ interface AppMetadata {
 <Tabs>
 <TabItem value="Solana" label="Solana">
 
+:::info
+We have ready to use templates that you can try here.
+
+Preview: https://solana-web3-template.nightly.app/
+
+Source code: https://github.com/nightly-labs/solana-web3-template
+:::
+
 You can implement nightly connect as full selector or use it with popular solana adapter https://github.com/solana-labs/wallet-adapter
 
 ```js
@@ -113,6 +121,14 @@ const Content: FC = () => {
 
 <TabItem value="SUI" label="SUI">
 
+:::info
+We have ready to use templates that you can try here.
+
+Preview: https://sui-web3-template.nightly.app/
+
+Source code: https://github.com/nightly-labs/sui-web3-template
+:::
+
 You can implement nightly connect as full selector or use it with popular sui adapter https://github.com/MystenLabs/sui/tree/main/sdk/wallet-adapter
 
 ```js
@@ -149,11 +165,19 @@ export default dynamic(() => Promise.resolve(SuiProvider), {
 </TabItem>
 <TabItem value="Substrate" label="Substrate">
 
+:::info
+We have ready to use templates that you can try here.
+
+Preview: https://aleph-zero-web3-template.nightly.app/
+
+Source code: https://github.com/nightly-labs/aleph-zero-web3-template
+:::
+
 You can find example usage of this addapter here: https://github.com/nightly-labs/connect/blob/main/sdk/apps/modal-example/src/routes/aleph.tsx
 
 ```js
 import { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-polkadot'
-const adapter = NightlyConnectAdapter.buildLazy(
+const adapter = await NightlyConnectAdapter.build(
   {
     appMetadata: {
       name: 'NC TEST AlephZero',
