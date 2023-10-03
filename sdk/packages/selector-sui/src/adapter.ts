@@ -599,19 +599,19 @@ export class NightlyConnectSuiAdapter {
     }
   }
   connectToStandardWallet = async (walletName: string, onSuccess: () => void) => {
-    if (this._modal) {
-      this._modal.setStandardWalletConnectProgress(true)
-    }
-    const wallet = this.walletsList.find((w) => w.name === walletName)
-    if (typeof wallet?.standardWallet === 'undefined') {
-      return
-    }
-
-    const adapter = new StandardWalletAdapter({
-      wallet: wallet.standardWallet
-    } as StandardWalletAdapterConfig)
-
     try {
+      if (this._modal) {
+        this._modal.setStandardWalletConnectProgress(true)
+      }
+      const wallet = this.walletsList.find((w) => w.name === walletName)
+      if (typeof wallet?.standardWallet === 'undefined') {
+        throw new Error('Wallet not found')
+      }
+
+      const adapter = new StandardWalletAdapter({
+        wallet: wallet.standardWallet
+      } as StandardWalletAdapterConfig)
+
       await adapter.connect()
 
       persistRecentStandardWalletForNetwork(walletName, SUI_NETWORK)
