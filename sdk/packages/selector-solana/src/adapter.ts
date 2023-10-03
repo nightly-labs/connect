@@ -393,20 +393,20 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
   }
 
   connectToStandardWallet = async (walletName: string, onSuccess: () => void) => {
-    if (this._modal) {
-      this._modal.setStandardWalletConnectProgress(true)
-    }
-
-    const wallet = this.walletsList.find((w) => w.name === walletName)
-    if (typeof wallet?.standardWallet === 'undefined') {
-      return
-    }
-
-    const adapter = new StandardWalletAdapter({
-      wallet: wallet.standardWallet as WalletAdapterCompatibleStandardWallet
-    })
-
     try {
+      if (this._modal) {
+        this._modal.setStandardWalletConnectProgress(true)
+      }
+
+      const wallet = this.walletsList.find((w) => w.name === walletName)
+      if (typeof wallet?.standardWallet === 'undefined') {
+        throw new Error('Wallet not found')
+      }
+
+      const adapter = new StandardWalletAdapter({
+        wallet: wallet.standardWallet as WalletAdapterCompatibleStandardWallet
+      })
+
       await adapter.connect()
       persistRecentStandardWalletForNetwork(walletName, SOLANA_NETWORK)
       persistStandardConnectForNetwork(SOLANA_NETWORK)
@@ -418,6 +418,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       this._modal?.closeModal()
       onSuccess()
     } catch {
+      // clear recent wallet
+      persistStandardDisconnectForNetwork(SOLANA_NETWORK)
       if (this._modal) {
         this._modal.setStandardWalletConnectProgress(false)
       }

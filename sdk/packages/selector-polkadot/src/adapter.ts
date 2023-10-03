@@ -391,23 +391,25 @@ export class NightlyConnectAdapter implements Injected {
   }
 
   connectToStandardWallet = async (walletName: string, onSuccess: () => void) => {
-    if (this._modal) {
-      this._modal.setStandardWalletConnectProgress(true)
-    }
-    const adapter = this.walletsList.find((w) => w.name === walletName)?.injectedWallet
-    if (typeof adapter === 'undefined') {
-      if (this._modal) {
-        this._modal.setStandardWalletConnectProgress(false)
-      }
-      throw new Error('Wallet not found')
-    }
     try {
+      if (this._modal) {
+        this._modal.setStandardWalletConnectProgress(true)
+      }
+      const adapter = this.walletsList.find((w) => w.name === walletName)?.injectedWallet
+      if (typeof adapter === 'undefined') {
+        if (this._modal) {
+          this._modal.setStandardWalletConnectProgress(false)
+        }
+        throw new Error('Wallet not found')
+      }
       // @ts-expect-error we want to pass network to enable
       const inject = await adapter!.enable!('Nightly Connect', this.network) // TODO should we also use connect?
+
       // Assert that there is at least one account
       if ((await inject.accounts.get()).length <= 0) {
         throw new Error('No accounts found')
       }
+
       persistRecentStandardWalletForNetwork(walletName, this.network)
       persistStandardConnectForNetwork(this.network)
       this._innerStandardAdapter = {
@@ -514,7 +516,6 @@ export class NightlyConnectAdapter implements Injected {
               return
             }
           }
-
           this._app.on('userConnected', () => {
             try {
               if (this._chosenMobileWalletName) {
