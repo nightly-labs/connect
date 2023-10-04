@@ -16,7 +16,7 @@ export const LandingPage: Component<ILandingPageProps> = (props) => {
     <div class="mainContainer">
       <img class="headerImg" src={Logo} alt="" />
       <div class="landingDescription">
-        <span>Win up to $150 with Nightly</span>
+        <span>Win up to $110 with Nightly</span>
         <span class="landingTextInfo">
           Connect your Nightly Wallet and claim your raffle ticket.
         </span>
