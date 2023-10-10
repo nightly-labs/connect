@@ -115,7 +115,9 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     try {
       return await Promise.all([
         AppSolana.build(appInitData),
-        AppSolana.getWalletsMetadata(`${appInitData.url}/get_wallets_metadata`)
+        AppSolana.getWalletsMetadata(
+          `${appInitData.url ?? 'https://nc2.nightly.app'}/get_wallets_metadata`
+        )
           .then((list) =>
             list.map((wallet) => ({
               name: wallet.name,
@@ -131,7 +133,9 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       clearSessionIdForNetwork(SOLANA_NETWORK)
       return await Promise.all([
         AppSolana.build(appInitData),
-        AppSolana.getWalletsMetadata(`${appInitData.url}/get_wallets_metadata`)
+        AppSolana.getWalletsMetadata(
+          `${appInitData.url ?? 'https://nc2.nightly.app'}/get_wallets_metadata`
+        )
           .then((list) =>
             list.map((wallet) => ({
               name: wallet.name,

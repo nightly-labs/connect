@@ -121,7 +121,9 @@ export class NightlyConnectAdapter implements Injected {
     try {
       return await Promise.all([
         AppPolkadot.build(appInitData),
-        AppPolkadot.getWalletsMetadata(`${appInitData.url}/get_wallets_metadata`)
+        AppPolkadot.getWalletsMetadata(
+          `${appInitData.url ?? 'https://nc2.nightly.app'}/get_wallets_metadata`
+        )
           .then((list) =>
             list.map((wallet) => ({
               name: wallet.name,
@@ -137,7 +139,9 @@ export class NightlyConnectAdapter implements Injected {
       clearSessionIdForNetwork(appInitData.network)
       return await Promise.all([
         AppPolkadot.build(appInitData),
-        AppPolkadot.getWalletsMetadata(`${appInitData.url}/get_wallets_metadata`)
+        AppPolkadot.getWalletsMetadata(
+          `${appInitData.url ?? 'https://nc2.nightly.app'}/get_wallets_metadata`
+        )
           .then((list) =>
             list.map((wallet) => ({
               name: wallet.name,
@@ -548,13 +552,6 @@ export class NightlyConnectAdapter implements Injected {
                 reject(error)
               }
             }
-            // if (isMobileBrowser()) {
-            //   this._modal._walletsList = this.walletsList.filter(
-            //     (w) => w.walletType !== 'extension'
-            //   )
-            // } else {
-            //   this._modal._walletsList = this.walletsList.filter((w) => w.walletType !== 'mobile')
-            // }
             this._modal.openModal(this._app.sessionId, (walletName) => {
               if (
                 isMobileBrowser() &&
