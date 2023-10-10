@@ -55,7 +55,7 @@ pub static WALLETS_METADATA: Lazy<Vec<WalletMetadata>> = Lazy::new(|| {
                     "https://apps.apple.com/pl/app/nightly-multichain-wallet/id6444768157".to_string(),
                 ),
             ]),
-            chains: vec![Network::new("solana"), Network::new("near"), Network::new("sui"), Network::new("aptos")],
+            chains: vec![Network::new("solana"), Network::new("near"), Network::new("sui"), Network::new("aptos"), Network::new("polkadot")],
             desktop: None,
             mobile: Some(Deeplink {
                 native: Some("nightly".to_string()),
@@ -71,11 +71,64 @@ pub static WALLETS_METADATA: Lazy<Vec<WalletMetadata>> = Lazy::new(|| {
                 (Network::new("solana"),"window.nightly.solana".to_string()),
                 (Network::new("sui"),"window.nightly.sui".to_string()),
                 (Network::new("aptos"),"window.nightly.aptos".to_string()),
-                (Network::new("near"),"window.nightly.near".to_string())
+                (Network::new("near"),"window.nightly.near".to_string()),
+                (Network::new("polkadot"),"window.nightly.polkadot".to_string()),
             ]),
             last_updated_timestamp: 1686303253,
             version: Version("0.0.1".to_string()),
             wallet_type: WalletType::hybrid,
+        },
+        // Aleph Zero Signer
+        WalletMetadata {
+            slug: "aleph-zero-signer".to_string(),
+            name: "Aleph Zero Signer".to_string(),
+            description: "Aleph Zero Signer".to_string(),
+            homepage: "https://alephzero.org/signer".to_string(),
+            app: HashMap::from([
+                (
+                    Platform::chrome,
+                    "https://chrome.google.com/webstore/detail/aleph-zero-signer/opbinaebpmphpefcimknblieddamhmol".to_string(),
+                ),
+                (
+                    Platform::edge,
+                    "https://chrome.google.com/webstore/detail/aleph-zero-signer/opbinaebpmphpefcimknblieddamhmol".to_string(),
+                ),
+                (
+                    Platform::browser,
+                    "https://chrome.google.com/webstore/detail/aleph-zero-signer/opbinaebpmphpefcimknblieddamhmol".to_string(),
+                ),
+                (
+                    Platform::brave,
+                    "https://chrome.google.com/webstore/detail/aleph-zero-signer/opbinaebpmphpefcimknblieddamhmol".to_string(),
+                ),
+                (
+                    Platform::opera,
+                    "https://chrome.google.com/webstore/detail/aleph-zero-signer/opbinaebpmphpefcimknblieddamhmol".to_string(),
+                ),
+                (
+                    Platform::opera,
+                    "https://chrome.google.com/webstore/detail/aleph-zero-signer/opbinaebpmphpefcimknblieddamhmol".to_string(),
+                ),
+                (
+                    Platform::firefox,
+                    "https://addons.mozilla.org/en-GB/firefox/addon/aleph-zero-signer/".to_string(),
+                ),
+            ]),
+            chains: vec![Network::new("polkadot")],
+            desktop: None,
+            mobile: None,
+            image: Images {
+                default: format!("https://registry.nightly.app/wallets/aleph-zero-signer/default.png"),
+                sm: format!("https://registry.nightly.app/wallets/aleph-zero-signer/default.png"),
+                md: format!("https://registry.nightly.app/wallets/aleph-zero-signer/default.png"),
+                lg: format!("https://registry.nightly.app/wallets/aleph-zero-signer/default.png"),
+            },
+            inject_path: HashMap::from([
+                (Network::new("polkadot"),"window.injectedWeb3.aleph-zero-signer".to_string()),
+            ]),
+            last_updated_timestamp: 1696942859,
+            version: Version("0.1.0".to_string()),
+            wallet_type: WalletType::extension,
         },
     ];
 });

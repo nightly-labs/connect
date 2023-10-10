@@ -30,6 +30,13 @@ export class NightlyConnectSelectorModal {
     this.createSelectorElement(variablesOverride, stylesOverride, qrConfigOverride)
   }
 
+  // if (isMobileBrowser()) {
+  //   this._modal._walletsList = this.walletsList.filter(
+  //     (w) => w.walletType !== 'extension'
+  //   )
+  // } else {
+  //   this._modal._walletsList = this.walletsList.filter((w) => w.walletType !== 'mobile')
+  // }
   get walletsList() {
     return this._walletsList
   }

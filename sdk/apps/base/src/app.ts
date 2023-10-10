@@ -60,8 +60,11 @@ export class BaseApp extends EventEmitter<BaseEvents> {
     this.ws = ws
     this.timeout = initializeData.timeout ?? 40000
   }
-  public static getWalletsMetadata = async (url?: string): Promise<WalletMetadata[]> => {
-    return getWalletsMetadata(url)
+  public static getWalletsMetadata = async (
+    url?: string,
+    network?: string
+  ): Promise<WalletMetadata[]> => {
+    return getWalletsMetadata(url, network)
   }
   public static build = async (baseInitialize: AppBaseInitialize): Promise<BaseApp> => {
     return new Promise((resolve, reject) => {

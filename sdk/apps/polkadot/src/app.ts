@@ -107,7 +107,7 @@ export class AppPolkadot extends EventEmitter<PolkadotAppEvents> implements Inje
   }
 
   public static getWalletsMetadata = async (url?: string): Promise<WalletMetadata[]> => {
-    return getWalletsMetadata(url)
+    return getWalletsMetadata(url, 'polkadot')
   }
 
   public static build = async (initData: AppPolkadotInitialize): Promise<AppPolkadot> => {

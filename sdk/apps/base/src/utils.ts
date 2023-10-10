@@ -40,9 +40,12 @@ export const smartDelay = async (ms?: number) => {
     }
   }
 }
-export const getWalletsMetadata = async (url?: string): Promise<WalletMetadata[]> => {
+export const getWalletsMetadata = async (
+  url?: string,
+  network?: string
+): Promise<WalletMetadata[]> => {
   const endpoint = url ?? RELAY_ENDPOINT + '/get_wallets_metadata'
-  const result = await (
+  const result = (await (
     await fetch(endpoint, {
       method: 'GET',
       headers: {
@@ -50,8 +53,12 @@ export const getWalletsMetadata = async (url?: string): Promise<WalletMetadata[]
         'Content-Type': 'application/json'
       }
     })
-  ).json()
-  return result
+  ).json()) as WalletMetadata[]
+  if (network) {
+    return result.filter((walletMetadata) => walletMetadata.chains.includes(network))
+  } else {
+    return result
+  }
 }
 
 let _localStorage: ILocalStorage | null = null

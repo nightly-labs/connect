@@ -1,17 +1,26 @@
 {
   "compilerOptions": {
+    "lib": ["es2015", "DOM"],
     "target": "esnext",
-    "module": "ESNext",
-    "strict": true,
-    "esModuleInterop": true,
+    "moduleDetection": "force",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "baseUrl": ".",
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
-    "sourceMap": true,
-    "outDir": "dist",
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "noImplicitAny": false,
+    "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "isolatedModules": true,
+    "noFallthroughCasesInSwitch": true,
     "declaration": true,
     "declarationDir": "types",
-    "emitDeclarationOnly": true
-  }
+    "emitDeclarationOnly": true,
+    "outDir": "dist",
+    "rootDir": "../.."
+  },
+  "include": ["../../bindings/*", "src/*"]
 }
