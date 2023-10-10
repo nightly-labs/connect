@@ -54,7 +54,8 @@ export const getPolkadotWalletsList = (presetList: MetadataWallet[], recentWalle
         icon: wallet.icon,
         link: '',
         deeplink: null,
-        recent: recentWalletName === wallet.name
+        recent: recentWalletName === wallet.name,
+        walletType: 'hybrid'
       }),
       detected: true,
       injectedWallet: wallet

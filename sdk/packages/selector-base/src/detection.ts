@@ -25,7 +25,8 @@ export const getWalletsList = (
         icon: wallet.icon,
         link: '',
         deeplink: null,
-        recent: recentWalletName === wallet.name
+        recent: recentWalletName === wallet.name,
+        walletType: 'hybrid'
       }),
       detected: true,
       standardWallet: wallet

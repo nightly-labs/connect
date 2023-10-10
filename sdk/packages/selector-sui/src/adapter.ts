@@ -97,13 +97,14 @@ export class NightlyConnectSuiAdapter {
     try {
       return await Promise.all([
         AppSui.build(appInitData),
-        AppSui.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
+        AppSui.getWalletsMetadata(`${appInitData.url}/get_wallets_metadata`)
           .then((list) =>
             list.map((wallet) => ({
               name: wallet.name,
               icon: wallet.image.default,
               deeplink: wallet.mobile,
-              link: wallet.homepage
+              link: wallet.homepage,
+              walletType: wallet.walletType
             }))
           )
           .catch(() => [] as MetadataWallet[])
@@ -112,13 +113,14 @@ export class NightlyConnectSuiAdapter {
       clearSessionIdForNetwork(SUI_NETWORK)
       return await Promise.all([
         AppSui.build(appInitData),
-        AppSui.getWalletsMetadata('https://nc2.nightly.app/get_wallets_metadata')
+        AppSui.getWalletsMetadata(`${appInitData.url}/get_wallets_metadata`)
           .then((list) =>
             list.map((wallet) => ({
               name: wallet.name,
               icon: wallet.image.default,
               deeplink: wallet.mobile,
-              link: wallet.homepage
+              link: wallet.homepage,
+              walletType: wallet.walletType
             }))
           )
           .catch(() => [] as MetadataWallet[])
