@@ -29,7 +29,7 @@ importers:
         version: 2.8.0
       turbo:
         specifier: latest
-        version: 1.10.7
+        version: 1.10.15
       typescript:
         specifier: ^4.9.0
         version: 4.9.4
@@ -129,22 +129,22 @@ importers:
         specifier: ^0.8.0
         version: 0.8.0
       '@nightlylabs/nightly-connect-polkadot':
-        specifier: 0.0.6
+        specifier: 0.0.7
         version: link:../polkadot
       '@nightlylabs/nightly-connect-solana':
-        specifier: 0.0.26
+        specifier: 0.0.27
         version: link:../solana
       '@nightlylabs/nightly-connect-sui':
-        specifier: 0.0.26
+        specifier: 0.0.27
         version: link:../sui
       '@nightlylabs/wallet-selector-polkadot':
-        specifier: 0.1.5
+        specifier: 0.1.6
         version: link:../../packages/selector-polkadot
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.2.4
+        specifier: 0.2.5
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
-        specifier: 0.2.4
+        specifier: 0.2.5
         version: link:../../packages/selector-sui
       '@polkadot/api':
         specifier: ^10.9.1
@@ -214,11 +214,11 @@ importers:
         specifier: 0.7.3
         version: 0.7.3(react-dom@18.2.0)(react@18.2.0)
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.2.3
-        version: 0.2.3(bs58@4.0.1)(react@18.2.0)
+        specifier: 0.2.5
+        version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
-        specifier: 0.2.3
-        version: 0.2.3
+        specifier: 0.2.5
+        version: link:../../packages/selector-sui
       '@solana/web3.js':
         specifier: ^1.77.2
         version: 1.77.2
@@ -253,7 +253,7 @@ importers:
   apps/polkadot:
     dependencies:
       '@nightlylabs/nightly-connect-base':
-        specifier: 0.0.25
+        specifier: 0.0.26
         version: link:../base
       '@polkadot/api':
         specifier: ^10.9.1
@@ -336,7 +336,7 @@ importers:
   apps/solana:
     dependencies:
       '@nightlylabs/nightly-connect-base':
-        specifier: 0.0.25
+        specifier: 0.0.26
         version: link:../base
       '@solana/web3.js':
         specifier: ^1.77.2
@@ -397,7 +397,7 @@ importers:
         specifier: ^0.8.0
         version: 0.8.0
       '@nightlylabs/nightly-connect-base':
-        specifier: 0.0.25
+        specifier: 0.0.26
         version: link:../base
       '@noble/hashes':
         specifier: ^1.3.0
@@ -586,7 +586,7 @@ importers:
   packages/selector-base:
     dependencies:
       '@nightlylabs/nightly-connect-base':
-        specifier: 0.0.25
+        specifier: 0.0.26
         version: link:../../apps/base
       '@nightlylabs/wallet-selector-modal':
         specifier: 0.1.2
@@ -626,10 +626,10 @@ importers:
   packages/selector-polkadot:
     dependencies:
       '@nightlylabs/nightly-connect-polkadot':
-        specifier: 0.0.6
+        specifier: 0.0.7
         version: link:../../apps/polkadot
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.2.2
+        specifier: 0.2.3
         version: link:../selector-base
       '@polkadot/api':
         specifier: 10.9.1
@@ -669,10 +669,10 @@ importers:
   packages/selector-solana:
     dependencies:
       '@nightlylabs/nightly-connect-solana':
-        specifier: 0.0.26
+        specifier: 0.0.27
         version: link:../../apps/solana
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.2.2
+        specifier: 0.2.3
         version: link:../selector-base
       '@solana/wallet-adapter-base':
         specifier: ^0.9.22
@@ -727,10 +727,10 @@ importers:
         specifier: ^0.8.0
         version: 0.8.0
       '@nightlylabs/nightly-connect-sui':
-        specifier: 0.0.26
+        specifier: 0.0.27
         version: link:../../apps/sui
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.2.2
+        specifier: 0.2.3
         version: link:../selector-base
       '@wallet-standard/core':
         specifier: ^1.0.3
@@ -5053,124 +5053,6 @@ packages:
     requiresBuild: true
     dev: false
     optional: true
-
-  /@nightlylabs/nightly-connect-base@0.0.25:
-    resolution: {integrity: sha512-E0NwUoBuyqzcnxSiLxEZAiujoUYhndwiprJ2bH615xkpPRRGiS/PGkfeoBtuZewV/6uhAcyQyW0+maCQqGKWog==}
-    dependencies:
-      cross-fetch: 3.1.6
-      eventemitter3: 5.0.1
-      isomorphic-localstorage: 1.0.2
-      isomorphic-ws: 5.0.0(ws@8.13.0)
-      uuid: 9.0.0
-      ws: 8.13.0(bufferutil@4.0.7)(utf-8-validate@5.0.10)
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - utf-8-validate
-    dev: false
-
-  /@nightlylabs/nightly-connect-solana@0.0.26:
-    resolution: {integrity: sha512-cpwU5oNdD9o0S1go4Jzk/Phyj8qiQjlhjFrq8DNwqnvQcB3mUWGq8GSmO/qOPl1fbqi7kGw1DdaGZIqLbZx3JQ==}
-    dependencies:
-      '@nightlylabs/nightly-connect-base': 0.0.25
-      '@solana/web3.js': 1.77.2
-      eventemitter3: 5.0.1
-      uuid: 9.0.0
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - supports-color
-      - utf-8-validate
-    dev: false
-
-  /@nightlylabs/nightly-connect-sui@0.0.26:
-    resolution: {integrity: sha512-Xu7++xLxIMsTWDj5xUkFD6J3v97tt81XIA06elxJnF2riSUOLNYJfa4eXm7SZzTVDimOik5IFM72XFSxrGrdqg==}
-    dependencies:
-      '@mysten/sui.js': 0.42.0
-      '@mysten/wallet-standard': 0.8.0
-      '@nightlylabs/nightly-connect-base': 0.0.25
-      '@noble/hashes': 1.3.2
-      eventemitter3: 5.0.1
-      uuid: 9.0.0
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - utf-8-validate
-    dev: false
-
-  /@nightlylabs/qr-code@2.0.4:
-    resolution: {integrity: sha512-GU8u8Cm1Q5YnoB/kikM4whFQhJ7ZWKaazBm4wiZK9Qi64Ht9tyRVzASBbZRpeOZVzxwi7Mml5sz0hUKPEFMpdA==}
-    dependencies:
-      qrcode-generator: 1.4.4
-    dev: false
-
-  /@nightlylabs/wallet-selector-base@0.2.2:
-    resolution: {integrity: sha512-Xui3qxtMSzJ/GQEo9G21x8zowxLIQQfRhNmzSlRlxkv5waRNm4eW4BmegfE2DRXCVM2WzgbdP8RYRS20EKXrmQ==}
-    dependencies:
-      '@nightlylabs/nightly-connect-base': 0.0.25
-      '@nightlylabs/wallet-selector-modal': 0.1.2
-      '@wallet-standard/core': 1.0.3
-      isomorphic-localstorage: 1.0.2
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - supports-color
-      - ts-node
-      - utf-8-validate
-    dev: false
-
-  /@nightlylabs/wallet-selector-modal@0.1.2:
-    resolution: {integrity: sha512-vxy9S2dEf3NARW6LDq2ZKpWMlk5JJFIuwUfSxkuJlgUg2OVSlnDS7vdho3h4DmluRU5GM9vVhaXUGHAVp5sDQg==}
-    dependencies:
-      '@nightlylabs/qr-code': 2.0.4
-      autoprefixer: 10.4.14(postcss@8.4.24)
-      lit: 2.7.2
-      postcss: 8.4.24
-      postcss-lit: 1.1.0(postcss@8.4.24)
-      tailwindcss: 3.3.2
-    transitivePeerDependencies:
-      - supports-color
-      - ts-node
-    dev: false
-
-  /@nightlylabs/wallet-selector-solana@0.2.3(bs58@4.0.1)(react@18.2.0):
-    resolution: {integrity: sha512-ukl1Ldsn0vStHpVY7knhc1O0u/BfQbT7FINFgw8UqJKeA/qFeOons8MXnv20hjd06V4hTbLXZSOXDFQJurkMww==}
-    dependencies:
-      '@nightlylabs/nightly-connect-solana': 0.0.26
-      '@nightlylabs/wallet-selector-base': 0.2.2
-      '@solana/wallet-adapter-base': 0.9.22(@solana/web3.js@1.77.2)
-      '@solana/wallet-standard': 1.0.2(@solana/wallet-adapter-base@0.9.22)(@solana/web3.js@1.77.2)(bs58@4.0.1)(react@18.2.0)
-      '@solana/web3.js': 1.77.2
-      '@wallet-standard/core': 1.0.3
-    transitivePeerDependencies:
-      - bs58
-      - bufferutil
-      - encoding
-      - react
-      - supports-color
-      - ts-node
-      - utf-8-validate
-    dev: false
-
-  /@nightlylabs/wallet-selector-sui@0.2.3:
-    resolution: {integrity: sha512-uTchlmDMwHafWEPGiZNIHt/r8ixPyP9qUp3aP0c3d2KnABzHHnZQwz3ws6VJmTchFK8U0t4m0klFtZpkdWRZFg==}
-    dependencies:
-      '@mysten/sui.js': 0.42.0
-      '@mysten/wallet-adapter-base': 0.9.0
-      '@mysten/wallet-adapter-wallet-standard': 0.8.0
-      '@mysten/wallet-standard': 0.8.0
-      '@nightlylabs/nightly-connect-sui': 0.0.26
-      '@nightlylabs/wallet-selector-base': 0.2.2
-      '@wallet-standard/core': 1.0.3
-      bs58: 4.0.1
-      events: 3.3.0
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - supports-color
-      - ts-node
-      - utf-8-validate
-    dev: false
 
   /@noble/curves@1.0.0:
     resolution: {integrity: sha512-2upgEu0iLiDVDZkNLeFV2+ht0BAVgQnEmCk6JsOch9Rp8xfkMCbvbAZlA2pBHQc73dbl+vFOXfqkf4uemdn0bw==}
@@ -16456,65 +16338,64 @@ packages:
       typescript: 5.1.6
     dev: false
 
-  /turbo-darwin-64@1.10.7:
-    resolution: {integrity: sha512-N2MNuhwrl6g7vGuz4y3fFG2aR1oCs0UZ5HKl8KSTn/VC2y2YIuLGedQ3OVbo0TfEvygAlF3QGAAKKtOCmGPNKA==}
+  /turbo-darwin-64@1.10.15:
+    resolution: {integrity: sha512-Sik5uogjkRTe1XVP9TC2GryEMOJCaKE2pM/O9uLn4koQDnWKGcLQv+mDU+H+9DXvKLnJnKCD18OVRkwK5tdpoA==}
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-darwin-arm64@1.10.7:
-    resolution: {integrity: sha512-WbJkvjU+6qkngp7K4EsswOriO3xrNQag7YEGRtfLoDdMTk4O4QTeU6sfg2dKfDsBpTidTvEDwgIYJhYVGzrz9Q==}
+  /turbo-darwin-arm64@1.10.15:
+    resolution: {integrity: sha512-xwqyFDYUcl2xwXyGPmHkmgnNm4Cy0oNzMpMOBGRr5x64SErS7QQLR4VHb0ubiR+VAb8M+ECPklU6vD1Gm+wekg==}
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-linux-64@1.10.7:
-    resolution: {integrity: sha512-x1CF2CDP1pDz/J8/B2T0hnmmOQI2+y11JGIzNP0KtwxDM7rmeg3DDTtDM/9PwGqfPotN9iVGgMiMvBuMFbsLhg==}
+  /turbo-linux-64@1.10.15:
+    resolution: {integrity: sha512-dM07SiO3RMAJ09Z+uB2LNUSkPp3I1IMF8goH5eLj+d8Kkwoxd/+qbUZOj9RvInyxU/IhlnO9w3PGd3Hp14m/nA==}
     cpu: [x64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-linux-arm64@1.10.7:
-    resolution: {integrity: sha512-JtnBmaBSYbs7peJPkXzXxsRGSGBmBEIb6/kC8RRmyvPAMyqF8wIex0pttsI+9plghREiGPtRWv/lfQEPRlXnNQ==}
+  /turbo-linux-arm64@1.10.15:
+    resolution: {integrity: sha512-MkzKLkKYKyrz4lwfjNXH8aTny5+Hmiu4SFBZbx+5C0vOlyp6fV5jZANDBvLXWiDDL4DSEAuCEK/2cmN6FVH1ow==}
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-windows-64@1.10.7:
-    resolution: {integrity: sha512-7A/4CByoHdolWS8dg3DPm99owfu1aY/W0V0+KxFd0o2JQMTQtoBgIMSvZesXaWM57z3OLsietFivDLQPuzE75w==}
+  /turbo-windows-64@1.10.15:
+    resolution: {integrity: sha512-3TdVU+WEH9ThvQGwV3ieX/XHebtYNHv9HARHauPwmVj3kakoALkpGxLclkHFBLdLKkqDvmHmXtcsfs6cXXRHJg==}
     cpu: [x64]
     os: [win32]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-windows-arm64@1.10.7:
-    resolution: {integrity: sha512-D36K/3b6+hqm9IBAymnuVgyePktwQ+F0lSXr2B9JfAdFPBktSqGmp50JNC7pahxhnuCLj0Vdpe9RqfnJw5zATA==}
+  /turbo-windows-arm64@1.10.15:
+    resolution: {integrity: sha512-l+7UOBCbfadvPMYsX08hyLD+UIoAkg6ojfH+E8aud3gcA1padpjCJTh9gMpm3QdMbKwZteT5uUM+wyi6Rbbyww==}
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo@1.10.7:
-    resolution: {integrity: sha512-xm0MPM28TWx1e6TNC3wokfE5eaDqlfi0G24kmeHupDUZt5Wd0OzHFENEHMPqEaNKJ0I+AMObL6nbSZonZBV2HA==}
+  /turbo@1.10.15:
+    resolution: {integrity: sha512-mKKkqsuDAQy1wCCIjCdG+jOCwUflhckDMSRoeBPcIL/CnCl7c5yRDFe7SyaXloUUkt4tUR0rvNIhVCcT7YeQpg==}
     hasBin: true
-    requiresBuild: true
     optionalDependencies:
-      turbo-darwin-64: 1.10.7
-      turbo-darwin-arm64: 1.10.7
-      turbo-linux-64: 1.10.7
-      turbo-linux-arm64: 1.10.7
-      turbo-windows-64: 1.10.7
-      turbo-windows-arm64: 1.10.7
+      turbo-darwin-64: 1.10.15
+      turbo-darwin-arm64: 1.10.15
+      turbo-linux-64: 1.10.15
+      turbo-linux-arm64: 1.10.15
+      turbo-windows-64: 1.10.15
+      turbo-windows-arm64: 1.10.15
     dev: true
 
   /tweetnacl@1.0.3:
