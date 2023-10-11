@@ -78,7 +78,7 @@ export class AppSui extends EventEmitter<SuiAppEvents> {
     return this.base.connectedPublicKeys
   }
   public static getWalletsMetadata = async (url?: string): Promise<WalletMetadata[]> => {
-    return getWalletsMetadata(url)
+    return getWalletsMetadata(url, 'sui')
   }
   public static build = async (initData: AppSuiInitialize): Promise<AppSui> => {
     const base = await BaseApp.build({ ...initData, network: SUI_NETWORK })

@@ -33,7 +33,7 @@ export default [
     ]
   },
   {
-    input: 'dist/types/index.d.ts',
+    input: 'dist/types/packages/selector-base/src/index.d.ts',
     output: [{ file: 'dist/index.d.ts', format: 'esm' }],
     plugins: [dts()]
   }

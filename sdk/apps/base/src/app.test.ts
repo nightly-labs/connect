@@ -40,5 +40,9 @@ describe('Base App tests', () => {
     const walletsMetadata = await BaseApp.getWalletsMetadata()
     expect(walletsMetadata).toBeDefined()
     assert(walletsMetadata.length > 0)
+
+    const filteredWalletsMetadata = await BaseApp.getWalletsMetadata(undefined, 'sui')
+    assert(filteredWalletsMetadata.length > 0)
+    assert(filteredWalletsMetadata.length < walletsMetadata.length)
   })
 })

@@ -71,7 +71,7 @@ export class AppSolana extends EventEmitter<SolanaAppEvents> {
     return this.base.connectedPublicKeys.map((pk) => new PublicKey(pk))
   }
   public static getWalletsMetadata = async (url?: string): Promise<WalletMetadata[]> => {
-    return getWalletsMetadata(url)
+    return getWalletsMetadata(url, 'solana')
   }
   public static build = async (initData: AppSolanaInitialize): Promise<AppSolana> => {
     const base = await BaseApp.build({ ...initData, network: SOLANA_NETWORK })
