@@ -129,7 +129,7 @@ importers:
         specifier: ^0.8.0
         version: 0.8.0
       '@nightlylabs/nightly-connect-polkadot':
-        specifier: 0.0.8
+        specifier: 0.0.11
         version: link:../polkadot
       '@nightlylabs/nightly-connect-solana':
         specifier: 0.0.27
@@ -138,7 +138,7 @@ importers:
         specifier: 0.0.27
         version: link:../sui
       '@nightlylabs/wallet-selector-polkadot':
-        specifier: 0.1.7
+        specifier: 0.1.10
         version: link:../../packages/selector-polkadot
       '@nightlylabs/wallet-selector-solana':
         specifier: 0.2.5
@@ -626,7 +626,7 @@ importers:
   packages/selector-polkadot:
     dependencies:
       '@nightlylabs/nightly-connect-polkadot':
-        specifier: 0.0.8
+        specifier: 0.0.11
         version: link:../../apps/polkadot
       '@nightlylabs/wallet-selector-base':
         specifier: 0.2.3

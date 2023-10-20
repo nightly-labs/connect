@@ -18,19 +18,19 @@ export class Accounts implements InjectedAccounts {
     this._triggerSubs()
   }
   // TODO: what does anyType do?
-  public get(anyType?: boolean): Promise<InjectedAccount[]> {
+  get = (anyType?: boolean): Promise<InjectedAccount[]> => {
     return new Promise((resolve, reject) => {
       resolve(this.activeAccounts)
     })
   }
 
-  public subscribe(cb: (accounts: InjectedAccount[]) => unknown): Unsubcall {
+  subscribe = (cb: (accounts: InjectedAccount[]) => unknown): Unsubcall => {
     const id = Date.now().toString()
     this.sub[id] = cb
     // Debounce first response to allow the subscriber to set up
     setTimeout(() => {
       this._triggerSubs()
-    }, 10)
+    }, 100)
     return (): void => {
       delete this.sub[id]
     }
