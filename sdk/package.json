@@ -9,6 +9,7 @@
     "postinstall": "sh ./build-only-packages.sh"
   },
   "devDependencies": {
+    "@types/node": "^20.9.0",
     "eslint": "^7.32.0",
     "eslint-config-custom": "workspace:*",
     "prettier": "^2.5.1",

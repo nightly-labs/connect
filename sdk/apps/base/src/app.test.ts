@@ -1,6 +1,7 @@
 import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { BaseApp } from './app'
-import { smartDelay, testAppBaseInitialize, testClientBaseInitialize } from './utils'
+import { testAppBaseInitialize, testClientBaseInitialize } from './testUtils'
+import { smartDelay } from '../../../commonTestUtils'
 import { BaseClient, Connect } from './client'
 // Edit an assertion and save to see HMR in action
 describe('Base App tests', () => {
