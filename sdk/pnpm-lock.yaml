@@ -10,7 +10,7 @@ importers:
     dependencies:
       vite:
         specifier: ^4.0.3
-        version: 4.0.3
+        version: 4.0.3(@types/node@20.9.0)
       vite-tsconfig-paths:
         specifier: ^4.2.0
         version: 4.2.0(typescript@4.9.4)(vite@4.0.3)
@@ -18,6 +18,9 @@ importers:
         specifier: ^0.31.1
         version: 0.31.1(@vitest/ui@0.31.1)
     devDependencies:
+      '@types/node':
+        specifier: ^20.9.0
+        version: 20.9.0
       eslint:
         specifier: ^7.32.0
         version: 7.32.0
@@ -29,7 +32,7 @@ importers:
         version: 2.8.0
       turbo:
         specifier: latest
-        version: 1.10.7
+        version: 1.10.16
       typescript:
         specifier: ^4.9.0
         version: 4.9.4
@@ -129,22 +132,22 @@ importers:
         specifier: ^0.8.0
         version: 0.8.0
       '@nightlylabs/nightly-connect-polkadot':
-        specifier: 0.0.11
+        specifier: 0.0.12
         version: link:../polkadot
       '@nightlylabs/nightly-connect-solana':
-        specifier: 0.0.27
+        specifier: 0.0.28
         version: link:../solana
       '@nightlylabs/nightly-connect-sui':
-        specifier: 0.0.27
+        specifier: 0.0.28
         version: link:../sui
       '@nightlylabs/wallet-selector-polkadot':
-        specifier: 0.1.10
+        specifier: 0.1.11
         version: link:../../packages/selector-polkadot
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.2.5
+        specifier: 0.2.6
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
-        specifier: 0.2.5
+        specifier: 0.2.6
         version: link:../../packages/selector-sui
       '@polkadot/api':
         specifier: ^10.10.1
@@ -214,10 +217,10 @@ importers:
         specifier: 0.7.3
         version: 0.7.3(react-dom@18.2.0)(react@18.2.0)
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.2.5
+        specifier: 0.2.6
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
-        specifier: 0.2.5
+        specifier: 0.2.6
         version: link:../../packages/selector-sui
       '@solana/web3.js':
         specifier: ^1.77.2
@@ -253,7 +256,7 @@ importers:
   apps/polkadot:
     dependencies:
       '@nightlylabs/nightly-connect-base':
-        specifier: 0.0.26
+        specifier: 0.0.27
         version: link:../base
       '@polkadot/api':
         specifier: ^10.10.1
@@ -331,12 +334,12 @@ importers:
         version: 5.1.3
       vite:
         specifier: ^4.3.9
-        version: 4.3.9(@types/node@18.11.18)
+        version: 4.3.9(@types/node@20.9.0)
 
   apps/solana:
     dependencies:
       '@nightlylabs/nightly-connect-base':
-        specifier: 0.0.26
+        specifier: 0.0.27
         version: link:../base
       '@solana/web3.js':
         specifier: ^1.77.2
@@ -397,7 +400,7 @@ importers:
         specifier: ^0.8.0
         version: 0.8.0
       '@nightlylabs/nightly-connect-base':
-        specifier: 0.0.26
+        specifier: 0.0.27
         version: link:../base
       '@noble/hashes':
         specifier: ^1.3.0
@@ -550,7 +553,7 @@ importers:
         version: 5.0.2
       vite:
         specifier: ^4.3.9
-        version: 4.3.9(@types/node@18.11.18)
+        version: 4.3.9(@types/node@20.9.0)
 
   packages/qr-codes:
     dependencies:
@@ -586,7 +589,7 @@ importers:
   packages/selector-base:
     dependencies:
       '@nightlylabs/nightly-connect-base':
-        specifier: 0.0.26
+        specifier: 0.0.27
         version: link:../../apps/base
       '@nightlylabs/wallet-selector-modal':
         specifier: 0.1.2
@@ -626,10 +629,10 @@ importers:
   packages/selector-polkadot:
     dependencies:
       '@nightlylabs/nightly-connect-polkadot':
-        specifier: 0.0.11
+        specifier: 0.0.12
         version: link:../../apps/polkadot
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.2.3
+        specifier: 0.2.4
         version: link:../selector-base
       '@polkadot/api':
         specifier: 10.10.1
@@ -669,10 +672,10 @@ importers:
   packages/selector-solana:
     dependencies:
       '@nightlylabs/nightly-connect-solana':
-        specifier: 0.0.27
+        specifier: 0.0.28
         version: link:../../apps/solana
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.2.3
+        specifier: 0.2.4
         version: link:../selector-base
       '@solana/wallet-adapter-base':
         specifier: ^0.9.22
@@ -727,10 +730,10 @@ importers:
         specifier: ^0.8.0
         version: 0.8.0
       '@nightlylabs/nightly-connect-sui':
-        specifier: 0.0.27
+        specifier: 0.0.28
         version: link:../../apps/sui
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.2.3
+        specifier: 0.2.4
         version: link:../selector-base
       '@wallet-standard/core':
         specifier: ^1.0.3
@@ -6579,7 +6582,7 @@ packages:
       remark-slug: 6.1.0
       rollup: 3.23.1
       typescript: 5.0.2
-      vite: 4.3.9(@types/node@18.11.18)
+      vite: 4.3.9(@types/node@20.9.0)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -7556,6 +7559,11 @@ packages:
 
   /@types/node@20.4.2:
     resolution: {integrity: sha512-Dd0BYtWgnWJKwO1jkmTrzofjK2QXXcai0dmtzvIBhcA+RsG5h8R3xlyta0kGOZRNfL9GuRtb1knmPEhQrePCEw==}
+
+  /@types/node@20.9.0:
+    resolution: {integrity: sha512-nekiGu2NDb1BcVofVcEKMIwzlx4NjHlcjhoxxKBNLtz15Y1z7MYf549DFvkHSId02Ax6kGwWntIBPC3l/JZcmw==}
+    dependencies:
+      undici-types: 5.26.5
 
   /@types/normalize-package-data@2.4.1:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
@@ -16637,65 +16645,64 @@ packages:
       typescript: 5.1.6
     dev: false
 
-  /turbo-darwin-64@1.10.7:
-    resolution: {integrity: sha512-N2MNuhwrl6g7vGuz4y3fFG2aR1oCs0UZ5HKl8KSTn/VC2y2YIuLGedQ3OVbo0TfEvygAlF3QGAAKKtOCmGPNKA==}
+  /turbo-darwin-64@1.10.16:
+    resolution: {integrity: sha512-+Jk91FNcp9e9NCLYlvDDlp2HwEDp14F9N42IoW3dmHI5ZkGSXzalbhVcrx3DOox3QfiNUHxzWg4d7CnVNCuuMg==}
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-darwin-arm64@1.10.7:
-    resolution: {integrity: sha512-WbJkvjU+6qkngp7K4EsswOriO3xrNQag7YEGRtfLoDdMTk4O4QTeU6sfg2dKfDsBpTidTvEDwgIYJhYVGzrz9Q==}
+  /turbo-darwin-arm64@1.10.16:
+    resolution: {integrity: sha512-jqGpFZipIivkRp/i+jnL8npX0VssE6IAVNKtu573LXtssZdV/S+fRGYA16tI46xJGxSAivrZ/IcgZrV6Jk80bw==}
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-linux-64@1.10.7:
-    resolution: {integrity: sha512-x1CF2CDP1pDz/J8/B2T0hnmmOQI2+y11JGIzNP0KtwxDM7rmeg3DDTtDM/9PwGqfPotN9iVGgMiMvBuMFbsLhg==}
+  /turbo-linux-64@1.10.16:
+    resolution: {integrity: sha512-PpqEZHwLoizQ6sTUvmImcRmACyRk9EWLXGlqceogPZsJ1jTRK3sfcF9fC2W56zkSIzuLEP07k5kl+ZxJd8JMcg==}
     cpu: [x64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-linux-arm64@1.10.7:
-    resolution: {integrity: sha512-JtnBmaBSYbs7peJPkXzXxsRGSGBmBEIb6/kC8RRmyvPAMyqF8wIex0pttsI+9plghREiGPtRWv/lfQEPRlXnNQ==}
+  /turbo-linux-arm64@1.10.16:
+    resolution: {integrity: sha512-TMjFYz8to1QE0fKVXCIvG/4giyfnmqcQIwjdNfJvKjBxn22PpbjeuFuQ5kNXshUTRaTJihFbuuCcb5OYFNx4uw==}
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-windows-64@1.10.7:
-    resolution: {integrity: sha512-7A/4CByoHdolWS8dg3DPm99owfu1aY/W0V0+KxFd0o2JQMTQtoBgIMSvZesXaWM57z3OLsietFivDLQPuzE75w==}
+  /turbo-windows-64@1.10.16:
+    resolution: {integrity: sha512-+jsf68krs0N66FfC4/zZvioUap/Tq3sPFumnMV+EBo8jFdqs4yehd6+MxIwYTjSQLIcpH8KoNMB0gQYhJRLZzw==}
     cpu: [x64]
     os: [win32]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-windows-arm64@1.10.7:
-    resolution: {integrity: sha512-D36K/3b6+hqm9IBAymnuVgyePktwQ+F0lSXr2B9JfAdFPBktSqGmp50JNC7pahxhnuCLj0Vdpe9RqfnJw5zATA==}
+  /turbo-windows-arm64@1.10.16:
+    resolution: {integrity: sha512-sKm3hcMM1bl0B3PLG4ifidicOGfoJmOEacM5JtgBkYM48ncMHjkHfFY7HrJHZHUnXM4l05RQTpLFoOl/uIo2HQ==}
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo@1.10.7:
-    resolution: {integrity: sha512-xm0MPM28TWx1e6TNC3wokfE5eaDqlfi0G24kmeHupDUZt5Wd0OzHFENEHMPqEaNKJ0I+AMObL6nbSZonZBV2HA==}
+  /turbo@1.10.16:
+    resolution: {integrity: sha512-2CEaK4FIuSZiP83iFa9GqMTQhroW2QryckVqUydmg4tx78baftTOS0O+oDAhvo9r9Nit4xUEtC1RAHoqs6ZEtg==}
     hasBin: true
-    requiresBuild: true
     optionalDependencies:
-      turbo-darwin-64: 1.10.7
-      turbo-darwin-arm64: 1.10.7
-      turbo-linux-64: 1.10.7
-      turbo-linux-arm64: 1.10.7
-      turbo-windows-64: 1.10.7
-      turbo-windows-arm64: 1.10.7
+      turbo-darwin-64: 1.10.16
+      turbo-darwin-arm64: 1.10.16
+      turbo-linux-64: 1.10.16
+      turbo-linux-arm64: 1.10.16
+      turbo-windows-64: 1.10.16
+      turbo-windows-arm64: 1.10.16
     dev: true
 
   /tweetnacl@1.0.3:
@@ -16839,6 +16846,9 @@ packages:
       has-symbols: 1.0.3
       which-boxed-primitive: 1.0.2
     dev: false
+
+  /undici-types@5.26.5:
+    resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
 
   /undici@5.15.1:
     resolution: {integrity: sha512-XLk8g0WAngdvFqTI+VKfBtM4YWXgdxkf1WezC771Es0Dd+Pm1KmNx8t93WTC+Hh9tnghmVxkclU1HN+j+CvIUA==}
@@ -17170,7 +17180,7 @@ packages:
       vfile-message: 2.0.4
     dev: false
 
-  /vite-node@0.31.1(@types/node@20.4.2):
+  /vite-node@0.31.1(@types/node@20.9.0):
     resolution: {integrity: sha512-BajE/IsNQ6JyizPzu9zRgHrBwczkAs0erQf/JRpgTIESpKvNj9/Gd0vxX905klLkb0I0SJVCKbdrl5c6FnqYKA==}
     engines: {node: '>=v14.18.0'}
     hasBin: true
@@ -17180,7 +17190,7 @@ packages:
       mlly: 1.3.0
       pathe: 1.1.0
       picocolors: 1.0.0
-      vite: 4.3.9(@types/node@20.4.2)
+      vite: 4.3.9(@types/node@20.9.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -17237,13 +17247,13 @@ packages:
       debug: 4.3.4
       globrex: 0.1.2
       tsconfck: 2.1.1(typescript@4.9.4)
-      vite: 4.0.3
+      vite: 4.0.3(@types/node@20.9.0)
     transitivePeerDependencies:
       - supports-color
       - typescript
     dev: false
 
-  /vite@4.0.3:
+  /vite@4.0.3(@types/node@20.9.0):
     resolution: {integrity: sha512-HvuNv1RdE7deIfQb8mPk51UKjqptO/4RXZ5yXSAvurd5xOckwS/gg8h9Tky3uSbnjYTgUm0hVCet1cyhKd73ZA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -17268,6 +17278,7 @@ packages:
       terser:
         optional: true
     dependencies:
+      '@types/node': 20.9.0
       esbuild: 0.16.10
       postcss: 8.4.24
       resolve: 1.22.1
@@ -17308,7 +17319,7 @@ packages:
     optionalDependencies:
       fsevents: 2.3.2
 
-  /vite@4.3.9(@types/node@20.4.2):
+  /vite@4.3.9(@types/node@20.9.0):
     resolution: {integrity: sha512-qsTNZjO9NoJNW7KnOrgYwczm0WctJ8m/yqYAMAK9Lxt4SoySUfS5S8ia9K7JHpa3KEeMfyF8LoJ3c5NeBJy6pg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -17333,7 +17344,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
       esbuild: 0.17.19
       postcss: 8.4.24
       rollup: 3.23.1
@@ -17383,7 +17394,7 @@ packages:
     dependencies:
       '@types/chai': 4.3.5
       '@types/chai-subset': 1.3.3
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
       '@vitest/expect': 0.31.1
       '@vitest/runner': 0.31.1
       '@vitest/snapshot': 0.31.1
@@ -17404,8 +17415,8 @@ packages:
       strip-literal: 1.0.1
       tinybench: 2.5.0
       tinypool: 0.5.0
-      vite: 4.3.9(@types/node@20.4.2)
-      vite-node: 0.31.1(@types/node@20.4.2)
+      vite: 4.3.9(@types/node@20.9.0)
+      vite-node: 0.31.1(@types/node@20.9.0)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
       - less

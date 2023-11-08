@@ -1,4 +1,4 @@
-import { ContentType, RELAY_ENDPOINT, smartDelay } from '@nightlylabs/nightly-connect-base'
+import { ContentType } from '@nightlylabs/nightly-connect-base'
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { Keyring } from '@polkadot/keyring'
 import { SignerPayloadJSON, SignerPayloadRaw } from '@polkadot/types/types'
@@ -7,9 +7,11 @@ import { cryptoWaitReady, decodeAddress, signatureVerify } from '@polkadot/util-
 import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { AppPolkadot } from './app'
 import { ClientPolkadot, Connect } from './client'
-import { TEST_APP_INITIALIZE } from './utils'
+import { TEST_APP_INITIALIZE } from './testUtils'
 import { SignTransactionsPolkadotRequest } from './requestTypes'
 import { TypeRegistry } from '@polkadot/types'
+import { smartDelay, TEST_RELAY_ENDPOINT } from '../../../commonTestUtils'
+
 // Edit an assertion and save to see HMR in action
 const alice_keypair = new Keyring()
 alice_keypair.setSS58Format(42)
@@ -26,7 +28,7 @@ describe('Base Client tests', () => {
     app = await AppPolkadot.build(TEST_APP_INITIALIZE)
     expect(app).toBeDefined()
     assert(app.sessionId !== '')
-    client = await ClientPolkadot.create({ url: RELAY_ENDPOINT }, TEST_APP_INITIALIZE.network)
+    client = await ClientPolkadot.create({ url: TEST_RELAY_ENDPOINT }, TEST_APP_INITIALIZE.network)
     provider = new WsProvider('wss://ws.test.azero.dev/')
     polkadotApi = await ApiPromise.create({
       provider

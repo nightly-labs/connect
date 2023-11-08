@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest'
 import { BaseApp } from './app'
-import { smartDelay, testAppBaseInitialize, testClientBaseInitialize } from './utils'
+import { testAppBaseInitialize, testClientBaseInitialize } from './testUtils'
+import { smartDelay } from '../../../commonTestUtils'
 import { BaseClient, Connect } from './client'
 import { MessageToSign } from './content'
 import { SignedMessage } from './responseContent'

@@ -1,20 +1,16 @@
 import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { AppSui } from './app'
-import { SUI_NETWORK, TEST_APP_INITIALIZE, signTransactionBlock } from './utils'
-import {
-  Connect,
-  getRandomId,
-  ContentType,
-  RELAY_ENDPOINT,
-  smartDelay
-} from '@nightlylabs/nightly-connect-base'
+import { signTransactionBlock, SUI_NETWORK } from './utils'
+import { TEST_APP_INITIALIZE } from './testUtils'
+import { Connect, getRandomId, ContentType } from '@nightlylabs/nightly-connect-base'
 import { HttpClientSui } from './http-client'
 import { fromB64, toB64 } from '@mysten/sui.js/utils'
 import { TransactionBlock } from '@mysten/sui.js/transactions'
 import { Ed25519Keypair } from '@mysten/sui.js/keypairs/ed25519'
-import { verifyPersonalMessage, verifyTransactionBlock } from '@mysten/sui.js/verify'
+import { verifyTransactionBlock } from '@mysten/sui.js/verify'
 import { hexToBytes } from '@noble/hashes/utils'
 import { WalletAccount } from '@mysten/wallet-standard'
+import { smartDelay, TEST_RELAY_ENDPOINT } from '../../../commonTestUtils'
 
 // Edit an assertion and save to see HMR in action
 const ALICE_PRIVE_KEY = '4aa55c99d633c646b8dc423eed56e0fc39bdbca6ac6d8c53cc6e4decda27d970'
@@ -37,7 +33,7 @@ describe('SUI http-client tests', () => {
     app = await AppSui.build(TEST_APP_INITIALIZE)
     expect(app).toBeDefined()
     assert(app.sessionId !== '')
-    client = new HttpClientSui({ url: RELAY_ENDPOINT, clientId })
+    client = new HttpClientSui({ url: TEST_RELAY_ENDPOINT, clientId })
   })
   beforeEach(async () => {
     await smartDelay()

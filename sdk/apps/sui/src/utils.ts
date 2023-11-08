@@ -2,12 +2,7 @@ import { type TransactionBlock } from '@mysten/sui.js/transactions'
 import { type Ed25519Keypair } from '@mysten/sui.js/keypairs/ed25519'
 import { IntentScope, messageWithIntent, toSerializedSignature } from '@mysten/sui.js/cryptography'
 import { blake2b } from '@noble/hashes/blake2b'
-import {
-  AppBaseInitialize,
-  ContentType,
-  RELAY_ENDPOINT,
-  RequestContent
-} from '@nightlylabs/nightly-connect-base'
+import { AppBaseInitialize, ContentType, RequestContent } from '@nightlylabs/nightly-connect-base'
 import {
   CustomSuiRequest,
   SignMessagesSuiRequest,
@@ -19,22 +14,6 @@ import { SuiClient } from '@mysten/sui.js/client'
 export type AppSuiInitialize = Omit<AppBaseInitialize, 'network'>
 
 export const SUI_NETWORK = 'Sui'
-
-export const TEST_APP_INITIALIZE: AppSuiInitialize = {
-  appMetadata: {
-    additionalInfo: 'test-sui-additional-info',
-    description: 'test-sui-app-description',
-    icon: 'test-sui-app-icon',
-    name: 'test-sui-app-name'
-  },
-  persistent: false,
-  persistentSessionId: undefined,
-  timeout: undefined,
-  url: RELAY_ENDPOINT
-}
-export function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
 
 const suiConnection = new SuiClient({ url: 'https://fullnode.testnet.sui.io/' })
 export const signTransactionBlock = async (tx: TransactionBlock, account: Ed25519Keypair) => {

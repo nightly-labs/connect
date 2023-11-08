@@ -9,8 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@nightlylabs/wallet-selector-solana": "0.2.5",
-    "@nightlylabs/wallet-selector-sui": "0.2.5",
+    "@nightlylabs/wallet-selector-solana": "0.2.6",
+    "@nightlylabs/wallet-selector-sui": "0.2.6",
     "@mysten/wallet-adapter-wallet-standard": "0.8.0",
     "@mysten/wallet-adapter-base": "0.9.0",
     "@mysten/sui.js": "0.42.0",

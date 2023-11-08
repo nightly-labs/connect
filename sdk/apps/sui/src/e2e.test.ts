@@ -1,23 +1,19 @@
-import { Connect, ContentType, RELAY_ENDPOINT, smartDelay } from '@nightlylabs/nightly-connect-base'
+import { Connect, ContentType } from '@nightlylabs/nightly-connect-base'
 import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { AppSui } from './app'
 import { ClientSui } from './client'
-import { signTransactionBlock, SUI_NETWORK, TEST_APP_INITIALIZE } from './utils'
+import { signTransactionBlock, SUI_NETWORK } from './utils'
+import { TEST_APP_INITIALIZE } from './testUtils'
 import { fromB64, toB64 } from '@mysten/sui.js/utils'
 import { TransactionBlock } from '@mysten/sui.js/transactions'
 import { Ed25519Keypair } from '@mysten/sui.js/keypairs/ed25519'
 import { verifyPersonalMessage, verifyTransactionBlock } from '@mysten/sui.js/verify'
-import {
-  IntentScope,
-  messageWithIntent,
-  parseSerializedSignature,
-  toSerializedSignature
-} from '@mysten/sui.js/cryptography'
-import { blake2b } from '@noble/hashes/blake2b'
+import { parseSerializedSignature, toSerializedSignature } from '@mysten/sui.js/cryptography'
 import { fetch } from 'cross-fetch'
 import { WalletAccount } from '@mysten/wallet-standard'
 import { hexToBytes } from '@noble/hashes/utils'
 import { SignTransactionsSuiRequest } from './requestTypes'
+import { smartDelay, TEST_RELAY_ENDPOINT } from '../../../commonTestUtils'
 
 global.fetch = fetch
 
@@ -42,7 +38,7 @@ describe('SUI client tests', () => {
     app = await AppSui.build(TEST_APP_INITIALIZE)
     expect(app).toBeDefined()
     assert(app.sessionId !== '')
-    client = await ClientSui.create({ url: RELAY_ENDPOINT })
+    client = await ClientSui.create({ url: TEST_RELAY_ENDPOINT })
   })
   beforeEach(async () => {
     await smartDelay()
