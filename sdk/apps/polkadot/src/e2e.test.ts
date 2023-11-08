@@ -1,7 +1,7 @@
 import { ContentType, RELAY_ENDPOINT, smartDelay } from '@nightlylabs/nightly-connect-base'
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { Keyring } from '@polkadot/keyring'
-import { SignerPayloadRaw } from '@polkadot/types/types'
+import { SignerPayloadJSON, SignerPayloadRaw } from '@polkadot/types/types'
 import { u8aToHex } from '@polkadot/util'
 import { cryptoWaitReady, decodeAddress, signatureVerify } from '@polkadot/util-crypto'
 import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
@@ -9,7 +9,7 @@ import { AppPolkadot } from './app'
 import { ClientPolkadot, Connect } from './client'
 import { TEST_APP_INITIALIZE } from './utils'
 import { SignTransactionsPolkadotRequest } from './requestTypes'
-
+import { TypeRegistry } from '@polkadot/types'
 // Edit an assertion and save to see HMR in action
 const alice_keypair = new Keyring()
 alice_keypair.setSS58Format(42)
@@ -63,22 +63,35 @@ describe('Base Client tests', () => {
   test('#on("signTransactions")', async () => {
     const payload = polkadotApi.tx.balances.transfer(RECEIVER, 50000000)
 
-    let payloadToSign = ''
+    let payloadToSign: string | Uint8Array = ''
 
     client.on('signTransactions', async (e) => {
       // Asset network
       expect(e.network).toBe(TEST_APP_INITIALIZE.network)
       // resolve
-      const payload = e.transactions[0] as SignerPayloadRaw
-      payloadToSign = payload.data
-      const signature = aliceKeyringPair.sign(payload.data, { withType: true })
-
+      const payload = e.transactions[0] as SignerPayloadRaw | SignerPayloadJSON
+      let signature: `0x${string}` = '0x'
+      if (typeof payload === 'object') {
+        if ('data' in payload) {
+          payloadToSign = payload.data
+          signature = u8aToHex(aliceKeyringPair.sign(payload.data, { withType: true }))
+        } else {
+          const registry = new TypeRegistry()
+          registry.setSignedExtensions(payload.signedExtensions)
+          const extrinsicPayload = registry.createType('ExtrinsicPayload', payload, {
+            version: payload.version
+          })
+          payloadToSign = extrinsicPayload.toU8a({ method: true })
+          const signedPayload = extrinsicPayload.sign(aliceKeyringPair)
+          signature = signedPayload.signature
+        }
+      }
       // TODO seems like signature is 65 bytes long, but it should be 64
       // console.log('signature', u8aToHex(signature.slice(1, 64)))
       await client.resolveSignTransaction({
         requestId: e.requestId,
         // TODO Not sure what id here means
-        signedTransactions: [{ signature: u8aToHex(signature), id: new Date().getTime() }]
+        signedTransactions: [{ signature: signature, id: new Date().getTime() }]
       })
     })
     await smartDelay()
