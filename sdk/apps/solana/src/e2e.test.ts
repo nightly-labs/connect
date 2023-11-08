@@ -1,12 +1,14 @@
 import { Keypair, LAMPORTS_PER_SOL, SystemProgram, Transaction } from '@solana/web3.js'
-import { Connect, ContentType, RELAY_ENDPOINT, smartDelay } from '@nightlylabs/nightly-connect-base'
+import { Connect, ContentType } from '@nightlylabs/nightly-connect-base'
 import { sha256 } from 'js-sha256'
 import nacl from 'tweetnacl'
 import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { AppSolana } from './app'
 import { ClientSolana } from './client'
-import { SOLANA_NETWORK, TEST_APP_INITIALIZE } from './utils'
+import { SOLANA_NETWORK } from './utils'
+import { TEST_APP_INITIALIZE } from './testUtils'
 import { SignTransactionsSolanaRequest } from './requestTypes'
+import { smartDelay, TEST_RELAY_ENDPOINT } from '../../../commonTestUtils'
 
 // Edit an assertion and save to see HMR in action
 const alice_keypair = Keypair.generate()
@@ -17,7 +19,7 @@ describe('Base Client tests', () => {
     app = await AppSolana.build(TEST_APP_INITIALIZE)
     expect(app).toBeDefined()
     assert(app.sessionId !== '')
-    client = await ClientSolana.create({ url: RELAY_ENDPOINT })
+    client = await ClientSolana.create({ url: TEST_RELAY_ENDPOINT })
   })
   beforeEach(async () => {
     await smartDelay()

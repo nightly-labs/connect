@@ -1,5 +1,4 @@
-import { ContentType, RELAY_ENDPOINT, RequestContent } from '@nightlylabs/nightly-connect-base'
-import { AppPolkadotInitialize } from './app'
+import { ContentType, RequestContent } from '@nightlylabs/nightly-connect-base'
 import { SignerPayloadRaw, SignerPayloadJSON } from '@polkadot/types/types'
 import {
   SignTransactionsPolkadotRequest,
@@ -7,23 +6,6 @@ import {
   CustomPolkadotRequest,
   PolkadotRequest
 } from './requestTypes'
-
-export const TEST_APP_INITIALIZE: AppPolkadotInitialize = {
-  appMetadata: {
-    additionalInfo: 'test-polkadot-additional-info',
-    description: 'test-polkadot-app-description',
-    icon: 'test-polkadot-app-icon',
-    name: 'test-polkadot-app-name'
-  },
-  network: 'POLKADOT',
-  persistent: false,
-  persistentSessionId: undefined,
-  timeout: undefined,
-  url: RELAY_ENDPOINT
-}
-export const sleep = (ms: number) => {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
 
 export const parseRequest = (request: RequestContent, sessionId: string): PolkadotRequest => {
   switch (request.content.type) {

@@ -1,6 +1,8 @@
 import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { BaseApp } from './app'
-import { RELAY_ENDPOINT, getRandomId, smartDelay, testAppBaseInitialize } from './utils'
+import { getRandomId } from './utils'
+import { testAppBaseInitialize } from './testUtils'
+import { smartDelay, TEST_RELAY_ENDPOINT } from '../../../commonTestUtils'
 import { Connect } from './client'
 import { MessageToSign, TransactionToSign } from './content'
 import { SignedMessage, SignedTransaction } from './responseContent'
@@ -20,7 +22,7 @@ describe('Http Base Client tests', () => {
     expect(baseApp).toBeDefined()
     assert(baseApp.sessionId !== '')
 
-    client = new HttpBaseClient({ url: RELAY_ENDPOINT, clientId: clientId })
+    client = new HttpBaseClient({ url: TEST_RELAY_ENDPOINT, clientId: clientId })
   })
   test('#getInfo()', async () => {
     const info = await client.getInfo(baseApp.sessionId)

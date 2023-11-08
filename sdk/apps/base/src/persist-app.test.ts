@@ -1,7 +1,8 @@
 import { assert, describe, expect, test, vi } from 'vitest'
 import { BaseApp } from './app'
 import { BaseClient, Connect } from './client'
-import { smartDelay, testAppBaseInitialize, testClientBaseInitialize } from './utils'
+import { testAppBaseInitialize, testClientBaseInitialize } from './testUtils'
+import { smartDelay } from '../../../commonTestUtils'
 // Edit an assertion and save to see HMR in action
 describe('Base App tests', () => {
   test('persistent session', async () => {
