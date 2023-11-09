@@ -574,22 +574,26 @@ export class NightlyConnectAdapter implements Injected {
     })
 
   disconnect = async () => {
-    // Some apps might use disconnect to reset state / recreate session
-    clearSessionIdForNetwork(this.network)
-    this._appSessionActive = false
-    this._app = await AppPolkadot.build(this._appInitData)
-    if (this._innerStandardAdapter) {
-      this._innerStandardAdapter = undefined
-      persistStandardDisconnectForNetwork(this.network)
+    try {
+      // Some apps might use disconnect to reset state / recreate session
+      clearSessionIdForNetwork(this.network)
+      this._appSessionActive = false
+      this._app = await AppPolkadot.build(this._appInitData)
+      if (this._innerStandardAdapter) {
+        this._innerStandardAdapter = undefined
+        persistStandardDisconnectForNetwork(this.network)
+      }
+      // Update recent wallet
+      this.walletsList = getPolkadotWalletsList(
+        this._metadataWallets,
+        getRecentStandardWalletForNetwork(this.network) ?? undefined
+      )
+      if (this._modal) {
+        this._modal.walletsList = this.walletsList
+      }
+      this._connected = false
+    } finally {
+      this._connecting = false
     }
-    // Update recent wallet
-    this.walletsList = getPolkadotWalletsList(
-      this._metadataWallets,
-      getRecentStandardWalletForNetwork(this.network) ?? undefined
-    )
-    if (this._modal) {
-      this._modal.walletsList = this.walletsList
-    }
-    this._connected = false
   }
 }
