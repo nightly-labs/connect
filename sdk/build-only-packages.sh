@@ -9,6 +9,8 @@ cd ../sui
 pnpm build
 cd ../polkadot
 pnpm build
+cd ../aptos
+pnpm build
 # ui packages
 cd ../../packages/qr-codes
 pnpm build
