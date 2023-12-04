@@ -9,17 +9,21 @@ import {
   clearRecentStandardWalletForNetwork,
   clearSessionIdForNetwork,
   getRecentStandardWalletForNetwork,
+  getWalletsList,
   isMobileBrowser,
   isStandardConnectedForNetwork,
   persistRecentStandardWalletForNetwork,
+  persistStandardConnectForNetwork,
+  persistStandardDisconnectForNetwork,
   sleep,
   triggerConnect
 } from '@nightlylabs/wallet-selector-base'
-// import { suiWalletsFilter } from './detection'
 import {
   AccountInfo,
   AdapterPlugin,
   NetworkInfo,
+  OnAccountChange,
+  OnNetworkChange,
   SignMessagePayload,
   SignMessageResponse,
   Types,
@@ -27,6 +31,7 @@ import {
 } from '@aptos-labs/wallet-adapter-core'
 import { AppAptos } from '@nightlylabs/nightly-connect-aptos'
 import { logoBase64 } from './icon'
+import { aptosWalletsFilter } from './detection'
 
 export const AptosWalletName = 'Nightly Connect' as WalletName<'Nightly Connect'>
 export const APTOS_NETWORK = 'aptos'
@@ -37,12 +42,10 @@ export class NightlyConnectAptosAdapter implements AdapterPlugin {
   icon: `data:image/${'svg+xml' | 'webp' | 'png' | 'gif'};base64,${string}` = logoBase64
   readonly url =
     'https://chromewebstore.google.com/detail/nightly/fiikommddbeccaoicoejoniammnalkfa?hl=en'
-  provider = undefined
   connected = false
-  connecting = false
   // Nightly connect fields
   private _app: AppAptos | undefined
-  // private _innerStandardAdapter: StandardWalletAdapter | undefined
+  private _innerStandardAdapter: AdapterPlugin | undefined
   private _loading = false
   private _modal: NightlyConnectSelectorModal | undefined
   private _appInitData: AppInitData
@@ -73,7 +76,6 @@ export class NightlyConnectAptosAdapter implements AdapterPlugin {
     initOnConnect = false
   ) {
     this._connecting = false
-    this.connecting = false
     this.connected = false
     this._appInitData = appInitData
     this._eagerConnectForStandardWallets = eagerConnectForStandardWallets ?? true
@@ -81,16 +83,20 @@ export class NightlyConnectAptosAdapter implements AdapterPlugin {
     this._initOnConnect = initOnConnect
   }
 
-  // version?: 'v1' | 'v2' | undefined
-  // providerName?: string | undefined
-  // provider: any
-  // deeplinkProvider?: ((data: { url: string }) => string) | undefined
-  // network: () => Promise<any>
-  // signMessage<T extends SignMessagePayload>(message: T): Promise<SignMessageResponse> {
-  //   throw new Error('Method not implemented.')
-  // }
-  // onNetworkChange: OnNetworkChange
-  // onAccountChange: OnAccountChange
+  get provider(): any {
+    if (!this.connected) {
+      throw new Error('Wallet not connected')
+    }
+    switch (this._connectionType) {
+      case ConnectionType.Nightly: {
+        throw new Error('Not supported')
+      }
+      case ConnectionType.WalletStandard: {
+        return this._innerStandardAdapter?.provider
+      }
+    }
+    return
+  }
 
   public static initApp = async (
     appInitData: AppInitData
@@ -159,14 +165,14 @@ export class NightlyConnectAptosAdapter implements AdapterPlugin {
     )
 
     const [app, metadataWallets] = await NightlyConnectAptosAdapter.initApp(appInitData)
-
+    console.log({ metadataWallets })
     adapter._app = app
     adapter._metadataWallets = metadataWallets
-    // adapter.walletsList = getWalletsList(
-    //   metadataWallets,
-    //   suiWalletsFilter,
-    //   getRecentStandardWalletForNetwork(SUI_NETWORK) ?? undefined
-    // )
+    adapter.walletsList = getWalletsList(
+      metadataWallets,
+      aptosWalletsFilter,
+      getRecentStandardWalletForNetwork(APTOS_NETWORK) ?? undefined
+    )
 
     return adapter
   }
@@ -183,11 +189,11 @@ export class NightlyConnectAptosAdapter implements AdapterPlugin {
   ) => {
     const adapter = new NightlyConnectAptosAdapter(appInitData, eagerConnectForStandardWallets)
 
-    // adapter.walletsList = getWalletsList(
-    //   [],
-    //   suiWalletsFilter,
-    //   getRecentStandardWalletForNetwork(SUI_NETWORK) ?? undefined
-    // )
+    adapter.walletsList = getWalletsList(
+      [],
+      aptosWalletsFilter,
+      getRecentStandardWalletForNetwork(APTOS_NETWORK) ?? undefined
+    )
     adapter._modal = new NightlyConnectSelectorModal(
       adapter.walletsList,
       appInitData.url ?? 'https://nc2.nightly.app',
@@ -206,11 +212,11 @@ export class NightlyConnectAptosAdapter implements AdapterPlugin {
     NightlyConnectAptosAdapter.initApp(appInitData).then(([app, metadataWallets]) => {
       adapter._app = app
       adapter._metadataWallets = metadataWallets
-      // adapter.walletsList = getWalletsList(
-      //   metadataWallets,
-      //   suiWalletsFilter,
-      //   getRecentStandardWalletForNetwork(SUI_NETWORK) ?? undefined
-      // )
+      adapter.walletsList = getWalletsList(
+        metadataWallets,
+        aptosWalletsFilter,
+        getRecentStandardWalletForNetwork(APTOS_NETWORK) ?? undefined
+      )
       adapter._loading = false
     })
 
@@ -232,11 +238,11 @@ export class NightlyConnectAptosAdapter implements AdapterPlugin {
       true
     )
 
-    // adapter.walletsList = getWalletsList(
-    //   [],
-    //   suiWalletsFilter,
-    //   getRecentStandardWalletForNetwork(SUI_NETWORK) ?? undefined
-    // )
+    adapter.walletsList = getWalletsList(
+      [],
+      aptosWalletsFilter,
+      getRecentStandardWalletForNetwork(APTOS_NETWORK) ?? undefined
+    )
 
     adapter._modal = new NightlyConnectSelectorModal(
       adapter.walletsList,
@@ -268,7 +274,6 @@ export class NightlyConnectAptosAdapter implements AdapterPlugin {
 
           if (this._initOnConnect) {
             this._connecting = true
-            this.connecting = true
 
             if (!this._app) {
               try {
@@ -278,15 +283,14 @@ export class NightlyConnectAptosAdapter implements AdapterPlugin {
 
                 this._app = app
                 this._metadataWallets = metadataWallets
-                // this.walletsList = getWalletsList(
-                //   metadataWallets,
-                //   suiWalletsFilter,
-                //   getRecentStandardWalletForNetwork(SUI_NETWORK) ?? undefined
-                // )
+                this.walletsList = getWalletsList(
+                  metadataWallets,
+                  aptosWalletsFilter,
+                  getRecentStandardWalletForNetwork(APTOS_NETWORK) ?? undefined
+                )
               } catch {
                 if (!this._app) {
                   this._connecting = false
-                  this.connecting = false
                   throw new Error('Wallet not ready')
                 }
               }
@@ -312,7 +316,6 @@ export class NightlyConnectAptosAdapter implements AdapterPlugin {
             }
 
             this._connecting = true
-            this.connecting = true
           }
 
           if (this._app.hasBeenRestored() && this._app.connectedPublicKeys.length > 0) {
@@ -324,7 +327,6 @@ export class NightlyConnectAptosAdapter implements AdapterPlugin {
             this._account = keys[0]
             this.connected = true
             this._connecting = false
-            this.connecting = false
             this._connectionType = ConnectionType.Nightly
             resolve(this._account)
             return
@@ -335,7 +337,7 @@ export class NightlyConnectAptosAdapter implements AdapterPlugin {
             recentName !== null &&
             isStandardConnectedForNetwork(APTOS_NETWORK)
           ) {
-            // await this.connectToStandardWallet(recentName, resolve)
+            await this.connectToStandardWallet(recentName, resolve)
             return
           }
 
@@ -346,13 +348,9 @@ export class NightlyConnectAptosAdapter implements AdapterPlugin {
               } else {
                 clearRecentStandardWalletForNetwork(APTOS_NETWORK)
               }
-              e.accounts
-
-              // this._accounts = e.publicKeys.map((pk) => createSuiWalletAccountFromString(pk))
               this._account = e.accounts[0]
               this.connected = true
               this._connecting = false
-              this.connecting = false
               this._connectionType = ConnectionType.Nightly
               this._modal?.closeModal()
               resolve(this._account)
@@ -364,14 +362,12 @@ export class NightlyConnectAptosAdapter implements AdapterPlugin {
           })
           if (!this._modal) {
             this._connecting = false
-            this.connecting = false
             reject(new Error('Wallet not ready'))
           }
           // _modal is defined here
           this._modal!.onClose = () => {
             if (this._connecting) {
               this._connecting = false
-              this.connecting = false
               const error = new Error('Connection cancelled')
               reject(error)
             }
@@ -384,21 +380,18 @@ export class NightlyConnectAptosAdapter implements AdapterPlugin {
             ) {
               this.connectToMobileWallet(walletName)
             } else {
-              // this.connectToStandardWallet(walletName, resolve)
+              this.connectToStandardWallet(walletName, resolve)
             }
           })
           // If modal is not opened, reject
           // This might be caused by SSR
           if (!opened) {
             this._connecting = false
-            this.connecting = false
             const error = new Error('Failed to open modal')
             reject(error)
           }
         } catch (error: unknown) {
           this._connecting = false
-          this.connecting = false
-
           reject(error)
         }
       }
@@ -416,27 +409,25 @@ export class NightlyConnectAptosAdapter implements AdapterPlugin {
         clearSessionIdForNetwork(APTOS_NETWORK)
         // Refresh app session
         this._app = await AppAptos.build(this._appInitData)
-
         break
       }
       case ConnectionType.WalletStandard: {
-        // if (this._innerStandardAdapter) {
-        //   await this._innerStandardAdapter.disconnect()
-        //   persistStandardDisconnectForNetwork(APTOS_NETWORK)
-        //   this.walletsList = getWalletsList(
-        //     this._metadataWallets,
-        //     suiWalletsFilter,
-        //     getRecentStandardWalletForNetwork(APTOS_NETWORK) ?? undefined
-        //   )
-        // }
+        if (this._innerStandardAdapter) {
+          await this._innerStandardAdapter.disconnect()
+          persistStandardDisconnectForNetwork(APTOS_NETWORK)
+          this.walletsList = getWalletsList(
+            this._metadataWallets,
+            aptosWalletsFilter,
+            getRecentStandardWalletForNetwork(APTOS_NETWORK) ?? undefined
+          )
+        }
         break
       }
     }
-    // this._innerStandardAdapter = undefined
+    this._innerStandardAdapter = undefined
     this._connectionType = undefined
     this.connected = false
     this._connecting = false
-    this.connecting = false
     this._account = undefined
   }
   async account(): Promise<AccountInfo> {
@@ -455,16 +446,38 @@ export class NightlyConnectAptosAdapter implements AdapterPlugin {
         return this._app!.networkInfo
       }
       case ConnectionType.WalletStandard: {
-        throw 'not implemented'
+        return this._innerStandardAdapter!.network as NetworkInfo
       }
     }
     throw 'Should not happen'
   }
-  async onNetworkChange(callback: any): Promise<void> {
-    throw 'not implemented'
+  async onNetworkChange(callback: Parameters<OnNetworkChange>[0]): Promise<void> {
+    if (!this.connected) {
+      throw new Error('Wallet not connected')
+    }
+    switch (this._connectionType) {
+      case ConnectionType.Nightly: {
+        throw new Error('Not supported')
+      }
+      case ConnectionType.WalletStandard: {
+        return this._innerStandardAdapter!.onNetworkChange(callback)
+      }
+    }
+    throw 'Should not happen'
   }
-  async onAccountChange(callback: any): Promise<void> {
-    throw 'not implemented'
+  async onAccountChange(callback: Parameters<OnAccountChange>[0]): Promise<void> {
+    if (!this.connected) {
+      throw new Error('Wallet not connected')
+    }
+    switch (this._connectionType) {
+      case ConnectionType.Nightly: {
+        throw new Error('Not supported')
+      }
+      case ConnectionType.WalletStandard: {
+        return this._innerStandardAdapter!.onAccountChange(callback)
+      }
+    }
+    throw 'Should not happen'
   }
   async signAndSubmitTransaction(
     transaction: Types.TransactionPayload,
@@ -478,7 +491,7 @@ export class NightlyConnectAptosAdapter implements AdapterPlugin {
         return await this._app.signAndSubmitTransaction(transaction, options)
       }
       case ConnectionType.WalletStandard: {
-        throw 'not implemented'
+        return await this._innerStandardAdapter!.signAndSubmitTransaction(transaction, options)
       }
     }
   }
@@ -491,7 +504,7 @@ export class NightlyConnectAptosAdapter implements AdapterPlugin {
         return await this._app.signMessage(message)
       }
       case ConnectionType.WalletStandard: {
-        throw 'not implemented'
+        return await this._innerStandardAdapter!.signMessage(message)
       }
     }
   }
@@ -605,41 +618,36 @@ export class NightlyConnectAptosAdapter implements AdapterPlugin {
       return
     }
   }
-  // connectToStandardWallet = async (walletName: string, onSuccess: () => void) => {
-  //   try {
-  //     if (this._modal) {
-  //       this._modal.setStandardWalletConnectProgress(true)
-  //     }
-  //     const wallet = this.walletsList.find((w) => w.name === walletName)
-  //     if (typeof wallet?.standardWallet === 'undefined') {
-  //       throw new Error('Wallet not found')
-  //     }
+  connectToStandardWallet = async (walletName: string, onSuccess: (acc: AccountInfo) => void) => {
+    try {
+      if (this._modal) {
+        this._modal.setStandardWalletConnectProgress(true)
+      }
+      const wallet = this.walletsList.find((w) => w.name === walletName)
+      if (typeof wallet?.standardWallet === 'undefined') {
+        throw new Error('Wallet not found')
+      }
 
-  //     const adapter = new StandardWalletAdapter({
-  //       wallet: wallet.standardWallet
-  //     } as StandardWalletAdapterConfig)
+      const adapter = wallet.standardWallet as unknown as AdapterPlugin
 
-  //     await adapter.connect()
+      const account: AccountInfo = await adapter.connect()
 
-  //     persistRecentStandardWalletForNetwork(walletName, SUI_NETWORK)
-  //     persistStandardConnectForNetwork(SUI_NETWORK)
-  //     this._connectionType = ConnectionType.WalletStandard
-  //     this._innerStandardAdapter = adapter
-  //     this._accounts = (await adapter.getAccounts()).map((a) => a)
-  //     this.connected = true
-  //     this._connecting = false
-  //     this.connecting = false
+      persistRecentStandardWalletForNetwork(walletName, APTOS_NETWORK)
+      persistStandardConnectForNetwork(APTOS_NETWORK)
+      this._connectionType = ConnectionType.WalletStandard
+      this._innerStandardAdapter = adapter
+      this.connected = true
+      this._connecting = false
 
-  //     this._modal?.closeModal()
-  //     onSuccess()
-  //   } catch (e) {
-  //     if (this._modal) {
-  //       this._modal.setStandardWalletConnectProgress(false)
-  //     }
-  //     clearRecentStandardWalletForNetwork(SUI_NETWORK)
-  //     this._connecting = false
-  //     this.connecting = false
-  //     throw e
-  //   }
-  // }
+      this._modal?.closeModal()
+      onSuccess(account)
+    } catch (e) {
+      if (this._modal) {
+        this._modal.setStandardWalletConnectProgress(false)
+      }
+      clearRecentStandardWalletForNetwork(APTOS_NETWORK)
+      this._connecting = false
+      throw e
+    }
+  }
 }

@@ -201,6 +201,9 @@ importers:
       '@nightlylabs/nightly-connect-sui':
         specifier: 0.0.28
         version: link:../sui
+      '@nightlylabs/wallet-selector-aptos':
+        specifier: 0.0.1
+        version: link:../../packages/selector-aptos
       '@nightlylabs/wallet-selector-polkadot':
         specifier: 0.1.12
         version: link:../../packages/selector-polkadot
@@ -225,6 +228,9 @@ importers:
       '@solidjs/router':
         specifier: ^0.8.2
         version: 0.8.2(solid-js@1.7.2)
+      aptos:
+        specifier: ^1.20.0
+        version: 1.20.0
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
@@ -652,6 +658,9 @@ importers:
       '@aptos-labs/wallet-adapter-core':
         specifier: ^3.0.0
         version: 3.0.0(@aptos-labs/ts-sdk@0.0.7)(aptos@1.20.0)
+      '@nightlylabs/aptos-wallet-standard':
+        specifier: ^0.0.3
+        version: 0.0.3(@aptos-labs/ts-sdk@0.0.7)
       '@nightlylabs/nightly-connect-aptos':
         specifier: 0.0.1
         version: link:../../apps/aptos
@@ -5210,6 +5219,17 @@ packages:
     requiresBuild: true
     dev: false
     optional: true
+
+  /@nightlylabs/aptos-wallet-standard@0.0.3(@aptos-labs/ts-sdk@0.0.7):
+    resolution: {integrity: sha512-LW4uxVJXK2quILUC8b2LEicfe/LxF29aS8B6i2BCCcOEWuBXxP8ghnmnRhq9uWMnS4fI+vIa2UIAJUJJA36U5w==}
+    dependencies:
+      '@aptos-labs/wallet-adapter-core': 3.0.0(@aptos-labs/ts-sdk@0.0.7)(aptos@1.20.0)
+      '@wallet-standard/core': 1.0.3
+      aptos: 1.20.0
+    transitivePeerDependencies:
+      - '@aptos-labs/ts-sdk'
+      - debug
+    dev: false
 
   /@noble/curves@1.1.0:
     resolution: {integrity: sha512-091oBExgENk/kGj3AZmtBDMpxQPDtxQABR2B9lb1JbVTs6ytdzZNwvhxQ4MWasRNEzlbEH8jCWFCwhF/Obj5AA==}

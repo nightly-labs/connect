@@ -32,9 +32,7 @@ export class AppAptos extends EventEmitter<SuiAppEvents> {
   sessionId: string
   base: BaseApp
   initData: AppAptosInitialize
-  url = 'https://nightly.app'
-  providerName?: string
-  provider: any
+
   constructor(base: BaseApp, initData: AppAptosInitialize) {
     super()
     this.initData = initData

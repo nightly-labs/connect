@@ -1,13 +1,5 @@
-// TODO
-// import { Wallet } from '@wallet-standard/core'
+import { type Wallet } from '@wallet-standard/core'
+import { isWalletWithRequiredFeatureSet } from '@nightlylabs/aptos-wallet-standard'
 
-// import { isWalletWithRequiredFeatureSet } from '@mysten/wallet-standard'
-
-// export const suiWalletsFilter = (wallet: Wallet) => {
-//   const is = isWalletWithRequiredFeatureSet(wallet, [
-//     'sui:signAndExecuteTransactionBlock',
-//     'sui:signTransactionBlock'
-//   ])
-//   return is
-// }
-//
+export const aptosWalletsFilter = (wallet: Wallet) =>
+  isWalletWithRequiredFeatureSet(wallet, ['aptos:signAndSubmitTransaction', 'aptos:signMessage'])
