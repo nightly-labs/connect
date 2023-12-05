@@ -92,11 +92,11 @@ export class AppAptos extends EventEmitter<SuiAppEvents> {
   public hasBeenRestored = () => {
     return this.base.hasBeenRestored
   }
-  public get accountInfo() {
+  public get account() {
     const accountInfo: AccountInfo = JSON.parse(this.base.connectedPublicKeys[0])
     return accountInfo
   }
-  public get networkInfo() {
+  public get network() {
     const networkInfo: NetworkInfo = JSON.parse(this.base.connectedMetadata!).networkInfo
     return networkInfo
   }

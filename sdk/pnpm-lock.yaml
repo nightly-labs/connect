@@ -659,8 +659,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0(@aptos-labs/ts-sdk@0.0.7)(aptos@1.20.0)
       '@nightlylabs/aptos-wallet-standard':
-        specifier: ^0.0.3
-        version: 0.0.3(@aptos-labs/ts-sdk@0.0.7)
+        specifier: ^0.0.4
+        version: 0.0.4(@aptos-labs/ts-sdk@0.0.7)
       '@nightlylabs/nightly-connect-aptos':
         specifier: 0.0.1
         version: link:../../apps/aptos
@@ -5220,8 +5220,8 @@ packages:
     dev: false
     optional: true
 
-  /@nightlylabs/aptos-wallet-standard@0.0.3(@aptos-labs/ts-sdk@0.0.7):
-    resolution: {integrity: sha512-LW4uxVJXK2quILUC8b2LEicfe/LxF29aS8B6i2BCCcOEWuBXxP8ghnmnRhq9uWMnS4fI+vIa2UIAJUJJA36U5w==}
+  /@nightlylabs/aptos-wallet-standard@0.0.4(@aptos-labs/ts-sdk@0.0.7):
+    resolution: {integrity: sha512-gBg3u4iYy4f1GR1/YdYeSCeT4Mtj6SbGjm3k/Sft9xtWGwlLyRSV9AzaZn3Pxf4zeq1NUfuOFttqVT6ln8nk+w==}
     dependencies:
       '@aptos-labs/wallet-adapter-core': 3.0.0(@aptos-labs/ts-sdk@0.0.7)(aptos@1.20.0)
       '@wallet-standard/core': 1.0.3

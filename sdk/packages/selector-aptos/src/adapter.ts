@@ -431,11 +431,19 @@ export class NightlyConnectAptosAdapter implements AdapterPlugin {
     this._account = undefined
   }
   async account(): Promise<AccountInfo> {
-    if (this._account) {
-      return this._account
-    } else {
+    if (!this.connected) {
       throw new Error('Wallet not connected')
     }
+    switch (this._connectionType) {
+      case ConnectionType.Nightly: {
+        return this._app!.account
+      }
+      case ConnectionType.WalletStandard: {
+        // @ts-expect-error Aptos types suck
+        return this._innerStandardAdapter!.account
+      }
+    }
+    throw 'Should not happen'
   }
   async network(): Promise<NetworkInfo> {
     if (!this.connected) {
@@ -443,7 +451,7 @@ export class NightlyConnectAptosAdapter implements AdapterPlugin {
     }
     switch (this._connectionType) {
       case ConnectionType.Nightly: {
-        return this._app!.networkInfo
+        return this._app!.network
       }
       case ConnectionType.WalletStandard: {
         return this._innerStandardAdapter!.network as NetworkInfo
