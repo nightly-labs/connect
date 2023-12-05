@@ -45,6 +45,7 @@ export class BaseApp extends EventEmitter<BaseEvents> {
   timeout: number
   deeplink: DeeplinkConnect | undefined
   connectedPublicKeys: string[] = []
+  connectedMetadata: string | undefined = undefined
   hasBeenRestored = false
   clientMetadata: string | undefined
   initializeData: AppBaseInitialize
@@ -98,6 +99,7 @@ export class BaseApp extends EventEmitter<BaseEvents> {
               }
               case 'UserConnectedEvent': {
                 baseApp.connectedPublicKeys = response.publicKeys
+                baseApp.connectedMetadata = response.metadata
                 baseApp.emit('userConnected', response)
                 break
               }
