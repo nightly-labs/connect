@@ -29,12 +29,11 @@ import {
   Types,
   WalletName
 } from '@aptos-labs/wallet-adapter-core'
-import { AppAptos } from '@nightlylabs/nightly-connect-aptos'
+import { APTOS_NETWORK, AppAptos } from '@nightlylabs/nightly-connect-aptos'
 import { logoBase64 } from './icon'
 import { aptosWalletsFilter } from './detection'
 
 export const AptosWalletName = 'Nightly Connect' as WalletName<'Nightly Connect'>
-export const APTOS_NETWORK = 'aptos'
 
 export class NightlyConnectAptosAdapter implements AdapterPlugin {
   // TODO: add later "implements WalletAdapter"

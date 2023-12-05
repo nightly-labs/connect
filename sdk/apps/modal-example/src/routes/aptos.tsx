@@ -35,9 +35,13 @@ export default function Aptos() {
       adapter()
         ?.connect()
         .then(
-          async () => {
-            const accounts = await adapter()!.account()
-            setPublicKey(accounts.address)
+          async (a) => {
+            console.log(a)
+
+            // const accounts = await adapter()!.account()
+            // console.log(accounts)
+
+            setPublicKey(a.address)
             console.log('connect resolved successfully')
           },
           () => {
@@ -59,9 +63,10 @@ export default function Aptos() {
               adapter()
                 ?.connect()
                 .then(
-                  async () => {
-                    const accounts = await adapter()!.account()
-                    setPublicKey(accounts.address)
+                  async (a) => {
+                    // const accounts = await adapter()!.account()
+                    // console.log(accounts)
+                    setPublicKey(a.address)
                     console.log('connect resolved successfully')
                   },
                   () => {
@@ -76,23 +81,18 @@ export default function Aptos() {
         <button
           onClick={async () => {
             try {
-              // const transactionBlock = new TransactionBlock()
-              // const coin = transactionBlock.splitCoins(transactionBlock.gas, [
-              //   transactionBlock.pure(50000000)
-              // ])
-              // transactionBlock.transferObjects(
-              //   [coin],
-              //   transactionBlock.pure(
-              //     '0xd85c7ad90905e0bd49b72420deb5f4077cab62840fb3917ca2945e41d8854013'
-              //   )
-              // )
-              // const accounts = await adapter()!.account()
-              // await adapter()!.signAndSubmitTransaction({
-              //   transactionBlock,
-              //   chain: 'sui:testnet',
-              //   account: accounts
-              // })
+              const tx = {
+                type: 'entry_function_payload',
+                arguments: [
+                  '0x66fe4f72f8306d0e463fbbc51e400160effc9818f2ca08426229b06f1c4e8942',
+                  1000
+                ],
+                function: '0x1::coin::transfer',
+                type_arguments: ['0x1::aptos_coin::AptosCoin']
+              }
+              const a = await adapter()!.signAndSubmitTransaction(tx)
 
+              console.log(a)
               toast.success('Transaction was signed and sent!')
             } catch (e) {
               toast.error("Error: couldn't sign and send transaction!")

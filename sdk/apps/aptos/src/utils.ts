@@ -8,7 +8,6 @@ import {
 import { SignMessageResponse } from '@aptos-labs/wallet-adapter-core'
 
 export type AppAptosInitialize = Omit<AppBaseInitialize, 'network'>
-
 export const APTOS_NETWORK = 'Aptos'
 
 export const parseRequest = (request: RequestContent, sessionId: string): AptosRequest => {
