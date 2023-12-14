@@ -32,7 +32,7 @@ importers:
         version: 2.8.0
       turbo:
         specifier: latest
-        version: 1.10.16
+        version: 1.10.7
       typescript:
         specifier: ^4.9.0
         version: 4.9.4
@@ -133,7 +133,7 @@ importers:
         version: 0.8.0
       '@nightlylabs/nightly-connect-polkadot':
         specifier: 0.0.12
-        version: link:../polkadot
+        version: 0.0.12
       '@nightlylabs/nightly-connect-solana':
         specifier: 0.0.28
         version: link:../solana
@@ -142,7 +142,7 @@ importers:
         version: link:../sui
       '@nightlylabs/wallet-selector-polkadot':
         specifier: 0.1.12
-        version: link:../../packages/selector-polkadot
+        version: 0.1.12(@polkadot/util@12.5.1)
       '@nightlylabs/wallet-selector-solana':
         specifier: 0.2.6
         version: link:../../packages/selector-solana
@@ -629,7 +629,7 @@ importers:
   packages/selector-polkadot:
     dependencies:
       '@nightlylabs/nightly-connect-polkadot':
-        specifier: 0.0.12
+        specifier: 0.0.13
         version: link:../../apps/polkadot
       '@nightlylabs/wallet-selector-base':
         specifier: 0.2.4
@@ -5056,6 +5056,91 @@ packages:
     requiresBuild: true
     dev: false
     optional: true
+
+  /@nightlylabs/nightly-connect-base@0.0.27:
+    resolution: {integrity: sha512-aDpQJicIjL7S+EzwBgUzMEY/L/HtFalfhf4APE3GaDqK9JqtLJDO9d2RmUQDinTtb1mG9MsHpWBtU6fjYo+PHw==}
+    dependencies:
+      cross-fetch: 3.1.6
+      eventemitter3: 5.0.1
+      isomorphic-localstorage: 1.0.2
+      isomorphic-ws: 5.0.0(ws@8.14.2)
+      uuid: 9.0.0
+      ws: 8.14.2
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - utf-8-validate
+    dev: false
+
+  /@nightlylabs/nightly-connect-polkadot@0.0.12:
+    resolution: {integrity: sha512-z2ydVtsqIhhOkDXs4e+TMxwZJwFOj1N5uctkK098TPbCj+ExCbO1Rqf8FV3nTO+k+VkzzjDj3kkaXmaQRHQPMw==}
+    dependencies:
+      '@nightlylabs/nightly-connect-base': 0.0.27
+      '@polkadot/api': 10.10.1
+      '@polkadot/extension-inject': 0.46.5(@polkadot/api@10.10.1)(@polkadot/util@12.5.1)
+      '@polkadot/types': 10.10.1
+      '@polkadot/util': 12.5.1
+      '@polkadot/util-crypto': 12.5.1(@polkadot/util@12.5.1)
+      eventemitter3: 5.0.1
+      uuid: 9.0.0
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
+    dev: false
+
+  /@nightlylabs/qr-code@2.0.4:
+    resolution: {integrity: sha512-GU8u8Cm1Q5YnoB/kikM4whFQhJ7ZWKaazBm4wiZK9Qi64Ht9tyRVzASBbZRpeOZVzxwi7Mml5sz0hUKPEFMpdA==}
+    dependencies:
+      qrcode-generator: 1.4.4
+    dev: false
+
+  /@nightlylabs/wallet-selector-base@0.2.4:
+    resolution: {integrity: sha512-r5WktkwgsNz6SFgEXnWYKdxmQMU2+0emckxyJqGgi9bnV5TnohWmXMaRHukB202ptYUI++37tbZa7P3DXm+BqQ==}
+    dependencies:
+      '@nightlylabs/nightly-connect-base': 0.0.27
+      '@nightlylabs/wallet-selector-modal': 0.1.2
+      '@wallet-standard/core': 1.0.3
+      isomorphic-localstorage: 1.0.2
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - ts-node
+      - utf-8-validate
+    dev: false
+
+  /@nightlylabs/wallet-selector-modal@0.1.2:
+    resolution: {integrity: sha512-vxy9S2dEf3NARW6LDq2ZKpWMlk5JJFIuwUfSxkuJlgUg2OVSlnDS7vdho3h4DmluRU5GM9vVhaXUGHAVp5sDQg==}
+    dependencies:
+      '@nightlylabs/qr-code': 2.0.4
+      autoprefixer: 10.4.14(postcss@8.4.24)
+      lit: 2.7.2
+      postcss: 8.4.24
+      postcss-lit: 1.1.0(postcss@8.4.24)
+      tailwindcss: 3.3.2
+    transitivePeerDependencies:
+      - supports-color
+      - ts-node
+    dev: false
+
+  /@nightlylabs/wallet-selector-polkadot@0.1.12(@polkadot/util@12.5.1):
+    resolution: {integrity: sha512-fpqpind0T94Ton+DHNxBZJNXzaExrsPSlIqiBh7jO6fS1LSfnvqh4YmwhGr76vkKueynOBl30uuhclapSUn7nA==}
+    dependencies:
+      '@nightlylabs/nightly-connect-polkadot': 0.0.12
+      '@nightlylabs/wallet-selector-base': 0.2.4
+      '@polkadot/api': 10.10.1
+      '@polkadot/extension-inject': 0.46.5(@polkadot/api@10.10.1)(@polkadot/util@12.5.1)
+      '@wallet-standard/core': 1.0.3
+    transitivePeerDependencies:
+      - '@polkadot/util'
+      - bufferutil
+      - encoding
+      - supports-color
+      - ts-node
+      - utf-8-validate
+    dev: false
 
   /@noble/curves@1.0.0:
     resolution: {integrity: sha512-2upgEu0iLiDVDZkNLeFV2+ht0BAVgQnEmCk6JsOch9Rp8xfkMCbvbAZlA2pBHQc73dbl+vFOXfqkf4uemdn0bw==}
@@ -12503,6 +12588,14 @@ packages:
       ws: 8.13.0(bufferutil@4.0.7)(utf-8-validate@5.0.10)
     dev: false
 
+  /isomorphic-ws@5.0.0(ws@8.14.2):
+    resolution: {integrity: sha512-muId7Zzn9ywDsyXgTIafTry2sV3nySZeUDe6YedVd1Hvuuep5AsIlqK+XefWpYTyJG5e503F2xIuT2lcU6rCSw==}
+    peerDependencies:
+      ws: '*'
+    dependencies:
+      ws: 8.14.2
+    dev: false
+
   /istanbul-lib-coverage@3.2.0:
     resolution: {integrity: sha512-eOeJ5BHCmHYvQK7xt9GkdHuzuCGS1Y6g9Gvnx3Ym33fz/HpLRYxiS0wHNr+m/MBC8B647Xt608vCDEvhl9c6Mw==}
     engines: {node: '>=8'}
@@ -15780,7 +15873,7 @@ packages:
     resolution: {integrity: sha512-Wqw2fL/sELQByLSeeTX1Z/d0H4McmphPMx8vh6UZS/bIIDx81oU7s/drmx2iL/ME36uk++YxpRuJey8/MOyfOA==}
     requiresBuild: true
     dependencies:
-      ws: 8.13.0(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+      ws: 8.14.2
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -16645,64 +16738,65 @@ packages:
       typescript: 5.1.6
     dev: false
 
-  /turbo-darwin-64@1.10.16:
-    resolution: {integrity: sha512-+Jk91FNcp9e9NCLYlvDDlp2HwEDp14F9N42IoW3dmHI5ZkGSXzalbhVcrx3DOox3QfiNUHxzWg4d7CnVNCuuMg==}
+  /turbo-darwin-64@1.10.7:
+    resolution: {integrity: sha512-N2MNuhwrl6g7vGuz4y3fFG2aR1oCs0UZ5HKl8KSTn/VC2y2YIuLGedQ3OVbo0TfEvygAlF3QGAAKKtOCmGPNKA==}
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-darwin-arm64@1.10.16:
-    resolution: {integrity: sha512-jqGpFZipIivkRp/i+jnL8npX0VssE6IAVNKtu573LXtssZdV/S+fRGYA16tI46xJGxSAivrZ/IcgZrV6Jk80bw==}
+  /turbo-darwin-arm64@1.10.7:
+    resolution: {integrity: sha512-WbJkvjU+6qkngp7K4EsswOriO3xrNQag7YEGRtfLoDdMTk4O4QTeU6sfg2dKfDsBpTidTvEDwgIYJhYVGzrz9Q==}
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-linux-64@1.10.16:
-    resolution: {integrity: sha512-PpqEZHwLoizQ6sTUvmImcRmACyRk9EWLXGlqceogPZsJ1jTRK3sfcF9fC2W56zkSIzuLEP07k5kl+ZxJd8JMcg==}
+  /turbo-linux-64@1.10.7:
+    resolution: {integrity: sha512-x1CF2CDP1pDz/J8/B2T0hnmmOQI2+y11JGIzNP0KtwxDM7rmeg3DDTtDM/9PwGqfPotN9iVGgMiMvBuMFbsLhg==}
     cpu: [x64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-linux-arm64@1.10.16:
-    resolution: {integrity: sha512-TMjFYz8to1QE0fKVXCIvG/4giyfnmqcQIwjdNfJvKjBxn22PpbjeuFuQ5kNXshUTRaTJihFbuuCcb5OYFNx4uw==}
+  /turbo-linux-arm64@1.10.7:
+    resolution: {integrity: sha512-JtnBmaBSYbs7peJPkXzXxsRGSGBmBEIb6/kC8RRmyvPAMyqF8wIex0pttsI+9plghREiGPtRWv/lfQEPRlXnNQ==}
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-windows-64@1.10.16:
-    resolution: {integrity: sha512-+jsf68krs0N66FfC4/zZvioUap/Tq3sPFumnMV+EBo8jFdqs4yehd6+MxIwYTjSQLIcpH8KoNMB0gQYhJRLZzw==}
+  /turbo-windows-64@1.10.7:
+    resolution: {integrity: sha512-7A/4CByoHdolWS8dg3DPm99owfu1aY/W0V0+KxFd0o2JQMTQtoBgIMSvZesXaWM57z3OLsietFivDLQPuzE75w==}
     cpu: [x64]
     os: [win32]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-windows-arm64@1.10.16:
-    resolution: {integrity: sha512-sKm3hcMM1bl0B3PLG4ifidicOGfoJmOEacM5JtgBkYM48ncMHjkHfFY7HrJHZHUnXM4l05RQTpLFoOl/uIo2HQ==}
+  /turbo-windows-arm64@1.10.7:
+    resolution: {integrity: sha512-D36K/3b6+hqm9IBAymnuVgyePktwQ+F0lSXr2B9JfAdFPBktSqGmp50JNC7pahxhnuCLj0Vdpe9RqfnJw5zATA==}
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo@1.10.16:
-    resolution: {integrity: sha512-2CEaK4FIuSZiP83iFa9GqMTQhroW2QryckVqUydmg4tx78baftTOS0O+oDAhvo9r9Nit4xUEtC1RAHoqs6ZEtg==}
+  /turbo@1.10.7:
+    resolution: {integrity: sha512-xm0MPM28TWx1e6TNC3wokfE5eaDqlfi0G24kmeHupDUZt5Wd0OzHFENEHMPqEaNKJ0I+AMObL6nbSZonZBV2HA==}
     hasBin: true
+    requiresBuild: true
     optionalDependencies:
-      turbo-darwin-64: 1.10.16
-      turbo-darwin-arm64: 1.10.16
-      turbo-linux-64: 1.10.16
-      turbo-linux-arm64: 1.10.16
-      turbo-windows-64: 1.10.16
-      turbo-windows-arm64: 1.10.16
+      turbo-darwin-64: 1.10.7
+      turbo-darwin-arm64: 1.10.7
+      turbo-linux-64: 1.10.7
+      turbo-linux-arm64: 1.10.7
+      turbo-windows-64: 1.10.7
+      turbo-windows-arm64: 1.10.7
     dev: true
 
   /tweetnacl@1.0.3:
