@@ -5,10 +5,11 @@ import { TEST_APP_INITIALIZE } from './testUtils'
 
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import Keyring from '@polkadot/keyring'
-import { SignerPayloadRaw } from '@polkadot/types/types'
+import { SignerPayloadJSON, SignerPayloadRaw } from '@polkadot/types/types'
 import { u8aToHex } from '@polkadot/util'
 import { decodeAddress, signatureVerify } from '@polkadot/util-crypto'
 import { HttpClientPolkadot, HttpConnect } from './http-client'
+import { TypeRegistry } from '@polkadot/types'
 import { smartDelay, TEST_RELAY_ENDPOINT } from '../../../commonTestUtils'
 
 // Edit an assertion and save to see HMR in action
@@ -71,18 +72,36 @@ describe('Base Client tests', () => {
     }
     // Assert network
     expect(pendingRequest.network).toBe(TEST_APP_INITIALIZE.network)
-    const transactionToSign = pendingRequest.transactions[0] as SignerPayloadRaw
-    const signature = aliceKeyringPair.sign(transactionToSign.data, { withType: true })
+    const transactionToSign = pendingRequest.transactions[0] as SignerPayloadRaw | SignerPayloadJSON
+    let signature: `0x${string}` = '0x'
+    let payloadToSign: string | Uint8Array = ''
+    if (typeof payload === 'object') {
+      if ('data' in payload) {
+        const rawPayload = transactionToSign as SignerPayloadRaw
+        payloadToSign = rawPayload.data
+        signature = u8aToHex(aliceKeyringPair.sign(rawPayload.data, { withType: true }))
+      } else if ('version' in payload) {
+        const jsonPayload = transactionToSign as SignerPayloadJSON
+        const registry = new TypeRegistry()
+        registry.setSignedExtensions(jsonPayload.signedExtensions)
+        const extrinsicPayload = registry.createType('ExtrinsicPayload', jsonPayload, {
+          version: jsonPayload.version
+        })
+        payloadToSign = extrinsicPayload.toU8a({ method: true })
+        const signedPayload = extrinsicPayload.sign(aliceKeyringPair)
+        signature = signedPayload.signature
+      }
+    }
 
     await client.resolveSignTransaction({
       requestId: pendingRequest.requestId,
       sessionId: app.sessionId,
-      signedTransactions: [{ signature: u8aToHex(signature), id: new Date().getTime() }],
+      signedTransactions: [{ signature: signature, id: new Date().getTime() }],
       network: TEST_APP_INITIALIZE.network
     })
     const signed = await promiseSignTransaction
     const verify = signatureVerify(
-      transactionToSign.data,
+      payloadToSign,
       signed.signature,
       u8aToHex(decodeAddress(aliceKeyringPair.address))
     )

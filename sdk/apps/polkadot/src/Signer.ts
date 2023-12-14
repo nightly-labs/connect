@@ -1,6 +1,6 @@
 import { BaseApp, TransactionToSign } from '@nightlylabs/nightly-connect-base'
 import type { Signer as SignerInterface, SignerResult } from '@polkadot/api/types'
-import type { SignerPayloadRaw } from '@polkadot/types/types'
+import type { SignerPayloadJSON, SignerPayloadRaw } from '@polkadot/types/types'
 
 export class Signer implements SignerInterface {
   base: BaseApp
@@ -19,13 +19,13 @@ export class Signer implements SignerInterface {
     const result = JSON.parse(signedTxs[0].transaction) as SignerResult
     return result
   }
-  // signPayload = async (payload: SignerPayloadJSON): Promise<SignerResult> => { // TODO: commented until we find a method to turn recreate tx from SignerPayloadJSON
-  //   const transactionToSign: TransactionToSign = {
-  //     transaction: JSON.stringify(payload)
-  //   }
-  //   const signedTxs = await this.base.signTransactions([transactionToSign])
-  //   const result = JSON.parse(signedTxs[0].transaction) as SignerResult
-  //   return result
-  // }
+  signPayload = async (payload: SignerPayloadJSON): Promise<SignerResult> => {
+    const transactionToSign: TransactionToSign = {
+      transaction: JSON.stringify(payload)
+    }
+    const signedTxs = await this.base.signTransactions([transactionToSign])
+    const result = JSON.parse(signedTxs[0].transaction) as SignerResult
+    return result
+  }
   // Ignore update
 }
