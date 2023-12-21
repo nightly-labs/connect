@@ -312,17 +312,25 @@ export class NightlyConnectSuiAdapter {
           }
 
           if (this._app.hasBeenRestored() && this._app.connectedPublicKeys.length > 0) {
-            this.eagerConnectDeeplink()
-            // TODO add support for Secp256k1 key and features detection
-            this._accounts = this._app.connectedPublicKeys.map((pk) =>
-              createSuiWalletAccountFromString(pk)
-            )
-            this.connected = true
-            this._connecting = false
-            this.connecting = false
-            this._connectionType = ConnectionType.Nightly
-            resolve()
-            return
+            // Try to eager connect if session is restored
+            try {
+              this.eagerConnectDeeplink()
+              // TODO add support for Secp256k1 key and features detection
+              this._accounts = this._app.connectedPublicKeys.map((pk) =>
+                createSuiWalletAccountFromString(pk)
+              )
+              this.connected = true
+              this._connecting = false
+              this.connecting = false
+              this._connectionType = ConnectionType.Nightly
+              resolve()
+              return
+            } catch (error) {
+              // If we fail because of whatever reason
+              // Reset session since it might be corrupted
+              const [app] = await NightlyConnectSuiAdapter.initApp(this._appInitData)
+              this._app = app
+            }
           }
           const recentName = getRecentStandardWalletForNetwork(SUI_NETWORK)
           if (

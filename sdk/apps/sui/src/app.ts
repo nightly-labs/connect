@@ -1,5 +1,4 @@
 import { UserConnectedEvent } from '../../../bindings/UserConnectedEvent'
-// import { SignedMessage, SignedTransaction } from '@mysten/sui.js/dist/esm/signers/types'
 import type { SignedMessage, SignedTransaction } from '@mysten/sui.js/src/signers/types'
 import {
   SuiSignAndExecuteTransactionBlockInput,
@@ -51,6 +50,13 @@ export class AppSui extends EventEmitter<SuiAppEvents> {
       if (!base.hasBeenRestored) {
         this.emit('serverDisconnected')
         return
+      }
+      // If user was connected, emit userConnected
+      if (base.connectedPublicKeys.length > 0) {
+        this.emit('userConnected', {
+          publicKeys: base.connectedPublicKeys,
+          metadata: base.clientMetadata
+        })
       }
       base.on('userConnected', (e) => {
         this.emit('userConnected', e)

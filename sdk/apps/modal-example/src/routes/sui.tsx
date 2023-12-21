@@ -28,7 +28,6 @@ export default function Sui() {
       setAdapter(adapter)
     })
   })
-
   createEffect(() => {
     if (eager()) {
       adapter()

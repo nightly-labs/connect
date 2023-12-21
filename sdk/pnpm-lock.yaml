@@ -139,7 +139,7 @@ importers:
         version: link:../solana
       '@nightlylabs/nightly-connect-sui':
         specifier: 0.0.28
-        version: link:../sui
+        version: 0.0.28
       '@nightlylabs/wallet-selector-polkadot':
         specifier: 0.1.12
         version: 0.1.12(@polkadot/util@12.5.1)
@@ -147,7 +147,7 @@ importers:
         specifier: 0.2.6
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
-        specifier: 0.2.6
+        specifier: 0.2.7
         version: link:../../packages/selector-sui
       '@polkadot/api':
         specifier: ^10.10.1
@@ -221,7 +221,7 @@ importers:
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
         specifier: 0.2.6
-        version: link:../../packages/selector-sui
+        version: 0.2.6
       '@solana/web3.js':
         specifier: ^1.77.2
         version: 1.77.2
@@ -400,7 +400,7 @@ importers:
         specifier: ^0.8.0
         version: 0.8.0
       '@nightlylabs/nightly-connect-base':
-        specifier: 0.0.27
+        specifier: ^0.0.27
         version: link:../base
       '@noble/hashes':
         specifier: ^1.3.0
@@ -730,7 +730,7 @@ importers:
         specifier: ^0.8.0
         version: 0.8.0
       '@nightlylabs/nightly-connect-sui':
-        specifier: 0.0.28
+        specifier: 0.0.29
         version: link:../../apps/sui
       '@nightlylabs/wallet-selector-base':
         specifier: 0.2.4
@@ -5090,6 +5090,21 @@ packages:
       - utf-8-validate
     dev: false
 
+  /@nightlylabs/nightly-connect-sui@0.0.28:
+    resolution: {integrity: sha512-2+4YFTN+86J3kGYQMKiurThU5J+3g1+IDtCnv9+JSXvagU1bU9Kfps5NGCYASGlZ9Ut6duAoMiw8IBwr0Rd0mQ==}
+    dependencies:
+      '@mysten/sui.js': 0.42.0
+      '@mysten/wallet-standard': 0.8.0
+      '@nightlylabs/nightly-connect-base': 0.0.27
+      '@noble/hashes': 1.3.2
+      eventemitter3: 5.0.1
+      uuid: 9.0.0
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - utf-8-validate
+    dev: false
+
   /@nightlylabs/qr-code@2.0.4:
     resolution: {integrity: sha512-GU8u8Cm1Q5YnoB/kikM4whFQhJ7ZWKaazBm4wiZK9Qi64Ht9tyRVzASBbZRpeOZVzxwi7Mml5sz0hUKPEFMpdA==}
     dependencies:
@@ -5135,6 +5150,26 @@ packages:
       '@wallet-standard/core': 1.0.3
     transitivePeerDependencies:
       - '@polkadot/util'
+      - bufferutil
+      - encoding
+      - supports-color
+      - ts-node
+      - utf-8-validate
+    dev: false
+
+  /@nightlylabs/wallet-selector-sui@0.2.6:
+    resolution: {integrity: sha512-FlFPbNo64leFM2qrH3obYH7UiXdyFjYtaojbuOqJW+a0+5LSwY3Wvjj5UEP4m968FCRXuTYkEliDiTm7c+4Hbg==}
+    dependencies:
+      '@mysten/sui.js': 0.42.0
+      '@mysten/wallet-adapter-base': 0.9.0
+      '@mysten/wallet-adapter-wallet-standard': 0.8.0
+      '@mysten/wallet-standard': 0.8.0
+      '@nightlylabs/nightly-connect-sui': 0.0.28
+      '@nightlylabs/wallet-selector-base': 0.2.4
+      '@wallet-standard/core': 1.0.3
+      bs58: 4.0.1
+      events: 3.3.0
+    transitivePeerDependencies:
       - bufferutil
       - encoding
       - supports-color
