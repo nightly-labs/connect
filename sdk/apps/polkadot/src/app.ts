@@ -75,6 +75,20 @@ export class AppPolkadot extends EventEmitter<PolkadotAppEvents> implements Inje
         this.emit('serverDisconnected')
         return
       }
+      // If user was connected, emit userConnected
+      if (base.connectedPublicKeys.length > 0) {
+        if (base.clientMetadata) {
+          const accounts = JSON.parse(base.clientMetadata) as InjectedAccount[]
+          this.accounts.updateActiveAccounts(accounts)
+          this.emit('userConnected', accounts)
+        } else {
+          const accounts = base.connectedPublicKeys.map((pk) => ({
+            address: pk
+          })) as InjectedAccount[]
+          this.accounts.updateActiveAccounts(accounts)
+          this.emit('userConnected', accounts)
+        }
+      }
       base.on('userConnected', (e) => {
         if (e.metadata) {
           const accounts = JSON.parse(e.metadata) as InjectedAccount[]

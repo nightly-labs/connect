@@ -132,19 +132,19 @@ importers:
         specifier: ^0.8.0
         version: 0.8.0
       '@nightlylabs/nightly-connect-polkadot':
-        specifier: 0.0.12
-        version: 0.0.12
+        specifier: 0.0.14
+        version: link:../polkadot
       '@nightlylabs/nightly-connect-solana':
-        specifier: 0.0.28
+        specifier: 0.0.29
         version: link:../solana
       '@nightlylabs/nightly-connect-sui':
-        specifier: 0.0.28
-        version: 0.0.28
+        specifier: 0.0.29
+        version: link:../sui
       '@nightlylabs/wallet-selector-polkadot':
         specifier: 0.1.12
         version: 0.1.12(@polkadot/util@12.5.1)
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.2.6
+        specifier: 0.2.7
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
         specifier: 0.2.7
@@ -218,7 +218,7 @@ importers:
         version: 0.7.3(react-dom@18.2.0)(react@18.2.0)
       '@nightlylabs/wallet-selector-solana':
         specifier: 0.2.6
-        version: link:../../packages/selector-solana
+        version: 0.2.6(bs58@4.0.1)(react@18.2.0)
       '@nightlylabs/wallet-selector-sui':
         specifier: 0.2.6
         version: 0.2.6
@@ -629,10 +629,10 @@ importers:
   packages/selector-polkadot:
     dependencies:
       '@nightlylabs/nightly-connect-polkadot':
-        specifier: 0.0.13
+        specifier: ^0.0.14
         version: link:../../apps/polkadot
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.2.4
+        specifier: ^0.2.4
         version: link:../selector-base
       '@polkadot/api':
         specifier: 10.10.1
@@ -672,10 +672,10 @@ importers:
   packages/selector-solana:
     dependencies:
       '@nightlylabs/nightly-connect-solana':
-        specifier: 0.0.28
+        specifier: ^0.0.29
         version: link:../../apps/solana
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.2.4
+        specifier: ^0.2.4
         version: link:../selector-base
       '@solana/wallet-adapter-base':
         specifier: ^0.9.22
@@ -5090,6 +5090,20 @@ packages:
       - utf-8-validate
     dev: false
 
+  /@nightlylabs/nightly-connect-solana@0.0.28:
+    resolution: {integrity: sha512-8PBkmuXzWZNPqu6SGT2tsGK4DgD3yswQsUVb3L+GgFGCdQI7eUqyHd2ofWFWzEgj4a1XuixA29ZcSyw20ajgzw==}
+    dependencies:
+      '@nightlylabs/nightly-connect-base': 0.0.27
+      '@solana/web3.js': 1.77.2
+      eventemitter3: 5.0.1
+      uuid: 9.0.0
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
+    dev: false
+
   /@nightlylabs/nightly-connect-sui@0.0.28:
     resolution: {integrity: sha512-2+4YFTN+86J3kGYQMKiurThU5J+3g1+IDtCnv9+JSXvagU1bU9Kfps5NGCYASGlZ9Ut6duAoMiw8IBwr0Rd0mQ==}
     dependencies:
@@ -5152,6 +5166,25 @@ packages:
       - '@polkadot/util'
       - bufferutil
       - encoding
+      - supports-color
+      - ts-node
+      - utf-8-validate
+    dev: false
+
+  /@nightlylabs/wallet-selector-solana@0.2.6(bs58@4.0.1)(react@18.2.0):
+    resolution: {integrity: sha512-cVTKk+c6tGv4GeSQMlUaZ2si4A6ySKj41emkGJ8OtuwmtzwUym4Xuh3chXZYgGrMQgvPrX5+erIR4oq2GmGIPg==}
+    dependencies:
+      '@nightlylabs/nightly-connect-solana': 0.0.28
+      '@nightlylabs/wallet-selector-base': 0.2.4
+      '@solana/wallet-adapter-base': 0.9.22(@solana/web3.js@1.77.2)
+      '@solana/wallet-standard': 1.0.2(@solana/wallet-adapter-base@0.9.22)(@solana/web3.js@1.77.2)(bs58@4.0.1)(react@18.2.0)
+      '@solana/web3.js': 1.77.2
+      '@wallet-standard/core': 1.0.3
+    transitivePeerDependencies:
+      - bs58
+      - bufferutil
+      - encoding
+      - react
       - supports-color
       - ts-node
       - utf-8-validate

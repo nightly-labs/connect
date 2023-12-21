@@ -45,6 +45,13 @@ export class AppSolana extends EventEmitter<SolanaAppEvents> {
         this.emit('serverDisconnected')
         return
       }
+      // If user was connected, emit userConnected
+      if (base.connectedPublicKeys.length > 0) {
+        this.emit('userConnected', {
+          publicKeys: base.connectedPublicKeys,
+          metadata: base.clientMetadata
+        })
+      }
       base.on('userConnected', (e) => {
         this.emit('userConnected', e)
       })

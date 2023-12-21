@@ -491,14 +491,22 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
           }
 
           if (this._app.hasBeenRestored() && this._app.connectedPublicKeys.length > 0) {
-            this.eagerConnectDeeplink()
-            this._publicKey = this._app.connectedPublicKeys[0]
-            this._connected = true
-            this._connecting = false
-            this._appSessionActive = true
-            this.emit('connect', this._publicKey)
-            resolve()
-            return
+            // Try to eager connect if session is restored
+            try {
+              this.eagerConnectDeeplink()
+              this._publicKey = this._app.connectedPublicKeys[0]
+              this._connected = true
+              this._connecting = false
+              this._appSessionActive = true
+              this.emit('connect', this._publicKey)
+              resolve()
+              return
+            } catch (error) {
+              // If we fail because of whatever reason
+              // Reset session since it might be corrupted
+              const [app] = await NightlyConnectAdapter.initApp(this._appInitData)
+              this._app = app
+            }
           }
 
           const recentName = getRecentStandardWalletForNetwork(SOLANA_NETWORK)

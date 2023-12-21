@@ -502,12 +502,20 @@ export class NightlyConnectAdapter implements Injected {
           }
 
           if (this._app.hasBeenRestored() && this._app.accounts.activeAccounts.length > 0) {
-            this.eagerConnectDeeplink()
-            this._connected = true
-            this._connecting = false
-            this._appSessionActive = true
-            resolve()
-            return
+            // Try to eager connect if session is restored
+            try {
+              this.eagerConnectDeeplink()
+              this._connected = true
+              this._connecting = false
+              this._appSessionActive = true
+              resolve()
+              return
+            } catch (error) {
+              // If we fail because of whatever reason
+              // Reset session since it might be corrupted
+              const [app] = await NightlyConnectAdapter.initApp(this._appInitData)
+              this._app = app
+            }
           }
 
           const recentName = getRecentStandardWalletForNetwork(this.network)
