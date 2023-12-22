@@ -120,6 +120,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         )
           .then((list) =>
             list.map((wallet) => ({
+              slug: wallet.slug,
               name: wallet.name,
               icon: wallet.image.default,
               deeplink: wallet.mobile,
@@ -138,6 +139,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         )
           .then((list) =>
             list.map((wallet) => ({
+              slug: wallet.slug,
               name: wallet.name,
               icon: wallet.image.default,
               deeplink: wallet.mobile,

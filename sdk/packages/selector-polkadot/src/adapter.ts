@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { AppPolkadot, AppPolkadotInitialize } from '@nightlylabs/nightly-connect-polkadot'
 import {
-  type MetadataWallet,
+  AppPolkadot,
+  AppPolkadotInitialize,
+  WalletMetadata
+} from '@nightlylabs/nightly-connect-polkadot'
+import {
   NightlyConnectSelectorModal,
   XMLOptions,
   clearRecentStandardWalletForNetwork,
@@ -40,7 +43,7 @@ export class NightlyConnectAdapter implements Injected {
   private _appInitData: AppSelectorInitialize
   private _useEagerConnect: boolean
 
-  private _metadataWallets: MetadataWallet[] = []
+  private _metadataWallets: WalletMetadata[] = []
   private _walletsList: IPolkadotWalletListItem[] = []
 
   private _chosenMobileWalletName: string | undefined
@@ -117,23 +120,13 @@ export class NightlyConnectAdapter implements Injected {
 
   public static initApp = async (
     appInitData: AppSelectorInitialize
-  ): Promise<[AppPolkadot, MetadataWallet[]]> => {
+  ): Promise<[AppPolkadot, WalletMetadata[]]> => {
     try {
       return await Promise.all([
         AppPolkadot.build(appInitData),
         AppPolkadot.getWalletsMetadata(
           `${appInitData.url ?? 'https://nc2.nightly.app'}/get_wallets_metadata`
-        )
-          .then((list) =>
-            list.map((wallet) => ({
-              name: wallet.name,
-              icon: wallet.image.default,
-              deeplink: wallet.mobile,
-              link: wallet.homepage,
-              walletType: wallet.walletType
-            }))
-          )
-          .catch(() => [] as MetadataWallet[])
+        ).catch(() => [] as WalletMetadata[])
       ])
     } catch {
       clearSessionIdForNetwork(appInitData.network)
@@ -141,17 +134,7 @@ export class NightlyConnectAdapter implements Injected {
         AppPolkadot.build(appInitData),
         AppPolkadot.getWalletsMetadata(
           `${appInitData.url ?? 'https://nc2.nightly.app'}/get_wallets_metadata`
-        )
-          .then((list) =>
-            list.map((wallet) => ({
-              name: wallet.name,
-              icon: wallet.image.default,
-              deeplink: wallet.mobile,
-              link: wallet.homepage,
-              walletType: wallet.walletType
-            }))
-          )
-          .catch(() => [] as MetadataWallet[])
+        ).catch(() => [] as WalletMetadata[])
       ])
     }
   }

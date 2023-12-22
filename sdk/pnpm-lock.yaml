@@ -133,7 +133,7 @@ importers:
         version: 0.8.0
       '@nightlylabs/nightly-connect-polkadot':
         specifier: 0.0.14
-        version: link:../polkadot
+        version: 0.0.14
       '@nightlylabs/nightly-connect-solana':
         specifier: 0.0.29
         version: link:../solana
@@ -141,8 +141,8 @@ importers:
         specifier: 0.0.29
         version: link:../sui
       '@nightlylabs/wallet-selector-polkadot':
-        specifier: 0.1.12
-        version: 0.1.12(@polkadot/util@12.5.1)
+        specifier: 0.1.15
+        version: link:../../packages/selector-polkadot
       '@nightlylabs/wallet-selector-solana':
         specifier: 0.2.7
         version: link:../../packages/selector-solana
@@ -629,7 +629,7 @@ importers:
   packages/selector-polkadot:
     dependencies:
       '@nightlylabs/nightly-connect-polkadot':
-        specifier: ^0.0.14
+        specifier: ^0.0.15
         version: link:../../apps/polkadot
       '@nightlylabs/wallet-selector-base':
         specifier: ^0.2.4
@@ -5072,8 +5072,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@nightlylabs/nightly-connect-polkadot@0.0.12:
-    resolution: {integrity: sha512-z2ydVtsqIhhOkDXs4e+TMxwZJwFOj1N5uctkK098TPbCj+ExCbO1Rqf8FV3nTO+k+VkzzjDj3kkaXmaQRHQPMw==}
+  /@nightlylabs/nightly-connect-polkadot@0.0.14:
+    resolution: {integrity: sha512-GP3TxEUa/UIiHeZqTrE3e7VTQ6yndCbozWAG1VA3YE5/q4xK1eZ5Rwnwz1ga4M3qu19L1spKePeljndhet5LEg==}
     dependencies:
       '@nightlylabs/nightly-connect-base': 0.0.27
       '@polkadot/api': 10.10.1
@@ -5152,23 +5152,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - ts-node
-    dev: false
-
-  /@nightlylabs/wallet-selector-polkadot@0.1.12(@polkadot/util@12.5.1):
-    resolution: {integrity: sha512-fpqpind0T94Ton+DHNxBZJNXzaExrsPSlIqiBh7jO6fS1LSfnvqh4YmwhGr76vkKueynOBl30uuhclapSUn7nA==}
-    dependencies:
-      '@nightlylabs/nightly-connect-polkadot': 0.0.12
-      '@nightlylabs/wallet-selector-base': 0.2.4
-      '@polkadot/api': 10.10.1
-      '@polkadot/extension-inject': 0.46.5(@polkadot/api@10.10.1)(@polkadot/util@12.5.1)
-      '@wallet-standard/core': 1.0.3
-    transitivePeerDependencies:
-      - '@polkadot/util'
-      - bufferutil
-      - encoding
-      - supports-color
-      - ts-node
-      - utf-8-validate
     dev: false
 
   /@nightlylabs/wallet-selector-solana@0.2.6(bs58@4.0.1)(react@18.2.0):

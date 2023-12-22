@@ -102,6 +102,7 @@ export class NightlyConnectSuiAdapter {
         )
           .then((list) =>
             list.map((wallet) => ({
+              slug: wallet.slug,
               name: wallet.name,
               icon: wallet.image.default,
               deeplink: wallet.mobile,
@@ -120,6 +121,7 @@ export class NightlyConnectSuiAdapter {
         )
           .then((list) =>
             list.map((wallet) => ({
+              slug: wallet.slug,
               name: wallet.name,
               icon: wallet.image.default,
               deeplink: wallet.mobile,

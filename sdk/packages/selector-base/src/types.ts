@@ -9,6 +9,7 @@ export interface Adapter {
 export type AppInitData = Omit<AppBaseInitialize, 'network'>
 
 export interface MetadataWallet {
+  slug: string
   name: string
   icon: string
   deeplink: Deeplink | null

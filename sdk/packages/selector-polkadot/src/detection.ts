@@ -2,6 +2,7 @@ import { type Injected, type InjectedExtension } from '@polkadot/extension-injec
 import { type WalletIcon } from '@wallet-standard/core'
 import { appToIcon } from './tempIcons'
 import { IWalletListItem, MetadataWallet } from '@nightlylabs/wallet-selector-base'
+import { WalletMetadata } from '@nightlylabs/nightly-connect-polkadot'
 export interface PolkadotWalletInjected {
   // Default Polkadot standard
   connect?: (origin: string) => Promise<InjectedExtension> // Is this even used ?
@@ -9,6 +10,7 @@ export interface PolkadotWalletInjected {
   version?: string
   // Custom should be provided by the wallet
   name: string
+  slug: string
   icon?: WalletIcon
 }
 
@@ -22,6 +24,7 @@ export const getPolkadotWallets = (): PolkadotWalletInjected[] => {
     return Object.entries(window.injectedWeb3).map(([key, value]) => {
       // value.name might be undefined
       value.name = value.name ?? key
+      value.slug = key
       value.icon =
         value.icon ?? appToIcon[key] ?? 'https://registry.nightly.app/networks/polkadot.png' // TODO add default icon
       return value
@@ -35,32 +38,69 @@ export interface IPolkadotWalletListItem extends Omit<IWalletListItem, 'standard
   injectedWallet?: PolkadotWalletInjected
 }
 
-export const getPolkadotWalletsList = (presetList: MetadataWallet[], recentWalletName?: string) => {
+export const getPolkadotWalletsList = (presetList: WalletMetadata[], recentWalletName?: string) => {
   const windowWallets = getPolkadotWallets()
 
   const walletsData: Record<string, IPolkadotWalletListItem> = {}
 
   presetList.forEach((wallet) => {
-    walletsData[wallet.name] = {
-      ...wallet,
+    walletsData[wallet.slug] = {
+      slug: wallet.slug,
+      name: wallet.name,
+      icon: wallet.image.default,
+      deeplink: wallet.mobile,
+      link: wallet.homepage,
+      walletType: wallet.walletType,
       recent: recentWalletName === wallet.name
     }
   })
-
-  windowWallets.forEach((wallet) => {
-    walletsData[wallet.name] = {
-      ...(walletsData?.[wallet.name] ?? {
-        name: wallet.name,
-        icon: wallet.icon,
-        link: '',
-        deeplink: null,
-        recent: recentWalletName === wallet.name,
-        walletType: 'hybrid'
-      }),
-      detected: true,
-      injectedWallet: wallet
+  for (const wallet of windowWallets) {
+    // Check if wallet is already in the list
+    // by name
+    if (walletsData[wallet.name]) {
+      walletsData[wallet.name] = {
+        ...(walletsData?.[wallet.name] ?? {
+          name: wallet.name,
+          icon: wallet.icon,
+          link: '',
+          deeplink: null,
+          recent: recentWalletName === wallet.name,
+          walletType: 'hybrid'
+        }),
+        detected: true,
+        injectedWallet: wallet
+      }
+      continue
     }
-  })
+    // Check if wallet is already in the list
+    // by namespace
+    if (walletsData[wallet.slug]) {
+      walletsData[wallet.slug] = {
+        ...(walletsData?.[wallet.slug] ?? {
+          name: wallet.name,
+          icon: wallet.icon,
+          link: '',
+          deeplink: null,
+          recent: recentWalletName === wallet.name,
+          walletType: 'hybrid'
+        }),
+        detected: true,
+        injectedWallet: wallet
+      }
+      continue
+    }
+    walletsData[wallet.name] = {
+      slug: wallet.name,
+      name: wallet.name,
+      icon: wallet.icon as string,
+      link: '',
+      deeplink: null,
+      recent: recentWalletName === wallet.name,
+      detected: true,
+      injectedWallet: wallet,
+      walletType: 'hybrid'
+    }
+  }
 
   return Object.values(walletsData)
 }
