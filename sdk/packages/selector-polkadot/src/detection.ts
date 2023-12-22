@@ -44,7 +44,7 @@ export const getPolkadotWalletsList = (presetList: WalletMetadata[], recentWalle
   const walletsData: Record<string, IPolkadotWalletListItem> = {}
 
   presetList.forEach((wallet) => {
-    walletsData[wallet.slug] = {
+    walletsData[wallet.slug.toLocaleLowerCase()] = {
       slug: wallet.slug,
       name: wallet.name,
       icon: wallet.image.default,
@@ -54,12 +54,16 @@ export const getPolkadotWalletsList = (presetList: WalletMetadata[], recentWalle
       recent: recentWalletName === wallet.name
     }
   })
+  console.log('windowWallets', windowWallets)
+  console.log('walletsData', walletsData)
   for (const wallet of windowWallets) {
     // Check if wallet is already in the list
     // by name
-    if (walletsData[wallet.name]) {
-      walletsData[wallet.name] = {
-        ...(walletsData?.[wallet.name] ?? {
+    if (walletsData[wallet.name.toLocaleLowerCase()]) {
+      console.log('a', walletsData[wallet.name.toLocaleLowerCase()])
+      console.log(wallet)
+      walletsData[wallet.name.toLocaleLowerCase()] = {
+        ...(walletsData?.[wallet.name.toLocaleLowerCase()] ?? {
           name: wallet.name,
           icon: wallet.icon,
           link: '',
@@ -74,9 +78,11 @@ export const getPolkadotWalletsList = (presetList: WalletMetadata[], recentWalle
     }
     // Check if wallet is already in the list
     // by namespace
-    if (walletsData[wallet.slug]) {
-      walletsData[wallet.slug] = {
-        ...(walletsData?.[wallet.slug] ?? {
+    if (walletsData[wallet.slug.toLocaleLowerCase()]) {
+      console.log('b', walletsData[wallet.slug.toLocaleLowerCase()])
+      console.log(wallet)
+      walletsData[wallet.slug.toLocaleLowerCase()] = {
+        ...(walletsData?.[wallet.slug.toLocaleLowerCase()] ?? {
           name: wallet.name,
           icon: wallet.icon,
           link: '',
@@ -89,7 +95,9 @@ export const getPolkadotWalletsList = (presetList: WalletMetadata[], recentWalle
       }
       continue
     }
-    walletsData[wallet.name] = {
+    console.log({ wallet })
+
+    walletsData[wallet.name.toLocaleLowerCase()] = {
       slug: wallet.name,
       name: wallet.name,
       icon: wallet.icon as string,
