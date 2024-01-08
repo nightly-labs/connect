@@ -14,7 +14,7 @@ export class NightlyHeader extends LitElement {
   render() {
     return html`
       <div class="nc_headerWrapper">
-        <div class="nc_headerLogo"></div>
+        <div class="nc_headerLogo" ></div>
         <button class="nc_headerCloseButton" @click=${this.onClose}></button>
         <div class="nc_headerAnimatedBgWrapper">
           <div class="nc_headerAnimatedBgBackground"></div>

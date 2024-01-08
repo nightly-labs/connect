@@ -1,0 +1,43 @@
+
+.nc_modalFooter{
+    background-color: var(--nc-color-elements-3);
+    padding: 12px 20px;
+    color:var(--nc-color-elements-6);
+    font-size: 12px;
+    border-radius: 0px 0px 16px 16px;
+    position: relative;
+  }
+  
+  .nc_modalFooterCover{
+    position: absolute;
+    z-index: -1;
+    height: 100px;
+    width: 100%;
+    background-color: var(--nc-color-elements-3);
+    left:0;
+    top:-100px;
+  }
+  
+  .nc_modalFooter > a{
+    text-decoration: underline;
+    color:var(--nc-color-primary);
+    cursor: pointer;
+  }
+  
+  .nc_modalFooter > a:hover{
+    filter: brightness(1.5);
+  }
+
+  
+  @media screen and (max-width:640px) {
+    .nc_modalFooter{
+        margin-top: -20px;
+        margin-bottom: 20px;
+        border-radius: 0px;
+        padding: 10px 20px;
+      }
+    
+      .nc_modalFooterCover{
+        top:100%;
+      }
+  }

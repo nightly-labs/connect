@@ -3,6 +3,11 @@
   flex-direction: column;
   width: 100%;
   background-color: var(--nc-color-elements-2);
+
+}
+
+.nc_mobileMainEntering{
+  animation: slideIn forwards 0.3s normal ease-out;
 }
 
 .nc_mobileMainTopBar {
@@ -73,3 +78,14 @@
   }
 }
 
+
+
+
+@keyframes slideIn {
+  from{
+    transform: translateY(100%);
+  }
+  to{
+    transform: translateY(0);
+  }
+}

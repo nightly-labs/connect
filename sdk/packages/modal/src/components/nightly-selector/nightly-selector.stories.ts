@@ -32,6 +32,7 @@ export default meta
 interface NightlyModalArgs {
   onClose: () => void
   selectorItems: WalletSelectorItem[]
+  showFooter:boolean
   onWalletClick: (name: string) => void
   chainIcon: string
   chainName: string
@@ -54,6 +55,7 @@ export const Default: Story = (args: NightlyModalArgs) => {
         <nightly-selector
           .onClose=${handleClose}
           .selectorItems=${args.selectorItems}
+          .showFooter=${args.showFooter}
           .onWalletClick=${args.onWalletClick}
           .chainIcon=${args.chainIcon}
           .chainName=${args.chainName}
