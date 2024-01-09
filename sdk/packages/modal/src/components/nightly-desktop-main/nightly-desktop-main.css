@@ -4,6 +4,9 @@
   display: flex;
   flex-direction: row;
   overflow: hidden;
+  border-bottom: 1px solid var(--nc-color-elements-4);
+  border-bottom-left-radius:  18px;
+  border-bottom-right-radius: 18px;
 }
 
 .nc_desktopMainQrWrapper {

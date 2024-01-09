@@ -1,0 +1,17 @@
+.nc_footer {
+  width: 100%;
+  background-color: var(--nc-color-elements-3);
+  color: var(--nc-color-elements-6);
+  font-size: var(--nc-font-size-3);
+  padding: 14px 16px;
+  text-align: justify;
+  font-weight: lighter;
+  word-spacing: 1px;
+  font-kerning: none;
+}
+
+.nc_footer .highlight {
+  color: var(--nc-color-primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
