@@ -16,6 +16,7 @@ export class NightlyFooter extends LitElement {
       html`
         <div class="nc_modalFooter">
           <div class="nc_modalFooterCover"></div>
+
           ${this.content}
         </div>
       `
