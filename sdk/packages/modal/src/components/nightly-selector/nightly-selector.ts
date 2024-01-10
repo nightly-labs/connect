@@ -7,6 +7,7 @@ import { styleMap } from 'lit/directives/style-map.js'
 import '../nightly-desktop-main/nightly-desktop-main'
 import '../nightly-connect-wallet/nightly-connect-wallet'
 import '../nightly-header/nightly-header'
+import '../nightly-footer/nightly-footer'
 import '../nightly-mobile-all-wallets/nightly-mobile-all-wallets'
 import '../nightly-mobile-qr/nightly-mobile-qr'
 import '../nightly-mobile-main/nightly-mobile-main'
@@ -43,6 +44,9 @@ export class NightlySelector extends LitElement {
 
   @property({ type: Boolean })
   connecting = false
+
+  @property({ type: Boolean })
+  open = false
 
   @property({ type: Object })
   qrConfigOverride: Partial<XMLOptions> = {}
@@ -166,6 +170,11 @@ export class NightlySelector extends LitElement {
     this.returnToMobileInit = this.returnToMobileInit.bind(this)
     this.goToMobileAll = this.goToMobileAll.bind(this)
     this.goToMobileQr = this.goToMobileQr.bind(this)
+
+    if (typeof this.open === 'undefined' && this.mobileQuery.matches) {
+      this.isMobile = true;
+      this.setCurrentView(SelectorView.MOBILE_MAIN);
+    }
 
     if (this.mobileQuery.matches) {
       this.isMobile = true
@@ -301,11 +310,9 @@ export class NightlySelector extends LitElement {
       >
         <div
           @click=${(e: MouseEvent) => {
-            e.stopPropagation()
+            e.stopPropagation();
           }}
-          class="nc_modalWrapper ${this.fireClosingAnimation
-            ? 'nc_modalMobileSlideOutAnimation'
-            : ''}"
+          class="nc_modalWrapper ${this.fireClosingAnimation ? 'nc_modalMobileSlideOutAnimation' : ''} ${this.open ? 'nc_modalEntryAnimation' : ''}"
         >
           <nightly-header .onClose=${this.handleClose}></nightly-header>
           <div
@@ -313,16 +320,17 @@ export class NightlySelector extends LitElement {
             style=${styleMap(
               this.isMobile
                 ? {
-                    height: this.mobileContentHeight + 'px'
+                    height: this.mobileContentHeight + 'px',
                   }
                 : {}
             )}
           >
             ${this.renderCurrent()}
           </div>
+          <nightly-footer></nightly-footer>
         </div>
       </div>
-    `
+    `;
   }
 }
 
