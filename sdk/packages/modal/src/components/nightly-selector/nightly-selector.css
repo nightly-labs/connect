@@ -4,8 +4,8 @@
   left: 0;
   width: 100%;
   height: 100%;
-  animation: 200ms ease-out 0s 1 fadeIn normal forwards;
-  transform: translateY(25px);
+  animation: 250ms ease-out 0s 1 fadeIn normal forwards;
+  transform: translateY(5%);
   z-index: 100;
   background-color: var(--nc-color-overlay);
   backdrop-filter: blur(10px);
@@ -24,14 +24,14 @@
 .nc_modalContent {
   border-radius: 0px 0px 16px 16px;
   overflow: hidden;
-  background-color: var(--nc-color-elements-2);
+  background-color: var(--nc-color-elements-3);
   border: 1px solid var(--nc-color-elements-4);
   border-top: none;
   transition: height 250ms;
 }
 
 .nc_modalClosingAnimation {
-  animation: 3000s ease-out 0s 1 fadeOut normal forwards;
+  animation: 250ms ease-out 0s 1 fadeOut normal forwards;
 }
 
 .nc_modalViewEntryTransition {
@@ -84,12 +84,12 @@
 @keyframes fadeIn {
   0% {
     opacity: 0;
-    transform: translateY(25px);
+    transform: translateY(5%);
     backdrop-filter: blur(0);
   }
 
   50% {
-    opacity: 0.5;
+    opacity: 0.2;
   }
 
   100% {
@@ -102,15 +102,15 @@
 @keyframes fadeOut {
   0% {
     opacity: 1;
-    transform: translateY(25px);
+    transform: translateY(0);
   }
 
   50% {
-    opacity: 0.5;
+    opacity: 0.2;
   }
 
   100% {
-    transform: translateY(0);
+    transform: translateY(5%);
     opacity: 0;
   }
 }

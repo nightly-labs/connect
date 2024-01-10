@@ -102,12 +102,10 @@ export class NightlySelector extends LitElement {
 
   handleClose = () => {
     this.fireClosingAnimation = true
-    setTimeout(
-      () => {
-        this.onClose()
-      },
-      this.mobileQuery.matches ? 240 : 80
-    )
+
+    setTimeout(() => {
+      this.onClose()
+    }, 250)
   }
 
   onSelectWallet = (name: string) => {
