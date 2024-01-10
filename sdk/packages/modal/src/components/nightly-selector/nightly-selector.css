@@ -6,6 +6,7 @@
   height: 100%;
   animation: 250ms ease-out 0s 1 fadeIn normal forwards;
   transform: translateY(5%);
+  transform: translateZ(0);
   z-index: 100;
   background-color: var(--nc-color-overlay);
   backdrop-filter: blur(10px);
@@ -88,10 +89,6 @@
     backdrop-filter: blur(0);
   }
 
-  50% {
-    opacity: 0.2;
-  }
-
   100% {
     transform: translateY(0);
     backdrop-filter: blur(10px);
@@ -103,10 +100,6 @@
   0% {
     opacity: 1;
     transform: translateY(0);
-  }
-
-  50% {
-    opacity: 0.2;
   }
 
   100% {
