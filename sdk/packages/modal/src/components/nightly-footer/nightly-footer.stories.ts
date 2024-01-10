@@ -8,8 +8,8 @@ const meta = {
   parameters: {
     layout: 'centered'
   },
-  render: () => {
-    return html`<nightly-footer></nightly-footer>`
+  render: (args) => {
+    return html`<nightly-footer .content=${args.content}></nightly-footer>`
   }
 } satisfies Meta<NightlyFooter>
 
@@ -18,5 +18,8 @@ type Story = StoryObj<NightlyFooter>
 
 export const Default: Story = {
   name: 'Default',
-
+  args: {
+    content: html`By connecting, you agree to Common's <a href="#">Terms of Service</a> and to its
+      <a href="#">Privacy Policy</a>.`
+  }
 }

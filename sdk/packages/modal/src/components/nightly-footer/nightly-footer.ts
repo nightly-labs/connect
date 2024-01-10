@@ -1,4 +1,4 @@
-import { customElement} from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 import { tailwindElement } from '../../shared/tailwind.element'
 import style from './nightly-footer.css'
 import { LitElement, html } from 'lit'
@@ -7,13 +7,19 @@ import { LitElement, html } from 'lit'
 export class NightlyFooter extends LitElement {
   static styles = tailwindElement(style)
 
+  @property({ type: HTMLElement || String })
+  content: unknown = ''
+
   render() {
-    return html`
-    <div class="nc_modalFooter">
-        <div class="nc_modalFooterCover"></div>
-        By connecting, you agree to Common's <a>Terms of Service</a> and to its <a>Privacy Policy</a>.
-    </div>
-    `
+    return (
+      this.content &&
+      html`
+        <div class="nc_modalFooter">
+          <div class="nc_modalFooterCover"></div>
+          ${this.content}
+        </div>
+      `
+    )
   }
 }
 

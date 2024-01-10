@@ -1,4 +1,3 @@
-
 import { LitElement, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { tailwindElement } from '../../shared/tailwind.element'
@@ -27,10 +26,8 @@ export class NightlySelector extends LitElement {
   @property({ type: Array })
   selectorItems: WalletSelectorItem[] = []
 
-  @property({type:Boolean})
+  @property({ type: Boolean })
   showFooter = true
-
-
 
   @property({ type: Function })
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -123,8 +120,6 @@ export class NightlySelector extends LitElement {
     )
   }
 
-
-
   onSelectWallet = (name: string) => {
     const wallet = this.selectorItems.find((w) => w.name === name)
 
@@ -215,8 +210,8 @@ export class NightlySelector extends LitElement {
 
     setTimeout(() => {
       this.fireEnteringAnimation = false
-    },400)
-}
+    }, 400)
+  }
 
   disconnectedCallback(): void {
     super.disconnectedCallback()
@@ -321,36 +316,45 @@ export class NightlySelector extends LitElement {
   }
 
   render() {
-    return this.isClosed ? '' : html`
-      <div
-        class="nc_modalOverlay ${this.fireClosingAnimation ? 'nc_modalClosingAnimation' : ''}"
-        @click=${this.handleClose}
-      >
-        <div
-          @click=${(e: MouseEvent) => {
-            e.stopPropagation()
-          }}
-          class="nc_modalWrapper ${this.fireClosingAnimation
-            ? 'nc_modalMobileSlideOutAnimation' : this.fireEnteringAnimation ? "nc_modalBounceInAnimation"
-            : ''}"
-        >
-          <nightly-header .onClose=${this.handleClose}></nightly-header>
+    return this.isClosed
+      ? ''
+      : html`
           <div
-            class="nc_modalContent"
-            style=${styleMap(
-              this.isMobile
-                ? {
-                    height: this.mobileContentHeight + 'px'
-                  }
-                : {}
-            )}
+            class="nc_modalOverlay ${this.fireClosingAnimation ? 'nc_modalClosingAnimation' : ''}"
+            @click=${this.handleClose}
           >
-            ${this.renderCurrent()}
+            <div
+              @click=${(e: MouseEvent) => {
+                e.stopPropagation()
+              }}
+              class="nc_modalWrapper ${this.fireClosingAnimation
+                ? 'nc_modalMobileSlideOutAnimation'
+                : this.fireEnteringAnimation
+                ? 'nc_modalBounceInAnimation'
+                : ''}"
+            >
+              <nightly-header .onClose=${this.handleClose}></nightly-header>
+              <div
+                class="nc_modalContent"
+                style=${styleMap(
+                  this.isMobile
+                    ? {
+                        height: this.mobileContentHeight + 'px'
+                      }
+                    : {}
+                )}
+              >
+                ${this.renderCurrent()}
+              </div>
+              ${this.showFooter
+                ? html`<nightly-footer
+                    .content="${html`By connecting, you agree to Common's
+                      <a href="#">Terms of Service</a> and to its <a href="#">Privacy Policy</a>.`}"
+                  ></nightly-footer>`
+                : ''}
+            </div>
           </div>
-         ${this.showFooter ? html`<nightly-footer></nightly-footer>` : ''}
-        </div>
-      </div>
-    `
+        `
   }
 }
 
