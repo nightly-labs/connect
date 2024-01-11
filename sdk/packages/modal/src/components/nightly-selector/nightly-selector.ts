@@ -7,6 +7,7 @@ import { styleMap } from 'lit/directives/style-map.js'
 import '../nightly-desktop-main/nightly-desktop-main'
 import '../nightly-connect-wallet/nightly-connect-wallet'
 import '../nightly-header/nightly-header'
+import '../nightly-footer/nightly-footer'
 import '../nightly-mobile-all-wallets/nightly-mobile-all-wallets'
 import '../nightly-mobile-qr/nightly-mobile-qr'
 import '../nightly-mobile-main/nightly-mobile-main'
@@ -46,6 +47,9 @@ export class NightlySelector extends LitElement {
 
   @property({ type: Object })
   qrConfigOverride: Partial<XMLOptions> = {}
+
+  @property({ type: Object })
+  optionalParams = {}
 
   // state
 
@@ -101,12 +105,10 @@ export class NightlySelector extends LitElement {
 
   handleClose = () => {
     this.fireClosingAnimation = true
-    setTimeout(
-      () => {
-        this.onClose()
-      },
-      this.mobileQuery.matches ? 240 : 80
-    )
+
+    setTimeout(() => {
+      this.onClose()
+    }, 250)
   }
 
   onSelectWallet = (name: string) => {
@@ -319,6 +321,7 @@ export class NightlySelector extends LitElement {
             )}
           >
             ${this.renderCurrent()}
+            <nightly-footer></nightly-footer>
           </div>
         </div>
       </div>

@@ -56,6 +56,12 @@ export default function Polkadot() {
             color: 'gold'
           }
         }
+      },
+      {
+        // mocked optional parameters
+        param1: 'testValue1',
+        param2: 'testValue2',
+        param3: 'testValu3'
       }
     )
 

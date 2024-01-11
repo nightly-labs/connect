@@ -6,6 +6,10 @@
       "outputs": ["dist/**"]
     },
     "lint": {},
+    "setup": {
+      "cache": false,
+      "concurrency": 18
+    },
     "dev": {
       "cache": false,
       "persistent": true

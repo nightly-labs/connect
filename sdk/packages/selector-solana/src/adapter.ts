@@ -160,7 +160,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       variablesOverride?: object
       stylesOverride?: string
       qrConfigOverride?: Partial<XMLOptions>
-    }
+    },
+    optionalParams?: object
   ) => {
     const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets)
 
@@ -184,7 +185,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       anchorRef,
       uiOverrides?.variablesOverride,
       uiOverrides?.stylesOverride,
-      uiOverrides?.qrConfigOverride
+      uiOverrides?.qrConfigOverride,
+      optionalParams
     )
 
     const [app, metadataWallets] = await NightlyConnectAdapter.initApp(appInitData)
@@ -209,7 +211,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       variablesOverride?: object
       stylesOverride?: string
       qrConfigOverride?: Partial<XMLOptions>
-    }
+    },
+    optionalParams?: object
   ) => {
     const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets)
 
@@ -233,7 +236,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       anchorRef,
       uiOverrides?.variablesOverride,
       uiOverrides?.stylesOverride,
-      uiOverrides?.qrConfigOverride
+      uiOverrides?.qrConfigOverride,
+      optionalParams
     )
 
     adapter._loading = true
@@ -262,7 +266,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       variablesOverride?: object
       stylesOverride?: string
       qrConfigOverride?: Partial<XMLOptions>
-    }
+    },
+    optionalParams?: object
   ) => {
     const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets, true)
 
@@ -286,7 +291,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       anchorRef,
       uiOverrides?.variablesOverride,
       uiOverrides?.stylesOverride,
-      uiOverrides?.qrConfigOverride
+      uiOverrides?.qrConfigOverride,
+      optionalParams
     )
 
     return adapter
