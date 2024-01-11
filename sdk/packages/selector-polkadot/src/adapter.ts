@@ -147,7 +147,8 @@ export class NightlyConnectAdapter implements Injected {
       variablesOverride?: object
       stylesOverride?: string
       qrConfigOverride?: Partial<XMLOptions>
-    }
+    },
+    optionalParams?: object
   ) => {
     if (!useEagerConnect) {
       clearSessionIdForNetwork(appInitData.network)
@@ -166,7 +167,8 @@ export class NightlyConnectAdapter implements Injected {
       anchorRef,
       uiOverrides?.variablesOverride,
       uiOverrides?.stylesOverride,
-      uiOverrides?.qrConfigOverride
+      uiOverrides?.qrConfigOverride,
+      optionalParams
     )
 
     const [app, metadataWallets] = await NightlyConnectAdapter.initApp(appInitData)
@@ -190,7 +192,8 @@ export class NightlyConnectAdapter implements Injected {
       variablesOverride?: object
       stylesOverride?: string
       qrConfigOverride?: Partial<XMLOptions>
-    }
+    },
+    optionalParams?: object
   ) => {
     if (!useEagerConnect) {
       clearSessionIdForNetwork(appInitData.network)
@@ -209,7 +212,8 @@ export class NightlyConnectAdapter implements Injected {
       anchorRef,
       uiOverrides?.variablesOverride,
       uiOverrides?.stylesOverride,
-      uiOverrides?.qrConfigOverride
+      uiOverrides?.qrConfigOverride,
+      optionalParams
     )
 
     adapter._loading = true
@@ -240,7 +244,8 @@ export class NightlyConnectAdapter implements Injected {
       variablesOverride?: object
       stylesOverride?: string
       qrConfigOverride?: Partial<XMLOptions>
-    }
+    },
+    optionalParams?: object
   ) => {
     if (!useEagerConnect) {
       clearSessionIdForNetwork(appInitData.network)
@@ -259,7 +264,8 @@ export class NightlyConnectAdapter implements Injected {
       anchorRef,
       uiOverrides?.variablesOverride,
       uiOverrides?.stylesOverride,
-      uiOverrides?.qrConfigOverride
+      uiOverrides?.qrConfigOverride,
+      optionalParams
     )
 
     return adapter

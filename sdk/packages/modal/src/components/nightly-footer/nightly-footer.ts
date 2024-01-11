@@ -10,8 +10,9 @@ export class NightlyFooter extends LitElement {
   render() {
     return html`
       <div class="nc_footer">
-          By connecting, you agree to Common's <span class="highlight"> Terms of Service</span> and
-          to its <span class="highlight"> Privacy Policy</span>.
+        By connecting, you agree to Common's
+        <a href="#" target="_blank" class="highlight"> Terms of Service</a> and to its
+        <a href="#" target="_blank" class="highlight"> Privacy Policy</a>.
       </div>
     `
   }

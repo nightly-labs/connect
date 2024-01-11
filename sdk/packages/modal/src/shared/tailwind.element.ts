@@ -28,7 +28,6 @@ export const setStylesOverride = (override: string) => {
       if (!rule.trim().length) {
         return
       }
-  
       _overrides.insertRule(rule + '}')
     } catch (error) {
       console.log('[custom rule error]:', error)

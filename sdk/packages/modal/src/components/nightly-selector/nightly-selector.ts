@@ -48,6 +48,9 @@ export class NightlySelector extends LitElement {
   @property({ type: Object })
   qrConfigOverride: Partial<XMLOptions> = {}
 
+  @property({ type: Object })
+  optionalParams = {}
+
   // state
 
   @state()
@@ -318,7 +321,7 @@ export class NightlySelector extends LitElement {
             )}
           >
             ${this.renderCurrent()}
-            <nightly-footer></nightly-footer>
+            <nightly-selector></nightly-selector>
           </div>
         </div>
       </div>
