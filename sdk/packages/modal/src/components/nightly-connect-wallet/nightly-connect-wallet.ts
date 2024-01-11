@@ -19,6 +19,9 @@ export class NightlyConnectWallet extends LitElement {
   @property({ type: String })
   coinName = ''
 
+  @property({ type: String })
+  link = ''
+
   @property({ type: Function })
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   downloadApp: () => void = () => {}

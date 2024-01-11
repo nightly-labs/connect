@@ -1,9 +1,10 @@
 .nc_modalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
   animation: 100ms ease-out 0s 1 fadeIn normal forwards;
   z-index: 100;
   background-color: var(--nc-color-overlay);
@@ -11,13 +12,11 @@
 }
 
 .nc_modalWrapper {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translateX(-50%) translateY(-50%);
   width: 720px;
   display: flex;
   flex-direction: column;
+  opacity: 0;
+  animation: 250ms ease-out 200ms 1 slideIn normal forwards;
 }
 
 .nc_modalContent {
@@ -27,6 +26,7 @@
   border: 1px solid var(--nc-color-elements-4);
   border-top: none;
   transition: height 250ms;
+  z-index: 2;
 }
 
 .nc_modalClosingAnimation {
@@ -35,6 +35,10 @@
 
 .nc_modalViewEntryTransition {
   animation: 300ms ease-out 0s 1 viewsFadeIn normal forwards;
+}
+
+.nc_modalSlideOutAnimation {
+  animation: 250ms ease-out 0s 1 slideOut normal forwards;
 }
 
 @media (max-width: 1080px) {
@@ -57,26 +61,18 @@
   }
 
   .nc_modalWrapper {
-    top: unset;
-    left: unset;
-    bottom: -20px;
+    align-self: flex-end;
     width: 100%;
     transform-origin: 0 100%;
-    animation: 250ms ease-out 0s 1 slideIn normal forwards;
-  }
-
-  .nc_modalContent {
-    top: -20px;
-    position: relative;
-    border-radius: 16px 16px 0 0;
+    animation: 250ms ease-out 200ms 1 slideInMobile normal forwards;
   }
 
   .nc_modalClosingAnimation {
     animation: 250ms ease-out 0s 1 fadeOutMobile normal forwards;
   }
 
-  .nc_modalMobileSlideOutAnimation {
-    animation: 250ms ease-out 0s 1 slideOut normal forwards;
+  .nc_modalSlideOutAnimation {
+    animation: 250ms ease-out 0s 1 slideOutMobile normal forwards;
   }
 }
 
@@ -120,21 +116,51 @@
   }
 }
 
-@keyframes slideIn {
+@keyframes slideInMobile {
   0% {
+    opacity: 0;
     transform: translateY(100%);
   }
   100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideOutMobile {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+
+@keyframes slideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
     transform: translateY(0);
   }
 }
 
 @keyframes slideOut {
   0% {
+    opacity: 1;
     transform: translateY(0);
   }
   100% {
-    transform: translateY(100%);
+    opacity: 0;
+    transform: translateY(50px);
   }
 }
 

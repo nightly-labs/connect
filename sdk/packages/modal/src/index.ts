@@ -10,10 +10,6 @@ export const getNightlySelectorElement = (
   stylesOverride?: string, // more advanced changes
   qrConfigOverride?: Partial<XMLOptions> // customization of qr codes
 ) => {
-  const style = document.createElement('style')
-  style.textContent = `@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;600&display=swap');` // workaround because import in bundled styles in ignored for some reason
-  document.head.appendChild(style)
-
   setVariablesOverride(variablesOverride ?? {})
   setStylesOverride(stylesOverride ?? '')
 

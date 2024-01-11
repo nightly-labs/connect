@@ -61,12 +61,12 @@
 }
 
 @media (max-width: 640px) {
-  .nc_headerWrapper {
-    height: 76px;
-  }
-
   .nc_headerAnimatedBgForeground {
     animation-duration: 24s;
+  }
+  
+  .nc_headerWrapper {
+    animation: 500ms ease-out 0s 1 slideInMobile normal forwards;
   }
 }
 
@@ -100,5 +100,17 @@
   }
   100% {
     opacity: 10%;
+  }
+}
+
+@keyframes slideInMobile {
+  0% {
+    height: 0;
+  }
+  50% {
+    height: 250px;
+  }
+  100% {
+    height: 56px;
   }
 }

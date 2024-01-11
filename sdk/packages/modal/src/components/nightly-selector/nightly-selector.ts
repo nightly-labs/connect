@@ -10,6 +10,7 @@ import '../nightly-header/nightly-header'
 import '../nightly-mobile-all-wallets/nightly-mobile-all-wallets'
 import '../nightly-mobile-qr/nightly-mobile-qr'
 import '../nightly-mobile-main/nightly-mobile-main'
+import '../nightly-footer/nightly-footer'
 import { XMLOptions } from '@nightlylabs/qr-code'
 
 @customElement('nightly-selector')
@@ -46,6 +47,12 @@ export class NightlySelector extends LitElement {
 
   @property({ type: Object })
   qrConfigOverride: Partial<XMLOptions> = {}
+
+  @property({ type: String })
+  termsOfService = '#'
+
+  @property({ type: String })
+  privacyPolicy = '#'
 
   // state
 
@@ -303,9 +310,7 @@ export class NightlySelector extends LitElement {
           @click=${(e: MouseEvent) => {
             e.stopPropagation()
           }}
-          class="nc_modalWrapper ${this.fireClosingAnimation
-            ? 'nc_modalMobileSlideOutAnimation'
-            : ''}"
+          class="nc_modalWrapper ${this.fireClosingAnimation ? 'nc_modalSlideOutAnimation' : ''}"
         >
           <nightly-header .onClose=${this.handleClose}></nightly-header>
           <div
@@ -320,6 +325,10 @@ export class NightlySelector extends LitElement {
           >
             ${this.renderCurrent()}
           </div>
+          <nightly-footer
+            .termsOfService=${this.termsOfService}
+            .privacyPolicy=${this.privacyPolicy}
+          ></nightly-footer>
         </div>
       </div>
     `

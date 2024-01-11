@@ -1,0 +1,32 @@
+.nc_footerWrapper {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--nc-color-elements-2);
+  color: var(--nc-color-elements-6);
+  z-index: 1;
+  margin-top: -16px;
+  padding: 32px 16px 16px 16px;
+  border-radius: 0px 0px 16px 16px;
+}
+
+.nc_footerParagraph {
+  font-size: var(--nc-font-size-2);
+}
+
+.nc_footerAnchor {
+  color: var(--nc-color-primary);
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .nc_footerWrapper {
+    border-radius: 0;
+  }
+}
+
+@media (max-width: 425px) {
+  .nc_footerParagraph {
+    font-size: var(--nc-font-size-1);
+  }
+}
