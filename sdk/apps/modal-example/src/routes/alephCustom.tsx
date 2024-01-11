@@ -39,7 +39,6 @@ export default function Polkadot() {
         stylesOverride: `
         .nc_headerWrapper {
           background-color: red;
-          
         }
 
         .nc_headerLogo {
@@ -59,6 +58,7 @@ export default function Polkadot() {
         }
       },
       {
+        // mocked optional parameters
         param1: 'testValue1',
         param2: 'testValue2',
         param3: 'testValu3'

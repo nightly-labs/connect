@@ -15,8 +15,6 @@ export const getNightlySelectorElement = (
   style.textContent = `@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;600&display=swap');` // workaround because import in bundled styles in ignored for some reason
   document.head.appendChild(style)
 
-  console.log('test1', optionalParams)
-
   setVariablesOverride(variablesOverride ?? {})
   setStylesOverride(stylesOverride ?? '')
 

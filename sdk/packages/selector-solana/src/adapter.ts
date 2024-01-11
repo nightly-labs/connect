@@ -212,9 +212,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       stylesOverride?: string
       qrConfigOverride?: Partial<XMLOptions>
     },
-    optionalParams?: {
-      testKey: 'testValue'
-    }
+    optionalParams?: object
   ) => {
     const adapter = new NightlyConnectAdapter(appInitData, eagerConnectForStandardWallets)
 

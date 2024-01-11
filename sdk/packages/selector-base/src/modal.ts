@@ -60,7 +60,6 @@ export class NightlyConnectSelectorModal {
         optionalParams
       )
       this._modal.onClose = this.onCloseModal
-      
 
       this._modal.relay = this._relay
       this._modal.chainIcon = this._networkData.icon
