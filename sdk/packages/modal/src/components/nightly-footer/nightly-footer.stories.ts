@@ -8,8 +8,11 @@ const meta = {
   parameters: {
     layout: 'centered'
   },
-  render: () => {
-    return html`<nightly-footer></nightly-footer>`
+  render: (args) => {
+    return html`<nightly-footer
+      .termsOfService=${args.termsOfService}
+      .privacyPolicy=${args.privacyPolicy}
+    ></nightly-footer>`
   }
 } satisfies Meta<NightlyFooter>
 
