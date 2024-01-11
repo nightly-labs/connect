@@ -321,7 +321,7 @@ export class NightlySelector extends LitElement {
             )}
           >
             ${this.renderCurrent()}
-            <nightly-selector></nightly-selector>
+            <nightly-footer></nightly-footer>
           </div>
         </div>
       </div>
