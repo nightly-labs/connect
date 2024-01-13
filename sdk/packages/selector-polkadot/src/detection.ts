@@ -1,7 +1,7 @@
 import { type Injected, type InjectedExtension } from '@polkadot/extension-inject/types'
 import { type WalletIcon } from '@wallet-standard/core'
 import { appToIcon } from './tempIcons'
-import { IWalletListItem, MetadataWallet } from '@nightlylabs/wallet-selector-base'
+import { IWalletListItem } from '@nightlylabs/wallet-selector-base'
 import { WalletMetadata } from '@nightlylabs/nightly-connect-polkadot'
 export interface PolkadotWalletInjected {
   // Default Polkadot standard
@@ -58,12 +58,12 @@ export const getPolkadotWalletsList = (presetList: WalletMetadata[], recentWalle
   console.log('walletsData', walletsData)
   for (const wallet of windowWallets) {
     // Check if wallet is already in the list
-    // by name
-    if (walletsData[wallet.name.toLocaleLowerCase()]) {
-      console.log('a', walletsData[wallet.name.toLocaleLowerCase()])
+    // by namespace
+    if (walletsData[wallet.slug.toLocaleLowerCase()]) {
+      console.log('a', walletsData[wallet.slug.toLocaleLowerCase()])
       console.log(wallet)
-      walletsData[wallet.name.toLocaleLowerCase()] = {
-        ...(walletsData?.[wallet.name.toLocaleLowerCase()] ?? {
+      walletsData[wallet.slug.toLocaleLowerCase()] = {
+        ...(walletsData?.[wallet.slug.toLocaleLowerCase()] ?? {
           name: wallet.name,
           icon: wallet.icon,
           link: '',
@@ -76,13 +76,14 @@ export const getPolkadotWalletsList = (presetList: WalletMetadata[], recentWalle
       }
       continue
     }
+
     // Check if wallet is already in the list
-    // by namespace
-    if (walletsData[wallet.slug.toLocaleLowerCase()]) {
-      console.log('b', walletsData[wallet.slug.toLocaleLowerCase()])
+    // by name
+    if (walletsData[wallet.name.toLocaleLowerCase()]) {
+      console.log('b', walletsData[wallet.name.toLocaleLowerCase()])
       console.log(wallet)
-      walletsData[wallet.slug.toLocaleLowerCase()] = {
-        ...(walletsData?.[wallet.slug.toLocaleLowerCase()] ?? {
+      walletsData[wallet.name.toLocaleLowerCase()] = {
+        ...(walletsData?.[wallet.name.toLocaleLowerCase()] ?? {
           name: wallet.name,
           icon: wallet.icon,
           link: '',
