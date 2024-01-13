@@ -48,7 +48,7 @@ export class NightlyWalletSelectorPage extends LitElement {
 
     this.filteredItems = this.selectorItems.filter((item) => {
       return item.name.toLowerCase().includes(searchText)
-    })
+    }).sort(walletsSort)
   }
 
   renderSelectorItems() {
