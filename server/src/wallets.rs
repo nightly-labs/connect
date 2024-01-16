@@ -60,7 +60,7 @@ pub static WALLETS_METADATA: Lazy<Vec<WalletMetadata>> = Lazy::new(|| {
             mobile: Some(Deeplink {
                 native: Some("nightly".to_string()),
                 universal: Some("https://wallet.nightly.app".to_string()),
-                universal_app_browser: None
+                redirect_to_app_browser: None
             }),
             image: Images {
                 default: format!("https://registry.nightly.app/wallets/nightly/default.png"),
@@ -172,7 +172,7 @@ pub static WALLETS_METADATA: Lazy<Vec<WalletMetadata>> = Lazy::new(|| {
             mobile: Some(Deeplink {
                 native: None,
                 universal: None,
-                universal_app_browser: Some("https://mobile.subwallet.app/browser?url={{url}}".to_string()),
+                redirect_to_app_browser: Some("https://mobile.subwallet.app/browser?url={{url}}".to_string()),
             }),
             image: Images {
                 default: format!("https://registry.nightly.app/wallets/subwallet-js/default.png"),
