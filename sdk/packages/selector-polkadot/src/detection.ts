@@ -21,14 +21,12 @@ declare global {
 }
 export const getPolkadotWallets = (): PolkadotWalletInjected[] => {
   if (window && window.injectedWeb3) {
-    return Object.entries(window.injectedWeb3).map(([key, value]) => {
-      // value.name might be undefined
-      value.name = value.name ?? key
-      value.slug = key
-      value.icon =
-        value.icon ?? appToIcon[key] ?? 'https://registry.nightly.app/networks/polkadot.png' // TODO add default icon
-      return value
-    })
+    return Object.entries(window.injectedWeb3).map(([key, value]) => ({
+        ...value,
+        name: value.name ?? key, // value.name might be undefined
+        slug: key,
+        icon: value.icon ?? appToIcon[key] ?? 'https://registry.nightly.app/networks/polkadot.png' // TODO add default icon
+      }))
   } else {
     return []
   }
