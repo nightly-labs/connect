@@ -56,7 +56,7 @@ importers:
         version: 9.0.0
       ws:
         specifier: ^8.13.0
-        version: 8.13.0(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+        version: 8.13.0
     devDependencies:
       '@rollup/plugin-commonjs':
         specifier: ^25.0.0
@@ -141,7 +141,7 @@ importers:
         specifier: 0.0.29
         version: link:../sui
       '@nightlylabs/wallet-selector-polkadot':
-        specifier: 0.1.17
+        specifier: 0.1.18
         version: link:../../packages/selector-polkadot
       '@nightlylabs/wallet-selector-solana':
         specifier: 0.2.7
@@ -632,7 +632,7 @@ importers:
         specifier: ^0.0.15
         version: link:../../apps/polkadot
       '@nightlylabs/wallet-selector-base':
-        specifier: ^0.2.4
+        specifier: ^0.2.5
         version: link:../selector-base
       '@polkadot/api':
         specifier: 10.10.1
@@ -734,7 +734,7 @@ importers:
         version: link:../../apps/sui
       '@nightlylabs/wallet-selector-base':
         specifier: 0.2.4
-        version: link:../selector-base
+        version: 0.2.4
       '@wallet-standard/core':
         specifier: ^1.0.3
         version: 1.0.3
@@ -5065,7 +5065,7 @@ packages:
       isomorphic-localstorage: 1.0.2
       isomorphic-ws: 5.0.0(ws@8.14.2)
       uuid: 9.0.0
-      ws: 8.14.2
+      ws: 8.14.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -5902,7 +5902,7 @@ packages:
     dependencies:
       '@polkadot/x-global': 12.3.2
       tslib: 2.6.2
-      ws: 8.13.0(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+      ws: 8.14.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -5914,7 +5914,7 @@ packages:
     dependencies:
       '@polkadot/x-global': 12.5.1
       tslib: 2.6.2
-      ws: 8.14.2
+      ws: 8.14.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -6954,7 +6954,7 @@ packages:
       ts-dedent: 2.2.0
       util-deprecate: 1.0.2
       watchpack: 2.4.0
-      ws: 8.13.0(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+      ws: 8.14.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -12636,7 +12636,7 @@ packages:
     peerDependencies:
       ws: '*'
     dependencies:
-      ws: 8.13.0(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+      ws: 8.13.0
     dev: false
 
   /isomorphic-ws@5.0.0(ws@8.14.2):
@@ -12644,7 +12644,7 @@ packages:
     peerDependencies:
       ws: '*'
     dependencies:
-      ws: 8.14.2
+      ws: 8.14.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
     dev: false
 
   /istanbul-lib-coverage@3.2.0:
@@ -15529,7 +15529,7 @@ packages:
       '@babel/runtime': 7.22.3
       eventemitter3: 4.0.7
       uuid: 8.3.2
-      ws: 8.13.0(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+      ws: 8.14.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
     optionalDependencies:
       bufferutil: 4.0.7
       utf-8-validate: 5.0.10
@@ -15913,7 +15913,7 @@ packages:
     requiresBuild: true
     dependencies:
       pako: 2.1.0
-      ws: 8.14.2
+      ws: 8.14.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -15924,7 +15924,7 @@ packages:
     resolution: {integrity: sha512-Wqw2fL/sELQByLSeeTX1Z/d0H4McmphPMx8vh6UZS/bIIDx81oU7s/drmx2iL/ME36uk++YxpRuJey8/MOyfOA==}
     requiresBuild: true
     dependencies:
-      ws: 8.14.2
+      ws: 8.14.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -17698,7 +17698,7 @@ packages:
       spdy: 4.0.2
       webpack: 5.88.0
       webpack-dev-middleware: 5.3.3(webpack@5.88.0)
-      ws: 8.14.2
+      ws: 8.14.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - debug
@@ -17953,8 +17953,21 @@ packages:
         optional: true
     dev: false
 
-  /ws@8.13.0(bufferutil@4.0.7)(utf-8-validate@5.0.10):
+  /ws@8.13.0:
     resolution: {integrity: sha512-x9vcZYTrFPC7aSIbj7sRCYo7L/Xb8Iy+pW0ng0wt2vCJv7M9HOMy0UoN3rr+IFC7hb7vXoqS+P9ktyLLLhO+LA==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+    dev: false
+
+  /ws@8.14.2(bufferutil@4.0.7)(utf-8-validate@5.0.10):
+    resolution: {integrity: sha512-wEBG1ftX4jcglPxgFCMJmZ2PLtSbJ2Peg6TmpJFTbe9GZYOQCDPdMYu/Tm0/bGZkw8paZnJY45J4K2PZrLYq8g==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -17967,19 +17980,6 @@ packages:
     dependencies:
       bufferutil: 4.0.7
       utf-8-validate: 5.0.10
-
-  /ws@8.14.2:
-    resolution: {integrity: sha512-wEBG1ftX4jcglPxgFCMJmZ2PLtSbJ2Peg6TmpJFTbe9GZYOQCDPdMYu/Tm0/bGZkw8paZnJY45J4K2PZrLYq8g==}
-    engines: {node: '>=10.0.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: '>=5.0.2'
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
-    dev: false
 
   /xdg-basedir@4.0.0:
     resolution: {integrity: sha512-PSNhEJDejZYV7h50BohL09Er9VaIefr2LMAf3OEmpCkjOi34eYyQYAXUTjEQtZJTKcF0E2UKTh+osDLsgNim9Q==}

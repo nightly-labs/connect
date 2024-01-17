@@ -30,6 +30,7 @@ pub struct WalletMetadata {
     pub last_updated_timestamp: u64,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
 #[ts(export)]
 pub struct Deeplink {
     pub native: Option<String>,

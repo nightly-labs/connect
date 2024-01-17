@@ -378,13 +378,16 @@ export class NightlyConnectAdapter implements Injected {
       return
     }
 
-    const redirect_to_app_browser = wallet.deeplink.redirect_to_app_browser;
-    if (redirect_to_app_browser !== null && redirect_to_app_browser.indexOf('{{url}}') > -1) {
-       const url = redirect_to_app_browser.replace('{{url}}', encodeURIComponent(window.location.toString()));
+    const redirectToAppBrowser = wallet.deeplink.redirectToAppBrowser
+    if (redirectToAppBrowser !== null && redirectToAppBrowser.indexOf('{{url}}') > -1) {
+      const url = redirectToAppBrowser.replace(
+        '{{url}}',
+        encodeURIComponent(window.location.toString())
+      )
 
-        window.open(url, '_blank', 'noreferrer noopener');
+      window.open(url, '_blank', 'noreferrer noopener')
 
-        return;
+      return
     }
   }
 
