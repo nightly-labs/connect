@@ -377,6 +377,15 @@ export class NightlyConnectAdapter implements Injected {
       )
       return
     }
+
+    const redirect_to_app_browser = wallet.deeplink.redirect_to_app_browser;
+    if (redirect_to_app_browser !== null && redirect_to_app_browser.indexOf('{{url}}') > -1) {
+       const url = redirect_to_app_browser.replace('{{url}}', encodeURIComponent(window.location.toString()));
+
+        window.open(url, '_blank', 'noreferrer noopener');
+
+        return;
+    }
   }
 
   connectToStandardWallet = async (walletName: string, onSuccess: () => void) => {
@@ -543,7 +552,7 @@ export class NightlyConnectAdapter implements Injected {
                 reject(error)
               }
             }
-            this._modal.openModal(this._app.sessionId, (walletName) => {
+            this._modal.openModal(this._app.sessionId, (walletName: string) => {
               if (
                 isMobileBrowser() &&
                 !this.walletsList.find((w) => w.name === walletName)?.injectedWallet

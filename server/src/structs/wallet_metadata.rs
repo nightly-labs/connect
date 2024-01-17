@@ -34,6 +34,7 @@ pub struct WalletMetadata {
 pub struct Deeplink {
     pub native: Option<String>,
     pub universal: Option<String>,
+    pub redirect_to_app_browser: Option<String>,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
