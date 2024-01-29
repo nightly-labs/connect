@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;600&display=swap');
+
+.nc_footerWrapper {
+   width: 100%;
+   background-color: var(--nc-color-elements-3);
+   color: var(--nc-color-elements-6);
+   margin-top: -12px;
+   border-radius: 0px 0px 16px 16px;
+   position: relative;
+   padding: 25px 16px 16px 16px;
+  }
+  
+  .nc_footerParagraph {
+    font-size: var(--nc-font-size-3);
+    font-family: var(--nc-font-family);
+  }
+  
+  .nc_footerLink {
+    color: var(--nc-color-primary);
+    text-decoration: underline;
+  }
+  
+  @media (max-width: 960px) {
+    .nc_footerParagraph {
+      font-size: var(--nc-font-size-2);
+      font-family: var(--nc-font-family);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .nc_footerWrapper {
+      width: 100%;
+      background-color: var(--nc-color-elements-3);
+      color: var(--nc-color-elements-6);
+      margin-top: -20px;
+      border-radius: 0px 0px 16px 16px;
+      position: relative;
+      padding: 16px 16px 16px 16px;
+     }
+  }
+  
+  @media (max-width: 425px) {
+  }

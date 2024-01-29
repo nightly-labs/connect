@@ -8,7 +8,8 @@ export { type WalletSelectorItem } from './utils/types'
 export const getNightlySelectorElement = (
   variablesOverride?: object, // simple changes like changing global colors
   stylesOverride?: string, // more advanced changes
-  qrConfigOverride?: Partial<XMLOptions> // customization of qr codes
+  qrConfigOverride?: Partial<XMLOptions>, // customization of qr codes
+  optParameters?: object
 ) => {
   const style = document.createElement('style')
   style.textContent = `@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;600&display=swap');` // workaround because import in bundled styles in ignored for some reason
@@ -19,6 +20,7 @@ export const getNightlySelectorElement = (
 
   const selectorElement = document.createElement('nightly-selector')
   selectorElement.qrConfigOverride = qrConfigOverride ?? {}
+  selectorElement.optParameters = optParameters ?? {}
 
   return selectorElement
 }
