@@ -22,8 +22,6 @@ log = { workspace = true }
 tower = { workspace = true }
 hyper = { wokrspace = true }
 axum = { workspace = true }
-axum-server = { workspace = true }
-axum-macros = { workspace = true }
 tower-http = { workspace = true }
 tracing-subscriber = { workspace = true }
 async-trait = { workspace = true }
