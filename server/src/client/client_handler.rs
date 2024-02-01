@@ -1,15 +1,3 @@
-use std::net::SocketAddr;
-
-use axum::{
-    extract::{
-        ws::{Message, WebSocket},
-        ConnectInfo, State, WebSocketUpgrade,
-    },
-    response::Response,
-};
-use futures::StreamExt;
-use log::{debug, info};
-
 use crate::{
     errors::NightlyError,
     state::{
@@ -25,7 +13,7 @@ use crate::{
             client_initialize::ClientInitializeResponse,
             client_messages::{ClientToServer, ServerToClient},
             connect::ConnectResponse,
-            drop_sessions::{self, DropSessionsResponse},
+            drop_sessions::DropSessionsResponse,
             get_info::GetInfoResponse,
             get_pending_requests::GetPendingRequestsResponse,
             get_sessions::GetSessionsResponse,
@@ -33,6 +21,16 @@ use crate::{
         common::{AckMessage, ErrorMessage, SessionStatus},
     },
 };
+use axum::{
+    extract::{
+        ws::{Message, WebSocket},
+        ConnectInfo, State, WebSocketUpgrade,
+    },
+    response::Response,
+};
+use futures::StreamExt;
+use log::{debug, info};
+use std::net::SocketAddr;
 
 pub async fn on_new_client_connection(
     ConnectInfo(ip): ConnectInfo<SocketAddr>,
@@ -115,7 +113,7 @@ pub async fn client_handler(
                 Err(_e) => {
                     let user_disconnected_event =
                         ServerToApp::UserDisconnectedEvent(UserDisconnectedEvent {});
-                    let user_sessions = client_to_sessions.get_sessions(client_id.clone());
+                    let user_sessions = client_to_sessions.get_sessions(client_id.clone()).await;
                     for session_id in user_sessions {
                         let mut sessions = sessions.write().await;
                         let session = match sessions.get_mut(&session_id) {
@@ -142,7 +140,7 @@ pub async fn client_handler(
             None => {
                 let user_disconnected_event =
                     ServerToApp::UserDisconnectedEvent(UserDisconnectedEvent {});
-                let user_sessions = client_to_sessions.get_sessions(client_id.clone());
+                let user_sessions = client_to_sessions.get_sessions(client_id.clone()).await;
                 for session_id in user_sessions {
                     let mut sessions = sessions.write().await;
                     let session = match sessions.get_mut(&session_id) {
@@ -174,7 +172,7 @@ pub async fn client_handler(
             Message::Close(None) | Message::Close(Some(_)) => {
                 let user_disconnected_event =
                     ServerToApp::UserDisconnectedEvent(UserDisconnectedEvent {});
-                let user_sessions = client_to_sessions.get_sessions(client_id.clone());
+                let user_sessions = client_to_sessions.get_sessions(client_id.clone()).await;
                 for session_id in user_sessions {
                     let mut sessions = sessions.write().await;
                     let session = match sessions.get_mut(&session_id) {
@@ -251,10 +249,12 @@ pub async fn client_handler(
                 session.send_to_app(app_event).await.unwrap_or_default();
 
                 // Insert new session id into client_to_sessions
-                client_to_sessions.add_session(
-                    connect_request.client_id.clone(),
-                    connect_request.session_id.clone(),
-                );
+                client_to_sessions
+                    .add_session(
+                        connect_request.client_id.clone(),
+                        connect_request.session_id.clone(),
+                    )
+                    .await;
 
                 let client_reponse = ServerToClient::ConnectResponse(ConnectResponse {
                     response_id: connect_request.response_id,
@@ -384,7 +384,7 @@ pub async fn client_handler(
                     .unwrap_or_default();
             }
             ClientToServer::GetSessionsRequest(get_sessions_request) => {
-                let sessions = client_to_sessions.get_sessions(client_id.clone());
+                let sessions = client_to_sessions.get_sessions(client_id.clone()).await;
                 let response = ServerToClient::GetSessionsResponse(GetSessionsResponse {
                     sessions,
                     response_id: get_sessions_request.response_id,
@@ -401,9 +401,10 @@ pub async fn client_handler(
                     if sessions.disconnect_user(session_id.clone()).await.is_ok() {
                         dropped_sessions.push(session_id.clone());
                     };
-                    if let Some(sessions) = client_to_sessions.get_mut(&client_id) {
-                        sessions.remove(&session_id);
-                    }
+
+                    client_to_sessions
+                        .remove_session(client_id.clone(), session_id.clone())
+                        .await;
                 }
                 let response = ServerToClient::DropSessionsResponse(DropSessionsResponse {
                     dropped_sessions,

@@ -43,9 +43,12 @@ pub async fn get_pending_requests(
             NightlyError::UserNotConnected.to_string(),
         ));
     }
-    let mut pending_requests = Vec::new();
-    for (key, pending_request) in session.pending_requests.iter() {
-        pending_requests.push(pending_request.clone());
-    }
+
+    let pending_requests = session
+        .pending_requests
+        .values()
+        .cloned()
+        .collect::<Vec<_>>();
+
     Ok(Json(HttpGetPendingRequestsResponse { pending_requests }))
 }
