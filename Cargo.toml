@@ -1,32 +1,30 @@
 [workspace]
-
+resolver = "2"
 members = ["server"]
 [workspace.dependencies]
-rust_decimal = { version = "1.27", features = [
-  "serde-str",
-  "serde-with-arbitrary-precision",
-] }
-rust_decimal_macros = "1.27"
-tokio = { version = "1.26.0", features = ["full"] }
-futures = "0.3.27"
+
 dashmap = { version = "5.4.0", features = ["serde"] }
-ctrlc = "3.2.5"
-serde = { version = "1.0", features = ["derive"] }
-tokio-stream = "0.1.11"
-async-channel = "1.8.0"
-tokio-tungstenite = "0.17.0"
-anyhow = "1.0.66"
-prost-types = "0.11.2"
-serde_json = "1.0"
-strum = "0.24"
-strum_macros = "0.24"
-lazy_static = "1.4.0"
-dotenvy = "0.15.6"
-once_cell = "1.17.1"
-rand = "0.8.5"
+ctrlc = "3.4.2"
+serde = { version = "1.0.196", features = ["derive"] }
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+once_cell = "1.19.0"
+anyhow = "1.0.79"
+serde_json = "1.0.113"
+strum = { version = "0.26.1", features = ["derive"] }
+dotenvy = "0.15.7"
 ts-rs = "6.2.1"
-garde = "0.11.2"
-axum_garde = "0.11.2"
-uuid7 = { version = "0.3.3" }
-reqwest = "0.11.18"
-log = "0.4.19"
+uuid7 = { version = "0.7.2" }
+log = "0.4.20"
+
+futures = "0.3.30"
+axum = { version = "0.7.4", features = ["ws", "macros"] }
+tower = { version = "0.4.13", features = [
+  "util",
+  "timeout",
+  "load-shed",
+  "limit",
+] }
+tower-http = { version = "0.5.1", features = ["cors", "trace"] }
+reqwest = "0.11.24"
+tokio = { version = "1.35.1", features = ["full"] }
+async-trait = "0.1.77"

@@ -1,7 +1,6 @@
-use std::collections::HashMap;
-
 use serde::{Deserialize, Serialize};
-use strum_macros::{Display, EnumIter, EnumString};
+use std::collections::HashMap;
+use strum::{Display, EnumIter, EnumString};
 use ts_rs::TS;
 
 use super::{

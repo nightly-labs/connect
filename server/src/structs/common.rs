@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use strum::{Display, EnumIter, EnumString};
 use ts_rs::TS;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
@@ -13,7 +14,6 @@ impl Network {
 #[ts(export)]
 pub struct Version(pub String); // 0.0.1
 
-use strum_macros::{Display, EnumIter, EnumString};
 #[derive(
     Debug,
     Clone,

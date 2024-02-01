@@ -7,8 +7,10 @@ use crate::structs::{
 };
 use anyhow::Result;
 use async_trait::async_trait;
-use axum::extract::ws::{Message, WebSocket};
-use axum_macros::FromRef;
+use axum::extract::{
+    ws::{Message, WebSocket},
+    FromRef,
+};
 use dashmap::{DashMap, DashSet};
 use futures::{stream::SplitSink, SinkExt};
 use log::info;
