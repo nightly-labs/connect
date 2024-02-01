@@ -17,15 +17,14 @@ uuid7 = { version = "0.7.2" }
 log = "0.4.20"
 
 futures = "0.3.30"
-axum = { version = "0.6.12", features = ["ws", "macros"] }
-tower = { version = "0.4", features = [
+axum = { version = "0.7.4", features = ["ws", "macros"] }
+tower = { version = "0.4.13", features = [
   "util",
   "timeout",
   "load-shed",
   "limit",
 ] }
-tower-http = { version = "0.4.3", features = ["cors", "trace"] }
-hyper = { version = "0.14.14", features = ["stream"] }
+tower-http = { version = "0.5.1", features = ["cors", "trace"] }
 reqwest = "0.11.24"
-tokio = { version = "1.26.0", features = ["full"] }
+tokio = { version = "1.35.1", features = ["full"] }
 async-trait = "0.1.77"
