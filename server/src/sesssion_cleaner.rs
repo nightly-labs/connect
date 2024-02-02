@@ -34,7 +34,9 @@ pub fn start_cleaning_sessions(sessions: Sessions, client_to_sessions: ClientToS
                 // Remove session from client_to_sessions
                 match &session.client_state.client_id {
                     Some(client_id) => {
-                        client_to_sessions.remove_session(client_id.clone(), session_id.clone());
+                        client_to_sessions
+                            .remove_session(client_id.clone(), session_id.clone())
+                            .await;
                     }
                     None => {}
                 }

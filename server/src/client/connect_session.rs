@@ -36,7 +36,7 @@ pub async fn connect_session(
     Json(request): Json<HttpConnectSessionRequest>,
 ) -> Result<Json<HttpConnectSessionResponse>, (StatusCode, String)> {
     let mut sessions = sessions.write().await;
-    let mut session = match sessions.get_mut(&request.session_id) {
+    let session = match sessions.get_mut(&request.session_id) {
         Some(session) => session,
         None => {
             return Err((
@@ -69,6 +69,8 @@ pub async fn connect_session(
         }
     };
     // Insert new session id into client_to_sessions
-    client_to_sessions.add_session(request.client_id.clone(), request.session_id.clone());
+    client_to_sessions
+        .add_session(request.client_id.clone(), request.session_id.clone())
+        .await;
     return Ok(Json(HttpConnectSessionResponse {}));
 }

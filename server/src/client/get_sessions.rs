@@ -19,6 +19,6 @@ pub async fn get_sessions(
     State(client_to_sessions): State<ClientToSessions>,
     Json(request): Json<HttpGetSessionsRequest>,
 ) -> Result<Json<HttpGetSessionsResponse>, (StatusCode, String)> {
-    let sessions = client_to_sessions.get_sessions(request.client_id);
+    let sessions = client_to_sessions.get_sessions(request.client_id).await;
     Ok(Json(HttpGetSessionsResponse { sessions }))
 }

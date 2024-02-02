@@ -1,9 +1,7 @@
-use axum::response::IntoResponse;
-use hyper::StatusCode;
+use crate::errors::NightlyError;
+use axum::{http::StatusCode, response::IntoResponse};
 use log::error;
 use tower::BoxError;
-
-use crate::errors::NightlyError;
 
 pub async fn handle_error(error: BoxError) -> impl IntoResponse {
     error!("Request error {:?}", error);

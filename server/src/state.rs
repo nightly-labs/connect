@@ -1,5 +1,3 @@
-use std::{collections::HashMap, sync::Arc};
-
 use crate::structs::{
     app_messages::{app_messages::ServerToApp, user_disconnected_event::UserDisconnectedEvent},
     client_messages::client_messages::ServerToClient,
@@ -11,9 +9,13 @@ use axum::extract::{
     ws::{Message, WebSocket},
     FromRef,
 };
-use dashmap::{DashMap, DashSet};
+use dashmap::DashMap;
 use futures::{stream::SplitSink, SinkExt};
 use log::info;
+use std::{
+    collections::{HashMap, HashSet},
+    sync::Arc,
+};
 use tokio::sync::RwLock;
 
 pub type SessionId = String;
@@ -28,7 +30,7 @@ pub trait DisconnectUser {
 impl DisconnectUser for Sessions {
     async fn disconnect_user(&self, session_id: SessionId) -> Result<()> {
         let mut sessions = self.write().await;
-        let mut session = match sessions.get_mut(&session_id) {
+        let session = match sessions.get_mut(&session_id) {
             Some(session) => session,
             None => return Err(anyhow::anyhow!("Session does not exist")), // Session does not exist
         };
@@ -76,39 +78,59 @@ impl SendToClient for ClientSockets {
         }
     }
 }
-pub type ClientToSessions = Arc<DashMap<ClientId, DashSet<SessionId>>>;
+pub type ClientToSessions = Arc<RwLock<HashMap<ClientId, RwLock<HashSet<SessionId>>>>>;
 #[derive(Clone, FromRef)]
 pub struct ServerState {
     pub sessions: Sessions,
     pub client_to_sockets: ClientSockets, // Holds only live sockets
     pub client_to_sessions: ClientToSessions,
 }
+
+#[async_trait]
 pub trait ModifySession {
-    fn remove_session(&self, client_id: ClientId, session_id: SessionId);
-    fn add_session(&self, client_id: ClientId, session_id: SessionId);
-    fn get_sessions(&self, client_id: ClientId) -> Vec<SessionId>;
+    async fn remove_session(&self, client_id: ClientId, session_id: SessionId);
+    async fn add_session(&self, client_id: ClientId, session_id: SessionId);
+    async fn get_sessions(&self, client_id: ClientId) -> Vec<SessionId>;
 }
+
+#[async_trait]
 impl ModifySession for ClientToSessions {
-    fn remove_session(&self, client_id: ClientId, session_id: SessionId) {
-        let entry = match self.get(&client_id) {
-            Some(sessions) => sessions,
+    async fn remove_session(&self, client_id: ClientId, session_id: SessionId) {
+        let mut clients_write = self.write().await;
+
+        let client_sessions_lock = match clients_write.get_mut(&client_id) {
+            Some(entry) => entry,
             None => return,
         };
-        entry.remove(&session_id);
-        let is_empty = entry.is_empty();
-        drop(entry); // drop the lock
+
+        let mut client_sessions_write = client_sessions_lock.write().await;
+        client_sessions_write.remove(&session_id);
+
+        let is_empty = client_sessions_write.is_empty();
+        drop(client_sessions_write);
+
         if is_empty {
-            self.remove(&client_id);
+            clients_write.remove(&client_id);
         }
     }
-    fn add_session(&self, client_id: ClientId, session_id: SessionId) {
-        self.entry(client_id)
-            .or_insert_with(|| DashSet::new())
-            .insert(session_id);
+
+    async fn add_session(&self, client_id: ClientId, session_id: SessionId) {
+        let mut clients_write = self.write().await;
+        let client_sessions = clients_write
+            .entry(client_id)
+            .or_insert_with(|| RwLock::new(HashSet::new()));
+
+        client_sessions.write().await.insert(session_id);
     }
-    fn get_sessions(&self, client_id: ClientId) -> Vec<SessionId> {
-        match self.get(&client_id) {
-            Some(sessions) => sessions.iter().map(|session| session.clone()).collect(),
+
+    async fn get_sessions(&self, client_id: ClientId) -> Vec<SessionId> {
+        let clients_read = self.read().await;
+        match clients_read.get(&client_id) {
+            Some(sessions) => {
+                let client_sessions = sessions.read().await;
+
+                client_sessions.iter().cloned().collect()
+            }
             None => vec![],
         }
     }
@@ -117,29 +139,34 @@ impl ModifySession for ClientToSessions {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_modify_session() {
+    #[tokio::test]
+    async fn test_modify_session() {
         // Create a new ClientToSessions instance for testing
         let client_to_sessions = ClientToSessions::default();
 
         // Add a session
         let client_id = "client1".to_string();
         let session_id = "session1".to_string();
-        client_to_sessions.add_session(client_id.clone(), session_id.clone());
+        client_to_sessions
+            .add_session(client_id.clone(), session_id.clone())
+            .await;
 
         // Get sessions for the client
-        let sessions = client_to_sessions.get_sessions(client_id.clone());
+        let sessions = client_to_sessions.get_sessions(client_id.clone()).await;
         assert_eq!(sessions, vec![session_id.clone()]);
 
         // Remove the session
-        client_to_sessions.remove_session(client_id.clone(), session_id.clone());
+        client_to_sessions
+            .remove_session(client_id.clone(), session_id.clone())
+            .await;
 
         // Ensure the session is removed
-        let sessions = client_to_sessions.get_sessions(client_id.clone());
+        let sessions = client_to_sessions.get_sessions(client_id.clone()).await;
         assert!(sessions.is_empty());
 
         // Ensure the client is removed
-        let maybe_sessions = client_to_sessions.get(&client_id);
+        let client_to_sessions_read = client_to_sessions.read().await;
+        let maybe_sessions = client_to_sessions_read.get(&client_id);
         assert!(maybe_sessions.is_none());
     }
 }
