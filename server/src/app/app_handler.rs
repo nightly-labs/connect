@@ -1,20 +1,7 @@
-use std::{collections::HashMap, net::SocketAddr};
-
-use axum::{
-    extract::{
-        ws::{Message, WebSocket},
-        ConnectInfo, State, WebSocketUpgrade,
-    },
-    response::Response,
-};
-use futures::{SinkExt, StreamExt};
-use log::{debug, warn};
-
 use crate::{
     state::{ClientSockets, ClientToSessions, ModifySession, SendToClient, Sessions},
     structs::{
         app_messages::{
-            already_connected::AlreadyConnected,
             app_messages::{AppToServer, ServerToApp},
             initialize::InitializeResponse,
         },
@@ -28,6 +15,16 @@ use crate::{
     },
     utils::get_timestamp_in_milliseconds,
 };
+use axum::{
+    extract::{
+        ws::{Message, WebSocket},
+        ConnectInfo, State, WebSocketUpgrade,
+    },
+    response::Response,
+};
+use futures::StreamExt;
+use log::debug;
+use std::{collections::HashMap, net::SocketAddr};
 
 pub async fn on_new_app_connection(
     ConnectInfo(ip): ConnectInfo<SocketAddr>,
@@ -50,7 +47,7 @@ pub async fn app_handler(
     client_sockets: ClientSockets,
     client_to_sessions: ClientToSessions,
 ) {
-    let (mut sender, mut receiver) = socket.split();
+    let (sender, mut receiver) = socket.split();
     let connection_id = uuid7::uuid7();
     // Handle the new app connection here
     // Wait for initialize message
@@ -90,7 +87,7 @@ pub async fn app_handler(
                         let (session_id, created_new) = {
                             let mut sessions = sessions.write().await;
                             match sessions.get_mut(session_id.as_str()) {
-                                Some(mut session) => {
+                                Some(session) => {
                                     session.update_status(SessionStatus::AppConnected);
                                     session
                                         .app_state
@@ -225,10 +222,13 @@ pub async fn app_handler(
                         }
                         false => {
                             // Remove session
-                            client_to_sessions.remove_session(
-                                session.client_state.client_id.clone().unwrap_or_default(),
-                                session_id.clone(),
-                            );
+                            client_to_sessions
+                                .remove_session(
+                                    session.client_state.client_id.clone().unwrap_or_default(),
+                                    session_id.clone(),
+                                )
+                                .await;
+
                             drop(session);
                             sessions.remove(&session_id);
                         }
@@ -270,10 +270,13 @@ pub async fn app_handler(
                     }
                     false => {
                         // Remove session
-                        client_to_sessions.remove_session(
-                            session.client_state.client_id.clone().unwrap_or_default(),
-                            session_id.clone(),
-                        );
+                        client_to_sessions
+                            .remove_session(
+                                session.client_state.client_id.clone().unwrap_or_default(),
+                                session_id.clone(),
+                            )
+                            .await;
+
                         drop(session);
                         sessions.remove(&session_id);
                     }
