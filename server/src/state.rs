@@ -9,7 +9,6 @@ use axum::extract::{
     ws::{Message, WebSocket},
     FromRef,
 };
-use dashmap::DashMap;
 use futures::{stream::SplitSink, SinkExt};
 use log::info;
 use std::{
@@ -21,7 +20,7 @@ use tokio::sync::RwLock;
 pub type SessionId = String;
 pub type ClientId = String;
 pub type Sessions = Arc<RwLock<HashMap<SessionId, Session>>>;
-pub type ClientSockets = Arc<DashMap<ClientId, SplitSink<WebSocket, Message>>>;
+pub type ClientSockets = Arc<RwLock<HashMap<ClientId, RwLock<SplitSink<WebSocket, Message>>>>>;
 #[async_trait]
 pub trait DisconnectUser {
     async fn disconnect_user(&self, session_id: SessionId) -> Result<()>;
@@ -53,13 +52,16 @@ pub trait SendToClient {
     async fn send_to_client(&self, client_id: ClientId, msg: ServerToClient) -> Result<()>;
     async fn close_client_socket(&self, client_id: ClientId) -> Result<()>;
 }
+
 #[async_trait]
 impl SendToClient for ClientSockets {
     async fn send_to_client(&self, client_id: ClientId, msg: ServerToClient) -> Result<()> {
-        match &mut self.get_mut(&client_id) {
+        match self.read().await.get(&client_id) {
             Some(client_socket) => {
                 info!("Send to client {}, msg: {:?}", client_id, msg);
                 return Ok(client_socket
+                    .write()
+                    .await
                     .send(Message::Text(
                         serde_json::to_string(&msg).expect("Serialization should work"),
                     ))
@@ -70,9 +72,9 @@ impl SendToClient for ClientSockets {
     }
     async fn close_client_socket(&self, client_id: ClientId) -> Result<()> {
         info!("Close client socket {}", client_id);
-        match &mut self.remove(&client_id) {
-            Some((_, client_socket)) => {
-                return Ok(client_socket.close().await?);
+        match self.write().await.remove(&client_id) {
+            Some(client_socket) => {
+                return Ok(client_socket.write().await.close().await?);
             }
             None => Err(anyhow::anyhow!("No client socket found for session")),
         }
@@ -124,13 +126,8 @@ impl ModifySession for ClientToSessions {
     }
 
     async fn get_sessions(&self, client_id: ClientId) -> Vec<SessionId> {
-        let clients_read = self.read().await;
-        match clients_read.get(&client_id) {
-            Some(sessions) => {
-                let client_sessions = sessions.read().await;
-
-                client_sessions.iter().cloned().collect()
-            }
+        match self.read().await.get(&client_id) {
+            Some(sessions) => sessions.read().await.iter().cloned().collect(),
             None => vec![],
         }
     }

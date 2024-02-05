@@ -31,6 +31,7 @@ use axum::{
 use futures::StreamExt;
 use log::{debug, info};
 use std::net::SocketAddr;
+use tokio::sync::RwLock;
 
 pub async fn on_new_client_connection(
     ConnectInfo(ip): ConnectInfo<SocketAddr>,
@@ -86,7 +87,12 @@ pub async fn client_handler(
         };
         match app_msg {
             ClientToServer::ClientInitializeRequest(connect_request) => {
-                client_sockets.insert(connect_request.client_id.clone(), sender);
+                // Insert client socket
+                {
+                    let mut client_sockets_write = client_sockets.write().await;
+                    client_sockets_write
+                        .insert(connect_request.client_id.clone(), RwLock::new(sender));
+                }
                 // Send response
                 let client_msg =
                     ServerToClient::ClientInitializeResponse(ClientInitializeResponse {

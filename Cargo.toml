@@ -3,7 +3,6 @@ resolver = "2"
 members = ["server"]
 [workspace.dependencies]
 
-dashmap = { version = "5.4.0", features = ["serde"] }
 ctrlc = "3.4.2"
 serde = { version = "1.0.196", features = ["derive"] }
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }

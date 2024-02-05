@@ -12,7 +12,7 @@ export const smartDelay = async (ms?: number) => {
     if (process.env.IS_CI) {
       await sleep(ms || 100)
     } else {
-      await sleep(ms || 5)
+      await sleep(ms || 50)
     }
   }
 }
