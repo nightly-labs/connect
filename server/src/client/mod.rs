@@ -1,4 +1,3 @@
-pub mod client_handler;
 pub mod connect_session;
 pub mod drop_sessions;
 pub mod get_pending_request;

@@ -10,18 +10,20 @@ use tracing_subscriber::EnvFilter;
 
 use crate::{
     client::{
-        client_handler::on_new_client_connection, connect_session::connect_session,
-        drop_sessions::drop_sessions, get_pending_request::get_pending_request,
-        get_pending_requests::get_pending_requests, get_session_info::get_session_info,
-        get_sessions::get_sessions, get_wallets_metadata::get_wallets_metadata,
-        resolve_request::resolve_request,
+        connect_session::connect_session, drop_sessions::drop_sessions,
+        get_pending_request::get_pending_request, get_pending_requests::get_pending_requests,
+        get_session_info::get_session_info, get_sessions::get_sessions,
+        get_wallets_metadata::get_wallets_metadata, resolve_request::resolve_request,
     },
     handle_error::handle_error,
     sesssion_cleaner::start_cleaning_sessions,
     state::ServerState,
     structs::http_endpoints::HttpEndpoint,
     utils::get_cors,
-    ws::app_handler::handler::on_new_app_connection,
+    ws::{
+        app_handler::handler::on_new_app_connection,
+        client_handler::handler::on_new_client_connection,
+    },
 };
 use tower_http::trace::TraceLayer;
 pub async fn get_router() -> Router {
