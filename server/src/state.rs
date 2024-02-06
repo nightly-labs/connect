@@ -1,8 +1,4 @@
-use crate::structs::{
-    app_messages::{app_messages::ServerToApp, user_disconnected_event::UserDisconnectedEvent},
-    client_messages::client_messages::ServerToClient,
-    session::{ClientState, Session},
-};
+use crate::structs::{client_messages::client_messages::ServerToClient, session::Session};
 use anyhow::Result;
 use async_trait::async_trait;
 use axum::extract::{
@@ -33,17 +29,10 @@ impl DisconnectUser for Sessions {
             Some(session) => session,
             None => return Err(anyhow::anyhow!("Session does not exist")), // Session does not exist
         };
-        session.client_state = ClientState {
-            client_id: None,
-            connected_public_keys: vec![],
-            device: None,
-            metadata: None,
-        };
-        session.notification = None;
-        session.pending_requests.clear();
-        // Send disconnect event to app
-        let user_disconnected_event = ServerToApp::UserDisconnectedEvent(UserDisconnectedEvent {});
-        session.send_to_app(user_disconnected_event).await?;
+
+        // Update session user state
+        session.disconnect_user().await;
+
         Ok(())
     }
 }

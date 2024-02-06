@@ -17,8 +17,8 @@ pub async fn process_get_info(
     client_sockets: &ClientSockets,
     get_info_request: GetInfoRequest,
 ) -> Result<()> {
-    let mut sessions_write = sessions.write().await;
-    let session = match sessions_write.get_mut(&get_info_request.session_id) {
+    let sessions_read = sessions.read().await;
+    let session = match sessions_read.get(&get_info_request.session_id) {
         Some(session) => session,
         None => {
             let error = ServerToClient::ErrorMessage(ErrorMessage {

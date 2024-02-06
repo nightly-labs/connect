@@ -5,7 +5,7 @@ use crate::{state::ClientId, utils::get_timestamp_in_milliseconds};
 use super::{
     app_messages::{
         app_messages::ServerToApp, initialize::InitializeRequest,
-        user_connected_event::UserConnectedEvent,
+        user_connected_event::UserConnectedEvent, user_disconnected_event::UserDisconnectedEvent,
     },
     client_messages::connect::ConnectRequest,
     common::{AppMetadata, Device, Network, Notification, PendingRequest, SessionStatus, Version},
@@ -134,6 +134,27 @@ impl Session {
             metadata: connect_request.metadata.clone(),
         });
         self.send_to_app(app_event).await.unwrap_or_default();
+    }
+
+    pub async fn disconnect_user(&mut self) {
+        // Update session status
+        self.update_status(SessionStatus::UserDisconnected);
+
+        // Update client state
+        self.client_state = ClientState {
+            client_id: None,
+            connected_public_keys: vec![],
+            device: None,
+            metadata: None,
+        };
+        self.notification = None;
+        self.pending_requests.clear();
+
+        // Send disconnect event to app
+        let user_disconnected_event = ServerToApp::UserDisconnectedEvent(UserDisconnectedEvent {});
+        self.send_to_app(user_disconnected_event)
+            .await
+            .unwrap_or_default();
     }
 }
 #[derive(Debug)]
