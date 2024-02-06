@@ -18,7 +18,7 @@ use axum::{
     response::Response,
 };
 use futures::StreamExt;
-use log::{debug, warn};
+use log::{debug, error, warn};
 use std::net::SocketAddr;
 
 pub async fn on_new_app_connection(
@@ -163,42 +163,34 @@ pub async fn app_handler(
                     }
                 };
 
-                // Try to send via WS
+                // Try to send via WS, this can fail as user might not be subscribed to the session via Ws
                 if let Err(_) = client_sockets
                     .send_to_client(client_id.clone(), sign_transactions_event)
                     .await
                 {
                     // Fall back to notification
-                    match &session.notification {
-                        Some(notification) => {
-                            let notification_payload = NotificationPayload {
-                                network: session.network.clone(),
-                                app_metadata: session.app_state.metadata.clone(),
-                                device: session
-                                    .client_state
-                                    .device
-                                    .clone()
-                                    .unwrap_or(Device::Unknown),
-                                request: sing_transactions_request.content.clone(),
-                                request_id: response_id.clone(),
-                                session_id: session_id.clone(),
-                                token: notification.token.clone(),
-                            };
-                            trigger_notification(
-                                notification.notification_endpoint.clone(),
-                                notification_payload,
-                            )
-                            .await
-                            .unwrap_or_default();
-                        }
-                        None => {
-                            // Should we return an error here?
-                            // For now add at least a log
-                            warn!(
-                                "Failed to send payload to client: {}, session_id: {}, request: {:?}",
-                                client_id, session_id, sing_transactions_request
-                            );
-                        }
+                    if let Some(notification) = &session.notification {
+                        let notification_payload = NotificationPayload {
+                            network: session.network.clone(),
+                            app_metadata: session.app_state.metadata.clone(),
+                            device: session
+                                .client_state
+                                .device
+                                .clone()
+                                .unwrap_or(Device::Unknown),
+                            request: sing_transactions_request.content.clone(),
+                            request_id: response_id.clone(),
+                            session_id: session_id.clone(),
+                            token: notification.token.clone(),
+                        };
+
+                        // This will never fail as we are not waiting for a response
+                        trigger_notification(
+                            notification.notification_endpoint.clone(),
+                            notification_payload,
+                        )
+                        .await
+                        .unwrap_or_default();
                     }
                 }
             }
