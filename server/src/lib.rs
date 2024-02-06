@@ -1,4 +1,3 @@
-pub mod app;
 pub mod client;
 pub mod errors;
 pub mod handle_error;
@@ -8,3 +7,4 @@ pub mod state;
 pub mod structs;
 pub mod utils;
 pub mod wallets;
+pub mod ws;

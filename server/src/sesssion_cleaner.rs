@@ -46,7 +46,6 @@ pub fn start_cleaning_sessions(sessions: Sessions, client_to_sessions: ClientToS
                     let _ = socket.close();
                 }
 
-                drop(session);
                 sessions.remove(&session_id);
             }
         }

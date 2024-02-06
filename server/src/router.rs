@@ -9,7 +9,6 @@ use tower::ServiceBuilder;
 use tracing_subscriber::EnvFilter;
 
 use crate::{
-    app::app_handler::on_new_app_connection,
     client::{
         client_handler::on_new_client_connection, connect_session::connect_session,
         drop_sessions::drop_sessions, get_pending_request::get_pending_request,
@@ -22,6 +21,7 @@ use crate::{
     state::ServerState,
     structs::http_endpoints::HttpEndpoint,
     utils::get_cors,
+    ws::app_handler::handler::on_new_app_connection,
 };
 use tower_http::trace::TraceLayer;
 pub async fn get_router() -> Router {
