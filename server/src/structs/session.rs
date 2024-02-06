@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-use crate::state::ClientId;
+use crate::{state::ClientId, utils::get_timestamp_in_milliseconds};
 
 use super::{
-    app_messages::app_messages::ServerToApp,
+    app_messages::{app_messages::ServerToApp, initialize::InitializeRequest},
     common::{AppMetadata, Device, Network, Notification, PendingRequest, SessionStatus, Version},
 };
 use anyhow::Result;
@@ -79,6 +79,34 @@ impl Session {
             SessionStatus::WaitingForClient => {
                 self.status = status;
             }
+        }
+    }
+
+    pub fn new(
+        session_id: &str,
+        connection_id: Uuid,
+        sender: SplitSink<WebSocket, Message>,
+        init_data: &InitializeRequest,
+    ) -> Self {
+        Session {
+            session_id: session_id.to_owned(),
+            status: SessionStatus::WaitingForClient,
+            persistent: init_data.persistent,
+            app_state: AppState {
+                metadata: init_data.app_metadata.clone(),
+                app_socket: HashMap::from([(connection_id, sender)]),
+            },
+            client_state: ClientState {
+                client_id: None,
+                device: None,
+                connected_public_keys: Vec::new(),
+                metadata: None,
+            },
+            network: init_data.network.clone(),
+            version: init_data.version.clone(),
+            pending_requests: HashMap::new(),
+            notification: None,
+            creation_timestamp: get_timestamp_in_milliseconds(),
         }
     }
 }
