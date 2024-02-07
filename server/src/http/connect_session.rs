@@ -31,9 +31,9 @@ pub async fn connect_session(
     State(client_to_sessions): State<ClientToSessions>,
     Json(request): Json<HttpConnectSessionRequest>,
 ) -> Result<Json<HttpConnectSessionResponse>, (StatusCode, String)> {
-    let mut sessions = sessions.write().await;
-    let session = match sessions.get_mut(&request.session_id) {
-        Some(session) => session,
+    let sessions_read = sessions.read().await;
+    let mut session_write = match sessions_read.get(&request.session_id) {
+        Some(session) => session.write().await,
         None => {
             return Err((
                 StatusCode::BAD_REQUEST,
@@ -43,7 +43,7 @@ pub async fn connect_session(
     };
 
     // Insert user socket
-    session
+    session_write
         .connect_user(
             &request.device,
             &request.public_keys,

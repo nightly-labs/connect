@@ -19,6 +19,8 @@ pub async fn process_get_pending_requests(
 ) -> Result<()> {
     let pending_requests = match sessions.read().await.get(&get_pending_requests.session_id) {
         Some(session) => session
+            .read()
+            .await
             .pending_requests
             .values()
             .cloned()

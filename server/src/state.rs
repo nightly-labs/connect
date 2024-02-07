@@ -18,7 +18,7 @@ use tokio::sync::RwLock;
 
 pub type SessionId = String;
 pub type ClientId = String;
-pub type Sessions = Arc<RwLock<HashMap<SessionId, Session>>>;
+pub type Sessions = Arc<RwLock<HashMap<SessionId, RwLock<Session>>>>;
 pub type ClientSockets = Arc<RwLock<HashMap<ClientId, RwLock<SplitSink<WebSocket, Message>>>>>;
 pub type ClientToSessions = Arc<RwLock<HashMap<ClientId, RwLock<HashSet<SessionId>>>>>;
 
@@ -37,14 +37,14 @@ pub trait DisconnectUser {
 #[async_trait]
 impl DisconnectUser for Sessions {
     async fn disconnect_user(&self, session_id: SessionId) -> Result<()> {
-        let mut sessions = self.write().await;
-        let session = match sessions.get_mut(&session_id) {
-            Some(session) => session,
+        let sessions_read = self.read().await;
+        let mut session_write = match sessions_read.get(&session_id) {
+            Some(session) => session.write().await,
             None => return Err(anyhow::anyhow!("Session does not exist")), // Session does not exist
         };
 
         // Update session user state
-        session.disconnect_user().await;
+        session_write.disconnect_user().await;
 
         Ok(())
     }

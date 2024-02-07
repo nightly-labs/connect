@@ -18,9 +18,9 @@ pub async fn process_client_connect(
     client_to_sessions: &ClientToSessions,
     connect_request: ConnectRequest,
 ) -> Result<()> {
-    let mut sessions_write = sessions.write().await;
-    let session = match sessions_write.get_mut(&connect_request.session_id) {
-        Some(session) => session,
+    let sessions_read = sessions.read().await;
+    let mut session_write = match sessions_read.get(&connect_request.session_id) {
+        Some(session) => session.write().await,
         None => {
             let error = ServerToClient::ErrorMessage(ErrorMessage {
                 response_id: connect_request.response_id,
@@ -40,7 +40,7 @@ pub async fn process_client_connect(
     };
 
     // Update session
-    session
+    session_write
         .connect_user(
             &connect_request.device,
             &connect_request.public_keys,

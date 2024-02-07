@@ -19,9 +19,9 @@ pub async fn disconnect_session(
     client_to_sessions: &ClientToSessions,
 ) -> Result<()> {
     // Lock the whole sessions map as we might need to remove a session
-    let mut sessions = sessions.write().await;
-    let session = match sessions.get_mut(&session_id) {
-        Some(session) => session,
+    let mut sessions_write = sessions.write().await;
+    let mut session_write = match sessions_write.get_mut(&session_id) {
+        Some(session) => session.write().await,
         None => {
             // Should never happen
             bail!("Session not found, session_id: {}", session_id);
@@ -29,7 +29,7 @@ pub async fn disconnect_session(
     };
 
     // Close user socket
-    if let Some(client_id) = &session.client_state.client_id {
+    if let Some(client_id) = &session_write.client_state.client_id {
         let app_disconnected_event = ServerToClient::AppDisconnectedEvent(AppDisconnectedEvent {
             session_id: session_id.clone(),
             reason: "App disconnected".to_string(),
@@ -47,7 +47,7 @@ pub async fn disconnect_session(
     }
 
     // Close app socket
-    if let Err(err) = session.close_app_socket(&connection_id).await {
+    if let Err(err) = session_write.close_app_socket(&connection_id).await {
         warn!(
             "Error sending app disconnected event to connection_id: {}, session_id: {}, err: {}",
             connection_id, session_id, err
@@ -55,16 +55,20 @@ pub async fn disconnect_session(
     }
 
     // Update session status based on session type
-    if session.persistent {
-        session.update_status(SessionStatus::AppDisconnected);
+    if session_write.persistent {
+        session_write.update_status(SessionStatus::AppDisconnected);
     } else {
         // Remove session
-        if let Some(client_id) = session.client_state.client_id.clone() {
+        if let Some(client_id) = session_write.client_state.client_id.clone() {
             client_to_sessions
                 .remove_session(client_id, session_id.clone())
                 .await;
         }
-        sessions.remove(&session_id);
+
+        // Drop session lock
+        drop(session_write);
+
+        sessions_write.remove(&session_id);
     }
 
     Ok(())

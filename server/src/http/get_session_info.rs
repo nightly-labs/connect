@@ -28,9 +28,9 @@ pub async fn get_session_info(
     State(sessions): State<Sessions>,
     Json(request): Json<HttpGetSessionInfoRequest>,
 ) -> Result<Json<HttpGetSessionInfoResponse>, (StatusCode, String)> {
-    let sessions = sessions.read().await;
-    let session = match sessions.get(&request.session_id) {
-        Some(session) => session,
+    let sessions_read = sessions.read().await;
+    let session_read = match sessions_read.get(&request.session_id) {
+        Some(session) => session.read().await,
         None => {
             return Err((
                 StatusCode::BAD_REQUEST,
@@ -40,11 +40,11 @@ pub async fn get_session_info(
     };
 
     let response = HttpGetSessionInfoResponse {
-        status: session.status.clone(),
-        persistent: session.persistent,
-        version: session.version.clone(),
-        network: session.network.clone(),
-        app_metadata: session.app_state.metadata.clone(),
+        status: session_read.status.clone(),
+        persistent: session_read.persistent,
+        version: session_read.version.clone(),
+        network: session_read.network.clone(),
+        app_metadata: session_read.app_state.metadata.clone(),
     };
     return Ok(Json(response));
 }
