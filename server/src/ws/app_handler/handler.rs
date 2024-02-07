@@ -18,7 +18,7 @@ use axum::{
     response::Response,
 };
 use futures::StreamExt;
-use log::{debug, error, warn};
+use log::{debug, warn};
 use std::net::SocketAddr;
 
 pub async fn on_new_app_connection(

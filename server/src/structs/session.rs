@@ -3,7 +3,11 @@ use std::collections::HashMap;
 use crate::{state::ClientId, utils::get_timestamp_in_milliseconds};
 
 use super::{
-    app_messages::{app_messages::ServerToApp, initialize::InitializeRequest},
+    app_messages::{
+        app_messages::ServerToApp, initialize::InitializeRequest,
+        user_connected_event::UserConnectedEvent, user_disconnected_event::UserDisconnectedEvent,
+    },
+    client_messages::connect::ConnectRequest,
     common::{AppMetadata, Device, Network, Notification, PendingRequest, SessionStatus, Version},
 };
 use anyhow::Result;
@@ -108,6 +112,49 @@ impl Session {
             notification: None,
             creation_timestamp: get_timestamp_in_milliseconds(),
         }
+    }
+
+    pub async fn connect_user(&mut self, connect_request: &ConnectRequest) {
+        // Update session status
+        self.update_status(SessionStatus::ClientConnected);
+
+        // Update client state
+        self.client_state.device = connect_request.device.clone();
+        self.client_state.connected_public_keys = connect_request.public_keys.clone();
+        self.client_state.metadata = connect_request.metadata.clone();
+        self.client_state.client_id = Some(connect_request.client_id.clone());
+
+        if let Some(notification) = &connect_request.notification {
+            self.notification = Some(notification.clone());
+        }
+
+        // Send user connected event to app
+        let app_event = ServerToApp::UserConnectedEvent(UserConnectedEvent {
+            public_keys: connect_request.public_keys.clone(),
+            metadata: connect_request.metadata.clone(),
+        });
+        self.send_to_app(app_event).await.unwrap_or_default();
+    }
+
+    pub async fn disconnect_user(&mut self) {
+        // Update session status
+        self.update_status(SessionStatus::UserDisconnected);
+
+        // Update client state
+        self.client_state = ClientState {
+            client_id: None,
+            connected_public_keys: vec![],
+            device: None,
+            metadata: None,
+        };
+        self.notification = None;
+        self.pending_requests.clear();
+
+        // Send disconnect event to app
+        let user_disconnected_event = ServerToApp::UserDisconnectedEvent(UserDisconnectedEvent {});
+        self.send_to_app(user_disconnected_event)
+            .await
+            .unwrap_or_default();
     }
 }
 #[derive(Debug)]
