@@ -40,7 +40,16 @@ pub async fn process_client_connect(
     };
 
     // Update session
-    session.connect_user(&connect_request).await;
+    session
+        .connect_user(
+            &connect_request.device,
+            &connect_request.public_keys,
+            &connect_request.metadata,
+            &connect_request.client_id,
+            &connect_request.notification,
+        )
+        .await
+        .unwrap_or_default();
 
     // Insert new session id into client_to_sessions
     client_to_sessions

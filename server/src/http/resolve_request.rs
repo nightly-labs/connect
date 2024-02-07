@@ -26,8 +26,8 @@ pub async fn resolve_request(
     State(sessions): State<Sessions>,
     Json(request): Json<HttpResolveRequestRequest>,
 ) -> Result<Json<HttpResolveRequestResponse>, (StatusCode, String)> {
+    // Get session
     let mut sessions = sessions.write().await;
-
     let session = match sessions.get_mut(&request.session_id) {
         Some(session) => session,
         None => {
@@ -37,36 +37,33 @@ pub async fn resolve_request(
             ))
         }
     };
-    // Check if client_id matches
 
+    // Check if client_id matches
     if session.client_state.client_id != Some(request.client_id.clone()) {
         return Err((
             StatusCode::BAD_REQUEST,
             NightlyError::UserNotConnected.to_string(),
         ));
     }
-    let _pending_request = match session.pending_requests.remove(&request.request_id) {
-        Some(pending_request) => pending_request,
-        None => {
-            return Err((
-                StatusCode::BAD_REQUEST,
-                NightlyError::RequestDoesNotExist.to_string(),
-            ))
-        }
+    // Remove request from pending requests
+    if let None = session.pending_requests.remove(&request.request_id) {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            NightlyError::RequestDoesNotExist.to_string(),
+        ));
     };
+
     // Send to app
     let app_msg = ServerToApp::ResponsePayload(ResponsePayload {
         response_id: request.request_id.clone(),
         content: request.content.clone(),
     });
-    match session.send_to_app(app_msg).await {
-        Ok(_) => {}
-        Err(_) => {
-            return Err((
-                StatusCode::BAD_REQUEST,
-                NightlyError::AppDisconnected.to_string(),
-            ))
-        }
+    if let Err(_) = session.send_to_app(app_msg).await {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            NightlyError::AppDisconnected.to_string(),
+        ));
     };
+
     return Ok(Json(HttpResolveRequestResponse {}));
 }

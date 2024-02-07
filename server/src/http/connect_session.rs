@@ -1,15 +1,11 @@
-use axum::{extract::State, http::StatusCode, Json};
-use serde::{Deserialize, Serialize};
-use ts_rs::TS;
-
 use crate::{
     errors::NightlyError,
     state::{ClientToSessions, ModifySession, Sessions},
-    structs::{
-        app_messages::{app_messages::ServerToApp, user_connected_event::UserConnectedEvent},
-        common::{Device, Notification, SessionStatus},
-    },
+    structs::common::{Device, Notification},
 };
+use axum::{extract::State, http::StatusCode, Json};
+use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
@@ -45,32 +41,28 @@ pub async fn connect_session(
             ))
         }
     };
+
     // Insert user socket
-    session.update_status(SessionStatus::ClientConnected);
-    session.client_state.device = request.device.clone();
-    session.client_state.connected_public_keys = request.public_keys.clone();
-    session.client_state.metadata = request.metadata.clone();
-    session.client_state.client_id = Some(request.client_id.clone());
-    // notification
-    if let Some(notification) = request.notification.clone() {
-        session.notification = Some(notification);
-    }
-    let app_event = ServerToApp::UserConnectedEvent(UserConnectedEvent {
-        public_keys: request.public_keys,
-        metadata: request.metadata,
-    });
-    match session.send_to_app(app_event).await {
-        Ok(_) => {}
-        Err(_) => {
-            return Err((
+    session
+        .connect_user(
+            &request.device,
+            &request.public_keys,
+            &request.metadata,
+            &request.client_id,
+            &request.notification,
+        )
+        .await
+        .map_err(|_| {
+            return (
                 StatusCode::BAD_REQUEST,
                 NightlyError::AppDisconnected.to_string(),
-            ))
-        }
-    };
+            );
+        })?;
+
     // Insert new session id into client_to_sessions
     client_to_sessions
         .add_session(request.client_id.clone(), request.session_id.clone())
         .await;
+
     return Ok(Json(HttpConnectSessionResponse {}));
 }

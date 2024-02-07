@@ -1,19 +1,16 @@
-use std::collections::HashMap;
-
-use crate::{state::ClientId, utils::get_timestamp_in_milliseconds};
-
 use super::{
     app_messages::{
         app_messages::ServerToApp, initialize::InitializeRequest,
         user_connected_event::UserConnectedEvent, user_disconnected_event::UserDisconnectedEvent,
     },
-    client_messages::connect::ConnectRequest,
     common::{AppMetadata, Device, Network, Notification, PendingRequest, SessionStatus, Version},
 };
-use anyhow::Result;
+use crate::{state::ClientId, utils::get_timestamp_in_milliseconds};
+use anyhow::{bail, Result};
 use axum::extract::ws::{Message, WebSocket};
 use futures::{stream::SplitSink, SinkExt};
 use log::{info, warn};
+use std::collections::HashMap;
 use uuid7::Uuid;
 
 #[derive(Debug)]
@@ -114,26 +111,37 @@ impl Session {
         }
     }
 
-    pub async fn connect_user(&mut self, connect_request: &ConnectRequest) {
+    pub async fn connect_user(
+        &mut self,
+        device: &Option<Device>,
+        public_keys: &Vec<String>,
+        metadata: &Option<String>,
+        client_id: &String,
+        notification: &Option<Notification>,
+    ) -> Result<()> {
         // Update session status
         self.update_status(SessionStatus::ClientConnected);
 
         // Update client state
-        self.client_state.device = connect_request.device.clone();
-        self.client_state.connected_public_keys = connect_request.public_keys.clone();
-        self.client_state.metadata = connect_request.metadata.clone();
-        self.client_state.client_id = Some(connect_request.client_id.clone());
+        self.client_state.device = device.clone();
+        self.client_state.connected_public_keys = public_keys.clone();
+        self.client_state.metadata = metadata.clone();
+        self.client_state.client_id = Some(client_id.clone());
 
-        if let Some(notification) = &connect_request.notification {
+        if let Some(notification) = notification {
             self.notification = Some(notification.clone());
         }
 
         // Send user connected event to app
         let app_event = ServerToApp::UserConnectedEvent(UserConnectedEvent {
-            public_keys: connect_request.public_keys.clone(),
-            metadata: connect_request.metadata.clone(),
+            public_keys: public_keys.clone(),
+            metadata: metadata.clone(),
         });
-        self.send_to_app(app_event).await.unwrap_or_default();
+
+        match self.send_to_app(app_event).await {
+            Ok(_) => Ok(()),
+            Err(err) => bail!("Failed to send message to app: {:?}", err),
+        }
     }
 
     pub async fn disconnect_user(&mut self) {

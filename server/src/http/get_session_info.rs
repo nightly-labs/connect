@@ -38,6 +38,7 @@ pub async fn get_session_info(
             ))
         }
     };
+
     let response = HttpGetSessionInfoResponse {
         status: session.status.clone(),
         persistent: session.persistent,

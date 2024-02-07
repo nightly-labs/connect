@@ -26,7 +26,7 @@ pub async fn drop_sessions(
     Json(request): Json<HttpDropSessionsRequest>,
 ) -> Result<Json<HttpDropSessionsResponse>, (StatusCode, String)> {
     let mut dropped_sessions = Vec::new();
-    // TODO handle disconnecting app
+
     for session_id in request.sessions {
         if sessions.disconnect_user(session_id.clone()).await.is_ok() {
             dropped_sessions.push(session_id.clone());
@@ -36,5 +36,6 @@ pub async fn drop_sessions(
             .remove_session(request.client_id.clone(), session_id)
             .await;
     }
+
     Ok(Json(HttpDropSessionsResponse { dropped_sessions }))
 }

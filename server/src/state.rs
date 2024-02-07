@@ -17,6 +17,15 @@ pub type SessionId = String;
 pub type ClientId = String;
 pub type Sessions = Arc<RwLock<HashMap<SessionId, Session>>>;
 pub type ClientSockets = Arc<RwLock<HashMap<ClientId, RwLock<SplitSink<WebSocket, Message>>>>>;
+pub type ClientToSessions = Arc<RwLock<HashMap<ClientId, RwLock<HashSet<SessionId>>>>>;
+
+#[derive(Clone, FromRef)]
+pub struct ServerState {
+    pub sessions: Sessions,
+    pub client_to_sockets: ClientSockets, // Holds only live sockets
+    pub client_to_sessions: ClientToSessions,
+}
+
 #[async_trait]
 pub trait DisconnectUser {
     async fn disconnect_user(&self, session_id: SessionId) -> Result<()>;
@@ -68,13 +77,6 @@ impl SendToClient for ClientSockets {
             None => Err(anyhow::anyhow!("No client socket found for session")),
         }
     }
-}
-pub type ClientToSessions = Arc<RwLock<HashMap<ClientId, RwLock<HashSet<SessionId>>>>>;
-#[derive(Clone, FromRef)]
-pub struct ServerState {
-    pub sessions: Sessions,
-    pub client_to_sockets: ClientSockets, // Holds only live sockets
-    pub client_to_sessions: ClientToSessions,
 }
 
 #[async_trait]

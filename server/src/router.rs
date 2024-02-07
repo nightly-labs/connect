@@ -1,21 +1,11 @@
-use std::time::Duration;
-
-use axum::{
-    error_handling::HandleErrorLayer,
-    routing::{get, post},
-    Router,
-};
-use tower::ServiceBuilder;
-use tracing_subscriber::EnvFilter;
-
 use crate::{
-    client::{
+    handle_error::handle_error,
+    http::{
         connect_session::connect_session, drop_sessions::drop_sessions,
         get_pending_request::get_pending_request, get_pending_requests::get_pending_requests,
         get_session_info::get_session_info, get_sessions::get_sessions,
         get_wallets_metadata::get_wallets_metadata, resolve_request::resolve_request,
     },
-    handle_error::handle_error,
     sesssion_cleaner::start_cleaning_sessions,
     state::ServerState,
     structs::http_endpoints::HttpEndpoint,
@@ -25,7 +15,16 @@ use crate::{
         client_handler::handler::on_new_client_connection,
     },
 };
+use axum::{
+    error_handling::HandleErrorLayer,
+    routing::{get, post},
+    Router,
+};
+use std::time::Duration;
+use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
+use tracing_subscriber::EnvFilter;
+
 pub async fn get_router() -> Router {
     let state = ServerState {
         sessions: Default::default(),
