@@ -6,5 +6,4 @@ mod sesssion_cleaner;
 pub mod state;
 pub mod structs;
 pub mod utils;
-pub mod wallets;
 pub mod ws;

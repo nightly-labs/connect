@@ -2,6 +2,8 @@ use axum::http::{header, Method};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tower_http::cors::{Any, CorsLayer};
 
+use crate::structs::{wallet_metadata::WalletMetadata, wallets::*};
+
 pub fn get_timestamp_in_milliseconds() -> u64 {
     let now = SystemTime::now();
     let since_the_epoch = now.duration_since(UNIX_EPOCH).expect("Time went backwards");
@@ -22,4 +24,14 @@ pub fn get_cors() -> CorsLayer {
             header::ACCESS_CONTROL_REQUEST_METHOD,
             header::ACCESS_CONTROL_REQUEST_HEADERS,
         ])
+}
+
+pub fn get_wallets_metadata_vec() -> Vec<WalletMetadata> {
+    vec![
+        nightly_metadata(),
+        polkadot_js_metadata(),
+        talisman_metadata(),
+        aleph_zero_signer_metadata(),
+        subwallet_metadata(),
+    ]
 }

@@ -9,7 +9,7 @@ use crate::{
     sesssion_cleaner::start_cleaning_sessions,
     state::ServerState,
     structs::http_endpoints::HttpEndpoint,
-    utils::get_cors,
+    utils::{get_cors, get_wallets_metadata_vec},
     ws::{
         app_handler::handler::on_new_app_connection,
         client_handler::handler::on_new_client_connection,
@@ -20,7 +20,7 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use std::time::Duration;
+use std::{sync::Arc, time::Duration};
 use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::EnvFilter;
@@ -30,6 +30,7 @@ pub async fn get_router() -> Router {
         sessions: Default::default(),
         client_to_sessions: Default::default(),
         client_to_sockets: Default::default(),
+        wallets_metadata: Arc::new(get_wallets_metadata_vec()),
     };
     // Start cleaning outdated sessions
     start_cleaning_sessions(state.sessions.clone(), state.client_to_sessions.clone());

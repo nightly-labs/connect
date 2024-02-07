@@ -1,4 +1,7 @@
-use crate::structs::{client_messages::client_messages::ServerToClient, session::Session};
+use crate::structs::{
+    client_messages::client_messages::ServerToClient, session::Session,
+    wallet_metadata::WalletMetadata,
+};
 use anyhow::Result;
 use async_trait::async_trait;
 use axum::extract::{
@@ -24,6 +27,7 @@ pub struct ServerState {
     pub sessions: Sessions,
     pub client_to_sockets: ClientSockets, // Holds only live sockets
     pub client_to_sessions: ClientToSessions,
+    pub wallets_metadata: Arc<Vec<WalletMetadata>>,
 }
 
 #[async_trait]
