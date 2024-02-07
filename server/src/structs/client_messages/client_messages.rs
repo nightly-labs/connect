@@ -1,8 +1,3 @@
-use serde::{Deserialize, Serialize};
-use ts_rs::TS;
-
-use crate::structs::common::{AckMessage, ErrorMessage};
-
 use super::{
     app_disconnected_event::AppDisconnectedEvent,
     client_initialize::{ClientInitializeRequest, ClientInitializeResponse},
@@ -13,6 +8,9 @@ use super::{
     get_sessions::{GetSessionsRequest, GetSessionsResponse},
     new_payload_event::{NewPayloadEvent, NewPayloadEventReply},
 };
+use crate::structs::common::{AckMessage, ErrorMessage};
+use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
 #[derive(Debug, Eq, PartialEq, Clone, Deserialize, Serialize, TS)]
 #[ts(export)]

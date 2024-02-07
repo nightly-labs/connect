@@ -5,16 +5,14 @@ use ts_rs::TS;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct NotificationPayload {
     pub token: String,
     pub network: Network,
-    #[serde(rename = "sessionId")]
     pub session_id: String,
-    #[serde(rename = "appMetadata")]
     pub app_metadata: AppMetadata,
     pub device: Device,
     pub request: String,
-    #[serde(rename = "requestId")]
     pub request_id: String,
 }
 

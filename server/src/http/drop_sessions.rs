@@ -7,16 +7,16 @@ use ts_rs::TS;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct HttpDropSessionsRequest {
-    #[serde(rename = "clientId")]
     pub client_id: ClientId,
     pub sessions: Vec<SessionId>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct HttpDropSessionsResponse {
-    #[serde(rename = "droppedSessions")]
     pub dropped_sessions: Vec<SessionId>,
 }
 

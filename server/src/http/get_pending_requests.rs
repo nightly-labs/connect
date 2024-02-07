@@ -1,26 +1,24 @@
-use axum::{extract::State, http::StatusCode, Json};
-use serde::{Deserialize, Serialize};
-use ts_rs::TS;
-
 use crate::{
     errors::NightlyError,
     state::{ClientId, SessionId, Sessions},
     structs::common::PendingRequest,
 };
+use axum::{extract::State, http::StatusCode, Json};
+use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct HttpGetPendingRequestsRequest {
-    #[serde(rename = "clientId")]
     pub client_id: ClientId,
-    #[serde(rename = "sessionId")]
     pub session_id: SessionId,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct HttpGetPendingRequestsResponse {
-    #[serde(rename = "pendingRequests")]
     pub pending_requests: Vec<PendingRequest>,
 }
 pub async fn get_pending_requests(
