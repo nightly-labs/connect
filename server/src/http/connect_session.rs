@@ -9,12 +9,10 @@ use ts_rs::TS;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct HttpConnectSessionRequest {
-    #[serde(rename = "clientId")]
     pub client_id: String,
-    #[serde(rename = "publicKeys")]
     pub public_keys: Vec<String>,
-    #[serde(rename = "sessionId")]
     pub session_id: String,
     #[ts(optional)]
     pub notification: Option<Notification>,

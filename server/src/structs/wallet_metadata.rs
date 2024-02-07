@@ -10,6 +10,7 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct WalletMetadata {
     pub slug: String, // Should be unique
     pub name: String,
@@ -17,15 +18,12 @@ pub struct WalletMetadata {
     pub homepage: String,
     pub chains: Vec<Network>,
     pub version: Version,
-    #[serde(rename = "walletType")]
     pub wallet_type: WalletType,
     pub mobile: Option<Deeplink>,
     pub desktop: Option<Deeplink>,
     pub image: Images,
     pub app: HashMap<Platform, String>,
-    #[serde(rename = "injectPath")]
     pub inject_path: HashMap<Network, String>,
-    #[serde(rename = "lastUpdatedTimestamp")]
     pub last_updated_timestamp: u64,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]

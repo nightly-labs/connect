@@ -1,27 +1,25 @@
-use axum::{extract::State, http::StatusCode, Json};
-use serde::{Deserialize, Serialize};
-use ts_rs::TS;
-
 use crate::{
     errors::NightlyError,
     state::{ClientId, Sessions},
     structs::app_messages::{app_messages::ServerToApp, payload::ResponsePayload},
 };
+use axum::{extract::State, http::StatusCode, Json};
+use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct HttpResolveRequestRequest {
-    #[serde(rename = "clientId")]
     pub client_id: ClientId,
-    #[serde(rename = "sessionId")]
     pub session_id: String,
-    #[serde(rename = "requestId")]
     pub request_id: String,
     pub content: String,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct HttpResolveRequestResponse {}
+
 pub async fn resolve_request(
     State(sessions): State<Sessions>,
     Json(request): Json<HttpResolveRequestRequest>,

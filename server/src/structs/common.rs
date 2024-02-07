@@ -48,27 +48,28 @@ pub enum Device {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct ErrorMessage {
-    #[serde(rename = "responseId")]
     pub response_id: String,
     pub error: String,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct AckMessage {
-    #[serde(rename = "responseId")]
     pub response_id: String,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct Notification {
     pub token: String,
-    #[serde(rename = "notificationEndpoint")]
     pub notification_endpoint: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct AppMetadata {
     pub name: String,
     #[ts(optional)]
@@ -77,15 +78,14 @@ pub struct AppMetadata {
     pub description: Option<String>,
     #[ts(optional)]
     pub icon: Option<String>,
-    #[serde(rename = "additionalInfo")]
     #[ts(optional)]
     pub additional_info: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct PendingRequest {
-    #[serde(rename = "requestId")]
     pub request_id: String,
     pub content: String,
 }

@@ -1,8 +1,3 @@
-use serde::{Deserialize, Serialize};
-use ts_rs::TS;
-
-use crate::structs::common::{AckMessage, ErrorMessage};
-
 use super::{
     already_connected::AlreadyConnected,
     initialize::{InitializeRequest, InitializeResponse},
@@ -10,6 +5,9 @@ use super::{
     user_connected_event::UserConnectedEvent,
     user_disconnected_event::UserDisconnectedEvent,
 };
+use crate::structs::common::{AckMessage, ErrorMessage};
+use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
 #[derive(Debug, Eq, PartialEq, Clone, Deserialize, Serialize, TS)]
 #[ts(export)]

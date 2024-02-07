@@ -1,29 +1,29 @@
-use axum::{extract::State, http::StatusCode, Json};
-use serde::{Deserialize, Serialize};
-use ts_rs::TS;
-
 use crate::{
     errors::NightlyError,
     state::{SessionId, Sessions},
     structs::common::{AppMetadata, Network, SessionStatus, Version},
 };
+use axum::{extract::State, http::StatusCode, Json};
+use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct HttpGetSessionInfoRequest {
-    #[serde(rename = "sessionId")]
     pub session_id: SessionId,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct HttpGetSessionInfoResponse {
     pub status: SessionStatus,
     pub persistent: bool,
     pub version: Version,
     pub network: Network,
-    #[serde(rename = "appMetadata")]
     pub app_metadata: AppMetadata,
 }
+
 pub async fn get_session_info(
     State(sessions): State<Sessions>,
     Json(request): Json<HttpGetSessionInfoRequest>,
