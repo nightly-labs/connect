@@ -56,6 +56,7 @@ export class NightlyDesktopMain extends LitElement {
   render() {
     return html`
       <div class="nc_desktopMainWrapper">
+   
         <div class="nc_desktopMainQrWrapper">
           <div class="nc_desktopMainQrTopBar">
             <div class="nc_desktopMainQrScanInfo">
@@ -93,6 +94,8 @@ export class NightlyDesktopMain extends LitElement {
           .chainIcon=${this.chainIcon}
           .chainName=${this.chainName}
         ></nightly-wallet-selector-page>
+     
+
       </div>
     `
   }

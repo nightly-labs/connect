@@ -13,6 +13,9 @@ export class NightlyMobileMain extends LitElement {
   @property({ type: Function })
   showAllWallets!: () => void
 
+  @property({type:Boolean})
+  fireEnteringAnim!:boolean
+
   @property({ type: Function })
   onWalletClick!: (name: string) => void
 
@@ -39,6 +42,7 @@ export class NightlyMobileMain extends LitElement {
   mobileQuery = window.matchMedia('(max-width: 640px)')
   smallerMobileQuery = window.matchMedia('(max-width: 482px)')
   smallestMobileQuery = window.matchMedia('(max-width: 374px)')
+  
 
   setItemsCount = () => {
     if (this.smallestMobileQuery.matches) {
@@ -62,7 +66,7 @@ export class NightlyMobileMain extends LitElement {
 
   render() {
     return html`
-      <div class="nc_mobileMainWrapper">
+      <div class="nc_mobileMainWrapper ${this.fireEnteringAnim ? 'nc_mobileMainEntering' : ''}">
         <div class="nc_mobileMainTopBar">
           <span class="nc_mobileMainTopBarText">Connect wallet</span>
           <button class="nc_mobileMainTopBarQrButton" @click=${this.openQrPage}>QR Code</button>
