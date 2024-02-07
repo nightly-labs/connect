@@ -11,6 +11,7 @@
   padding-right: 16px;
   padding-top: 12px;
   background-color: var(--nc-color-elements-2);
+  z-index: 3;
 }
 
 .nc_desktopMainQrTopBar {

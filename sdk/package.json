@@ -3,7 +3,7 @@
   "scripts": {
     "bindings": "rm -rf ./bindings && cp -r ../server/bindings ./bindings",
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev": "turbo run dev --concurrency 18",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "postinstall": "sh ./build-only-packages.sh"
@@ -16,7 +16,7 @@
     "turbo": "latest",
     "typescript": "^4.9.0"
   },
-  "packageManager": "pnpm@7.15.0",
+  "packageManager": "pnpm@8.5.0",
   "dependencies": {
     "vite": "^4.0.3",
     "vite-tsconfig-paths": "^4.2.0",
