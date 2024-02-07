@@ -37,6 +37,7 @@ pub async fn get_pending_requests(
             ))
         }
     };
+
     if session.client_state.client_id != Some(request.client_id.clone()) {
         return Err((
             StatusCode::BAD_REQUEST,

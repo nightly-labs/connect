@@ -1,36 +1,36 @@
-use std::time::Duration;
-
-use axum::{
-    error_handling::HandleErrorLayer,
-    routing::{get, post},
-    Router,
-};
-use tower::ServiceBuilder;
-use tracing_subscriber::EnvFilter;
-
 use crate::{
-    client::{
+    handle_error::handle_error,
+    http::{
         connect_session::connect_session, drop_sessions::drop_sessions,
         get_pending_request::get_pending_request, get_pending_requests::get_pending_requests,
         get_session_info::get_session_info, get_sessions::get_sessions,
         get_wallets_metadata::get_wallets_metadata, resolve_request::resolve_request,
     },
-    handle_error::handle_error,
     sesssion_cleaner::start_cleaning_sessions,
     state::ServerState,
     structs::http_endpoints::HttpEndpoint,
-    utils::get_cors,
+    utils::{get_cors, get_wallets_metadata_vec},
     ws::{
         app_handler::handler::on_new_app_connection,
         client_handler::handler::on_new_client_connection,
     },
 };
+use axum::{
+    error_handling::HandleErrorLayer,
+    routing::{get, post},
+    Router,
+};
+use std::{sync::Arc, time::Duration};
+use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
+use tracing_subscriber::EnvFilter;
+
 pub async fn get_router() -> Router {
     let state = ServerState {
         sessions: Default::default(),
         client_to_sessions: Default::default(),
         client_to_sockets: Default::default(),
+        wallets_metadata: Arc::new(get_wallets_metadata_vec()),
     };
     // Start cleaning outdated sessions
     start_cleaning_sessions(state.sessions.clone(), state.client_to_sessions.clone());

@@ -37,14 +37,20 @@ pub async fn get_pending_request(
             ))
         }
     };
+
     if session.client_state.client_id != Some(request.client_id.clone()) {
         return Err((
             StatusCode::BAD_REQUEST,
             NightlyError::UserNotConnected.to_string(),
         ));
     }
-    let pending_request = match session.pending_requests.get(&request.request_id) {
-        Some(pending_request) => pending_request,
+
+    match session.pending_requests.get(&request.request_id) {
+        Some(pending_request) => {
+            return Ok(Json(HttpGetPendingRequestResponse {
+                request: pending_request.clone(),
+            }))
+        }
         None => {
             return Err((
                 StatusCode::BAD_REQUEST,
@@ -52,8 +58,4 @@ pub async fn get_pending_request(
             ))
         }
     };
-
-    Ok(Json(HttpGetPendingRequestResponse {
-        request: pending_request.clone(),
-    }))
 }
