@@ -43,8 +43,8 @@ impl Session {
     }
     pub async fn close_app_socket(&mut self, id: &Uuid) -> Result<()> {
         info!("Drop app connection for session {}", self.session_id);
-        match &mut self.app_state.app_socket.remove(id) {
-            Some(app_socket) => {
+        match self.app_state.app_socket.remove(id) {
+            Some(mut app_socket) => {
                 app_socket.close().await?;
                 warn!("Drop app connection for session {}", self.session_id);
                 return Ok(());

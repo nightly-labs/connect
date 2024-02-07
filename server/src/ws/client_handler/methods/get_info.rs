@@ -18,8 +18,8 @@ pub async fn process_get_info(
     get_info_request: GetInfoRequest,
 ) -> Result<()> {
     let sessions_read = sessions.read().await;
-    let session = match sessions_read.get(&get_info_request.session_id) {
-        Some(session) => session,
+    let session_read = match sessions_read.get(&get_info_request.session_id) {
+        Some(session) => session.read().await,
         None => {
             let error = ServerToClient::ErrorMessage(ErrorMessage {
                 response_id: get_info_request.response_id,
@@ -40,9 +40,9 @@ pub async fn process_get_info(
 
     let response = ServerToClient::GetInfoResponse(GetInfoResponse {
         response_id: get_info_request.response_id,
-        network: session.network.clone(),
-        version: session.version.clone(),
-        app_metadata: session.app_state.metadata.clone(),
+        network: session_read.network.clone(),
+        version: session_read.version.clone(),
+        app_metadata: session_read.app_state.metadata.clone(),
     });
     client_sockets
         .send_to_client(client_id.clone(), response)

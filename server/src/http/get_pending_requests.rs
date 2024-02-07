@@ -27,9 +27,9 @@ pub async fn get_pending_requests(
     State(sessions): State<Sessions>,
     Json(request): Json<HttpGetPendingRequestsRequest>,
 ) -> Result<Json<HttpGetPendingRequestsResponse>, (StatusCode, String)> {
-    let sessions = sessions.read().await;
-    let session = match sessions.get(&request.session_id) {
-        Some(session) => session,
+    let sessions_read = sessions.read().await;
+    let session_read = match sessions_read.get(&request.session_id) {
+        Some(session) => session.read().await,
         None => {
             return Err((
                 StatusCode::BAD_REQUEST,
@@ -38,14 +38,14 @@ pub async fn get_pending_requests(
         }
     };
 
-    if session.client_state.client_id != Some(request.client_id.clone()) {
+    if session_read.client_state.client_id != Some(request.client_id.clone()) {
         return Err((
             StatusCode::BAD_REQUEST,
             NightlyError::UserNotConnected.to_string(),
         ));
     }
 
-    let pending_requests = session
+    let pending_requests = session_read
         .pending_requests
         .values()
         .cloned()

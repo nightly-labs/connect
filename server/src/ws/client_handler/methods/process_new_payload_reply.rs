@@ -17,9 +17,9 @@ pub async fn process_new_payload_event_reply(
     client_sockets: &ClientSockets,
     payload: NewPayloadEventReply,
 ) -> Result<()> {
-    let mut sessions_write = sessions.write().await;
-    let session = match sessions_write.get_mut(&payload.session_id) {
-        Some(session) => session,
+    let sessions_read = sessions.read().await;
+    let mut session_write = match sessions_read.get(&payload.session_id) {
+        Some(session) => session.write().await,
         None => {
             let error = ServerToClient::ErrorMessage(ErrorMessage {
                 response_id: payload.response_id,
@@ -39,7 +39,7 @@ pub async fn process_new_payload_event_reply(
     };
 
     // Update session
-    if let None = session.pending_requests.remove(&payload.request_id) {
+    if let None = session_write.pending_requests.remove(&payload.request_id) {
         let error: ServerToClient = ServerToClient::ErrorMessage(ErrorMessage {
             response_id: payload.response_id,
             error: NightlyError::RequestDoesNotExist.to_string(),
@@ -57,7 +57,7 @@ pub async fn process_new_payload_event_reply(
         response_id: payload.request_id.clone(),
         content: payload.content.clone(),
     });
-    session.send_to_app(app_msg).await.unwrap_or_default();
+    session_write.send_to_app(app_msg).await.unwrap_or_default();
 
     // Send ack to client
     let client_msg = ServerToClient::AckMessage(AckMessage {

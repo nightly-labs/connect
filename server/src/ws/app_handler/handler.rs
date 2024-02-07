@@ -130,9 +130,9 @@ pub async fn app_handler(
 
         match app_msg {
             AppToServer::RequestPayload(sing_transactions_request) => {
-                let mut sessions = sessions.write().await;
-                let session = match sessions.get_mut(&session_id) {
-                    Some(session) => session,
+                let sessions_read = sessions.read().await;
+                let mut session_write = match sessions_read.get(&session_id) {
+                    Some(session) => session.write().await,
                     None => {
                         // Should never happen
                         return;
@@ -140,7 +140,7 @@ pub async fn app_handler(
                 };
                 let response_id: String = sing_transactions_request.response_id.clone();
 
-                session.pending_requests.insert(
+                session_write.pending_requests.insert(
                     response_id.clone(),
                     PendingRequest {
                         content: sing_transactions_request.content.clone(),
@@ -154,7 +154,7 @@ pub async fn app_handler(
                     session_id: session_id.clone(),
                 });
 
-                let client_id = match &session.client_state.client_id {
+                let client_id = match &session_write.client_state.client_id {
                     Some(id) => id,
                     None => {
                         // Should never happen
@@ -169,11 +169,11 @@ pub async fn app_handler(
                     .await
                 {
                     // Fall back to notification
-                    if let Some(notification) = &session.notification {
+                    if let Some(notification) = &session_write.notification {
                         let notification_payload = NotificationPayload {
-                            network: session.network.clone(),
-                            app_metadata: session.app_state.metadata.clone(),
-                            device: session
+                            network: session_write.network.clone(),
+                            app_metadata: session_write.app_state.metadata.clone(),
+                            device: session_write
                                 .client_state
                                 .device
                                 .clone()
