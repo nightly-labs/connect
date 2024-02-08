@@ -42,6 +42,8 @@ async fn main() {
     let db_password = std::env::var("POSTGRES_PASSWORD").expect("POSTGRES_PASSWORD must be set");
 
     println!("db_name: {:?}", db_name);
+    println!("db_user: {:?}", db_user);
+    println!("db_password: {:?}", db_password);
 
     let pool = PgPool::connect(
         format!(
@@ -55,21 +57,21 @@ async fn main() {
 
     migrate!("./migrations").run(&pool).await.unwrap();
 
-    let res = query("SELECT 1+1 as sum").fetch_one(&pool).await.unwrap();
-    let sum: i32 = res.get("sum");
-    println!("sum: {}", sum);
+    // let res = query("SELECT 1+1 as sum").fetch_one(&pool).await.unwrap();
+    // let sum: i32 = res.get("sum");
+    // println!("sum: {}", sum);
 
-    let sub = Subscription {
-        email: "dupa".to_string(),
-        subscribed_at: 123,
-    };
+    // let sub = Subscription {
+    //     email: "dupa".to_string(),
+    //     subscribed_at: 123,
+    // };
 
-    create_subscription(&pool, sub).await.unwrap();
+    // create_subscription(&pool, sub).await.unwrap();
 
-    println!(
-        "sub: {:?}",
-        get_sub(&pool, "dupa".to_string()).await.unwrap()
-    );
+    // println!(
+    //     "sub: {:?}",
+    //     get_sub(&pool, "dupa".to_string()).await.unwrap()
+    // );
 
     // let rows = sqlx::query("SELECT * FROM users")
     //     .fetch_all(&pool)
