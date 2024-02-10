@@ -6,11 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + Lit + TS</title>
     <link rel="stylesheet" href="./src/index.css" />
-    <script type="module" src="/src/my-element.ts"></script>
+    <script type="module" src="src/index.ts"></script>
   </head>
   <body>
     <my-element>
       <h1>Vite + Lit</h1>
+      <!-- <nightly-selector></nightly-selector> -->
     </my-element>
+    <script>
+      //add button to open modal
+      const button = document.createElement('button');
+      const body = document.querySelector('body');
+      button.textContent = 'Open Modal';
+      button.onclick = () => {
+        const nightlySelector = document.createElement('nightly-selector');
+        //add onclose event to remove the modal
+        nightlySelector.onclose = () => {
+          body.removeChild(nightlySelector);
+        };
+        body.appendChild(nightlySelector);
+        console.log(nightlySelector)
+      };
+      document.body.appendChild(button);
+    </script>
   </body>
 </html>
