@@ -18,11 +18,12 @@
   --nc-color-elements-6: #707a8d;
   --nc-color-elements-7: #f7f7f7;
   --nc-color-elements-8: #ffffff;
+  --nc-color-elements-9: #0b0c0f80;
 
   --nc-color-primary: #6067f9;
   --nc-color-primary-a25: #6067f940;
   --nc-color-error: #d25858;
-  --nc-color-overlay: rgba(15, 15, 26, 0.4);
+  --nc-color-overlay: #0b0c0f80;
 
   font-family: var(--nc-font-family);
   -webkit-font-smoothing: antialiased;
