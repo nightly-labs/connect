@@ -19,8 +19,9 @@ export class NightlySelector extends LitElement {
   // props
 
   @property()
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  onClose = () => {}
+  onClose = () => {
+    this.remove()
+  }
 
   @property({ type: Array })
   selectorItems: WalletSelectorItem[] = []
@@ -105,7 +106,7 @@ export class NightlySelector extends LitElement {
       () => {
         this.onClose()
       },
-      this.mobileQuery.matches ? 240 : 80
+      this.mobileQuery.matches ? 240 : 400
     )
   }
 
@@ -157,15 +158,6 @@ export class NightlySelector extends LitElement {
 
   constructor() {
     super()
-
-    this.handleClose = this.handleClose.bind(this)
-    this.onSelectWallet = this.onSelectWallet.bind(this)
-    this.tryAgainClick = this.tryAgainClick.bind(this)
-    this.downloadApp = this.downloadApp.bind(this)
-    this.backToPage = this.backToPage.bind(this)
-    this.returnToMobileInit = this.returnToMobileInit.bind(this)
-    this.goToMobileAll = this.goToMobileAll.bind(this)
-    this.goToMobileQr = this.goToMobileQr.bind(this)
 
     if (this.mobileQuery.matches) {
       this.isMobile = true
