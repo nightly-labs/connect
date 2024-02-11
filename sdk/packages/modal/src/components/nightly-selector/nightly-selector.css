@@ -15,8 +15,13 @@
 
 .nc_modalWrapper {
   width: 720px;
-  display: flex;
   flex-direction: column;
+  animation: 0.4s ease-in-out 0s 1 slideInDesktop normal forwards;
+  display: flex;
+  width: 636px;
+}
+.nc_modalMobileSlideOutAnimation {
+  animation: 250ms ease-in-out 0s 1 slideOutDesktop normal forwards;
 }
 
 .nc_modalContent {
@@ -38,9 +43,8 @@
 }
 
 @media (max-width: 1080px) {
-  .nc_modalWrapper {
-    width: 636px;
-  }
+  
+  
 }
 
 @media (max-width: 960px) {
@@ -125,6 +129,7 @@
 @keyframes slideIn {
   0% {
     transform: translateY(100%);
+    background-color: black;
   }
   100% {
     transform: translateY(0);
@@ -137,6 +142,26 @@
   }
   100% {
     transform: translateY(100%);
+  }
+}
+
+@keyframes slideInDesktop {
+  0% {
+    opacity: 0;
+    transform: translateY(2%);
+  }
+  
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes slideOutDesktop {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(10%);
   }
 }
 
