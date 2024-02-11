@@ -18,7 +18,6 @@
   flex-direction: column;
   animation: 0.4s ease-in-out 0s 1 slideInDesktop normal forwards;
   display: flex;
-  width: 636px;
 }
 .nc_modalMobileSlideOutAnimation {
   animation: 250ms ease-in-out 0s 1 slideOutDesktop normal forwards;

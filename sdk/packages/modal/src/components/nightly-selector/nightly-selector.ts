@@ -10,6 +10,7 @@ import '../nightly-header/nightly-header'
 import '../nightly-mobile-all-wallets/nightly-mobile-all-wallets'
 import '../nightly-mobile-qr/nightly-mobile-qr'
 import '../nightly-mobile-main/nightly-mobile-main'
+import '../nightly-footer/nightly-footer'
 import { XMLOptions } from '@nightlylabs/qr-code'
 
 @customElement('nightly-selector')
@@ -312,6 +313,7 @@ export class NightlySelector extends LitElement {
           >
             ${this.renderCurrent()}
           </div>
+          <nightly-footer></nightly-footer>
         </div>
       </div>
     `

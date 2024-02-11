@@ -1,0 +1,27 @@
+.nc_footerWrapper{
+    width: 100%;
+    max-height: 70px;
+    
+    background-color: #202136;
+    border-radius: 0 0 10px 10px;
+    position: relative;
+    top: -10px;
+    padding-top: 10px;
+    z-index: -1;
+    
+}
+.nc_footerText{
+    color: var(--nc-color-elements-6);
+    font-size: 14px;
+    text-align: center;
+    padding: 10px;
+    margin: 0;
+    text-align: left;
+    font-family: var(--nc-font-family);
+}
+.nc_footerLink{
+    color: var(--nc-color-primary);
+   
+    font-family: var(--nc-font-family);
+    text-decoration: underline;
+}
