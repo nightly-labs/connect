@@ -3,7 +3,7 @@
     max-height: 70px;
     
     background-color: #202136;
-    border-radius: 0 0 10px 10px;
+    border-radius: 0 0 15px 15px;
     position: relative;
     top: -10px;
     padding-top: 10px;
@@ -14,7 +14,7 @@
     color: var(--nc-color-elements-6);
     font-size: 14px;
     text-align: center;
-    padding: 10px;
+    padding: 10px 15px;
     margin: 0;
     text-align: left;
     font-family: var(--nc-font-family);
