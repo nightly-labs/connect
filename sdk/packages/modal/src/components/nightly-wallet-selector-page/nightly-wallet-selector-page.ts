@@ -63,7 +63,7 @@ export class NightlyWalletSelectorPage extends LitElement {
                 return html`
                   <nightly-wallet-selector-item
                     name=${item.name}
-                    icon=${item.icon}
+                    icon=${item.image.default}
                     status=${item.recent ? 'Recent' : item.detected ? 'Detected' : 'Install'}
                     @click=${() => this.onWalletClick(item.name)}
                   ></nightly-wallet-selector-item>
@@ -76,7 +76,7 @@ export class NightlyWalletSelectorPage extends LitElement {
             return html`
               <nightly-wallet-selector-item
                 name=${item.name}
-                icon=${item.icon}
+                icon=${item.image.default}
                 status=${item.recent ? 'Recent' : item.detected ? 'Detected' : 'Install'}
                 @click=${() => this.onWalletClick(item.name)}
               ></nightly-wallet-selector-item>

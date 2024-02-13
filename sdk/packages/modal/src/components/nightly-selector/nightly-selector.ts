@@ -12,7 +12,7 @@ import '../nightly-mobile-qr/nightly-mobile-qr'
 import '../nightly-mobile-main/nightly-mobile-main'
 import '../nightly-footer/nightly-footer'
 import { XMLOptions } from '@nightlylabs/qr-code'
-
+import { walletsEndpoint } from '../nightly-wallet-selector-page/nightly-wallet-selector-page.config'
 
 @customElement('nightly-selector')
 export class NightlySelector extends LitElement {
@@ -172,7 +172,15 @@ export class NightlySelector extends LitElement {
       this.closeOnOverlayClick = newValue === 'true'
     }
   }
-
+  connectedCallback() {
+    super.connectedCallback()
+    this.fetchData()
+  }
+  async fetchData() {
+    const response = await fetch(walletsEndpoint);
+    const data = await response.json();
+    this.selectorItems = data;
+  }
 
   constructor() {
     super()
