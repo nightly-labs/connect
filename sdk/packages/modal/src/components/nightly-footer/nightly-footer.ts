@@ -10,6 +10,7 @@ export class NightlyFooter extends LitElement {
   onClose = () => {}
 
   static styles = tailwindElement(style)
+  
 
   render() {
     return html`
@@ -25,7 +26,7 @@ export class NightlyFooter extends LitElement {
               >Terms of Service</a
             >
             and
-            <a href="https://common.com/privacy" target="_blank" class="nc_footerLink"
+            <a href="" target="_blank" class="nc_footerLink"
               >Privacy Policy</a
             >
           </p>

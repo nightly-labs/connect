@@ -7,7 +7,7 @@
     position: relative;
     top: -10px;
     padding-top: 10px;
-    z-index: -1;
+    z-index: 1;
     
 }
 .nc_footerText{
@@ -24,4 +24,6 @@
    
     font-family: var(--nc-font-family);
     text-decoration: underline;
+    cursor: pointer;
+    pointer-events: auto;
 }
