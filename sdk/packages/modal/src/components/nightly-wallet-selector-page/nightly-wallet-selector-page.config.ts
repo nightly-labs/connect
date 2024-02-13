@@ -1,0 +1,1 @@
+export const walletsEndpoint = 'https://nc2.nightly.app/get_wallets_metadata'

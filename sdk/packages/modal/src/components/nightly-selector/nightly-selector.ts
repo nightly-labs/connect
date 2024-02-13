@@ -13,6 +13,7 @@ import '../nightly-mobile-main/nightly-mobile-main'
 import '../nightly-footer/nightly-footer'
 import { XMLOptions } from '@nightlylabs/qr-code'
 
+
 @customElement('nightly-selector')
 export class NightlySelector extends LitElement {
   static styles = tailwindElement(style)
@@ -26,6 +27,8 @@ export class NightlySelector extends LitElement {
 
   @property({ type: Array })
   selectorItems: WalletSelectorItem[] = []
+  @property({ type: Boolean, reflect: true })
+  closeOnOverlayClick = true
 
   @property({ type: Function })
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -101,7 +104,10 @@ export class NightlySelector extends LitElement {
     this.mobileContentHeight = this.calcMobileContentHeight()
   }
 
-  handleClose = () => {
+  handleClose = (isOverlay: boolean) => {
+    if (!this.closeOnOverlayClick && isOverlay) {
+      return
+    }
     this.fireClosingAnimation = true
     setTimeout(
       () => {
@@ -154,8 +160,19 @@ export class NightlySelector extends LitElement {
     this.setCurrentView(SelectorView.MOBILE_ALL)
     this.canAnimateInitialView = true
   }
+  static get observedAttributes() {
+    return ['close-on-overlay-click']
+  }
 
   // lifecycle callbacks
+  attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null) {
+    super.attributeChangedCallback(name, oldValue, newValue)
+    if (name === 'close-on-overlay-click') {
+      console.log(newValue)
+      this.closeOnOverlayClick = newValue === 'true'
+    }
+  }
+
 
   constructor() {
     super()
@@ -290,7 +307,7 @@ export class NightlySelector extends LitElement {
     return html`
       <div
         class="nc_modalOverlay ${this.fireClosingAnimation ? 'nc_modalClosingAnimation' : ''}"
-        @click=${this.handleClose}
+        @click=${() => this.handleClose(true)}
       >
         <div
           @click=${(e: MouseEvent) => {
@@ -300,7 +317,7 @@ export class NightlySelector extends LitElement {
             ? 'nc_modalMobileSlideOutAnimation'
             : ''}"
         >
-          <nightly-header .onClose=${this.handleClose}></nightly-header>
+          <nightly-header .onClose=${() => this.handleClose(false)}></nightly-header>
           <div
             class="nc_modalContent"
             style=${styleMap(
