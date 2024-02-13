@@ -25,7 +25,7 @@ export class NightlyFooter extends LitElement {
             <a href="" target="_blank" class="nc_footerLink"
               >Terms of Service</a
             >
-            and
+            and to its
             <a href="" target="_blank" class="nc_footerLink"
               >Privacy Policy</a
             >
