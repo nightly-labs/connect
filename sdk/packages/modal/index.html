@@ -7,27 +7,35 @@
     <title>Vite + Lit + TS</title>
     <link rel="stylesheet" href="./src/index.css" />
     <script type="module" src="src/index.ts"></script>
+    <style>
+      html,body{
+        height: 100dvh;
+        display: flex;
+        flex-direction: column-reverse;
+      }
+    </style>
   </head>
   <body>
-    <my-element>
-      <h1>Vite + Lit</h1>
-      <!-- <nightly-selector></nightly-selector> -->
-    </my-element>
+    <iframe src="https://test.common.fi/" width="100%" height="100%"></iframe>
     <script>
-      //add button to open modal
+
       const button = document.createElement('button');
       const body = document.querySelector('body');
       button.textContent = 'Open Modal';
+      button.style.height = '50px';
+      button.style.width = '100px';
+      button.style.backgroundColor = '#191D24';
+      button.style.color = 'white';
       button.onclick = () => {
         const nightlySelector = document.createElement('nightly-selector');
-        //add onclose event to remove the modal
-        nightlySelector.onclose = () => {
-          body.removeChild(nightlySelector);
-        };
+        nightlySelector.setAttribute('close-on-overlay-click', 'false');
         body.appendChild(nightlySelector);
         console.log(nightlySelector)
       };
       document.body.appendChild(button);
     </script>
+    <!-- <nightly-selector
+    close-on-overlay-click="false"
+    ></nightly-selector> -->
   </body>
 </html>
