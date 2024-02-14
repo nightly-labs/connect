@@ -24,6 +24,12 @@ jobs:
         with:
           version: 8
           run_install: false
+      - name: Setup Infra
+        working-directory: ./infra
+        run: |
+          docker-compose down
+          rm -rf target
+          docker-compose up -d --no-deps --force-recreate --remove-orphans
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -43,6 +49,12 @@ jobs:
         run: |
           pnpm install
         working-directory: ./sdk
+      - name: Wait for Infra
+        continue-on-error: true
+        timeout-minutes: 2
+        working-directory: ./infra
+        run: |
+          ( docker-compose logs --follow  &  ) | grep -q "database system is ready to accept connections"
       - name: run cargo test
         run: |
           cargo test
