@@ -13,6 +13,10 @@ jobs:
     timeout-minutes: 10
     runs-on: [testing]
     steps:
+      - name: Fix permissions
+        continue-on-error: true
+        run: |
+          echo ${{secrets.TESTING_LAPTOP_PASSWORD}} | sudo -S chmod 777 -R  ~/runners/${{ runner.name }}/_work/connect/connect
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
@@ -24,29 +28,30 @@ jobs:
         with:
           version: 8
           run_install: false
+      - name: Setup Infra
+        working-directory: ./infra
+        run: |
+          docker-compose down
+          rm -rf .infra/target
+          docker-compose up -d --no-deps --force-recreate --remove-orphans
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - uses: actions/cache@v2
-        name: Cache Cargo registry + index
-        id: cache-rust
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-          key: cargo-${{ runner.os }}-v0000-${{ hashFiles('**/Cargo.lock') }}
-
       - name: install packages
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: |
           pnpm install
         working-directory: ./sdk
+      - name: Wait for Infra
+        continue-on-error: true
+        timeout-minutes: 2
+        working-directory: ./infra
+        run: |
+          ( docker-compose logs --follow  &  ) | grep -q "database system is ready to accept connections"
       - name: run cargo test
         run: |
           cargo test
-          cargo run &
+          cargo run --bin nightly-connect-server &
       - name: test base local
         run: |
           pnpm test:ci
