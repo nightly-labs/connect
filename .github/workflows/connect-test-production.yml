@@ -12,6 +12,10 @@ jobs:
     timeout-minutes: 10
     runs-on: [testing]
     steps:
+      - name: Fix permissions
+          continue-on-error: true
+          run: |
+            echo ${{secrets.TESTING_LAPTOP_PASSWORD}} | sudo -S chmod 777 -R  ~/runners/${{ runner.name }}/_work/connect/connect
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
