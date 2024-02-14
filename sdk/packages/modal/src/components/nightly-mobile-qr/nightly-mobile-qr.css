@@ -78,7 +78,7 @@
 }
 
 .nc_mobileQrLoadedOverlayFadeOut {
-  animation: fade_out_loader 300ms ease-out forwards;
+  animation: fade_out_loader 250ms ease-out forwards;
 }
 
 @media (max-width: 482px) {
