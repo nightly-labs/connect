@@ -37,17 +37,6 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      # - uses: actions/cache@v2
-      #   name: Cache Cargo registry + index
-      #   id: cache-rust
-      #   with:
-      #     path: |
-      #       ~/.cargo/bin/
-      #       ~/.cargo/registry/index/
-      #       ~/.cargo/registry/cache/
-      #       ~/.cargo/git/db/
-      #     key: cargo-${{ runner.os }}-v0000-${{ hashFiles('**/Cargo.lock') }}
-
       - name: install packages
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: |
