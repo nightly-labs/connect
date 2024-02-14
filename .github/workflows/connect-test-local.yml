@@ -16,7 +16,6 @@ jobs:
       - name: Fix permissions
         continue-on-error: true
         run: |
-          echo "Adjusting permissions for ${{ runner.name }} runner"
           echo ${{secrets.TESTING_LAPTOP_PASSWORD}} | sudo -S chmod 777 -R  ~/runners/${{ runner.name }}/_work/connect/connect
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
