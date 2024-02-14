@@ -35,7 +35,7 @@ interface NightlyModalArgs {
   onWalletClick: (name: string) => void
   chainIcon: string
   chainName: string
-  sessionId: string
+  sessionId?: string
   connecting: boolean
   relay: string
 }
@@ -114,5 +114,37 @@ Default.args = {
     'fsdhfdzfsdhgfzghggdfhbgchgbdfnvfbxhncvfjhzxdhgbhghfgfvzhfgjhgszdhgzxdfhgfzxdjfuhdfhgd',
   connecting: true,
   relay: 'https://nc2.nightly.app',
-  open: true
+  open: true,
+
 }
+
+export const Loading: Story = (args: NightlyModalArgs) => {
+  const [{ open, sessionId }, updateArgs] = useArgs()
+
+  const handleClose = () => {
+    updateArgs({ open: false })
+    args.onClose()
+  }
+
+  open && setTimeout(() => {
+    updateArgs({ sessionId: "1234" })
+  }, 2000)
+
+  return open
+    ? html`
+        <nightly-selector
+          .onClose=${handleClose}
+          .selectorItems=${args.selectorItems}
+          .onWalletClick=${args.onWalletClick}
+          .chainIcon=${args.chainIcon}
+          .chainName=${args.chainName}
+          .sessionId=${sessionId}
+          ?connecting=${args.connecting}
+          .relay=${args.relay}
+        ></nightly-selector>
+      `
+    : html``
+}
+
+let { sessionId: _, ...rest } = Default.args
+Loading.args = { ...rest }
