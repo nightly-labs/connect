@@ -62,7 +62,7 @@ jobs:
       - name: run cargo test
         run: |
           cargo test
-          cargo run &
+          cargo run --bin nightly-connect-server &
       - name: test base local
         run: |
           pnpm test:ci
