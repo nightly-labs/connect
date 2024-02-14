@@ -1,11 +1,10 @@
 .nc_desktopMainWrapper {
-  max-width: 750px;
+  max-width: 720px;
   height: 464px;
   display: flex;
   flex-direction: row;
   overflow: hidden;
 }
-
 
 .nc_desktopMainQrWrapper {
   padding-left: 16px;
@@ -64,10 +63,10 @@
   height: 400px;
 }
 
-.nc_desktopQrLoaderOverlay{
+.nc_desktopQrLoaderOverlay {
   position: absolute;
   left: 0;
-  top:0;
+  top: 0;
   width: 100%;
   height: 100%;
   background-color: var(--nc-color-elements-2);
@@ -76,24 +75,24 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap:15px;
+  gap: 15px;
 }
 
-.nc_desktopQrLoader{
+.nc_desktopQrLoader {
   width: 120px;
 }
 
-.nc_desktopQrLoaderLabel{
+.nc_desktopQrLoaderLabel {
   font-size: 16px;
   font-weight: 400;
   line-height: 22px;
   letter-spacing: 0.02em;
   text-align: center;
-  color:var(--nc-color-elements-6);
+  color: var(--nc-color-elements-6);
 }
 
-.nc_desktopQrLoadedOverlayFadeOut{
-  animation: fade_out_loader 300ms ease-out forwards;
+.nc_desktopQrLoadedOverlayFadeOut {
+  animation: fade_out_loader 250ms ease-out forwards;
 }
 
 @media (max-width: 1080px) {
@@ -115,10 +114,10 @@
 }
 
 @keyframes fade_out_loader {
-  0%{
+  0% {
     opacity: 1;
   }
-  100%{
+  100% {
     opacity: 0;
     display: none;
   }

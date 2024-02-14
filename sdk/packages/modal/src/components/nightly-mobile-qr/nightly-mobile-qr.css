@@ -1,6 +1,7 @@
 .nc_mobileQrWrapper {
   height: 510px;
   background: var(--nc-color-elements-2);
+  position: relative;
 }
 
 .nc_mobileQrTopBar {
@@ -18,13 +19,24 @@
   background-image: var(--nc-img-back);
 }
 
+.nc_mobileQrBackButtonLoader {
+  height: 32px;
+  width: 32px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: var(--nc-img-back);
+  position: absolute;
+  left: 16px;
+  top: 16px;
+}
+
 .nc_mobileQrTitle {
   font-size: var(--nc-font-size-4);
   color: var(--nc-color-elements-7);
 }
 
 .nc_mobileQrTopJustify {
-  width: 32px
+  width: 32px;
 }
 
 .nc_mobileQrCode {
@@ -35,6 +47,38 @@
   height: 432px;
   margin-bottom: 16px;
   margin-inline: auto;
+}
+
+.nc_mobileQrLoaderOverlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--nc-color-elements-2);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+}
+
+.nc_mobileQrLoader {
+  width: 120px;
+}
+
+.nc_mobileQrLoaderLabel {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 22px;
+  letter-spacing: 0.02em;
+  text-align: center;
+  color: var(--nc-color-elements-6);
+}
+
+.nc_mobileQrLoadedOverlayFadeOut {
+  animation: fade_out_loader 300ms ease-out forwards;
 }
 
 @media (max-width: 482px) {
@@ -56,5 +100,16 @@
   .nc_mobileQrCode {
     width: 248px;
     height: 248px;
+  }
+}
+
+@keyframes fade_out_loader {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    display: none;
   }
 }

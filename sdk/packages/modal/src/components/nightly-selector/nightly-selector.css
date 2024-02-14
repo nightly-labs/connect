@@ -1,5 +1,3 @@
-
-
 .nc_modalOverlay {
   position: fixed;
   top: 0;
@@ -10,8 +8,6 @@
   z-index: 100;
   background-color: var(--nc-color-overlay);
   backdrop-filter: blur(10px);
-
-  
 }
 
 .nc_modalWrapper {
@@ -31,30 +27,16 @@
   border: 1px solid var(--nc-color-elements-4);
   border-top: none;
   transition: height 250ms;
-  font-family: var(--nc-font-family);
 }
 
 .nc_modalClosingAnimation {
   animation: 100ms ease-out 0s 1 fadeOut normal forwards;
 }
 
-@media screen and (min-width:640px){
-.nc_modalClosingAnimation > .nc_modalWrapper{
-  animation: 100ms ease-out 0s 1 slideOutDesktop normal forwards;
-}
-}
-
 .nc_modalViewEntryTransition {
-  animation: 300ms ease-out 1 viewsFadeIn normal forwards;
+  animation: 300ms ease-out 0s 1 viewsFadeIn normal forwards;
 }
 
-@media screen and (min-width:640px){
-
-.nc_modalBounceInAnimation{
-  animation: 300ms ease-out 0s 1 bounceIn normal forwards;
-}
-
-}
 @media (max-width: 1080px) {
   .nc_modalWrapper {
     width: 636px;
@@ -80,12 +62,7 @@
     bottom: -20px;
     width: 100%;
     transform-origin: 0 100%;
-
-   transform: translateX(0px);
-  }
-
-  .nc_modalBounceInAnimation{
-    animation: 400ms ease-in-out 0s 1 bounceInMobile normal forwards;
+    animation: 250ms ease-out 0s 1 slideIn normal forwards;
   }
 
   .nc_modalContent {
@@ -101,7 +78,6 @@
   .nc_modalMobileSlideOutAnimation {
     animation: 250ms ease-out 0s 1 slideOut normal forwards;
   }
-
 }
 
 @keyframes fadeIn {
@@ -119,15 +95,6 @@
   }
   100% {
     opacity: 0;
-  }
-}
-
-@keyframes slideOutDesktop{
-  from{
-    transform: translate(-50%,-50%);
-  }
-  to{
-    transform: translate(-50%,calc(-50% + 100px));
   }
 }
 
@@ -181,31 +148,4 @@
   100% {
     opacity: 1;
   }
-}
-
-@keyframes bounceIn{
-  0%{
-    transform: translateX(-50%) translateY(calc(-50% + 50px));
-  }
-50%{
-  transform: translateX(-50%) translateY(calc(-50% - 10px));
-}
-
-100%{
-  transform: translateX(-50%) translateY(-50%);
-}
-}
-
-
-@keyframes bounceInMobile{
-  0%{
-    transform:translateY(100%);
-  }
-50%{
-  transform: translateY(-20px);
-}
-
-100%{
-  transform: translateY(0);
-}
 }

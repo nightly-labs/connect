@@ -20,14 +20,14 @@ export class NightlySelector extends LitElement {
 
   @property()
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  onClose = () => { }
+  onClose = () => {}
 
   @property({ type: Array })
   selectorItems: WalletSelectorItem[] = []
 
   @property({ type: Function })
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  onWalletClick: (name: string) => void = () => { }
+  onWalletClick: (name: string) => void = () => {}
 
   @property({ type: String })
   chainIcon = ''
@@ -50,13 +50,7 @@ export class NightlySelector extends LitElement {
   // state
 
   @state()
-  fireEnteringAnimation = false
-
-  @state()
   fireClosingAnimation = false
-
-  @state()
-  isClosed = false
 
   @state()
   mobileContentHeight = 182
@@ -110,9 +104,8 @@ export class NightlySelector extends LitElement {
     setTimeout(
       () => {
         this.onClose()
-        this.isClosed = true
       },
-      this.mobileQuery.matches ? 300 : 80
+      this.mobileQuery.matches ? 240 : 80
     )
   }
 
@@ -199,16 +192,6 @@ export class NightlySelector extends LitElement {
     })
   }
 
-  connectedCallback(): void {
-    super.connectedCallback()
-
-    this.fireEnteringAnimation = true
-
-    setTimeout(() => {
-      this.fireEnteringAnimation = false
-    }, 400)
-  }
-
   disconnectedCallback(): void {
     super.disconnectedCallback()
     this.fireClosingAnimation = false
@@ -243,8 +226,8 @@ export class NightlySelector extends LitElement {
       <nightly-desktop-main
         id="modalDesktop"
         class="${this.canAnimateInitialView && this.currentView === SelectorView.DESKTOP_MAIN
-        ? 'nc_modalViewEntryTransition'
-        : ''}"
+          ? 'nc_modalViewEntryTransition'
+          : ''}"
         .chainIcon=${this.chainIcon}
         .chainName=${this.chainName}
         .onWalletClick=${this.onSelectWallet}
@@ -271,14 +254,13 @@ export class NightlySelector extends LitElement {
     return html`
       <nightly-mobile-main
         class="${this.canAnimateInitialView && this.currentView === SelectorView.MOBILE_MAIN
-        ? 'nc_modalViewEntryTransition'
-        : ''}"
+          ? 'nc_modalViewEntryTransition'
+          : ''}"
         .sessionId=${this.sessionId}
         .showAllWallets=${this.goToMobileAll}
         .onWalletClick=${this.onSelectWallet}
         .openQrPage=${this.goToMobileQr}
         .selectorItems=${this.selectorItems}
-        .fireEnteringAnim=${this.fireEnteringAnimation}
       ></nightly-mobile-main>
     `
   }
@@ -312,39 +294,35 @@ export class NightlySelector extends LitElement {
   }
 
   render() {
-    return this.isClosed
-      ? ''
-      : html`
-          <div
-            class="nc_modalOverlay ${this.fireClosingAnimation ? 'nc_modalClosingAnimation' : ''}"
-            @click=${this.handleClose}
-          >
-            <div
-              @click=${(e: MouseEvent) => {
-          e.stopPropagation()
-        }}
-              class="nc_modalWrapper ${this.fireClosingAnimation
-          ? 'nc_modalMobileSlideOutAnimation'
-          : this.fireEnteringAnimation
-            ? 'nc_modalBounceInAnimation'
+    return html`
+      <div
+        class="nc_modalOverlay ${this.fireClosingAnimation ? 'nc_modalClosingAnimation' : ''}"
+        @click=${this.handleClose}
+      >
+        <div
+          @click=${(e: MouseEvent) => {
+            e.stopPropagation()
+          }}
+          class="nc_modalWrapper ${this.fireClosingAnimation
+            ? 'nc_modalMobileSlideOutAnimation'
             : ''}"
-            >
-              <nightly-header .onClose=${this.handleClose}></nightly-header>
-              <div
-                class="nc_modalContent"
-                style=${styleMap(
+        >
+          <nightly-header .onClose=${this.handleClose}></nightly-header>
+          <div
+            class="nc_modalContent"
+            style=${styleMap(
               this.isMobile
                 ? {
-                  height: this.mobileContentHeight + 'px'
-                }
+                    height: this.mobileContentHeight + 'px'
+                  }
                 : {}
             )}
-              >
-                ${this.renderCurrent()}
-              </div>
-            </div>
+          >
+            ${this.renderCurrent()}
           </div>
-        `
+        </div>
+      </div>
+    `
   }
 }
 
