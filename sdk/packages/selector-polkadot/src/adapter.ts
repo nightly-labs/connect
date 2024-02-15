@@ -449,6 +449,40 @@ export class NightlyConnectAdapter implements Injected {
             return
           }
 
+          if (this._modal) {
+            this._modal.onClose = () => {
+              if (this._connecting) {
+                this._connecting = false
+                const error = new Error('Connection cancelled')
+                reject(error)
+              }
+            }
+            this._modal.openModal(this._app?.sessionId ?? undefined, (walletName: string) => {
+              if (
+                isMobileBrowser() &&
+                !this.walletsList.find((w) => w.name === walletName)?.injectedWallet
+              ) {
+                this.connectToMobileWallet(walletName)
+              } else {
+                this.connectToStandardWallet(walletName, resolve)
+              }
+            })
+
+            let checks = 0
+            let intervalId = setInterval((): void => {
+              checks++
+              if (this._app && this._modal) {
+                this._modal.sessionId = this._app.sessionId
+                clearInterval(intervalId)
+              }
+
+              if (checks > 1000) {
+                clearInterval(intervalId)
+                reject(new Error('Connecting takes too long'))
+              }
+            }, 10)
+          }
+
           if (this._initOnConnect) {
             this._connecting = true
 
@@ -547,25 +581,6 @@ export class NightlyConnectAdapter implements Injected {
             }
           })
 
-          if (this._modal) {
-            this._modal.onClose = () => {
-              if (this._connecting) {
-                this._connecting = false
-                const error = new Error('Connection cancelled')
-                reject(error)
-              }
-            }
-            this._modal.openModal(this._app.sessionId, (walletName: string) => {
-              if (
-                isMobileBrowser() &&
-                !this.walletsList.find((w) => w.name === walletName)?.injectedWallet
-              ) {
-                this.connectToMobileWallet(walletName)
-              } else {
-                this.connectToStandardWallet(walletName, resolve)
-              }
-            })
-          }
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
           this._connecting = false

@@ -1,6 +1,6 @@
 import { customElement, property, state } from 'lit/decorators.js'
 import { tailwindElement } from '../../shared/tailwind.element'
-import { LitElement, html } from 'lit'
+import { LitElement, PropertyValueMap, html } from 'lit'
 import { walletsSort } from '../../utils/utils'
 import style from './nightly-mobile-main.css'
 import { WalletSelectorItem } from '../../utils/types'
@@ -20,18 +20,19 @@ export class NightlyMobileMain extends LitElement {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   openQrPage: () => void = () => {}
 
-  private _selectorItems: WalletSelectorItem[] = []
+  // private _selectorItems: WalletSelectorItem[] = []
 
   @property({ type: Array })
-  get selectorItems(): WalletSelectorItem[] {
-    return this._selectorItems
-  }
+  selectorItems: WalletSelectorItem[] = []
+  // get selectorItems(): WalletSelectorItem[] {
+  //   return this._selectorItems
+  // }
 
-  set selectorItems(value: WalletSelectorItem[]) {
-    this._selectorItems = [...value].sort(walletsSort)
+  // set selectorItems(value: WalletSelectorItem[]) {
+  //   this._selectorItems = [...value].sort(walletsSort)
 
-    this.setItemsCount()
-  }
+  //   this.setItemsCount()
+  // }
 
   @state()
   numberOfItems = 2
@@ -58,6 +59,18 @@ export class NightlyMobileMain extends LitElement {
     this.smallerMobileQuery.addEventListener('change', this.setItemsCount)
 
     this.smallestMobileQuery.addEventListener('change', this.setItemsCount)
+  }
+
+  protected updated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+    const prevSelectorItems: WalletSelectorItem[] = _changedProperties.get('selectorItems')
+
+    if (
+      prevSelectorItems &&
+      !this.selectorItems.filter(
+        (item) => !prevSelectorItems.find((wallet) => wallet.name === item.name)
+      ).length
+    )
+      this.selectorItems = [...this.selectorItems].sort(walletsSort)
   }
 
   render() {

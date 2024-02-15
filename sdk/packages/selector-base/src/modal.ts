@@ -45,6 +45,10 @@ export class NightlyConnectSelectorModal {
     }
   }
 
+  set sessionId(id: string) {
+    if (this._modal && id) this._modal.sessionId = id
+  }
+
   createSelectorElement = (
     variablesOverride?: object,
     stylesOverride?: string,
@@ -67,10 +71,13 @@ export class NightlyConnectSelectorModal {
     }
   }
 
-  public openModal = (sessionId: string, onSelectListWallet: (name: string) => void) => {
+  public openModal = (
+    sessionId: string | undefined,
+    onSelectListWallet: (name: string) => void
+  ) => {
     if (this._modal && this._open === false) {
       this._modal.onWalletClick = onSelectListWallet
-      this._modal.sessionId = sessionId
+      this._modal.sessionId = sessionId ?? ''
       this._anchor.appendChild(this._modal)
       this._open = true
       this.onOpen?.()
