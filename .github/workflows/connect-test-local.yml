@@ -64,3 +64,7 @@ jobs:
         run: |
           pnpm test:ci
         working-directory: ./sdk/apps/sui
+      - name: Clean target
+        run: |
+          docker-compose down
+          rm -rf .infra/target
