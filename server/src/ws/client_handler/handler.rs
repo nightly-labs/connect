@@ -1,6 +1,8 @@
 use crate::{
     errors::NightlyError,
-    state::{ClientSockets, ClientToSessions, ModifySession, SendToClient, Sessions},
+    state::{
+        ClientSockets, ClientToSessions, ModifySession, SendToClient, SessionToAppMap, Sessions,
+    },
     structs::{
         client_messages::{
             client_initialize::ClientInitializeResponse,
@@ -34,12 +36,20 @@ pub async fn on_new_client_connection(
     State(sessions): State<Sessions>,
     State(client_sockets): State<ClientSockets>,
     State(client_to_sessions): State<ClientToSessions>,
+    State(session_to_app_map): State<SessionToAppMap>,
     ws: WebSocketUpgrade,
 ) -> Response {
     let ip = ip.clone().to_string().clone();
     ws.on_upgrade(move |socket| async move {
         debug!("OPEN client connection  from {}", ip);
-        client_handler(socket, sessions, client_sockets, client_to_sessions).await;
+        client_handler(
+            socket,
+            sessions,
+            client_sockets,
+            client_to_sessions,
+            session_to_app_map,
+        )
+        .await;
         debug!("CLOSE client connection from {}", ip);
     })
 }
@@ -49,6 +59,7 @@ pub async fn client_handler(
     sessions: Sessions,
     client_sockets: ClientSockets,
     client_to_sessions: ClientToSessions,
+    session_to_app_map: SessionToAppMap,
 ) {
     let (sender, mut receiver) = socket.split();
     let sessions = sessions.clone();
@@ -110,6 +121,7 @@ pub async fn client_handler(
                     client_id.clone(),
                     &sessions,
                     &client_to_sessions,
+                    &session_to_app_map,
                     None,
                 )
                 .await
@@ -138,6 +150,7 @@ pub async fn client_handler(
                     client_id.clone(),
                     &sessions,
                     &client_to_sessions,
+                    &session_to_app_map,
                     None,
                 )
                 .await
@@ -163,6 +176,7 @@ pub async fn client_handler(
                     &sessions,
                     &client_sockets,
                     &client_to_sessions,
+                    &session_to_app_map,
                     connect_request,
                 )
                 .await
@@ -175,6 +189,7 @@ pub async fn client_handler(
                     &client_id,
                     &sessions,
                     &client_sockets,
+                    &session_to_app_map,
                     new_payload_event_reply,
                 )
                 .await
@@ -183,8 +198,14 @@ pub async fn client_handler(
                 }
             }
             ClientToServer::GetInfoRequest(get_info_request) => {
-                if let Err(err) =
-                    process_get_info(&client_id, &sessions, &client_sockets, get_info_request).await
+                if let Err(err) = process_get_info(
+                    &client_id,
+                    &sessions,
+                    &client_sockets,
+                    &session_to_app_map,
+                    get_info_request,
+                )
+                .await
                 {
                     warn!("Error processing get info request: {}", err);
                 }
@@ -194,6 +215,7 @@ pub async fn client_handler(
                     &client_id,
                     &sessions,
                     &client_sockets,
+                    &session_to_app_map,
                     get_pending_requests_request,
                 )
                 .await
@@ -217,6 +239,7 @@ pub async fn client_handler(
                     client_id.clone(),
                     &sessions,
                     &client_to_sessions,
+                    &session_to_app_map,
                     Some(&drop_sessions_request.sessions),
                 )
                 .await
