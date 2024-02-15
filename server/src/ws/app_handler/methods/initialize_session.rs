@@ -1,5 +1,5 @@
 use crate::{
-    state::Sessions,
+    state::{SessionToApp, SessionToAppMap, Sessions},
     structs::{
         app_messages::{
             app_messages::ServerToApp,
@@ -12,13 +12,16 @@ use crate::{
 use axum::extract::ws::{Message, WebSocket};
 use futures::stream::SplitSink;
 use log::error;
+use std::collections::HashMap;
 use tokio::sync::RwLock;
 use uuid7::Uuid;
 
 pub async fn initialize_session_connection(
+    app_id: &String,
     connection_id: &Uuid,
     sender: SplitSink<WebSocket, Message>,
     sessions: &Sessions,
+    session_to_app: &SessionToAppMap,
     init_data: InitializeRequest,
 ) -> String {
     // If the session_id is not provided, generate a new one
@@ -27,34 +30,63 @@ pub async fn initialize_session_connection(
         .clone()
         .unwrap_or_else(|| uuid7::uuid7().to_string());
 
-    // Lock the whole sessions map as we might need to add a new session
+    // Lock the whole sessions map as we might need to add a new app sessions entry
     let mut sessions_write = sessions.write().await;
-    // Check if the session already exists
-    let (session_id, created_new) = match sessions_write.get_mut(&session_id) {
-        Some(session) => {
-            let mut session_write = session.write().await;
+    // Check if the app sessions already exists
+    let created_new = match sessions_write.get(app_id) {
+        Some(app_sessions) => {
+            let mut app_sessions_write = app_sessions.write().await;
 
-            // Reconnecting to the same persistent session
-            session_write.update_status(SessionStatus::AppConnected);
-            session_write
-                .app_state
-                .app_socket
-                .insert(connection_id.clone(), sender);
+            match app_sessions_write.get_mut(&session_id) {
+                Some(session) => {
+                    // Reconnecting to the same persistent session
+                    let mut session_write = session.write().await;
+                    session_write.update_status(SessionStatus::AppConnected);
+                    session_write
+                        .app_state
+                        .app_socket
+                        .insert(connection_id.clone(), sender);
 
-            // TODO Additional updates to the session can be done here
-            (session_id.clone(), false)
+                    false
+                }
+                None => {
+                    // Insert a new session into a app sessions map
+                    let new_session =
+                        Session::new(&session_id, connection_id.clone(), sender, &init_data);
+                    app_sessions_write.insert(session_id.clone(), RwLock::new(new_session));
+
+                    // Insert session to app map
+                    session_to_app
+                        .add_session_to_app(&session_id, &app_id)
+                        .await;
+                    true
+                }
+            }
         }
         None => {
-            // Creating a new session
+            // Creating a new session map and insert session
             let new_session = Session::new(&session_id, connection_id.clone(), sender, &init_data);
-            sessions_write.insert(session_id.clone(), RwLock::new(new_session));
-            (session_id, true)
+            let mut app_sessions = HashMap::new();
+            app_sessions.insert(session_id.clone(), RwLock::new(new_session));
+
+            sessions_write.insert(app_id.clone(), RwLock::new(app_sessions));
+
+            // Insert session to app map
+            session_to_app
+                .add_session_to_app(&session_id, &app_id)
+                .await;
+            true
         }
     };
 
-    // At this point, the session is guaranteed to exist, so unwrapping is safe.
-    let session = sessions_write
-        .get_mut(&session_id)
+    let app_sessions_read = sessions_write
+        .get(app_id)
+        .expect("Session just created or updated; unwrap safe")
+        .read()
+        .await;
+
+    let session = app_sessions_read
+        .get(&session_id)
         .expect("Session just created or updated; unwrap safe");
 
     // Prepare the InitializeResponse
@@ -66,7 +98,7 @@ pub async fn initialize_session_connection(
         response_id: init_data.response_id.clone(),
         metadata: session_read.client_state.metadata.clone(),
     });
-    // Drop read lock
+    // Drop session read lock
     drop(session_read);
 
     // Acquire write lock

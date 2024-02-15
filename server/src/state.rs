@@ -18,7 +18,8 @@ use tokio::sync::RwLock;
 
 pub type SessionId = String;
 pub type ClientId = String;
-pub type Sessions = Arc<RwLock<HashMap<SessionId, RwLock<Session>>>>;
+pub type AppId = String;
+pub type Sessions = Arc<RwLock<HashMap<AppId, RwLock<HashMap<SessionId, RwLock<Session>>>>>>;
 pub type ClientSockets = Arc<RwLock<HashMap<ClientId, RwLock<SplitSink<WebSocket, Message>>>>>;
 pub type ClientToSessions = Arc<RwLock<HashMap<ClientId, RwLock<HashSet<SessionId>>>>>;
 
@@ -28,23 +29,30 @@ pub struct ServerState {
     pub client_to_sockets: ClientSockets, // Holds only live sockets
     pub client_to_sessions: ClientToSessions,
     pub wallets_metadata: Arc<Vec<WalletMetadata>>,
+    pub session_to_app_map: SessionToAppMap,
 }
 
 #[async_trait]
 pub trait DisconnectUser {
-    async fn disconnect_user(&self, session_id: SessionId) -> Result<()>;
+    async fn disconnect_user(&self, session_id: SessionId, app_id: AppId) -> Result<()>;
 }
 #[async_trait]
 impl DisconnectUser for Sessions {
-    async fn disconnect_user(&self, session_id: SessionId) -> Result<()> {
-        let sessions_read = self.read().await;
-        let mut session_write = match sessions_read.get(&session_id) {
-            Some(session) => session.write().await,
-            None => return Err(anyhow::anyhow!("Session does not exist")), // Session does not exist
-        };
-
-        // Update session user state
-        session_write.disconnect_user().await;
+    async fn disconnect_user(&self, session_id: SessionId, app_id: AppId) -> Result<()> {
+        match self.read().await.get(&app_id) {
+            Some(app) => match app.read().await.get(&session_id) {
+                Some(session) => {
+                    // Update session user state
+                    session.write().await.disconnect_user().await;
+                }
+                None => {
+                    return Err(anyhow::anyhow!(
+                        "This app does not have session with provided id"
+                    ))
+                }
+            },
+            None => return Err(anyhow::anyhow!("App does not have any sessions")),
+        }
 
         Ok(())
     }
@@ -127,6 +135,33 @@ impl ModifySession for ClientToSessions {
         }
     }
 }
+
+pub type SessionToAppMap = Arc<RwLock<HashMap<SessionId, AppId>>>;
+
+#[async_trait]
+pub trait SessionToApp {
+    async fn add_session_to_app(&self, session_id: &SessionId, app_id: &AppId);
+    async fn remove_session_from_app(&self, session_id: &SessionId);
+    async fn get_app_id(&self, session_id: &SessionId) -> Option<AppId>;
+}
+
+#[async_trait]
+impl SessionToApp for SessionToAppMap {
+    async fn add_session_to_app(&self, session_id: &SessionId, app_id: &AppId) {
+        let mut session_to_app_write = self.write().await;
+        session_to_app_write.insert(session_id.clone(), app_id.clone());
+    }
+
+    async fn remove_session_from_app(&self, session_id: &SessionId) {
+        let mut session_to_app_write = self.write().await;
+        session_to_app_write.remove(session_id);
+    }
+
+    async fn get_app_id(&self, session_id: &SessionId) -> Option<AppId> {
+        self.read().await.get(session_id).cloned()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

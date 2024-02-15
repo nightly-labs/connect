@@ -2,7 +2,9 @@ use super::methods::{
     disconnect_session::disconnect_session, initialize_session::initialize_session_connection,
 };
 use crate::{
-    state::{ClientSockets, ClientToSessions, SendToClient, Sessions},
+    state::{
+        ClientSockets, ClientToSessions, SendToClient, SessionToApp, SessionToAppMap, Sessions,
+    },
     structs::{
         app_messages::app_messages::AppToServer,
         client_messages::{client_messages::ServerToClient, new_payload_event::NewPayloadEvent},
@@ -26,12 +28,20 @@ pub async fn on_new_app_connection(
     State(sessions): State<Sessions>,
     State(client_sockets): State<ClientSockets>,
     State(client_to_sessions): State<ClientToSessions>,
+    State(session_to_app_map): State<SessionToAppMap>,
     ws: WebSocketUpgrade,
 ) -> Response {
     let ip = ip.clone().to_string().clone();
     ws.on_upgrade(move |socket| async move {
         debug!("OPEN app connection  from {}", ip);
-        app_handler(socket, sessions, client_sockets, client_to_sessions).await;
+        app_handler(
+            socket,
+            sessions,
+            client_sockets,
+            client_to_sessions,
+            session_to_app_map,
+        )
+        .await;
         debug!("CLOSE app connection  from {}", ip);
     })
 }
@@ -41,6 +51,7 @@ pub async fn app_handler(
     sessions: Sessions,
     client_sockets: ClientSockets,
     client_to_sessions: ClientToSessions,
+    session_to_app_map: SessionToAppMap,
 ) {
     let (sender, mut receiver) = socket.split();
     let connection_id = uuid7::uuid7();
@@ -48,7 +59,7 @@ pub async fn app_handler(
 
     // Handle the new app connection here
     // Wait for initialize message
-    let session_id = loop {
+    let (session_id, app_id) = loop {
         // If stream is closed, or message is not received, return
         let msg = match receiver.next().await {
             Some(Ok(msg)) => msg,
@@ -71,11 +82,29 @@ pub async fn app_handler(
         // We only accept initialize messages here
         match app_msg {
             AppToServer::InitializeRequest(init_data) => {
-                let session_id =
-                    initialize_session_connection(&connection_id, sender, &sessions, init_data)
-                        .await;
+                // TEMP FIX
+                let app_id = match &init_data.persistent_session_id {
+                    Some(session_id) => session_to_app_map
+                        .get_app_id(&session_id)
+                        .await
+                        .unwrap_or_else(|| {
+                            warn!("No app_id found for session: {}", session_id);
+                            uuid7::uuid7().to_string()
+                        }),
+                    None => uuid7::uuid7().to_string(),
+                };
 
-                break session_id;
+                let session_id = initialize_session_connection(
+                    &app_id,
+                    &connection_id,
+                    sender,
+                    &sessions,
+                    &session_to_app_map,
+                    init_data,
+                )
+                .await;
+
+                break (session_id, app_id);
             }
             _ => {
                 continue;
@@ -90,11 +119,13 @@ pub async fn app_handler(
             Some(Err(_)) | None => {
                 // Disconnect session
                 if let Err(err) = disconnect_session(
-                    session_id.clone(),
+                    &app_id,
+                    &session_id,
                     connection_id,
                     &sessions,
                     &client_sockets,
                     &client_to_sessions,
+                    &session_to_app_map,
                 )
                 .await
                 {
@@ -113,11 +144,13 @@ pub async fn app_handler(
             Message::Close(None) | Message::Close(Some(_)) => {
                 // Disconnect session
                 if let Err(err) = disconnect_session(
-                    session_id.clone(),
+                    &app_id,
+                    &session_id,
                     connection_id,
                     &sessions,
                     &client_sockets,
                     &client_to_sessions,
+                    &session_to_app_map,
                 )
                 .await
                 {
@@ -131,7 +164,14 @@ pub async fn app_handler(
         match app_msg {
             AppToServer::RequestPayload(sing_transactions_request) => {
                 let sessions_read = sessions.read().await;
-                let mut session_write = match sessions_read.get(&session_id) {
+                let app_sessions = match sessions_read.get(&app_id) {
+                    Some(app_sessions) => app_sessions.read().await,
+                    None => {
+                        // Should never happen
+                        return;
+                    }
+                };
+                let mut session_write = match app_sessions.get(&session_id) {
                     Some(session) => session.write().await,
                     None => {
                         // Should never happen

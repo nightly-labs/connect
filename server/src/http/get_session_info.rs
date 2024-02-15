@@ -1,6 +1,6 @@
 use crate::{
     errors::NightlyError,
-    state::{SessionId, Sessions},
+    state::{SessionId, SessionToApp, SessionToAppMap, Sessions},
     structs::common::{AppMetadata, Network, SessionStatus, Version},
 };
 use axum::{extract::State, http::StatusCode, Json};
@@ -26,10 +26,31 @@ pub struct HttpGetSessionInfoResponse {
 
 pub async fn get_session_info(
     State(sessions): State<Sessions>,
+    State(session_to_app_map): State<SessionToAppMap>,
     Json(request): Json<HttpGetSessionInfoRequest>,
 ) -> Result<Json<HttpGetSessionInfoResponse>, (StatusCode, String)> {
+    let app_id = match session_to_app_map.get_app_id(&request.session_id).await {
+        Some(app_id) => app_id,
+        None => {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                NightlyError::UnhandledInternalError.to_string(),
+            ))
+        }
+    };
+
     let sessions_read = sessions.read().await;
-    let session_read = match sessions_read.get(&request.session_id) {
+    let app_sessions_read = match sessions_read.get(&app_id) {
+        Some(session) => session.read().await,
+        None => {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                NightlyError::SessionDoesNotExist.to_string(),
+            ))
+        }
+    };
+
+    let session_read = match app_sessions_read.get(&request.session_id) {
         Some(session) => session.read().await,
         None => {
             return Err((

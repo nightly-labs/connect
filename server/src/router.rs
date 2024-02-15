@@ -31,9 +31,14 @@ pub async fn get_router() -> Router {
         client_to_sessions: Default::default(),
         client_to_sockets: Default::default(),
         wallets_metadata: Arc::new(get_wallets_metadata_vec()),
+        session_to_app_map: Default::default(),
     };
     // Start cleaning outdated sessions
-    start_cleaning_sessions(state.sessions.clone(), state.client_to_sessions.clone());
+    start_cleaning_sessions(
+        &state.sessions,
+        &state.client_to_sessions,
+        &state.session_to_app_map,
+    );
     let cors = get_cors();
 
     let filter: EnvFilter = "debug,tower_http=trace,hyper=warn"
