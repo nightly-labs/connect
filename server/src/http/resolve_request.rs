@@ -1,6 +1,6 @@
 use crate::{
     errors::NightlyError,
-    state::{ClientId, Sessions},
+    state::{ClientId, SessionToApp, SessionToAppMap, Sessions},
     structs::app_messages::{app_messages::ServerToApp, payload::ResponsePayload},
 };
 use axum::{extract::State, http::StatusCode, Json};
@@ -22,11 +22,31 @@ pub struct HttpResolveRequestResponse {}
 
 pub async fn resolve_request(
     State(sessions): State<Sessions>,
+    State(session_to_app_map): State<SessionToAppMap>,
     Json(request): Json<HttpResolveRequestRequest>,
 ) -> Result<Json<HttpResolveRequestResponse>, (StatusCode, String)> {
-    // Get session
+    let app_id = match session_to_app_map.get_app_id(&request.session_id).await {
+        Some(app_id) => app_id,
+        None => {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                NightlyError::UnhandledInternalError.to_string(),
+            ))
+        }
+    };
+
     let sessions_read = sessions.read().await;
-    let mut session_write = match sessions_read.get(&request.session_id) {
+    let app_sessions_read = match sessions_read.get(&app_id) {
+        Some(session) => session.read().await,
+        None => {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                NightlyError::SessionDoesNotExist.to_string(),
+            ))
+        }
+    };
+
+    let mut session_write = match app_sessions_read.get(&request.session_id) {
         Some(session) => session.write().await,
         None => {
             return Err((

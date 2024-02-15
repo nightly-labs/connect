@@ -88,7 +88,9 @@ pub async fn disconnect_session(
         app_sessions_write.remove(session_id);
 
         // Remove session from app map
-        session_to_app_map.remove_session_from_app(&session_id);
+        session_to_app_map
+            .remove_session_from_app(&session_id)
+            .await;
     }
 
     Ok(())

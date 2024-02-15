@@ -1,14 +1,20 @@
 use crate::{
-    state::{ClientToSessions, ModifySession, Sessions},
+    state::{ClientToSessions, ModifySession, SessionToApp, SessionToAppMap, Sessions},
     utils::get_timestamp_in_milliseconds,
 };
 use futures::SinkExt;
 use log::info;
 use std::{collections::HashMap, time::Duration, vec};
 
-pub fn start_cleaning_sessions(sessions: Sessions, client_to_sessions: ClientToSessions) {
+pub fn start_cleaning_sessions(
+    sessions: &Sessions,
+    client_to_sessions: &ClientToSessions,
+    session_to_app_map: &SessionToAppMap,
+) {
     let sessions = sessions.clone();
     let client_to_sessions = client_to_sessions.clone();
+    let session_to_app_map = session_to_app_map.clone();
+
     tokio::spawn(async move {
         // Run this once every 6 hours
         let mut interval: tokio::time::Interval =
@@ -75,6 +81,11 @@ pub fn start_cleaning_sessions(sessions: Sessions, client_to_sessions: ClientToS
                     drop(session_write);
 
                     app_sessions_write.remove(&session_id);
+
+                    // Remove session from session_to_app_map
+                    session_to_app_map
+                        .remove_session_from_app(&session_id)
+                        .await;
                 }
 
                 if app_sessions_write.is_empty() {
@@ -85,7 +96,7 @@ pub fn start_cleaning_sessions(sessions: Sessions, client_to_sessions: ClientToS
             info!(
                 "[{:?}]: {} empty app entries to remove",
                 now,
-                sessions_to_remove.len()
+                app_entries_to_remove.len()
             );
 
             // Clear empty app entries

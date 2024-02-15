@@ -56,7 +56,9 @@ pub async fn initialize_session_connection(
                     app_sessions_write.insert(session_id.clone(), RwLock::new(new_session));
 
                     // Insert session to app map
-                    session_to_app.add_session_to_app(&session_id, &app_id);
+                    session_to_app
+                        .add_session_to_app(&session_id, &app_id)
+                        .await;
                     true
                 }
             }
@@ -70,13 +72,15 @@ pub async fn initialize_session_connection(
             sessions_write.insert(app_id.clone(), RwLock::new(app_sessions));
 
             // Insert session to app map
-            session_to_app.add_session_to_app(&session_id, &app_id);
+            session_to_app
+                .add_session_to_app(&session_id, &app_id)
+                .await;
             true
         }
     };
 
     let app_sessions_read = sessions_write
-        .get(&session_id)
+        .get(app_id)
         .expect("Session just created or updated; unwrap safe")
         .read()
         .await;
