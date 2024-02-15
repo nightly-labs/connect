@@ -2,7 +2,9 @@ use super::methods::{
     disconnect_session::disconnect_session, initialize_session::initialize_session_connection,
 };
 use crate::{
-    state::{ClientSockets, ClientToSessions, SendToClient, SessionToAppMap, Sessions},
+    state::{
+        ClientSockets, ClientToSessions, SendToClient, SessionToApp, SessionToAppMap, Sessions,
+    },
     structs::{
         app_messages::app_messages::AppToServer,
         client_messages::{client_messages::ServerToClient, new_payload_event::NewPayloadEvent},
@@ -81,7 +83,16 @@ pub async fn app_handler(
         match app_msg {
             AppToServer::InitializeRequest(init_data) => {
                 // TEMP FIX
-                let app_id = uuid7::uuid7().to_string();
+                let app_id = match &init_data.persistent_session_id {
+                    Some(session_id) => session_to_app_map
+                        .get_app_id(&session_id)
+                        .await
+                        .unwrap_or_else(|| {
+                            warn!("No app_id found for session: {}", session_id);
+                            uuid7::uuid7().to_string()
+                        }),
+                    None => uuid7::uuid7().to_string(),
+                };
 
                 let session_id = initialize_session_connection(
                     &app_id,
