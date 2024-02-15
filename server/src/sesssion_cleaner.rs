@@ -4,7 +4,7 @@ use crate::{
 };
 use futures::SinkExt;
 use log::info;
-use std::{time::Duration, vec};
+use std::{collections::HashMap, time::Duration, vec};
 
 pub fn start_cleaning_sessions(sessions: Sessions, client_to_sessions: ClientToSessions) {
     let sessions = sessions.clone();
@@ -18,7 +18,7 @@ pub fn start_cleaning_sessions(sessions: Sessions, client_to_sessions: ClientToS
             interval.tick().await;
 
             // Remove all sessions that expired
-            let mut sessions_to_remove = vec![];
+            let mut sessions_to_remove: HashMap<String, Vec<String>> = HashMap::new();
             let now = get_timestamp_in_milliseconds();
 
             info!("[{:?}]: Cleaning sessions", now);
@@ -27,10 +27,15 @@ pub fn start_cleaning_sessions(sessions: Sessions, client_to_sessions: ClientToS
             let mut sessions_write = sessions.write().await;
 
             // Iterate over all sessions and check if they expired
-            for (session_id, session) in sessions_write.iter() {
-                // Default session time is two weeks
-                if session.read().await.creation_timestamp + 1000 * 60 * 60 * 24 * 14 < now {
-                    sessions_to_remove.push(session_id.clone());
+            for (app_id, sessions) in sessions_write.iter() {
+                for (session_id, session) in sessions.read().await.iter() {
+                    // Default session time is one week
+                    if session.read().await.creation_timestamp + 1000 * 60 * 60 * 24 * 7 < now {
+                        sessions_to_remove
+                            .entry(app_id.clone())
+                            .or_default()
+                            .push(session_id.clone());
+                    }
                 }
             }
 
@@ -40,29 +45,52 @@ pub fn start_cleaning_sessions(sessions: Sessions, client_to_sessions: ClientToS
                 sessions_to_remove.len()
             );
 
+            // save the app entries to remove
+            let mut app_entries_to_remove = vec![];
+
             // Remove all sessions that expired
-            for session_id in sessions_to_remove {
+            for (app_id, session_id) in sessions_to_remove {
                 // safe unwrap because we just checked if the session exists
-                let session = sessions_write.get_mut(&session_id).unwrap();
-                let mut session_write = session.write().await;
+                let app_sessions = sessions_write.get_mut(&app_id).unwrap();
+                let mut app_sessions_write = app_sessions.write().await;
 
-                // Remove session from client_to_sessions
-                if let Some(client_id) = &session_write.client_state.client_id {
-                    client_to_sessions
-                        .remove_session(client_id.clone(), session_id.clone())
-                        .await;
+                for session_id in session_id {
+                    let session = app_sessions_write.get_mut(&session_id).unwrap();
+                    let mut session_write = session.write().await;
+
+                    // Remove session from client_to_sessions
+                    if let Some(client_id) = &session_write.client_state.client_id {
+                        client_to_sessions
+                            .remove_session(client_id.clone(), session_id.clone())
+                            .await;
+                    }
+
+                    // Disconnect app
+                    // Send to all apps
+                    for (_, socket) in &mut session_write.app_state.app_socket {
+                        socket.close().await.unwrap_or_default();
+                    }
+
+                    // Release write lock on session
+                    drop(session_write);
+
+                    app_sessions_write.remove(&session_id);
                 }
 
-                // Disconnect app
-                // Send to all apps
-                for (_, socket) in &mut session_write.app_state.app_socket {
-                    socket.close().await.unwrap_or_default();
+                if app_sessions_write.is_empty() {
+                    app_entries_to_remove.push(app_id.clone());
                 }
+            }
 
-                // Release write lock on session
-                drop(session_write);
+            info!(
+                "[{:?}]: {} empty app entries to remove",
+                now,
+                sessions_to_remove.len()
+            );
 
-                sessions_write.remove(&session_id);
+            // Clear empty app entries
+            for app_id in app_entries_to_remove {
+                sessions_write.remove(&app_id);
             }
 
             info!("[{:?}]: Sessions cleaning finished", now);

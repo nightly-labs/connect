@@ -48,7 +48,7 @@ pub async fn app_handler(
 
     // Handle the new app connection here
     // Wait for initialize message
-    let session_id = loop {
+    let (session_id, app_id) = loop {
         // If stream is closed, or message is not received, return
         let msg = match receiver.next().await {
             Some(Ok(msg)) => msg,
@@ -71,11 +71,19 @@ pub async fn app_handler(
         // We only accept initialize messages here
         match app_msg {
             AppToServer::InitializeRequest(init_data) => {
-                let session_id =
-                    initialize_session_connection(&connection_id, sender, &sessions, init_data)
-                        .await;
+                // TEMP FIX
+                let app_id = uuid7::uuid7().to_string();
 
-                break session_id;
+                let session_id = initialize_session_connection(
+                    &app_id,
+                    &connection_id,
+                    sender,
+                    &sessions,
+                    init_data,
+                )
+                .await;
+
+                break (session_id, app_id);
             }
             _ => {
                 continue;
@@ -90,7 +98,8 @@ pub async fn app_handler(
             Some(Err(_)) | None => {
                 // Disconnect session
                 if let Err(err) = disconnect_session(
-                    session_id.clone(),
+                    &app_id,
+                    &session_id,
                     connection_id,
                     &sessions,
                     &client_sockets,
@@ -113,7 +122,8 @@ pub async fn app_handler(
             Message::Close(None) | Message::Close(Some(_)) => {
                 // Disconnect session
                 if let Err(err) = disconnect_session(
-                    session_id.clone(),
+                    &app_id,
+                    &session_id,
                     connection_id,
                     &sessions,
                     &client_sockets,
@@ -131,7 +141,14 @@ pub async fn app_handler(
         match app_msg {
             AppToServer::RequestPayload(sing_transactions_request) => {
                 let sessions_read = sessions.read().await;
-                let mut session_write = match sessions_read.get(&session_id) {
+                let app_sessions = match sessions_read.get(&app_id) {
+                    Some(app_sessions) => app_sessions.read().await,
+                    None => {
+                        // Should never happen
+                        return;
+                    }
+                };
+                let mut session_write = match app_sessions.get(&session_id) {
                     Some(session) => session.write().await,
                     None => {
                         // Should never happen

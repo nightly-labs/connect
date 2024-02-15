@@ -12,7 +12,8 @@ use log::warn;
 use uuid7::Uuid;
 
 pub async fn disconnect_session(
-    session_id: String,
+    app_id: &String,
+    session_id: &String,
     connection_id: Uuid,
     sessions: &Sessions,
     client_sockets: &ClientSockets,
@@ -20,11 +21,23 @@ pub async fn disconnect_session(
 ) -> Result<()> {
     // Lock the whole sessions map as we might need to remove a session
     let mut sessions_write = sessions.write().await;
-    let mut session_write = match sessions_write.get_mut(&session_id) {
-        Some(session) => session.write().await,
+    let mut app_sessions_write = match sessions_write.get_mut(app_id) {
+        Some(app_session) => app_session.write().await,
         None => {
             // Should never happen
             bail!("Session not found, session_id: {}", session_id);
+        }
+    };
+
+    let mut session_write = match app_sessions_write.get_mut(session_id) {
+        Some(session) => session.write().await,
+        None => {
+            // Should never happen
+            bail!(
+                "Session not found for connection_id: {}, session_id: {}",
+                connection_id,
+                session_id
+            );
         }
     };
 
@@ -68,7 +81,7 @@ pub async fn disconnect_session(
         // Drop session lock
         drop(session_write);
 
-        sessions_write.remove(&session_id);
+        app_sessions_write.remove(session_id);
     }
 
     Ok(())
