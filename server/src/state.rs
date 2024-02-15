@@ -29,6 +29,7 @@ pub struct ServerState {
     pub client_to_sockets: ClientSockets, // Holds only live sockets
     pub client_to_sessions: ClientToSessions,
     pub wallets_metadata: Arc<Vec<WalletMetadata>>,
+    pub session_to_app_map: SessionToAppMap,
 }
 
 #[async_trait]
@@ -134,6 +135,33 @@ impl ModifySession for ClientToSessions {
         }
     }
 }
+
+pub type SessionToAppMap = Arc<RwLock<HashMap<SessionId, AppId>>>;
+
+#[async_trait]
+pub trait SessionToApp {
+    async fn add_session_to_app(&self, session_id: &SessionId, app_id: &AppId);
+    async fn remove_session_from_app(&self, session_id: &SessionId);
+    async fn get_app_id(&self, session_id: &SessionId) -> Option<AppId>;
+}
+
+#[async_trait]
+impl SessionToApp for SessionToAppMap {
+    async fn add_session_to_app(&self, session_id: &SessionId, app_id: &AppId) {
+        let mut session_to_app_write = self.write().await;
+        session_to_app_write.insert(session_id.clone(), app_id.clone());
+    }
+
+    async fn remove_session_from_app(&self, session_id: &SessionId) {
+        let mut session_to_app_write = self.write().await;
+        session_to_app_write.remove(session_id);
+    }
+
+    async fn get_app_id(&self, session_id: &SessionId) -> Option<AppId> {
+        self.read().await.get(session_id).cloned()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -2,7 +2,7 @@ use super::methods::{
     disconnect_session::disconnect_session, initialize_session::initialize_session_connection,
 };
 use crate::{
-    state::{ClientSockets, ClientToSessions, SendToClient, Sessions},
+    state::{ClientSockets, ClientToSessions, SendToClient, SessionToAppMap, Sessions},
     structs::{
         app_messages::app_messages::AppToServer,
         client_messages::{client_messages::ServerToClient, new_payload_event::NewPayloadEvent},
@@ -26,12 +26,20 @@ pub async fn on_new_app_connection(
     State(sessions): State<Sessions>,
     State(client_sockets): State<ClientSockets>,
     State(client_to_sessions): State<ClientToSessions>,
+    State(session_to_app_map): State<SessionToAppMap>,
     ws: WebSocketUpgrade,
 ) -> Response {
     let ip = ip.clone().to_string().clone();
     ws.on_upgrade(move |socket| async move {
         debug!("OPEN app connection  from {}", ip);
-        app_handler(socket, sessions, client_sockets, client_to_sessions).await;
+        app_handler(
+            socket,
+            sessions,
+            client_sockets,
+            client_to_sessions,
+            session_to_app_map,
+        )
+        .await;
         debug!("CLOSE app connection  from {}", ip);
     })
 }
@@ -41,6 +49,7 @@ pub async fn app_handler(
     sessions: Sessions,
     client_sockets: ClientSockets,
     client_to_sessions: ClientToSessions,
+    session_to_app_map: SessionToAppMap,
 ) {
     let (sender, mut receiver) = socket.split();
     let connection_id = uuid7::uuid7();
@@ -79,6 +88,7 @@ pub async fn app_handler(
                     &connection_id,
                     sender,
                     &sessions,
+                    &session_to_app_map,
                     init_data,
                 )
                 .await;
@@ -104,6 +114,7 @@ pub async fn app_handler(
                     &sessions,
                     &client_sockets,
                     &client_to_sessions,
+                    &session_to_app_map,
                 )
                 .await
                 {
@@ -128,6 +139,7 @@ pub async fn app_handler(
                     &sessions,
                     &client_sockets,
                     &client_to_sessions,
+                    &session_to_app_map,
                 )
                 .await
                 {

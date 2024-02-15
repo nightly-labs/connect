@@ -1,5 +1,8 @@
 use crate::{
-    state::{ClientSockets, ClientToSessions, ModifySession, SendToClient, Sessions},
+    state::{
+        ClientSockets, ClientToSessions, ModifySession, SendToClient, SessionToApp,
+        SessionToAppMap, Sessions,
+    },
     structs::{
         client_messages::{
             app_disconnected_event::AppDisconnectedEvent, client_messages::ServerToClient,
@@ -18,6 +21,7 @@ pub async fn disconnect_session(
     sessions: &Sessions,
     client_sockets: &ClientSockets,
     client_to_sessions: &ClientToSessions,
+    session_to_app_map: &SessionToAppMap,
 ) -> Result<()> {
     // Lock the whole sessions map as we might need to remove a session
     let mut sessions_write = sessions.write().await;
@@ -82,6 +86,9 @@ pub async fn disconnect_session(
         drop(session_write);
 
         app_sessions_write.remove(session_id);
+
+        // Remove session from app map
+        session_to_app_map.remove_session_from_app(&session_id);
     }
 
     Ok(())

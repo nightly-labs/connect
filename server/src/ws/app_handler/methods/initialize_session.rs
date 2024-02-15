@@ -1,5 +1,5 @@
 use crate::{
-    state::Sessions,
+    state::{SessionToApp, SessionToAppMap, Sessions},
     structs::{
         app_messages::{
             app_messages::ServerToApp,
@@ -21,6 +21,7 @@ pub async fn initialize_session_connection(
     connection_id: &Uuid,
     sender: SplitSink<WebSocket, Message>,
     sessions: &Sessions,
+    session_to_app: &SessionToAppMap,
     init_data: InitializeRequest,
 ) -> String {
     // If the session_id is not provided, generate a new one
@@ -53,6 +54,9 @@ pub async fn initialize_session_connection(
                     let new_session =
                         Session::new(&session_id, connection_id.clone(), sender, &init_data);
                     app_sessions_write.insert(session_id.clone(), RwLock::new(new_session));
+
+                    // Insert session to app map
+                    session_to_app.add_session_to_app(&session_id, &app_id);
                     true
                 }
             }
@@ -64,6 +68,9 @@ pub async fn initialize_session_connection(
             app_sessions.insert(session_id.clone(), RwLock::new(new_session));
 
             sessions_write.insert(app_id.clone(), RwLock::new(app_sessions));
+
+            // Insert session to app map
+            session_to_app.add_session_to_app(&session_id, &app_id);
             true
         }
     };
