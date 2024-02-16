@@ -28,7 +28,7 @@ export default function Polkadot() {
       document.getElementById('modalAnchor')
     )
 
-    adapter.canEagerConnect().then((canEagerConnect) => {
+    adapter.canEagerConnect().then((canEagerConnect: boolean) => {
       setEager(canEagerConnect)
     })
     setAdapter(adapter)

@@ -7,17 +7,18 @@ import {
 import {
   NightlyConnectSelectorModal,
   XMLOptions,
-  clearRecentStandardWalletForNetwork,
+  clearRecentWalletForNetwork,
   clearSessionIdForNetwork,
-  getRecentStandardWalletForNetwork,
+  getRecentWalletForNetwork,
   isMobileBrowser,
-  isStandardConnectedForNetwork,
+  // isStandardConnectedForNetwork,
   logoBase64,
-  persistRecentStandardWalletForNetwork,
-  persistStandardConnectForNetwork,
-  persistStandardDisconnectForNetwork,
+  persistRecentWalletForNetwork,
+  // persistStandardConnectForNetwork,
+  // persistStandardDisconnectForNetwork,
   sleep,
-  triggerConnect
+  triggerConnect,
+  AccountWalletType
 } from '@nightlylabs/wallet-selector-base'
 
 import { type Signer as InjectedSigner } from '@polkadot/api/types'
@@ -157,7 +158,7 @@ export class NightlyConnectAdapter implements Injected {
 
     adapter.walletsList = getPolkadotWalletsList(
       [],
-      getRecentStandardWalletForNetwork(adapter.network) ?? undefined
+      getRecentWalletForNetwork(adapter.network) ?? undefined
     )
     adapter._modal = new NightlyConnectSelectorModal(
       adapter.walletsList,
@@ -176,7 +177,7 @@ export class NightlyConnectAdapter implements Injected {
 
     adapter.walletsList = getPolkadotWalletsList(
       metadataWallets,
-      getRecentStandardWalletForNetwork(adapter.network) ?? undefined
+      getRecentWalletForNetwork(adapter.network) ?? undefined
     )
 
     return adapter
@@ -200,7 +201,7 @@ export class NightlyConnectAdapter implements Injected {
 
     adapter.walletsList = getPolkadotWalletsList(
       [],
-      getRecentStandardWalletForNetwork(adapter.network) ?? undefined
+      getRecentWalletForNetwork(adapter.network) ?? undefined
     )
     adapter._modal = new NightlyConnectSelectorModal(
       adapter.walletsList,
@@ -220,7 +221,7 @@ export class NightlyConnectAdapter implements Injected {
         adapter._metadataWallets = metadataWallets
         adapter.walletsList = getPolkadotWalletsList(
           metadataWallets,
-          getRecentStandardWalletForNetwork(adapter.network) ?? undefined
+          getRecentWalletForNetwork(adapter.network) ?? undefined
         )
 
         adapter._loading = false
@@ -250,7 +251,7 @@ export class NightlyConnectAdapter implements Injected {
 
     adapter.walletsList = getPolkadotWalletsList(
       [],
-      getRecentStandardWalletForNetwork(adapter.network) ?? undefined
+      getRecentWalletForNetwork(adapter.network) ?? undefined
     )
     adapter._modal = new NightlyConnectSelectorModal(
       adapter.walletsList,
@@ -266,9 +267,7 @@ export class NightlyConnectAdapter implements Injected {
   }
   // ensureLoaded = async () => {}
   canEagerConnect = async () => {
-    if (!this._useEagerConnect) {
-      return false
-    }
+    if (getRecentWalletForNetwork(this.network) == null || !this._useEagerConnect) return false
 
     // utility for case if somebody wants to fire connect asap, but doesn't want to show modal if e. g. there was no user connected on the device yet
     if (this._loading) {
@@ -289,19 +288,14 @@ export class NightlyConnectAdapter implements Injected {
       return true
     }
 
-    if (
-      getRecentStandardWalletForNetwork(this.network) !== null &&
-      isStandardConnectedForNetwork(this.network)
-    ) {
-      return true
-    }
+    if (getRecentWalletForNetwork(this.network) !== null) return true
 
     return false
   }
 
   eagerConnectDeeplink = () => {
     if (isMobileBrowser() && this._app) {
-      const mobileWalletName = getRecentStandardWalletForNetwork(this.network)
+      const mobileWalletName = getRecentWalletForNetwork(this.network)
       const wallet = this.walletsList.find((w) => w.name === mobileWalletName)
 
       if (typeof wallet === 'undefined') {
@@ -411,8 +405,11 @@ export class NightlyConnectAdapter implements Injected {
         throw new Error('No accounts found')
       }
 
-      persistRecentStandardWalletForNetwork(walletName, this.network)
-      persistStandardConnectForNetwork(this.network)
+      persistRecentWalletForNetwork(this.network, {
+        walletName,
+        walletType: AccountWalletType.Standard
+      })
+      // persistStandardConnectForNetwork(this.network)
       this._innerStandardAdapter = {
         ...inject,
         signer: {
@@ -433,7 +430,7 @@ export class NightlyConnectAdapter implements Injected {
       onSuccess()
     } catch {
       // clear recent wallet
-      persistStandardDisconnectForNetwork(this.network)
+      clearRecentWalletForNetwork(this.network)
       if (this._modal) {
         this._modal.setStandardWalletConnectProgress(false)
       }
@@ -449,12 +446,38 @@ export class NightlyConnectAdapter implements Injected {
             return
           }
 
-          let intervalId: NodeJS.Timeout
+          const recentWallet = getRecentWalletForNetwork(this.network)
+          if (this._useEagerConnect && recentWallet !== null) {
+            await this.connectToStandardWallet(JSON.parse(recentWallet).walletName, resolve)
+
+            if (this._connected) {
+              return resolve()
+            }
+          }
+
+          if (this._app?.hasBeenRestored() && this._app.accounts.activeAccounts.length > 0) {
+            // Try to eager connect if session is restored
+            try {
+              this.eagerConnectDeeplink()
+              this._connected = true
+              this._connecting = false
+              this._appSessionActive = true
+              resolve()
+              return
+            } catch (error) {
+              // If we fail because of whatever reason
+              // Reset session since it might be corrupted
+              const [app] = await NightlyConnectAdapter.initApp(this._appInitData)
+              this._app = app
+            }
+          }
+
+          let loadingInterval: NodeJS.Timeout
 
           // opening modal and waiting for sessionId
           if (this._modal) {
             this._modal.onClose = () => {
-              if (intervalId) clearInterval(intervalId)
+              clearInterval(loadingInterval)
 
               if (this._connecting) {
                 this._connecting = false
@@ -468,60 +491,30 @@ export class NightlyConnectAdapter implements Injected {
                 !this.walletsList.find((w) => w.name === walletName)?.injectedWallet
               ) {
                 this.connectToMobileWallet(walletName)
-                if (intervalId) clearInterval(intervalId)
+                clearInterval(loadingInterval)
               } else {
                 this.connectToStandardWallet(walletName, resolve)
-                if (intervalId) clearInterval(intervalId)
+                clearInterval(loadingInterval)
               }
             })
 
             // checking whether sessionId is defined
             let checks = 0
-            intervalId = setInterval(async (): Promise<void> => {
+            loadingInterval = setInterval(async (): Promise<void> => {
               checks++
               if (this._app) {
                 if (this._modal) this._modal.sessionId = this._app.sessionId
-                if (intervalId) clearInterval(intervalId)
-
-                if (this._app.hasBeenRestored() && this._app.accounts.activeAccounts.length > 0) {
-                  // Try to eager connect if session is restored
-                  try {
-                    this.eagerConnectDeeplink()
-                    this._connected = true
-                    this._connecting = false
-                    this._appSessionActive = true
-                    resolve()
-                    return
-                  } catch (error) {
-                    // If we fail because of whatever reason
-                    // Reset session since it might be corrupted
-                    const [app] = await NightlyConnectAdapter.initApp(this._appInitData)
-                    this._app = app
-                  }
-                }
-
-                const recentName = getRecentStandardWalletForNetwork(this.network)
-                if (
-                  this._useEagerConnect &&
-                  recentName !== null &&
-                  isStandardConnectedForNetwork(this.network)
-                ) {
-                  await this.connectToStandardWallet(recentName, resolve)
-
-                  if (this._connected) {
-                    return
-                  }
-                }
+                clearInterval(loadingInterval)
 
                 this._app.on('userConnected', () => {
                   try {
                     if (this._chosenMobileWalletName) {
-                      persistRecentStandardWalletForNetwork(
-                        this._chosenMobileWalletName,
-                        this.network
-                      )
+                      persistRecentWalletForNetwork(this.network, {
+                        walletName: this._chosenMobileWalletName,
+                        walletType: AccountWalletType.Standard
+                      })
                     } else {
-                      clearRecentStandardWalletForNetwork(this.network)
+                      clearRecentWalletForNetwork(this.network)
                     }
                     if (!this._app || this._app.accounts.activeAccounts.length <= 0) {
                       this._connecting = false
@@ -543,7 +536,7 @@ export class NightlyConnectAdapter implements Injected {
 
               // fallback when connecting takes too long
               if (checks > 500) {
-                if (intervalId) clearInterval(intervalId)
+                clearInterval(loadingInterval)
                 reject(new Error('Connecting takes too long'))
               }
             }, 10)
@@ -563,7 +556,7 @@ export class NightlyConnectAdapter implements Injected {
 
                 this.walletsList = getPolkadotWalletsList(
                   metadataWallets,
-                  getRecentStandardWalletForNetwork(this.network) ?? undefined
+                  getRecentWalletForNetwork(this.network) ?? undefined
                 )
               } catch (e) {
                 this._connecting = false
@@ -593,12 +586,12 @@ export class NightlyConnectAdapter implements Injected {
       this._app = await AppPolkadot.build(this._appInitData)
       if (this._innerStandardAdapter) {
         this._innerStandardAdapter = undefined
-        persistStandardDisconnectForNetwork(this.network)
+        clearRecentWalletForNetwork(this.network)
       }
       // Update recent wallet
       this.walletsList = getPolkadotWalletsList(
         this._metadataWallets,
-        getRecentStandardWalletForNetwork(this.network) ?? undefined
+        getRecentWalletForNetwork(this.network) ?? undefined
       )
       if (this._modal) {
         this._modal.walletsList = this.walletsList

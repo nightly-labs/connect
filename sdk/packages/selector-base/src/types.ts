@@ -32,3 +32,8 @@ export enum ConnectionType {
   Nightly = 'Nightly',
   WalletStandard = 'WalletStandard'
 }
+
+export enum AccountWalletType {
+  Standard = 'Standard',
+  Relay = 'Relay'
+}
