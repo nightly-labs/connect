@@ -454,7 +454,7 @@ export class NightlyConnectAdapter implements Injected {
           // opening modal and waiting for sessionId
           if (this._modal) {
             this._modal.onClose = () => {
-              clearInterval(intervalId)
+              if (intervalId) clearInterval(intervalId)
 
               if (this._connecting) {
                 this._connecting = false
@@ -468,25 +468,82 @@ export class NightlyConnectAdapter implements Injected {
                 !this.walletsList.find((w) => w.name === walletName)?.injectedWallet
               ) {
                 this.connectToMobileWallet(walletName)
-                clearInterval(intervalId)
+                if (intervalId) clearInterval(intervalId)
               } else {
                 this.connectToStandardWallet(walletName, resolve)
-                clearInterval(intervalId)
+                if (intervalId) clearInterval(intervalId)
               }
             })
 
             // checking whether sessionId is defined
             let checks = 0
-            intervalId = setInterval((): void => {
+            intervalId = setInterval(async (): Promise<void> => {
               checks++
-              if (this._app && this._modal) {
-                this._modal.sessionId = this._app.sessionId
-                clearInterval(intervalId)
+              if (this._app) {
+                if (this._modal) this._modal.sessionId = this._app.sessionId
+                if (intervalId) clearInterval(intervalId)
+
+                if (this._app.hasBeenRestored() && this._app.accounts.activeAccounts.length > 0) {
+                  // Try to eager connect if session is restored
+                  try {
+                    this.eagerConnectDeeplink()
+                    this._connected = true
+                    this._connecting = false
+                    this._appSessionActive = true
+                    resolve()
+                    return
+                  } catch (error) {
+                    // If we fail because of whatever reason
+                    // Reset session since it might be corrupted
+                    const [app] = await NightlyConnectAdapter.initApp(this._appInitData)
+                    this._app = app
+                  }
+                }
+
+                const recentName = getRecentStandardWalletForNetwork(this.network)
+                if (
+                  this._useEagerConnect &&
+                  recentName !== null &&
+                  isStandardConnectedForNetwork(this.network)
+                ) {
+                  await this.connectToStandardWallet(recentName, resolve)
+
+                  if (this._connected) {
+                    return
+                  }
+                }
+
+                this._app.on('userConnected', () => {
+                  try {
+                    if (this._chosenMobileWalletName) {
+                      persistRecentStandardWalletForNetwork(
+                        this._chosenMobileWalletName,
+                        this.network
+                      )
+                    } else {
+                      clearRecentStandardWalletForNetwork(this.network)
+                    }
+                    if (!this._app || this._app.accounts.activeAccounts.length <= 0) {
+                      this._connecting = false
+                      // If user does not pass any accounts, we should disconnect
+                      this.disconnect()
+                    }
+                    this._connected = true
+                    this._connecting = false
+                    this._appSessionActive = true
+                    this._modal?.closeModal()
+                    resolve()
+                  } catch {
+                    this.disconnect()
+                  }
+                })
+
+                return
               }
 
               // fallback when connecting takes too long
-              if (checks > 1000) {
-                clearInterval(intervalId)
+              if (checks > 500) {
+                if (intervalId) clearInterval(intervalId)
                 reject(new Error('Connecting takes too long'))
               }
             }, 10)
@@ -516,59 +573,6 @@ export class NightlyConnectAdapter implements Injected {
                 throw e
               }
             }
-          }
-
-          if (this._app) {
-            if (this._app.hasBeenRestored() && this._app.accounts.activeAccounts.length > 0) {
-              // Try to eager connect if session is restored
-              try {
-                this.eagerConnectDeeplink()
-                this._connected = true
-                this._connecting = false
-                this._appSessionActive = true
-                resolve()
-                return
-              } catch (error) {
-                // If we fail because of whatever reason
-                // Reset session since it might be corrupted
-                const [app] = await NightlyConnectAdapter.initApp(this._appInitData)
-                this._app = app
-              }
-            }
-
-            const recentName = getRecentStandardWalletForNetwork(this.network)
-            if (
-              this._useEagerConnect &&
-              recentName !== null &&
-              isStandardConnectedForNetwork(this.network)
-            ) {
-              await this.connectToStandardWallet(recentName, resolve)
-
-              if (this._connected) {
-                return
-              }
-            }
-            this._app.on('userConnected', () => {
-              try {
-                if (this._chosenMobileWalletName) {
-                  persistRecentStandardWalletForNetwork(this._chosenMobileWalletName, this.network)
-                } else {
-                  clearRecentStandardWalletForNetwork(this.network)
-                }
-                if (!this._app || this._app.accounts.activeAccounts.length <= 0) {
-                  this._connecting = false
-                  // If user does not pass any accounts, we should disconnect
-                  this.disconnect()
-                }
-                this._connected = true
-                this._connecting = false
-                this._appSessionActive = true
-                this._modal?.closeModal()
-                resolve()
-              } catch {
-                this.disconnect()
-              }
-            })
           }
 
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
