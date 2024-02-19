@@ -34,4 +34,23 @@ impl Db {
             .fetch_all(&self.connection_pool)
             .await;
     }
+
+    pub async fn get_requests_by_app_id_with_filter(
+        &self,
+        app_id: &String,
+        filter: &str,
+    ) -> Result<Vec<Request>, sqlx::Error> {
+        let query = format!(
+            "SELECT r.* FROM {REQUESTS_TABLE_NAME} r 
+            INNER JOIN sessions s ON r.session_id = s.session_id 
+            WHERE s.app_id = $1 AND creation_timestamp >= {filter}
+            ORDER BY r.creation_timestamp DESC"
+        );
+        let typed_query = query_as::<_, Request>(&query);
+
+        return typed_query
+            .bind(&app_id)
+            .fetch_all(&self.connection_pool)
+            .await;
+    }
 }

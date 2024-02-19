@@ -1,0 +1,3 @@
+pub const LAST_24_HOURS: &str = "EXTRACT(EPOCH FROM NOW() - INTERVAL '1 day')::BIGINT * 1000";
+pub const LAST_7_DAYS: &str = "EXTRACT(EPOCH FROM NOW() - INTERVAL '7 days')::BIGINT * 1000";
+pub const LAST_30_DAYS: &str = "EXTRACT(EPOCH FROM NOW() - INTERVAL '30 days')::BIGINT * 1000";
