@@ -15,3 +15,9 @@ CREATE TABLE sessions(
 );
 
 CREATE UNIQUE INDEX sessions_session_id ON sessions(session_id);
+
+ALTER TABLE sessions
+ADD CONSTRAINT fk_sessions_registered_apps
+FOREIGN KEY (app_id)
+REFERENCES registered_apps (app_id)
+ON DELETE CASCADE;
