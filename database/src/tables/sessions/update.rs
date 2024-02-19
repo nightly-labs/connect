@@ -72,17 +72,26 @@ mod tests {
     use super::*;
     use crate::{
         structs::{client_data::ClientData, request_status::RequestStatus},
-        tables::requests::table_struct::{Request, REQUESTS_TABLE_NAME},
+        tables::{registered_app::table_struct::RegisteredApp, requests::table_struct::Request},
     };
 
     #[tokio::test]
     async fn test_sessions() {
         let db = super::Db::connect_to_the_pool().await;
-        db.truncate_table(
-            format!("{},{} CASCADE", SESSIONS_TABLE_NAME, REQUESTS_TABLE_NAME).as_str(),
-        )
-        .await
-        .unwrap();
+        db.truncate_all_tables().await.unwrap();
+
+        // Create basic app to satisfy foreign key constraint
+        let app = RegisteredApp {
+            app_id: "test_app_id".to_string(),
+            app_name: "test_app_name".to_string(),
+            whitelisted_domains: vec!["test_domain".to_string()],
+            subscription: None,
+            ack_public_keys: vec!["test_key".to_string()],
+            email: Some("test_email".to_string()),
+            registration_timestamp: 10,
+            pass_hash: Some("test_pass_hash".to_string()),
+        };
+        db.register_new_app(&app).await.unwrap();
 
         let session = DbNcSession {
             session_id: "test_session_id".to_string(),

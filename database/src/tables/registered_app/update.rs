@@ -54,25 +54,15 @@ mod tests {
             request_status::RequestStatus,
         },
         tables::{
-            registered_app::table_struct::{RegisteredApp, REGISTERED_APPS_TABLE_NAME},
-            requests::table_struct::{Request, REQUESTS_TABLE_NAME},
-            sessions::table_struct::{DbNcSession, SESSIONS_TABLE_NAME},
-            utils::get_timestamp_in_milliseconds,
+            registered_app::table_struct::RegisteredApp, requests::table_struct::Request,
+            sessions::table_struct::DbNcSession, utils::get_timestamp_in_milliseconds,
         },
     };
 
     #[tokio::test]
     async fn test_register_app() {
         let db = super::Db::connect_to_the_pool().await;
-        db.truncate_table(
-            format!(
-                "{},{},{} CASCADE",
-                REGISTERED_APPS_TABLE_NAME, SESSIONS_TABLE_NAME, REQUESTS_TABLE_NAME
-            )
-            .as_str(),
-        )
-        .await
-        .unwrap();
+        db.truncate_all_tables().await.unwrap();
 
         let app = RegisteredApp {
             app_id: "test_app_id".to_string(),
@@ -94,15 +84,7 @@ mod tests {
     #[tokio::test]
     async fn test_get_requests() {
         let db = super::Db::connect_to_the_pool().await;
-        db.truncate_table(
-            format!(
-                "{},{},{} CASCADE",
-                REGISTERED_APPS_TABLE_NAME, SESSIONS_TABLE_NAME, REQUESTS_TABLE_NAME
-            )
-            .as_str(),
-        )
-        .await
-        .unwrap();
+        db.truncate_all_tables().await.unwrap();
 
         // "Register" an app
         let app = RegisteredApp {
@@ -212,15 +194,7 @@ mod tests {
     #[tokio::test]
     async fn test_data_ranges() {
         let db = super::Db::connect_to_the_pool().await;
-        db.truncate_table(
-            format!(
-                "{},{},{} CASCADE",
-                REGISTERED_APPS_TABLE_NAME, SESSIONS_TABLE_NAME, REQUESTS_TABLE_NAME
-            )
-            .as_str(),
-        )
-        .await
-        .unwrap();
+        db.truncate_all_tables().await.unwrap();
 
         // "Register" an app
         let app = RegisteredApp {
@@ -266,7 +240,8 @@ mod tests {
                     request_id: format!("test_request_id_{}_{}", i, j),
                     session_id: "test_session_id".to_string(),
                     network: "test_network".to_string(),
-                    creation_timestamp: (now - (i * 24 * 60 * 60 * 1000)) as u64,
+                    creation_timestamp: (now - (i * 24 * 60 * 60 * 1000) - ((j + 1) * 10000))
+                        as u64,
                     request_status: RequestStatus::Pending,
                     request_type: "test_request_type".to_string(),
                 };
@@ -294,6 +269,7 @@ mod tests {
             .get_requests_by_app_id_with_filter(&app.app_id, LAST_24_HOURS)
             .await
             .unwrap();
+        println!("{:?}", result);
         assert_eq!(result.len(), 3);
     }
 }
