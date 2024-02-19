@@ -235,8 +235,6 @@ export class NightlyConnectAdapter implements Injected {
     }
     // Get recent wallet for network
     const recentWallet = getRecentWalletForNetwork(this.network)
-    console.log({ recentWallet })
-
     // If there is no recent wallet, we can't eager connect
     if (recentWallet === null) return false
 
