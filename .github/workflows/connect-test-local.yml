@@ -50,6 +50,7 @@ jobs:
           ( docker-compose logs --follow  &  ) | grep -q "database system is ready to accept connections"
       - name: run cargo test
         run: |
+          cargo run --bin tables_migration
           cargo test
           cargo run --bin nightly-connect-server &
       - name: test base local
