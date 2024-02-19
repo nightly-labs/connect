@@ -269,7 +269,6 @@ mod tests {
             .get_requests_by_app_id_with_filter(&app.app_id, LAST_24_HOURS)
             .await
             .unwrap();
-        println!("{:?}", result);
         assert_eq!(result.len(), 3);
     }
 }
