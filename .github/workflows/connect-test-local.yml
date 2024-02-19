@@ -34,7 +34,6 @@ jobs:
           docker-compose down
           rm -rf .infra/target
           docker-compose up -d --no-deps --force-recreate --remove-orphans
-          cargo run --bin tables_migration
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -49,6 +48,9 @@ jobs:
         working-directory: ./infra
         run: |
           ( docker-compose logs --follow  &  ) | grep -q "database system is ready to accept connections"
+      - name: Prepare db tables
+        run: |
+          cargo run --bin tables_migration
       - name: run cargo test
         run: |
           cargo test
