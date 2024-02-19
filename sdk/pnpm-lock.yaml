@@ -141,7 +141,7 @@ importers:
         specifier: 0.0.29
         version: link:../sui
       '@nightlylabs/wallet-selector-polkadot':
-        specifier: 0.1.19
+        specifier: 0.2.0
         version: link:../../packages/selector-polkadot
       '@nightlylabs/wallet-selector-solana':
         specifier: 0.2.7
@@ -632,7 +632,7 @@ importers:
         specifier: ^0.0.15
         version: link:../../apps/polkadot
       '@nightlylabs/wallet-selector-base':
-        specifier: ^0.2.5
+        specifier: ^0.3.0
         version: link:../selector-base
       '@polkadot/api':
         specifier: 10.10.1
@@ -676,7 +676,7 @@ importers:
         version: link:../../apps/solana
       '@nightlylabs/wallet-selector-base':
         specifier: ^0.2.4
-        version: link:../selector-base
+        version: 0.2.4
       '@solana/wallet-adapter-base':
         specifier: ^0.9.22
         version: 0.9.22(@solana/web3.js@1.77.2)

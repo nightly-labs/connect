@@ -22,13 +22,14 @@ export default function Polkadot() {
           icon: 'https://docs.nightly.app/img/logo.png',
           additionalInfo: 'Courtesy of Nightly Connect team'
         },
-        network: 'AlephZero'
+        network: 'AlephZero',
+        persistent: true
       },
-      true, // change this to false to test disabling eager connect
-      document.getElementById('modalAnchor')
+      { initOnConnect: false, disableModal: false, disableEagerConnect: false }
     )
 
     adapter.canEagerConnect().then((canEagerConnect: boolean) => {
+      console.log('canEagerConnect', canEagerConnect)
       setEager(canEagerConnect)
     })
     setAdapter(adapter)

@@ -33,7 +33,13 @@ export enum ConnectionType {
   WalletStandard = 'WalletStandard'
 }
 
-export enum AccountWalletType {
-  Standard = 'Standard',
-  Relay = 'Relay'
+export interface ConnectionOptions {
+  disableModal?: boolean // default: false
+  initOnConnect?: boolean // default: false
+  disableEagerConnect?: boolean // default: false
+}
+export const defaultConnectionOptions: ConnectionOptions = {
+  disableModal: false,
+  initOnConnect: false,
+  disableEagerConnect: false
 }
