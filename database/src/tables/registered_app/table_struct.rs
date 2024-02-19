@@ -1,12 +1,5 @@
-use sqlx::{postgres::PgRow, FromRow, Row, Type};
-
-// TODO move later to a common place
-#[derive(Clone, Debug, Eq, PartialEq, Type)]
-#[sqlx(type_name = "subscription")]
-pub struct Subscription {
-    pub email: String,
-    pub subscribed_at: i64,
-}
+use crate::structs::subscription::Subscription;
+use sqlx::{postgres::PgRow, FromRow, Row};
 
 pub const REGISTERED_APPS_TABLE_NAME: &str = "registered_apps";
 pub const REGISTERED_APPS_KEYS: &str = "app_id, app_name, whitelisted_domains, subscription, ack_public_keys, email, registration_timestamp, pass_hash";
