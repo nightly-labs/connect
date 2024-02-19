@@ -1,7 +1,5 @@
-use super::table_struct::{
-    RegisteredApp, Subscription, REGISTERED_APPS_KEYS, REGISTERED_APPS_TABLE_NAME,
-};
-use crate::db::Db;
+use super::table_struct::{RegisteredApp, REGISTERED_APPS_KEYS, REGISTERED_APPS_TABLE_NAME};
+use crate::{db::Db, structs::subscription::Subscription};
 use sqlx::query;
 
 impl Db {
@@ -55,7 +53,6 @@ mod tests {
     #[tokio::test]
     async fn test_register_app() {
         let db = super::Db::connect_to_the_pool().await;
-        db.migrate_tables().await.unwrap();
         db.truncate_table(REGISTERED_APPS_TABLE_NAME).await.unwrap();
 
         let app = RegisteredApp {
