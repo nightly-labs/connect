@@ -3,14 +3,14 @@ use sqlx::{postgres::PgRow, FromRow, Row};
 
 pub const SESSIONS_TABLE_NAME: &str = "sessions";
 pub const SESSIONS_KEYS: &str =
-    "session_id, app_id, app_metadata, app_connection_address, persistent, network, client_id, client_device, client_metadata, client_notification_endpoint, client_connected_at, session_open_timestamp, session_close_timestamp";
+    "session_id, app_id, app_metadata, app_ip_address, persistent, network, client_id, client_device, client_metadata, client_notification_endpoint, client_connected_at, session_open_timestamp, session_close_timestamp";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct DbNcSession {
     pub session_id: String,
     pub app_id: String,
     pub app_metadata: String,
-    pub app_connection_address: String,
+    pub app_ip_address: String,
     pub persistent: bool,
     pub network: String,
     pub client: Option<ClientData>, // Some if user has ever connected to the session
@@ -26,7 +26,7 @@ impl FromRow<'_, PgRow> for DbNcSession {
         Ok(DbNcSession {
             app_id: row.get("app_id"),
             app_metadata: row.get("app_metadata"),
-            app_connection_address: row.get("app_connection_address"),
+            app_ip_address: row.get("app_ip_address"),
             persistent: row.get("persistent"),
             network: row.get("network"),
             session_id: row.get("session_id"),

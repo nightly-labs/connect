@@ -5,8 +5,6 @@ use sqlx::Type;
 pub enum RequestStatus {
     Pending,
     Completed,
-    Failed,
     Rejected,
     TimedOut,
-    Unknown,
 }
