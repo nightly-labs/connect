@@ -150,16 +150,17 @@ export class NightlyConnectAdapter implements Injected {
       [],
       getRecentWalletForNetwork(adapter.network)?.walletName ?? undefined
     )
-    adapter._modal = new NightlyConnectSelectorModal(
-      adapter.walletsList,
-      appInitData.url ?? 'https://nc2.nightly.app',
-      networkToData(adapter.network),
-      anchorRef,
-      uiOverrides?.variablesOverride,
-      uiOverrides?.stylesOverride,
-      uiOverrides?.qrConfigOverride
-    )
-
+    if (!adapter._connectionOptions.disableModal) {
+      adapter._modal = new NightlyConnectSelectorModal(
+        adapter.walletsList,
+        appInitData.url ?? 'https://nc2.nightly.app',
+        networkToData(adapter.network),
+        anchorRef,
+        uiOverrides?.variablesOverride,
+        uiOverrides?.stylesOverride,
+        uiOverrides?.qrConfigOverride
+      )
+    }
     const [app, metadataWallets] = await NightlyConnectAdapter.initApp(appInitData)
 
     adapter._app = app
@@ -189,15 +190,17 @@ export class NightlyConnectAdapter implements Injected {
       [],
       getRecentWalletForNetwork(adapter.network)?.walletName ?? undefined
     )
-    adapter._modal = new NightlyConnectSelectorModal(
-      adapter.walletsList,
-      appInitData.url ?? 'https://nc2.nightly.app',
-      networkToData(adapter.network),
-      anchorRef,
-      uiOverrides?.variablesOverride,
-      uiOverrides?.stylesOverride,
-      uiOverrides?.qrConfigOverride
-    )
+    if (!adapter._connectionOptions.disableModal) {
+      adapter._modal = new NightlyConnectSelectorModal(
+        adapter.walletsList,
+        appInitData.url ?? 'https://nc2.nightly.app',
+        networkToData(adapter.network),
+        anchorRef,
+        uiOverrides?.variablesOverride,
+        uiOverrides?.stylesOverride,
+        uiOverrides?.qrConfigOverride
+      )
+    }
 
     // If init on connect is not enabled, we should initialize app
     if (!adapter._connectionOptions.initOnConnect) {
@@ -402,7 +405,13 @@ export class NightlyConnectAdapter implements Injected {
       throw err
     }
   }
-
+  connectToWallet = async (walletName: string) => {
+    if (isMobileBrowser() && !this.walletsList.find((w) => w.name === walletName)?.injectedWallet) {
+      this.connectToMobileWallet(walletName)
+    } else {
+      await this.connectToStandardWallet(walletName)
+    }
+  }
   connect = async () =>
     new Promise<void>((resolve, reject) => {
       const innerConnect = async () => {
@@ -479,6 +488,7 @@ export class NightlyConnectAdapter implements Injected {
               }
             }
             this._modal.openModal(this._app?.sessionId ?? undefined, async (walletName: string) => {
+              // If we are on mobile and wallet is not injected, we should connect to mobile wallet
               if (
                 isMobileBrowser() &&
                 !this.walletsList.find((w) => w.name === walletName)?.injectedWallet
