@@ -8,3 +8,9 @@ CREATE TABLE requests(
 );
 
 CREATE UNIQUE INDEX requests_request_id ON requests(request_id);
+
+ALTER TABLE requests
+ADD CONSTRAINT fk_requests_sessions
+FOREIGN KEY (session_id)
+REFERENCES sessions (session_id)
+ON DELETE CASCADE;

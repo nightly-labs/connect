@@ -33,8 +33,8 @@ impl Db {
         migrate!("./migrations").run(&self.connection_pool).await
     }
 
-    pub async fn truncate_table(&self, table_name: &str) -> Result<(), sqlx::Error> {
-        let query = format!("TRUNCATE TABLE {table_name}");
+    pub async fn truncate_table(&self, tables: &str) -> Result<(), sqlx::Error> {
+        let query = format!("TRUNCATE TABLE {tables}");
         sqlx::query(&query).execute(&self.connection_pool).await?;
         Ok(())
     }
