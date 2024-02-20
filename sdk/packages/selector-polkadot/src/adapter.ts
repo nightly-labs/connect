@@ -408,9 +408,9 @@ export class NightlyConnectAdapter implements Injected {
   }
   connectToWallet = async (walletName: string) => {
     if (isMobileBrowser() && !this.walletsList.find((w) => w.name === walletName)?.injectedWallet) {
-      this.connectToMobileWallet(walletName)
+      return this.connectToMobileWallet(walletName)
     } else {
-      await this.connectToStandardWallet(walletName)
+      return await this.connectToStandardWallet(walletName)
     }
   }
   connect = async () =>
