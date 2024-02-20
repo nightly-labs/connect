@@ -27,8 +27,18 @@ export class NightlyMobileQr extends LitElement {
   @state()
   qrSource: string | undefined = undefined
 
+  @state()
+  timeoutError: boolean = false
+
+  @state()
+  isSessionIdImmediatelyDefined: boolean = false
+
+  loadingTimeout: number | undefined = undefined
+
   private updateQrSource = () => {
-    if (this.sessionId)
+    if (this.sessionId) {
+      clearTimeout(this.loadingTimeout)
+
       this.qrSource = svgToBase64(
         generateQrCodeXml(
           'nc:' +
@@ -45,12 +55,29 @@ export class NightlyMobileQr extends LitElement {
           }
         )
       )
+    }
   }
 
   connectedCallback(): void {
     super.connectedCallback()
 
+    this.loadingTimeout = setTimeout(() => {
+      if (this.sessionId) clearTimeout(this.loadingTimeout)
+      // timeout error when sessionId takes longer than 5 seconds to arrive
+      else {
+        clearTimeout(this.loadingTimeout)
+        this.timeoutError = true
+      }
+    }, 5000) as unknown as number
+
     this.updateQrSource()
+    if (this.sessionId) this.isSessionIdImmediatelyDefined = true
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback()
+
+    clearTimeout(this.loadingTimeout)
   }
 
   protected updated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
@@ -69,16 +96,33 @@ export class NightlyMobileQr extends LitElement {
         </div>
         <img class="nc_mobileQrCode" src=${this.qrSource} />
 
-        <div
+        ${!this.isSessionIdImmediatelyDefined &&
+        html`<div
           class="nc_mobileQrLoaderOverlay ${this.qrSource ? 'nc_mobileQrLoadedOverlayFadeOut' : ''}"
         >
           <button class="nc_mobileQrBackButtonLoader" @click=${this.showAllWallets}></button>
           <img
-            src="https://registry.nightly.app/images/fox_sad.gif"
+            src="https://registry.nightly.app/gifs/loading.gif"
             alt="Loading"
             class="nc_mobileQrLoader"
           />
           <h3 class="nc_mobileQrLoaderLabel">Generating QR code...</h3>
+        </div>`}
+
+        <div
+          class="nc_mobileQrTimeoutErrorOverlay ${this.timeoutError &&
+          'nc_mobileQrTimeoutErrorOverlayFadeIn'}"
+        >
+          <button class="nc_mobileQrBackButtonTimeoutError" @click=${this.showAllWallets}></button>
+          <img
+            src="https://registry.nightly.app/images/fox_sad.gif"
+            alt="Timeout error"
+            class="nc_mobileQrTimeoutError"
+          />
+          <h3 class="nc_mobileQrTimeoutErrorLabel">QR code couldn’t be generated...</h3>
+          <p class="nc_mobileQrTimeoutErrorLabelDescription">
+            Make sure you have stable internet connection.
+          </p>
         </div>
       </div>
     `

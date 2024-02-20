@@ -38,7 +38,15 @@ export class NightlyDesktopMain extends LitElement {
   @state()
   qrSource: string | undefined = undefined
 
+  @state()
+  timeoutError: boolean = false
+
+  @state()
+  isSessionIdImmediatelyDefined: boolean = false
+
   timeoutRef: number | undefined = undefined
+
+  loadingTimeout: number | undefined = undefined
 
   onCopy = () => {
     navigator.clipboard.writeText(
@@ -57,7 +65,8 @@ export class NightlyDesktopMain extends LitElement {
   }
 
   private updateQrSource = () => {
-    if (this.sessionId)
+    if (this.sessionId) {
+      clearTimeout(this.loadingTimeout)
       this.qrSource = svgToBase64(
         generateQrCodeXml(
           'nc:' +
@@ -74,12 +83,30 @@ export class NightlyDesktopMain extends LitElement {
           }
         )
       )
+    }
   }
 
   connectedCallback(): void {
     super.connectedCallback()
 
+    this.loadingTimeout = setTimeout(() => {
+      if (this.sessionId) clearTimeout(this.loadingTimeout)
+      // timeout error when sessionId takes longer than 5 seconds to arrive
+      else {
+        clearTimeout(this.loadingTimeout)
+        this.timeoutError = true
+      }
+    }, 5000) as unknown as number
+
     this.updateQrSource()
+
+    if (this.sessionId) this.isSessionIdImmediatelyDefined = true
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback()
+
+    clearTimeout(this.loadingTimeout)
   }
 
   protected updated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
@@ -106,17 +133,33 @@ export class NightlyDesktopMain extends LitElement {
           </div>
           <img id="qrCode" class="nc_desktopMainQrCode" src=${this.qrSource} />
 
-          <div
-            class="nc_desktopQrLoaderOverlay ${this.qrSource
+          ${!this.isSessionIdImmediatelyDefined &&
+          html`<div
+            class="nc_desktopQrLoaderOverlay ${this.qrSource && !this.timeoutError
               ? 'nc_desktopQrLoadedOverlayFadeOut'
               : ''}"
           >
             <img
-              src="https://registry.nightly.app/images/fox_sad.gif"
+              src="https://registry.nightly.app/gifs/loading.gif"
               alt="Loading"
               class="nc_desktopQrLoader"
             />
             <h3 class="nc_desktopQrLoaderLabel">Generating QR code...</h3>
+          </div>`}
+
+          <div
+            class="nc_desktopQrTimeoutErrorOverlay ${this.timeoutError &&
+            'nc_desktopQrTimeoutErrorOverlayFadeIn'}"
+          >
+            <img
+              src="https://registry.nightly.app/images/fox_sad.gif"
+              alt="Timeout error"
+              class="nc_desktopQrTimeoutError"
+            />
+            <h3 class="nc_desktopQrTimeoutErrorLabel">QR code couldn’t be generated...</h3>
+            <p class="nc_desktopQrTimeoutErrorLabelDescription">
+              Make sure you have stable internet connection.
+            </p>
           </div>
         </div>
         <nightly-wallet-selector-page
