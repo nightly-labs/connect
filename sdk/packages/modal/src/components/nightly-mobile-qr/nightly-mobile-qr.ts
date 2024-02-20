@@ -24,21 +24,17 @@ export class NightlyMobileQr extends LitElement {
   @property({ type: Object })
   qrConfigOverride: Partial<XMLOptions> = {}
 
+  @property({ type: Boolean })
+  timeoutError = false
+
   @state()
   qrSource: string | undefined = undefined
 
   @state()
-  timeoutError: boolean = false
-
-  @state()
   isSessionIdImmediatelyDefined: boolean = false
 
-  loadingTimeout: number | undefined = undefined
-
   private updateQrSource = () => {
-    if (this.sessionId) {
-      clearTimeout(this.loadingTimeout)
-
+    if (this.sessionId)
       this.qrSource = svgToBase64(
         generateQrCodeXml(
           'nc:' +
@@ -55,29 +51,13 @@ export class NightlyMobileQr extends LitElement {
           }
         )
       )
-    }
   }
 
   connectedCallback(): void {
     super.connectedCallback()
 
-    this.loadingTimeout = setTimeout(() => {
-      if (this.sessionId) clearTimeout(this.loadingTimeout)
-      // timeout error when sessionId takes longer than 5 seconds to arrive
-      else {
-        clearTimeout(this.loadingTimeout)
-        this.timeoutError = true
-      }
-    }, 5000) as unknown as number
-
     this.updateQrSource()
     if (this.sessionId) this.isSessionIdImmediatelyDefined = true
-  }
-
-  disconnectedCallback(): void {
-    super.disconnectedCallback()
-
-    clearTimeout(this.loadingTimeout)
   }
 
   protected updated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {

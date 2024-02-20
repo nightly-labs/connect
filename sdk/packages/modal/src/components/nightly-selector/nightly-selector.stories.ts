@@ -150,12 +150,17 @@ let { sessionId: _, ...rest } = Default.args
 Loading.args = { ...rest }
 
 export const Error: Story = (args: NightlyModalArgs) => {
-  const [{ open }, updateArgs] = useArgs()
+  const [{ open, timeoutError }, updateArgs] = useArgs()
 
   const handleClose = () => {
     updateArgs({ open: false })
     args.onClose()
   }
+
+  if (!args.sessionId)
+    setTimeout(() => {
+      updateArgs({ timeoutError: true })
+    }, 5000)
 
   return open
     ? html`
@@ -167,6 +172,7 @@ export const Error: Story = (args: NightlyModalArgs) => {
           .chainName=${args.chainName}
           ?connecting=${args.connecting}
           .relay=${args.relay}
+          .timeoutError=${timeoutError}
         ></nightly-selector>
       `
     : html``
