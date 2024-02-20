@@ -116,6 +116,22 @@ export class NightlyConnectAdapter implements Injected {
     }
   }
 
+  get sessionId() {
+    return this._app?.sessionId
+  }
+
+  get qrCode() {
+    if (this._modal && this._modal.chainName && this.sessionId)
+      return (
+        'nc:' +
+        this.sessionId +
+        '?network=' +
+        this._modal.chainName.replace(/\s/g, '') +
+        '&relay=' +
+        this._modal._relay
+      )
+  }
+
   public static initApp = async (
     appInitData: AppSelectorInitialize
   ): Promise<[AppPolkadot, WalletMetadata[]]> => {

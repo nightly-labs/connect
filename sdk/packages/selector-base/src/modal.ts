@@ -35,6 +35,14 @@ export class NightlyConnectSelectorModal {
     return this._walletsList
   }
 
+  get relay() {
+    return this._relay
+  }
+
+  get chainName() {
+    return this._modal?.chainName
+  }
+
   set walletsList(list: IWalletListItem[]) {
     const filtered = list.filter((w) =>
       isMobileBrowser() ? w.walletType !== 'extension' : w.walletType !== 'mobile'
