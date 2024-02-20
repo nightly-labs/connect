@@ -193,6 +193,15 @@ export class NightlyConnectAdapter implements Injected {
       [],
       getRecentWalletForNetwork(adapter.network)?.walletName ?? undefined
     )
+    // Fetch wallets from registry
+    adapter.fetchWalletsFromRegistry().then((metadataWallets) => {
+      adapter._metadataWallets = metadataWallets
+      adapter.walletsList = getPolkadotWalletsList(
+        metadataWallets,
+        getRecentWalletForNetwork(adapter.network)?.walletName ?? undefined
+      )
+    })
+
     if (!adapter._connectionOptions.disableModal) {
       adapter._modal = new NightlyConnectSelectorModal(
         adapter.walletsList,
