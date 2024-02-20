@@ -121,15 +121,7 @@ export class NightlyConnectAdapter implements Injected {
   }
 
   get qrCode() {
-    if (this._modal && this._modal.chainName && this.sessionId)
-      return (
-        'nc:' +
-        this.sessionId +
-        '?network=' +
-        this._modal.chainName.replace(/\s/g, '') +
-        '&relay=' +
-        this._modal._relay
-      )
+    if (this._modal) return this._modal.qrCode
   }
 
   public static initApp = async (

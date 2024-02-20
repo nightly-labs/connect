@@ -76,6 +76,17 @@ export class NightlySelector extends LitElement {
   @state()
   isMobile = false
 
+  get qrCode() {
+    return (
+      'nc:' +
+      this.sessionId +
+      '?network=' +
+      this.chainName.replace(/\s/g, '') +
+      '&relay=' +
+      this.relay
+    )
+  }
+
   // media queries
 
   mobileQuery = window.matchMedia('(max-width: 640px)')

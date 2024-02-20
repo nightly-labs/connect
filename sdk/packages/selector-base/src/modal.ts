@@ -35,12 +35,8 @@ export class NightlyConnectSelectorModal {
     return this._walletsList
   }
 
-  get relay() {
-    return this._relay
-  }
-
-  get chainName() {
-    return this._modal?.chainName
+  get qrCode() {
+    return this._modal?.qrCode
   }
 
   set walletsList(list: IWalletListItem[]) {
