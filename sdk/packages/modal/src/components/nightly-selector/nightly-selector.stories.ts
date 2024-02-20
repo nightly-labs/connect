@@ -114,8 +114,7 @@ Default.args = {
     'fsdhfdzfsdhgfzghggdfhbgchgbdfnvfbxhncvfjhzxdhgbhghfgfvzhfgjhgszdhgzxdfhgfzxdjfuhdfhgd',
   connecting: true,
   relay: 'https://nc2.nightly.app',
-  open: true,
-
+  open: true
 }
 
 export const Loading: Story = (args: NightlyModalArgs) => {
@@ -126,9 +125,10 @@ export const Loading: Story = (args: NightlyModalArgs) => {
     args.onClose()
   }
 
-  open && setTimeout(() => {
-    updateArgs({ sessionId: "1234" })
-  }, 2000)
+  open &&
+    setTimeout(() => {
+      updateArgs({ sessionId: '1234' })
+    }, 2000)
 
   return open
     ? html`
@@ -148,3 +148,34 @@ export const Loading: Story = (args: NightlyModalArgs) => {
 
 let { sessionId: _, ...rest } = Default.args
 Loading.args = { ...rest }
+
+export const Error: Story = (args: NightlyModalArgs) => {
+  const [{ open, timeoutError }, updateArgs] = useArgs()
+
+  const handleClose = () => {
+    updateArgs({ open: false })
+    args.onClose()
+  }
+
+  if (!args.sessionId)
+    setTimeout(() => {
+      updateArgs({ timeoutError: true })
+    }, 5000)
+
+  return open
+    ? html`
+        <nightly-selector
+          .onClose=${handleClose}
+          .selectorItems=${args.selectorItems}
+          .onWalletClick=${args.onWalletClick}
+          .chainIcon=${args.chainIcon}
+          .chainName=${args.chainName}
+          ?connecting=${args.connecting}
+          .relay=${args.relay}
+          .timeoutError=${timeoutError}
+        ></nightly-selector>
+      `
+    : html``
+}
+
+Error.args = { ...rest }

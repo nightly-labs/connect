@@ -5,17 +5,17 @@ import {
   WalletMetadata
 } from '@nightlylabs/nightly-connect-polkadot'
 import {
+  ConnectionOptions,
+  ConnectionType,
   NightlyConnectSelectorModal,
   XMLOptions,
-  clearRecentStandardWalletForNetwork,
+  clearRecentWalletForNetwork,
   clearSessionIdForNetwork,
-  getRecentStandardWalletForNetwork,
+  defaultConnectionOptions,
+  getRecentWalletForNetwork,
   isMobileBrowser,
-  isStandardConnectedForNetwork,
   logoBase64,
-  persistRecentStandardWalletForNetwork,
-  persistStandardConnectForNetwork,
-  persistStandardDisconnectForNetwork,
+  persistRecentWalletForNetwork,
   sleep,
   triggerConnect
 } from '@nightlylabs/wallet-selector-base'
@@ -34,14 +34,13 @@ export class NightlyConnectAdapter implements Injected {
 
   private _connecting: boolean
   private _connected: boolean
+  private _connectionOptions: ConnectionOptions = defaultConnectionOptions
 
   private _app: AppPolkadot | undefined
-  private _appSessionActive: boolean
   private _innerStandardAdapter: Injected | undefined
   private _modal: NightlyConnectSelectorModal | undefined
 
   private _appInitData: AppSelectorInitialize
-  private _useEagerConnect: boolean
 
   private _metadataWallets: WalletMetadata[] = []
   private _walletsList: IPolkadotWalletListItem[] = []
@@ -50,20 +49,16 @@ export class NightlyConnectAdapter implements Injected {
 
   private _loading: boolean
 
-  private _initOnConnect: boolean
-
-  constructor(
-    appInitData: AppSelectorInitialize,
-    useEagerConnect?: boolean,
-    initOnConnect = false
-  ) {
+  constructor(appInitData: AppSelectorInitialize, connectionOptions?: ConnectionOptions) {
     this._connecting = false
     this._connected = false
     this._appInitData = appInitData
-    this._useEagerConnect = !!useEagerConnect
-    this._appSessionActive = false
     this._loading = false
-    this._initOnConnect = initOnConnect
+    this._connectionOptions = { ...this._connectionOptions, ...connectionOptions }
+    // If not persistent, clear session id
+    if (!this._appInitData.persistent) {
+      clearSessionIdForNetwork(this._appInitData.network)
+    }
   }
 
   get accounts() {
@@ -107,6 +102,9 @@ export class NightlyConnectAdapter implements Injected {
   get network() {
     return this._appInitData.network
   }
+  get walletsFromRegistry() {
+    return this._metadataWallets
+  }
   get walletsList() {
     return this._walletsList
   }
@@ -141,7 +139,7 @@ export class NightlyConnectAdapter implements Injected {
 
   public static build = async (
     appInitData: AppSelectorInitialize,
-    useEagerConnect?: boolean,
+    connectionOptions?: ConnectionOptions,
     anchorRef?: HTMLElement | null,
     uiOverrides?: {
       variablesOverride?: object
@@ -149,26 +147,23 @@ export class NightlyConnectAdapter implements Injected {
       qrConfigOverride?: Partial<XMLOptions>
     }
   ) => {
-    if (!useEagerConnect) {
-      clearSessionIdForNetwork(appInitData.network)
-    }
-
-    const adapter = new NightlyConnectAdapter(appInitData, useEagerConnect)
+    const adapter = new NightlyConnectAdapter(appInitData, connectionOptions)
 
     adapter.walletsList = getPolkadotWalletsList(
       [],
-      getRecentStandardWalletForNetwork(adapter.network) ?? undefined
+      getRecentWalletForNetwork(adapter.network)?.walletName ?? undefined
     )
-    adapter._modal = new NightlyConnectSelectorModal(
-      adapter.walletsList,
-      appInitData.url ?? 'https://nc2.nightly.app',
-      networkToData(adapter.network),
-      anchorRef,
-      uiOverrides?.variablesOverride,
-      uiOverrides?.stylesOverride,
-      uiOverrides?.qrConfigOverride
-    )
-
+    if (!adapter._connectionOptions.disableModal) {
+      adapter._modal = new NightlyConnectSelectorModal(
+        adapter.walletsList,
+        appInitData.url ?? 'https://nc2.nightly.app',
+        networkToData(adapter.network),
+        anchorRef,
+        uiOverrides?.variablesOverride,
+        uiOverrides?.stylesOverride,
+        uiOverrides?.qrConfigOverride
+      )
+    }
     const [app, metadataWallets] = await NightlyConnectAdapter.initApp(appInitData)
 
     adapter._app = app
@@ -176,7 +171,7 @@ export class NightlyConnectAdapter implements Injected {
 
     adapter.walletsList = getPolkadotWalletsList(
       metadataWallets,
-      getRecentStandardWalletForNetwork(adapter.network) ?? undefined
+      getRecentWalletForNetwork(adapter.network)?.walletName ?? undefined
     )
 
     return adapter
@@ -184,7 +179,7 @@ export class NightlyConnectAdapter implements Injected {
 
   public static buildLazy = (
     appInitData: AppSelectorInitialize,
-    useEagerConnect?: boolean,
+    connectionOptions?: ConnectionOptions,
     anchorRef?: HTMLElement | null,
     uiOverrides?: {
       variablesOverride?: object
@@ -192,206 +187,183 @@ export class NightlyConnectAdapter implements Injected {
       qrConfigOverride?: Partial<XMLOptions>
     }
   ) => {
-    if (!useEagerConnect) {
-      clearSessionIdForNetwork(appInitData.network)
-    }
-
-    const adapter = new NightlyConnectAdapter(appInitData, useEagerConnect)
+    const adapter = new NightlyConnectAdapter(appInitData, connectionOptions)
 
     adapter.walletsList = getPolkadotWalletsList(
       [],
-      getRecentStandardWalletForNetwork(adapter.network) ?? undefined
+      getRecentWalletForNetwork(adapter.network)?.walletName ?? undefined
     )
-    adapter._modal = new NightlyConnectSelectorModal(
-      adapter.walletsList,
-      appInitData.url ?? 'https://nc2.nightly.app',
-      networkToData(adapter.network),
-      anchorRef,
-      uiOverrides?.variablesOverride,
-      uiOverrides?.stylesOverride,
-      uiOverrides?.qrConfigOverride
-    )
+    // Fetch wallets from registry
+    adapter.fetchWalletsFromRegistry().then((metadataWallets) => {
+      adapter._metadataWallets = metadataWallets
+      adapter.walletsList = getPolkadotWalletsList(
+        metadataWallets,
+        getRecentWalletForNetwork(adapter.network)?.walletName ?? undefined
+      )
+    })
 
-    adapter._loading = true
-
-    NightlyConnectAdapter.initApp(appInitData)
-      .then(([app, metadataWallets]) => {
-        adapter._app = app
-        adapter._metadataWallets = metadataWallets
-        adapter.walletsList = getPolkadotWalletsList(
-          metadataWallets,
-          getRecentStandardWalletForNetwork(adapter.network) ?? undefined
-        )
-
-        adapter._loading = false
-      })
-      .catch(() => {
-        adapter._loading = false
-        throw new Error('Failed to initialize adapter')
-      })
-
-    return adapter
-  }
-  public static buildWithInitOnConnect = (
-    appInitData: AppSelectorInitialize,
-    useEagerConnect?: boolean,
-    anchorRef?: HTMLElement | null,
-    uiOverrides?: {
-      variablesOverride?: object
-      stylesOverride?: string
-      qrConfigOverride?: Partial<XMLOptions>
-    }
-  ) => {
-    if (!useEagerConnect) {
-      clearSessionIdForNetwork(appInitData.network)
+    if (!adapter._connectionOptions.disableModal) {
+      adapter._modal = new NightlyConnectSelectorModal(
+        adapter.walletsList,
+        appInitData.url ?? 'https://nc2.nightly.app',
+        networkToData(adapter.network),
+        anchorRef,
+        uiOverrides?.variablesOverride,
+        uiOverrides?.stylesOverride,
+        uiOverrides?.qrConfigOverride
+      )
     }
 
-    const adapter = new NightlyConnectAdapter(appInitData, useEagerConnect, true)
+    // If init on connect is not enabled, we should initialize app
+    if (!adapter._connectionOptions.initOnConnect) {
+      adapter._loading = true
+      NightlyConnectAdapter.initApp(appInitData)
+        .then(([app, metadataWallets]) => {
+          adapter._app = app
+          adapter._metadataWallets = metadataWallets
+          adapter.walletsList = getPolkadotWalletsList(
+            metadataWallets,
+            getRecentWalletForNetwork(adapter.network)?.walletName ?? undefined
+          )
 
-    adapter.walletsList = getPolkadotWalletsList(
-      [],
-      getRecentStandardWalletForNetwork(adapter.network) ?? undefined
-    )
-    adapter._modal = new NightlyConnectSelectorModal(
-      adapter.walletsList,
-      appInitData.url ?? 'https://nc2.nightly.app',
-      networkToData(adapter.network),
-      anchorRef,
-      uiOverrides?.variablesOverride,
-      uiOverrides?.stylesOverride,
-      uiOverrides?.qrConfigOverride
-    )
-
+          adapter._loading = false
+        })
+        .catch(() => {
+          adapter._loading = false
+          throw new Error('Failed to initialize adapter')
+        })
+    }
     return adapter
   }
-  // ensureLoaded = async () => {}
+
+  // Checks if we can restore user session
   canEagerConnect = async () => {
-    if (!this._useEagerConnect) {
+    // If eager connect is disabled, we can't eager connect
+    if (this._connectionOptions.disableEagerConnect) {
       return false
     }
+    // Get recent wallet for network
+    const recentWallet = getRecentWalletForNetwork(this.network)
+    // If there is no recent wallet, we can't eager connect
+    if (recentWallet === null) return false
 
-    // utility for case if somebody wants to fire connect asap, but doesn't want to show modal if e. g. there was no user connected on the device yet
-    if (this._loading) {
-      for (let i = 0; i < 200; i++) {
-        await sleep(10)
-
-        if (!this._loading) {
-          break
-        }
-      }
-    }
-
-    if (this._loading) {
-      false
-    }
-
-    if (this._app && this._app.hasBeenRestored() && this._app.accounts.activeAccounts.length > 0) {
-      return true
-    }
-
+    // If we user wallet standard, we can eager connect
     if (
-      getRecentStandardWalletForNetwork(this.network) !== null &&
-      isStandardConnectedForNetwork(this.network)
+      recentWallet.walletName !== null &&
+      recentWallet.walletType === ConnectionType.WalletStandard
     ) {
       return true
+    }
+
+    // If we user nightly connect we need to make sure app is restored
+    if (recentWallet.walletType === ConnectionType.Nightly) {
+      if (this._connectionOptions.initOnConnect) {
+        return false
+      }
+      // Wait for app to be restored
+      if (this._loading) {
+        for (let i = 0; i < 2000; i++) {
+          await sleep(10)
+          if (!this._loading) {
+            break
+          }
+        }
+      }
+      // If app is restored and has active accounts, we can eager connect
+      if (this._loading) {
+        return false
+      }
+      if (
+        this._app &&
+        this._app.hasBeenRestored() &&
+        this._app.accounts.activeAccounts.length > 0
+      ) {
+        return true
+      }
     }
 
     return false
   }
 
-  eagerConnectDeeplink = () => {
-    if (isMobileBrowser() && this._app) {
-      const mobileWalletName = getRecentStandardWalletForNetwork(this.network)
-      const wallet = this.walletsList.find((w) => w.name === mobileWalletName)
+  connectToMobileWallet = (walletName: string) => {
+    try {
+      if (this._modal) {
+        this._modal.setStandardWalletConnectProgress(true)
+      }
+
+      const wallet = this.walletsList.find((w) => w.name === walletName)
+
+      if (!this._app) {
+        throw new Error('Wallet not ready')
+      }
 
       if (typeof wallet === 'undefined') {
-        return
+        throw new Error('Wallet not found')
       }
 
       if (wallet.deeplink === null) {
-        return
+        throw new Error('Deeplink not found')
       }
 
+      // If we have a native deeplink, we should use it
       if (wallet.deeplink.native !== null) {
         this._app.connectDeeplink({
           walletName: wallet.name,
           url: wallet.deeplink.native
         })
 
+        this._chosenMobileWalletName = walletName
+
+        triggerConnect(
+          wallet.deeplink.native,
+          this._app.sessionId,
+          this._appInitData.url ?? 'https://nc2.nightly.app'
+        )
         return
       }
 
+      // If we have a universal deeplink, we should use it
       if (wallet.deeplink.universal !== null) {
         this._app.connectDeeplink({
           walletName: wallet.name,
           url: wallet.deeplink.universal
         })
+
+        this._chosenMobileWalletName = walletName
+
+        triggerConnect(
+          wallet.deeplink.universal,
+          this._app.sessionId,
+          this._appInitData.url ?? 'https://nc2.nightly.app'
+        )
+        return
       }
+      // Fallback to redirecting to app browser
+      // aka browser inside the app
+      if (!wallet.deeplink.redirectToAppBrowser) {
+        const redirectToAppBrowser = wallet.deeplink.redirectToAppBrowser
+        if (redirectToAppBrowser !== null && redirectToAppBrowser.indexOf('{{url}}') > -1) {
+          const url = redirectToAppBrowser.replace(
+            '{{url}}',
+            encodeURIComponent(window.location.toString())
+          )
+
+          window.open(url, '_blank', 'noreferrer noopener')
+
+          return
+        }
+      }
+    } catch (err) {
+      // clear recent wallet
+      clearRecentWalletForNetwork(this.network)
+      if (this._modal) {
+        this._modal.setStandardWalletConnectProgress(false)
+      }
+      throw err
     }
   }
-
-  connectToMobileWallet = (walletName: string) => {
-    if (this._modal) {
-      this._modal.setStandardWalletConnectProgress(true)
-    }
-
-    const wallet = this.walletsList.find((w) => w.name === walletName)
-
-    if (!this._app || typeof wallet === 'undefined') {
-      return
-    }
-
-    if (wallet.deeplink === null) {
-      return
-    }
-
-    if (wallet.deeplink.native !== null) {
-      this._app.connectDeeplink({
-        walletName: wallet.name,
-        url: wallet.deeplink.native
-      })
-
-      this._chosenMobileWalletName = walletName
-
-      triggerConnect(
-        wallet.deeplink.native,
-        this._app.sessionId,
-        this._appInitData.url ?? 'https://nc2.nightly.app'
-      )
-
-      return
-    }
-
-    if (wallet.deeplink.universal !== null) {
-      this._app.connectDeeplink({
-        walletName: wallet.name,
-        url: wallet.deeplink.universal
-      })
-
-      this._chosenMobileWalletName = walletName
-
-      triggerConnect(
-        wallet.deeplink.universal,
-        this._app.sessionId,
-        this._appInitData.url ?? 'https://nc2.nightly.app'
-      )
-      return
-    }
-
-    const redirectToAppBrowser = wallet.deeplink.redirectToAppBrowser
-    if (redirectToAppBrowser !== null && redirectToAppBrowser.indexOf('{{url}}') > -1) {
-      const url = redirectToAppBrowser.replace(
-        '{{url}}',
-        encodeURIComponent(window.location.toString())
-      )
-
-      window.open(url, '_blank', 'noreferrer noopener')
-
-      return
-    }
-  }
-
-  connectToStandardWallet = async (walletName: string, onSuccess: () => void) => {
+  // Generic connect to standard wallet
+  connectToStandardWallet = async (walletName: string) => {
     try {
       if (this._modal) {
         this._modal.setStandardWalletConnectProgress(true)
@@ -410,9 +382,6 @@ export class NightlyConnectAdapter implements Injected {
       if ((await inject.accounts.get()).length <= 0) {
         throw new Error('No accounts found')
       }
-
-      persistRecentStandardWalletForNetwork(walletName, this.network)
-      persistStandardConnectForNetwork(this.network)
       this._innerStandardAdapter = {
         ...inject,
         signer: {
@@ -427,169 +396,189 @@ export class NightlyConnectAdapter implements Injected {
             : undefined
         }
       }
+
       this._connected = true
       this._connecting = false
+
+      persistRecentWalletForNetwork(this.network, {
+        walletName,
+        walletType: ConnectionType.WalletStandard
+      })
+
       this._modal?.closeModal()
-      onSuccess()
-    } catch {
+    } catch (err) {
       // clear recent wallet
-      persistStandardDisconnectForNetwork(this.network)
+      clearRecentWalletForNetwork(this.network)
       if (this._modal) {
         this._modal.setStandardWalletConnectProgress(false)
       }
+      throw err
     }
   }
-
+  connectToWallet = async (walletName: string) => {
+    if (isMobileBrowser() && !this.walletsList.find((w) => w.name === walletName)?.injectedWallet) {
+      return this.connectToMobileWallet(walletName)
+    } else {
+      return await this.connectToStandardWallet(walletName)
+    }
+  }
   connect = async () =>
     new Promise<void>((resolve, reject) => {
       const innerConnect = async () => {
         try {
-          if (this.connected || this.connecting) {
+          if (this._connecting) {
+            reject("Can't connect while connecting")
+            return
+          }
+          if (this._connected) {
             resolve()
             return
           }
 
-          if (this._initOnConnect) {
-            this._connecting = true
+          const recentWallet = getRecentWalletForNetwork(this.network)
+          if (!this._connectionOptions.disableEagerConnect && recentWallet !== null) {
+            // Eager connect standard if possible
+            if (recentWallet.walletType === ConnectionType.WalletStandard) {
+              await this.connectToStandardWallet(recentWallet.walletName)
+              resolve()
+              return
+            }
+            // Eager connect remote if possible
+            if (recentWallet.walletType === ConnectionType.Nightly) {
+              if (this._app?.hasBeenRestored() && this._app.accounts.activeAccounts.length > 0) {
+                // Try to eager connect if session is restored
+                try {
+                  this._connected = true
+                  this._connecting = false
+                  resolve()
+                  return
+                } catch (error) {
+                  // If we fail because of whatever reason
+                  // Reset session since it might be corrupted
+                  const [app] = await NightlyConnectAdapter.initApp(this._appInitData)
+                  this._app = app
+                }
+              }
+            }
+          }
 
-            if (!this._app) {
-              try {
-                const [app, metadataWallets] = await NightlyConnectAdapter.initApp(
-                  this._appInitData
-                )
-
+          if (this._connectionOptions.disableModal) {
+            reject('Modal is disabled')
+            return
+          }
+          if (this._connectionOptions.initOnConnect) {
+            this._loading = true
+            NightlyConnectAdapter.initApp(this._appInitData)
+              .then(([app, metadataWallets]) => {
                 this._app = app
                 this._metadataWallets = metadataWallets
-
                 this.walletsList = getPolkadotWalletsList(
                   metadataWallets,
-                  getRecentStandardWalletForNetwork(this.network) ?? undefined
+                  getRecentWalletForNetwork(this.network)?.walletName ?? undefined
                 )
-              } catch (e) {
-                this._connecting = false
-                if (!this._app) {
-                  throw new Error('Wallet not ready')
-                }
-                throw e
-              }
-            }
-          } else {
-            if (this._loading) {
-              // we do it to ensure proper connect flow in case if adapter is lazily built, but e. g. polkadot wallets selector uses its own eager connect
-              for (let i = 0; i < 200; i++) {
-                await sleep(10)
-
-                if (!this._loading) {
-                  break
-                }
-              }
-
-              if (this._loading) {
-                throw new Error('Wallet not ready')
-              }
-            }
-
-            if (!this._app) {
-              throw new Error('Wallet not ready')
-            }
-
-            this._connecting = true
+                this._loading = false
+              })
+              .catch(() => {
+                this._loading = false
+                throw new Error('Failed to initialize adapter')
+              })
           }
+          // Interval that checks if app has connected
+          let loadingInterval: NodeJS.Timeout
 
-          if (this._app.hasBeenRestored() && this._app.accounts.activeAccounts.length > 0) {
-            // Try to eager connect if session is restored
-            try {
-              this.eagerConnectDeeplink()
-              this._connected = true
-              this._connecting = false
-              this._appSessionActive = true
-              resolve()
-              return
-            } catch (error) {
-              // If we fail because of whatever reason
-              // Reset session since it might be corrupted
-              const [app] = await NightlyConnectAdapter.initApp(this._appInitData)
-              this._app = app
-            }
-          }
-
-          const recentName = getRecentStandardWalletForNetwork(this.network)
-          if (
-            this._useEagerConnect &&
-            recentName !== null &&
-            isStandardConnectedForNetwork(this.network)
-          ) {
-            await this.connectToStandardWallet(recentName, resolve)
-
-            if (this._connected) {
-              return
-            }
-          }
-          this._app.on('userConnected', () => {
-            try {
-              if (this._chosenMobileWalletName) {
-                persistRecentStandardWalletForNetwork(this._chosenMobileWalletName, this.network)
-              } else {
-                clearRecentStandardWalletForNetwork(this.network)
-              }
-              if (!this._app || this._app.accounts.activeAccounts.length <= 0) {
-                this._connecting = false
-                // If user does not pass any accounts, we should disconnect
-                this.disconnect()
-              }
-              this._connected = true
-              this._connecting = false
-              this._appSessionActive = true
-              this._modal?.closeModal()
-              resolve()
-            } catch {
-              this.disconnect()
-            }
-          })
-
+          // opening modal and waiting for sessionId
           if (this._modal) {
+            this._connecting = true
             this._modal.onClose = () => {
+              clearInterval(loadingInterval)
               if (this._connecting) {
                 this._connecting = false
                 const error = new Error('Connection cancelled')
                 reject(error)
               }
             }
-            this._modal.openModal(this._app.sessionId, (walletName: string) => {
+            this._modal.openModal(this._app?.sessionId ?? undefined, async (walletName: string) => {
+              // If we are on mobile and wallet is not injected, we should connect to mobile wallet
               if (
                 isMobileBrowser() &&
                 !this.walletsList.find((w) => w.name === walletName)?.injectedWallet
               ) {
                 this.connectToMobileWallet(walletName)
               } else {
-                this.connectToStandardWallet(walletName, resolve)
+                await this.connectToStandardWallet(walletName)
+                resolve()
               }
             })
+
+            // loop until app is connected or we timeout
+            let checks = 0
+            loadingInterval = setInterval(async (): Promise<void> => {
+              checks++
+              if (this._app) {
+                // Clear interval if app is connected
+                clearInterval(loadingInterval)
+                if (this._modal) this._modal.sessionId = this._app.sessionId
+                this._app.on('userConnected', () => {
+                  try {
+                    persistRecentWalletForNetwork(this.network, {
+                      walletName: this._chosenMobileWalletName || '',
+                      walletType: ConnectionType.Nightly
+                    })
+
+                    if (!this._app || this._app.accounts.activeAccounts.length <= 0) {
+                      this._connecting = false
+                      this._connected = false
+                      // If user does not pass any accounts, we should disconnect
+                      this.disconnect()
+                      return
+                    }
+                    this._connected = true
+                    this._connecting = false
+                    this._modal?.closeModal()
+                    resolve()
+                  } catch {
+                    this.disconnect()
+                  }
+                })
+                return
+              }
+
+              // timeout after 5 seconds
+              if (checks > 500) {
+                clearInterval(loadingInterval)
+                // reject(new Error('Connecting takes too long'))
+                // TODO we need to have a way to show error on modal
+              }
+            }, 10)
           }
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
           this._connecting = false
           reject(error)
+        } finally {
+          this._connecting = false
         }
       }
 
       innerConnect()
     })
-
+  fetchWalletsFromRegistry = async () => {
+    return AppPolkadot.getWalletsMetadata(
+      `${this._appInitData.url ?? 'https://nc2.nightly.app'}/get_wallets_metadata`
+    )
+  }
   disconnect = async () => {
     try {
       // Some apps might use disconnect to reset state / recreate session
       clearSessionIdForNetwork(this.network)
-      this._appSessionActive = false
+      clearRecentWalletForNetwork(this.network)
+      this._innerStandardAdapter = undefined
       this._app = await AppPolkadot.build(this._appInitData)
-      if (this._innerStandardAdapter) {
-        this._innerStandardAdapter = undefined
-        persistStandardDisconnectForNetwork(this.network)
-      }
+
       // Update recent wallet
       this.walletsList = getPolkadotWalletsList(
         this._metadataWallets,
-        getRecentStandardWalletForNetwork(this.network) ?? undefined
+        getRecentWalletForNetwork(this.network)?.walletName ?? undefined
       )
       if (this._modal) {
         this._modal.walletsList = this.walletsList

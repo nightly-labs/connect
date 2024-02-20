@@ -47,6 +47,9 @@ export class NightlySelector extends LitElement {
   @property({ type: Object })
   qrConfigOverride: Partial<XMLOptions> = {}
 
+  @property({ type: Boolean })
+  timeoutError = false
+
   // state
 
   @state()
@@ -235,6 +238,7 @@ export class NightlySelector extends LitElement {
         .sessionId=${this.sessionId}
         .relay=${this.relay}
         .qrConfigOverride=${this.qrConfigOverride}
+        .timeoutError=${this.timeoutError}
       ></nightly-desktop-main>
     `
   }
@@ -274,6 +278,7 @@ export class NightlySelector extends LitElement {
         .relay=${this.relay}
         .showAllWallets=${this.returnToMobileInit}
         .qrConfigOverride=${this.qrConfigOverride}
+        .timeoutError=${this.timeoutError}
       ></nightly-mobile-qr>
     `
   }

@@ -32,3 +32,14 @@ export enum ConnectionType {
   Nightly = 'Nightly',
   WalletStandard = 'WalletStandard'
 }
+
+export interface ConnectionOptions {
+  disableModal?: boolean // default: false
+  initOnConnect?: boolean // default: false
+  disableEagerConnect?: boolean // default: false
+}
+export const defaultConnectionOptions: ConnectionOptions = {
+  disableModal: false,
+  initOnConnect: false,
+  disableEagerConnect: false
+}

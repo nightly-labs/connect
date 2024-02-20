@@ -19,7 +19,8 @@
   background-image: var(--nc-img-back);
 }
 
-.nc_mobileQrBackButtonLoader {
+.nc_mobileQrBackButtonLoader,
+.nc_mobileQrBackButtonTimeoutError {
   height: 32px;
   width: 32px;
   background-repeat: no-repeat;
@@ -81,6 +82,52 @@
   animation: fade_out_loader 250ms ease-out forwards;
 }
 
+.nc_mobileQrTimeoutErrorOverlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--nc-color-elements-2);
+  z-index: 5;
+  visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.nc_mobileQrTimeoutError {
+  width: 120px;
+  filter: grayscale(100%) opacity(60%);
+}
+
+.nc_mobileQrTimeoutErrorLabel {
+  margin-top: 15px;
+  margin-bottom: 5px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 22px;
+  letter-spacing: 0.02em;
+  text-align: center;
+  color: var(--nc-color-elements-7);
+}
+
+.nc_mobileQrTimeoutErrorLabelDescription {
+  color: var(--nc-color-elements-6);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+  text-align: center;
+  max-width: 40%;
+}
+
+.nc_mobileQrTimeoutErrorOverlayFadeIn {
+  visibility: visible;
+  animation: fade_in_error 250ms ease-out forwards;
+}
+
 @media (max-width: 482px) {
   .nc_mobileQrWrapper {
     height: 420px;
@@ -89,6 +136,10 @@
   .nc_mobileQrCode {
     width: 342px;
     height: 342px;
+  }
+
+  .nc_mobileQrTimeoutErrorLabelDescription {
+    max-width: 65%;
   }
 }
 
@@ -111,5 +162,14 @@
   100% {
     opacity: 0;
     display: none;
+  }
+}
+
+@keyframes fade_in_error {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
   }
 }

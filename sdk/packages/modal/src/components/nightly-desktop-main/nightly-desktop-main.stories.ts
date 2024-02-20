@@ -14,14 +14,12 @@ import NightlyIcon from '../../static/svg/NightlyIcon.svg'
 import ChainIcon from '../../static/svg/ChainIcon.svg'
 import { useArgs } from '@storybook/client-api'
 
-
 const meta = {
   title: 'nightly-desktop-main',
   parameters: {
     layout: 'centered'
   },
   render: (args) => {
-
     return html`<nightly-desktop-main
       .selectorItems=${args.selectorItems}
       .onWalletClick=${args.onWalletClick}
@@ -30,7 +28,6 @@ const meta = {
       .sessionId=${args.sessionId}
       .relay=${args.relay}
     ></nightly-desktop-main>`
-
   }
 } satisfies Meta<NightlyDesktopMain>
 
@@ -100,20 +97,78 @@ export const Loading: Story = (args: NightlyModalArgs) => {
 
   if (!args.sessionId)
     setTimeout(() => {
-      updateArgs({ sessionId: "1234" })
+      updateArgs({ sessionId: '1234' })
     }, 2000)
 
   return html`<nightly-desktop-main
-      .selectorItems=${args.selectorItems}
-      .onWalletClick=${args.onWalletClick}
-      .chainIcon=${args.chainIcon}
-      .chainName=${args.chainName}
-      .sessionId=${args.sessionId ?? sessionId}
-      .relay=${args.relay}
-    ></nightly-desktop-main>`
+    .selectorItems=${args.selectorItems}
+    .onWalletClick=${args.onWalletClick}
+    .chainIcon=${args.chainIcon}
+    .chainName=${args.chainName}
+    .sessionId=${args.sessionId ?? sessionId}
+    .relay=${args.relay}
+  ></nightly-desktop-main>`
 }
 
 Loading.args = {
+  selectorItems: [
+    { name: 'Phantom', icon: Phantom, status: 'recent' },
+    { name: 'Nightly Wallet', icon: NightlyIcon, status: 'recent' },
+    { name: 'MetaMask', icon: MetaMask, status: '' },
+    { name: 'Glow', icon: Glow, status: '' },
+    { name: 'ZenGO', icon: ZenGO, status: 'detected' },
+    { name: 'Trust', icon: Trust, status: '' },
+    { name: 'Binance', icon: Binance, status: '' },
+    { name: 'Sollet', icon: Sollet, status: '' },
+    { name: 'Phantom', icon: Phantom, status: '' },
+    { name: 'MetaMask', icon: MetaMask, status: 'recent' },
+    { name: 'Coinbase', icon: Coinbase, status: '' },
+    { name: 'ZenGO', icon: ZenGO, status: '' },
+    { name: 'Trust', icon: Trust, status: 'detected' },
+    { name: 'Binance', icon: Binance, status: '' },
+    { name: 'Phantom', icon: Phantom, status: 'recent' },
+    { name: 'Nightly Wallet', icon: NightlyIcon, status: 'recent' },
+    { name: 'MetaMask', icon: MetaMask, status: '' },
+    { name: 'Glow', icon: Glow, status: '' },
+    { name: 'ZenGO', icon: ZenGO, status: 'detected' },
+    { name: 'Trust', icon: Trust, status: '' },
+    { name: 'Binance', icon: Binance, status: '' },
+    { name: 'Sollet', icon: Sollet, status: '' },
+    { name: 'Phantom', icon: Phantom, status: '' },
+    { name: 'MetaMask', icon: MetaMask, status: 'recent' },
+    { name: 'Coinbase', icon: Coinbase, status: '' },
+    { name: 'ZenGO', icon: ZenGO, status: '' },
+    { name: 'Trust', icon: Trust, status: 'detected' },
+    { name: 'Binance', icon: Binance, status: '' }
+  ],
+  onWalletClick: (name: string) => {
+    console.log('Item clicked:', name)
+  },
+  chainIcon: ChainIcon,
+  chainName: 'Solana',
+  relay: 'https://nc2.nightly.app'
+}
+
+export const Error: Story = (args: NightlyModalArgs) => {
+  const [{ timeoutError }, updateArgs] = useArgs()
+
+  if (!args.sessionId)
+    setTimeout(() => {
+      updateArgs({ timeoutError: true })
+    }, 5000)
+
+  return html`<nightly-desktop-main
+    .selectorItems=${args.selectorItems}
+    .onWalletClick=${args.onWalletClick}
+    .chainIcon=${args.chainIcon}
+    .chainName=${args.chainName}
+    .sessionId=${args.sessionId}
+    .relay=${args.relay}
+    .timeoutError=${timeoutError}
+  ></nightly-desktop-main>`
+}
+
+Error.args = {
   selectorItems: [
     { name: 'Phantom', icon: Phantom, status: 'recent' },
     { name: 'Nightly Wallet', icon: NightlyIcon, status: 'recent' },
