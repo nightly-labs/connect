@@ -1,8 +1,8 @@
 version: '3.9'
 
 services:
-  postgres:
-    image: postgres:16
+  timescaledb:
+    image: timescale/timescaledb-ha:pg16
     ports:
       - 5432:5432
     volumes:
@@ -13,3 +13,4 @@ services:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_DB
+      - TIMESCALEDB_TELEMETRY=off
