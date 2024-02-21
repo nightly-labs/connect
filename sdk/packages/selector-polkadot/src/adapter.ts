@@ -571,10 +571,20 @@ export class NightlyConnectAdapter implements Injected {
       innerConnect()
     })
   fetchWalletsFromRegistry = async () => {
-    return AppPolkadot.getWalletsMetadata(
+    this._metadataWallets = await AppPolkadot.getWalletsMetadata(
       `${this._appInitData.url ?? 'https://nc2.nightly.app'}/get_wallets_metadata`
     )
+    return this._metadataWallets
   }
+  fetchWalletList = async () => {
+    const metadataWallets = await this.fetchWalletsFromRegistry()
+    this.walletsList = getPolkadotWalletsList(
+      metadataWallets,
+      getRecentWalletForNetwork(this.network)?.walletName ?? undefined
+    )
+    return this.walletsList
+  }
+
   disconnect = async () => {
     try {
       // Some apps might use disconnect to reset state / recreate session
