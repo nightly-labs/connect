@@ -3,10 +3,10 @@ CREATE MATERIALIZED VIEW hourly_requests_per_app
 WITH (timescaledb.continuous)
 AS SELECT
     app_id,
-    time_bucket('1 h'::interval, creation_timestamp) as bucket,
-    COUNT(*) AS request_count
+    time_bucket('1 h'::interval, creation_timestamp) as hourly_bucket,
+    COUNT(*) AS hourly_request_count
 FROM requests
-GROUP BY app_id, bucket
+GROUP BY app_id, hourly_bucket
 WITH NO DATA;
 
 SELECT add_continuous_aggregate_policy('hourly_requests_per_app',
@@ -19,8 +19,8 @@ CREATE MATERIALIZED VIEW daily_requests_per_app
 WITH (timescaledb.continuous) AS
 SELECT
     app_id,
-    time_bucket('1 d'::interval, bucket) AS daily_bucket,
-    SUM(request_count)::BIGINT AS daily_request_count
+    time_bucket('1 d'::interval, hourly_bucket) AS daily_bucket,
+    SUM(hourly_request_count)::BIGINT AS daily_request_count
 FROM hourly_requests_per_app
 GROUP BY app_id, daily_bucket
 WITH NO DATA;
