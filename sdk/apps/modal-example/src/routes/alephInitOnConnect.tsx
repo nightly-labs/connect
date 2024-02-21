@@ -13,7 +13,7 @@ export default function Polkadot() {
   const provider = new WsProvider('wss://ws.test.azero.dev/')
 
   onMount(async () => {
-    const adapter = NightlyConnectAdapter.buildWithInitOnConnect(
+    const adapter = NightlyConnectAdapter.buildLazy(
       {
         appMetadata: {
           name: 'NC TEST AlephZero',
@@ -23,7 +23,7 @@ export default function Polkadot() {
         },
         network: 'AlephZero'
       },
-      true, // change this to false to test disabling eager connect
+      { initOnConnect: true }, // change this to false to test disabling eager connect
       document.getElementById('modalAnchor')
     )
 

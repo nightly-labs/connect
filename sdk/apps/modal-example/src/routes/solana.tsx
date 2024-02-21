@@ -20,7 +20,7 @@ export default function Solana() {
           additionalInfo: 'Courtesy of Nightly Connect team'
         }
       },
-      true,
+      {},
       document.getElementById('modalAnchor')
     ).then((adapter) => {
       adapter.on('connect', (pk) => {
@@ -32,6 +32,7 @@ export default function Solana() {
       })
 
       adapter.canEagerConnect().then((canEagerConnect) => {
+        console.log('can eager solana', canEagerConnect)
         setEager(canEagerConnect)
       })
 

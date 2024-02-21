@@ -21,7 +21,7 @@ export default function SolanaLazy() {
         },
         url: 'https://nc2.nightly.app'
       },
-      true,
+      {},
       document.getElementById('modalAnchor')
     )
 
@@ -34,6 +34,7 @@ export default function SolanaLazy() {
     })
 
     adapter.canEagerConnect().then((canEagerConnect) => {
+      console.log('can eager connect', canEagerConnect)
       setEager(canEagerConnect)
     })
 
