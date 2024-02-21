@@ -1,6 +1,9 @@
 use super::table_struct::{DbNcSession, SESSIONS_KEYS, SESSIONS_TABLE_NAME};
-use crate::db::Db;
-use sqlx::query;
+use crate::{db::Db, tables::utils::get_date_time};
+use sqlx::{
+    query,
+    types::chrono::{DateTime, Utc},
+};
 
 impl Db {
     pub async fn save_new_session(&self, session: &DbNcSession) -> Result<(), sqlx::Error> {
@@ -16,7 +19,7 @@ impl Db {
                     &client.device,
                     &client.metadata,
                     &client.notification_endpoint,
-                    Some(client.connected_at.clone() as i64),
+                    Some(client.connected_at.clone()),
                 ),
                 None => (&None, &None, &None, &None, None),
             };
@@ -33,8 +36,8 @@ impl Db {
             .bind(&metadata)
             .bind(&notification_endpoint)
             .bind(&connected_at)
-            .bind(&(session.session_open_timestamp as i64))
-            .bind(&None::<i64>)
+            .bind(&session.session_open_timestamp)
+            .bind(&None::<DateTime<Utc>>)
             .execute(&self.connection_pool)
             .await;
 
@@ -54,7 +57,7 @@ impl Db {
         );
 
         let query_result = query(&query_body)
-            .bind(close_timestamp as i64)
+            .bind(get_date_time(close_timestamp))
             .bind(session_id)
             .execute(&self.connection_pool)
             .await;
@@ -72,7 +75,10 @@ mod tests {
     use super::*;
     use crate::{
         structs::{client_data::ClientData, request_status::RequestStatus},
-        tables::{registered_app::table_struct::RegisteredApp, requests::table_struct::Request},
+        tables::{
+            registered_app::table_struct::RegisteredApp, requests::table_struct::Request,
+            utils::get_date_time,
+        },
     };
 
     #[tokio::test]
@@ -105,9 +111,9 @@ mod tests {
                 device: Some("test_device".to_string()),
                 metadata: Some("test_metadata".to_string()),
                 notification_endpoint: Some("test_notification_endpoint".to_string()),
-                connected_at: 12,
+                connected_at: get_date_time(10).unwrap(),
             }),
-            session_open_timestamp: 10,
+            session_open_timestamp: get_date_time(10).unwrap(),
             session_close_timestamp: None,
         };
 
@@ -136,25 +142,27 @@ mod tests {
             .await
             .unwrap()
             .unwrap();
-        assert_eq!(session.session_close_timestamp, Some(15));
+        assert_eq!(session.session_close_timestamp, get_date_time(15));
 
         // Create a few requests for the session
         let request = Request {
             request_id: "test_request_id".to_string(),
             request_type: "test_request_type".to_string(),
+            app_id: "test_app_id".to_string(),
             session_id: "test_session_id".to_string(),
             request_status: RequestStatus::Pending,
             network: "test_network".to_string(),
-            creation_timestamp: 13,
+            creation_timestamp: get_date_time(12).unwrap(),
         };
 
         let second_request = Request {
             request_id: "test_request_id2".to_string(),
             request_type: "test_request_type".to_string(),
             session_id: "test_session_id".to_string(),
+            app_id: "test_app_id".to_string(),
             request_status: RequestStatus::Pending,
             network: "test_network".to_string(),
-            creation_timestamp: 13,
+            creation_timestamp: get_date_time(13).unwrap(),
         };
 
         db.save_request(&request).await.unwrap();
@@ -167,6 +175,7 @@ mod tests {
             .unwrap();
 
         assert_eq!(requests.len(), 2);
-        assert_eq!(request, requests[0]);
+        assert_eq!(request, requests[1]);
+        assert_eq!(second_request, requests[0]);
     }
 }

@@ -1,5 +1,9 @@
 use crate::structs::client_data::ClientData;
-use sqlx::{postgres::PgRow, FromRow, Row};
+use sqlx::{
+    postgres::PgRow,
+    types::chrono::{DateTime, Utc},
+    FromRow, Row,
+};
 
 pub const SESSIONS_TABLE_NAME: &str = "sessions";
 pub const SESSIONS_KEYS: &str =
@@ -14,15 +18,13 @@ pub struct DbNcSession {
     pub persistent: bool,
     pub network: String,
     pub client: Option<ClientData>, // Some if user has ever connected to the session
-    pub session_open_timestamp: u64,
-    pub session_close_timestamp: Option<u64>,
+    pub session_open_timestamp: DateTime<Utc>,
+    pub session_close_timestamp: Option<DateTime<Utc>>,
 }
 
 impl FromRow<'_, PgRow> for DbNcSession {
     fn from_row(row: &sqlx::postgres::PgRow) -> std::result::Result<Self, sqlx::Error> {
-        let session_open_timestamp: i64 = row.get("session_open_timestamp");
-        let session_close_timestamp: Option<i64> = row.get("session_close_timestamp");
-        let client_connected_at: Option<i64> = row.get("client_connected_at");
+        let client_connected_at: Option<DateTime<Utc>> = row.get("client_connected_at");
         Ok(DbNcSession {
             app_id: row.get("app_id"),
             app_metadata: row.get("app_metadata"),
@@ -37,12 +39,12 @@ impl FromRow<'_, PgRow> for DbNcSession {
                     device: row.get("client_device"),
                     metadata: row.get("client_metadata"),
                     notification_endpoint: row.get("client_notification_endpoint"),
-                    connected_at: client_connected_at as u64,
+                    connected_at: client_connected_at,
                 }),
                 None => None,
             },
-            session_open_timestamp: session_open_timestamp as u64,
-            session_close_timestamp: session_close_timestamp.map(|x| x as u64),
+            session_open_timestamp: row.get("session_open_timestamp"),
+            session_close_timestamp: row.get("session_close_timestamp"),
         })
     }
 }
