@@ -21,6 +21,7 @@ import {
 import {
   BaseMessageSignerWalletAdapter,
   WalletAdapterCompatibleStandardWallet,
+  WalletAdapterEvents,
   WalletName,
   WalletNotConnectedError,
   WalletNotReadyError,
@@ -33,6 +34,19 @@ import {
 import { StandardWalletAdapter } from '@solana/wallet-standard'
 import { PublicKey, Transaction, TransactionVersion, VersionedTransaction } from '@solana/web3.js'
 import { solanaWalletsFilter } from './detection'
+import { StandardEventsChangeProperties } from '@wallet-standard/core'
+
+type ArgumentMap<T extends object> = {
+  [K in keyof T]: T[K] extends (...args: any[]) => void
+    ? Parameters<T[K]>
+    : T[K] extends any[]
+    ? T[K]
+    : any[]
+}
+
+type NightlyConnectAdapterEvents = WalletAdapterEvents & {
+  change(properties: StandardEventsChangeProperties): void
+}
 
 export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
   name = 'Nightly Connect' as WalletName<'Nightly Connect'>
@@ -136,6 +150,21 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         )
       ])
     }
+  }
+
+  on<T extends keyof NightlyConnectAdapterEvents>(
+    event: T,
+    fn: (...args: ArgumentMap<NightlyConnectAdapterEvents>[T]) => void,
+    context?: any
+  ): this {
+    return this
+  }
+
+  emit<T extends keyof NightlyConnectAdapterEvents>(
+    event: T,
+    ...args: ArgumentMap<NightlyConnectAdapterEvents>[Extract<T, keyof WalletAdapterEvents>]
+  ): boolean {
+    return true
   }
 
   public static build = async (
