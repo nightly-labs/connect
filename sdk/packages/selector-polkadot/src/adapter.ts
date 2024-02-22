@@ -7,6 +7,7 @@ import {
 import {
   ConnectionOptions,
   ConnectionType,
+  IWalletListItem,
   NightlyConnectSelectorModal,
   XMLOptions,
   clearRecentWalletForNetwork,
@@ -112,7 +113,7 @@ export class NightlyConnectAdapter implements Injected {
   set walletsList(list: IPolkadotWalletListItem[]) {
     this._walletsList = list
     if (this._modal) {
-      this._modal.walletsList = list
+      this._modal.walletsList = list as IWalletListItem[]
     }
   }
 
@@ -155,7 +156,7 @@ export class NightlyConnectAdapter implements Injected {
     )
     if (!adapter._connectionOptions.disableModal) {
       adapter._modal = new NightlyConnectSelectorModal(
-        adapter.walletsList,
+        adapter.walletsList as IWalletListItem[],
         appInitData.url ?? 'https://nc2.nightly.app',
         networkToData(adapter.network),
         anchorRef,
@@ -204,7 +205,7 @@ export class NightlyConnectAdapter implements Injected {
 
     if (!adapter._connectionOptions.disableModal) {
       adapter._modal = new NightlyConnectSelectorModal(
-        adapter.walletsList,
+        adapter.walletsList as IWalletListItem[],
         appInitData.url ?? 'https://nc2.nightly.app',
         networkToData(adapter.network),
         anchorRef,
@@ -301,21 +302,21 @@ export class NightlyConnectAdapter implements Injected {
         throw new Error('Wallet not found')
       }
 
-      if (wallet.deeplink === null) {
+      if (wallet.mobile === null) {
         throw new Error('Deeplink not found')
       }
 
       // If we have a native deeplink, we should use it
-      if (wallet.deeplink.native !== null) {
+      if (wallet.mobile.native !== null) {
         this._app.connectDeeplink({
           walletName: wallet.name,
-          url: wallet.deeplink.native
+          url: wallet.mobile.native
         })
 
         this._chosenMobileWalletName = walletName
 
         triggerConnect(
-          wallet.deeplink.native,
+          wallet.mobile.native,
           this._app.sessionId,
           this._appInitData.url ?? 'https://nc2.nightly.app'
         )
@@ -323,16 +324,16 @@ export class NightlyConnectAdapter implements Injected {
       }
 
       // If we have a universal deeplink, we should use it
-      if (wallet.deeplink.universal !== null) {
+      if (wallet.mobile.universal !== null) {
         this._app.connectDeeplink({
           walletName: wallet.name,
-          url: wallet.deeplink.universal
+          url: wallet.mobile.universal
         })
 
         this._chosenMobileWalletName = walletName
 
         triggerConnect(
-          wallet.deeplink.universal,
+          wallet.mobile.universal,
           this._app.sessionId,
           this._appInitData.url ?? 'https://nc2.nightly.app'
         )
@@ -340,8 +341,8 @@ export class NightlyConnectAdapter implements Injected {
       }
       // Fallback to redirecting to app browser
       // aka browser inside the app
-      if (!wallet.deeplink.redirectToAppBrowser) {
-        const redirectToAppBrowser = wallet.deeplink.redirectToAppBrowser
+      if (!wallet.mobile.redirectToAppBrowser) {
+        const redirectToAppBrowser = wallet.mobile.redirectToAppBrowser
         if (redirectToAppBrowser !== null && redirectToAppBrowser.indexOf('{{url}}') > -1) {
           const url = redirectToAppBrowser.replace(
             '{{url}}',
@@ -581,7 +582,7 @@ export class NightlyConnectAdapter implements Injected {
         getRecentWalletForNetwork(this.network)?.walletName ?? undefined
       )
       if (this._modal) {
-        this._modal.walletsList = this.walletsList
+        this._modal.walletsList = this.walletsList as IWalletListItem[]
       }
       this._connected = false
     } finally {

@@ -17,7 +17,49 @@ export interface MetadataWallet {
   walletType: WalletType
 }
 
-export interface IWalletListItem extends MetadataWallet {
+interface Images {
+  default: string
+  sm: string
+  md: string
+  lg: string
+}
+
+type Network = string
+
+type Platform =
+  | 'browser'
+  | 'ios'
+  | 'android'
+  | 'macos'
+  | 'windows'
+  | 'linux'
+  | 'chrome'
+  | 'firefox'
+  | 'opera'
+  | 'edge'
+  | 'brave'
+  | 'safari'
+  | 'other'
+
+type Version = string
+
+export interface WalletMetadata {
+  slug: string
+  name: string
+  description?: string
+  homepage?: string
+  chains?: Array<Network>
+  version?: Version
+  walletType: WalletType
+  mobile: Deeplink | null
+  desktop: Deeplink | null
+  image: Images
+  app?: Record<Platform, string>
+  injectPath?: Record<Network, string>
+  lastUpdatedTimestamp?: bigint
+}
+
+export interface IWalletListItem extends WalletMetadata {
   recent?: boolean
   detected?: boolean
   standardWallet?: Wallet

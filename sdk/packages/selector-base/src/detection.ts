@@ -1,8 +1,8 @@
 import { Wallet, getWallets } from '@wallet-standard/core'
-import { type IWalletListItem, type MetadataWallet } from './types'
+import { WalletMetadata, type IWalletListItem, type MetadataWallet } from './types'
 
 export const getWalletsList = (
-  presetList: MetadataWallet[],
+  presetList: WalletMetadata[],
   walletsFilterCb: (wallet: Wallet) => boolean,
   recentWalletName?: string
 ) => {

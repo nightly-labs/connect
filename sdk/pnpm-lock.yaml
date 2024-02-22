@@ -632,8 +632,8 @@ importers:
         specifier: ^0.0.15
         version: link:../../apps/polkadot
       '@nightlylabs/wallet-selector-base':
-        specifier: ^0.3.0
-        version: 0.3.1
+        specifier: ^0.3.1
+        version: link:../selector-base
       '@polkadot/api':
         specifier: 10.10.1
         version: 10.10.1
@@ -675,8 +675,8 @@ importers:
         specifier: ^0.0.29
         version: link:../../apps/solana
       '@nightlylabs/wallet-selector-base':
-        specifier: ^0.3.0
-        version: 0.3.1
+        specifier: ^0.3.1
+        version: link:../selector-base
       '@solana/wallet-adapter-base':
         specifier: ^0.9.22
         version: 0.9.22(@solana/web3.js@1.77.2)
@@ -5140,37 +5140,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@nightlylabs/wallet-selector-base@0.3.1:
-    resolution: {integrity: sha512-m2hdNkOrQNS52xXYSvko8YvbI60miCU9AHO8HHKfGXiuYgUjAmQSeTm1wLP8LZI4+Mygqbr8Oq9na+HMEgq2XA==}
-    dependencies:
-      '@nightlylabs/nightly-connect-base': 0.0.27
-      '@nightlylabs/wallet-selector-modal': 0.2.0
-      '@wallet-standard/core': 1.0.3
-      isomorphic-localstorage: 1.0.2
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - supports-color
-      - ts-node
-      - utf-8-validate
-    dev: false
-
   /@nightlylabs/wallet-selector-modal@0.1.2:
     resolution: {integrity: sha512-vxy9S2dEf3NARW6LDq2ZKpWMlk5JJFIuwUfSxkuJlgUg2OVSlnDS7vdho3h4DmluRU5GM9vVhaXUGHAVp5sDQg==}
-    dependencies:
-      '@nightlylabs/qr-code': 2.0.4
-      autoprefixer: 10.4.14(postcss@8.4.24)
-      lit: 2.7.2
-      postcss: 8.4.24
-      postcss-lit: 1.1.0(postcss@8.4.24)
-      tailwindcss: 3.3.2
-    transitivePeerDependencies:
-      - supports-color
-      - ts-node
-    dev: false
-
-  /@nightlylabs/wallet-selector-modal@0.2.0:
-    resolution: {integrity: sha512-BdEk3FhL65z/X0N9ygPjk7uQvV0GGHTWSwXBVob/l48Nok4ikFcV30Dtxk6iSSbErDZ8U4zV3/78cK+m+4lt8A==}
     dependencies:
       '@nightlylabs/qr-code': 2.0.4
       autoprefixer: 10.4.14(postcss@8.4.24)

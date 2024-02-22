@@ -32,7 +32,6 @@ export default function Solana() {
       })
 
       adapter.canEagerConnect().then((canEagerConnect) => {
-        console.log('can eager solana', canEagerConnect)
         setEager(canEagerConnect)
       })
 

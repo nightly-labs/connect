@@ -29,7 +29,6 @@ export default function Polkadot() {
     )
 
     adapter.canEagerConnect().then((canEagerConnect: boolean) => {
-      console.log('canEagerConnect', canEagerConnect)
       setEager(canEagerConnect)
     })
     setAdapter(adapter)

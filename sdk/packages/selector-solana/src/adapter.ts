@@ -8,7 +8,6 @@ import {
   isMobileBrowser,
   IWalletListItem,
   logoBase64,
-  MetadataWallet,
   NightlyConnectSelectorModal,
   persistRecentWalletForNetwork,
   triggerConnect,
@@ -16,7 +15,8 @@ import {
   XMLOptions,
   ConnectionType,
   ConnectionOptions,
-  defaultConnectionOptions
+  defaultConnectionOptions,
+  WalletMetadata
 } from '@nightlylabs/wallet-selector-base'
 import {
   BaseMessageSignerWalletAdapter,
@@ -56,7 +56,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   private _appInitData: AppInitData
 
-  private _metadataWallets: MetadataWallet[] = []
+  private _metadataWallets: WalletMetadata[] = []
   private _walletsList: IWalletListItem[] = []
 
   private _chosenMobileWalletName: string | undefined
@@ -119,24 +119,13 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   public static initApp = async (
     appInitData: AppInitData
-  ): Promise<[AppSolana, MetadataWallet[]]> => {
+  ): Promise<[AppSolana, WalletMetadata[]]> => {
     try {
       return await Promise.all([
         AppSolana.build(appInitData),
         AppSolana.getWalletsMetadata(
           `${appInitData.url ?? 'https://nc2.nightly.app'}/get_wallets_metadata`
         )
-          .then((list) =>
-            list.map((wallet) => ({
-              slug: wallet.slug,
-              name: wallet.name,
-              icon: wallet.image.default,
-              deeplink: wallet.mobile,
-              link: wallet.homepage,
-              walletType: wallet.walletType
-            }))
-          )
-          .catch(() => [] as MetadataWallet[])
       ])
     } catch {
       clearSessionIdForNetwork(SOLANA_NETWORK)
@@ -145,17 +134,6 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         AppSolana.getWalletsMetadata(
           `${appInitData.url ?? 'https://nc2.nightly.app'}/get_wallets_metadata`
         )
-          .then((list) =>
-            list.map((wallet) => ({
-              slug: wallet.slug,
-              name: wallet.name,
-              icon: wallet.image.default,
-              deeplink: wallet.mobile,
-              link: wallet.homepage,
-              walletType: wallet.walletType
-            }))
-          )
-          .catch(() => [] as MetadataWallet[])
       ])
     }
   }
@@ -234,14 +212,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
     // Fetch wallets from registry
     adapter.fetchWalletsFromRegistry().then((metadataWallets) => {
-      adapter._metadataWallets = metadataWallets.map((wallet) => ({
-        slug: wallet.slug,
-        name: wallet.name,
-        icon: wallet.image.default,
-        deeplink: wallet.mobile,
-        link: wallet.homepage,
-        walletType: wallet.walletType
-      }))
+      adapter._metadataWallets = metadataWallets
 
       adapter.walletsList = getWalletsList(
         [],
@@ -353,21 +324,21 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         throw new Error('Wallet not found')
       }
 
-      if (wallet.deeplink === null) {
+      if (wallet.mobile === null) {
         throw new Error('Deeplink not found')
       }
 
       // If we have a native deeplink, we should use it
-      if (wallet.deeplink.native !== null) {
+      if (wallet.mobile.native !== null) {
         this._app.connectDeeplink({
           walletName: wallet.name,
-          url: wallet.deeplink.native
+          url: wallet.mobile.native
         })
 
         this._chosenMobileWalletName = walletName
 
         triggerConnect(
-          wallet.deeplink.native,
+          wallet.mobile.native,
           this._app.sessionId,
           this._appInitData.url ?? 'https://nc2.nightly.app'
         )
@@ -375,16 +346,16 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       }
 
       // If we have a universal deeplink, we should use it
-      if (wallet.deeplink.universal !== null) {
+      if (wallet.mobile.universal !== null) {
         this._app.connectDeeplink({
           walletName: wallet.name,
-          url: wallet.deeplink.universal
+          url: wallet.mobile.universal
         })
 
         this._chosenMobileWalletName = walletName
 
         triggerConnect(
-          wallet.deeplink.universal,
+          wallet.mobile.universal,
           this._app.sessionId,
           this._appInitData.url ?? 'https://nc2.nightly.app'
         )
@@ -609,9 +580,19 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       innerConnect()
     })
 
-  fetchWalletsFromRegistry: () => ReturnType<typeof AppSolana.getWalletsMetadata> = async () => {
-    return AppSolana.getWalletsMetadata(
+  fetchWalletsFromRegistry: () => Promise<WalletMetadata[]> = async () => {
+    this._metadataWallets = await AppSolana.getWalletsMetadata(
       `${this._appInitData.url ?? 'https://nc2.nightly.app'}/get_wallets_metadata`
+    )
+    return this._metadataWallets
+  }
+
+  fetchAllWallets = async () => {
+    const metadataWallets = await this.fetchWalletsFromRegistry()
+    return getWalletsList(
+      metadataWallets,
+      solanaWalletsFilter,
+      getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
     )
   }
 

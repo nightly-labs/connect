@@ -34,7 +34,6 @@ export default function SolanaLazy() {
     })
 
     adapter.canEagerConnect().then((canEagerConnect) => {
-      console.log('can eager connect', canEagerConnect)
       setEager(canEagerConnect)
     })
 

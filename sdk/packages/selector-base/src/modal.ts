@@ -1,4 +1,8 @@
-import { type XMLOptions, type NightlySelector } from '@nightlylabs/wallet-selector-modal'
+import {
+  type XMLOptions,
+  type NightlySelector,
+  WalletSelectorItem
+} from '@nightlylabs/wallet-selector-modal'
 import { type IWalletListItem, type NetworkData } from './types'
 import { isMobileBrowser } from './utils'
 
@@ -41,7 +45,11 @@ export class NightlyConnectSelectorModal {
     )
     this._walletsList = filtered
     if (this._modal) {
-      this._modal.selectorItems = filtered
+      this._modal.selectorItems = filtered.map((item) => ({
+        ...item,
+        icon: item.image.default,
+        link: item.homepage
+      })) as WalletSelectorItem[]
     }
   }
 
@@ -61,7 +69,11 @@ export class NightlyConnectSelectorModal {
       this._modal.relay = this._relay
       this._modal.chainIcon = this._networkData.icon
       this._modal.chainName = this._networkData.name
-      this._modal.selectorItems = this.walletsList
+      this._modal.selectorItems = this.walletsList.map((item) => ({
+        ...item,
+        icon: item.image.default,
+        link: item.homepage
+      })) as WalletSelectorItem[]
     })
   }
 
