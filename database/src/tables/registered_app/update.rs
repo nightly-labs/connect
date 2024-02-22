@@ -62,7 +62,7 @@ mod tests {
     use tokio::task;
 
     #[tokio::test]
-    async fn test_data_ranges() {
+    async fn test_requests_count() {
         let db = super::Db::connect_to_the_pool().await;
         db.truncate_all_tables().await.unwrap();
 
@@ -136,7 +136,14 @@ mod tests {
         }
 
         // We need to refresh manually the views
-        db_arc.refresh_continuous_aggregates().await.unwrap();
+        db_arc
+            .refresh_continuous_aggregates(vec![
+                "daily_requests_per_app".to_string(),
+                "hourly_requests_per_app".to_string(),
+                "monthly_requests_per_app".to_string(),
+            ])
+            .await
+            .unwrap();
 
         let result = db_arc
             .get_aggregated_requests_by_app_id(&app.app_id, TimeFilter::Last24Hours)
@@ -164,5 +171,88 @@ mod tests {
         assert_eq!(result.len(), 31);
         assert_eq!(result[0].request_count, 100);
         assert_eq!(result[30].request_count, 70);
+    }
+
+    #[tokio::test]
+    async fn test_average_session_duration() {
+        let db = super::Db::connect_to_the_pool().await;
+        db.truncate_all_tables().await.unwrap();
+
+        // "Register" an app
+        let app = RegisteredApp {
+            app_id: "test_app_id".to_string(),
+            app_name: "test_app_name".to_string(),
+            whitelisted_domains: vec!["test_domain".to_string()],
+            subscription: None,
+            ack_public_keys: vec!["test_key".to_string()],
+            email: None,
+            registration_timestamp: 0,
+            pass_hash: None,
+        };
+
+        db.register_new_app(&app).await.unwrap();
+
+        let result = db.get_registered_app_by_app_id(&app.app_id).await.unwrap();
+        assert_eq!(app, result);
+
+        // Create sessions
+        let now = Utc::now();
+        let sessions = vec![
+            (
+                now - Duration::from_secs(4 * 60 * 60),
+                now - Duration::from_secs((4 * 60 - 85) * 60),
+            ), // 1 hour 25 minutes session, 4 hours ago
+            (
+                now - Duration::from_secs((2 * 60 + 35) * 60),
+                now - Duration::from_secs((2 * 60 + 10) * 60),
+            ), // 25 minutes session, 2 hours and 35 minutes ago
+            (
+                now - Duration::from_secs((1 * 60 + 50) * 60),
+                now - Duration::from_secs((1 * 60 + 40) * 60),
+            ), // 10 minutes session, 1 hour and 50 minutes ago
+        ];
+
+        for (start, end) in sessions.iter() {
+            let session = DbNcSession {
+                session_id: format!("session_id_{}", start.timestamp()),
+                app_id: "test_app_id".to_string(),
+                app_metadata: "test_app_metadata".to_string(),
+                app_ip_address: "test_app_ip_address".to_string(),
+                persistent: false,
+                network: "test_network".to_string(),
+                client: None,
+                session_open_timestamp: *start,
+                session_close_timestamp: None,
+            };
+
+            db.save_new_session(&session).await.unwrap();
+            db.close_session(&session.session_id, *end).await.unwrap();
+        }
+
+        // We need to refresh manually the views
+        db.refresh_continuous_aggregates(vec![
+            "avg_session_duration_per_app_monthly".to_string(),
+            "avg_session_duration_per_app_daily".to_string(),
+        ])
+        .await
+        .unwrap();
+
+        let result = db
+            .get_monthly_session_duration_average(&app.app_id)
+            .await
+            .unwrap();
+
+        assert_eq!(result.len(), 1);
+
+        let expected_avg_duration_seconds: f64 = sessions
+            .iter()
+            .map(|(start, end)| (end.timestamp() - start.timestamp()) as f64)
+            .sum::<f64>()
+            / sessions.len() as f64;
+
+        assert_eq!(
+            result[0].average_duration_seconds,
+            expected_avg_duration_seconds
+        );
     }
 }
