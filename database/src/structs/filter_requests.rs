@@ -8,8 +8,10 @@ pub struct AggregatedRequestCount {
 }
 
 #[derive(Debug, sqlx::FromRow)]
-pub struct SessionDurationAverage {
+pub struct SessionsStats {
     pub app_id: String,
     pub bucket: DateTime<Utc>,
+    pub sessions_opened: i64,
     pub average_duration_seconds: f64,
+    pub avg_daily_opened_sessions: i64,
 }

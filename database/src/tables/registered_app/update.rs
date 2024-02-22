@@ -231,16 +231,13 @@ mod tests {
 
         // We need to refresh manually the views
         db.refresh_continuous_aggregates(vec![
-            "avg_session_duration_per_app_monthly".to_string(),
-            "avg_session_duration_per_app_daily".to_string(),
+            "sessions_stats_per_app_monthly".to_string(),
+            "sessions_stats_per_app_daily".to_string(),
         ])
         .await
         .unwrap();
 
-        let result = db
-            .get_monthly_session_duration_average(&app.app_id)
-            .await
-            .unwrap();
+        let result = db.get_monthly_sessions_stats(&app.app_id).await.unwrap();
 
         assert_eq!(result.len(), 1);
 
@@ -254,5 +251,163 @@ mod tests {
             result[0].average_duration_seconds,
             expected_avg_duration_seconds
         );
+    }
+
+    #[tokio::test]
+    async fn test_sessions_count() {
+        let db = super::Db::connect_to_the_pool().await;
+        db.truncate_all_tables().await.unwrap();
+
+        // "Register" an app
+        let app = RegisteredApp {
+            app_id: "test_app_id".to_string(),
+            app_name: "test_app_name".to_string(),
+            whitelisted_domains: vec!["test_domain".to_string()],
+            subscription: None,
+            ack_public_keys: vec!["test_key".to_string()],
+            email: None,
+            registration_timestamp: 0,
+            pass_hash: None,
+        };
+
+        db.register_new_app(&app).await.unwrap();
+
+        let result = db.get_registered_app_by_app_id(&app.app_id).await.unwrap();
+        assert_eq!(app, result);
+
+        // Number of sessions to create
+        let num_sessions: u64 = 100;
+        let now = Utc::now();
+        let start_of_period = now - Duration::from_secs(60 * 60 * 24 * 14); // 14 days
+
+        // Generate and save sessions
+        for i in 0..num_sessions {
+            let session_start =
+                start_of_period + Duration::from_secs(i * 86400 / num_sessions as u64); // spread sessions evenly over 14 days
+            let session_end = session_start + Duration::from_secs(60 * 30); // duration of 30 minutes for each session
+
+            let session = DbNcSession {
+                session_id: format!("session_{}_{}", app.app_id, i),
+                app_id: app.app_id.clone(),
+                app_metadata: "test_metadata".to_string(),
+                app_ip_address: "127.0.0.1".to_string(),
+                persistent: false,
+                network: "test_network".to_string(),
+                client: None,
+                session_open_timestamp: session_start,
+                session_close_timestamp: None,
+            };
+
+            db.save_new_session(&session).await.unwrap();
+            db.close_session(&session.session_id, session_end)
+                .await
+                .unwrap();
+        }
+
+        // Manually refresh the continuous aggregates
+        db.refresh_continuous_aggregates(vec![
+            "sessions_stats_per_app_monthly".to_string(),
+            "sessions_stats_per_app_daily".to_string(),
+        ])
+        .await
+        .unwrap();
+
+        let stats = db.get_monthly_sessions_stats(&app.app_id).await.unwrap();
+
+        assert_eq!(stats.len(), 1);
+        assert_eq!(stats[0].sessions_opened, num_sessions as i64);
+    }
+
+    #[tokio::test]
+    async fn test_sessions_average_daily_opened_sessions() {
+        let db = super::Db::connect_to_the_pool().await;
+        db.truncate_all_tables().await.unwrap();
+
+        // "Register" an app
+        let app = RegisteredApp {
+            app_id: "test_app_id".to_string(),
+            app_name: "test_app_name".to_string(),
+            whitelisted_domains: vec!["test_domain".to_string()],
+            subscription: None,
+            ack_public_keys: vec!["test_key".to_string()],
+            email: None,
+            registration_timestamp: 0,
+            pass_hash: None,
+        };
+
+        db.register_new_app(&app).await.unwrap();
+
+        let result = db.get_registered_app_by_app_id(&app.app_id).await.unwrap();
+        assert_eq!(app, result);
+
+        let now = Utc::now();
+        let start_of_first_period = now - Duration::from_secs(60 * 60 * 24 * 60); // Start of first period, 60 days ago
+        let start_of_second_period = now - Duration::from_secs(60 * 60 * 24 * 30); // Start of second period, 30 days ago
+        let num_sessions_first_period: u64 = 40;
+        let num_sessions_second_period: u64 = 28;
+
+        // Generate and save sessions for the first period
+        for i in 0..num_sessions_first_period {
+            let session_start = start_of_first_period
+                + Duration::from_secs(i * 86400 / num_sessions_first_period as u64);
+            let session_end = session_start + Duration::from_secs(60 * 30); // Duration of 30 minutes for each session
+
+            let session = DbNcSession {
+                session_id: format!("session_{}_{}", app.app_id, i),
+                app_id: app.app_id.clone(),
+                app_metadata: "test_metadata".to_string(),
+                app_ip_address: "127.0.0.1".to_string(),
+                persistent: false,
+                network: "test_network".to_string(),
+                client: None,
+                session_open_timestamp: session_start,
+                session_close_timestamp: Some(session_end),
+            };
+
+            db.save_new_session(&session).await.unwrap();
+            db.close_session(&session.session_id, session_end)
+                .await
+                .unwrap();
+        }
+
+        // Generate and save sessions for the second period
+        for i in 0..num_sessions_second_period {
+            let session_start = start_of_second_period
+                + Duration::from_secs(i * 86400 / num_sessions_second_period as u64);
+            let session_end = session_start + Duration::from_secs(60 * 30); // Duration of 30 minutes for each session
+
+            let session = DbNcSession {
+                session_id: format!("session_{}_{}_2nd", app.app_id, i), // Ensure unique session IDs for the second period
+                app_id: app.app_id.clone(),
+                app_metadata: "test_metadata".to_string(),
+                app_ip_address: "127.0.0.1".to_string(),
+                persistent: false,
+                network: "test_network".to_string(),
+                client: None,
+                session_open_timestamp: session_start,
+                session_close_timestamp: Some(session_end),
+            };
+
+            db.save_new_session(&session).await.unwrap();
+            db.close_session(&session.session_id, session_end)
+                .await
+                .unwrap();
+        }
+
+        // Manually refresh the continuous aggregates
+        db.refresh_continuous_aggregates(vec![
+            "sessions_stats_per_app_daily".to_string(),
+            "sessions_stats_per_app_monthly".to_string(),
+        ])
+        .await
+        .unwrap();
+
+        let stats = db.get_monthly_sessions_stats(&app.app_id).await.unwrap();
+
+        // assert_eq!(stats.len(), 2);
+        println!("Stats LEN: {:?}", stats.len());
+        for stat in stats {
+            println!("Stat: {:?}", stat);
+        }
     }
 }

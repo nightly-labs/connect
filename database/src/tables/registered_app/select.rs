@@ -1,5 +1,5 @@
 use super::table_struct::{RegisteredApp, REGISTERED_APPS_TABLE_NAME};
-use crate::structs::filter_requests::{AggregatedRequestCount, SessionDurationAverage};
+use crate::structs::filter_requests::{AggregatedRequestCount, SessionsStats};
 use crate::structs::time_filters::TimeFilter;
 use crate::tables::requests::table_struct::REQUESTS_TABLE_NAME;
 use crate::{db::Db, tables::requests::table_struct::Request};
@@ -76,17 +76,22 @@ impl Db {
             .await
     }
 
-    pub async fn get_monthly_session_duration_average(
+    pub async fn get_monthly_sessions_stats(
         &self,
         app_id: &str,
-    ) -> Result<Vec<SessionDurationAverage>, Error> {
+    ) -> Result<Vec<SessionsStats>, Error> {
         let query = format!(
-            "SELECT app_id, monthly_bucket as bucket, avg_monthly_session_duration_seconds as average_duration_seconds
-            FROM avg_session_duration_per_app_monthly
+            "SELECT 
+                app_id, 
+                monthly_bucket as bucket, 
+                total_opened_sessions_monthly as sessions_opened, 
+                avg_monthly_session_duration_seconds as average_duration_seconds,
+                avg_daily_opened_sessions
+            FROM sessions_stats_per_app_monthly
             WHERE app_id = $1"
         );
 
-        sqlx::query_as::<_, SessionDurationAverage>(&query)
+        sqlx::query_as::<_, SessionsStats>(&query)
             .bind(app_id)
             .fetch_all(&self.connection_pool)
             .await
