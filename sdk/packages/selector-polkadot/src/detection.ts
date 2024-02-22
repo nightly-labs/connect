@@ -1,7 +1,6 @@
 import { type Injected, type InjectedExtension } from '@polkadot/extension-inject/types'
 import { type WalletIcon } from '@wallet-standard/core'
 import { appToIcon } from './tempIcons'
-import { IWalletListItem } from '@nightlylabs/wallet-selector-base'
 import { WalletMetadata } from '@nightlylabs/nightly-connect-polkadot'
 export interface PolkadotWalletInjected {
   // Default Polkadot standard
@@ -32,7 +31,9 @@ export const getPolkadotWallets = (): PolkadotWalletInjected[] => {
   }
 }
 
-export interface IPolkadotWalletListItem extends Omit<IWalletListItem, 'standardWallet'> {
+export interface IPolkadotWalletListItem extends WalletMetadata {
+  recent?: boolean
+  detected?: boolean
   injectedWallet?: PolkadotWalletInjected
 }
 
