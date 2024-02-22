@@ -22,6 +22,7 @@ import {
   BaseMessageSignerWalletAdapter,
   WalletAdapterCompatibleStandardWallet,
   WalletAdapterEvents,
+  WalletError,
   WalletName,
   WalletNotConnectedError,
   WalletNotReadyError,
@@ -35,14 +36,6 @@ import { StandardWalletAdapter } from '@solana/wallet-standard'
 import { PublicKey, Transaction, TransactionVersion, VersionedTransaction } from '@solana/web3.js'
 import { solanaWalletsFilter } from './detection'
 import { StandardEventsChangeProperties } from '@wallet-standard/core'
-
-type ArgumentMap<T extends object> = {
-  [K in keyof T]: T[K] extends (...args: any[]) => void
-    ? Parameters<T[K]>
-    : T[K] extends any[]
-    ? T[K]
-    : any[]
-}
 
 type NightlyConnectAdapterEvents = WalletAdapterEvents & {
   change(properties: StandardEventsChangeProperties): void
@@ -154,16 +147,28 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   on<T extends keyof NightlyConnectAdapterEvents>(
     event: T,
-    fn: (...args: ArgumentMap<NightlyConnectAdapterEvents>[T]) => void,
+    fn: NightlyConnectAdapterEvents[T] extends (...args: infer Args) => void
+      ? (...args: Args) => void
+      : never,
     context?: any
   ): this {
-    return this
+    if (event === 'change') {
+      // TODO implement on change listener
+      return this
+    } else {
+      return super.on(event, fn, context)
+    }
   }
 
   emit<T extends keyof NightlyConnectAdapterEvents>(
     event: T,
-    ...args: ArgumentMap<NightlyConnectAdapterEvents>[Extract<T, keyof WalletAdapterEvents>]
+    ...args: [publicKey: PublicKey] | [] | [error: WalletError] | [readyState: WalletReadyState]
   ): boolean {
+    if (event === 'change') {
+      // TODO implement change event emitter
+    } else {
+      super.emit(event, ...args)
+    }
     return true
   }
 
@@ -244,7 +249,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       adapter._metadataWallets = metadataWallets
 
       adapter.walletsList = getWalletsList(
-        [],
+        metadataWallets,
         solanaWalletsFilter,
         getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
       )

@@ -42,7 +42,10 @@ export const getPolkadotWalletsList = (presetList: WalletMetadata[], recentWalle
   const walletsData: Record<string, IPolkadotWalletListItem> = {}
 
   presetList.forEach((wallet) => {
-    walletsData[wallet.slug.toLocaleLowerCase()] = wallet
+    walletsData[wallet.slug.toLocaleLowerCase()] = {
+      ...wallet,
+      recent: recentWalletName === wallet.name
+    }
   })
   for (const wallet of windowWallets) {
     // Check if wallet is already in the list
@@ -94,7 +97,6 @@ export const getPolkadotWalletsList = (presetList: WalletMetadata[], recentWalle
       recent: recentWalletName === wallet.name,
       detected: true,
       injectedWallet: wallet,
-      homepage: '',
       walletType: 'hybrid'
     }
   }

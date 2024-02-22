@@ -113,7 +113,7 @@ export class NightlyConnectAdapter implements Injected {
   set walletsList(list: IPolkadotWalletListItem[]) {
     this._walletsList = list
     if (this._modal) {
-      this._modal.walletsList = list as IWalletListItem[]
+      this._modal.walletsList = list
     }
   }
 
