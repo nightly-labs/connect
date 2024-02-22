@@ -25,7 +25,7 @@
   "license": "ISC",
   "dependencies": {
     "@nightlylabs/nightly-connect-base": "0.0.27",
-    "@nightlylabs/wallet-selector-modal": "0.1.2",
+    "@nightlylabs/wallet-selector-modal": "0.2.0",
     "@wallet-standard/core": "^1.0.3",
     "isomorphic-localstorage": "^1.0.2"
   },

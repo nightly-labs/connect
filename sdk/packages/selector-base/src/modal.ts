@@ -39,6 +39,10 @@ export class NightlyConnectSelectorModal {
     return this._walletsList
   }
 
+  get qrCode() {
+    return this._modal?.qrCode
+  }
+
   set walletsList(list: IWalletListItem[]) {
     const filtered = list.filter((w) =>
       isMobileBrowser() ? w.walletType !== 'extension' : w.walletType !== 'mobile'
