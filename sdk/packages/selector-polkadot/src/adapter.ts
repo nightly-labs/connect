@@ -19,7 +19,7 @@ import {
 } from '@nightlylabs/wallet-selector-base'
 
 import { type Signer as InjectedSigner } from '@polkadot/api/types'
-import { type Injected } from '@polkadot/extension-inject/types'
+import { InjectedAccount, type Injected } from '@polkadot/extension-inject/types'
 import { IPolkadotWalletListItem, getPolkadotWalletsList } from './detection'
 import { networkToData, SupportedNetworks } from './utils'
 import EventEmitter from 'eventemitter3'
@@ -29,7 +29,7 @@ export type AppSelectorInitialize = Omit<AppPolkadotInitialize, 'network'> & {
 }
 
 type NightlyConnectAdapterEvents = {
-  connect(publicKey: string): void
+  connect(publicKey: InjectedAccount[]): void
   disconnect(): void
 }
 
@@ -57,8 +57,6 @@ export class NightlyConnectAdapter
   private _chosenMobileWalletName: string | undefined
 
   private _loading: boolean
-
-  private _publicKeyAdress: string | undefined
 
   constructor(appInitData: AppSelectorInitialize, connectionOptions?: ConnectionOptions) {
     super()
@@ -119,10 +117,6 @@ export class NightlyConnectAdapter
   }
   get walletsList() {
     return this._walletsList
-  }
-
-  get publicKeyAdress() {
-    return this._publicKeyAdress
   }
 
   set walletsList(list: IPolkadotWalletListItem[]) {
@@ -423,8 +417,7 @@ export class NightlyConnectAdapter
 
       this._connected = true
       this._connecting = false
-      this._publicKeyAdress = (await this.accounts.get())[0].address
-      this.emit('connect', this._publicKeyAdress)
+      this.emit('connect', await this.accounts.get())
 
       persistRecentWalletForNetwork(this.network, {
         walletName,
@@ -474,10 +467,9 @@ export class NightlyConnectAdapter
               if (this._app?.hasBeenRestored() && this._app.accounts.activeAccounts.length > 0) {
                 // Try to eager connect if session is restored
                 try {
-                  this._publicKeyAdress = (await this.accounts.get())[0].address
                   this._connected = true
                   this._connecting = false
-                  this.emit('connect', this._publicKeyAdress)
+                  this.emit('connect', await this.accounts.get())
                   resolve()
                   return
                 } catch (error) {
@@ -560,11 +552,9 @@ export class NightlyConnectAdapter
                       this.disconnect()
                       return
                     }
-
-                    this._publicKeyAdress = (await this.accounts.get())[0].address
                     this._connected = true
                     this._connecting = false
-                    this.emit('connect', this._publicKeyAdress)
+                    this.emit('connect', await this.accounts.get())
                     this._modal?.closeModal()
                     resolve()
                   } catch {
