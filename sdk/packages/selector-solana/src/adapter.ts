@@ -4,9 +4,7 @@ import {
   clearRecentWalletForNetwork,
   clearSessionIdForNetwork,
   getRecentWalletForNetwork,
-  getWalletsList,
   isMobileBrowser,
-  IWalletListItem,
   logoBase64,
   NightlyConnectSelectorModal,
   persistRecentWalletForNetwork,
@@ -34,7 +32,7 @@ import {
 } from '@solana/wallet-adapter-base'
 import { StandardWalletAdapter } from '@solana/wallet-standard'
 import { PublicKey, Transaction, TransactionVersion, VersionedTransaction } from '@solana/web3.js'
-import { solanaWalletsFilter } from './detection'
+import { getSolanaWalletsList, IWalletListItem } from './detection'
 import { StandardEventsChangeProperties } from '@wallet-standard/core'
 
 type NightlyConnectAdapterEvents = WalletAdapterEvents & {
@@ -188,9 +186,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       return adapter
     }
 
-    adapter.walletsList = getWalletsList(
+    adapter.walletsList = getSolanaWalletsList(
       [],
-      solanaWalletsFilter,
       getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
     )
 
@@ -213,9 +210,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     adapter._app = app
     adapter._metadataWallets = metadataWallets
 
-    adapter.walletsList = getWalletsList(
+    adapter.walletsList = getSolanaWalletsList(
       metadataWallets,
-      solanaWalletsFilter,
       getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
     )
 
@@ -238,9 +234,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       return adapter
     }
 
-    adapter.walletsList = getWalletsList(
+    adapter.walletsList = getSolanaWalletsList(
       [],
-      solanaWalletsFilter,
       getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
     )
 
@@ -248,9 +243,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     adapter.fetchWalletsFromRegistry().then((metadataWallets) => {
       adapter._metadataWallets = metadataWallets
 
-      adapter.walletsList = getWalletsList(
+      adapter.walletsList = getSolanaWalletsList(
         metadataWallets,
-        solanaWalletsFilter,
         getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
       )
     })
@@ -278,9 +272,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
           adapter._app = app
           adapter._metadataWallets = metadataWallets
 
-          adapter.walletsList = getWalletsList(
+          adapter.walletsList = getSolanaWalletsList(
             metadataWallets,
-            solanaWalletsFilter,
             getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
           )
 
@@ -515,9 +508,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
               .then(([app, metadataWallets]) => {
                 this._app = app
                 this._metadataWallets = metadataWallets
-                this.walletsList = getWalletsList(
+                this.walletsList = getSolanaWalletsList(
                   metadataWallets,
-                  solanaWalletsFilter,
                   getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
                 )
                 this._loading = false
@@ -623,9 +615,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   fetchAllWallets = async () => {
     const metadataWallets = await this.fetchWalletsFromRegistry()
-    return getWalletsList(
+    return getSolanaWalletsList(
       metadataWallets,
-      solanaWalletsFilter,
       getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
     )
   }
@@ -649,9 +640,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         this._innerStandardAdapter = undefined
         clearRecentWalletForNetwork(SOLANA_NETWORK)
       }
-      this.walletsList = getWalletsList(
+      this.walletsList = getSolanaWalletsList(
         this._metadataWallets,
-        solanaWalletsFilter,
         getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
       )
       this._publicKey = null

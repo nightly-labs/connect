@@ -1,14 +1,11 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import {
-  AppPolkadot,
-  AppPolkadotInitialize,
-  WalletMetadata
-} from '@nightlylabs/nightly-connect-polkadot'
+import { AppPolkadot, AppPolkadotInitialize } from '@nightlylabs/nightly-connect-polkadot'
 import {
   ConnectionOptions,
   ConnectionType,
   IWalletListItem,
   NightlyConnectSelectorModal,
+  WalletMetadata,
   XMLOptions,
   clearRecentWalletForNetwork,
   clearSessionIdForNetwork,

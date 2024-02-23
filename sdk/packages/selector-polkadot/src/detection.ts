@@ -1,7 +1,11 @@
 import { type Injected, type InjectedExtension } from '@polkadot/extension-inject/types'
 import { type WalletIcon } from '@wallet-standard/core'
 import { appToIcon } from './tempIcons'
-import { WalletMetadata } from '@nightlylabs/nightly-connect-polkadot'
+import { WalletMetadata } from '../../../bindings/WalletMetadata'
+import { WalletType } from '../../../bindings/WalletType'
+import { Deeplink } from '../../../bindings/Deeplink'
+import { Images } from '../../../bindings/Images'
+
 export interface PolkadotWalletInjected {
   // Default Polkadot standard
   connect?: (origin: string) => Promise<InjectedExtension> // Is this even used ?
@@ -31,7 +35,13 @@ export const getPolkadotWallets = (): PolkadotWalletInjected[] => {
   }
 }
 
-export interface IPolkadotWalletListItem extends WalletMetadata {
+export interface IPolkadotWalletListItem extends Partial<WalletMetadata> {
+  slug: string
+  name: string
+  walletType: WalletType
+  mobile: Deeplink | null
+  desktop: Deeplink | null
+  image: Images
   recent?: boolean
   detected?: boolean
   injectedWallet?: PolkadotWalletInjected
