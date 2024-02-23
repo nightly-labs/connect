@@ -643,6 +643,9 @@ importers:
       '@wallet-standard/core':
         specifier: ^1.0.3
         version: 1.0.3
+      eventemitter3:
+        specifier: ^5.0.1
+        version: 5.0.1
     devDependencies:
       '@rollup/plugin-commonjs':
         specifier: ^25.0.0

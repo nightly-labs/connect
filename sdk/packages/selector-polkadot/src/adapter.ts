@@ -22,10 +22,21 @@ import { type Signer as InjectedSigner } from '@polkadot/api/types'
 import { type Injected } from '@polkadot/extension-inject/types'
 import { IPolkadotWalletListItem, getPolkadotWalletsList } from './detection'
 import { networkToData, SupportedNetworks } from './utils'
+import EventEmitter from 'eventemitter3'
+
 export type AppSelectorInitialize = Omit<AppPolkadotInitialize, 'network'> & {
   network: SupportedNetworks
 }
-export class NightlyConnectAdapter implements Injected {
+
+type NightlyConnectAdapterEvents = {
+  connect(publicKey: string): void
+  disconnect(): void
+}
+
+export class NightlyConnectAdapter
+  extends EventEmitter<NightlyConnectAdapterEvents>
+  implements Injected
+{
   name = 'Nightly Connect'
   url = 'https://nightly.app'
   icon = logoBase64
@@ -47,7 +58,10 @@ export class NightlyConnectAdapter implements Injected {
 
   private _loading: boolean
 
+  private _publicKeyAdress: string | undefined
+
   constructor(appInitData: AppSelectorInitialize, connectionOptions?: ConnectionOptions) {
+    super()
     this._connecting = false
     this._connected = false
     this._appInitData = appInitData
@@ -105,6 +119,10 @@ export class NightlyConnectAdapter implements Injected {
   }
   get walletsList() {
     return this._walletsList
+  }
+
+  get publicKeyAdress() {
+    return this._publicKeyAdress
   }
 
   set walletsList(list: IPolkadotWalletListItem[]) {
@@ -405,6 +423,8 @@ export class NightlyConnectAdapter implements Injected {
 
       this._connected = true
       this._connecting = false
+      this._publicKeyAdress = (await this.accounts.get())[0].address
+      this.emit('connect', this._publicKeyAdress)
 
       persistRecentWalletForNetwork(this.network, {
         walletName,
@@ -454,8 +474,10 @@ export class NightlyConnectAdapter implements Injected {
               if (this._app?.hasBeenRestored() && this._app.accounts.activeAccounts.length > 0) {
                 // Try to eager connect if session is restored
                 try {
+                  this._publicKeyAdress = (await this.accounts.get())[0].address
                   this._connected = true
                   this._connecting = false
+                  this.emit('connect', this._publicKeyAdress)
                   resolve()
                   return
                 } catch (error) {
@@ -524,7 +546,7 @@ export class NightlyConnectAdapter implements Injected {
                 // Clear interval if app is connected
                 clearInterval(loadingInterval)
                 if (this._modal) this._modal.sessionId = this._app.sessionId
-                this._app.on('userConnected', () => {
+                this._app.on('userConnected', async () => {
                   try {
                     persistRecentWalletForNetwork(this.network, {
                       walletName: this._chosenMobileWalletName || '',
@@ -538,8 +560,11 @@ export class NightlyConnectAdapter implements Injected {
                       this.disconnect()
                       return
                     }
+
+                    this._publicKeyAdress = (await this.accounts.get())[0].address
                     this._connected = true
                     this._connecting = false
+                    this.emit('connect', this._publicKeyAdress)
                     this._modal?.closeModal()
                     resolve()
                   } catch {
@@ -602,6 +627,7 @@ export class NightlyConnectAdapter implements Injected {
       this._connected = false
     } finally {
       this._connecting = false
+      this.emit('disconnect')
     }
   }
 }
