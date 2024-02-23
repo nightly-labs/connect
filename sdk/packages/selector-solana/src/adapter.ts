@@ -588,7 +588,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
               if (checks > 500) {
                 clearInterval(loadingInterval)
                 // reject(new Error('Connecting takes too long'))
-                // TODO we need to have a way to show error on modal
+                if (this._modal) this._modal.timeoutError = 'Connecting is taking too long'
               }
             }, 10)
           }

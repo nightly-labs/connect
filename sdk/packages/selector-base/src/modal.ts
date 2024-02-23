@@ -61,6 +61,10 @@ export class NightlyConnectSelectorModal {
     if (this._modal && id) this._modal.sessionId = id
   }
 
+  set timeoutError(error: string) {
+    if (this._modal && error) this._modal.timeoutError = error
+  }
+
   createSelectorElement = (
     variablesOverride?: object,
     stylesOverride?: string,

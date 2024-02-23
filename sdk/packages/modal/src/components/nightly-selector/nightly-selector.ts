@@ -47,8 +47,8 @@ export class NightlySelector extends LitElement {
   @property({ type: Object })
   qrConfigOverride: Partial<XMLOptions> = {}
 
-  @property({ type: Boolean })
-  timeoutError = false
+  @property({ type: String })
+  timeoutError = ''
 
   // state
 

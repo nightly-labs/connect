@@ -161,7 +161,7 @@ export class NightlyConnectAdapter implements Injected {
     )
     if (!adapter._connectionOptions.disableModal) {
       adapter._modal = new NightlyConnectSelectorModal(
-        adapter.walletsList as IWalletListItem[],
+        adapter.walletsList,
         appInitData.url ?? 'https://nc2.nightly.app',
         networkToData(adapter.network),
         anchorRef,
@@ -553,7 +553,7 @@ export class NightlyConnectAdapter implements Injected {
               if (checks > 500) {
                 clearInterval(loadingInterval)
                 // reject(new Error('Connecting takes too long'))
-                // TODO we need to have a way to show error on modal
+                if (this._modal) this._modal.timeoutError = 'Connecting is taking too long'
               }
             }, 10)
           }

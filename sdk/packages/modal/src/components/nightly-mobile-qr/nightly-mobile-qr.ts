@@ -24,8 +24,8 @@ export class NightlyMobileQr extends LitElement {
   @property({ type: Object })
   qrConfigOverride: Partial<XMLOptions> = {}
 
-  @property({ type: Boolean })
-  timeoutError = false
+  @property({ type: String })
+  timeoutError = ''
 
   @state()
   qrSource: string | undefined = undefined
