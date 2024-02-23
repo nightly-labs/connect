@@ -3,7 +3,6 @@ import { type Deeplink } from '@nightlylabs/nightly-connect-base/dist/types/bind
 import { type Wallet } from '@wallet-standard/core'
 import { type WalletType } from '../../../bindings/WalletType'
 import { WalletMetadata } from '../../../bindings/WalletMetadata'
-import { Images } from '../../../bindings/Images'
 export { type WalletMetadata } from '../../../bindings/WalletMetadata'
 
 export interface Adapter {
