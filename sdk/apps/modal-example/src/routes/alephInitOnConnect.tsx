@@ -26,7 +26,9 @@ export default function Polkadot() {
       { initOnConnect: true }, // change this to false to test disabling eager connect
       document.getElementById('modalAnchor')
     )
-
+    adapter.on('connect', (a) => {
+      console.log('adapter connected', a)
+    })
     setAdapter(adapter)
 
     ApiPromise.create({

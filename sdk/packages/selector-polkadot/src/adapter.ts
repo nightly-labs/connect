@@ -191,7 +191,26 @@ export class NightlyConnectAdapter
       metadataWallets,
       getRecentWalletForNetwork(adapter.network)?.walletName ?? undefined
     )
+    // Add event listener for userConnected
+    app.on('userConnected', async () => {
+      try {
+        persistRecentWalletForNetwork(adapter.network, {
+          walletName: adapter._chosenMobileWalletName || '',
+          walletType: ConnectionType.Nightly
+        })
 
+        if (!adapter._app || adapter._app.accounts.activeAccounts.length <= 0) {
+          adapter._connected = false
+          // If user does not pass any accounts, we should disconnect
+          adapter.disconnect()
+          return
+        }
+        adapter._connected = true
+        adapter.emit('connect', await adapter.accounts.get())
+      } catch {
+        adapter.disconnect()
+      }
+    })
     return adapter
   }
 
@@ -245,6 +264,26 @@ export class NightlyConnectAdapter
           )
 
           adapter._loading = false
+          // Add event listener for userConnected
+          app.on('userConnected', async () => {
+            try {
+              persistRecentWalletForNetwork(adapter.network, {
+                walletName: adapter._chosenMobileWalletName || '',
+                walletType: ConnectionType.Nightly
+              })
+
+              if (!adapter._app || adapter._app.accounts.activeAccounts.length <= 0) {
+                adapter._connected = false
+                // If user does not pass any accounts, we should disconnect
+                adapter.disconnect()
+                return
+              }
+              adapter._connected = true
+              adapter.emit('connect', await adapter.accounts.get())
+            } catch {
+              adapter.disconnect()
+            }
+          })
         })
         .catch(() => {
           adapter._loading = false
@@ -487,21 +526,42 @@ export class NightlyConnectAdapter
             return
           }
           if (this._connectionOptions.initOnConnect) {
-            this._loading = true
-            NightlyConnectAdapter.initApp(this._appInitData)
-              .then(([app, metadataWallets]) => {
-                this._app = app
-                this._metadataWallets = metadataWallets
-                this.walletsList = getPolkadotWalletsList(
-                  metadataWallets,
-                  getRecentWalletForNetwork(this.network)?.walletName ?? undefined
-                )
-                this._loading = false
+            try {
+              this._loading = true
+              const [app, metadataWallets] = await NightlyConnectAdapter.initApp(this._appInitData)
+
+              this._app = app
+              this._metadataWallets = metadataWallets
+
+              this.walletsList = getPolkadotWalletsList(
+                metadataWallets,
+                getRecentWalletForNetwork(this.network)?.walletName ?? undefined
+              )
+              // Add event listener for userConnected
+              app.on('userConnected', async () => {
+                try {
+                  persistRecentWalletForNetwork(this.network, {
+                    walletName: this._chosenMobileWalletName || '',
+                    walletType: ConnectionType.Nightly
+                  })
+
+                  if (!this._app || this._app.accounts.activeAccounts.length <= 0) {
+                    this._connected = false
+                    // If user does not pass any accounts, we should disconnect
+                    this.disconnect()
+                    return
+                  }
+                  this._connected = true
+                  this.emit('connect', await this.accounts.get())
+                } catch {
+                  this.disconnect()
+                }
               })
-              .catch(() => {
-                this._loading = false
-                throw new Error('Failed to initialize adapter')
-              })
+            } catch (error) {
+              this._loading = false
+              reject(Error('Failed to initialize adapter'))
+              return
+            }
           }
           // Interval that checks if app has connected
           let loadingInterval: NodeJS.Timeout
@@ -538,27 +598,20 @@ export class NightlyConnectAdapter
                 // Clear interval if app is connected
                 clearInterval(loadingInterval)
                 if (this._modal) this._modal.sessionId = this._app.sessionId
+                // We already have hook for userConnected
+                // This is just for resolving promise
                 this._app.on('userConnected', async () => {
                   try {
-                    persistRecentWalletForNetwork(this.network, {
-                      walletName: this._chosenMobileWalletName || '',
-                      walletType: ConnectionType.Nightly
-                    })
-
                     if (!this._app || this._app.accounts.activeAccounts.length <= 0) {
-                      this._connecting = false
-                      this._connected = false
-                      // If user does not pass any accounts, we should disconnect
-                      this.disconnect()
-                      return
+                      reject(new Error('No accounts found'))
                     }
                     this._connected = true
-                    this._connecting = false
-                    this.emit('connect', await this.accounts.get())
                     this._modal?.closeModal()
                     resolve()
-                  } catch {
-                    this.disconnect()
+                  } catch (error) {
+                    reject(error)
+                  } finally {
+                    this._connecting = false
                   }
                 })
                 return
@@ -576,8 +629,6 @@ export class NightlyConnectAdapter
         } catch (error: any) {
           this._connecting = false
           reject(error)
-        } finally {
-          this._connecting = false
         }
       }
 
