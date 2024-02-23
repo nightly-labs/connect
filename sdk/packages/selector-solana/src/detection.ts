@@ -1,21 +1,6 @@
-import { getWallets, type Wallet } from '@wallet-standard/core'
+import { getWallets, Wallet } from '@wallet-standard/core'
 import { isWalletAdapterCompatibleStandardWallet } from '@solana/wallet-adapter-base'
-import { WalletMetadata } from '../../../bindings/WalletMetadata'
-import { WalletType } from '../../../bindings/WalletType'
-import { Deeplink } from '../../../bindings/Deeplink'
-import { Images } from '../../../bindings/Images'
-
-export interface IWalletListItem extends Partial<WalletMetadata> {
-  slug: string
-  name: string
-  walletType: WalletType
-  mobile: Deeplink | null
-  desktop: Deeplink | null
-  image: Images
-  recent?: boolean
-  detected?: boolean
-  standardWallet?: Wallet
-}
+import { IWalletListItem, WalletMetadata } from '@nightlylabs/wallet-selector-base'
 
 export const solanaWalletsFilter = (wallet: Wallet) =>
   isWalletAdapterCompatibleStandardWallet(wallet)

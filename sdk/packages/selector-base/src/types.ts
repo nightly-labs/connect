@@ -20,13 +20,11 @@ export interface MetadataWallet {
   walletType: WalletType
 }
 
-export interface IWalletListItem extends Partial<WalletMetadata> {
-  slug: string
-  name: string
-  walletType: WalletType
-  mobile: Deeplink | null
-  desktop: Deeplink | null
-  image: Images
+export interface IWalletListItem
+  extends Pick<
+    WalletMetadata,
+    'name' | 'slug' | 'walletType' | 'mobile' | 'desktop' | 'image' | 'homepage'
+  > {
   recent?: boolean
   detected?: boolean
   standardWallet?: Wallet

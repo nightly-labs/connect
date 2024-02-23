@@ -592,7 +592,7 @@ importers:
         specifier: 0.0.27
         version: link:../../apps/base
       '@nightlylabs/wallet-selector-modal':
-        specifier: 0.2.0
+        specifier: 0.2.1
         version: link:../modal
       '@wallet-standard/core':
         specifier: ^1.0.3
@@ -632,7 +632,7 @@ importers:
         specifier: ^0.0.15
         version: link:../../apps/polkadot
       '@nightlylabs/wallet-selector-base':
-        specifier: ^0.3.1
+        specifier: ^0.4.0
         version: link:../selector-base
       '@polkadot/api':
         specifier: 10.10.1
@@ -675,7 +675,7 @@ importers:
         specifier: ^0.0.29
         version: link:../../apps/solana
       '@nightlylabs/wallet-selector-base':
-        specifier: ^0.3.1
+        specifier: ^0.4.0
         version: link:../selector-base
       '@solana/wallet-adapter-base':
         specifier: ^0.9.22

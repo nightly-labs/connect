@@ -1,10 +1,7 @@
-import { type Injected, type InjectedExtension } from '@polkadot/extension-inject/types'
-import { type WalletIcon } from '@wallet-standard/core'
+import { Injected, InjectedExtension } from '@polkadot/extension-inject/types'
+import { WalletIcon } from '@wallet-standard/core'
 import { appToIcon } from './tempIcons'
-import { WalletMetadata } from '../../../bindings/WalletMetadata'
-import { WalletType } from '../../../bindings/WalletType'
-import { Deeplink } from '../../../bindings/Deeplink'
-import { Images } from '../../../bindings/Images'
+import { WalletMetadata } from '@nightlylabs/wallet-selector-base'
 
 export interface PolkadotWalletInjected {
   // Default Polkadot standard
@@ -35,13 +32,11 @@ export const getPolkadotWallets = (): PolkadotWalletInjected[] => {
   }
 }
 
-export interface IPolkadotWalletListItem extends Partial<WalletMetadata> {
-  slug: string
-  name: string
-  walletType: WalletType
-  mobile: Deeplink | null
-  desktop: Deeplink | null
-  image: Images
+export interface IPolkadotWalletListItem
+  extends Pick<
+    WalletMetadata,
+    'name' | 'slug' | 'walletType' | 'mobile' | 'desktop' | 'image' | 'homepage'
+  > {
   recent?: boolean
   detected?: boolean
   injectedWallet?: PolkadotWalletInjected
@@ -108,7 +103,8 @@ export const getPolkadotWalletsList = (presetList: WalletMetadata[], recentWalle
       recent: recentWalletName === wallet.name,
       detected: true,
       injectedWallet: wallet,
-      walletType: 'hybrid'
+      walletType: 'hybrid',
+      homepage: ''
     }
   }
 

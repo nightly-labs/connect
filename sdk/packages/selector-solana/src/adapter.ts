@@ -14,7 +14,8 @@ import {
   ConnectionType,
   ConnectionOptions,
   defaultConnectionOptions,
-  WalletMetadata
+  WalletMetadata,
+  IWalletListItem
 } from '@nightlylabs/wallet-selector-base'
 import {
   BaseMessageSignerWalletAdapter,
@@ -32,7 +33,7 @@ import {
 } from '@solana/wallet-adapter-base'
 import { StandardWalletAdapter } from '@solana/wallet-standard'
 import { PublicKey, Transaction, TransactionVersion, VersionedTransaction } from '@solana/web3.js'
-import { getSolanaWalletsList, IWalletListItem } from './detection'
+import { getSolanaWalletsList } from './detection'
 import { StandardEventsChangeProperties } from '@wallet-standard/core'
 
 type NightlyConnectAdapterEvents = WalletAdapterEvents & {
