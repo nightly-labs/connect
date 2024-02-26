@@ -645,10 +645,6 @@ mod tests {
 
         let stats = db.get_monthly_sessions_stats(&app.app_id).await.unwrap();
 
-        // assert_eq!(stats.len(), 2);
-        println!("Stats LEN: {:?}", stats.len());
-        for stat in stats {
-            println!("Stat: {:?}", stat);
-        }
+        assert_eq!(stats.len(), 2);
     }
 }
