@@ -29,20 +29,21 @@ pub mod test_utils {
             Ok(())
         }
 
-        pub async fn refresh_continuous_aggregates(&self) -> Result<(), sqlx::Error> {
-            // Refresh the hourly_requests_per_app view
-            let _ = sqlx::query(
-                "CALL refresh_continuous_aggregate('hourly_requests_per_app', NULL, NULL)",
-            )
-            .execute(&self.connection_pool)
-            .await?;
+        pub async fn refresh_continuous_aggregates(
+            &self,
+            views: Vec<String>,
+        ) -> Result<(), sqlx::Error> {
+            // Refresh views
+            for view in views.iter() {
+                let _ = sqlx::query(&format!(
+                    "CALL refresh_continuous_aggregate('{view}', NULL, NULL)",
+                    view = view
+                ))
+                .execute(&self.connection_pool)
+                .await?;
+            }
 
-            // Refresh the daily_requests_per_app view
-            let _ = sqlx::query(
-                "CALL refresh_continuous_aggregate('daily_requests_per_app', NULL, NULL)",
-            )
-            .execute(&self.connection_pool)
-            .await?;
+            println!("Refreshed {} continuous aggregates", views.len());
 
             Ok(())
         }

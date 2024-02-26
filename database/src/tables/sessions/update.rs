@@ -1,5 +1,5 @@
 use super::table_struct::{DbNcSession, SESSIONS_KEYS, SESSIONS_TABLE_NAME};
-use crate::{db::Db, tables::utils::get_date_time};
+use crate::db::Db;
 use sqlx::{
     query,
     types::chrono::{DateTime, Utc},
@@ -50,14 +50,14 @@ impl Db {
     pub async fn close_session(
         &self,
         session_id: &String,
-        close_timestamp: u64,
+        close_timestamp: DateTime<Utc>,
     ) -> Result<(), sqlx::Error> {
         let query_body = format!(
             "UPDATE {SESSIONS_TABLE_NAME} SET session_close_timestamp = $1 WHERE session_id = $2"
         );
 
         let query_result = query(&query_body)
-            .bind(get_date_time(close_timestamp))
+            .bind(close_timestamp)
             .bind(session_id)
             .execute(&self.connection_pool)
             .await;
@@ -134,7 +134,9 @@ mod tests {
         assert_eq!(session, session);
 
         // Change the session status to closed
-        db.close_session(&session.session_id, 15).await.unwrap();
+        db.close_session(&session.session_id, get_date_time(15).unwrap())
+            .await
+            .unwrap();
 
         // Get session by session_id to check if the session status is closed
         let session = db
