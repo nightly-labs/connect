@@ -5093,6 +5093,24 @@ packages:
       - utf-8-validate
     dev: false
 
+  /@nightlylabs/nightly-connect-polkadot@0.0.15:
+    resolution: {integrity: sha512-WCsumvHwhPipbxPQoswKCwHykwJ48Dffwb9hCf7zjCgEysIBCnA6Dzj/2G80drLqYYpS285nMa8z+3NaXVu2dA==}
+    dependencies:
+      '@nightlylabs/nightly-connect-base': 0.0.27
+      '@polkadot/api': 10.10.1
+      '@polkadot/extension-inject': 0.46.5(@polkadot/api@10.10.1)(@polkadot/util@12.5.1)
+      '@polkadot/types': 10.10.1
+      '@polkadot/util': 12.5.1
+      '@polkadot/util-crypto': 12.5.1(@polkadot/util@12.5.1)
+      eventemitter3: 5.0.1
+      uuid: 9.0.0
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
+    dev: false
+
   /@nightlylabs/nightly-connect-solana@0.0.28:
     resolution: {integrity: sha512-8PBkmuXzWZNPqu6SGT2tsGK4DgD3yswQsUVb3L+GgFGCdQI7eUqyHd2ofWFWzEgj4a1XuixA29ZcSyw20ajgzw==}
     dependencies:
@@ -5143,6 +5161,21 @@ packages:
       - utf-8-validate
     dev: false
 
+  /@nightlylabs/wallet-selector-base@0.3.1:
+    resolution: {integrity: sha512-m2hdNkOrQNS52xXYSvko8YvbI60miCU9AHO8HHKfGXiuYgUjAmQSeTm1wLP8LZI4+Mygqbr8Oq9na+HMEgq2XA==}
+    dependencies:
+      '@nightlylabs/nightly-connect-base': 0.0.27
+      '@nightlylabs/wallet-selector-modal': 0.2.0
+      '@wallet-standard/core': 1.0.3
+      isomorphic-localstorage: 1.0.2
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - ts-node
+      - utf-8-validate
+    dev: false
+
   /@nightlylabs/wallet-selector-modal@0.1.2:
     resolution: {integrity: sha512-vxy9S2dEf3NARW6LDq2ZKpWMlk5JJFIuwUfSxkuJlgUg2OVSlnDS7vdho3h4DmluRU5GM9vVhaXUGHAVp5sDQg==}
     dependencies:
@@ -5155,6 +5188,37 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - ts-node
+    dev: false
+
+  /@nightlylabs/wallet-selector-modal@0.2.0:
+    resolution: {integrity: sha512-BdEk3FhL65z/X0N9ygPjk7uQvV0GGHTWSwXBVob/l48Nok4ikFcV30Dtxk6iSSbErDZ8U4zV3/78cK+m+4lt8A==}
+    dependencies:
+      '@nightlylabs/qr-code': 2.0.4
+      autoprefixer: 10.4.14(postcss@8.4.24)
+      lit: 2.7.2
+      postcss: 8.4.24
+      postcss-lit: 1.1.0(postcss@8.4.24)
+      tailwindcss: 3.3.2
+    transitivePeerDependencies:
+      - supports-color
+      - ts-node
+    dev: false
+
+  /@nightlylabs/wallet-selector-polkadot@0.2.0(@polkadot/util@12.5.1):
+    resolution: {integrity: sha512-T4C6J+RVBif8H742LdeZfIRZyFZV79CAWL6/w3keQmyi8ZmTfmmxdVaXkSE5Va11j3xt2A298mugbbujluW6bw==}
+    dependencies:
+      '@nightlylabs/nightly-connect-polkadot': 0.0.15
+      '@nightlylabs/wallet-selector-base': 0.3.1
+      '@polkadot/api': 10.10.1
+      '@polkadot/extension-inject': 0.46.5(@polkadot/api@10.10.1)(@polkadot/util@12.5.1)
+      '@wallet-standard/core': 1.0.3
+    transitivePeerDependencies:
+      - '@polkadot/util'
+      - bufferutil
+      - encoding
+      - supports-color
+      - ts-node
+      - utf-8-validate
     dev: false
 
   /@nightlylabs/wallet-selector-solana@0.2.6(bs58@4.0.1)(react@18.2.0):

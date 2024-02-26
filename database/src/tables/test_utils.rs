@@ -11,6 +11,11 @@ pub mod test_utils {
             .fetch_all(&self.connection_pool)
             .await?;
 
+            if rows.is_empty() {
+                println!("No tables to truncate");
+                return Ok(());
+            }
+
             // Join all names except _sqlx_migrations into a single string and run single truncate
             let tables_names = rows
                 .iter()
@@ -23,7 +28,24 @@ pub mod test_utils {
             sqlx::query(&query).execute(&self.connection_pool).await?;
             Ok(())
         }
-    }
 
-    
+        pub async fn refresh_continuous_aggregates(
+            &self,
+            views: Vec<String>,
+        ) -> Result<(), sqlx::Error> {
+            // Refresh views
+            for view in views.iter() {
+                let _ = sqlx::query(&format!(
+                    "CALL refresh_continuous_aggregate('{view}', NULL, NULL)",
+                    view = view
+                ))
+                .execute(&self.connection_pool)
+                .await?;
+            }
+
+            println!("Refreshed {} continuous aggregates", views.len());
+
+            Ok(())
+        }
+    }
 }
