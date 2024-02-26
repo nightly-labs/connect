@@ -76,18 +76,21 @@ export class NightlyMobileQr extends LitElement {
         </div>
         <img class="nc_mobileQrCode" src=${this.qrSource} />
 
-        ${!this.isSessionIdImmediatelyDefined &&
-        html`<div
-          class="nc_mobileQrLoaderOverlay ${this.qrSource ? 'nc_mobileQrLoadedOverlayFadeOut' : ''}"
-        >
-          <button class="nc_mobileQrBackButtonLoader" @click=${this.showAllWallets}></button>
-          <img
-            src="https://registry.nightly.app/gifs/loading.gif"
-            alt="Loading"
-            class="nc_mobileQrLoader"
-          />
-          <h3 class="nc_mobileQrLoaderLabel">Generating QR code...</h3>
-        </div>`}
+        ${!this.isSessionIdImmediatelyDefined
+          ? html`<div
+              class="nc_mobileQrLoaderOverlay ${this.qrSource
+                ? 'nc_mobileQrLoadedOverlayFadeOut'
+                : ''}"
+            >
+              <button class="nc_mobileQrBackButtonLoader" @click=${this.showAllWallets}></button>
+              <img
+                src="https://registry.nightly.app/gifs/loading.gif"
+                alt="Loading"
+                class="nc_mobileQrLoader"
+              />
+              <h3 class="nc_mobileQrLoaderLabel">Generating QR code...</h3>
+            </div>`
+          : html``}
 
         <div
           class="nc_mobileQrTimeoutErrorOverlay ${this.timeoutError &&

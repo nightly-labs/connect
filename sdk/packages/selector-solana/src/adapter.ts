@@ -216,6 +216,28 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
     )
 
+    // Add event listener for userConnected
+    app.on('userConnected', async () => {
+      try {
+        persistRecentWalletForNetwork(SOLANA_NETWORK, {
+          walletName: adapter._chosenMobileWalletName || '',
+          walletType: ConnectionType.Nightly
+        })
+
+        if (!adapter._app || adapter._app.connectedPublicKeys.length <= 0) {
+          adapter._connected = false
+          // If user does not pass any accounts, we should disconnect
+          adapter.disconnect()
+          return
+        }
+        adapter._publicKey = adapter._app.connectedPublicKeys[0]
+        adapter._connected = true
+        adapter.emit('connect', adapter._publicKey)
+      } catch {
+        adapter.disconnect()
+      }
+    })
+
     return adapter
   }
 
@@ -277,6 +299,28 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
             metadataWallets,
             getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
           )
+
+          // Add event listener for userConnected
+          app.on('userConnected', async () => {
+            try {
+              persistRecentWalletForNetwork(SOLANA_NETWORK, {
+                walletName: adapter._chosenMobileWalletName || '',
+                walletType: ConnectionType.Nightly
+              })
+
+              if (!adapter._app || adapter._app.connectedPublicKeys.length <= 0) {
+                adapter._connected = false
+                // If user does not pass any accounts, we should disconnect
+                adapter.disconnect()
+                return
+              }
+              adapter._publicKey = adapter._app.connectedPublicKeys[0]
+              adapter._connected = true
+              adapter.emit('connect', adapter._publicKey)
+            } catch {
+              adapter.disconnect()
+            }
+          })
 
           adapter._loading = false
         })
@@ -513,6 +557,27 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
                   metadataWallets,
                   getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
                 )
+                // Add event listener for userConnected
+                app.on('userConnected', async () => {
+                  try {
+                    persistRecentWalletForNetwork(SOLANA_NETWORK, {
+                      walletName: this._chosenMobileWalletName || '',
+                      walletType: ConnectionType.Nightly
+                    })
+
+                    if (!this._app || this._app.connectedPublicKeys.length <= 0) {
+                      this._connected = false
+                      // If user does not pass any accounts, we should disconnect
+                      this.disconnect()
+                      return
+                    }
+                    this._publicKey = this._app.connectedPublicKeys[0]
+                    this._connected = true
+                    this.emit('connect', this._publicKey)
+                  } catch {
+                    this.disconnect()
+                  }
+                })
                 this._loading = false
               })
               .catch(() => {
@@ -557,32 +622,21 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
                 clearInterval(loadingInterval)
                 if (this._modal) this._modal.sessionId = this._app.sessionId
 
-                this._app.on('userConnected', (e) => {
+                this._app.on('userConnected', async () => {
                   try {
-                    persistRecentWalletForNetwork(SOLANA_NETWORK, {
-                      walletName: this._chosenMobileWalletName || '',
-                      walletType: ConnectionType.Nightly
-                    })
-
                     if (!this._app || this._app.connectedPublicKeys.length <= 0) {
-                      this._connecting = false
-                      this._connected = false
-                      // If user does not pass any accounts, we should disconnect
-                      this.disconnect()
-                      return
+                      reject(new Error('No accounts found'))
                     }
-
-                    this._publicKey = new PublicKey(e.publicKeys[0])
                     this._connected = true
-                    this._connecting = false
-                    this._appSessionActive = true
-                    this.emit('connect', this._publicKey)
                     this._modal?.closeModal()
                     resolve()
-                  } catch {
-                    this.disconnect()
+                  } catch (error) {
+                    reject(error)
+                  } finally {
+                    this._connecting = false
                   }
                 })
+                return
               }
               // timeout after 5 seconds
               if (checks > 500) {
@@ -599,8 +653,6 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
           this.emit('error', error)
           reject(error)
-        } finally {
-          this._connecting = false
         }
       }
 

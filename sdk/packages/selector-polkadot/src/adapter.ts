@@ -526,42 +526,42 @@ export class NightlyConnectAdapter
             return
           }
           if (this._connectionOptions.initOnConnect) {
-            try {
-              this._loading = true
-              const [app, metadataWallets] = await NightlyConnectAdapter.initApp(this._appInitData)
+            this._loading = true
+            NightlyConnectAdapter.initApp(this._appInitData)
+              .then(([app, metadataWallets]) => {
+                this._app = app
+                this._metadataWallets = metadataWallets
+                this.walletsList = getPolkadotWalletsList(
+                  metadataWallets,
+                  getRecentWalletForNetwork(this.network)?.walletName ?? undefined
+                )
 
-              this._app = app
-              this._metadataWallets = metadataWallets
+                // Add event listener for userConnected
+                app.on('userConnected', async () => {
+                  try {
+                    persistRecentWalletForNetwork(this.network, {
+                      walletName: this._chosenMobileWalletName || '',
+                      walletType: ConnectionType.Nightly
+                    })
 
-              this.walletsList = getPolkadotWalletsList(
-                metadataWallets,
-                getRecentWalletForNetwork(this.network)?.walletName ?? undefined
-              )
-              // Add event listener for userConnected
-              app.on('userConnected', async () => {
-                try {
-                  persistRecentWalletForNetwork(this.network, {
-                    walletName: this._chosenMobileWalletName || '',
-                    walletType: ConnectionType.Nightly
-                  })
-
-                  if (!this._app || this._app.accounts.activeAccounts.length <= 0) {
-                    this._connected = false
-                    // If user does not pass any accounts, we should disconnect
+                    if (!this._app || this._app.accounts.activeAccounts.length <= 0) {
+                      this._connected = false
+                      // If user does not pass any accounts, we should disconnect
+                      this.disconnect()
+                      return
+                    }
+                    this._connected = true
+                    this.emit('connect', await this.accounts.get())
+                  } catch {
                     this.disconnect()
-                    return
                   }
-                  this._connected = true
-                  this.emit('connect', await this.accounts.get())
-                } catch {
-                  this.disconnect()
-                }
+                })
+                this._loading = false
               })
-            } catch (error) {
-              this._loading = false
-              reject(Error('Failed to initialize adapter'))
-              return
-            }
+              .catch(() => {
+                this._loading = false
+                throw new Error('Failed to initialize adapter')
+              })
           }
           // Interval that checks if app has connected
           let loadingInterval: NodeJS.Timeout
