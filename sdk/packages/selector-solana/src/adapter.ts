@@ -616,10 +616,11 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   fetchAllWallets = async () => {
     const metadataWallets = await this.fetchWalletsFromRegistry()
-    return getSolanaWalletsList(
+    this.walletsList = getSolanaWalletsList(
       metadataWallets,
       getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
     )
+    return this.walletsList
   }
 
   disconnect = async () => {

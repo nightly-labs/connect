@@ -15,7 +15,7 @@ export class NightlyDesktopMain extends LitElement {
 
   @property({ type: Function })
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  onWalletClick: (name: string) => void = () => {}
+  onWalletClick: (name: string) => void = () => { }
 
   @property({ type: String })
   chainIcon = ''
@@ -49,11 +49,11 @@ export class NightlyDesktopMain extends LitElement {
   onCopy = () => {
     navigator.clipboard.writeText(
       'nc:' +
-        this.sessionId +
-        '?network=' +
-        this.chainName.replace(/\s/g, '') +
-        '&relay=' +
-        this.relay
+      this.sessionId +
+      '?network=' +
+      this.chainName.replace(/\s/g, '') +
+      '&relay=' +
+      this.relay
     )
     this.copyMessage = 'Copied!'
     clearTimeout(this.timeoutRef)
@@ -67,11 +67,11 @@ export class NightlyDesktopMain extends LitElement {
       this.qrSource = svgToBase64(
         generateQrCodeXml(
           'nc:' +
-            this.sessionId +
-            '?network=' +
-            this.chainName.replace(/\s/g, '') +
-            '&relay=' +
-            this.relay,
+          this.sessionId +
+          '?network=' +
+          this.chainName.replace(/\s/g, '') +
+          '&relay=' +
+          this.relay,
           {
             width: 500,
             height: 500,
@@ -113,11 +113,11 @@ export class NightlyDesktopMain extends LitElement {
           </div>
           <img id="qrCode" class="nc_desktopMainQrCode" src=${this.qrSource} />
 
-          ${!this.isSessionIdImmediatelyDefined &&
-          html`<div
+          ${!this.isSessionIdImmediatelyDefined ?
+        html`<div
             class="nc_desktopQrLoaderOverlay ${this.qrSource && !this.timeoutError
-              ? 'nc_desktopQrLoadedOverlayFadeOut'
-              : ''}"
+            ? 'nc_desktopQrLoadedOverlayFadeOut'
+            : ''}"
           >
             <img
               src="https://registry.nightly.app/gifs/loading.gif"
@@ -125,11 +125,11 @@ export class NightlyDesktopMain extends LitElement {
               class="nc_desktopQrLoader"
             />
             <h3 class="nc_desktopQrLoaderLabel">Generating QR code...</h3>
-          </div>`}
+          </div>` : html``}
 
           <div
             class="nc_desktopQrTimeoutErrorOverlay ${this.timeoutError &&
-            'nc_desktopQrTimeoutErrorOverlayFadeIn'}"
+      'nc_desktopQrTimeoutErrorOverlayFadeIn'}"
           >
             <img
               src="https://registry.nightly.app/images/fox_sad.gif"
