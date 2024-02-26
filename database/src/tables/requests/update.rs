@@ -5,17 +5,18 @@ use sqlx::query;
 impl Db {
     pub async fn save_request(&self, request: &Request) -> Result<(), sqlx::Error> {
         let query_body = format!(
-            "INSERT INTO {REQUESTS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6)",
+            "INSERT INTO {REQUESTS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6, $7)",
             REQUESTS_KEYS
         );
 
         let query_result = query(&query_body)
             .bind(&request.request_id)
-            .bind(&request.request_type)
             .bind(&request.session_id)
+            .bind(&request.app_id)
+            .bind(&request.request_type)
             .bind(&request.request_status)
             .bind(&request.network)
-            .bind(&(request.creation_timestamp as i64))
+            .bind(&request.creation_timestamp)
             .execute(&self.connection_pool)
             .await;
 
@@ -53,6 +54,7 @@ mod tests {
         structs::client_data::ClientData,
         tables::{
             registered_app::table_struct::RegisteredApp, sessions::table_struct::DbNcSession,
+            utils::get_date_time,
         },
     };
 
@@ -87,9 +89,9 @@ mod tests {
                 device: Some("test_device".to_string()),
                 metadata: Some("test_metadata".to_string()),
                 notification_endpoint: Some("test_notification_endpoint".to_string()),
-                connected_at: 12,
+                connected_at: get_date_time(10).unwrap(),
             }),
-            session_open_timestamp: 10,
+            session_open_timestamp: get_date_time(10).unwrap(),
             session_close_timestamp: None,
         };
 
@@ -102,7 +104,8 @@ mod tests {
             session_id: "test_session_id".to_string(),
             request_status: RequestStatus::Pending,
             network: "test_network".to_string(),
-            creation_timestamp: 10,
+            app_id: "test_app_id".to_string(),
+            creation_timestamp: get_date_time(10).unwrap(),
         };
 
         db.save_request(&request).await.unwrap();
@@ -119,8 +122,9 @@ mod tests {
             request_type: "test_request_type".to_string(),
             session_id: "test_session_id".to_string(),
             request_status: RequestStatus::Pending,
+            app_id: "test_app_id".to_string(),
             network: "test_network".to_string(),
-            creation_timestamp: 12,
+            creation_timestamp: get_date_time(10).unwrap(),
         };
 
         db.save_request(&second_request).await.unwrap();
@@ -130,8 +134,8 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(requests.len(), 2);
-        assert_eq!(second_request, requests[0]);
-        assert_eq!(request, requests[1]);
+        assert_eq!(request, requests[0]);
+        assert_eq!(second_request, requests[1]);
 
         db.update_request_status(&request.request_id, &RequestStatus::Completed)
             .await
