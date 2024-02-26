@@ -491,7 +491,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     if (isMobileBrowser() && !this.walletsList.find((w) => w.name === walletName)?.standardWallet) {
       this.connectToMobileWallet(walletName)
     } else {
-      this.connectToStandardWallet(walletName)
+      await this.connectToStandardWallet(walletName)
     }
   }
 

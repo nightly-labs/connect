@@ -14,6 +14,9 @@ export default function Home() {
       <A href="/solanaInitOnConnect">
         <button>Solana - init app on connect</button>
       </A>
+      <A href="/externalModal">
+        <button>Solana - external modal</button>
+      </A>
       <A href="/sui">
         <button>Sui</button>
       </A>
