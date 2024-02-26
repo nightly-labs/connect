@@ -25,7 +25,6 @@ export default function SolanaLazy() {
     )
 
     adapter.on('connect', (pk) => {
-      console.log('connected init')
       setPublicKey(pk)
     })
 
