@@ -560,7 +560,8 @@ export class NightlyConnectAdapter
               })
               .catch(() => {
                 this._loading = false
-                throw new Error('Failed to initialize adapter')
+                reject('Failed to initialize adapter')
+                return
               })
           }
           // Interval that checks if app has connected
