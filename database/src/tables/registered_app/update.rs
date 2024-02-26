@@ -138,15 +138,15 @@ mod tests {
         // We need to refresh manually the views
         db_arc
             .refresh_continuous_aggregates(vec![
-                "daily_requests_per_app".to_string(),
-                "hourly_requests_per_app".to_string(),
-                "monthly_requests_per_app".to_string(),
+                "hourly_requests_stats".to_string(),
+                "daily_requests_stats".to_string(),
+                "monthly_requests_stats".to_string(),
             ])
             .await
             .unwrap();
 
         let result = db_arc
-            .get_aggregated_requests_by_app_id(&app.app_id, TimeFilter::Last24Hours)
+            .get_requests_stats_by_app_id(&app.app_id, TimeFilter::Last24Hours)
             .await
             .unwrap();
 
@@ -155,7 +155,7 @@ mod tests {
         assert_eq!(result[1].request_count, 99);
 
         let result = db_arc
-            .get_aggregated_requests_by_app_id(&app.app_id, TimeFilter::Last7Days)
+            .get_requests_stats_by_app_id(&app.app_id, TimeFilter::Last7Days)
             .await
             .unwrap();
 
@@ -164,13 +164,254 @@ mod tests {
         assert_eq!(result[7].request_count, 93);
 
         let result = db_arc
-            .get_aggregated_requests_by_app_id(&app.app_id, TimeFilter::Last30Days)
+            .get_requests_stats_by_app_id(&app.app_id, TimeFilter::Last30Days)
             .await
             .unwrap();
 
         assert_eq!(result.len(), 31);
         assert_eq!(result[0].request_count, 100);
         assert_eq!(result[30].request_count, 70);
+    }
+
+    #[tokio::test]
+    async fn test_requests_success_rate() {
+        let db = super::Db::connect_to_the_pool().await;
+        db.truncate_all_tables().await.unwrap();
+
+        // "Register" an app
+        let app = RegisteredApp {
+            app_id: "test_app_id".to_string(),
+            app_name: "test_app_name".to_string(),
+            whitelisted_domains: vec!["test_domain".to_string()],
+            subscription: None,
+            ack_public_keys: vec!["test_key".to_string()],
+            email: None,
+            registration_timestamp: 0,
+            pass_hash: None,
+        };
+
+        db.register_new_app(&app).await.unwrap();
+
+        let result = db.get_registered_app_by_app_id(&app.app_id).await.unwrap();
+        assert_eq!(app, result);
+
+        // Create session
+        let session = DbNcSession {
+            session_id: "test_session_id".to_string(),
+            app_id: "test_app_id".to_string(),
+            app_metadata: "test_app_metadata".to_string(),
+            app_ip_address: "test_app_ip_address".to_string(),
+            persistent: false,
+            network: "test_network".to_string(),
+            client: None,
+            session_open_timestamp: DateTime::from(Utc::now()),
+            session_close_timestamp: None,
+        };
+
+        db.save_new_session(&session).await.unwrap();
+
+        let result = db.get_sessions_by_app_id(&app.app_id).await.unwrap();
+        assert_eq!(result.len(), 1);
+        // assert_eq!(session, result[0]);
+
+        let db_arc = Arc::new(db);
+        let mut tasks = Vec::new();
+
+        for i in 0..33 {
+            let db_clone = db_arc.clone(); // Clone the db connection or pool if needed
+            tasks.push(task::spawn(async move {
+                for j in 0..100 - i {
+                    let creation_time: DateTime<Utc> = Utc::now()
+                        - Duration::from_secs(i as u64 * DAY_IN_SECONDS as u64)
+                        - Duration::from_millis((j + 1) as u64 * 100);
+
+                    let status = if j % 3 == 0 {
+                        RequestStatus::Completed
+                    } else if j % 3 == 1 {
+                        RequestStatus::Completed
+                    } else {
+                        RequestStatus::Rejected
+                    };
+
+                    let request = Request {
+                        request_id: format!("test_request_id_{}_{}", i, j),
+                        app_id: "test_app_id".to_string(),
+                        session_id: "test_session_id".to_string(),
+                        network: "test_network".to_string(),
+                        creation_timestamp: creation_time,
+                        request_status: status,
+                        request_type: "test_request_type".to_string(),
+                    };
+                    if let Err(e) = db_clone.save_request(&request).await {
+                        eprintln!("Failed to save request: {}", e);
+                    }
+                }
+            }));
+        }
+
+        // Await all tasks to complete
+        for task in tasks {
+            task.await.unwrap();
+        }
+
+        // We need to refresh manually the views
+        db_arc
+            .refresh_continuous_aggregates(vec![
+                "hourly_requests_stats".to_string(),
+                "daily_requests_stats".to_string(),
+                "monthly_requests_stats".to_string(),
+            ])
+            .await
+            .unwrap();
+
+        // Check the success rate on every time filter
+        let result = db_arc
+            .get_requests_stats_by_app_id(&app.app_id, TimeFilter::Last24Hours)
+            .await
+            .unwrap();
+
+        assert_eq!(result.len(), 2);
+        assert_eq!(
+            (result[0].success_rate.unwrap() * 100.0).ceil() / 100.0,
+            0.67 as f64
+        );
+        assert_eq!(
+            (result[1].success_rate.unwrap() * 100.0).ceil() / 100.0,
+            0.67 as f64
+        );
+
+        let result = db_arc
+            .get_requests_stats_by_app_id(&app.app_id, TimeFilter::Last7Days)
+            .await
+            .unwrap();
+
+        assert_eq!(result.len(), 8);
+        assert_eq!(
+            (result[0].success_rate.unwrap() * 100.0).ceil() / 100.0,
+            0.67 as f64
+        );
+        assert_eq!(
+            (result[7].success_rate.unwrap() * 100.0).ceil() / 100.0,
+            0.67 as f64
+        );
+
+        let result = db_arc
+            .get_requests_stats_by_app_id(&app.app_id, TimeFilter::Last30Days)
+            .await
+            .unwrap();
+
+        assert_eq!(result.len(), 31);
+        assert_eq!(
+            (result[0].success_rate.unwrap() * 100.0).ceil() / 100.0,
+            0.67 as f64
+        );
+        assert_eq!(
+            (result[30].success_rate.unwrap() * 100.0).ceil() / 100.0,
+            0.68 as f64
+        );
+
+        // Test missing success due to all requests having pending status
+        // Add new app to have a "clean" state
+        let app = RegisteredApp {
+            app_id: "test_app_id2".to_string(),
+            app_name: "test_app_name".to_string(),
+            whitelisted_domains: vec!["test_domain".to_string()],
+            subscription: None,
+            ack_public_keys: vec!["test_key".to_string()],
+            email: None,
+            registration_timestamp: 0,
+            pass_hash: None,
+        };
+
+        db_arc.register_new_app(&app).await.unwrap();
+
+        let result = db_arc
+            .get_registered_app_by_app_id(&app.app_id)
+            .await
+            .unwrap();
+        assert_eq!(app, result);
+
+        // Create session
+        let session = DbNcSession {
+            session_id: "test_session_id".to_string(),
+            app_id: "test_app_id2".to_string(),
+            app_metadata: "test_app_metadata".to_string(),
+            app_ip_address: "test_app_ip_address".to_string(),
+            persistent: false,
+            network: "test_network".to_string(),
+            client: None,
+            session_open_timestamp: DateTime::from(Utc::now()),
+            session_close_timestamp: None,
+        };
+
+        db_arc.save_new_session(&session).await.unwrap();
+
+        let mut tasks = Vec::new();
+        for i in 0..10 {
+            let db_clone = db_arc.clone(); // Clone the db connection or pool if needed
+            tasks.push(task::spawn(async move {
+                for j in 0..11 - i {
+                    let creation_time: DateTime<Utc> = Utc::now()
+                        - Duration::from_secs(i as u64 * DAY_IN_SECONDS as u64)
+                        - Duration::from_millis((j + 1) as u64 * 100);
+
+                    let request = Request {
+                        request_id: format!("test_request_id_{}_{}", i, j),
+                        app_id: "test_app_id2".to_string(),
+                        session_id: "test_session_id".to_string(),
+                        network: "test_network".to_string(),
+                        creation_timestamp: creation_time,
+                        request_status: RequestStatus::Pending,
+                        request_type: "test_request_type".to_string(),
+                    };
+                    if let Err(e) = db_clone.save_request(&request).await {
+                        eprintln!("Failed to save request: {}", e);
+                    }
+                }
+            }));
+        }
+
+        // Await all tasks to complete
+        for task in tasks {
+            task.await.unwrap();
+        }
+
+        // We need to refresh manually the views
+        db_arc
+            .refresh_continuous_aggregates(vec![
+                "hourly_requests_stats".to_string(),
+                "daily_requests_stats".to_string(),
+                "monthly_requests_stats".to_string(),
+            ])
+            .await
+            .unwrap();
+
+        let result = db_arc
+            .get_requests_stats_by_app_id(&app.app_id, TimeFilter::Last24Hours)
+            .await
+            .unwrap();
+
+        assert_eq!(result.len(), 2);
+        assert!(result[0].success_rate.is_none());
+        assert!(result[1].success_rate.is_none());
+
+        let result = db_arc
+            .get_requests_stats_by_app_id(&app.app_id, TimeFilter::Last7Days)
+            .await
+            .unwrap();
+
+        assert_eq!(result.len(), 8);
+        assert!(result[0].success_rate.is_none());
+        assert!(result[7].success_rate.is_none());
+
+        let result = db_arc
+            .get_requests_stats_by_app_id(&app.app_id, TimeFilter::Last30Days)
+            .await
+            .unwrap();
+
+        assert_eq!(result.len(), 10);
+        assert!(result[0].success_rate.is_none());
+        assert!(result[9].success_rate.is_none());
     }
 
     #[tokio::test]

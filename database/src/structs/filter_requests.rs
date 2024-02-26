@@ -8,6 +8,14 @@ pub struct AggregatedRequestCount {
 }
 
 #[derive(Debug, sqlx::FromRow)]
+pub struct RequestsStats {
+    pub app_id: String,
+    pub bucket: DateTime<Utc>,
+    pub request_count: i64,
+    pub success_rate: Option<f64>,
+}
+
+#[derive(Debug, sqlx::FromRow)]
 pub struct SessionsStats {
     pub app_id: String,
     pub bucket: DateTime<Utc>,

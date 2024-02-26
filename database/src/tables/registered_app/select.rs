@@ -1,5 +1,5 @@
 use super::table_struct::{RegisteredApp, REGISTERED_APPS_TABLE_NAME};
-use crate::structs::filter_requests::{AggregatedRequestCount, SessionsStats};
+use crate::structs::filter_requests::{RequestsStats, SessionsStats};
 use crate::structs::time_filters::TimeFilter;
 use crate::tables::requests::table_struct::REQUESTS_TABLE_NAME;
 use crate::{db::Db, tables::requests::table_struct::Request};
@@ -37,39 +37,53 @@ impl Db {
             .await;
     }
 
-    pub async fn get_aggregated_requests_by_app_id(
+    pub async fn get_requests_stats_by_app_id(
         &self,
         app_id: &str,
         filter: TimeFilter,
-    ) -> Result<Vec<AggregatedRequestCount>, Error> {
+    ) -> Result<Vec<RequestsStats>, Error> {
         let start_date = filter.to_date();
         let bucket_size = filter.bucket_size();
 
         // Correctly selecting the view based on the bucket_size
         let (view_name, bucket, request_count) = match bucket_size {
-            "1 hour" => (
-                "hourly_requests_per_app",
-                "hourly_bucket",
-                "hourly_request_count",
-            ),
-            "1 day" => (
-                "daily_requests_per_app",
-                "daily_bucket",
-                "daily_request_count",
-            ),
+            "1 hour" => {
+                let prefix = "hourly";
+                (
+                    format!("{}_requests_stats", prefix),
+                    format!("{}_bucket", prefix),
+                    format!("{}_request_count", prefix),
+                )
+            }
+            "1 day" => {
+                let prefix = "daily";
+                (
+                    format!("{}_requests_stats", prefix),
+                    format!("{}_bucket", prefix),
+                    format!("{}_request_count", prefix),
+                )
+            }
+            "1 month" => {
+                let prefix = "monthly";
+                (
+                    format!("{}_requests_stats", prefix),
+                    format!("{}_bucket", prefix),
+                    format!("{}_request_count", prefix),
+                )
+            }
             // for now return WorkerCrashed but later create custom error
             _ => return Err(Error::WorkerCrashed),
         };
 
         let query = format!(
-            "SELECT app_id, {} as bucket, {} as request_count
+            "SELECT app_id, {} as bucket, {} as request_count, success_rate
             FROM {}
             WHERE app_id = $1 AND {} >= $2
             ORDER BY {} DESC",
             bucket, request_count, view_name, bucket, bucket
         );
 
-        sqlx::query_as::<_, AggregatedRequestCount>(&query)
+        sqlx::query_as::<_, RequestsStats>(&query)
             .bind(app_id)
             .bind(start_date)
             .fetch_all(&self.connection_pool)
