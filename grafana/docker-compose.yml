@@ -1,0 +1,18 @@
+version: '3.1'
+
+services:
+  grafana:
+    image: grafana/grafana:latest
+    # container_name: grafana
+    # environment:
+    #   - GF_SECURITY_ADMIN_PASSWORD=secret # Change 'secret' to a strong password
+    #   - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./grafana-data:/var/lib/grafana # Persists Grafana data
+      - ./grafana.ini:/etc/grafana/grafana.ini # Optional: Custom Grafana configuration
+    ports:
+      - '3000:3000'
+    restart: unless-stopped
+
+volumes:
+  grafana-data:

@@ -1,0 +1,3 @@
+-- -- lua_package_path "/opt/homebrew/lua-resty-jwt/lib/?.lua;;";
+-- local jwt = require "resty.jwt"
+-- print("Hello World")
