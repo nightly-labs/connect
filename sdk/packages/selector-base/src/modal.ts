@@ -35,6 +35,10 @@ export class NightlyConnectSelectorModal {
     return this._walletsList
   }
 
+  get qrCode() {
+    return this._modal?.qrCode
+  }
+
   set walletsList(list: IWalletListItem[]) {
     const filtered = list.filter((w) =>
       isMobileBrowser() ? w.walletType !== 'extension' : w.walletType !== 'mobile'
@@ -43,6 +47,10 @@ export class NightlyConnectSelectorModal {
     if (this._modal) {
       this._modal.selectorItems = filtered
     }
+  }
+
+  set sessionId(id: string) {
+    if (this._modal && id) this._modal.sessionId = id
   }
 
   createSelectorElement = (
@@ -67,10 +75,13 @@ export class NightlyConnectSelectorModal {
     }
   }
 
-  public openModal = (sessionId: string, onSelectListWallet: (name: string) => void) => {
+  public openModal = (
+    sessionId: string | undefined,
+    onSelectListWallet: (name: string) => void
+  ) => {
     if (this._modal && this._open === false) {
       this._modal.onWalletClick = onSelectListWallet
-      this._modal.sessionId = sessionId
+      this._modal.sessionId = sessionId ?? ''
       this._anchor.appendChild(this._modal)
       this._open = true
       this.onOpen?.()

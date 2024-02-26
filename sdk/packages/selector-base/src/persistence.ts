@@ -1,7 +1,13 @@
 import { getSessionIdLocalStorageKey } from '@nightlylabs/nightly-connect-base'
 import { ILocalStorage, getStorage } from 'isomorphic-localstorage'
+import { ConnectionType } from './types'
 
 let _localStorage: ILocalStorage | null = null
+
+type WalletInfo = {
+  walletName: string
+  walletType: ConnectionType
+}
 
 export const getLocalStorage = () => {
   if (_localStorage === null) {
@@ -12,53 +18,32 @@ export const getLocalStorage = () => {
 }
 
 // recent wallet from standard
-
-export const persistRecentStandardWalletForNetwork = (walletName: string, network: string) => {
+export const NIGHTLY_CONNECT_RECENT_WALLET = 'NIGHTLY_CONNECT_RECENT_WALLET_'
+export const persistRecentWalletForNetwork = (network: string, walletInfo: WalletInfo) => {
   const storage = getLocalStorage()
-
-  storage.setItem('NIGHTLY_CONNECT_SELECTOR_RECENT_STANDARD_WALLET_' + network, walletName)
+  storage.setItem(NIGHTLY_CONNECT_RECENT_WALLET + network, JSON.stringify(walletInfo))
 }
 
-export const getRecentStandardWalletForNetwork = (network: string) => {
+export const getRecentWalletForNetwork = (network: string) => {
   const storage = getLocalStorage()
-
-  const item = storage.getItem('NIGHTLY_CONNECT_SELECTOR_RECENT_STANDARD_WALLET_' + network)
-
-  return item
+  const item = storage.getItem(NIGHTLY_CONNECT_RECENT_WALLET + network)
+  if (!item) return null
+  try {
+    return JSON.parse(item) as WalletInfo
+  } catch (error) {
+    console.warn('Error parsing recent wallet from local storage', error)
+    return null
+  }
 }
 
-export const clearRecentStandardWalletForNetwork = (network: string) => {
+export const clearRecentWalletForNetwork = (network: string) => {
   const storage = getLocalStorage()
-
-  storage.removeItem('NIGHTLY_CONNECT_SELECTOR_RECENT_STANDARD_WALLET_' + network)
+  storage.removeItem(NIGHTLY_CONNECT_RECENT_WALLET + network)
 }
 
 // clearing last nightly connect session id
 
 export const clearSessionIdForNetwork = (network: string) => {
   const storage = getLocalStorage()
-
   storage.removeItem(getSessionIdLocalStorageKey(network))
-}
-
-// info if any wallet from standard is connected
-
-export const persistStandardConnectForNetwork = (network: string) => {
-  const storage = getLocalStorage()
-
-  storage.setItem('NIGHTLY_CONNECT_SELECTOR_IS_DESKTOP_CONNECTED_' + network, 'true')
-}
-
-export const isStandardConnectedForNetwork = (network: string) => {
-  const storage = getLocalStorage()
-
-  const item = storage.getItem('NIGHTLY_CONNECT_SELECTOR_IS_DESKTOP_CONNECTED_' + network)
-
-  return item !== null
-}
-
-export const persistStandardDisconnectForNetwork = (network: string) => {
-  const storage = getLocalStorage()
-
-  storage.removeItem('NIGHTLY_CONNECT_SELECTOR_IS_DESKTOP_CONNECTED_' + network)
 }

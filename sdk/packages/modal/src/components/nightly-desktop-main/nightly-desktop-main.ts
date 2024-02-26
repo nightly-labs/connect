@@ -32,11 +32,17 @@ export class NightlyDesktopMain extends LitElement {
   @property({ type: Object })
   qrConfigOverride: Partial<XMLOptions> = {}
 
+  @property({ type: Boolean })
+  timeoutError = false
+
   @state()
   copyMessage = 'Copy'
 
   @state()
   qrSource: string | undefined = undefined
+
+  @state()
+  isSessionIdImmediatelyDefined: boolean = false
 
   timeoutRef: number | undefined = undefined
 
@@ -80,6 +86,7 @@ export class NightlyDesktopMain extends LitElement {
     super.connectedCallback()
 
     this.updateQrSource()
+    if (this.sessionId) this.isSessionIdImmediatelyDefined = true
   }
 
   protected updated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
@@ -106,17 +113,33 @@ export class NightlyDesktopMain extends LitElement {
           </div>
           <img id="qrCode" class="nc_desktopMainQrCode" src=${this.qrSource} />
 
-          <div
-            class="nc_desktopQrLoaderOverlay ${this.qrSource
+          ${!this.isSessionIdImmediatelyDefined &&
+          html`<div
+            class="nc_desktopQrLoaderOverlay ${this.qrSource && !this.timeoutError
               ? 'nc_desktopQrLoadedOverlayFadeOut'
               : ''}"
           >
             <img
-              src="https://registry.nightly.app/images/fox_sad.gif"
+              src="https://registry.nightly.app/gifs/loading.gif"
               alt="Loading"
               class="nc_desktopQrLoader"
             />
             <h3 class="nc_desktopQrLoaderLabel">Generating QR code...</h3>
+          </div>`}
+
+          <div
+            class="nc_desktopQrTimeoutErrorOverlay ${this.timeoutError &&
+            'nc_desktopQrTimeoutErrorOverlayFadeIn'}"
+          >
+            <img
+              src="https://registry.nightly.app/images/fox_sad.gif"
+              alt="Timeout error"
+              class="nc_desktopQrTimeoutError"
+            />
+            <h3 class="nc_desktopQrTimeoutErrorLabel">QR code couldn’t be generated...</h3>
+            <p class="nc_desktopQrTimeoutErrorLabelDescription">
+              Make sure you have stable internet connection.
+            </p>
           </div>
         </div>
         <nightly-wallet-selector-page

@@ -31,6 +31,7 @@ export class NightlyMobileMain extends LitElement {
     this._selectorItems = [...value].sort(walletsSort)
 
     this.setItemsCount()
+    this.requestUpdate()
   }
 
   @state()
