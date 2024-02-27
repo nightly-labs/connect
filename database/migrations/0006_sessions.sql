@@ -1,6 +1,6 @@
 CREATE TABLE sessions(
-    session_id TEXT NOT NULL,
     app_id TEXT NOT NULL REFERENCES registered_apps(app_id),
+    session_id TEXT NOT NULL,
     app_metadata TEXT NOT NULL,
     app_ip_address TEXT NOT NULL,
     persistent BOOLEAN NOT NULL,

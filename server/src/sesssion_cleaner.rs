@@ -35,8 +35,30 @@ pub fn start_cleaning_sessions(
             // Iterate over all sessions and check if they expired
             for (app_id, sessions) in sessions_write.iter() {
                 for (session_id, session) in sessions.read().await.iter() {
+                    // If client has not connected to the session within a hour, remove the session
+                    if session.read().await.creation_timestamp + 1000 * 60 * 60 < now {
+                        sessions_to_remove
+                            .entry(app_id.clone())
+                            .or_default()
+                            .push(session_id.clone());
+
+                        continue;
+                    }
+
                     // Default session time is one week
                     if session.read().await.creation_timestamp + 1000 * 60 * 60 * 24 * 7 < now {
+                        // Check if the session is still in use
+                        let session = session.read().await;
+                        // If user is still connected, don't remove the session
+                        if session.client_state.client_id.is_some() {
+                            continue;
+                        }
+
+                        // If app is still connected, don't remove the session as well
+                        if !session.app_state.app_socket.is_empty() {
+                            continue;
+                        }
+
                         sessions_to_remove
                             .entry(app_id.clone())
                             .or_default()

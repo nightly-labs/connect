@@ -10,3 +10,8 @@ pub fn get_timestamp_in_milliseconds() -> u64 {
 pub fn get_date_time(timestamp: u64) -> Option<DateTime<Utc>> {
     Utc.timestamp_millis_opt(timestamp as i64).single()
 }
+
+pub fn to_microsecond_precision(datetime: &DateTime<Utc>) -> DateTime<Utc> {
+    // Should never fail as we are converting from a valid DateTime<Utc>
+    Utc.timestamp_micros(datetime.timestamp_micros()).unwrap()
+}

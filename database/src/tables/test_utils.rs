@@ -1,7 +1,17 @@
 #[cfg(test)]
 pub mod test_utils {
-    use crate::db::Db;
-    use sqlx::Row;
+    use crate::{
+        db::Db,
+        structs::privelage_level::PrivilegeLevel,
+        tables::{
+            grafana_users::table_struct::GrafanaUser, registered_app::table_struct::RegisteredApp,
+            team::table_struct::Team, user_app_privileges::table_struct::UserAppPrivilege,
+        },
+    };
+    use sqlx::{
+        types::chrono::{DateTime, Utc},
+        Row,
+    };
 
     impl Db {
         pub async fn truncate_all_tables(&self) -> Result<(), sqlx::Error> {
@@ -46,6 +56,56 @@ pub mod test_utils {
             println!("Refreshed {} continuous aggregates", views.len());
 
             Ok(())
+        }
+
+        pub async fn setup_test_team(
+            &self,
+            team_id: &String,
+            app_id: &String,
+            registration_timestamp: DateTime<Utc>,
+        ) -> anyhow::Result<()> {
+            let admin = GrafanaUser {
+                creation_timestamp: registration_timestamp,
+                email: "email".to_string(),
+                password_hash: "pass_hash".to_string(),
+                user_id: "test_admin".to_string(),
+            };
+
+            self.add_new_user(&admin).await?;
+
+            let team = Team {
+                team_id: team_id.clone(),
+                subscription: None,
+                team_admin_id: admin.user_id.clone(),
+                registration_timestamp: registration_timestamp,
+            };
+
+            let registered_app = RegisteredApp {
+                team_id: team_id.clone(),
+                app_id: app_id.clone(),
+                app_name: "test_app".to_string(),
+                whitelisted_domains: vec!["localhost".to_string()],
+                subscription: None,
+                ack_public_keys: vec!["key".to_string()],
+                email: None,
+                pass_hash: None,
+                registration_timestamp: registration_timestamp.timestamp() as u64,
+            };
+
+            let admin_privilege = UserAppPrivilege {
+                app_id: app_id.clone(),
+                creation_timestamp: registration_timestamp,
+                privilege_level: PrivilegeLevel::Admin,
+                user_id: admin.user_id.clone(),
+            };
+
+            match self
+                .setup_team(&team, &registered_app, &admin_privilege)
+                .await
+            {
+                Ok(_) => Ok(()),
+                Err(e) => Err(anyhow::anyhow!(e)),
+            }
         }
     }
 }
