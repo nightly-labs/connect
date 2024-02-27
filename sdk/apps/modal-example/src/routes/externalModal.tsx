@@ -48,6 +48,7 @@ export default function SolanaExternalModal() {
     })
 
     adapter.on('disconnect', () => {
+      modal.walletsList = adapter.walletsList
       setPublicKey(undefined)
     })
 
