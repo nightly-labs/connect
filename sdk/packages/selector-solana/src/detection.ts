@@ -19,17 +19,32 @@ export const getSolanaWalletsList = (presetList: WalletMetadata[], recentWalletN
   })
 
   windowWallets.filter(solanaWalletsFilter).forEach((wallet) => {
-    walletsData[wallet.name] = {
-      ...(walletsData?.[wallet.name] ?? {
-        name: wallet.name,
-        icon: wallet.icon,
-        link: '',
-        deeplink: null,
+    if (walletsData[wallet.name]) {
+      walletsData[wallet.name] = {
+        ...walletsData[wallet.name],
         recent: recentWalletName === wallet.name,
+        detected: true,
+        standardWallet: wallet,
         walletType: 'hybrid'
-      }),
-      detected: true,
-      standardWallet: wallet
+      }
+    } else {
+      walletsData[wallet.name] = {
+        name: wallet.name,
+        image: {
+          default: wallet.icon as string,
+          lg: wallet.icon as string,
+          md: wallet.icon as string,
+          sm: wallet.icon as string
+        },
+        desktop: null,
+        homepage: 'https://nightly.app/download', // Fall back to nightly.app
+        mobile: null,
+        slug: wallet.name,
+        recent: recentWalletName === wallet.name,
+        walletType: 'hybrid',
+        detected: true,
+        standardWallet: wallet
+      }
     }
   })
 
