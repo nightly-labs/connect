@@ -6,7 +6,7 @@ use sqlx::{
 };
 
 pub const TEAM_TABLE_NAME: &str = "team";
-pub const TEAM_KEYS: &str = "team_id, subscription, team_admin_id, creation_timestamp";
+pub const TEAM_KEYS: &str = "team_id, subscription, team_admin_id, registration_timestamp";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Team {
@@ -14,7 +14,7 @@ pub struct Team {
     // Subscription is required to get access to the statistics
     pub subscription: Option<Subscription>,
     pub team_admin_id: String,
-    pub creation_timestamp: DateTime<Utc>,
+    pub registration_timestamp: DateTime<Utc>,
 }
 
 impl FromRow<'_, PgRow> for Team {
@@ -22,7 +22,7 @@ impl FromRow<'_, PgRow> for Team {
         Ok(Team {
             team_id: row.get("team_id"),
             subscription: row.get("subscription"),
-            creation_timestamp: row.get("creation_timestamp"),
+            registration_timestamp: row.get("registration_timestamp"),
             team_admin_id: row.get("team_admin_id"),
         })
     }

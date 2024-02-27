@@ -2,7 +2,6 @@
 pub mod test_utils {
     use crate::{
         db::Db,
-        structs::subscription::Subscription,
         tables::{registered_app::table_struct::RegisteredApp, team::table_struct::Team},
     };
     use sqlx::{
@@ -65,7 +64,7 @@ pub mod test_utils {
                 team_id: team_id.clone(),
                 subscription: None,
                 team_admin_id: "admin".to_string(),
-                creation_timestamp: registration_timestamp,
+                registration_timestamp: registration_timestamp,
             };
 
             let registered_app = RegisteredApp {

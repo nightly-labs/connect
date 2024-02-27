@@ -24,9 +24,9 @@ GROUP BY
 SELECT
     add_continuous_aggregate_policy(
         'sessions_stats_per_app_daily',
-        start_offset = > INTERVAL '14 days',
-        end_offset = > INTERVAL '1 hour',
-        schedule_interval = > INTERVAL '1 hour'
+        start_offset => INTERVAL '14 days',
+        end_offset => INTERVAL '1 hour',
+        schedule_interval => INTERVAL '1 hour'
     );
 
 --- Real time aggregation
@@ -53,9 +53,9 @@ GROUP BY
 SELECT
     add_continuous_aggregate_policy(
         'sessions_stats_per_app_monthly',
-        start_offset = > INTERVAL '3 months',
-        end_offset = > INTERVAL '1 day',
-        schedule_interval = > INTERVAL '1 day'
+        start_offset => INTERVAL '3 months',
+        end_offset => INTERVAL '1 day',
+        schedule_interval => INTERVAL '1 day'
     );
 
 --- Real time aggregation

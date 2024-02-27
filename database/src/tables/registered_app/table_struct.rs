@@ -25,7 +25,8 @@ impl FromRow<'_, PgRow> for RegisteredApp {
             app_id: row.get("app_id"),
             app_name: row.get("app_name"),
             whitelisted_domains: row.get("whitelisted_domains"),
-            subscription: row.get("subscription"),
+            // TEMP
+            subscription: None,
             ack_public_keys: row.get("ack_public_keys"),
             email: row.get("email"),
             registration_timestamp: registration_timestamp as u64,

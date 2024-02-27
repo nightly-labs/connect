@@ -180,22 +180,13 @@ mod tests {
         let db = super::Db::connect_to_the_pool().await;
         db.truncate_all_tables().await.unwrap();
 
-        // "Register" an app
-        let app = RegisteredApp {
-            app_id: "test_app_id".to_string(),
-            app_name: "test_app_name".to_string(),
-            whitelisted_domains: vec!["test_domain".to_string()],
-            subscription: None,
-            ack_public_keys: vec!["test_key".to_string()],
-            email: None,
-            registration_timestamp: 0,
-            pass_hash: None,
-        };
+        // Create test team instance
+        let team_id = "test_team_id".to_string();
+        let app_id = "test_app_id".to_string();
 
-        db.register_new_app(&app).await.unwrap();
-
-        let result = db.get_registered_app_by_app_id(&app.app_id).await.unwrap();
-        assert_eq!(app, result);
+        db.setup_test_team(&team_id, &app_id, Utc::now())
+            .await
+            .unwrap();
 
         // Create session
         let session = DbNcSession {
@@ -212,7 +203,7 @@ mod tests {
 
         db.save_new_session(&session).await.unwrap();
 
-        let result = db.get_sessions_by_app_id(&app.app_id).await.unwrap();
+        let result = db.get_sessions_by_app_id(&app_id).await.unwrap();
         assert_eq!(result.len(), 1);
         // assert_eq!(session, result[0]);
 
@@ -221,6 +212,7 @@ mod tests {
 
         for i in 0..33 {
             let db_clone = db_arc.clone(); // Clone the db connection or pool if needed
+            let app_id = app_id.clone();
             tasks.push(task::spawn(async move {
                 for j in 0..100 - i {
                     let creation_time: DateTime<Utc> = Utc::now()
@@ -237,7 +229,7 @@ mod tests {
 
                     let request = Request {
                         request_id: format!("test_request_id_{}_{}", i, j),
-                        app_id: "test_app_id".to_string(),
+                        app_id: app_id.to_string(),
                         session_id: "test_session_id".to_string(),
                         network: "test_network".to_string(),
                         creation_timestamp: creation_time,
@@ -268,7 +260,7 @@ mod tests {
 
         // Check the success rate on every time filter
         let result = db_arc
-            .get_requests_stats_by_app_id(&app.app_id, TimeFilter::Last24Hours)
+            .get_requests_stats_by_app_id(&app_id, TimeFilter::Last24Hours)
             .await
             .unwrap();
 
@@ -283,7 +275,7 @@ mod tests {
         );
 
         let result = db_arc
-            .get_requests_stats_by_app_id(&app.app_id, TimeFilter::Last7Days)
+            .get_requests_stats_by_app_id(&app_id, TimeFilter::Last7Days)
             .await
             .unwrap();
 
@@ -298,7 +290,7 @@ mod tests {
         );
 
         let result = db_arc
-            .get_requests_stats_by_app_id(&app.app_id, TimeFilter::Last30Days)
+            .get_requests_stats_by_app_id(&app_id, TimeFilter::Last30Days)
             .await
             .unwrap();
 
@@ -314,8 +306,10 @@ mod tests {
 
         // Test missing success due to all requests having pending status
         // Add new app to have a "clean" state
+        let second_app_id = "test_app_id2".to_string();
         let app = RegisteredApp {
-            app_id: "test_app_id2".to_string(),
+            team_id: team_id.clone(),
+            app_id: second_app_id.to_string(),
             app_name: "test_app_name".to_string(),
             whitelisted_domains: vec!["test_domain".to_string()],
             subscription: None,
@@ -324,11 +318,10 @@ mod tests {
             registration_timestamp: 0,
             pass_hash: None,
         };
-
-        db_arc.register_new_app(&app).await.unwrap();
+        db_arc.register_new_app(&team_id, &app).await.unwrap();
 
         let result = db_arc
-            .get_registered_app_by_app_id(&app.app_id)
+            .get_registered_app_by_app_id(&second_app_id)
             .await
             .unwrap();
         assert_eq!(app, result);
@@ -336,7 +329,7 @@ mod tests {
         // Create session
         let session = DbNcSession {
             session_id: "test_session_id".to_string(),
-            app_id: "test_app_id2".to_string(),
+            app_id: second_app_id.to_string(),
             app_metadata: "test_app_metadata".to_string(),
             app_ip_address: "test_app_ip_address".to_string(),
             persistent: false,
@@ -351,6 +344,7 @@ mod tests {
         let mut tasks = Vec::new();
         for i in 0..10 {
             let db_clone = db_arc.clone(); // Clone the db connection or pool if needed
+            let app_id = second_app_id.clone();
             tasks.push(task::spawn(async move {
                 for j in 0..11 - i {
                     let creation_time: DateTime<Utc> = Utc::now()
@@ -359,7 +353,7 @@ mod tests {
 
                     let request = Request {
                         request_id: format!("test_request_id_{}_{}", i, j),
-                        app_id: "test_app_id2".to_string(),
+                        app_id: app_id.to_string(),
                         session_id: "test_session_id".to_string(),
                         network: "test_network".to_string(),
                         creation_timestamp: creation_time,
@@ -389,7 +383,7 @@ mod tests {
             .unwrap();
 
         let result = db_arc
-            .get_requests_stats_by_app_id(&app.app_id, TimeFilter::Last24Hours)
+            .get_requests_stats_by_app_id(&second_app_id, TimeFilter::Last24Hours)
             .await
             .unwrap();
 
@@ -398,7 +392,7 @@ mod tests {
         assert!(result[1].success_rate.is_none());
 
         let result = db_arc
-            .get_requests_stats_by_app_id(&app.app_id, TimeFilter::Last7Days)
+            .get_requests_stats_by_app_id(&second_app_id, TimeFilter::Last7Days)
             .await
             .unwrap();
 
@@ -407,7 +401,7 @@ mod tests {
         assert!(result[7].success_rate.is_none());
 
         let result = db_arc
-            .get_requests_stats_by_app_id(&app.app_id, TimeFilter::Last30Days)
+            .get_requests_stats_by_app_id(&second_app_id, TimeFilter::Last30Days)
             .await
             .unwrap();
 
@@ -421,22 +415,13 @@ mod tests {
         let db = super::Db::connect_to_the_pool().await;
         db.truncate_all_tables().await.unwrap();
 
-        // "Register" an app
-        let app = RegisteredApp {
-            app_id: "test_app_id".to_string(),
-            app_name: "test_app_name".to_string(),
-            whitelisted_domains: vec!["test_domain".to_string()],
-            subscription: None,
-            ack_public_keys: vec!["test_key".to_string()],
-            email: None,
-            registration_timestamp: 0,
-            pass_hash: None,
-        };
+        // Create test team instance
+        let team_id = "test_team_id".to_string();
+        let app_id = "test_app_id".to_string();
 
-        db.register_new_app(&app).await.unwrap();
-
-        let result = db.get_registered_app_by_app_id(&app.app_id).await.unwrap();
-        assert_eq!(app, result);
+        db.setup_test_team(&team_id, &app_id, Utc::now())
+            .await
+            .unwrap();
 
         // Create sessions
         let now = Utc::now();
@@ -480,7 +465,7 @@ mod tests {
         .await
         .unwrap();
 
-        let result = db.get_monthly_sessions_stats(&app.app_id).await.unwrap();
+        let result = db.get_monthly_sessions_stats(&app_id).await.unwrap();
 
         assert_eq!(result.len(), 1);
 
@@ -501,22 +486,13 @@ mod tests {
         let db = super::Db::connect_to_the_pool().await;
         db.truncate_all_tables().await.unwrap();
 
-        // "Register" an app
-        let app = RegisteredApp {
-            app_id: "test_app_id".to_string(),
-            app_name: "test_app_name".to_string(),
-            whitelisted_domains: vec!["test_domain".to_string()],
-            subscription: None,
-            ack_public_keys: vec!["test_key".to_string()],
-            email: None,
-            registration_timestamp: 0,
-            pass_hash: None,
-        };
+        // Create test team instance
+        let team_id = "test_team_id".to_string();
+        let app_id = "test_app_id".to_string();
 
-        db.register_new_app(&app).await.unwrap();
-
-        let result = db.get_registered_app_by_app_id(&app.app_id).await.unwrap();
-        assert_eq!(app, result);
+        db.setup_test_team(&team_id, &app_id, Utc::now())
+            .await
+            .unwrap();
 
         // Number of sessions to create
         let num_sessions: u64 = 100;
@@ -530,8 +506,8 @@ mod tests {
             let session_end = session_start + Duration::from_secs(60 * 30); // duration of 30 minutes for each session
 
             let session = DbNcSession {
-                session_id: format!("session_{}_{}", app.app_id, i),
-                app_id: app.app_id.clone(),
+                session_id: format!("session_{}_{}", app_id, i),
+                app_id: app_id.clone(),
                 app_metadata: "test_metadata".to_string(),
                 app_ip_address: "127.0.0.1".to_string(),
                 persistent: false,
@@ -555,7 +531,7 @@ mod tests {
         .await
         .unwrap();
 
-        let stats = db.get_monthly_sessions_stats(&app.app_id).await.unwrap();
+        let stats = db.get_monthly_sessions_stats(&app_id).await.unwrap();
 
         assert_eq!(stats.len(), 1);
         assert_eq!(stats[0].sessions_opened, num_sessions as i64);
@@ -566,22 +542,13 @@ mod tests {
         let db = super::Db::connect_to_the_pool().await;
         db.truncate_all_tables().await.unwrap();
 
-        // "Register" an app
-        let app = RegisteredApp {
-            app_id: "test_app_id".to_string(),
-            app_name: "test_app_name".to_string(),
-            whitelisted_domains: vec!["test_domain".to_string()],
-            subscription: None,
-            ack_public_keys: vec!["test_key".to_string()],
-            email: None,
-            registration_timestamp: 0,
-            pass_hash: None,
-        };
+        // Create test team instance
+        let team_id = "test_team_id".to_string();
+        let app_id = "test_app_id".to_string();
 
-        db.register_new_app(&app).await.unwrap();
-
-        let result = db.get_registered_app_by_app_id(&app.app_id).await.unwrap();
-        assert_eq!(app, result);
+        db.setup_test_team(&team_id, &app_id, Utc::now())
+            .await
+            .unwrap();
 
         let now = Utc::now();
         let start_of_first_period = now - Duration::from_secs(60 * 60 * 24 * 60); // Start of first period, 60 days ago
@@ -596,8 +563,8 @@ mod tests {
             let session_end = session_start + Duration::from_secs(60 * 30); // Duration of 30 minutes for each session
 
             let session = DbNcSession {
-                session_id: format!("session_{}_{}", app.app_id, i),
-                app_id: app.app_id.clone(),
+                session_id: format!("session_{}_{}", app_id, i),
+                app_id: app_id.clone(),
                 app_metadata: "test_metadata".to_string(),
                 app_ip_address: "127.0.0.1".to_string(),
                 persistent: false,
@@ -620,8 +587,8 @@ mod tests {
             let session_end = session_start + Duration::from_secs(60 * 30); // Duration of 30 minutes for each session
 
             let session = DbNcSession {
-                session_id: format!("session_{}_{}_2nd", app.app_id, i), // Ensure unique session IDs for the second period
-                app_id: app.app_id.clone(),
+                session_id: format!("session_{}_{}_2nd", app_id, i), // Ensure unique session IDs for the second period
+                app_id: app_id.clone(),
                 app_metadata: "test_metadata".to_string(),
                 app_ip_address: "127.0.0.1".to_string(),
                 persistent: false,
@@ -645,7 +612,7 @@ mod tests {
         .await
         .unwrap();
 
-        let stats = db.get_monthly_sessions_stats(&app.app_id).await.unwrap();
+        let stats = db.get_monthly_sessions_stats(&app_id).await.unwrap();
 
         assert_eq!(stats.len(), 2);
     }

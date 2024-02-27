@@ -22,7 +22,7 @@ impl Db {
             .bind(&team.team_id)
             .bind(&team.subscription)
             .bind(&team.team_admin_id)
-            .bind(&team.creation_timestamp)
+            .bind(&team.registration_timestamp)
             .execute(&mut **tx)
             .await;
 
@@ -81,130 +81,44 @@ impl Db {
     }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use crate::{
-//         structs::{
-//             consts::DAY_IN_SECONDS, request_status::RequestStatus, time_filters::TimeFilter,
-//         },
-//         tables::{
-//             registered_app::table_struct::RegisteredApp, requests::table_struct::Request,
-//             sessions::table_struct::DbNcSession,
-//         },
-//     };
-//     use sqlx::types::chrono::{DateTime, Utc};
-//     use std::{sync::Arc, time::Duration};
-//     use tokio::task;
+#[cfg(test)]
+mod tests {
+    use crate::tables::{
+        registered_app::table_struct::RegisteredApp, team::table_struct::Team,
+        utils::to_microsecond_precision,
+    };
+    use sqlx::types::chrono::Utc;
 
-//     #[tokio::test]
-//     async fn test_create_team() {
-//         let db = super::Db::connect_to_the_pool().await;
-//         db.truncate_all_tables().await.unwrap();
+    #[tokio::test]
+    async fn test_create_team() {
+        let db = super::Db::connect_to_the_pool().await;
+        db.truncate_all_tables().await.unwrap();
 
-//         // "Register" an app
-//         let app = RegisteredApp {
-//             app_id: "test_app_id".to_string(),
-//             app_name: "test_app_name".to_string(),
-//             whitelisted_domains: vec!["test_domain".to_string()],
-//             subscription: None,
-//             ack_public_keys: vec!["test_key".to_string()],
-//             email: None,
-//             registration_timestamp: 0,
-//             pass_hash: None,
-//         };
+        // Create team and register app
+        let team = Team {
+            team_id: "test_team_id".to_string(),
+            subscription: None,
+            team_admin_id: "test_team_admin_id".to_string(),
+            registration_timestamp: to_microsecond_precision(&Utc::now()),
+        };
 
-//         db.register_new_app(&app).await.unwrap();
+        let app = RegisteredApp {
+            app_id: "test_app_id".to_string(),
+            team_id: "test_team_id".to_string(),
+            app_name: "test_app_name".to_string(),
+            ack_public_keys: vec!["test_ack_public_key".to_string()],
+            whitelisted_domains: vec!["test_whitelisted_domain".to_string()],
+            email: None,
+            pass_hash: None,
+            registration_timestamp: 0,
+            subscription: None,
+        };
+        db.create_team_and_register_app(&team, &app).await.unwrap();
 
-//         let result = db.get_registered_app_by_app_id(&app.app_id).await.unwrap();
-//         assert_eq!(app, result);
+        let team_result = db.get_team_by_team_id(None, &team.team_id).await.unwrap();
+        assert_eq!(team_result, team);
 
-//         // Create session
-//         let session = DbNcSession {
-//             session_id: "test_session_id".to_string(),
-//             app_id: "test_app_id".to_string(),
-//             app_metadata: "test_app_metadata".to_string(),
-//             app_ip_address: "test_app_ip_address".to_string(),
-//             persistent: false,
-//             network: "test_network".to_string(),
-//             client: None,
-//             session_open_timestamp: DateTime::from(Utc::now()),
-//             session_close_timestamp: None,
-//         };
-
-//         db.save_new_session(&session).await.unwrap();
-
-//         let result = db.get_sessions_by_app_id(&app.app_id).await.unwrap();
-//         assert_eq!(result.len(), 1);
-//         // assert_eq!(session, result[0]);
-
-//         let db_arc = Arc::new(db);
-//         let mut tasks = Vec::new();
-
-//         for i in 0..33 {
-//             let db_clone = db_arc.clone(); // Clone the db connection or pool if needed
-//             tasks.push(task::spawn(async move {
-//                 for j in 0..100 - i {
-//                     let creation_time: DateTime<Utc> = Utc::now()
-//                         - Duration::from_secs(i as u64 * DAY_IN_SECONDS as u64)
-//                         - Duration::from_millis((j + 1) as u64 * 100);
-
-//                     let request = Request {
-//                         request_id: format!("test_request_id_{}_{}", i, j),
-//                         app_id: "test_app_id".to_string(),
-//                         session_id: "test_session_id".to_string(),
-//                         network: "test_network".to_string(),
-//                         creation_timestamp: creation_time,
-//                         request_status: RequestStatus::Pending,
-//                         request_type: "test_request_type".to_string(),
-//                     };
-
-//                     if let Err(e) = db_clone.save_request(&request).await {
-//                         eprintln!("Failed to save request: {}", e);
-//                     }
-//                 }
-//             }));
-//         }
-
-//         // Await all tasks to complete
-//         for task in tasks {
-//             task.await.unwrap();
-//         }
-
-//         // We need to refresh manually the views
-//         db_arc
-//             .refresh_continuous_aggregates(vec![
-//                 "hourly_requests_stats".to_string(),
-//                 "daily_requests_stats".to_string(),
-//                 "monthly_requests_stats".to_string(),
-//             ])
-//             .await
-//             .unwrap();
-
-//         let result = db_arc
-//             .get_requests_stats_by_app_id(&app.app_id, TimeFilter::Last24Hours)
-//             .await
-//             .unwrap();
-
-//         assert_eq!(result.len(), 2);
-//         assert_eq!(result[0].request_count, 100);
-//         assert_eq!(result[1].request_count, 99);
-
-//         let result = db_arc
-//             .get_requests_stats_by_app_id(&app.app_id, TimeFilter::Last7Days)
-//             .await
-//             .unwrap();
-
-//         assert_eq!(result.len(), 8);
-//         assert_eq!(result[0].request_count, 100);
-//         assert_eq!(result[7].request_count, 93);
-
-//         let result = db_arc
-//             .get_requests_stats_by_app_id(&app.app_id, TimeFilter::Last30Days)
-//             .await
-//             .unwrap();
-
-//         assert_eq!(result.len(), 31);
-//         assert_eq!(result[0].request_count, 100);
-//         assert_eq!(result[30].request_count, 70);
-//     }
-// }
+        let app_result = db.get_registered_app_by_app_id(&app.app_id).await.unwrap();
+        assert_eq!(app_result, app);
+    }
+}

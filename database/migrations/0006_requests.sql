@@ -1,5 +1,4 @@
 CREATE TABLE requests(
-    team_id TEXT NOT NULL,
     app_id TEXT NOT NULL,
     session_id TEXT NOT NULL,
     request_id TEXT NOT NULL,

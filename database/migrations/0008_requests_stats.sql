@@ -25,9 +25,9 @@ GROUP BY
 SELECT
     add_continuous_aggregate_policy(
         'hourly_requests_stats',
-        start_offset = > INTERVAL '3 h',
-        end_offset = > INTERVAL '1 h',
-        schedule_interval = > INTERVAL '1 h'
+        start_offset => INTERVAL '3 h',
+        end_offset => INTERVAL '1 h',
+        schedule_interval => INTERVAL '1 h'
     );
 
 --- Real time aggregation
@@ -53,9 +53,9 @@ GROUP BY
 SELECT
     add_continuous_aggregate_policy(
         'daily_requests_stats',
-        start_offset = > INTERVAL '3 d',
-        end_offset = > INTERVAL '1 h',
-        schedule_interval = > INTERVAL '12 h'
+        start_offset => INTERVAL '3 d',
+        end_offset => INTERVAL '1 h',
+        schedule_interval => INTERVAL '12 h'
     );
 
 --- Real time aggregation
@@ -81,9 +81,9 @@ GROUP BY
 SELECT
     add_continuous_aggregate_policy(
         'monthly_requests_stats',
-        start_offset = > INTERVAL '3 month',
-        end_offset = > INTERVAL '1 h',
-        schedule_interval = > INTERVAL '1 month'
+        start_offset => INTERVAL '3 month',
+        end_offset => INTERVAL '1 h',
+        schedule_interval => INTERVAL '1 month'
     );
 
 --- Real time aggregation
