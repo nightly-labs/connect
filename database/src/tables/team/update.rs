@@ -3,6 +3,7 @@ use crate::{
     db::Db,
     structs::subscription::Subscription,
     tables::{
+        grafana_users::table_struct::GrafanaUser,
         registered_app::table_struct::RegisteredApp,
         team::table_struct::{Team, TEAM_TABLE_NAME},
     },
@@ -51,10 +52,11 @@ impl Db {
         }
     }
 
-    pub async fn create_team_and_register_app(
+    pub async fn setup_team(
         &self,
         team: &Team,
         app: &RegisteredApp,
+        admin: &GrafanaUser,
     ) -> Result<(), sqlx::Error> {
         // Start a transaction
         let mut tx: Transaction<'_, sqlx::Postgres> = self.connection_pool.begin().await?;
@@ -65,6 +67,14 @@ impl Db {
             // If creating the team fails, roll back the transaction and return the error
             tx.rollback().await?;
             return create_team_result;
+        }
+
+        // Attempt to add team admin within the same transaction
+        let add_admin_result = self.create_new_user_within_tx(&mut tx, admin).await;
+        if add_admin_result.is_err() {
+            // If adding the admin fails, roll back the transaction and return the error
+            tx.rollback().await?;
+            return add_admin_result;
         }
 
         // Attempt to register the new app within the same transaction
@@ -83,9 +93,12 @@ impl Db {
 
 #[cfg(test)]
 mod tests {
-    use crate::tables::{
-        registered_app::table_struct::RegisteredApp, team::table_struct::Team,
-        utils::to_microsecond_precision,
+    use crate::{
+        structs::privelage_level::PrivilegeLevel,
+        tables::{
+            grafana_users::table_struct::GrafanaUser, registered_app::table_struct::RegisteredApp,
+            team::table_struct::Team, utils::to_microsecond_precision,
+        },
     };
     use sqlx::types::chrono::Utc;
 
@@ -113,10 +126,24 @@ mod tests {
             registration_timestamp: 0,
             subscription: None,
         };
-        db.create_team_and_register_app(&team, &app).await.unwrap();
+
+        let admin = GrafanaUser {
+            name: "test_team_admin_id".to_string(),
+            team_id: "test_team_id".to_string(),
+            email: "test_email".to_string(),
+            password_hash: "test_password_hash".to_string(),
+            privilege_level: PrivilegeLevel::Admin,
+            creation_timestamp: to_microsecond_precision(&Utc::now()),
+            team_admin: true,
+        };
+
+        db.setup_team(&team, &app, &admin).await.unwrap();
 
         let team_result = db.get_team_by_team_id(None, &team.team_id).await.unwrap();
         assert_eq!(team_result, team);
+
+        let admin_result = db.get_user_by_user_name(&admin.name).await.unwrap();
+        assert_eq!(admin_result, admin);
 
         let app_result = db.get_registered_app_by_app_id(&app.app_id).await.unwrap();
         assert_eq!(app_result, app);

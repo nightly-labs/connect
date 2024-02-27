@@ -1,6 +1,4 @@
-use std::{future::Future, pin::Pin};
-
-use sqlx::{migrate, pool::PoolOptions, Executor, PgPool, Postgres, Transaction};
+use sqlx::{migrate, pool::PoolOptions, PgPool};
 
 pub struct Db {
     pub connection_pool: PgPool,

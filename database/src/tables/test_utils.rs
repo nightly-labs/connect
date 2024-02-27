@@ -2,7 +2,11 @@
 pub mod test_utils {
     use crate::{
         db::Db,
-        tables::{registered_app::table_struct::RegisteredApp, team::table_struct::Team},
+        structs::privelage_level::PrivilegeLevel,
+        tables::{
+            grafana_users::table_struct::GrafanaUser, registered_app::table_struct::RegisteredApp,
+            team::table_struct::Team,
+        },
     };
     use sqlx::{
         types::chrono::{DateTime, Utc},
@@ -60,11 +64,23 @@ pub mod test_utils {
             app_id: &String,
             registration_timestamp: DateTime<Utc>,
         ) -> anyhow::Result<()> {
+            let admin_id = "test_admin".to_string();
+
             let team = Team {
                 team_id: team_id.clone(),
                 subscription: None,
-                team_admin_id: "admin".to_string(),
+                team_admin_id: admin_id.clone(),
                 registration_timestamp: registration_timestamp,
+            };
+
+            let admin = GrafanaUser {
+                name: admin_id.clone(),
+                creation_timestamp: registration_timestamp,
+                email: "email".to_string(),
+                password_hash: "pass_hash".to_string(),
+                team_admin: true,
+                team_id: team_id.clone(),
+                privilege_level: PrivilegeLevel::Admin,
             };
 
             let registered_app = RegisteredApp {
@@ -79,10 +95,7 @@ pub mod test_utils {
                 registration_timestamp: registration_timestamp.timestamp() as u64,
             };
 
-            match self
-                .create_team_and_register_app(&team, &registered_app)
-                .await
-            {
+            match self.setup_team(&team, &registered_app, &admin).await {
                 Ok(_) => Ok(()),
                 Err(e) => Err(anyhow::anyhow!(e)),
             }
