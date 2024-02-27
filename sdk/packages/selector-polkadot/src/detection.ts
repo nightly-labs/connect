@@ -104,7 +104,7 @@ export const getPolkadotWalletsList = (presetList: WalletMetadata[], recentWalle
       detected: true,
       injectedWallet: wallet,
       walletType: 'hybrid',
-      homepage: ''
+      homepage: 'https://nightly.app/download'
     }
   }
 

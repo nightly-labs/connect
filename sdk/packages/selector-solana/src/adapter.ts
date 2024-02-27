@@ -608,8 +608,12 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
               ) {
                 this.connectToMobileWallet(walletName)
               } else {
-                await this.connectToStandardWallet(walletName)
-                resolve()
+                try {
+                  await this.connectToStandardWallet(walletName)
+                  resolve()
+                } catch (error) {
+                  reject(error)
+                }
               }
             })
 
