@@ -683,6 +683,27 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         this._loading = true
         try {
           this._app = await AppSolana.build(this._appInitData)
+          // Add event listener for userConnected
+          this._app.on('userConnected', async () => {
+            try {
+              persistRecentWalletForNetwork(SOLANA_NETWORK, {
+                walletName: this._chosenMobileWalletName || '',
+                walletType: ConnectionType.Nightly
+              })
+
+              if (!this._app || this._app.connectedPublicKeys.length <= 0) {
+                this._connected = false
+                // If user does not pass any accounts, we should disconnect
+                this.disconnect()
+                return
+              }
+              this._publicKey = this._app.connectedPublicKeys[0]
+              this._connected = true
+              this.emit('connect', this._publicKey)
+            } catch {
+              this.disconnect()
+            }
+          })
         } catch (err) {
           console.log(err)
         } finally {

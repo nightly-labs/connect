@@ -8,7 +8,7 @@ import { SOLANA_NETWORK } from '@nightlylabs/nightly-connect-solana'
 
 const connection = new Connection('https://api.devnet.solana.com')
 
-export default function Solana() {
+export default function SolanaExternalModal() {
   const [adapter, setAdapter] = createSignal<NightlyConnectAdapter>()
   const [modal, setModal] = createSignal<NightlyConnectSelectorModal>()
   const [eager, setEager] = createSignal(false)
@@ -20,7 +20,8 @@ export default function Solana() {
         description: 'Nightly Connect Test',
         icon: 'https://docs.nightly.app/img/logo.png',
         additionalInfo: 'Courtesy of Nightly Connect team'
-      }
+      },
+      persistent: true
     }
 
     const adapter = await NightlyConnectAdapter.build(
@@ -74,7 +75,7 @@ export default function Solana() {
 
   return (
     <main>
-      <Title>Solana Example</Title>
+      <Title>Solana with External Modal Example</Title>
       <div id="modalAnchor" />
       <Show
         when={!!publicKey()}
