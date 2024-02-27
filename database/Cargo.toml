@@ -10,4 +10,5 @@ sqlx = { workspace = true }
 serde = { workspace = true }
 tokio = { workspace = true }
 dotenvy = { workspace = true }
+anyhow = { workspace = true }
 axum = { workspace = true }

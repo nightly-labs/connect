@@ -1,7 +1,14 @@
 #[cfg(test)]
 pub mod test_utils {
-    use crate::db::Db;
-    use sqlx::Row;
+    use crate::{
+        db::Db,
+        structs::subscription::Subscription,
+        tables::{registered_app::table_struct::RegisteredApp, team::table_struct::Team},
+    };
+    use sqlx::{
+        types::chrono::{DateTime, Utc},
+        Row,
+    };
 
     impl Db {
         pub async fn truncate_all_tables(&self) -> Result<(), sqlx::Error> {
@@ -46,6 +53,40 @@ pub mod test_utils {
             println!("Refreshed {} continuous aggregates", views.len());
 
             Ok(())
+        }
+
+        pub async fn setup_test_team(
+            &self,
+            team_id: &String,
+            app_id: &String,
+            registration_timestamp: DateTime<Utc>,
+        ) -> anyhow::Result<()> {
+            let team = Team {
+                team_id: team_id.clone(),
+                subscription: None,
+                team_admin_id: "admin".to_string(),
+                creation_timestamp: registration_timestamp,
+            };
+
+            let registered_app = RegisteredApp {
+                team_id: team_id.clone(),
+                app_id: app_id.clone(),
+                app_name: "test_app".to_string(),
+                whitelisted_domains: vec!["localhost".to_string()],
+                subscription: None,
+                ack_public_keys: vec!["key".to_string()],
+                email: None,
+                pass_hash: None,
+                registration_timestamp: registration_timestamp.timestamp() as u64,
+            };
+
+            match self
+                .create_team_and_register_app(&team, &registered_app)
+                .await
+            {
+                Ok(_) => Ok(()),
+                Err(e) => Err(anyhow::anyhow!(e)),
+            }
         }
     }
 }

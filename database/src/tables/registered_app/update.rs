@@ -1,42 +1,53 @@
 use super::table_struct::{RegisteredApp, REGISTERED_APPS_KEYS, REGISTERED_APPS_TABLE_NAME};
-use crate::{db::Db, structs::subscription::Subscription};
-use sqlx::query;
+use crate::db::Db;
+use sqlx::{query, Transaction};
 
 impl Db {
-    pub async fn register_new_app(&self, app: &RegisteredApp) -> Result<(), sqlx::Error> {
+    pub async fn register_new_app(
+        &self,
+        team_id: &String,
+        app: &RegisteredApp,
+    ) -> Result<(), sqlx::Error> {
+        // Start a transaction
+        let mut tx: Transaction<'_, sqlx::Postgres> = self.connection_pool.begin().await?;
+
+        // Get the team by team_id
+        if let Err(err) = self.get_team_by_team_id(Some(&mut tx), &team_id).await {
+            tx.rollback().await?;
+            return Err(err);
+        }
+
+        // Register the new app only when the team exists
+        if let Err(err) = self.register_new_app_within_tx(&mut tx, &app).await {
+            tx.rollback().await?;
+            return Err(err);
+        }
+
+        // If both actions succeeded, commit the transaction
+        tx.commit().await?;
+        Ok(())
+    }
+
+    pub async fn register_new_app_within_tx(
+        &self,
+        tx: &mut Transaction<'_, sqlx::Postgres>,
+        app: &RegisteredApp,
+    ) -> Result<(), sqlx::Error> {
         let query_body = format!(
             "INSERT INTO {REGISTERED_APPS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
             REGISTERED_APPS_KEYS
         );
 
         let query_result = query(&query_body)
+            .bind(&app.team_id)
             .bind(&app.app_id)
             .bind(&app.app_name)
             .bind(&app.whitelisted_domains)
-            .bind(&app.subscription)
             .bind(&app.ack_public_keys)
             .bind(&app.email)
             .bind(&(app.registration_timestamp as i64))
             .bind(&app.pass_hash)
-            .execute(&self.connection_pool)
-            .await;
-
-        match query_result {
-            Ok(_) => Ok(()),
-            Err(e) => Err(e),
-        }
-    }
-
-    pub async fn update_subscription(
-        &self,
-        app_id: &String,
-        subscription: &Subscription,
-    ) -> Result<(), sqlx::Error> {
-        let query_body = "UPDATE registered_apps SET subscription = $1 WHERE app_id = $2";
-        let query_result = query(query_body)
-            .bind(subscription)
-            .bind(app_id)
-            .execute(&self.connection_pool)
+            .execute(&mut **tx)
             .await;
 
         match query_result {
@@ -66,27 +77,18 @@ mod tests {
         let db = super::Db::connect_to_the_pool().await;
         db.truncate_all_tables().await.unwrap();
 
-        // "Register" an app
-        let app = RegisteredApp {
-            app_id: "test_app_id".to_string(),
-            app_name: "test_app_name".to_string(),
-            whitelisted_domains: vec!["test_domain".to_string()],
-            subscription: None,
-            ack_public_keys: vec!["test_key".to_string()],
-            email: None,
-            registration_timestamp: 0,
-            pass_hash: None,
-        };
+        // Create test team instance
+        let team_id = "test_team_id".to_string();
+        let app_id = "test_app_id".to_string();
 
-        db.register_new_app(&app).await.unwrap();
-
-        let result = db.get_registered_app_by_app_id(&app.app_id).await.unwrap();
-        assert_eq!(app, result);
+        db.setup_test_team(&team_id, &app_id, Utc::now())
+            .await
+            .unwrap();
 
         // Create session
         let session = DbNcSession {
             session_id: "test_session_id".to_string(),
-            app_id: "test_app_id".to_string(),
+            app_id: app_id.to_string(),
             app_metadata: "test_app_metadata".to_string(),
             app_ip_address: "test_app_ip_address".to_string(),
             persistent: false,
@@ -98,15 +100,15 @@ mod tests {
 
         db.save_new_session(&session).await.unwrap();
 
-        let result = db.get_sessions_by_app_id(&app.app_id).await.unwrap();
+        let result = db.get_sessions_by_app_id(&app_id).await.unwrap();
         assert_eq!(result.len(), 1);
-        // assert_eq!(session, result[0]);
 
         let db_arc = Arc::new(db);
         let mut tasks = Vec::new();
 
         for i in 0..33 {
             let db_clone = db_arc.clone(); // Clone the db connection or pool if needed
+            let app_id = app_id.clone();
             tasks.push(task::spawn(async move {
                 for j in 0..100 - i {
                     let creation_time: DateTime<Utc> = Utc::now()
@@ -115,7 +117,7 @@ mod tests {
 
                     let request = Request {
                         request_id: format!("test_request_id_{}_{}", i, j),
-                        app_id: "test_app_id".to_string(),
+                        app_id: app_id.to_string(),
                         session_id: "test_session_id".to_string(),
                         network: "test_network".to_string(),
                         creation_timestamp: creation_time,
@@ -146,7 +148,7 @@ mod tests {
             .unwrap();
 
         let result = db_arc
-            .get_requests_stats_by_app_id(&app.app_id, TimeFilter::Last24Hours)
+            .get_requests_stats_by_app_id(&app_id, TimeFilter::Last24Hours)
             .await
             .unwrap();
 
@@ -155,7 +157,7 @@ mod tests {
         assert_eq!(result[1].request_count, 99);
 
         let result = db_arc
-            .get_requests_stats_by_app_id(&app.app_id, TimeFilter::Last7Days)
+            .get_requests_stats_by_app_id(&app_id, TimeFilter::Last7Days)
             .await
             .unwrap();
 
@@ -164,7 +166,7 @@ mod tests {
         assert_eq!(result[7].request_count, 93);
 
         let result = db_arc
-            .get_requests_stats_by_app_id(&app.app_id, TimeFilter::Last30Days)
+            .get_requests_stats_by_app_id(&app_id, TimeFilter::Last30Days)
             .await
             .unwrap();
 
