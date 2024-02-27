@@ -76,36 +76,30 @@ export const getPolkadotWalletsList = (presetList: WalletMetadata[], recentWalle
     // by name
     if (walletsData[wallet.name.toLocaleLowerCase()]) {
       walletsData[wallet.name.toLocaleLowerCase()] = {
-        ...(walletsData?.[wallet.name.toLocaleLowerCase()] ?? {
-          name: wallet.name,
-          icon: wallet.icon,
-          link: '',
-          deeplink: null,
-          recent: recentWalletName === wallet.name,
-          walletType: 'hybrid'
-        }),
+        ...walletsData[wallet.name.toLocaleLowerCase()],
+        recent: recentWalletName === wallet.name,
         detected: true,
-        injectedWallet: wallet
+        injectedWallet: wallet,
+        walletType: 'hybrid'
       }
-      continue
-    }
-    walletsData[wallet.name.toLocaleLowerCase()] = {
-      slug: wallet.name,
-      name: wallet.name,
-      image: {
-        default: wallet.icon as string,
-        sm: wallet.icon as string,
-        md: wallet.icon as string,
-        lg: wallet.icon as string
-      },
-      desktop: null,
-      mobile: null,
-      recent: recentWalletName === wallet.name,
-      detected: true,
-      injectedWallet: wallet,
-      walletType: 'hybrid',
-      homepage: 'https://nightly.app/download'
-    }
+    } else
+      walletsData[wallet.name.toLocaleLowerCase()] = {
+        slug: wallet.name,
+        name: wallet.name,
+        image: {
+          default: wallet.icon as string,
+          sm: wallet.icon as string,
+          md: wallet.icon as string,
+          lg: wallet.icon as string
+        },
+        desktop: null,
+        mobile: null,
+        recent: recentWalletName === wallet.name,
+        detected: true,
+        injectedWallet: wallet,
+        walletType: 'hybrid',
+        homepage: 'https://nightly.app/download'
+      }
   }
 
   return Object.values(walletsData)
