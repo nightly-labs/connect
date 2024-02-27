@@ -5,7 +5,7 @@ pub mod test_utils {
         structs::privelage_level::PrivilegeLevel,
         tables::{
             grafana_users::table_struct::GrafanaUser, registered_app::table_struct::RegisteredApp,
-            team::table_struct::Team,
+            team::table_struct::Team, user_app_privileges::table_struct::UserAppPrivilege,
         },
     };
     use sqlx::{
@@ -64,23 +64,20 @@ pub mod test_utils {
             app_id: &String,
             registration_timestamp: DateTime<Utc>,
         ) -> anyhow::Result<()> {
-            let admin_id = "test_admin".to_string();
+            let admin = GrafanaUser {
+                creation_timestamp: registration_timestamp,
+                email: "email".to_string(),
+                password_hash: "pass_hash".to_string(),
+                user_id: "test_admin".to_string(),
+            };
+
+            self.add_new_user(&admin).await?;
 
             let team = Team {
                 team_id: team_id.clone(),
                 subscription: None,
-                team_admin_id: admin_id.clone(),
+                team_admin_id: admin.user_id.clone(),
                 registration_timestamp: registration_timestamp,
-            };
-
-            let admin = GrafanaUser {
-                name: admin_id.clone(),
-                creation_timestamp: registration_timestamp,
-                email: "email".to_string(),
-                password_hash: "pass_hash".to_string(),
-                team_admin: true,
-                team_id: team_id.clone(),
-                privilege_level: PrivilegeLevel::Admin,
             };
 
             let registered_app = RegisteredApp {
@@ -95,7 +92,17 @@ pub mod test_utils {
                 registration_timestamp: registration_timestamp.timestamp() as u64,
             };
 
-            match self.setup_team(&team, &registered_app, &admin).await {
+            let admin_privilege = UserAppPrivilege {
+                app_id: app_id.clone(),
+                creation_timestamp: registration_timestamp,
+                privilege_level: PrivilegeLevel::Admin,
+                user_id: admin.user_id.clone(),
+            };
+
+            match self
+                .setup_team(&team, &registered_app, &admin_privilege)
+                .await
+            {
                 Ok(_) => Ok(()),
                 Err(e) => Err(anyhow::anyhow!(e)),
             }

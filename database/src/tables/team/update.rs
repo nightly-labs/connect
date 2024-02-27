@@ -3,9 +3,9 @@ use crate::{
     db::Db,
     structs::subscription::Subscription,
     tables::{
-        grafana_users::table_struct::GrafanaUser,
         registered_app::table_struct::RegisteredApp,
         team::table_struct::{Team, TEAM_TABLE_NAME},
+        user_app_privileges::table_struct::UserAppPrivilege,
     },
 };
 use sqlx::{query, Transaction};
@@ -56,7 +56,7 @@ impl Db {
         &self,
         team: &Team,
         app: &RegisteredApp,
-        admin: &GrafanaUser,
+        admin: &UserAppPrivilege,
     ) -> Result<(), sqlx::Error> {
         // Start a transaction
         let mut tx: Transaction<'_, sqlx::Postgres> = self.connection_pool.begin().await?;
@@ -69,20 +69,20 @@ impl Db {
             return create_team_result;
         }
 
-        // Attempt to add team admin within the same transaction
-        let add_admin_result = self.create_new_user_within_tx(&mut tx, admin).await;
-        if add_admin_result.is_err() {
-            // If adding the admin fails, roll back the transaction and return the error
-            tx.rollback().await?;
-            return add_admin_result;
-        }
-
         // Attempt to register the new app within the same transaction
         let register_app_result = self.register_new_app_within_tx(&mut tx, app).await;
         if register_app_result.is_err() {
             // If registering the app fails, roll back the transaction and return the error
             tx.rollback().await?;
             return register_app_result;
+        }
+
+        // Attempt to add team admin within the same transaction
+        let add_admin_result = self.add_new_privilege_within_tx(&mut tx, admin).await;
+        if add_admin_result.is_err() {
+            // If adding the admin fails, roll back the transaction and return the error
+            tx.rollback().await?;
+            return add_admin_result;
         }
 
         // If both actions succeeded, commit the transaction
@@ -97,7 +97,8 @@ mod tests {
         structs::privelage_level::PrivilegeLevel,
         tables::{
             grafana_users::table_struct::GrafanaUser, registered_app::table_struct::RegisteredApp,
-            team::table_struct::Team, utils::to_microsecond_precision,
+            team::table_struct::Team, user_app_privileges::table_struct::UserAppPrivilege,
+            utils::to_microsecond_precision,
         },
     };
     use sqlx::types::chrono::Utc;
@@ -106,6 +107,16 @@ mod tests {
     async fn test_create_team() {
         let db = super::Db::connect_to_the_pool().await;
         db.truncate_all_tables().await.unwrap();
+
+        // First create a user
+        let admin = GrafanaUser {
+            email: "test_email".to_string(),
+            password_hash: "test_password_hash".to_string(),
+            user_id: "test_user_id".to_string(),
+            creation_timestamp: to_microsecond_precision(&Utc::now()),
+        };
+
+        db.add_new_user(&admin).await.unwrap();
 
         // Create team and register app
         let team = Team {
@@ -127,22 +138,19 @@ mod tests {
             subscription: None,
         };
 
-        let admin = GrafanaUser {
-            name: "test_team_admin_id".to_string(),
-            team_id: "test_team_id".to_string(),
-            email: "test_email".to_string(),
-            password_hash: "test_password_hash".to_string(),
+        let admin_privilege = UserAppPrivilege {
+            app_id: app.app_id.clone(),
+            user_id: admin.user_id.clone(),
             privilege_level: PrivilegeLevel::Admin,
             creation_timestamp: to_microsecond_precision(&Utc::now()),
-            team_admin: true,
         };
 
-        db.setup_team(&team, &app, &admin).await.unwrap();
+        db.setup_team(&team, &app, &admin_privilege).await.unwrap();
 
         let team_result = db.get_team_by_team_id(None, &team.team_id).await.unwrap();
         assert_eq!(team_result, team);
 
-        let admin_result = db.get_user_by_user_name(&admin.name).await.unwrap();
+        let admin_result = db.get_user_by_user_id(&admin.user_id).await.unwrap();
         assert_eq!(admin_result, admin);
 
         let app_result = db.get_registered_app_by_app_id(&app.app_id).await.unwrap();

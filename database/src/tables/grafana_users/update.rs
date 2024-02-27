@@ -10,16 +10,13 @@ impl Db {
         user: &GrafanaUser,
     ) -> Result<(), sqlx::Error> {
         let query_body = format!(
-            "INSERT INTO {GRAFANA_USERS_TABLE_NAME} ({GRAFANA_USERS_KEYS}) VALUES ($1, $2, $3, $4, $5, $6, $7)"
+            "INSERT INTO {GRAFANA_USERS_TABLE_NAME} ({GRAFANA_USERS_KEYS}) VALUES ($1, $2, $3, $4)"
         );
 
         let query_result = query(&query_body)
-            .bind(&user.name)
-            .bind(&user.team_id)
-            .bind(&user.team_admin)
+            .bind(&user.user_id)
             .bind(&user.email)
             .bind(&user.password_hash)
-            .bind(&user.privilege_level)
             .bind(&user.creation_timestamp)
             .execute(&mut **tx)
             .await;
@@ -32,15 +29,13 @@ impl Db {
 
     pub async fn add_new_user(&self, user: &GrafanaUser) -> Result<(), sqlx::Error> {
         let query_body = format!(
-            "INSERT INTO {GRAFANA_USERS_TABLE_NAME} ({GRAFANA_USERS_KEYS}) VALUES ($1, $2, $3, $4, $5, $6, $7)"
+            "INSERT INTO {GRAFANA_USERS_TABLE_NAME} ({GRAFANA_USERS_KEYS}) VALUES ($1, $2, $3, $4)"
         );
 
         let query_result = query(&query_body)
-            .bind(&user.name)
-            .bind(&user.team_id)
+            .bind(&user.user_id)
             .bind(&user.email)
             .bind(&user.password_hash)
-            .bind(&user.privilege_level)
             .bind(&user.creation_timestamp)
             .execute(&self.connection_pool)
             .await;
@@ -54,9 +49,8 @@ impl Db {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        structs::privelage_level::PrivilegeLevel,
-        tables::{grafana_users::table_struct::GrafanaUser, utils::to_microsecond_precision},
+    use crate::tables::{
+        grafana_users::table_struct::GrafanaUser, utils::to_microsecond_precision,
     };
     use sqlx::types::chrono::Utc;
 
@@ -74,18 +68,15 @@ mod tests {
             .unwrap();
 
         let user = GrafanaUser {
-            name: "test_user".to_string(),
-            team_id: team_id.to_string(),
-            team_admin: false,
             email: "test_user_email".to_string(),
             password_hash: "test_password_hash".to_string(),
-            privilege_level: PrivilegeLevel::Read,
+            user_id: "test_user_id".to_string(),
             creation_timestamp: to_microsecond_precision(&Utc::now()),
         };
 
         db.add_new_user(&user).await.unwrap();
 
-        let user_result = db.get_user_by_user_name(&user.name).await.unwrap();
+        let user_result = db.get_user_by_user_id(&user.user_id).await.unwrap();
         assert_eq!(user_result, user);
     }
 }
