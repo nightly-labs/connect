@@ -4,7 +4,6 @@ import {
   WalletSelectorItem
 } from '@nightlylabs/wallet-selector-modal'
 import { type IWalletListItem, type NetworkData } from './types'
-import { isMobileBrowser } from './utils'
 
 export class NightlyConnectSelectorModal {
   _modal: NightlySelector | undefined
@@ -44,12 +43,9 @@ export class NightlyConnectSelectorModal {
   }
 
   set walletsList(list: IWalletListItem[]) {
-    const filtered = list.filter((w) =>
-      isMobileBrowser() ? w.walletType !== 'extension' : w.walletType !== 'mobile'
-    )
-    this._walletsList = filtered
+    this._walletsList = list
     if (this._modal) {
-      this._modal.selectorItems = filtered.map((item) => ({
+      this._modal.selectorItems = list.map((item) => ({
         ...item,
         icon: item.image.default,
         link: item.homepage
