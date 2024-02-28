@@ -5,7 +5,7 @@ CREATE TABLE sessions (
     app_ip_address TEXT NOT NULL,
     persistent BOOLEAN NOT NULL,
     network TEXT NOT NULL,
-    client_profile_id INTEGER NOT NULL,
+    client_profile_id INTEGER,
     client_device TEXT,
     client_metadata TEXT,
     client_notification_endpoint TEXT,
