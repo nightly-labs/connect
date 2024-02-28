@@ -33,7 +33,8 @@ export default [
       '@nightlylabs/wallet-selector-base',
       '@wallet-standard/core',
       'bs58',
-      'events'
+      'events',
+      'eventemitter3'
     ]
   },
   {
