@@ -1,13 +1,11 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import {
-  AppPolkadot,
-  AppPolkadotInitialize,
-  WalletMetadata
-} from '@nightlylabs/nightly-connect-polkadot'
+import { AppPolkadot, AppPolkadotInitialize } from '@nightlylabs/nightly-connect-polkadot'
 import {
   ConnectionOptions,
   ConnectionType,
+  IWalletListItem,
   NightlyConnectSelectorModal,
+  WalletMetadata,
   XMLOptions,
   clearRecentWalletForNetwork,
   clearSessionIdForNetwork,
@@ -21,13 +19,24 @@ import {
 } from '@nightlylabs/wallet-selector-base'
 
 import { type Signer as InjectedSigner } from '@polkadot/api/types'
-import { type Injected } from '@polkadot/extension-inject/types'
+import { InjectedAccount, type Injected } from '@polkadot/extension-inject/types'
 import { IPolkadotWalletListItem, getPolkadotWalletsList } from './detection'
 import { networkToData, SupportedNetworks } from './utils'
+import EventEmitter from 'eventemitter3'
+
 export type AppSelectorInitialize = Omit<AppPolkadotInitialize, 'network'> & {
   network: SupportedNetworks
 }
-export class NightlyConnectAdapter implements Injected {
+
+type NightlyConnectAdapterEvents = {
+  connect(publicKey: InjectedAccount[]): void
+  disconnect(): void
+}
+
+export class NightlyConnectAdapter
+  extends EventEmitter<NightlyConnectAdapterEvents>
+  implements Injected
+{
   name = 'Nightly Connect'
   url = 'https://nightly.app'
   icon = logoBase64
@@ -50,6 +59,7 @@ export class NightlyConnectAdapter implements Injected {
   private _loading: boolean
 
   constructor(appInitData: AppSelectorInitialize, connectionOptions?: ConnectionOptions) {
+    super()
     this._connecting = false
     this._connected = false
     this._appInitData = appInitData
@@ -181,7 +191,26 @@ export class NightlyConnectAdapter implements Injected {
       metadataWallets,
       getRecentWalletForNetwork(adapter.network)?.walletName ?? undefined
     )
+    // Add event listener for userConnected
+    app.on('userConnected', async () => {
+      try {
+        persistRecentWalletForNetwork(adapter.network, {
+          walletName: adapter._chosenMobileWalletName || '',
+          walletType: ConnectionType.Nightly
+        })
 
+        if (!adapter._app || adapter._app.accounts.activeAccounts.length <= 0) {
+          adapter._connected = false
+          // If user does not pass any accounts, we should disconnect
+          adapter.disconnect()
+          return
+        }
+        adapter._connected = true
+        adapter.emit('connect', await adapter.accounts.get())
+      } catch {
+        adapter.disconnect()
+      }
+    })
     return adapter
   }
 
@@ -212,7 +241,7 @@ export class NightlyConnectAdapter implements Injected {
 
     if (!adapter._connectionOptions.disableModal) {
       adapter._modal = new NightlyConnectSelectorModal(
-        adapter.walletsList,
+        adapter.walletsList as IWalletListItem[],
         appInitData.url ?? 'https://nc2.nightly.app',
         networkToData(adapter.network),
         anchorRef,
@@ -235,6 +264,26 @@ export class NightlyConnectAdapter implements Injected {
           )
 
           adapter._loading = false
+          // Add event listener for userConnected
+          app.on('userConnected', async () => {
+            try {
+              persistRecentWalletForNetwork(adapter.network, {
+                walletName: adapter._chosenMobileWalletName || '',
+                walletType: ConnectionType.Nightly
+              })
+
+              if (!adapter._app || adapter._app.accounts.activeAccounts.length <= 0) {
+                adapter._connected = false
+                // If user does not pass any accounts, we should disconnect
+                adapter.disconnect()
+                return
+              }
+              adapter._connected = true
+              adapter.emit('connect', await adapter.accounts.get())
+            } catch {
+              adapter.disconnect()
+            }
+          })
         })
         .catch(() => {
           adapter._loading = false
@@ -309,21 +358,21 @@ export class NightlyConnectAdapter implements Injected {
         throw new Error('Wallet not found')
       }
 
-      if (wallet.deeplink === null) {
+      if (wallet.mobile === null) {
         throw new Error('Deeplink not found')
       }
 
       // If we have a native deeplink, we should use it
-      if (wallet.deeplink.native !== null) {
+      if (wallet.mobile.native !== null) {
         this._app.connectDeeplink({
           walletName: wallet.name,
-          url: wallet.deeplink.native
+          url: wallet.mobile.native
         })
 
         this._chosenMobileWalletName = walletName
 
         triggerConnect(
-          wallet.deeplink.native,
+          wallet.mobile.native,
           this._app.sessionId,
           this._appInitData.url ?? 'https://nc2.nightly.app'
         )
@@ -331,16 +380,16 @@ export class NightlyConnectAdapter implements Injected {
       }
 
       // If we have a universal deeplink, we should use it
-      if (wallet.deeplink.universal !== null) {
+      if (wallet.mobile.universal !== null) {
         this._app.connectDeeplink({
           walletName: wallet.name,
-          url: wallet.deeplink.universal
+          url: wallet.mobile.universal
         })
 
         this._chosenMobileWalletName = walletName
 
         triggerConnect(
-          wallet.deeplink.universal,
+          wallet.mobile.universal,
           this._app.sessionId,
           this._appInitData.url ?? 'https://nc2.nightly.app'
         )
@@ -348,8 +397,8 @@ export class NightlyConnectAdapter implements Injected {
       }
       // Fallback to redirecting to app browser
       // aka browser inside the app
-      if (!wallet.deeplink.redirectToAppBrowser) {
-        const redirectToAppBrowser = wallet.deeplink.redirectToAppBrowser
+      if (!wallet.mobile.redirectToAppBrowser) {
+        const redirectToAppBrowser = wallet.mobile.redirectToAppBrowser
         if (redirectToAppBrowser !== null && redirectToAppBrowser.indexOf('{{url}}') > -1) {
           const url = redirectToAppBrowser.replace(
             '{{url}}',
@@ -407,6 +456,7 @@ export class NightlyConnectAdapter implements Injected {
 
       this._connected = true
       this._connecting = false
+      this.emit('connect', await this.accounts.get())
 
       persistRecentWalletForNetwork(this.network, {
         walletName,
@@ -458,6 +508,7 @@ export class NightlyConnectAdapter implements Injected {
                 try {
                   this._connected = true
                   this._connecting = false
+                  this.emit('connect', await this.accounts.get())
                   resolve()
                   return
                 } catch (error) {
@@ -484,11 +535,33 @@ export class NightlyConnectAdapter implements Injected {
                   metadataWallets,
                   getRecentWalletForNetwork(this.network)?.walletName ?? undefined
                 )
+
+                // Add event listener for userConnected
+                app.on('userConnected', async () => {
+                  try {
+                    persistRecentWalletForNetwork(this.network, {
+                      walletName: this._chosenMobileWalletName || '',
+                      walletType: ConnectionType.Nightly
+                    })
+
+                    if (!this._app || this._app.accounts.activeAccounts.length <= 0) {
+                      this._connected = false
+                      // If user does not pass any accounts, we should disconnect
+                      this.disconnect()
+                      return
+                    }
+                    this._connected = true
+                    this.emit('connect', await this.accounts.get())
+                  } catch {
+                    this.disconnect()
+                  }
+                })
                 this._loading = false
               })
               .catch(() => {
                 this._loading = false
-                throw new Error('Failed to initialize adapter')
+                reject('Failed to initialize adapter')
+                return
               })
           }
           // Interval that checks if app has connected
@@ -513,8 +586,12 @@ export class NightlyConnectAdapter implements Injected {
               ) {
                 this.connectToMobileWallet(walletName)
               } else {
-                await this.connectToStandardWallet(walletName)
-                resolve()
+                try {
+                  await this.connectToStandardWallet(walletName)
+                  resolve()
+                } catch (error) {
+                  reject(error)
+                }
               }
             })
 
@@ -526,26 +603,20 @@ export class NightlyConnectAdapter implements Injected {
                 // Clear interval if app is connected
                 clearInterval(loadingInterval)
                 if (this._modal) this._modal.sessionId = this._app.sessionId
-                this._app.on('userConnected', () => {
+                // We already have hook for userConnected
+                // This is just for resolving promise
+                this._app.on('userConnected', async () => {
                   try {
-                    persistRecentWalletForNetwork(this.network, {
-                      walletName: this._chosenMobileWalletName || '',
-                      walletType: ConnectionType.Nightly
-                    })
-
                     if (!this._app || this._app.accounts.activeAccounts.length <= 0) {
-                      this._connecting = false
-                      this._connected = false
-                      // If user does not pass any accounts, we should disconnect
-                      this.disconnect()
-                      return
+                      reject(new Error('No accounts found'))
                     }
                     this._connected = true
-                    this._connecting = false
                     this._modal?.closeModal()
                     resolve()
-                  } catch {
-                    this.disconnect()
+                  } catch (error) {
+                    reject(error)
+                  } finally {
+                    this._connecting = false
                   }
                 })
                 return
@@ -555,7 +626,7 @@ export class NightlyConnectAdapter implements Injected {
               if (checks > 500) {
                 clearInterval(loadingInterval)
                 // reject(new Error('Connecting takes too long'))
-                // TODO we need to have a way to show error on modal
+                if (this._modal) this._modal.timeoutError = 'Connecting is taking too long'
               }
             }, 10)
           }
@@ -563,8 +634,6 @@ export class NightlyConnectAdapter implements Injected {
         } catch (error: any) {
           this._connecting = false
           reject(error)
-        } finally {
-          this._connecting = false
         }
       }
 
@@ -599,11 +668,12 @@ export class NightlyConnectAdapter implements Injected {
         getRecentWalletForNetwork(this.network)?.walletName ?? undefined
       )
       if (this._modal) {
-        this._modal.walletsList = this.walletsList
+        this._modal.walletsList = this.walletsList as IWalletListItem[]
       }
       this._connected = false
     } finally {
       this._connecting = false
+      this.emit('disconnect')
     }
   }
 }

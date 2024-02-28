@@ -1,6 +1,6 @@
 {
   "name": "@nightlylabs/wallet-selector-polkadot",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "",
   "type": "module",
   "exports": {
@@ -25,10 +25,11 @@
   "license": "ISC",
   "dependencies": {
     "@nightlylabs/nightly-connect-polkadot": "^0.0.15",
-    "@nightlylabs/wallet-selector-base": "^0.3.1",
-    "@polkadot/extension-inject": "0.46.5",
+    "@nightlylabs/wallet-selector-base": "^0.4.0",
     "@polkadot/api": "10.10.1",
-    "@wallet-standard/core": "^1.0.3"
+    "@polkadot/extension-inject": "0.46.5",
+    "@wallet-standard/core": "^1.0.3",
+    "eventemitter3": "^5.0.1"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.0",

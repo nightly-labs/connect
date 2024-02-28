@@ -3,33 +3,52 @@ import { Title } from 'solid-start'
 import { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-solana'
 import { Connection, PublicKey, SystemProgram, Transaction as SolanaTx } from '@solana/web3.js'
 import toast from 'solid-toast'
+import { AppInitData, NightlyConnectSelectorModal } from '@nightlylabs/wallet-selector-base'
+import { SOLANA_NETWORK } from '@nightlylabs/nightly-connect-solana'
 
 const connection = new Connection('https://api.devnet.solana.com')
 
-export default function SolanaLazy() {
+export default function SolanaExternalModal() {
   const [adapter, setAdapter] = createSignal<NightlyConnectAdapter>()
+  const [modal, setModal] = createSignal<NightlyConnectSelectorModal>()
   const [eager, setEager] = createSignal(false)
   const [publicKey, setPublicKey] = createSignal<PublicKey>()
-  onMount(() => {
-    const adapter = NightlyConnectAdapter.buildLazy(
-      {
-        appMetadata: {
-          name: 'NCTestSolana',
-          description: 'Nightly Connect Test',
-          icon: 'https://docs.nightly.app/img/logo.png',
-          additionalInfo: 'Courtesy of Nightly Connect team'
-        },
-        url: 'https://nc2.nightly.app'
+  onMount(async () => {
+    const appInitData: AppInitData = {
+      appMetadata: {
+        name: 'NCTestSolana',
+        description: 'Nightly Connect Test',
+        icon: 'https://docs.nightly.app/img/logo.png',
+        additionalInfo: 'Courtesy of Nightly Connect team'
       },
-      {},
+      persistent: true
+    }
+
+    const adapter = await NightlyConnectAdapter.build(
+      appInitData,
+      { disableModal: true },
       document.getElementById('modalAnchor')
     )
 
+    const modal = new NightlyConnectSelectorModal(
+      adapter.walletsList,
+      appInitData.url ?? 'https://nc2.nightly.app',
+      {
+        name: SOLANA_NETWORK,
+        icon: 'https://assets.coingecko.com/coins/images/4128/small/solana.png'
+      },
+      document.getElementById('modalAnchor')
+    )
+
+    setModal(modal)
+
     adapter.on('connect', (pk) => {
+      modal.closeModal()
       setPublicKey(pk)
     })
 
     adapter.on('disconnect', () => {
+      modal.walletsList = adapter.walletsList
       setPublicKey(undefined)
     })
 
@@ -57,23 +76,32 @@ export default function SolanaLazy() {
 
   return (
     <main>
-      <Title>Solana With Lazy Adapter Build Example</Title>
+      <Title>Solana with External Modal Example</Title>
       <div id="modalAnchor" />
       <Show
         when={!!publicKey()}
         fallback={
           <button
             onClick={() => {
-              adapter()
-                ?.connect()
-                .then(
-                  () => {
-                    console.log('connect resolved successfully')
-                  },
-                  () => {
-                    console.log('connect rejected')
-                  }
-                )
+              if (adapter()?.connecting) {
+                console.log('Cannot connect while connecting')
+                return
+              }
+
+              if (adapter()?.connected) {
+                return
+              }
+
+              modal()?.openModal(adapter()?.sessionId ?? undefined, async (walletName) => {
+                try {
+                  modal()?.setStandardWalletConnectProgress(true)
+                  await adapter()?.connectToWallet(walletName)
+                } catch (err) {
+                  modal()?.setStandardWalletConnectProgress(false)
+                  console.log('error')
+                  modal()?.closeModal()
+                }
+              })
             }}>
             Connect
           </button>

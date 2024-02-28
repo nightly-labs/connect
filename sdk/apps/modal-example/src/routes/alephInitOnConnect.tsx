@@ -13,7 +13,7 @@ export default function Polkadot() {
   const provider = new WsProvider('wss://ws.test.azero.dev/')
 
   onMount(async () => {
-    const adapter = NightlyConnectAdapter.buildWithInitOnConnect(
+    const adapter = NightlyConnectAdapter.buildLazy(
       {
         appMetadata: {
           name: 'NC TEST AlephZero',
@@ -23,10 +23,12 @@ export default function Polkadot() {
         },
         network: 'AlephZero'
       },
-      true, // change this to false to test disabling eager connect
+      { initOnConnect: true }, // change this to false to test disabling eager connect
       document.getElementById('modalAnchor')
     )
-
+    adapter.on('connect', (a) => {
+      console.log('adapter connected', a)
+    })
     setAdapter(adapter)
 
     ApiPromise.create({
@@ -45,12 +47,16 @@ export default function Polkadot() {
         fallback={
           <button
             onClick={async () => {
-              console.log(getPolkadotWallets())
-              await adapter()!.connect()
-              const accounts = await adapter()!.accounts.get()
-              console.log(accounts)
-              setPublicKey(accounts[0].address)
-              console.log('adapter', adapter())
+              try {
+                console.log(getPolkadotWallets())
+                await adapter()!.connect()
+                const accounts = await adapter()!.accounts.get()
+                console.log(accounts)
+                setPublicKey(accounts[0].address)
+                console.log('adapter', adapter())
+              } catch (err) {
+                console.log(err)
+              }
             }}>
             Connect
           </button>

@@ -1,6 +1,9 @@
-import { type XMLOptions, type NightlySelector } from '@nightlylabs/wallet-selector-modal'
+import {
+  type XMLOptions,
+  type NightlySelector,
+  WalletSelectorItem
+} from '@nightlylabs/wallet-selector-modal'
 import { type IWalletListItem, type NetworkData } from './types'
-import { isMobileBrowser } from './utils'
 
 export class NightlyConnectSelectorModal {
   _modal: NightlySelector | undefined
@@ -40,17 +43,22 @@ export class NightlyConnectSelectorModal {
   }
 
   set walletsList(list: IWalletListItem[]) {
-    const filtered = list.filter((w) =>
-      isMobileBrowser() ? w.walletType !== 'extension' : w.walletType !== 'mobile'
-    )
-    this._walletsList = filtered
+    this._walletsList = list
     if (this._modal) {
-      this._modal.selectorItems = filtered
+      this._modal.selectorItems = list.map((item) => ({
+        ...item,
+        icon: item.image.default,
+        link: item.homepage
+      })) as WalletSelectorItem[]
     }
   }
 
   set sessionId(id: string) {
     if (this._modal && id) this._modal.sessionId = id
+  }
+
+  set timeoutError(error: string) {
+    if (this._modal && error) this._modal.timeoutError = error
   }
 
   createSelectorElement = (
@@ -65,7 +73,11 @@ export class NightlyConnectSelectorModal {
       this._modal.relay = this._relay
       this._modal.chainIcon = this._networkData.icon
       this._modal.chainName = this._networkData.name
-      this._modal.selectorItems = this.walletsList
+      this._modal.selectorItems = this.walletsList.map((item) => ({
+        ...item,
+        icon: item.image.default,
+        link: item.homepage
+      })) as WalletSelectorItem[]
     })
   }
 

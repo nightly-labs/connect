@@ -32,8 +32,8 @@ export class NightlyDesktopMain extends LitElement {
   @property({ type: Object })
   qrConfigOverride: Partial<XMLOptions> = {}
 
-  @property({ type: Boolean })
-  timeoutError = false
+  @property({ type: String })
+  timeoutError = ''
 
   @state()
   copyMessage = 'Copy'
@@ -113,19 +113,20 @@ export class NightlyDesktopMain extends LitElement {
           </div>
           <img id="qrCode" class="nc_desktopMainQrCode" src=${this.qrSource} />
 
-          ${!this.isSessionIdImmediatelyDefined &&
-          html`<div
-            class="nc_desktopQrLoaderOverlay ${this.qrSource && !this.timeoutError
-              ? 'nc_desktopQrLoadedOverlayFadeOut'
-              : ''}"
-          >
-            <img
-              src="https://registry.nightly.app/gifs/loading.gif"
-              alt="Loading"
-              class="nc_desktopQrLoader"
-            />
-            <h3 class="nc_desktopQrLoaderLabel">Generating QR code...</h3>
-          </div>`}
+          ${!this.isSessionIdImmediatelyDefined
+            ? html`<div
+                class="nc_desktopQrLoaderOverlay ${this.qrSource && !this.timeoutError
+                  ? 'nc_desktopQrLoadedOverlayFadeOut'
+                  : ''}"
+              >
+                <img
+                  src="https://registry.nightly.app/gifs/loading.gif"
+                  alt="Loading"
+                  class="nc_desktopQrLoader"
+                />
+                <h3 class="nc_desktopQrLoaderLabel">Generating QR code...</h3>
+              </div>`
+            : html``}
 
           <div
             class="nc_desktopQrTimeoutErrorOverlay ${this.timeoutError &&

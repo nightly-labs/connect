@@ -1,8 +1,8 @@
-import { type Injected, type InjectedExtension } from '@polkadot/extension-inject/types'
-import { type WalletIcon } from '@wallet-standard/core'
+import { Injected, InjectedExtension } from '@polkadot/extension-inject/types'
+import { WalletIcon } from '@wallet-standard/core'
 import { appToIcon } from './tempIcons'
-import { IWalletListItem } from '@nightlylabs/wallet-selector-base'
-import { WalletMetadata } from '@nightlylabs/nightly-connect-polkadot'
+import { WalletMetadata } from '@nightlylabs/wallet-selector-base'
+
 export interface PolkadotWalletInjected {
   // Default Polkadot standard
   connect?: (origin: string) => Promise<InjectedExtension> // Is this even used ?
@@ -32,7 +32,13 @@ export const getPolkadotWallets = (): PolkadotWalletInjected[] => {
   }
 }
 
-export interface IPolkadotWalletListItem extends Omit<IWalletListItem, 'standardWallet'> {
+export interface IPolkadotWalletListItem
+  extends Pick<
+    WalletMetadata,
+    'name' | 'slug' | 'walletType' | 'mobile' | 'desktop' | 'image' | 'homepage'
+  > {
+  recent?: boolean
+  detected?: boolean
   injectedWallet?: PolkadotWalletInjected
 }
 
@@ -43,12 +49,7 @@ export const getPolkadotWalletsList = (presetList: WalletMetadata[], recentWalle
 
   presetList.forEach((wallet) => {
     walletsData[wallet.slug.toLocaleLowerCase()] = {
-      slug: wallet.slug,
-      name: wallet.name,
-      icon: wallet.image.default,
-      deeplink: wallet.mobile,
-      link: wallet.homepage,
-      walletType: wallet.walletType,
+      ...wallet,
       recent: recentWalletName === wallet.name
     }
   })
@@ -57,48 +58,42 @@ export const getPolkadotWalletsList = (presetList: WalletMetadata[], recentWalle
     // by namespace
     if (walletsData[wallet.slug.toLocaleLowerCase()]) {
       walletsData[wallet.slug.toLocaleLowerCase()] = {
-        ...(walletsData?.[wallet.slug.toLocaleLowerCase()] ?? {
-          name: wallet.name,
-          icon: wallet.icon,
-          link: '',
-          deeplink: null,
-          recent: recentWalletName === wallet.name,
-          walletType: 'hybrid'
-        }),
+        ...walletsData?.[wallet.slug.toLocaleLowerCase()],
+        recent: recentWalletName === wallet.name,
         detected: true,
-        injectedWallet: wallet
+        injectedWallet: wallet,
+        walletType: 'hybrid'
       }
-      continue
     }
 
     // Check if wallet is already in the list
     // by name
-    if (walletsData[wallet.name.toLocaleLowerCase()]) {
+    else if (walletsData[wallet.name.toLocaleLowerCase()]) {
       walletsData[wallet.name.toLocaleLowerCase()] = {
-        ...(walletsData?.[wallet.name.toLocaleLowerCase()] ?? {
-          name: wallet.name,
-          icon: wallet.icon,
-          link: '',
-          deeplink: null,
-          recent: recentWalletName === wallet.name,
-          walletType: 'hybrid'
-        }),
+        ...walletsData[wallet.name.toLocaleLowerCase()],
+        recent: recentWalletName === wallet.name,
         detected: true,
-        injectedWallet: wallet
+        injectedWallet: wallet,
+        walletType: 'hybrid'
       }
-      continue
-    }
-    walletsData[wallet.name.toLocaleLowerCase()] = {
-      slug: wallet.name,
-      name: wallet.name,
-      icon: wallet.icon as string,
-      link: '',
-      deeplink: null,
-      recent: recentWalletName === wallet.name,
-      detected: true,
-      injectedWallet: wallet,
-      walletType: 'hybrid'
-    }
+    } else
+      walletsData[wallet.name.toLocaleLowerCase()] = {
+        slug: wallet.name,
+        name: wallet.name,
+        image: {
+          default: wallet.icon as string,
+          sm: wallet.icon as string,
+          md: wallet.icon as string,
+          lg: wallet.icon as string
+        },
+        desktop: null,
+        mobile: null,
+        recent: recentWalletName === wallet.name,
+        detected: true,
+        injectedWallet: wallet,
+        walletType: 'hybrid',
+        homepage: 'https://nightly.app/download'
+      }
   }
 
   return Object.values(walletsData)

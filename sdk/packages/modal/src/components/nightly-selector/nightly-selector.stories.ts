@@ -159,7 +159,7 @@ export const Error: Story = (args: NightlyModalArgs) => {
 
   if (!args.sessionId)
     setTimeout(() => {
-      updateArgs({ timeoutError: true })
+      updateArgs({ timeoutError: 'error' })
     }, 5000)
 
   return open
