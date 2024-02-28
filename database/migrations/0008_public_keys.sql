@@ -1,5 +1,5 @@
 CREATE TABLE public_keys (
-    public_key_id SERIAL PRIMARY KEY,
+    public_key_id BIGSERIAL PRIMARY KEY,
     public_key TEXT NOT NULL UNIQUE,
     client_profile_id INTEGER REFERENCES client_profiles(client_profile_id),
     first_seen TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -7,7 +7,7 @@ CREATE TABLE public_keys (
 );
 
 CREATE TABLE session_public_keys (
-    session_public_key_id SERIAL PRIMARY KEY,
+    session_public_key_id BIGSERIAL PRIMARY KEY,
     session_id TEXT NOT NULL,
     public_key_id INTEGER NOT NULL,
     timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),

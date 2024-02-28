@@ -1,5 +1,5 @@
 CREATE TABLE connection_events (
-    event_id SERIAL PRIMARY KEY,
+    event_id BIGSERIAL PRIMARY KEY,
     session_id TEXT NOT NULL,
     connection_id TEXT, -- NULL for clients, unique for app connections
     entity_id TEXT NOT NULL, -- client_profile_id or app_id

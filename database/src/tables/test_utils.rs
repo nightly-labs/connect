@@ -36,6 +36,13 @@ pub mod test_utils {
 
             let query = format!("TRUNCATE TABLE {tables_names} CASCADE");
             sqlx::query(&query).execute(&self.connection_pool).await?;
+
+            // Reset sequences
+            let seq_reset_query =
+                "ALTER SEQUENCE client_profiles_client_profile_id_seq RESTART WITH 1";
+            sqlx::query(seq_reset_query)
+                .execute(&self.connection_pool)
+                .await?;
             Ok(())
         }
 

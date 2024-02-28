@@ -1,3 +1,4 @@
+pub mod client_profiles;
 pub mod grafana_users;
 pub mod registered_app;
 pub mod requests;
