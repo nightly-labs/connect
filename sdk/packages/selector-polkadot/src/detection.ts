@@ -58,23 +58,17 @@ export const getPolkadotWalletsList = (presetList: WalletMetadata[], recentWalle
     // by namespace
     if (walletsData[wallet.slug.toLocaleLowerCase()]) {
       walletsData[wallet.slug.toLocaleLowerCase()] = {
-        ...(walletsData?.[wallet.slug.toLocaleLowerCase()] ?? {
-          name: wallet.name,
-          icon: wallet.icon,
-          link: '',
-          deeplink: null,
-          recent: recentWalletName === wallet.name,
-          walletType: 'hybrid'
-        }),
+        ...walletsData?.[wallet.slug.toLocaleLowerCase()],
+        recent: recentWalletName === wallet.name,
         detected: true,
-        injectedWallet: wallet
+        injectedWallet: wallet,
+        walletType: 'hybrid'
       }
-      continue
     }
 
     // Check if wallet is already in the list
     // by name
-    if (walletsData[wallet.name.toLocaleLowerCase()]) {
+    else if (walletsData[wallet.name.toLocaleLowerCase()]) {
       walletsData[wallet.name.toLocaleLowerCase()] = {
         ...walletsData[wallet.name.toLocaleLowerCase()],
         recent: recentWalletName === wallet.name,
