@@ -30,7 +30,8 @@ export default [
       '@nightlylabs/wallet-selector-base',
       '@polkadot/extension-inject',
       '@polkadot/api',
-      '@wallet-standard/core'
+      '@wallet-standard/core',
+      'eventemitter3'
     ]
   },
   {

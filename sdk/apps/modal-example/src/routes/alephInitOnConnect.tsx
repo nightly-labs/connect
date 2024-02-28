@@ -21,7 +21,8 @@ export default function Polkadot() {
           icon: 'https://docs.nightly.app/img/logo.png',
           additionalInfo: 'Courtesy of Nightly Connect team'
         },
-        network: 'AlephZero'
+        network: 'AlephZero',
+        persistent: true
       },
       { initOnConnect: true }, // change this to false to test disabling eager connect
       document.getElementById('modalAnchor')
