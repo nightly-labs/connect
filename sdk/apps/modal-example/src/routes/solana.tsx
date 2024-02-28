@@ -30,7 +30,11 @@ export default function Solana() {
       adapter.on('disconnect', () => {
         setPublicKey(undefined)
       })
-
+      adapter.on('change', (a) => {
+        if (a.accounts) {
+          setPublicKey(new PublicKey(a.accounts[0].publicKey))
+        }
+      })
       adapter.canEagerConnect().then((canEagerConnect) => {
         setEager(canEagerConnect)
       })

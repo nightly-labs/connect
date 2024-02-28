@@ -40,6 +40,7 @@ type NightlyConnectAdapterEvents = WalletAdapterEvents & {
   change(properties: StandardEventsChangeProperties): void
 }
 
+// TODO refactor this to use interface instead of class
 export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
   name = 'Nightly Connect' as WalletName<'Nightly Connect'>
   url = 'https://nightly.app'
@@ -70,7 +71,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
   private _loading: boolean
 
   private _connectionOptions: ConnectionOptions = defaultConnectionOptions
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private _eventHandlers: Map<string, (...args: any[]) => void> = new Map()
   constructor(appInitData: AppInitData, connectionOptions?: ConnectionOptions) {
     super()
     this._connecting = false
@@ -149,22 +151,24 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     fn: NightlyConnectAdapterEvents[T] extends (...args: infer Args) => void
       ? (...args: Args) => void
       : never,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     context?: any
   ): this {
     if (event === 'change') {
-      // TODO implement on change listener
+      this._eventHandlers.set('change', fn)
       return this
     } else {
       return super.on(event, fn, context)
     }
   }
-
+  // TODO remove once we move to full interface
   emit<T extends keyof NightlyConnectAdapterEvents>(
     event: T,
-    ...args: [publicKey: PublicKey] | [] | [error: WalletError] | [readyState: WalletReadyState]
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...args: any
   ): boolean {
     if (event === 'change') {
-      // TODO implement change event emitter
+      this._eventHandlers.get('change')?.(...args)
     } else {
       super.emit(event, ...args)
     }
@@ -469,7 +473,10 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       this._connected = true
       this._connecting = false
       this.emit('connect', this._publicKey!)
-
+      // Subscribe to change event
+      adapter.wallet.features['standard:events'].on('change', (a) => {
+        this.emit('change', a)
+      })
       persistRecentWalletForNetwork(SOLANA_NETWORK, {
         walletName,
         walletType: ConnectionType.WalletStandard

@@ -46,7 +46,11 @@ export default function SolanaExternalModal() {
       modal.closeModal()
       setPublicKey(pk)
     })
-
+    adapter.on('change', (a) => {
+      if (a.accounts) {
+        setPublicKey(new PublicKey(a.accounts[0].publicKey))
+      }
+    })
     adapter.on('disconnect', () => {
       modal.walletsList = adapter.walletsList
       setPublicKey(undefined)
