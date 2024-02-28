@@ -358,7 +358,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       }
       // Wait for app to be restored
       if (this._loading) {
-        for (let i = 0; i < 2000; i++) {
+        for (let i = 0; i < 200; i++) {
           await sleep(10)
           if (!this._loading) {
             break

@@ -29,7 +29,7 @@ export default function Polkadot() {
         },
         network: 'AlephZero'
       },
-      {}, // change this to false to test disabling eager connect
+      { initOnConnect: false, disableModal: false, disableEagerConnect: false }, // change this to false to test disabling eager connect
       document.getElementById('modalAnchor'),
       {
         variablesOverride: {
