@@ -67,7 +67,7 @@ export default [
     ]
   },
   {
-    input: 'dist/types/apps/sui/src/index.d.ts',
+    input: 'dist/types/packages/sui/src/index.d.ts',
     output: [{ file: 'dist/index.d.ts', format: 'esm' }],
     plugins: [dts()]
   }

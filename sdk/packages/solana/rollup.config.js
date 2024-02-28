@@ -61,7 +61,7 @@ export default [
     ]
   },
   {
-    input: 'dist/types/apps/solana/src/index.d.ts',
+    input: 'dist/types/packages/solana/src/index.d.ts',
     output: [{ file: 'dist/index.d.ts', format: 'esm' }],
     plugins: [dts()]
   }

@@ -69,7 +69,7 @@ export default [
     ]
   },
   {
-    input: 'dist/types/apps/polkadot/src/index.d.ts',
+    input: 'dist/types/packages/polkadot/src/index.d.ts',
     output: [{ file: 'dist/index.d.ts', format: 'esm' }],
     plugins: [dts()]
   }

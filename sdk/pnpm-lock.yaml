@@ -132,19 +132,19 @@ importers:
         specifier: ^0.8.0
         version: 0.8.0
       '@nightlylabs/nightly-connect-polkadot':
-        specifier: 0.0.14
-        version: 0.0.14
+        specifier: 0.0.15
+        version: link:../../packages/polkadot
       '@nightlylabs/nightly-connect-solana':
         specifier: 0.0.29
-        version: link:../solana
+        version: link:../../packages/solana
       '@nightlylabs/nightly-connect-sui':
         specifier: 0.0.29
-        version: link:../sui
+        version: link:../../packages/sui
       '@nightlylabs/wallet-selector-base':
         specifier: ^0.4.0
         version: link:../../packages/selector-base
       '@nightlylabs/wallet-selector-polkadot':
-        specifier: 0.2.2
+        specifier: 0.2.3
         version: link:../../packages/selector-polkadot
       '@nightlylabs/wallet-selector-solana':
         specifier: 0.3.0
@@ -256,76 +256,6 @@ importers:
         specifier: 5.1.6
         version: 5.1.6
 
-  apps/polkadot:
-    dependencies:
-      '@nightlylabs/nightly-connect-base':
-        specifier: 0.0.27
-        version: link:../base
-      '@polkadot/api':
-        specifier: ^10.10.1
-        version: 10.10.1
-      '@polkadot/extension-inject':
-        specifier: ^0.46.5
-        version: 0.46.5(@polkadot/api@10.10.1)(@polkadot/util@12.5.1)
-      '@polkadot/types':
-        specifier: ^10.10.1
-        version: 10.10.1
-      '@polkadot/util':
-        specifier: ^12.5.1
-        version: 12.5.1
-      '@polkadot/util-crypto':
-        specifier: ^12.5.1
-        version: 12.5.1(@polkadot/util@12.5.1)
-      eventemitter3:
-        specifier: ^5.0.1
-        version: 5.0.1
-      uuid:
-        specifier: ^9.0.0
-        version: 9.0.0
-    devDependencies:
-      '@polkadot/keyring':
-        specifier: ^12.5.1
-        version: 12.5.1(@polkadot/util-crypto@12.5.1)(@polkadot/util@12.5.1)
-      '@rollup/plugin-commonjs':
-        specifier: ^25.0.0
-        version: 25.0.0(rollup@3.23.1)
-      '@rollup/plugin-node-resolve':
-        specifier: ^15.1.0
-        version: 15.1.0(rollup@3.23.1)
-      '@rollup/plugin-terser':
-        specifier: ^0.4.3
-        version: 0.4.3(rollup@3.23.1)
-      '@rollup/plugin-typescript':
-        specifier: ^11.1.1
-        version: 11.1.1(rollup@3.23.1)(tslib@2.5.3)(typescript@5.1.6)
-      '@types/node':
-        specifier: ^20.3.0
-        version: 20.4.2
-      '@vitest/ui':
-        specifier: ^0.31.1
-        version: 0.31.1(vitest@0.31.1)
-      bs58:
-        specifier: ^5.0.0
-        version: 5.0.0
-      js-sha256:
-        specifier: ^0.9.0
-        version: 0.9.0
-      rollup:
-        specifier: ^3.23.1
-        version: 3.23.1
-      rollup-plugin-dts:
-        specifier: ^5.3.0
-        version: 5.3.0(rollup@3.23.1)(typescript@5.1.6)
-      tslib:
-        specifier: ^2.5.3
-        version: 2.5.3
-      tweetnacl:
-        specifier: ^1.0.3
-        version: 1.0.3
-      typescript:
-        specifier: ^5.1.3
-        version: 5.1.6
-
   apps/qrcode-example:
     dependencies:
       '@nightlylabs/qr-code':
@@ -338,125 +268,6 @@ importers:
       vite:
         specifier: ^4.3.9
         version: 4.3.9(@types/node@20.9.0)
-
-  apps/solana:
-    dependencies:
-      '@nightlylabs/nightly-connect-base':
-        specifier: 0.0.27
-        version: link:../base
-      '@solana/web3.js':
-        specifier: ^1.77.2
-        version: 1.77.2
-      eventemitter3:
-        specifier: ^5.0.1
-        version: 5.0.1
-      uuid:
-        specifier: ^9.0.0
-        version: 9.0.0
-    devDependencies:
-      '@rollup/plugin-commonjs':
-        specifier: ^25.0.0
-        version: 25.0.0(rollup@3.23.1)
-      '@rollup/plugin-node-resolve':
-        specifier: ^15.1.0
-        version: 15.1.0(rollup@3.23.1)
-      '@rollup/plugin-terser':
-        specifier: ^0.4.3
-        version: 0.4.3(rollup@3.23.1)
-      '@rollup/plugin-typescript':
-        specifier: ^11.1.1
-        version: 11.1.1(rollup@3.23.1)(tslib@2.5.3)(typescript@5.1.3)
-      '@types/node':
-        specifier: ^20.3.0
-        version: 20.3.0
-      '@vitest/ui':
-        specifier: ^0.31.1
-        version: 0.31.1(vitest@0.31.1)
-      bs58:
-        specifier: ^5.0.0
-        version: 5.0.0
-      js-sha256:
-        specifier: ^0.9.0
-        version: 0.9.0
-      rollup:
-        specifier: ^3.23.1
-        version: 3.23.1
-      rollup-plugin-dts:
-        specifier: ^5.3.0
-        version: 5.3.0(rollup@3.23.1)(typescript@5.1.3)
-      tslib:
-        specifier: ^2.5.3
-        version: 2.5.3
-      tweetnacl:
-        specifier: ^1.0.3
-        version: 1.0.3
-      typescript:
-        specifier: ^5.1.3
-        version: 5.1.3
-
-  apps/sui:
-    dependencies:
-      '@mysten/sui.js':
-        specifier: ^0.42.0
-        version: 0.42.0
-      '@mysten/wallet-standard':
-        specifier: ^0.8.0
-        version: 0.8.0
-      '@nightlylabs/nightly-connect-base':
-        specifier: ^0.0.27
-        version: link:../base
-      '@noble/hashes':
-        specifier: ^1.3.0
-        version: 1.3.0
-      eventemitter3:
-        specifier: ^5.0.1
-        version: 5.0.1
-      uuid:
-        specifier: ^9.0.0
-        version: 9.0.0
-    devDependencies:
-      '@rollup/plugin-commonjs':
-        specifier: ^25.0.0
-        version: 25.0.0(rollup@3.23.1)
-      '@rollup/plugin-node-resolve':
-        specifier: ^15.2.1
-        version: 15.2.1(rollup@3.23.1)
-      '@rollup/plugin-terser':
-        specifier: ^0.4.3
-        version: 0.4.3(rollup@3.23.1)
-      '@rollup/plugin-typescript':
-        specifier: ^11.1.1
-        version: 11.1.1(rollup@3.23.1)(tslib@2.5.3)(typescript@5.1.3)
-      '@types/node':
-        specifier: ^20.3.0
-        version: 20.3.0
-      '@vitest/ui':
-        specifier: ^0.31.1
-        version: 0.31.1(vitest@0.31.1)
-      bs58:
-        specifier: ^5.0.0
-        version: 5.0.0
-      cross-fetch:
-        specifier: ^3.1.6
-        version: 3.1.6
-      js-sha256:
-        specifier: ^0.9.0
-        version: 0.9.0
-      rollup:
-        specifier: ^3.23.1
-        version: 3.23.1
-      rollup-plugin-dts:
-        specifier: ^5.3.0
-        version: 5.3.0(rollup@3.23.1)(typescript@5.1.3)
-      tslib:
-        specifier: ^2.5.3
-        version: 2.5.3
-      tweetnacl:
-        specifier: ^1.0.3
-        version: 1.0.3
-      typescript:
-        specifier: ^5.1.3
-        version: 5.1.3
 
   packages/eslint-config-custom:
     dependencies:
@@ -558,6 +369,76 @@ importers:
         specifier: ^4.3.9
         version: 4.3.9(@types/node@20.9.0)
 
+  packages/polkadot:
+    dependencies:
+      '@nightlylabs/nightly-connect-base':
+        specifier: 0.0.27
+        version: link:../../apps/base
+      '@polkadot/api':
+        specifier: ^10.10.1
+        version: 10.10.1
+      '@polkadot/extension-inject':
+        specifier: ^0.46.5
+        version: 0.46.5(@polkadot/api@10.10.1)(@polkadot/util@12.5.1)
+      '@polkadot/types':
+        specifier: ^10.10.1
+        version: 10.10.1
+      '@polkadot/util':
+        specifier: ^12.5.1
+        version: 12.5.1
+      '@polkadot/util-crypto':
+        specifier: ^12.5.1
+        version: 12.5.1(@polkadot/util@12.5.1)
+      eventemitter3:
+        specifier: ^5.0.1
+        version: 5.0.1
+      uuid:
+        specifier: ^9.0.0
+        version: 9.0.0
+    devDependencies:
+      '@polkadot/keyring':
+        specifier: ^12.5.1
+        version: 12.5.1(@polkadot/util-crypto@12.5.1)(@polkadot/util@12.5.1)
+      '@rollup/plugin-commonjs':
+        specifier: ^25.0.0
+        version: 25.0.0(rollup@3.23.1)
+      '@rollup/plugin-node-resolve':
+        specifier: ^15.1.0
+        version: 15.2.1(rollup@3.23.1)
+      '@rollup/plugin-terser':
+        specifier: ^0.4.3
+        version: 0.4.3(rollup@3.23.1)
+      '@rollup/plugin-typescript':
+        specifier: ^11.1.1
+        version: 11.1.1(rollup@3.23.1)(tslib@2.6.2)(typescript@5.1.6)
+      '@types/node':
+        specifier: ^20.3.0
+        version: 20.9.0
+      '@vitest/ui':
+        specifier: ^0.31.1
+        version: 0.31.1(vitest@0.31.1)
+      bs58:
+        specifier: ^5.0.0
+        version: 5.0.0
+      js-sha256:
+        specifier: ^0.9.0
+        version: 0.9.0
+      rollup:
+        specifier: ^3.23.1
+        version: 3.23.1
+      rollup-plugin-dts:
+        specifier: ^5.3.0
+        version: 5.3.0(rollup@3.23.1)(typescript@5.1.6)
+      tslib:
+        specifier: ^2.5.3
+        version: 2.6.2
+      tweetnacl:
+        specifier: ^1.0.3
+        version: 1.0.3
+      typescript:
+        specifier: ^5.1.3
+        version: 5.1.6
+
   packages/qr-codes:
     dependencies:
       qrcode-generator:
@@ -633,7 +514,7 @@ importers:
     dependencies:
       '@nightlylabs/nightly-connect-polkadot':
         specifier: ^0.0.15
-        version: link:../../apps/polkadot
+        version: link:../polkadot
       '@nightlylabs/wallet-selector-base':
         specifier: ^0.4.0
         version: link:../selector-base
@@ -679,7 +560,7 @@ importers:
     dependencies:
       '@nightlylabs/nightly-connect-solana':
         specifier: ^0.0.29
-        version: link:../../apps/solana
+        version: link:../solana
       '@nightlylabs/wallet-selector-base':
         specifier: ^0.4.0
         version: link:../selector-base
@@ -737,7 +618,7 @@ importers:
         version: 0.8.0
       '@nightlylabs/nightly-connect-sui':
         specifier: 0.0.29
-        version: link:../../apps/sui
+        version: link:../sui
       '@nightlylabs/wallet-selector-base':
         specifier: 0.4.0
         version: link:../selector-base
@@ -781,6 +662,125 @@ importers:
       typescript:
         specifier: ^5.1.3
         version: 5.1.3
+
+  packages/solana:
+    dependencies:
+      '@nightlylabs/nightly-connect-base':
+        specifier: 0.0.27
+        version: link:../../apps/base
+      '@solana/web3.js':
+        specifier: ^1.77.2
+        version: 1.77.2
+      eventemitter3:
+        specifier: ^5.0.1
+        version: 5.0.1
+      uuid:
+        specifier: ^9.0.0
+        version: 9.0.0
+    devDependencies:
+      '@rollup/plugin-commonjs':
+        specifier: ^25.0.0
+        version: 25.0.0(rollup@3.23.1)
+      '@rollup/plugin-node-resolve':
+        specifier: ^15.1.0
+        version: 15.2.1(rollup@3.23.1)
+      '@rollup/plugin-terser':
+        specifier: ^0.4.3
+        version: 0.4.3(rollup@3.23.1)
+      '@rollup/plugin-typescript':
+        specifier: ^11.1.1
+        version: 11.1.1(rollup@3.23.1)(tslib@2.6.2)(typescript@5.1.6)
+      '@types/node':
+        specifier: ^20.3.0
+        version: 20.9.0
+      '@vitest/ui':
+        specifier: ^0.31.1
+        version: 0.31.1(vitest@0.31.1)
+      bs58:
+        specifier: ^5.0.0
+        version: 5.0.0
+      js-sha256:
+        specifier: ^0.9.0
+        version: 0.9.0
+      rollup:
+        specifier: ^3.23.1
+        version: 3.23.1
+      rollup-plugin-dts:
+        specifier: ^5.3.0
+        version: 5.3.0(rollup@3.23.1)(typescript@5.1.6)
+      tslib:
+        specifier: ^2.5.3
+        version: 2.6.2
+      tweetnacl:
+        specifier: ^1.0.3
+        version: 1.0.3
+      typescript:
+        specifier: ^5.1.3
+        version: 5.1.6
+
+  packages/sui:
+    dependencies:
+      '@mysten/sui.js':
+        specifier: ^0.42.0
+        version: 0.42.0
+      '@mysten/wallet-standard':
+        specifier: ^0.8.0
+        version: 0.8.0
+      '@nightlylabs/nightly-connect-base':
+        specifier: ^0.0.27
+        version: link:../../apps/base
+      '@noble/hashes':
+        specifier: ^1.3.0
+        version: 1.3.2
+      eventemitter3:
+        specifier: ^5.0.1
+        version: 5.0.1
+      uuid:
+        specifier: ^9.0.0
+        version: 9.0.0
+    devDependencies:
+      '@rollup/plugin-commonjs':
+        specifier: ^25.0.0
+        version: 25.0.0(rollup@3.23.1)
+      '@rollup/plugin-node-resolve':
+        specifier: ^15.2.1
+        version: 15.2.1(rollup@3.23.1)
+      '@rollup/plugin-terser':
+        specifier: ^0.4.3
+        version: 0.4.3(rollup@3.23.1)
+      '@rollup/plugin-typescript':
+        specifier: ^11.1.1
+        version: 11.1.1(rollup@3.23.1)(tslib@2.6.2)(typescript@5.1.6)
+      '@types/node':
+        specifier: ^20.3.0
+        version: 20.9.0
+      '@vitest/ui':
+        specifier: ^0.31.1
+        version: 0.31.1(vitest@0.31.1)
+      bs58:
+        specifier: ^5.0.0
+        version: 5.0.0
+      cross-fetch:
+        specifier: ^3.1.6
+        version: 3.1.6
+      js-sha256:
+        specifier: ^0.9.0
+        version: 0.9.0
+      rollup:
+        specifier: ^3.23.1
+        version: 3.23.1
+      rollup-plugin-dts:
+        specifier: ^5.3.0
+        version: 5.3.0(rollup@3.23.1)(typescript@5.1.6)
+      tslib:
+        specifier: ^2.5.3
+        version: 2.6.2
+      tweetnacl:
+        specifier: ^1.0.3
+        version: 1.0.3
+      typescript:
+        specifier: ^5.1.3
+        version: 5.1.6
 
   packages/tsconfig: {}
 
@@ -4718,7 +4718,7 @@ packages:
       '@jest/schemas': 29.4.3
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
       '@types/yargs': 17.0.24
       chalk: 4.1.2
 
@@ -4855,7 +4855,7 @@ packages:
     dependencies:
       '@mysten/bcs': 0.7.3
       '@noble/curves': 1.1.0
-      '@noble/hashes': 1.3.1
+      '@noble/hashes': 1.3.2
       '@open-rpc/client-js': 1.8.1
       '@scure/bip32': 1.3.2
       '@scure/bip39': 1.2.1
@@ -5078,24 +5078,6 @@ packages:
     transitivePeerDependencies:
       - bufferutil
       - encoding
-      - utf-8-validate
-    dev: false
-
-  /@nightlylabs/nightly-connect-polkadot@0.0.14:
-    resolution: {integrity: sha512-GP3TxEUa/UIiHeZqTrE3e7VTQ6yndCbozWAG1VA3YE5/q4xK1eZ5Rwnwz1ga4M3qu19L1spKePeljndhet5LEg==}
-    dependencies:
-      '@nightlylabs/nightly-connect-base': 0.0.27
-      '@polkadot/api': 10.10.1
-      '@polkadot/extension-inject': 0.46.5(@polkadot/api@10.10.1)(@polkadot/util@12.5.1)
-      '@polkadot/types': 10.10.1
-      '@polkadot/util': 12.5.1
-      '@polkadot/util-crypto': 12.5.1(@polkadot/util@12.5.1)
-      eventemitter3: 5.0.1
-      uuid: 9.0.0
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - supports-color
       - utf-8-validate
     dev: false
 
@@ -5470,7 +5452,7 @@ packages:
       '@polkadot/util': 12.5.1
       '@polkadot/util-crypto': 12.5.1(@polkadot/util@12.5.1)
       '@polkadot/x-fetch': 12.3.2
-      '@polkadot/x-global': 12.3.2
+      '@polkadot/x-global': 12.5.1
       '@polkadot/x-ws': 12.3.2
       eventemitter3: 5.0.1
       mock-socket: 9.2.1
@@ -6121,6 +6103,26 @@ packages:
       typescript: 5.1.6
     dev: true
 
+  /@rollup/plugin-typescript@11.1.1(rollup@3.23.1)(tslib@2.6.2)(typescript@5.1.6):
+    resolution: {integrity: sha512-Ioir+x5Bejv72Lx2Zbz3/qGg7tvGbxQZALCLoJaGrkNXak/19+vKgKYJYM3i/fJxvsb23I9FuFQ8CUBEfsmBRg==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^2.14.0||^3.0.0
+      tslib: '*'
+      typescript: '>=3.7.0'
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+      tslib:
+        optional: true
+    dependencies:
+      '@rollup/pluginutils': 5.0.2(rollup@3.23.1)
+      resolve: 1.22.2
+      rollup: 3.23.1
+      tslib: 2.6.2
+      typescript: 5.1.6
+    dev: true
+
   /@rollup/pluginutils@3.1.0(rollup@3.23.1):
     resolution: {integrity: sha512-GksZ6pr6TpIjHm8h9lSQ8pi8BE9VeubNT0OMJ3B5uZJ8pz73NPiqOtCog/x2/QzM1ENChPKxMDhiQuRHsqc+lg==}
     engines: {node: '>= 8.0.0'}
@@ -6175,7 +6177,7 @@ packages:
   /@scure/bip39@1.2.1:
     resolution: {integrity: sha512-Z3/Fsz1yr904dduJD0NpiyRHhRYHdcnyh73FZWiV+/qhWi83wNJ3NWolYqCEN+ZWsUz2TWwajJggcRE9r1zUYg==}
     dependencies:
-      '@noble/hashes': 1.3.1
+      '@noble/hashes': 1.3.2
       '@scure/base': 1.1.1
     dev: false
 
@@ -7473,18 +7475,18 @@ packages:
   /@types/bn.js@5.1.1:
     resolution: {integrity: sha512-qNrYbZqMx0uJAfKnKclPh+dTwK33KfLHYqtyODwd5HnXOjnkhc4qgn3BrK6RWyGZm5+sIFE7Q7Vz6QQtJB7w7g==}
     dependencies:
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
 
   /@types/body-parser@1.19.2:
     resolution: {integrity: sha512-ALYone6pm6QmwZoAgeyNksccT9Q4AWZQ6PvfwR37GT6r6FWUPguq6sUmNGSMV2Wr761oQoBxwGGa6DR5o1DC9g==}
     dependencies:
       '@types/connect': 3.4.35
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
 
   /@types/bonjour@3.5.10:
     resolution: {integrity: sha512-p7ienRMiS41Nu2/igbJxxLDWrSZ0WxM8UQgCeO9KhoVF7cOVFkrKsiDr1EsJIla8vV3oEEjGcz11jc5yimhzZw==}
     dependencies:
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
     dev: false
 
   /@types/bs58@4.0.1:
@@ -7504,7 +7506,7 @@ packages:
   /@types/clean-css@4.2.6:
     resolution: {integrity: sha512-Ze1tf+LnGPmG6hBFMi0B4TEB0mhF7EiMM5oyjLDNPE9hxrPU0W+5+bHvO+eFPA+bt0iC1zkQMoU/iGdRVjcRbw==}
     dependencies:
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
       source-map: 0.6.1
     dev: true
 
@@ -7512,13 +7514,13 @@ packages:
     resolution: {integrity: sha512-4x5FkPpLipqwthjPsF7ZRbOv3uoLUFkTA9G9v583qi4pACvq0uTELrB8OLUzPWUI4IJIyvM85vzkV1nyiI2Lig==}
     dependencies:
       '@types/express-serve-static-core': 4.17.35
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
     dev: false
 
   /@types/connect@3.4.35:
     resolution: {integrity: sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==}
     dependencies:
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
 
   /@types/cookie@0.5.1:
     resolution: {integrity: sha512-COUnqfB2+ckwXXSFInsFdOAWQzCCx+a5hq2ruyj+Vjund94RJQd4LG2u9hnvJrTgunKAaax7ancBYlDrNYxA0g==}
@@ -7565,7 +7567,7 @@ packages:
   /@types/express-serve-static-core@4.17.35:
     resolution: {integrity: sha512-wALWQwrgiB2AWTT91CB62b6Yt0sNHpznUXeZEcnPU3DRdlDIz74x8Qg1UUYKSVFi+va5vKOLYRBI1bRKiLLKIg==}
     dependencies:
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
       '@types/send': 0.17.1
@@ -7586,13 +7588,13 @@ packages:
     resolution: {integrity: sha512-IO+MJPVhoqz+28h1qLAcBEH2+xHMK6MTyHJc7MTnnYb6wsoLR29POVGJ7LycmVXIqyy/4/2ShP5sUwTXuOwb/w==}
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
     dev: true
 
   /@types/graceful-fs@4.1.6:
     resolution: {integrity: sha512-Sig0SNORX9fdW+bQuTEovKj3uHcUL6LQKbCrrqb1X7J6/ReAbhCXRAhc+SMejhLELFj2QcyuxmUooZ4bt5ReSw==}
     dependencies:
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
     dev: true
 
   /@types/hast@2.3.4:
@@ -7619,7 +7621,7 @@ packages:
   /@types/http-proxy@1.17.11:
     resolution: {integrity: sha512-HC8G7c1WmaF2ekqpnFq626xd3Zz0uvaqFmBJNRZCGEZCXkvSdJoNFn/8Ygbd9fKNQj8UzLdCETaI0UWPAjK7IA==}
     dependencies:
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
     dev: false
 
   /@types/istanbul-lib-coverage@2.0.4:
@@ -7645,7 +7647,7 @@ packages:
   /@types/keyv@3.1.4:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
     dev: false
 
   /@types/lodash@4.14.195:
@@ -7679,7 +7681,7 @@ packages:
   /@types/node-fetch@2.6.4:
     resolution: {integrity: sha512-1ZX9fcN4Rvkvgv4E6PAY5WXUFWFcRWxZa3EW83UjycOB9ljJCedb2CupIP4RZMEwF/M3eTcCihbBRgwtGbg5Rg==}
     dependencies:
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
       form-data: 3.0.1
     dev: true
 
@@ -7704,6 +7706,7 @@ packages:
 
   /@types/node@20.4.2:
     resolution: {integrity: sha512-Dd0BYtWgnWJKwO1jkmTrzofjK2QXXcai0dmtzvIBhcA+RsG5h8R3xlyta0kGOZRNfL9GuRtb1knmPEhQrePCEw==}
+    dev: false
 
   /@types/node@20.9.0:
     resolution: {integrity: sha512-nekiGu2NDb1BcVofVcEKMIwzlx4NjHlcjhoxxKBNLtz15Y1z7MYf549DFvkHSId02Ax6kGwWntIBPC3l/JZcmw==}
@@ -7785,7 +7788,7 @@ packages:
   /@types/resolve@1.17.1:
     resolution: {integrity: sha512-yy7HuzQhj0dhGpD8RLXSZWEkLsV9ibvxvi6EiJ3bkqLAO1RGo0WbkWQiwpRlSFymTJRz0d3k5LM3kkx8ArDbLw==}
     dependencies:
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
 
   /@types/resolve@1.20.2:
     resolution: {integrity: sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==}
@@ -7793,7 +7796,7 @@ packages:
   /@types/responselike@1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
     dev: false
 
   /@types/retry@0.12.0:
@@ -7803,7 +7806,7 @@ packages:
   /@types/sax@1.2.4:
     resolution: {integrity: sha512-pSAff4IAxJjfAXUG6tFkO7dsSbTmf8CtUpfhhZ5VhkRpC4628tJhh3+V6H1E+/Gs9piSzYKT5yzHO5M4GG9jkw==}
     dependencies:
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
     dev: false
 
   /@types/scheduler@0.16.3:
@@ -7816,7 +7819,7 @@ packages:
     resolution: {integrity: sha512-Cwo8LE/0rnvX7kIIa3QHCkcuF21c05Ayb0ZfxPiv0W8VRiZiNW/WuRupHKpqqGVGf7SUA44QSOUKaEd9lIrd/Q==}
     dependencies:
       '@types/mime': 1.3.2
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
 
   /@types/serve-index@1.9.1:
     resolution: {integrity: sha512-d/Hs3nWDxNL2xAczmOVZNj92YZCS6RGxfBPjKzuu/XirCgXdpKEb88dYNbrYGint6IVWLNP+yonwVAuRC0T2Dg==}
@@ -7828,12 +7831,12 @@ packages:
     resolution: {integrity: sha512-NUo5XNiAdULrJENtJXZZ3fHtfMolzZwczzBbnAeBbqBwG+LaG6YaJtuwzwGSQZ2wsCrxjEhNNjAkKigy3n8teQ==}
     dependencies:
       '@types/mime': 3.0.1
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
 
   /@types/sockjs@0.3.33:
     resolution: {integrity: sha512-f0KEEe05NvUnat+boPTZ0dgaLZ4SfSouXUgv5noUiefG2ajgKjmETo9ZJyuqsl7dfl2aHlLJUiki6B4ZYldiiw==}
     dependencies:
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
     dev: false
 
   /@types/trusted-types@2.0.3:
@@ -7851,13 +7854,13 @@ packages:
   /@types/ws@7.4.7:
     resolution: {integrity: sha512-JQbbmxZTZehdc2iszGKs5oC3NFnjeay7mtAWrdt7qNtAVK0g19muApzAy4bm9byz79xa2ZnO/BOBC2R8RC5Lww==}
     dependencies:
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
     dev: false
 
   /@types/ws@8.5.5:
     resolution: {integrity: sha512-lwhs8hktwxSjf9UaZ9tG5M03PGogvFaH8gUgLNbN9HKIg0dvv6q+gkSuJ8HN4/VbyxkuLzCjlN7GquQ0gUJfIg==}
     dependencies:
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
     dev: false
 
   /@types/yargs-parser@21.0.0:
@@ -10997,7 +11000,7 @@ packages:
     resolution: {integrity: sha512-EzV94NYKoO09GLXGjXj9JIlXijVck4ONSr5wiCWDvhsvj5jxSrzTmRU/9C1DyB6uToszLs8aifA6NQ7lEQdvFw==}
     engines: {node: '>= 0.8'}
     dependencies:
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
       require-like: 0.1.2
     dev: false
 
@@ -12714,7 +12717,7 @@ packages:
     dependencies:
       '@jest/types': 29.5.0
       '@types/graceful-fs': 4.1.6
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
       anymatch: 3.1.3
       fb-watchman: 2.0.2
       graceful-fs: 4.2.11
@@ -12737,7 +12740,7 @@ packages:
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
       '@jest/types': 29.5.0
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
       chalk: 4.1.2
       ci-info: 3.8.0
       graceful-fs: 4.2.11
@@ -12747,7 +12750,7 @@ packages:
     resolution: {integrity: sha512-7vuh85V5cdDofPyxn58nrPjBktZo0u9x1g8WtjQol+jZDaE+fhN+cIvTj11GndBnMnyfrUOG1sZQxCdjKh+DKg==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -12755,7 +12758,7 @@ packages:
     resolution: {integrity: sha512-NcrQnevGoSp4b5kg+akIpthoAFHxPBcb5P6mYPY0fUNT+sSvmtu6jlkEle3anczUKIKEbMxFimk9oTP/tpIPgA==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
-      '@types/node': 20.4.2
+      '@types/node': 20.9.0
       jest-util: 29.5.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
