@@ -63,6 +63,7 @@ export class NightlyConnectAdapter
     this._connecting = false
     this._connected = false
     this._appInitData = appInitData
+    if (appInitData.persistent !== false) this._appInitData.persistent = true
     this._loading = false
     this._connectionOptions = { ...this._connectionOptions, ...connectionOptions }
     // If not persistent, clear session id
