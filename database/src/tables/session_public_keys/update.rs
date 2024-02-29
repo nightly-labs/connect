@@ -44,7 +44,7 @@ mod tests {
         // Create Public key
         let mut tx = db.connection_pool.begin().await.unwrap();
         let client_profile_id = db
-            .handle_public_key_entry(&mut tx, &public_key_str)
+            .handle_public_keys_entries(&mut tx, &vec![public_key_str])
             .await
             .unwrap();
         assert!(client_profile_id == 1);

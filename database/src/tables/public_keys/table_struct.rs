@@ -6,13 +6,14 @@ use sqlx::{
 
 pub const PUBLIC_KEYS_TABLE_NAME: &str = "public_keys";
 pub const PUBLIC_KEYS_KEYS: &str =
-    "public_key_id, public_key, client_profile_id, first_seen, last_seen";
+    "public_key_id, public_key, origin_client_profile_id, first_seen, last_seen";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct PublicKey {
     pub public_key_id: i64,
     pub public_key: String,
-    pub client_profile_id: i64,
+    pub origin_client_profile_id: i64,
+    pub target_client_profile_id: Option<i64>,
     pub first_seen: DateTime<Utc>,
     pub last_seen: DateTime<Utc>,
 }
@@ -22,7 +23,8 @@ impl FromRow<'_, PgRow> for PublicKey {
         Ok(PublicKey {
             public_key_id: row.get("public_key_id"),
             public_key: row.get("public_key"),
-            client_profile_id: row.get("client_profile_id"),
+            origin_client_profile_id: row.get("origin_client_profile_id"),
+            target_client_profile_id: row.get("target_client_profile_id"),
             first_seen: row.get("first_seen"),
             last_seen: row.get("last_seen"),
         })

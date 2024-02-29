@@ -17,6 +17,28 @@ impl Db {
             None => typed_query.fetch_one(&self.connection_pool).await,
         };
     }
+
+    pub async fn update_client_profile_merge_lookup(
+        &self,
+        tx: &mut Transaction<'_, sqlx::Postgres>,
+        old_target_client_profile_id: i64,
+        new_target_client_profile_id: i64,
+    ) -> Result<(), sqlx::Error> {
+        let query_body = format!(
+            "UPDATE {CLIENT_PROFILES_TABLE_NAME} SET merged_into_client_profile_id = $1 WHERE client_profile_id = $2"
+        );
+
+        let query_result = sqlx::query(&query_body)
+            .bind(new_target_client_profile_id)
+            .bind(old_target_client_profile_id)
+            .execute(&mut **tx)
+            .await;
+
+        match query_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e),
+        }
+    }
 }
 
 #[cfg(test)]

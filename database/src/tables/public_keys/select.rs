@@ -13,4 +13,17 @@ impl Db {
             .fetch_one(&self.connection_pool)
             .await;
     }
+
+    pub async fn get_public_keys_associated_with_client_profile_id(
+        &self,
+        client_profile_id: i64,
+    ) -> Result<Vec<PublicKey>, sqlx::Error> {
+        let query = format!("SELECT * FROM {PUBLIC_KEYS_TABLE_NAME} WHERE client_profile_id = $1");
+        let typed_query = query_as::<_, PublicKey>(&query);
+
+        return typed_query
+            .bind(&client_profile_id)
+            .fetch_all(&self.connection_pool)
+            .await;
+    }
 }

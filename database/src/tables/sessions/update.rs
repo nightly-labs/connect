@@ -122,24 +122,16 @@ impl Db {
         }
 
         // 1. Handle connected keys
-        let mut client_profile_id: Option<i64> = None;
-        for key in connected_keys {
-            match self.handle_public_key_entry(&mut tx, &key).await {
-                Ok(profile_id) => {
-                    client_profile_id = Some(profile_id);
-                }
-                Err(err) => {
-                    tx.rollback().await.unwrap();
-                    return Err(err);
-                }
+        let client_profile_id = match self
+            .handle_public_keys_entries(&mut tx, &connected_keys)
+            .await
+        {
+            Ok(profile_id) => profile_id,
+            Err(err) => {
+                tx.rollback().await.unwrap();
+                return Err(err);
             }
-        }
-
-        // It is not possible to not get client profile id at this point
-        if client_profile_id.is_none() {
-            // TODO for now return this error, replace with a custom error
-            return Err(sqlx::Error::RowNotFound);
-        }
+        };
 
         // 2. Update the session with the client data
         let query_body = format!(

@@ -77,6 +77,7 @@ mod tests {
             app_ip_address: "test_app_ip_address".to_string(),
             persistent: false,
             network: "test_network".to_string(),
+            client_profile_id: Some("profile_id".to_string()),
             client: Some(ClientData {
                 client_id: Some("test_client_id".to_string()),
                 device: Some("test_device".to_string()),
