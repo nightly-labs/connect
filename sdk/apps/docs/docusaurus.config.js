@@ -58,15 +58,33 @@ const config = {
             position: 'left'
           },
           {
-            to: 'docs/application/application/connect',
+            to: 'docs/start/',
             activeBasePath: 'connect',
-            label: 'Application',
+            label: 'Getting started',
             position: 'left'
           },
           {
-            to: 'docs/client/client/connect',
+            to: 'docs/solana/solana/connect',
             activeBasePath: 'connect',
-            label: 'Client',
+            label: 'Solana',
+            position: 'left'
+          },
+          {
+            to: 'docs/sui/sui/connect',
+            activeBasePath: 'connect',
+            label: 'SUI',
+            position: 'left'
+          },
+          {
+            to: 'docs/substrate/substrate/connect',
+            activeBasePath: 'connect',
+            label: 'Substrate',
+            position: 'left'
+          },
+          {
+            to: 'docs/push/',
+            activeBasePath: 'connect',
+            label: 'Push',
             position: 'left'
           },
           {

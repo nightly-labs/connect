@@ -16,18 +16,32 @@ const sidebars = {
   // By default, Docusaurus generates a sidebar from the docs folder structure
   docs: [
     'home',
+    'start',
     {
       type: 'category',
-      label: '💻 Application',
-      collapsed: false,
-      items: ['application/connect', 'application/sign_transaction']
+      label: 'Solana',
+      collapsed: true,
+      items: ['solana/connect', 'solana/events', 'solana/sign_transaction', 'solana/sign_message']
     },
     {
       type: 'category',
-      label: '📱 Client',
-      collapsed: false,
-      items: ['client/connect', 'client/sign', 'client/signMessage', 'client/push']
-    }
+      label: 'SUI',
+      collapsed: true,
+      items: ['sui/connect', 'sui/events', 'sui/sign_transaction', 'sui/sign_message']
+    },
+    {
+      type: 'category',
+      label: 'Substrate',
+      collapsed: true,
+      items: ['substrate/connect', 'substrate/sign_transaction', 'substrate/sign_message']
+    },
+    {
+      type: 'category',
+      label: 'Customization',
+      collapsed: true,
+      items: ['customization/external_modal']
+    },
+    'push'
   ]
 
   // But you can create a sidebar manually
