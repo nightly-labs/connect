@@ -96,7 +96,9 @@ mod tests {
             session_close_timestamp: None,
         };
 
-        db.save_new_session(&session).await.unwrap();
+        db.handle_new_session(&session, &"connection_id".to_string())
+            .await
+            .unwrap();
 
         let result = db.get_sessions_by_app_id(&app_id).await.unwrap();
         assert_eq!(result.len(), 1);
@@ -199,7 +201,9 @@ mod tests {
             session_close_timestamp: None,
         };
 
-        db.save_new_session(&session).await.unwrap();
+        db.handle_new_session(&session, &"connection_id".to_string())
+            .await
+            .unwrap();
 
         let result = db.get_sessions_by_app_id(&app_id).await.unwrap();
         assert_eq!(result.len(), 1);
@@ -337,7 +341,10 @@ mod tests {
             session_close_timestamp: None,
         };
 
-        db_arc.save_new_session(&session).await.unwrap();
+        db_arc
+            .handle_new_session(&session, &"connection_id".to_string())
+            .await
+            .unwrap();
 
         let mut tasks = Vec::new();
         for i in 0..10 {
@@ -451,7 +458,9 @@ mod tests {
                 session_close_timestamp: None,
             };
 
-            db.save_new_session(&session).await.unwrap();
+            db.handle_new_session(&session, &"connection_id".to_string())
+                .await
+                .unwrap();
             db.close_session(&session.session_id, *end).await.unwrap();
         }
 
@@ -515,7 +524,9 @@ mod tests {
                 session_close_timestamp: None,
             };
 
-            db.save_new_session(&session).await.unwrap();
+            db.handle_new_session(&session, &"connection_id".to_string())
+                .await
+                .unwrap();
             db.close_session(&session.session_id, session_end)
                 .await
                 .unwrap();
@@ -572,7 +583,9 @@ mod tests {
                 session_close_timestamp: Some(session_end),
             };
 
-            db.save_new_session(&session).await.unwrap();
+            db.handle_new_session(&session, &"connection_id".to_string())
+                .await
+                .unwrap();
             db.close_session(&session.session_id, session_end)
                 .await
                 .unwrap();
@@ -596,7 +609,9 @@ mod tests {
                 session_close_timestamp: Some(session_end),
             };
 
-            db.save_new_session(&session).await.unwrap();
+            db.handle_new_session(&session, &"connection_id".to_string())
+                .await
+                .unwrap();
             db.close_session(&session.session_id, session_end)
                 .await
                 .unwrap();

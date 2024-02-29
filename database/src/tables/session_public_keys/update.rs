@@ -42,7 +42,11 @@ mod tests {
         let public_key_str = "test_public_key".to_string();
 
         // Create Public key
-        let client_profile_id = db.handle_public_key_entry(&public_key_str).await.unwrap();
+        let mut tx = db.connection_pool.begin().await.unwrap();
+        let client_profile_id = db
+            .handle_public_key_entry(&mut tx, &public_key_str)
+            .await
+            .unwrap();
         assert!(client_profile_id == 1);
 
         // Create session public key

@@ -7,38 +7,37 @@ use sqlx::{query, Postgres};
 use sqlx::{query_as, Transaction};
 
 impl Db {
+    // ERROR HERE, we first need to check all keys and only if there is no profile then create one and assign it to the rest of the keys
+
     // We can create a new entry or update an existing one, returns the client_profile_id
-    pub async fn handle_public_key_entry(&self, public_key: &String) -> Result<i64, sqlx::Error> {
-        // Start a transaction
-        let mut tx: Transaction<'_, Postgres> = self.connection_pool.begin().await?;
-
-        match self.update_public_key_last_seen(&mut tx, public_key).await {
-            Ok(key) => {
-                tx.commit().await?;
+    pub async fn handle_public_key_entry(
+        &self,
+        mut tx: &mut Transaction<'_, Postgres>,
+        public_key: &String,
+    ) -> Result<i64, sqlx::Error> {
+        if let Ok(key) = self.update_public_key_last_seen(&mut tx, public_key).await {
+            {
                 return Ok(key.client_profile_id);
-            }
-            Err(_) => {
-                // This should not fail, but just in case
-                let client_profile = match self.create_new_profile(Some(&mut tx)).await {
-                    Ok(profile) => profile,
-                    Err(e) => {
-                        tx.rollback().await?;
-                        return Err(e);
-                    }
-                };
-
-                if let Err(e) = self
-                    .create_new_public_key(&mut tx, public_key, &client_profile)
-                    .await
-                {
-                    tx.rollback().await?;
-                    return Err(e);
-                }
-
-                tx.commit().await?;
-                return Ok(client_profile.client_profile_id);
-            }
+            };
         }
+
+        // This should not fail, but just in case
+        let client_profile = match self.create_new_profile(Some(&mut tx)).await {
+            Ok(profile) => profile,
+            Err(e) => {
+                return Err(e);
+            }
+        };
+
+        // Create a new public key entry
+        if let Err(e) = self
+            .create_new_public_key(&mut tx, public_key, &client_profile)
+            .await
+        {
+            return Err(e);
+        }
+
+        return Ok(client_profile.client_profile_id);
     }
 
     pub async fn create_new_public_key(
@@ -93,7 +92,12 @@ mod tests {
         let public_key_str = "test_public_key".to_string();
 
         // Scenario 1: Insert new client profile and public key
-        let client_profile_id = db.handle_public_key_entry(&public_key_str).await.unwrap();
+        let mut tx = db.connection_pool.begin().await.unwrap();
+        let client_profile_id = db
+            .handle_public_key_entry(&mut tx, &public_key_str)
+            .await
+            .unwrap();
+        tx.commit().await.unwrap();
         assert!(client_profile_id == 1);
 
         // Retrieve the inserted public key to verify
@@ -104,7 +108,12 @@ mod tests {
         // Scenario 2: Update the existing public key's last_seen
         tokio::time::sleep(Duration::from_millis(1000)).await;
 
-        let updated_client_profile_id = db.handle_public_key_entry(&public_key_str).await.unwrap();
+        let mut tx = db.connection_pool.begin().await.unwrap();
+        let updated_client_profile_id = db
+            .handle_public_key_entry(&mut tx, &public_key_str)
+            .await
+            .unwrap();
+        tx.commit().await.unwrap();
         assert_eq!(updated_client_profile_id, client_profile_id);
 
         // Retrieve the updated public key to verify last_seen has been updated
