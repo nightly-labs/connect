@@ -31,7 +31,7 @@ export default function Solana() {
         setPublicKey(undefined)
       })
       adapter.on('change', (a) => {
-        if (a.accounts) {
+        if (!!a.accounts?.length && a.accounts[0].publicKey) {
           setPublicKey(new PublicKey(a.accounts[0].publicKey))
         }
       })

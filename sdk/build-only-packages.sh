@@ -3,14 +3,14 @@ cd ./apps/base
 pnpm build
 
 # connect networks
-cd ../solana
+cd ../../packages/solana
 pnpm build
 cd ../sui
 pnpm build
 cd ../polkadot
 pnpm build
 # ui packages
-cd ../../packages/qr-codes
+cd ../qr-codes
 pnpm build
 cd ../modal
 pnpm build
