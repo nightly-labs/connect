@@ -24,7 +24,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@nightlylabs/nightly-connect-polkadot": "^0.1.15",
+    "@nightlylabs/nightly-connect-polkadot": "^0.0.15",
     "@nightlylabs/wallet-selector-base": "^0.4.0",
     "@polkadot/api": "10.10.1",
     "@polkadot/extension-inject": "0.46.5",

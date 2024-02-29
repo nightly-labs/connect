@@ -39,8 +39,8 @@ jobs:
       - name: test solana production
         run: |
           pnpm test:production
-        working-directory: ./sdk/apps/solana
+        working-directory: ./sdk/packages/solana
       - name: test sui production
         run: |
           pnpm test:production
-        working-directory: ./sdk/apps/sui
+        working-directory: ./sdk/packages/sui
