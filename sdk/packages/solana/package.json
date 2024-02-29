@@ -1,6 +1,6 @@
 {
   "name": "@nightlylabs/nightly-connect-solana",
-  "version": "0.0.29",
+  "version": "0.1.29",
   "type": "module",
   "exports": {
     ".": {
