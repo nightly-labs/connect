@@ -6,7 +6,7 @@ slug: solana/connect
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-The easiest way of trying nightly connect is by visiting the source code of the template web app for Solana, and following the implementation instructions.
+To try Nightly Connect easily, just go to the Solana Web3 template app's source code and follow the instructions there. It's the quickest way to get started and explore its features.
 
 :::info
 We have ready to use templates that you can try here.
