@@ -6,7 +6,7 @@ pub const MONTHLY_SESSIONS_AVG_TIME_PER_APP_KEYS: &str =
     "app_id, monthly_bucket as bucket, monthly_avg_session_duration_seconds as average_duration_seconds";
 
 impl Db {
-    pub async fn get_monthly_abg_session_duration_per_app(
+    pub async fn get_monthly_avg_session_duration_per_app(
         &self,
         app_id: &str,
     ) -> Result<Vec<SessionAvgTime>, Error> {
@@ -89,7 +89,7 @@ mod test {
         .unwrap();
 
         let result = db
-            .get_monthly_abg_session_duration_per_app(&app_id)
+            .get_monthly_avg_session_duration_per_app(&app_id)
             .await
             .unwrap();
 
