@@ -124,7 +124,7 @@ export class ClientAptos extends EventEmitter<ClientAptosEvents> {
   }
 
   public resolveSignTransaction = async ({
-    responseId,
+    requestId,
     signedTransactions,
     sessionId
   }: ResolveSignAptosTransactions) => {
@@ -138,13 +138,13 @@ export class ClientAptos extends EventEmitter<ClientAptosEvents> {
       throw new Error('Session id is undefined')
     }
     await this.baseClient.resolveSignTransactions({
-      requestId: responseId,
+      requestId,
       signedTransactions: serializedTxs,
       sessionId: sessionIdToUse
     })
   }
   public resolveSignAndSubmitTransaction = async ({
-    responseId,
+    requestId,
     signedTransactions,
     sessionId
   }: ResolveSignAndSubmitTransactions) => {
@@ -158,13 +158,13 @@ export class ClientAptos extends EventEmitter<ClientAptosEvents> {
       throw new Error('Session id is undefined')
     }
     await this.baseClient.resolveSignTransactions({
-      requestId: responseId,
+      requestId,
       signedTransactions: serializedTxs,
       sessionId: sessionIdToUse
     })
   }
   public resolveSignMessage = async ({
-    responseId,
+    requestId,
     signedMessages,
     sessionId
   }: ResolveSignAptosMessage) => {
@@ -179,7 +179,7 @@ export class ClientAptos extends EventEmitter<ClientAptosEvents> {
         return { message: tx }
       })
     await this.baseClient.resolveSignMessages({
-      requestId: responseId,
+      requestId: requestId,
       sessionId: sessionIdToUse,
       signedMessages: serializedMsgs
     })
@@ -206,17 +206,17 @@ export interface RejectRequest {
   sessionId?: string
 }
 export interface ResolveSignAptosTransactions {
-  responseId: string
+  requestId: string
   signedTransactions: Array<AptosSignTransactionOutput>
   sessionId?: string
 }
 export interface ResolveSignAndSubmitTransactions {
-  responseId: string
+  requestId: string
   signedTransactions: Array<AptosSignAndSubmitTransactionOutput>
   sessionId?: string
 }
 export interface ResolveSignAptosMessage {
-  responseId: string
+  requestId: string
   signedMessages: Array<AptosSignMessageOutput>
   sessionId?: string
 }

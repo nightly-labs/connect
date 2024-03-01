@@ -1,9 +1,10 @@
 export * from './app'
 export * from './client'
 export {
-  HttpClientSui,
-  type ResolveSignSuiMessage,
-  type ResolveSignSuiTransactions,
+  HttpClientAptos,
+  type ResolveSignAndSubmitTransactions,
+  type ResolveSignAptosMessage,
+  type ResolveSignAptosTransactions,
   type RejectRequest as RejectHttpRequest
 } from './http-client'
 export * from './utils'

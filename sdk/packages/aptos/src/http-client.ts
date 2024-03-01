@@ -1,12 +1,21 @@
+import {
+  AptosSignAndSubmitTransactionOutput,
+  AptosSignMessageOutput,
+  AptosSignTransactionOutput
+} from '@aptos-labs/wallet-standard'
 import { HttpBaseClient, HttpBaseClientInitialize } from '@nightlylabs/nightly-connect-base'
-import { SUI_NETWORK, parseRequest } from './utils'
 import { HttpConnectSessionRequest } from '../../../bindings/HttpConnectSessionRequest'
-import { HttpGetPendingRequestsRequest } from '../../../bindings/HttpGetPendingRequestsRequest'
 import { HttpGetPendingRequestRequest } from '../../../bindings/HttpGetPendingRequestRequest'
-import { type SignedTransaction } from '@mysten/sui.js/src/signers/types'
+import { HttpGetPendingRequestsRequest } from '../../../bindings/HttpGetPendingRequestsRequest'
 import { HttpGetSessionInfoResponse } from '../../../bindings/HttpGetSessionInfoResponse'
+import {
+  parseRequest,
+  serializeAccountAuthenticator,
+  serializeObject,
+  serializePendingTransactionResponse
+} from './utils'
 
-export class HttpClientSui {
+export class HttpClientAptos {
   baseClient: HttpBaseClient
   clientId: string | undefined = undefined
   public constructor({ clientId, timeout, url }: HttpBaseClientInitialize) {
@@ -32,13 +41,28 @@ export class HttpClientSui {
     requestId,
     signedTransactions,
     sessionId
-  }: ResolveSignSuiTransactions) => {
+  }: ResolveSignAptosTransactions) => {
     const serializedTxs = signedTransactions
-      .map((tx) => JSON.stringify(tx))
+      .map((tx) => serializeAccountAuthenticator(tx))
       .map((tx) => {
-        return { network: SUI_NETWORK, transaction: tx }
+        return { transaction: tx }
       })
-
+    await this.baseClient.resolveSignTransactions({
+      requestId: requestId,
+      signedTransactions: serializedTxs,
+      sessionId: sessionId
+    })
+  }
+  public resolveSignAndSubmitTransaction = async ({
+    requestId,
+    signedTransactions,
+    sessionId
+  }: ResolveSignAndSubmitTransactions) => {
+    const serializedTxs = signedTransactions
+      .map((tx) => serializePendingTransactionResponse(tx))
+      .map((tx) => {
+        return { transaction: tx }
+      })
     await this.baseClient.resolveSignTransactions({
       requestId: requestId,
       signedTransactions: serializedTxs,
@@ -47,13 +71,18 @@ export class HttpClientSui {
   }
   public resolveSignMessage = async ({
     requestId,
-    signature,
+    signedMessages,
     sessionId
-  }: ResolveSignSuiMessage) => {
+  }: ResolveSignAptosMessage) => {
+    const serializedMsgs = signedMessages
+      .map((tx) => serializeObject(tx))
+      .map((tx) => {
+        return { message: tx }
+      })
     await this.baseClient.resolveSignMessages({
       requestId: requestId,
       sessionId: sessionId,
-      signedMessages: [{ message: Buffer.from(signature).toString('hex') }]
+      signedMessages: serializedMsgs
     })
   }
   public rejectRequest = async ({ requestId, reason, sessionId }: RejectRequest) => {
@@ -65,13 +94,19 @@ export interface RejectRequest {
   sessionId: string
   reason?: string
 }
-export interface ResolveSignSuiTransactions {
+export interface ResolveSignAptosMessage {
   requestId: string
-  signedTransactions: SignedTransaction[]
+  signedMessages: Array<AptosSignMessageOutput>
   sessionId: string
 }
-export interface ResolveSignSuiMessage {
+
+export interface ResolveSignAptosTransactions {
   requestId: string
-  signature: Uint8Array
+  signedTransactions: Array<AptosSignTransactionOutput>
+  sessionId: string
+}
+export interface ResolveSignAndSubmitTransactions {
+  requestId: string
+  signedTransactions: Array<AptosSignAndSubmitTransactionOutput>
   sessionId: string
 }

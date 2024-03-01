@@ -2,19 +2,12 @@ import { Connect, ContentType } from '@nightlylabs/nightly-connect-base'
 import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { AppAptos } from './app'
 import { ClientAptos } from './client'
-import { APTOS_NETWORK } from './utils'
 import { TEST_APP_INITIALIZE } from './testUtils'
+import { APTOS_NETWORK } from './utils'
 
-import { fetch } from 'cross-fetch'
-import {
-  APTOS_CHAINS,
-  AptosSignMessageInput,
-  UserResponseStatus,
-  WalletAccount
-} from '@aptos-labs/wallet-standard'
-import { hexToBytes } from '@noble/hashes/utils'
-import { smartDelay, TEST_RELAY_ENDPOINT } from '../../../commonTestUtils'
-import { Account, Aptos, Ed25519PrivateKey, deriveTransactionType } from '@aptos-labs/ts-sdk'
+import { Account, Aptos, Ed25519PrivateKey } from '@aptos-labs/ts-sdk'
+import { AptosSignMessageInput, UserResponseStatus } from '@aptos-labs/wallet-standard'
+import { TEST_RELAY_ENDPOINT, smartDelay } from '../../../commonTestUtils'
 import { SignTransactionsAptosRequest } from './requestTypes'
 
 const aptos = new Aptos() // default to devnet
@@ -23,13 +16,6 @@ const alice: Account = Account.fromPrivateKey({
     '200fb003a6e97c8ff2bd8691fa48b03e7ace251aae1b9a7365ac05d7db93bdc1' // PLEASE DO NOT USE THIS KEY
   )
 })
-// const aliceWalletAccount: WalletAccount = {
-//   address: alice.accountAddress.toString(),
-//   publicKey: alice.publicKey.toUint8Array(),
-//   chains: APTOS_CHAINS,
-//   features: [],
-//   label: ''
-// }
 
 describe('Aptos client tests', () => {
   let app: AppAptos
@@ -81,7 +67,7 @@ describe('Aptos client tests', () => {
       })
       // resolve
       await client.resolveSignTransaction({
-        responseId: e.requestId,
+        requestId: e.requestId,
         signedTransactions: [senderAuthenticator]
       })
     })
@@ -118,7 +104,7 @@ describe('Aptos client tests', () => {
       const signature = alice.sign(new Buffer(payload.message).toString('hex'))
       // TODO fix this to match aptos schema
       await client.resolveSignMessage({
-        responseId: e.requestId,
+        requestId: e.requestId,
         signedMessages: [
           {
             message: payload.message,
@@ -154,7 +140,7 @@ describe('Aptos client tests', () => {
       })
       // resolve
       await client.resolveSignAndSubmitTransaction({
-        responseId: e.requestId,
+        requestId: e.requestId,
         signedTransactions: [pendingTransaction]
       })
     })

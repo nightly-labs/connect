@@ -22,15 +22,10 @@ export default [
     ],
     plugins: [typescript(), nodeResolve(), commonjs(), terser()],
     external: [
-      '@mysten/sui.js',
-      '@mysten/sui.js/client',
-      '@mysten/wallet-standard',
-      '@noble/hashes',
+      '@aptos-labs/ts-sdk',
+      '@aptos-labs/wallet-standard',
       '@nightlylabs/nightly-connect-base',
-      'uuid',
-      'eventemitter3',
-      'isomorphic-ws',
-      'ws'
+      'eventemitter3'
     ]
   },
   {
@@ -55,19 +50,14 @@ export default [
       terser()
     ],
     external: [
-      '@mysten/sui.js',
-      '@mysten/sui.js/client',
-      '@mysten/wallet-standard',
-      '@noble/hashes',
+      '@aptos-labs/ts-sdk',
+      '@aptos-labs/wallet-standard',
       '@nightlylabs/nightly-connect-base',
-      'uuid',
-      'eventemitter3',
-      'isomorphic-ws',
-      'ws'
+      'eventemitter3'
     ]
   },
   {
-    input: 'dist/types/apps/sui/src/index.d.ts',
+    input: 'dist/types/packages/aptos/src/index.d.ts',
     output: [{ file: 'dist/index.d.ts', format: 'esm' }],
     plugins: [dts()]
   }
