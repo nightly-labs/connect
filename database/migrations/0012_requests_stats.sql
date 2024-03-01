@@ -35,6 +35,8 @@ ALTER MATERIALIZED VIEW hourly_requests_stats_per_app
 set
     (timescaledb.materialized_only = false);
 
+
+
 ----------------- Daily requests stats per app -----------------
 --- View
 CREATE MATERIALIZED VIEW daily_requests_stats_per_app WITH (timescaledb.continuous) AS
@@ -62,6 +64,8 @@ SELECT
 ALTER MATERIALIZED VIEW daily_requests_stats_per_app
 set
     (timescaledb.materialized_only = false);
+
+
 
 ----------------- Monthly requests per app -----------------
 --- View
