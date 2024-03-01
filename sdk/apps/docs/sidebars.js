@@ -19,24 +19,39 @@ const sidebars = {
     'start',
     {
       type: 'category',
-      label: 'Solana',
+      className: 'drop solana-dropdown',
+      label: ' Solana',
       collapsed: false,
-      items: ['solana/connect', 'solana/events', 'solana/sign_transaction', 'solana/sign_message']
+      items: [
+        'solana/start',
+        'solana/connect',
+        'solana/events',
+        'solana/sign_transaction',
+        'solana/sign_message'
+      ]
     },
     {
       type: 'category',
-      label: 'SUI',
+      className: 'drop sui-dropdown',
+      label: 'Sui',
       collapsed: false,
-      items: ['sui/connect', 'sui/events', 'sui/sign_transaction', 'sui/sign_message']
+      items: ['sui/start', 'sui/connect', 'sui/events', 'sui/sign_transaction', 'sui/sign_message']
     },
     {
       type: 'category',
+      className: 'drop substrate-dropdown',
       label: 'Substrate',
       collapsed: false,
-      items: ['substrate/connect', 'substrate/sign_transaction', 'substrate/sign_message']
+      items: [
+        'substrate/start',
+        'substrate/connect',
+        'substrate/sign_transaction',
+        'substrate/sign_message'
+      ]
     },
     {
       type: 'category',
+      // className: 'customization-dropdown',
       label: 'Customization',
       collapsed: false,
       items: ['customization/ui_overrides', 'customization/external_modal']

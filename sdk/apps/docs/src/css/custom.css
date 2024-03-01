@@ -7,11 +7,11 @@
 
 /* You can override the default Infima variables here. */
 :root {
-  --ifm-color-primary: #6067F9;
-  --ifm-color-white: #F7F7F7;
-  --ifm-color-black : #17182B;
-  --ifm-color-background : #343551; 
-  --ifm-code-font-size: 95%;  
+  --ifm-color-primary: #6067f9;
+  --ifm-color-white: #f7f7f7;
+  --ifm-color-black: #17182b;
+  --ifm-color-background: #343551;
+  --ifm-code-font-size: 95%;
 }
 
 .docusaurus-highlight-code-line {
@@ -23,12 +23,12 @@
 
 [data-theme='dark'] {
   background-color: var(--ifm-color-black);
-  color: var(--ifm-color-white)
+  color: var(--ifm-color-white);
 }
 
 [data-theme='light'] {
   background-color: var(--ifm-color-white);
-  color: var(--ifm-color-black)
+  color: var(--ifm-color-black);
 }
 
 .theme-admonition {
@@ -40,17 +40,119 @@
 
 .theme-admonition a {
   color: var(--ifm-color-primary);
-  text-decoration: none
+  text-decoration: none;
 }
 
-[data-theme='dark'] .navbar{
+[data-theme='dark'] .navbar {
   background-color: #202137;
 }
 
-img[src*="#connectImage"] {
+img[src*='#connectImage'] {
   margin-left: 30%;
   width: 360px;
   height: 260px;
   border-radius: 8px;
 }
 
+.start_card_container {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 20px;
+}
+
+@media screen and (max-width: 1300px) and (min-width: 996px) {
+  .start_card_container {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(3, 1fr);
+  }
+}
+
+@media screen and (max-width: 996px) and (min-width: 800px) {
+  .start_card_container {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 800px) {
+  .start_card_container {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(3, 1fr);
+  }
+}
+
+.card {
+  min-height: 200px;
+  border: solid var(--ifm-color-background) 2px;
+  background: linear-gradient(45deg, rgba(96, 103, 249, 0.07), transparent);
+  background-size: 200%;
+  background-position: 100%;
+  text-decoration: none;
+  color: var(--ifm-color-white);
+  padding: 20px;
+  padding-left: 50px;
+  display: flex;
+  flex-direction: row;
+  gap: 30px;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: 2em;
+  transition: all 250ms;
+}
+.card > img {
+  width: 80px;
+}
+.card:hover {
+  background-position: 0%;
+  text-decoration: none;
+  color: var(--ifm-color-white);
+}
+
+@media screen and (max-width: 500px) {
+  .card {
+    font-size: 1.5em;
+    gap: 20px;
+    padding-left: 30px;
+    min-height: 150px;
+  }
+
+  .card > img {
+    width: 70px;
+  }
+}
+.drop > div {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.drop > div::before {
+  content: '';
+  background-size: cover;
+  height: 22px;
+  margin-left: 10px;
+  margin-right: -5px;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+}
+
+.solana-dropdown > div::before {
+  background-image: url('https://upload.wikimedia.org/wikipedia/en/b/b9/Solana_logo.png');
+}
+
+.sui-dropdown > div::before {
+  background-image: url('https://registry.nightly.app/networks/sui.png');
+}
+
+.substrate-dropdown > div::before {
+  background-image: url('https://registry.nightly.app/networks/polkadot.png');
+}
+
+.highlight-template {
+  padding: 30px;
+  border-radius: 10px;
+  border: solid var(--ifm-color-primary) 2px;
+  background: linear-gradient(45deg, rgba(96, 103, 249, 0.1), transparent);
+}

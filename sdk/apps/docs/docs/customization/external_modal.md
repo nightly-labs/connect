@@ -8,7 +8,7 @@ You may want to use your own design and/or change some logic for the modal. In t
 You can then use the modal connect function, instead of using the default one from the adapter.
 
 :::info
-Example below is written for [Solana](../../solana/solana/connect), but you can use it for [Sui](../../sui/sui/connect) and [Substrate](../../substrate/substrate/connect) as well.
+Example below is written for [Solana](../../solana/solana/start), but you can use it for [Sui](../../sui/sui/start) and [Substrate](../../substrate/substrate/start) as well.
 :::
 
 ```js

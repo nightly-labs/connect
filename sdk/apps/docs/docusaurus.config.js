@@ -64,20 +64,20 @@ const config = {
             position: 'left'
           },
           {
-            to: 'docs/solana/solana/connect',
-            activeBasePath: 'docs/solana/solana/connect',
+            to: 'docs/solana/solana/start',
+            activeBasePath: 'docs/solana/solana/start',
             label: 'Solana',
             position: 'left'
           },
           {
-            to: 'docs/sui/sui/connect',
-            activeBasePath: 'docs/sui/sui/connect',
-            label: 'SUI',
+            to: 'docs/sui/sui/start',
+            activeBasePath: 'docs/sui/sui/start',
+            label: 'Sui',
             position: 'left'
           },
           {
-            to: 'docs/substrate/substrate/connect',
-            activeBasePath: 'docs/substrate/substrate/connect',
+            to: 'docs/substrate/substrate/start',
+            activeBasePath: 'docs/substrate/substrate/start',
             label: 'Substrate',
             position: 'left'
           },
