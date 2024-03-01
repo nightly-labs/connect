@@ -1,6 +1,6 @@
 ---
 title: Home
-slug: /
+slug: /home
 ---
 
 ![Welcome to Nightly](../static/img/connect_landing_narrow.png)

@@ -48,42 +48,49 @@ const config = {
         title: 'Nightly Connect',
         logo: {
           alt: 'Nightly Logo',
-          src: 'img/logo.png'
+          src: 'img/logo.png',
+          href: 'docs/home'
         },
         items: [
           {
-            to: 'docs/',
-            activeBasePath: 'docs',
+            to: 'docs/home',
+            activeBasePath: 'docs/home',
             label: 'Docs',
             position: 'left'
           },
           {
             to: 'docs/start/',
-            activeBasePath: 'connect',
+            activeBasePath: 'docs/start',
             label: 'Getting started',
             position: 'left'
           },
           {
             to: 'docs/solana/solana/connect',
-            activeBasePath: 'connect',
+            activeBasePath: 'docs/solana/solana/connect',
             label: 'Solana',
             position: 'left'
           },
           {
             to: 'docs/sui/sui/connect',
-            activeBasePath: 'connect',
+            activeBasePath: 'docs/sui/sui/connect',
             label: 'SUI',
             position: 'left'
           },
           {
             to: 'docs/substrate/substrate/connect',
-            activeBasePath: 'connect',
+            activeBasePath: 'docs/substrate/substrate/connect',
             label: 'Substrate',
             position: 'left'
           },
           {
+            to: 'docs/customization/customization/ui_overrides',
+            activeBasePath: 'docs/customization/customization/ui_overrides',
+            label: 'Customization',
+            position: 'left'
+          },
+          {
             to: 'docs/push/',
-            activeBasePath: 'connect',
+            activeBasePath: 'docs/push/',
             label: 'Push',
             position: 'left'
           },

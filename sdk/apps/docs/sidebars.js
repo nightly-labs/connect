@@ -20,26 +20,26 @@ const sidebars = {
     {
       type: 'category',
       label: 'Solana',
-      collapsed: true,
+      collapsed: false,
       items: ['solana/connect', 'solana/events', 'solana/sign_transaction', 'solana/sign_message']
     },
     {
       type: 'category',
       label: 'SUI',
-      collapsed: true,
+      collapsed: false,
       items: ['sui/connect', 'sui/events', 'sui/sign_transaction', 'sui/sign_message']
     },
     {
       type: 'category',
       label: 'Substrate',
-      collapsed: true,
+      collapsed: false,
       items: ['substrate/connect', 'substrate/sign_transaction', 'substrate/sign_message']
     },
     {
       type: 'category',
       label: 'Customization',
-      collapsed: true,
-      items: ['customization/external_modal']
+      collapsed: false,
+      items: ['customization/ui_overrides', 'customization/external_modal']
     },
     'push'
   ]

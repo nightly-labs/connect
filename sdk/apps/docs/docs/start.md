@@ -19,7 +19,7 @@ Preview: https://solana-web3-template.nightly.app/
 Source code: https://github.com/nightly-labs/solana-web3-template
 :::
 
-If you want to opt for greater flexibility, install the package, as described below, and than visit the [Solana Build & Connect](./solana/connect.md).
+If you want to opt for greater flexibility, install the package, as described below and then visit the [Solana Build & Connect](./solana/connect.md).
 
 :::info
 Simply integrate Nightly Connect to your application or wallet with our [Nightly Solana Connect package](https://www.npmjs.com/package/@nightlylabs/wallet-selector-solana).
@@ -47,7 +47,7 @@ Preview: https://sui-web3-template.nightly.app/
 Source code: https://github.com/nightly-labs/sui-web3-template
 :::
 
-If you want to opt for greater flexibility, install the package, as described below, and than visit the [SUI Build & Connect](./sui/sui/connect).
+If you want to opt for greater flexibility, install the package, as described below and then visit the [SUI Build & Connect](./sui/sui/connect).
 
 :::info
 Simply integrate Nightly Connect to your application or wallet with our [Nightly Solana Connect package](https://www.npmjs.com/package/@nightlylabs/wallet-selector-solana).
@@ -74,7 +74,7 @@ Preview: https://aleph-zero-web3-template.nightly.app/
 Source code: https://github.com/nightly-labs/aleph-zero-web3-template
 :::
 
-If you want to opt for greater flexibility, install the package, as described below, and than visit the [Substrate Build & Connect](./substrate/substrate/connect).
+If you want to opt for greater flexibility, install the package, as described below and then visit the [Substrate Build & Connect](./substrate/substrate/connect).
 
 :::info
 Simply integrate Nightly Connect to your application or wallet with our [Nightly Polkadot Connect package](https://www.npmjs.com/package/@nightlylabs/wallet-selector-polkadot).

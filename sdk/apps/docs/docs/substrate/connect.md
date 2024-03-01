@@ -127,7 +127,7 @@ interface AppMetadata {
 }
 ```
 
-You may also want to specify some additional connection options. This can be achieved by creating an object that implements the below interface, and using it inside the `build()` or `buildLazy()` function.
+You may also want to specify some additional connection options. This can be achieved by creating an object that implements the below interface, and using it inside the `build()` or `buildLazy()` function. Note, that the `disableModal` property can be used for implementing a custom [External modal](../../customization/customization/external_modal).
 
 ```js
 interface ConnectionOptions {
@@ -153,8 +153,10 @@ const adapter = await NightlyConnectAdapter.build(
       additionalInfo: 'Courtesy of Nightly Connect team'
     },
     network: 'AlephZero'
-  },
-  true // should session be persisted
+    //   persistent: false  -  Add this if you want to make the session non-persistent
+  }
+  // { initOnConnect: true, disableModal: true, disableEagerConnect: true }  -  You may specify the connection options object here
+  // document.getElementById("modalAnchor")  -  You can pass an optional anchor element for the modal here
 )
 // Trigger connection
 await adapter.connect()

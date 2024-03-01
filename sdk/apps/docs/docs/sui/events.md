@@ -10,7 +10,7 @@ If you have created a connection you can listen for events using the `on()` func
 ```js
 const adapter = NightlyConnectAdapter.buildLazy({
   appMetadata: {
-    name: 'NCTestSolana',
+    name: 'NCTestSui',
     description: 'Nightly Connect Test',
     icon: 'https://docs.nightly.app/img/logo.png',
     additionalInfo: 'Courtesy of Nightly Connect team'
