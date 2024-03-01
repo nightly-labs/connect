@@ -114,7 +114,7 @@ const adapter = NightlyConnectAdapter.buildLazy(
         color: 'gold'
       }
     }
-    // override the qr code cinfiguration
+    // override the qr code configuration
   }
 )
 ```
