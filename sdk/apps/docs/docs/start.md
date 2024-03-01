@@ -27,10 +27,8 @@ Simply integrate Nightly Connect to your application or wallet with our [Nightly
 ```bash
 # Using NPM
 npm i @nightlylabs/wallet-selector-solana
-
 # Using Yarn
 yarn add @nightlylabs/wallet-selector-solana
-
 ```
 
 :::
@@ -55,7 +53,6 @@ Simply integrate Nightly Connect to your application or wallet with our [Nightly
 ```bash
 # Using NPM
 npm i @nightlylabs/wallet-selector-sui
-
 # Using Yarn
 yarn add @nightlylabs/wallet-selector-sui
 ```
@@ -82,10 +79,8 @@ Simply integrate Nightly Connect to your application or wallet with our [Nightly
 ```bash
 # Using NPM
 npm i @nightlylabs/wallet-selector-polkadot
-
 # Using Yarn
 yarn add @nightlylabs/wallet-selector-polkadot
-
 ```
 
 :::
