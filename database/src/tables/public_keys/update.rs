@@ -16,15 +16,19 @@ impl Db {
         // Single key: straightforward client_profile_id resolution.
         if public_keys.len() == 1 {
             let public_key = &public_keys[0];
+            // 1. Check if the public key already exists.
             if let Ok(key) = self.update_public_key_last_seen(&mut tx, &public_key).await {
                 {
                     match key.target_client_profile_id {
-                        Some(profile_id) => return Ok(profile_id),
+                        Some(profile_id) => {
+                            return Ok(profile_id);
+                        }
                         None => return Ok(key.origin_client_profile_id),
                     }
                 };
             }
 
+            // 2. Key was not used before, create a new profile and public key entry.
             // This should not fail, but just in case
             let client_profile = match self.create_new_profile(Some(&mut tx)).await {
                 Ok(profile) => profile,
@@ -33,13 +37,15 @@ impl Db {
                 }
             };
 
-            // Create a new public key entry
-            if let Err(e) = self
+            // 3. Create a new public key entry
+            if let Err(err) = self
                 .create_new_public_key(&mut tx, &public_key, &client_profile)
                 .await
             {
-                return Err(e);
+                return Err(err);
             }
+
+            return Ok(client_profile.client_profile_id);
         }
 
         // Multiple keys: resolving potential conflicts in client_profile_id.
@@ -137,12 +143,13 @@ impl Db {
         client_profile: &ClientProfile,
     ) -> Result<(), sqlx::Error> {
         let query_body = format!(
-            "INSERT INTO {PUBLIC_KEYS_TABLE_NAME} ({PUBLIC_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4)"
+            "INSERT INTO {PUBLIC_KEYS_TABLE_NAME} ({PUBLIC_KEYS_KEYS}) VALUES ($1, $2, $3, $4, $5)"
         );
 
         let query_result = query(&query_body)
             .bind(&public_key)
             .bind(&client_profile.client_profile_id)
+            .bind(&None::<i64>)
             .bind(&client_profile.created_at)
             .bind(&client_profile.created_at)
             .execute(&mut **tx)

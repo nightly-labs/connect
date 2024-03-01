@@ -65,7 +65,7 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn test_handle_public_key_entry() {
+    async fn test_connection_events() {
         let db = Db::connect_to_the_pool().await;
         db.truncate_all_tables().await.unwrap();
 

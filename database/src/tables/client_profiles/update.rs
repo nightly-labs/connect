@@ -8,7 +8,7 @@ impl Db {
         tx: Option<&mut Transaction<'_, sqlx::Postgres>>,
     ) -> Result<ClientProfile, sqlx::Error> {
         let query_body = format!(
-            "INSERT INTO {CLIENT_PROFILES_TABLE_NAME} ({CLIENT_PROFILES_KEYS}) VALUES (DEFAULT, DEFAULT) RETURNING {CLIENT_PROFILES_KEYS}"
+            "INSERT INTO {CLIENT_PROFILES_TABLE_NAME} ({CLIENT_PROFILES_KEYS}) VALUES (DEFAULT, NULL, DEFAULT) RETURNING {CLIENT_PROFILES_KEYS}"
         );
         let typed_query = query_as::<_, ClientProfile>(&query_body);
 

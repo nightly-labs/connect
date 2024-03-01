@@ -50,18 +50,6 @@ impl Db {
             SESSIONS_KEYS
         );
 
-        let (client_id, device, metadata, notification_endpoint, connected_at) =
-            match &session.client {
-                Some(client) => (
-                    &client.client_id,
-                    &client.device,
-                    &client.metadata,
-                    &client.notification_endpoint,
-                    Some(client.connected_at.clone()),
-                ),
-                None => (&None, &None, &None, &None, None),
-            };
-
         let query_result = query(&query_body)
             .bind(&session.session_id)
             .bind(&session.app_id)
@@ -69,11 +57,12 @@ impl Db {
             .bind(&session.app_ip_address)
             .bind(&session.persistent)
             .bind(&session.network)
-            .bind(&client_id)
-            .bind(&device)
-            .bind(&metadata)
-            .bind(&notification_endpoint)
-            .bind(&connected_at)
+            .bind(&None::<i64>)
+            .bind(&None::<String>)
+            .bind(&None::<String>)
+            .bind(&None::<String>)
+            .bind(&None::<String>)
+            .bind(&None::<DateTime<Utc>>)
             .bind(&session.session_open_timestamp)
             .bind(&None::<DateTime<Utc>>)
             .execute(&mut **tx)
@@ -149,10 +138,25 @@ impl Db {
             .execute(&self.connection_pool)
             .await;
 
-        match query_result {
-            Ok(_) => Ok(()),
-            Err(e) => Err(e),
+        if let Err(err) = query_result {
+            tx.rollback().await.unwrap();
+            return Err(err);
         }
+
+        // 3. Create new session public key entry for each connected key
+        for key in connected_keys {
+            if let Err(err) = self
+                .create_new_session_public_key(&mut tx, &session_id, key.clone())
+                .await
+            {
+                tx.rollback().await.unwrap();
+                return Err(err);
+            }
+        }
+
+        tx.commit().await.unwrap();
+
+        Ok(())
     }
 }
 
@@ -161,7 +165,7 @@ mod tests {
 
     use super::*;
     use crate::{
-        structs::{client_data::ClientData, request_status::RequestStatus},
+        structs::request_status::RequestStatus,
         tables::{requests::table_struct::Request, utils::get_date_time},
     };
 
@@ -186,13 +190,7 @@ mod tests {
             persistent: false,
             network: "test_network".to_string(),
             client_profile_id: None,
-            client: Some(ClientData {
-                client_id: Some("test_client_id".to_string()),
-                device: Some("test_device".to_string()),
-                metadata: Some("test_metadata".to_string()),
-                notification_endpoint: Some("test_notification_endpoint".to_string()),
-                connected_at: get_date_time(10).unwrap(),
-            }),
+            client: None,
             session_open_timestamp: get_date_time(10).unwrap(),
             session_close_timestamp: None,
         };

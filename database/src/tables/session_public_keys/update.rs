@@ -10,7 +10,7 @@ impl Db {
         &self,
         tx: &mut Transaction<'_, Postgres>,
         session_id: &String,
-        public_key_id: i64,
+        public_key: String,
     ) -> Result<(), sqlx::Error> {
         let query_body = format!(
             "INSERT INTO {SESSION_PUBLIC_KEYS_TABLE_NAME} ({SESSION_PUBLIC_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, DEFAULT)"
@@ -18,7 +18,7 @@ impl Db {
 
         let query_result = query(&query_body)
             .bind(&session_id)
-            .bind(&public_key_id)
+            .bind(&public_key)
             .execute(&mut **tx)
             .await;
 
@@ -34,7 +34,7 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn test_handle_public_key_entry() {
+    async fn test_session_public_key_entry() {
         let db = Db::connect_to_the_pool().await;
         db.truncate_all_tables().await.unwrap();
 
@@ -44,7 +44,7 @@ mod tests {
         // Create Public key
         let mut tx = db.connection_pool.begin().await.unwrap();
         let client_profile_id = db
-            .handle_public_keys_entries(&mut tx, &vec![public_key_str])
+            .handle_public_keys_entries(&mut tx, &vec![public_key_str.clone()])
             .await
             .unwrap();
         assert!(client_profile_id == 1);
@@ -52,7 +52,7 @@ mod tests {
         // Create session public key
         let session_id = "test_session_id".to_string();
         let mut tx = db.connection_pool.begin().await.unwrap();
-        db.create_new_session_public_key(&mut tx, &session_id, client_profile_id)
+        db.create_new_session_public_key(&mut tx, &session_id, public_key_str.clone())
             .await
             .unwrap();
 
@@ -63,6 +63,6 @@ mod tests {
         let session_keys = db.get_session_public_keys(&session_id).await.unwrap();
 
         assert_eq!(session_keys.len(), 1);
-        assert_eq!(session_keys[0].public_key_id, client_profile_id);
+        assert_eq!(session_keys[0].public_key, public_key_str);
     }
 }
