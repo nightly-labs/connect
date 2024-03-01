@@ -7,6 +7,8 @@ cd ../../packages/solana
 pnpm build
 cd ../sui
 pnpm build
+cd ../aptos
+pnpm build
 cd ../polkadot
 pnpm build
 # ui packages
