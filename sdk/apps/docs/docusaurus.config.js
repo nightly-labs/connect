@@ -48,13 +48,12 @@ const config = {
         title: 'Nightly Connect',
         logo: {
           alt: 'Nightly Logo',
-          src: 'img/logo.png',
-          href: 'docs/home'
+          src: 'img/logo.png'
         },
         items: [
           {
-            to: 'docs/home',
-            activeBasePath: 'docs/home',
+            to: 'docs/',
+            activeBasePath: 'docs',
             label: 'Docs',
             position: 'left'
           },
