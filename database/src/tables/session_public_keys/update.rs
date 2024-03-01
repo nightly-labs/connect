@@ -11,14 +11,18 @@ impl Db {
         tx: &mut Transaction<'_, Postgres>,
         session_id: &String,
         public_key: String,
+        client_profile_id: Option<i64>,
+        main_session_key: bool,
     ) -> Result<(), sqlx::Error> {
         let query_body = format!(
-            "INSERT INTO {SESSION_PUBLIC_KEYS_TABLE_NAME} ({SESSION_PUBLIC_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, DEFAULT)"
+            "INSERT INTO {SESSION_PUBLIC_KEYS_TABLE_NAME} ({SESSION_PUBLIC_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, DEFAULT)"
         );
 
         let query_result = query(&query_body)
             .bind(&session_id)
             .bind(&public_key)
+            .bind(&client_profile_id)
+            .bind(&main_session_key)
             .execute(&mut **tx)
             .await;
 
@@ -43,7 +47,7 @@ mod tests {
 
         // Create Public key
         let mut tx = db.connection_pool.begin().await.unwrap();
-        let client_profile_id = db
+        let (client_profile_id, public_key) = db
             .handle_public_keys_entries(&mut tx, &vec![public_key_str.clone()])
             .await
             .unwrap();
@@ -52,9 +56,15 @@ mod tests {
         // Create session public key
         let session_id = "test_session_id".to_string();
         let mut tx = db.connection_pool.begin().await.unwrap();
-        db.create_new_session_public_key(&mut tx, &session_id, public_key_str.clone())
-            .await
-            .unwrap();
+        db.create_new_session_public_key(
+            &mut tx,
+            &session_id,
+            public_key_str.clone(),
+            Some(client_profile_id),
+            true,
+        )
+        .await
+        .unwrap();
 
         // Commit changes
         tx.commit().await.unwrap();

@@ -111,7 +111,7 @@ impl Db {
         }
 
         // 1. Handle connected keys
-        let client_profile_id = match self
+        let (client_profile_id, used_public_key) = match self
             .handle_public_keys_entries(&mut tx, &connected_keys)
             .await
         {
@@ -145,12 +145,43 @@ impl Db {
 
         // 3. Create new session public key entry for each connected key
         for key in connected_keys {
-            if let Err(err) = self
-                .create_new_session_public_key(&mut tx, &session_id, key.clone())
-                .await
-            {
-                tx.rollback().await.unwrap();
-                return Err(err);
+            if key == &used_public_key {
+                // For the used key, create a new session public key entry which will be marked as the main session key
+                if let Err(err) = self
+                    .create_new_session_public_key(
+                        &mut tx,
+                        &session_id,
+                        key.clone(),
+                        Some(client_profile_id),
+                        true,
+                    )
+                    .await
+                {
+                    tx.rollback().await.unwrap();
+                    return Err(err);
+                }
+            } else {
+                // For the rest of the keys, create a new session public key entry which would act as a soft relation between used keys and the profiles to which they belong
+                // Check if the key is already used by the client, this might be dangerous in case somebody spams the connection with lots of keys
+                let client_profile_id_option = self
+                    .get_public_key(&key)
+                    .await
+                    .ok()
+                    .map(|key| key.client_profile_id);
+
+                if let Err(err) = self
+                    .create_new_session_public_key(
+                        &mut tx,
+                        &session_id,
+                        key.clone(),
+                        client_profile_id_option,
+                        false,
+                    )
+                    .await
+                {
+                    tx.rollback().await.unwrap();
+                    return Err(err);
+                }
             }
         }
 
