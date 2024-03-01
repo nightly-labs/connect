@@ -50,10 +50,7 @@ impl Db {
 mod tests {
 
     use super::*;
-    use crate::{
-        structs::client_data::ClientData,
-        tables::{sessions::table_struct::DbNcSession, utils::get_date_time},
-    };
+    use crate::tables::{sessions::table_struct::DbNcSession, utils::get_date_time};
     use sqlx::types::chrono::Utc;
 
     #[tokio::test]
@@ -77,19 +74,16 @@ mod tests {
             app_ip_address: "test_app_ip_address".to_string(),
             persistent: false,
             network: "test_network".to_string(),
-            client: Some(ClientData {
-                client_id: Some("test_client_id".to_string()),
-                device: Some("test_device".to_string()),
-                metadata: Some("test_metadata".to_string()),
-                notification_endpoint: Some("test_notification_endpoint".to_string()),
-                connected_at: get_date_time(10).unwrap(),
-            }),
+            client_profile_id: Some("profile_id".to_string()),
+            client: None,
             session_open_timestamp: get_date_time(10).unwrap(),
             session_close_timestamp: None,
         };
 
         // Create a new session entry
-        db.save_new_session(&session).await.unwrap();
+        db.handle_new_session(&session, &"connection_id".to_string())
+            .await
+            .unwrap();
 
         let request = Request {
             request_id: "test_request_id".to_string(),

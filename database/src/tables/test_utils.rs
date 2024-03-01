@@ -36,6 +36,22 @@ pub mod test_utils {
 
             let query = format!("TRUNCATE TABLE {tables_names} CASCADE");
             sqlx::query(&query).execute(&self.connection_pool).await?;
+
+            // Reset all sequences
+            let sequences = sqlx::query(
+                "SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema = 'public'",
+            )
+            .fetch_all(&self.connection_pool)
+            .await?;
+
+            for sequence in sequences {
+                let seq_name = sequence.get::<String, &str>("sequence_name");
+                let seq_reset_query = format!("ALTER SEQUENCE {} RESTART", seq_name);
+                sqlx::query(&seq_reset_query)
+                    .execute(&self.connection_pool)
+                    .await?;
+            }
+
             Ok(())
         }
 

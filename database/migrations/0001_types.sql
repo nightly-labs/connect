@@ -12,3 +12,5 @@ CREATE TYPE request_status_enum AS ENUM (
 );
 
 CREATE TYPE privilege_level_enum AS ENUM ('Read', 'Edit', 'Admin');
+
+CREATE TYPE entity_type_enum AS ENUM ('App', 'Client');
