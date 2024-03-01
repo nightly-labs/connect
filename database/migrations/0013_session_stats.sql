@@ -4,7 +4,7 @@ CREATE MATERIALIZED VIEW hourly_sessions_stats_per_app WITH (timescaledb.continu
 SELECT
     app_id,
     time_bucket('1 hour' :: interval, session_open_timestamp) AS hourly_bucket,
-    COUNT(*) :: BIGINT AS hourly_opened_sessions,
+    COUNT(*) :: BIGINT AS hourly_sessions_opened,
     COUNT(DISTINCT client_profile_id) FILTER (WHERE client_profile_id IS NOT NULL) :: BIGINT AS hourly_active_users
 FROM
     sessions
@@ -34,7 +34,7 @@ CREATE MATERIALIZED VIEW daily_sessions_stats_per_app WITH (timescaledb.continuo
 SELECT
     app_id,
     time_bucket('1 day' :: interval, hourly_bucket) AS daily_bucket,
-    SUM(hourly_opened_sessions) :: BIGINT AS daily_opened_sessions,
+    SUM(hourly_sessions_opened) :: BIGINT AS daily_sessions_opened,
     SUM(hourly_active_users) :: BIGINT AS daily_active_users
 FROM
     hourly_sessions_stats_per_app
@@ -62,7 +62,7 @@ CREATE MATERIALIZED VIEW monthly_sessions_stats_per_app WITH (timescaledb.contin
 SELECT
     app_id,
     time_bucket('1 month' :: interval, daily_bucket) AS monthly_bucket,
-    SUM(daily_opened_sessions) :: BIGINT AS monthly_opened_sessions,
+    SUM(daily_sessions_opened) :: BIGINT AS monthly_sessions_opened,
     SUM(daily_active_users) :: BIGINT AS monthly_active_users
 FROM
     daily_sessions_stats_per_app

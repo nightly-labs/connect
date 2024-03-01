@@ -47,13 +47,12 @@ impl Db {
         client_profile: &ClientProfile,
     ) -> Result<(), sqlx::Error> {
         let query_body = format!(
-            "INSERT INTO {PUBLIC_KEYS_TABLE_NAME} ({PUBLIC_KEYS_KEYS}) VALUES ($1, $2, $3, $4, $5)"
+            "INSERT INTO {PUBLIC_KEYS_TABLE_NAME} ({PUBLIC_KEYS_KEYS}) VALUES ($1, $2, $3, $4)"
         );
 
         let query_result = query(&query_body)
             .bind(&public_key)
             .bind(&client_profile.client_profile_id)
-            .bind(&None::<i64>)
             .bind(&client_profile.created_at)
             .bind(&client_profile.created_at)
             .execute(&mut **tx)
@@ -91,20 +90,27 @@ mod tests {
         db.truncate_all_tables().await.unwrap();
 
         // Define a public key to test with
-        let public_key_str = "test_public_key".to_string();
+        let first_public_key = "test_public_key".to_string();
+        let second_public_key = "test_public_key_1".to_string();
+        let third_public_key = "test_public_key_2".to_string();
+
+        // Define a client profile id to test with
+        let first_client_profile_id = 1;
+        let second_client_profile_id = 2;
 
         // Scenario 1: Insert new client profile and public key
         let mut tx = db.connection_pool.begin().await.unwrap();
         let (client_profile_id, public_key) = db
-            .handle_public_keys_entries(&mut tx, &vec![public_key_str.clone()])
+            .handle_public_keys_entries(&mut tx, &vec![first_public_key.clone()])
             .await
             .unwrap();
         tx.commit().await.unwrap();
-        assert!(client_profile_id == 1);
+        assert!(client_profile_id == first_client_profile_id);
 
         // Retrieve the inserted public key to verify
-        let inserted_public_key = db.get_public_key(&public_key_str).await.unwrap();
-        assert_eq!(inserted_public_key.public_key, public_key_str);
+        let inserted_public_key = db.get_public_key(&first_public_key).await.unwrap();
+        assert_eq!(inserted_public_key.public_key, first_public_key);
+        assert_eq!(first_public_key, public_key);
         assert_eq!(inserted_public_key.client_profile_id, client_profile_id);
 
         // Scenario 2: Update the existing public key's last_seen
@@ -112,15 +118,81 @@ mod tests {
 
         let mut tx = db.connection_pool.begin().await.unwrap();
         let (updated_client_profile_id, public_key) = db
-            .handle_public_keys_entries(&mut tx, &vec![public_key_str.clone()])
+            .handle_public_keys_entries(&mut tx, &vec![first_public_key.clone()])
             .await
             .unwrap();
         tx.commit().await.unwrap();
+
         assert_eq!(updated_client_profile_id, client_profile_id);
+        assert_eq!(first_public_key, public_key);
 
         // Retrieve the updated public key to verify last_seen has been updated
-        let updated_public_key = db.get_public_key(&public_key_str).await.unwrap();
-        assert_eq!(updated_public_key.public_key, public_key_str);
-        assert!(updated_public_key.last_seen > inserted_public_key.last_seen);
+        let first_pub_updated = db.get_public_key(&first_public_key).await.unwrap();
+        assert_eq!(first_pub_updated.public_key, first_public_key);
+        assert_eq!(first_pub_updated.public_key, public_key);
+        assert!(first_pub_updated.last_seen > inserted_public_key.last_seen);
+
+        // Scenario 3: Use multiple public keys
+        let mut tx = db.connection_pool.begin().await.unwrap();
+        let (client_profile_id, public_key) = db
+            .handle_public_keys_entries(
+                &mut tx,
+                &vec![second_public_key.clone(), first_public_key.clone()],
+            )
+            .await
+            .unwrap();
+        tx.commit().await.unwrap();
+
+        assert!(client_profile_id == second_client_profile_id);
+        assert_eq!(public_key, second_public_key);
+
+        // Retrieve the inserted public key to verify
+        let second_pub_updated = db.get_public_key(&public_key).await.unwrap();
+        assert_eq!(second_pub_updated.public_key, public_key);
+        assert_eq!(second_pub_updated.client_profile_id, client_profile_id);
+
+        // Retrieve the public key entry to verify if it was updated, it should not be updated
+        let not_updated_first_public_key = db.get_public_key(&first_public_key).await.unwrap();
+        assert_eq!(
+            not_updated_first_public_key.last_seen,
+            first_pub_updated.last_seen
+        );
+
+        // Scenario 4: use multiple keys but in reversed order
+        let mut tx = db.connection_pool.begin().await.unwrap();
+        let (client_profile_id, public_key) = db
+            .handle_public_keys_entries(
+                &mut tx,
+                &vec![
+                    first_public_key.clone(),
+                    second_public_key.clone(),
+                    // Throw in a new key
+                    third_public_key.clone(),
+                ],
+            )
+            .await
+            .unwrap();
+
+        tx.commit().await.unwrap();
+
+        assert!(client_profile_id == first_client_profile_id);
+        assert_eq!(public_key, first_public_key);
+
+        // Retrieve the data for all of the keys to verify
+        let first_public_key_data = db.get_public_key(&first_public_key).await.unwrap();
+        // Last seen should have been updated since the scenario 3
+        assert!(first_public_key_data.last_seen > first_pub_updated.last_seen);
+        assert!(first_public_key_data.client_profile_id == first_client_profile_id);
+
+        let second_public_key_data = db.get_public_key(&second_public_key).await.unwrap();
+        // Last seen should be the same as the time from scenario 3
+        assert_eq!(
+            second_public_key_data.last_seen,
+            second_pub_updated.last_seen
+        );
+        assert!(second_public_key_data.client_profile_id == second_client_profile_id);
+
+        // This should fail, while this key was used in the previous scenario, it was not used as the main key
+        db.get_public_key(&third_public_key).await.unwrap_err();
     }
 }
