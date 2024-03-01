@@ -110,6 +110,10 @@ img[src*='#connectImage'] {
   color: var(--ifm-color-white);
 }
 
+[data-theme='light'] .card {
+  color: black !important;
+}
+
 @media screen and (max-width: 500px) {
   .card {
     font-size: 1.5em;
