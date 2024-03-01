@@ -37,7 +37,7 @@ yarn add @nightlylabs/wallet-selector-solana
 
 </TabItem>
 
-<TabItem value="SUI" label="SUI">
+<TabItem value="Sui" label="Sui">
 
 :::info
 Web template
@@ -47,10 +47,10 @@ Preview: https://sui-web3-template.nightly.app/
 Source code: https://github.com/nightly-labs/sui-web3-template
 :::
 
-If you want to opt for greater flexibility, install the package, as described below and then visit the [SUI Build & Connect](./sui/sui/connect).
+If you want to opt for greater flexibility, install the package, as described below and then visit the [Sui Build & Connect](./sui/sui/connect).
 
 :::info
-Simply integrate Nightly Connect to your application or wallet with our [Nightly Solana Connect package](https://www.npmjs.com/package/@nightlylabs/wallet-selector-solana).
+Simply integrate Nightly Connect to your application or wallet with our [Nightly Sui Connect package](https://www.npmjs.com/package/@nightlylabs/wallet-selector-sui).
 
 ```bash
 # Using NPM
