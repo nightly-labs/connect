@@ -15,6 +15,7 @@ import {
 import { hexToBytes } from '@noble/hashes/utils'
 import { smartDelay, TEST_RELAY_ENDPOINT } from '../../../commonTestUtils'
 import { Account, Aptos, Ed25519PrivateKey, deriveTransactionType } from '@aptos-labs/ts-sdk'
+import { SignTransactionsAptosRequest } from './requestTypes'
 
 const aptos = new Aptos() // default to devnet
 const alice: Account = Account.fromPrivateKey({
@@ -69,7 +70,7 @@ describe('Aptos client tests', () => {
     expect(connectFn).toHaveBeenCalledOnce()
     expect(connectFn).toHaveBeenCalledWith(alice.accountAddress.toString())
   })
-  test.skip('#on("signTransaction")', async () => {
+  test('#on("signTransaction")', async () => {
     const bobAddress = '0xb0b'
 
     client.on('signTransaction', async (e) => {
@@ -111,7 +112,7 @@ describe('Aptos client tests', () => {
     // Verify the transaction was submitted
     expect(pendingTransaction.hash).toBeDefined()
   })
-  test.skip('#on("signMessages")', async () => {
+  test('#on("signMessages")', async () => {
     client.on('signMessage', async (e) => {
       const payload = e.messages[0]
       const signature = alice.sign(new Buffer(payload.message).toString('hex'))
@@ -137,7 +138,7 @@ describe('Aptos client tests', () => {
     await smartDelay()
     const _signedMessage = await app.signMessage(msgToSign)
   })
-  test.skip('#on("signAndSubmitTransaction")', async () => {
+  test('#on("signAndSubmitTransaction")', async () => {
     const bobAddress = '0xb0b'
 
     client.on('signAndSubmitTransaction', async (e) => {
@@ -179,38 +180,39 @@ describe('Aptos client tests', () => {
     // Verify the transaction was submitted
     expect(submittedTx.args.hash).toBeDefined()
   })
-  // test('#getPendingRequests()', async () => {
-  //   client.removeListener('signTransactions')
-  //   const tx = new TransactionBlock()
-  //   const coin = tx.splitCoins(tx.gas, [tx.pure(100)])
-  //   tx.transferObjects([coin], tx.pure(RECEIVER_SUI_ADDRESS))
-  //   tx.setSenderIfNotSet(RECEIVER_SUI_ADDRESS)
-  //   app.signTransactionBlock({
-  //     transactionBlock: tx,
-  //     account: aliceWalletAccount,
-  //     chain: 'sui:testnet'
-  //   })
-  //   app.signTransactionBlock({
-  //     transactionBlock: tx,
-  //     account: aliceWalletAccount,
-  //     chain: 'sui:testnet'
-  //   })
-  //   await smartDelay(500)
-  //   const requests = await client.getPendingRequests()
-  //   expect(requests.length).toBe(2)
-  //   expect(requests[0].type).toBe(ContentType.SignTransactions)
-  //   expect(requests[1].type).toBe(ContentType.SignTransactions)
-  //   const payload1 = requests[0] as SignTransactionsSuiRequest
-  //   expect(payload1.transactions.length).toBe(1)
-  // })
-  // test('#on("appDisconnected")', async () => {
-  //   const disconnecFn = vi.fn()
-  //   client.on('appDisconnected', async () => {
-  //     disconnecFn()
-  //   })
-  //   app.base.ws.terminate()
-  //   app.base.ws.close()
-  //   await smartDelay()
-  //   expect(disconnecFn).toHaveBeenCalledOnce()
-  // })
+  test('#getPendingRequests()', async () => {
+    client.removeAllListeners()
+    const bobAddress = '0xb0b'
+    const transaction = await aptos.transaction.build.simple({
+      sender: alice.accountAddress,
+      data: {
+        function: '0x1::coin::transfer',
+        typeArguments: ['0x1::aptos_coin::AptosCoin'],
+        functionArguments: [bobAddress, 100]
+      }
+    })
+    app.signAndSubmitTransaction({
+      rawTransaction: transaction.rawTransaction
+    })
+    app.signAndSubmitTransaction({
+      rawTransaction: transaction.rawTransaction
+    })
+    await smartDelay(500)
+    const requests = await client.getPendingRequests()
+    expect(requests.length).toBe(2)
+    expect(requests[0].type).toBe(ContentType.SignTransactions)
+    expect(requests[1].type).toBe(ContentType.SignTransactions)
+    const payload1 = requests[0] as SignTransactionsAptosRequest
+    expect(payload1.transactions.length).toBe(1)
+  })
+  test('#on("appDisconnected")', async () => {
+    const disconnecFn = vi.fn()
+    client.on('appDisconnected', async () => {
+      disconnecFn()
+    })
+    app.base.ws.terminate()
+    app.base.ws.close()
+    await smartDelay()
+    expect(disconnecFn).toHaveBeenCalledOnce()
+  })
 })
