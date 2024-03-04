@@ -50,8 +50,6 @@ impl Db {
             ORDER BY {filter} DESC",
         );
 
-        println!("\n{}\n", &query);
-
         sqlx::query_as::<_, ConnectionStats>(&query)
             .bind(app_id)
             .bind(start_date)
