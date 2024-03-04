@@ -72,7 +72,7 @@ await adapter.connect()
 // After connection adapter turns into remote signer
 
 // Sign transaction
-await adapter.signAndExecuteTransactionBlock()
+await adapter.signTransactionBlock()
 
 // Disconnect client if you want to end session
 await adapter.disconnect()
