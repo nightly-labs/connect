@@ -65,18 +65,21 @@ const config = {
           },
           {
             to: 'docs/solana/solana/start',
+            className: 'solana_navlink navlink',
             activeBasePath: 'docs/solana/solana/start',
             label: 'Solana',
             position: 'left'
           },
           {
             to: 'docs/sui/sui/start',
+            className: 'sui_navlink navlink',
             activeBasePath: 'docs/sui/sui/start',
             label: 'Sui',
             position: 'left'
           },
           {
             to: 'docs/substrate/substrate/start',
+            className: 'substrate_navlink navlink',
             activeBasePath: 'docs/substrate/substrate/start',
             label: 'Substrate',
             position: 'left'
@@ -94,9 +97,14 @@ const config = {
             position: 'left'
           },
           {
-            href: 'https://example.connect.nightly.app/',
+            type: 'dropdown',
             label: 'Demo',
-            position: 'right'
+            position: 'right',
+            items: [
+              { href: 'https://solana-web3-template.nightly.app', label: 'Solana template' },
+              { href: 'https://sui-web3-template.nightly.app', label: 'Sui template' },
+              { href: 'https://aleph-zero-web3-template.nightly.app', label: 'Substrate template' }
+            ]
           },
           {
             href: 'https://twitter.com/NightlyConnect',
@@ -128,7 +136,7 @@ const config = {
             title: 'Docs',
             items: [
               {
-                label: 'home',
+                label: 'Home',
                 to: 'docs/'
               }
             ]
@@ -156,6 +164,7 @@ const config = {
             ]
           }
         ],
+
         copyright: `Copyright © ${new Date().getFullYear()} Nightly | Built with Docusaurus.`
       },
       prism: {

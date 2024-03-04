@@ -160,3 +160,42 @@ img[src*='#connectImage'] {
   border: solid var(--ifm-color-primary) 2px;
   background: linear-gradient(45deg, rgba(96, 103, 249, 0.1), transparent);
 }
+
+.navbar__items a {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.navbar__items > .navlink {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+}
+
+.navbar__items > .navlink::before {
+  content: '';
+  background-size: cover;
+  height: 20px;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+}
+
+.navbar__items > .solana_navlink::before {
+  background-image: url('https://upload.wikimedia.org/wikipedia/en/b/b9/Solana_logo.png');
+}
+
+.navbar__items > .sui_navlink::before {
+  background-image: url('https://registry.nightly.app/networks/sui.png');
+}
+
+.navbar__items > .substrate_navlink::before {
+  background-image: url('https://registry.nightly.app/networks/polkadot.png');
+}
+
+@media screen and (max-width: 996px) {
+  .navlink {
+    display: none !important;
+  }
+}
