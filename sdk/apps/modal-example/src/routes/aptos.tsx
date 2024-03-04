@@ -1,18 +1,21 @@
+import { AccountAuthenticator, AccountAuthenticatorEd25519, Aptos } from '@aptos-labs/ts-sdk'
+import { AccountInfo, AptosSignMessageInput, UserResponseStatus } from '@aptos-labs/wallet-standard'
+import { NightlyConnectAptosAdapter } from '@nightlylabs/wallet-selector-aptos'
 import { createEffect, createSignal, onMount, Show } from 'solid-js'
 import { Title } from 'solid-start'
-import { NightlyConnectAptosAdapter } from '@nightlylabs/wallet-selector-aptos'
-import { TransactionBlock } from '@mysten/sui.js/transactions'
 import toast from 'solid-toast'
 
-export default function Sui() {
+const aptos = new Aptos() // default to devnet
+
+export default function AptosPage() {
   const [adapter, setAdapter] = createSignal<NightlyConnectAptosAdapter>()
   const [eager, setEager] = createSignal(false)
-  const [publicKey, setPublicKey] = createSignal<string>()
+  const [accountInfo, setAccountInfo] = createSignal<AccountInfo>()
   onMount(async () => {
     NightlyConnectAptosAdapter.build(
       {
         appMetadata: {
-          name: 'NCTestSui',
+          name: 'NCTestAptos',
           description: 'Nightly Connect Test',
           icon: 'https://docs.nightly.app/img/logo.png',
           additionalInfo: 'Courtesy of Nightly Connect team'
@@ -26,16 +29,16 @@ export default function Sui() {
       })
 
       adapter.on('connect', (accInfo) => {
-        setPublicKey(accInfo.address.toString())
+        setAccountInfo(accInfo)
       })
 
       adapter.on('disconnect', () => {
-        setPublicKey(undefined)
+        setAccountInfo(undefined)
         console.log('adapter disconnected')
       })
 
-      adapter.on('change', (accInfo) => {
-        setPublicKey(accInfo.address.toString())
+      adapter.on('accountChange', (accInfo) => {
+        setAccountInfo(accInfo)
       })
 
       setAdapter(adapter)
@@ -58,10 +61,10 @@ export default function Sui() {
 
   return (
     <main>
-      <Title>Sui Example</Title>
+      <Title>Aptos Example</Title>
       <div id="modalAnchor" />
       <Show
-        when={!!publicKey()}
+        when={!!accountInfo()}
         fallback={
           <button
             onClick={() => {
@@ -79,44 +82,90 @@ export default function Sui() {
             Connect
           </button>
         }>
-        <h1>Current address: {publicKey()}</h1>
+        <h1>Current address: {accountInfo()?.address.toString()}</h1>
         <button
           onClick={async () => {
             try {
-              const transactionBlock = new TransactionBlock()
-              const coin = transactionBlock.splitCoins(transactionBlock.gas, [
-                transactionBlock.pure(50000000)
-              ])
-              transactionBlock.transferObjects(
-                [coin],
-                transactionBlock.pure(
-                  '0xd85c7ad90905e0bd49b72420deb5f4077cab62840fb3917ca2945e41d8854013'
-                )
-              )
-              // const accounts = await adapter()!.getAccounts()
-              // await adapter()!.signAndExecuteTransactionBlock({
-              //   transactionBlock,
-              //   chain: 'sui:testnet',
-              //   account: accounts[0]
-              // })
-
-              toast.success('Transaction was signed and sent!')
+              const transaction = await aptos.transaction.build.simple({
+                sender: accountInfo()!.address.toString(),
+                data: {
+                  function: '0x1::coin::transfer',
+                  typeArguments: ['0x1::aptos_coin::AptosCoin'],
+                  functionArguments: ['0xb0b', 100]
+                }
+              })
+              const signedTx = await adapter()!.signAndSubmitTransaction({
+                rawTransaction: transaction.rawTransaction
+              })
+              // Verify the transaction was signed
+              if (signedTx.status !== UserResponseStatus.APPROVED) {
+                toast.error('Transaction was not approved')
+                return
+              }
+              console.log('signedTx', signedTx)
+              toast.success('Transaction was signed!')
             } catch (e) {
               toast.error("Error: couldn't sign and send transaction!")
               console.log(e)
             }
           }}>
-          Send 0.05 SUI
+          sign and submit tx
         </button>
         <button
           onClick={async () => {
             try {
-              // const accounts = await adapter()!.getAccounts()
-              // await adapter()!.signPersonalMessage!({
-              //   message: new TextEncoder().encode('I love Nightly'),
-              //   account: accounts[0]
-              // })
-
+              const transaction = await aptos.transaction.build.simple({
+                sender: accountInfo()!.address.toString(),
+                data: {
+                  function: '0x1::coin::transfer',
+                  typeArguments: ['0x1::aptos_coin::AptosCoin'],
+                  functionArguments: ['0xb0b', 100]
+                }
+              })
+              const signedTx = await adapter()!.signTransaction(transaction)
+              // Verify the transaction was signed
+              if (signedTx.status !== UserResponseStatus.APPROVED) {
+                toast.error('Transaction was not approved')
+                return
+              }
+              console.log('signedTx', signedTx)
+              console.log(signedTx.args instanceof AccountAuthenticatorEd25519)
+              console.log(signedTx.args.isEd25519())
+              // @ts-expect-error sdsdsd
+              console.log(signedTx.args.public_key)
+              // @ts-expect-error sdsdsd
+              console.log(signedTx.args.signature)
+              const sig = new AccountAuthenticatorEd25519(
+                // @ts-expect-error sdsdsd
+                signedTx.args.public_key,
+                // @ts-expect-error sdsdsd
+                signedTx.args.signature
+              )
+              console.log(sig)
+              await aptos.transaction.submit.simple({
+                senderAuthenticator: sig,
+                transaction: transaction
+              })
+              toast.success('Transaction was signed!')
+            } catch (e) {
+              toast.error("Error: couldn't sign and send transaction!")
+              console.log(e)
+            }
+          }}>
+          sign tx
+        </button>
+        <button
+          onClick={async () => {
+            try {
+              const msgToSign: AptosSignMessageInput = {
+                message: 'I love Nightly',
+                address: true,
+                nonce: 'YOLO'
+              }
+              const signed = await adapter()!.signMessage(msgToSign)
+              if (signed.status !== UserResponseStatus.APPROVED) {
+                throw new Error('Message was not approved')
+              }
               toast.success('Message was signed!')
             } catch (e) {
               toast.error("Error: couldn't sign message!")
@@ -128,7 +177,7 @@ export default function Sui() {
         <button
           onClick={() => {
             adapter()?.disconnect()
-            setPublicKey(undefined)
+            setAccountInfo(undefined)
           }}>
           Disconnect
         </button>

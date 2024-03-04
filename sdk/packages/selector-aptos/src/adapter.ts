@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import {
   AccountInfo,
-  AptosAdapter,
   AptosConnectMethod,
   AptosGetAccountMethod,
   AptosGetNetworkMethod,
@@ -13,37 +12,36 @@ import {
   UserResponseStatus
 } from '@aptos-labs/wallet-standard'
 
+import { AnyRawTransaction } from '@aptos-labs/ts-sdk'
+import { AptosSignAndSubmitTransactionMethod } from '@aptos-labs/wallet-standard'
 import { AppAptos, APTOS_NETWORK, deserializeConnectData } from '@nightlylabs/nightly-connect-aptos'
 import {
   AppInitData,
-  ConnectionOptions,
-  ConnectionType,
-  IWalletListItem,
-  NightlyConnectSelectorModal,
-  WalletMetadata,
-  XMLOptions,
   clearRecentWalletForNetwork,
   clearSessionIdForNetwork,
+  ConnectionOptions,
+  ConnectionType,
   defaultConnectionOptions,
   getRecentWalletForNetwork,
   isMobileBrowser,
+  IWalletListItem,
   logoBase64,
+  NightlyConnectSelectorModal,
   persistRecentWalletForNetwork,
   sleep,
-  triggerConnect
+  triggerConnect,
+  WalletMetadata,
+  XMLOptions
 } from '@nightlylabs/wallet-selector-base'
-import type { StandardEventsChangeProperties, WalletAccount } from '@wallet-standard/core'
-import bs58 from 'bs58'
-import { getAptosWalletsList } from './detection'
 import EventEmitter from 'eventemitter3'
-import { AptosSignAndSubmitTransactionMethod } from '@aptos-labs/wallet-standard'
-import { Account, AnyRawTransaction } from '@aptos-labs/ts-sdk'
+import { getAptosWalletsList } from './detection'
 
 export type AptosAdapterEvents = {
   connect(accountInfo: AccountInfo): void
   disconnect(): void
   error(error: any): void
-  change(accountInfo: AccountInfo): void
+  accountChange(accountInfo: AccountInfo): void
+  networkChange(networkInfo: NetworkInfo): void
 }
 
 export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents> {
@@ -275,7 +273,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
     return adapter
   }
   // Standard methods
-  getNetwork: AptosGetNetworkMethod = async () => {
+  network: AptosGetNetworkMethod = async () => {
     if (!this) {
       throw new Error('Not connected')
     }
@@ -288,7 +286,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
     throw new Error('Should not reach here')
   }
 
-  getAccount: AptosGetAccountMethod = async () => {
+  account: AptosGetAccountMethod = async () => {
     if (!this) {
       throw new Error('Not connected')
     }
@@ -314,7 +312,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
             // If we are connected, return the account
             const userInfo = {
               status: UserResponseStatus.APPROVED,
-              args: await this.getAccount()
+              args: await this.account()
             }
             resolve(Promise.resolve(userInfo))
             return
@@ -779,7 +777,10 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
         this._connectionType = ConnectionType.WalletStandard
         this.emit('connect', response.args)
         adapter.features['aptos:onAccountChange'].onAccountChange((a) => {
-          this.emit('change', a)
+          this.emit('accountChange', a)
+        })
+        adapter.features['aptos:onNetworkChange'].onNetworkChange((a) => {
+          this.emit('networkChange', a)
         })
       } else {
         if (this._modal) {

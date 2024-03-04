@@ -12,7 +12,7 @@ import {
   Scripts,
   Title
 } from 'solid-start'
-import { Toaster } from 'solid-toast';
+import { Toaster } from 'solid-toast'
 import './root.css'
 
 export default function Root() {
@@ -27,7 +27,7 @@ export default function Root() {
         <Suspense>
           <ErrorBoundary>
             <A href="/">Index</A>
-            <Toaster />
+            <Toaster position="bottom-left" />
             <Routes>
               <FileRoutes />
             </Routes>
