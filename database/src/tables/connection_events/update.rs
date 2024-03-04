@@ -16,10 +16,11 @@ impl Db {
         network: &String,
     ) -> Result<(), sqlx::Error> {
         let query_body = format!(
-            "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, NOW(), NULL)"
+            "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, NOW(), NULL)"
         );
 
         let query_result = query(&query_body)
+            .bind(&app_id)
             .bind(&session_id)
             .bind(&connection_id)
             .bind(&app_id)
@@ -37,19 +38,75 @@ impl Db {
     pub async fn create_new_connection_by_client(
         &self,
         tx: &mut Transaction<'_, Postgres>,
+        app_id: &String,
         session_id: &String,
-        client_profile_id: i32,
+        client_profile_id: i64,
         network: &String,
     ) -> Result<(), sqlx::Error> {
         let query_body = format!(
-            "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, NULL, $2, $3, $4, NOW(), NULL)"
+            "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, NULL, $3, $4, $5, NOW(), NULL)"
         );
 
         let query_result = query(&query_body)
+            .bind(&app_id)
             .bind(&session_id)
             .bind(&client_profile_id)
             .bind(&EntityType::Client)
             .bind(&network)
+            .execute(&mut **tx)
+            .await;
+
+        match query_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e),
+        }
+    }
+
+    pub async fn close_app_connection(
+        &self,
+        tx: &mut Transaction<'_, Postgres>,
+        app_id: &String,
+        connection_id: &String,
+        session_id: &String,
+    ) -> Result<(), sqlx::Error> {
+        let query_body = format!(
+            "UPDATE {CONNECTION_EVENTS_TABLE_NAME} 
+                SET disconnected_at = NOW() 
+                WHERE app_id = $1 AND session_id = $2 AND entity_type = $3 AND connection_id = $4 AND disconnected_at IS NULL"
+        );
+
+        let query_result = query(&query_body)
+            .bind(&app_id)
+            .bind(&session_id)
+            .bind(&EntityType::App)
+            .bind(&connection_id)
+            .execute(&mut **tx)
+            .await;
+
+        match query_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e),
+        }
+    }
+
+    pub async fn close_client_connection(
+        &self,
+        tx: &mut Transaction<'_, Postgres>,
+        app_id: &String,
+        session_id: &String,
+        client_profile_id: i64,
+    ) -> Result<(), sqlx::Error> {
+        let query_body = format!(
+            "UPDATE {CONNECTION_EVENTS_TABLE_NAME} 
+                SET disconnected_at = NOW() 
+                WHERE app_id = $1 AND session_id = $2 AND entity_type = $3 AND entity_id = $4 AND disconnected_at IS NULL"
+        );
+
+        let query_result = query(&query_body)
+            .bind(&app_id)
+            .bind(&session_id)
+            .bind(&EntityType::Client)
+            .bind(&client_profile_id.to_string())
             .execute(&mut **tx)
             .await;
 
@@ -72,7 +129,7 @@ mod tests {
         let mut tx = db.connection_pool.begin().await.unwrap();
 
         let session_id = "session_id".to_string();
-        let connection_id = "connection_id".to_string();
+        let first_connection_id = "connection_id".to_string();
         let app_id = "app_id".to_string();
         let network = "network".to_string();
 
@@ -80,7 +137,7 @@ mod tests {
         db.create_new_connection_event_by_app(
             &mut tx,
             &session_id,
-            &connection_id,
+            &first_connection_id,
             &app_id,
             &network,
         )
@@ -89,9 +146,15 @@ mod tests {
 
         // Create event by client
         let client_profile_id = 1;
-        db.create_new_connection_by_client(&mut tx, &session_id, client_profile_id, &network)
-            .await
-            .unwrap();
+        db.create_new_connection_by_client(
+            &mut tx,
+            &app_id,
+            &session_id,
+            client_profile_id,
+            &network,
+        )
+        .await
+        .unwrap();
 
         tx.commit().await.unwrap();
 
@@ -104,7 +167,7 @@ mod tests {
         assert_eq!(events_by_session_id.len(), 2);
 
         // Get events by app id
-        let events_by_app_id = db.get_connection_events_by_app_id(&app_id).await.unwrap();
+        let events_by_app_id = db.get_connection_events_by_app(&app_id).await.unwrap();
 
         assert_eq!(events_by_app_id.len(), 1);
 
@@ -117,13 +180,13 @@ mod tests {
         assert_eq!(events_by_client_profile_id.len(), 1);
 
         // Add another connection event by app with different connection id
-        let connection_id = "connection_id_2".to_string();
+        let second_connection_id = "connection_id_2".to_string();
 
         let mut tx = db.connection_pool.begin().await.unwrap();
         db.create_new_connection_event_by_app(
             &mut tx,
             &session_id,
-            &connection_id,
+            &second_connection_id,
             &app_id,
             &network,
         )
@@ -135,6 +198,48 @@ mod tests {
         // Get events by app id
         let events_by_app_id = db.get_connection_events_by_app_id(&app_id).await.unwrap();
 
-        assert_eq!(events_by_app_id.len(), 2);
+        assert_eq!(events_by_app_id.len(), 3);
+
+        events_by_app_id.iter().for_each(|event| {
+            assert!(event.disconnected_at.is_none());
+        });
+
+        // Close app first connection
+        let mut tx = db.connection_pool.begin().await.unwrap();
+        db.close_app_connection(&mut tx, &app_id, &first_connection_id, &session_id)
+            .await
+            .unwrap();
+
+        tx.commit().await.unwrap();
+
+        // Get events by app id
+        let events_by_app_id = db.get_connection_events_by_app_id(&app_id).await.unwrap();
+
+        assert_eq!(events_by_app_id.len(), 3);
+
+        let first_connection = events_by_app_id
+            .iter()
+            .find(|event| event.connection_id == Some(first_connection_id.clone()))
+            .unwrap();
+
+        assert!(first_connection.disconnected_at.is_some());
+
+        // Close remaining connections
+        let mut tx = db.connection_pool.begin().await.unwrap();
+        db.close_app_connection(&mut tx, &app_id, &second_connection_id, &session_id)
+            .await
+            .unwrap();
+        db.close_client_connection(&mut tx, &app_id, &session_id, client_profile_id)
+            .await
+            .unwrap();
+        tx.commit().await.unwrap();
+
+        // Get events by app id
+        let events_by_app_id = db.get_connection_events_by_app_id(&app_id).await.unwrap();
+
+        assert_eq!(events_by_app_id.len(), 3);
+        events_by_app_id.iter().for_each(|event| {
+            assert!(event.disconnected_at.is_some());
+        });
     }
 }
