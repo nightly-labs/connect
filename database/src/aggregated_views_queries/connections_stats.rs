@@ -63,13 +63,8 @@ impl Db {
 #[cfg(test)]
 mod tests {
 
-    use std::time::Duration;
-
-    use crate::{
-        structs::{consts::DAY_IN_SECONDS, time_filters::TimeFilter},
-        tables::{sessions::table_struct::DbNcSession, utils::to_microsecond_precision},
-    };
-    use sqlx::types::chrono::{DateTime, Utc};
+    use crate::{structs::time_filters::TimeFilter, tables::sessions::table_struct::DbNcSession};
+    use sqlx::types::chrono::Utc;
 
     #[tokio::test]
     async fn test_connections_all_networks() {
