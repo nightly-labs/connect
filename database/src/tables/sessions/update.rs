@@ -196,7 +196,7 @@ mod tests {
 
     use super::*;
     use crate::{
-        structs::request_status::RequestStatus,
+        structs::{request_status::RequestStatus, session_type::SessionType},
         tables::{requests::table_struct::Request, utils::get_date_time},
     };
 
@@ -215,6 +215,7 @@ mod tests {
 
         let session = DbNcSession {
             session_id: "test_session_id".to_string(),
+            session_type: SessionType::Relay,
             app_id: "test_app_id".to_string(),
             app_metadata: "test_app_metadata".to_string(),
             app_ip_address: "test_app_ip_address".to_string(),

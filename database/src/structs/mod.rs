@@ -4,5 +4,6 @@ pub mod entity_type;
 pub mod filter_requests;
 pub mod privelage_level;
 pub mod request_status;
+pub mod session_type;
 pub mod subscription;
 pub mod time_filters;
