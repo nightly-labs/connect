@@ -22,41 +22,39 @@ const sidebars = {
       className: 'drop solana-dropdown',
       label: ' Solana',
       collapsed: false,
-      items: [
-        'solana/start',
-        'solana/connect',
-        'solana/events',
-        'solana/sign_transaction',
-        'solana/sign_message'
-      ]
+      items: ['solana/start', 'solana/connect', 'solana/events', 'solana/sign_transaction']
     },
     {
       type: 'category',
       className: 'drop sui-dropdown',
       label: 'Sui',
       collapsed: false,
-      items: ['sui/start', 'sui/connect', 'sui/events', 'sui/sign_transaction', 'sui/sign_message']
+      items: ['sui/start', 'sui/connect', 'sui/events', 'sui/sign_transaction']
     },
     {
       type: 'category',
       className: 'drop substrate-dropdown',
       label: 'Substrate',
       collapsed: false,
-      items: [
-        'substrate/start',
-        'substrate/connect',
-        'substrate/sign_transaction',
-        'substrate/sign_message'
-      ]
+      items: ['substrate/start', 'substrate/connect', 'substrate/sign_transaction']
     },
     {
       type: 'category',
-      // className: 'customization-dropdown',
       label: 'Customization',
-      collapsed: false,
+      collapsed: true,
       items: ['customization/ui_overrides', 'customization/external_modal']
     },
-    'push'
+    {
+      type: 'category',
+      label: 'For wallets',
+      collapsed: true,
+      items: [
+        'for_wallets/connect',
+        'for_wallets/sign_transaction',
+        'for_wallets/sign_message',
+        'for_wallets/push'
+      ]
+    }
   ]
 
   // But you can create a sidebar manually

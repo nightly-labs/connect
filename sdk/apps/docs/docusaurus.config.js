@@ -88,9 +88,9 @@ const config = {
             position: 'left'
           },
           {
-            to: 'docs/push/',
-            activeBasePath: 'docs/push/',
-            label: 'Push',
+            to: 'docs/for_wallets/for_wallets/connect',
+            activeBasePath: 'docs/for_wallets/for_wallets/connect',
+            label: 'For wallets',
             position: 'left'
           },
           {

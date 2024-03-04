@@ -1,6 +1,6 @@
 ---
 title: Push notifications
-slug: push
+slug: for_wallets/push
 ---
 
 :::info

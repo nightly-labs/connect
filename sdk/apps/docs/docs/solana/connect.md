@@ -3,92 +3,6 @@ title: Build & Connect
 slug: solana/connect
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-
-To try Nightly Connect easily, just go to the Solana Web3 template app's source code and follow the instructions there. It's the quickest way to get started and explore its features.
-
-:::info
-We have ready to use templates that you can try here.
-
-Preview: https://solana-web3-template.nightly.app/
-
-Source code: https://github.com/nightly-labs/solana-web3-template
-:::
-
-If you wish to enable nightly connect as a way of interacting with external applications, or to implement it as a wallet interface, use one of the ways below.
-
-<Tabs>
-<TabItem value="Client" label="Client">
-
-:::info
-This part of documentation is targeted to clients/ wallets that want to enable nightly connect
-as way of interaction with external applications.
-:::
-
-To get started, first we establish Connection with server `create()`. This enables use interactions with our sessions.
-
-After that we can query session info with `getInfo()`, which requires 1 argument, sessionId (the one from the QR code).
-
-Once client decides to connect and approves the request, call the `connect()` method.
-
-```js
-export interface AppMetadata {
-  name: string;
-  url?: string;
-  description?: string;
-  icon?: string;
-  additionalInfo?: string;
-}
-
-interface GetInfoResponse {
-  responseId: string;
-  network: Network;
-  version: Version; // string
-  appMetadata: AppMetadata;
-}
-
-type Connect = {
-  publicKeys: string[],
-  sessionId: string,
-  notification?: Notification | undefined, // for notification purposes
-  device?: Device | undefined,
-  metadata?: string | undefined
-}
-```
-
-### Build & Connect
-
-```js
-import { ClientSolana } from '@nightlylabs/nightly-connect-solana'
-
-const client: ClientSolana = await ClientSolana.create({
-  url: RELAY_ENDPOINT // default: https://nc2.nightly.app
-})
-const info: GetInfoResponse = await client.getInfo(sessionId)
-
-const message: Connect = {
-  publicKeys: [
-    '9mtkm594sexac7G6jct3PZqyEVe3eUWMx6SUcEhYBRxr',
-    '8MtpTNvQfr7iAWYLjJeyMw19vHw7bx7jrmoamkootfvA'
-  ],
-  sessionId: sessionId
-}
-await client.connect(message)
-```
-
-### Disconnect
-
-:::info
-Both client and application can initiate disconnection.<br />
-Though when it is the client who disconnects, the session will not be terminated.<br />
-Only when application disconnects, the session will be closed.
-:::
-
-</TabItem>
-
-<TabItem value="Application" label="Application">
-
 :::info
 This part of documentation is targeted to applications that want to implement nightly connect
 as wallet interface.
@@ -211,6 +125,3 @@ Both client and application can initiate disconnection.
 User can force session termination in case of abuse.
 Only when application disconnects and session is not persistent, session is completely removed.
 :::
-
-</TabItem>
-</Tabs>
