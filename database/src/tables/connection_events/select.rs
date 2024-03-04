@@ -38,9 +38,20 @@ impl Db {
         &self,
         app_id: &String,
     ) -> Result<Vec<ConnectionEvent>, sqlx::Error> {
-        let query = format!(
-            "SELECT * FROM {CONNECTION_EVENTS_TABLE_NAME} WHERE entity_id = $1 AND entity_type = $2"
-        );
+        let query = format!("SELECT * FROM {CONNECTION_EVENTS_TABLE_NAME} WHERE app_id = $1");
+        let typed_query = query_as::<_, ConnectionEvent>(&query);
+
+        return typed_query
+            .bind(&app_id)
+            .fetch_all(&self.connection_pool)
+            .await;
+    }
+
+    pub async fn get_connection_events_by_app(
+        &self,
+        app_id: &String,
+    ) -> Result<Vec<ConnectionEvent>, sqlx::Error> {
+        let query = format!("SELECT * FROM {CONNECTION_EVENTS_TABLE_NAME} WHERE entity_id = $1 AND entity_type = $2");
         let typed_query = query_as::<_, ConnectionEvent>(&query);
 
         return typed_query

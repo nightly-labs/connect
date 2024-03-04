@@ -98,9 +98,12 @@ mod tests {
                 session_close_timestamp: None,
             };
 
-            db.handle_new_session(&session, &"connection_id".to_string())
-                .await
-                .unwrap();
+            db.handle_new_session(
+                &session,
+                &format!("connection_id_{}_{}", app_id, i).to_string(),
+            )
+            .await
+            .unwrap();
             db.close_session(&session.session_id, session_end)
                 .await
                 .unwrap();
@@ -120,9 +123,8 @@ mod tests {
             .await
             .unwrap();
 
-        println!("{:?}", stats);
-        // assert_eq!(stats.len(), 1);
-        // assert_eq!(stats[0].sessions_opened, num_sessions as i64);
+        assert_eq!(stats.len(), 1);
+        assert_eq!(stats[0].sessions_opened, num_sessions as i64);
     }
 
     #[tokio::test]
