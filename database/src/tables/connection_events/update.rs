@@ -40,7 +40,7 @@ impl Db {
         tx: &mut Transaction<'_, Postgres>,
         app_id: &String,
         session_id: &String,
-        client_profile_id: i32,
+        client_profile_id: i64,
         network: &String,
     ) -> Result<(), sqlx::Error> {
         let query_body = format!(

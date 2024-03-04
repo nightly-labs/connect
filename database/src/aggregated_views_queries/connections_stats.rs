@@ -1,6 +1,6 @@
 use crate::{
     db::Db,
-    structs::{filter_requests::RequestsStats, time_filters::TimeFilter},
+    structs::{filter_requests::ConnectionStats, time_filters::TimeFilter},
     tables::utils::{format_view_keys, format_view_name},
 };
 use sqlx::Error;
@@ -11,7 +11,7 @@ pub const CONNECTIONS_STATS_BASE_KEYS: [(&'static str, bool); 5] = [
     ("network", false),
     ("bucket", true),
     ("app_connection_count", true),
-    ("client_connection_count", true),
+    ("clients_connection_count", true),
 ];
 
 impl Db {
@@ -20,7 +20,7 @@ impl Db {
         app_id: &str,
         network: Option<&str>,
         filter: TimeFilter,
-    ) -> Result<Vec<RequestsStats>, Error> {
+    ) -> Result<Vec<ConnectionStats>, Error> {
         let start_date = filter.to_date();
         let bucket_size = filter.bucket_size();
 
@@ -35,7 +35,7 @@ impl Db {
 
         let formatted_keys = format_view_keys(prefix, &CONNECTIONS_STATS_BASE_KEYS);
         let formatted_view_name = format_view_name(prefix, CONNECTIONS_STATS_BASE_VIEW_NAME);
-        let date_filter_key = CONNECTIONS_STATS_BASE_KEYS[1].0;
+        let date_filter_key = CONNECTIONS_STATS_BASE_KEYS[2].0;
         let filter = format!("{prefix}_{date_filter_key}");
 
         let network_filter = match network {
@@ -50,7 +50,9 @@ impl Db {
             ORDER BY {filter} DESC",
         );
 
-        sqlx::query_as::<_, RequestsStats>(&query)
+        println!("\n{}\n", &query);
+
+        sqlx::query_as::<_, ConnectionStats>(&query)
             .bind(app_id)
             .bind(start_date)
             .fetch_all(&self.connection_pool)
@@ -60,10 +62,14 @@ impl Db {
 
 #[cfg(test)]
 mod tests {
-    use std::process::Command;
 
-    use crate::{structs::time_filters::TimeFilter, tables::sessions::table_struct::DbNcSession};
-    use sqlx::types::chrono::Utc;
+    use std::time::Duration;
+
+    use crate::{
+        structs::{consts::DAY_IN_SECONDS, time_filters::TimeFilter},
+        tables::{sessions::table_struct::DbNcSession, utils::to_microsecond_precision},
+    };
+    use sqlx::types::chrono::{DateTime, Utc};
 
     #[tokio::test]
     async fn test_connections_all_networks() {
@@ -87,8 +93,10 @@ mod tests {
         ];
         // Create persistent a session for each odd number of network, for each session connect via app 3 times and for client connect number of network times
         for (i, network) in networks.iter().enumerate() {
+            let session_id = format!("session_{app_id}_{i}");
+
             let session = DbNcSession {
-                session_id: format!("session_{app_id}_{i}"),
+                session_id: session_id.clone(),
                 app_id: app_id.clone(),
                 app_metadata: "test_metadata".to_string(),
                 app_ip_address: "".to_string(),
@@ -103,39 +111,43 @@ mod tests {
             db.handle_new_session(&session, &format!("connection_id_{app_id}_{i}").to_string())
                 .await
                 .unwrap();
+
+            // Each time a session is created, means that app has been connected, create 2 more connections
+            let mut tx = db.connection_pool.begin().await.unwrap();
+            db.create_new_connection_event_by_app(
+                &mut tx,
+                &session_id,
+                &format!("connection_id_{app_id}_{i}_1").to_string(),
+                &app_id,
+                &network.to_string(),
+            )
+            .await
+            .unwrap();
+
+            db.create_new_connection_event_by_app(
+                &mut tx,
+                &session_id,
+                &format!("connection_id_{app_id}_{i}_2").to_string(),
+                &app_id,
+                &network.to_string(),
+            )
+            .await
+            .unwrap();
+
+            for j in 0..i {
+                db.create_new_connection_by_client(
+                    &mut tx,
+                    &app_id,
+                    &session_id,
+                    j as i64,
+                    &network.to_string(),
+                )
+                .await
+                .unwrap();
+            }
+
+            tx.commit().await.unwrap();
         }
-
-        // // Number of sessions to create
-        // let num_sessions: u64 = 100;
-        // let now = Utc::now();
-        // let start_of_period = now - Duration::from_secs(60 * 60 * 24 * 14); // 14 days
-
-        // // Generate and save sessions
-        // for i in 0..num_sessions {
-        //     let session_start =
-        //         start_of_period + Duration::from_secs(i * 86400 / num_sessions as u64); // spread sessions evenly over 14 days
-        //     let session_end = session_start + Duration::from_secs(60 * 30); // duration of 30 minutes for each session
-
-        //     let session = DbNcSession {
-        //         session_id: format!("session_{}_{}", app_id, i),
-        //         app_id: app_id.clone(),
-        //         app_metadata: "test_metadata".to_string(),
-        //         app_ip_address: "127.0.0.1".to_string(),
-        //         persistent: false,
-        //         network: "test_network".to_string(),
-        //         client_profile_id: None,
-        //         client: None,
-        //         session_open_timestamp: session_start,
-        //         session_close_timestamp: None,
-        //     };
-
-        //     db.handle_new_session(&session, &"connection_id".to_string())
-        //         .await
-        //         .unwrap();
-        //     db.close_session(&session.session_id, session_end)
-        //         .await
-        //         .unwrap();
-        // }
 
         // Manually refresh the continuous aggregates
         db.refresh_continuous_aggregates(vec![
@@ -146,103 +158,16 @@ mod tests {
         .await
         .unwrap();
 
+        // Get stats for all networks
         let stats = db
             .get_connections_stats_by_app_id(&app_id, None, TimeFilter::LastMonth)
             .await
             .unwrap();
 
-        println!("{:?}", stats);
-        // assert_eq!(stats.len(), 1);
-        // assert_eq!(stats[0].sessions_opened, num_sessions as i64);
+        for (i, network) in networks.iter().enumerate() {
+            let network_stats = stats.iter().find(|s| s.network == *network).unwrap();
+            assert_eq!(network_stats.app_connection_count, 3);
+            assert_eq!(network_stats.clients_connection_count, i as i64);
+        }
     }
-
-    // #[tokio::test]
-    // async fn test_sessions_average_daily_sessions_opened() {
-    //     let db = super::Db::connect_to_the_pool().await;
-    //     db.truncate_all_tables().await.unwrap();
-
-    //     // Create test team instance
-    //     let team_id = "test_team_id".to_string();
-    //     let app_id = "test_app_id".to_string();
-
-    //     db.setup_test_team(&team_id, &app_id, Utc::now())
-    //         .await
-    //         .unwrap();
-
-    //     let now = Utc::now();
-    //     let start_of_first_period = now - Duration::from_secs(60 * 60 * 24 * 60); // Start of first period, 60 days ago
-    //     let start_of_second_period = now - Duration::from_secs(60 * 60 * 24 * 30); // Start of second period, 30 days ago
-    //     let num_sessions_first_period: u64 = 40;
-    //     let num_sessions_second_period: u64 = 28;
-
-    //     // Generate and save sessions for the first period
-    //     for i in 0..num_sessions_first_period {
-    //         let session_start = start_of_first_period
-    //             + Duration::from_secs(i * 86400 / num_sessions_first_period as u64);
-    //         let session_end = session_start + Duration::from_secs(60 * 30); // Duration of 30 minutes for each session
-
-    //         let session = DbNcSession {
-    //             session_id: format!("session_{}_{}", app_id, i),
-    //             app_id: app_id.clone(),
-    //             app_metadata: "test_metadata".to_string(),
-    //             app_ip_address: "127.0.0.1".to_string(),
-    //             persistent: false,
-    //             network: "test_network".to_string(),
-    //             client_profile_id: None,
-    //             client: None,
-    //             session_open_timestamp: session_start,
-    //             session_close_timestamp: Some(session_end),
-    //         };
-
-    //         db.handle_new_session(&session, &"connection_id".to_string())
-    //             .await
-    //             .unwrap();
-    //         db.close_session(&session.session_id, session_end)
-    //             .await
-    //             .unwrap();
-    //     }
-
-    //     // Generate and save sessions for the second period
-    //     for i in 0..num_sessions_second_period {
-    //         let session_start = start_of_second_period
-    //             + Duration::from_secs(i * 86400 / num_sessions_second_period as u64);
-    //         let session_end = session_start + Duration::from_secs(60 * 30); // Duration of 30 minutes for each session
-
-    //         let session = DbNcSession {
-    //             session_id: format!("session_{}_{}_2nd", app_id, i), // Ensure unique session IDs for the second period
-    //             app_id: app_id.clone(),
-    //             app_metadata: "test_metadata".to_string(),
-    //             app_ip_address: "127.0.0.1".to_string(),
-    //             persistent: false,
-    //             network: "test_network".to_string(),
-    //             client_profile_id: None,
-    //             client: None,
-    //             session_open_timestamp: session_start,
-    //             session_close_timestamp: Some(session_end),
-    //         };
-
-    //         db.handle_new_session(&session, &"connection_id".to_string())
-    //             .await
-    //             .unwrap();
-    //         db.close_session(&session.session_id, session_end)
-    //             .await
-    //             .unwrap();
-    //     }
-
-    //     // Manually refresh the continuous aggregates
-    //     db.refresh_continuous_aggregates(vec![
-    //         "hourly_sessions_stats_per_app".to_string(),
-    //         "daily_sessions_stats_per_app".to_string(),
-    //         "monthly_sessions_stats_per_app".to_string(),
-    //     ])
-    //     .await
-    //     .unwrap();
-
-    //     let stats = db
-    //         .get_sessions_stats_by_app_id(&app_id, TimeFilter::Last30Days)
-    //         .await
-    //         .unwrap();
-
-    //     assert_eq!(stats.len(), 2);
-    // }
 }

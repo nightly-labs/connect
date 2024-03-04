@@ -6,7 +6,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - ./target:/home/postgres/pgdata/data
+      - ./target:/var/lib/postgresql/data
     env_file:
       - .env
     environment:

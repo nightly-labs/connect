@@ -5,8 +5,8 @@ SELECT
     app_id,
     network,
     time_bucket('1 hour', connected_at) AS hourly_bucket,
-    COUNT(*) FILTER (WHERE entity_type = 'App') AS hourly_app_connection_count,
-    COUNT(*) FILTER (WHERE entity_type = 'Client') AS hourly_client_connection_count
+    COUNT(*) FILTER (WHERE entity_type = 'App') :: BIGINT AS hourly_app_connection_count,
+    COUNT(*) FILTER (WHERE entity_type = 'Client') :: BIGINT AS hourly_clients_connection_count
 FROM
     connection_events
 GROUP BY
@@ -36,8 +36,8 @@ SELECT
     app_id,
     network,
     time_bucket('1 day', hourly_bucket) AS daily_bucket,
-    SUM(hourly_app_connection_count) AS daily_app_connection_count,
-    SUM(hourly_client_connection_count) AS daily_client_connection_count
+    SUM(hourly_app_connection_count) :: BIGINT AS daily_app_connection_count,
+    SUM(hourly_clients_connection_count) :: BIGINT AS daily_clients_connection_count
 FROM
     hourly_connection_stats_per_app_and_network
 GROUP BY
@@ -67,8 +67,8 @@ SELECT
     app_id,
     network,
     time_bucket('1 month', daily_bucket) AS monthly_bucket,
-    SUM(daily_app_connection_count) AS monthly_app_connection_count,
-    SUM(daily_client_connection_count) AS monthly_client_connection_count
+    SUM(daily_app_connection_count) :: BIGINT AS monthly_app_connection_count,
+    SUM(daily_clients_connection_count) :: BIGINT AS monthly_clients_connection_count
 FROM
     daily_connection_stats_per_app_and_network
 GROUP BY
