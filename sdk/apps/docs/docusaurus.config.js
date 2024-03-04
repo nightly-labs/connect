@@ -58,21 +58,53 @@ const config = {
             position: 'left'
           },
           {
-            to: 'docs/application/application/connect',
-            activeBasePath: 'connect',
-            label: 'Application',
+            to: 'docs/start/',
+            activeBasePath: 'docs/start',
+            label: 'Getting started',
             position: 'left'
           },
           {
-            to: 'docs/client/client/connect',
-            activeBasePath: 'connect',
-            label: 'Client',
+            to: 'docs/solana/solana/start',
+            className: 'solana_navlink navlink',
+            activeBasePath: 'docs/solana/solana/start',
+            label: 'Solana',
             position: 'left'
           },
           {
-            href: 'https://example.connect.nightly.app/',
+            to: 'docs/sui/sui/start',
+            className: 'sui_navlink navlink',
+            activeBasePath: 'docs/sui/sui/start',
+            label: 'Sui',
+            position: 'left'
+          },
+          {
+            to: 'docs/substrate/substrate/start',
+            className: 'substrate_navlink navlink',
+            activeBasePath: 'docs/substrate/substrate/start',
+            label: 'Substrate',
+            position: 'left'
+          },
+          {
+            to: 'docs/customization/customization/ui_overrides',
+            activeBasePath: 'docs/customization/customization/ui_overrides',
+            label: 'Customization',
+            position: 'left'
+          },
+          {
+            to: 'docs/for_wallets/for_wallets/connect',
+            activeBasePath: 'docs/for_wallets/for_wallets/connect',
+            label: 'For wallets',
+            position: 'left'
+          },
+          {
+            type: 'dropdown',
             label: 'Demo',
-            position: 'right'
+            position: 'right',
+            items: [
+              { href: 'https://solana-web3-template.nightly.app', label: 'Solana template' },
+              { href: 'https://sui-web3-template.nightly.app', label: 'Sui template' },
+              { href: 'https://aleph-zero-web3-template.nightly.app', label: 'Substrate template' }
+            ]
           },
           {
             href: 'https://twitter.com/NightlyConnect',
@@ -104,7 +136,7 @@ const config = {
             title: 'Docs',
             items: [
               {
-                label: 'home',
+                label: 'Home',
                 to: 'docs/'
               }
             ]
@@ -132,6 +164,7 @@ const config = {
             ]
           }
         ],
+
         copyright: `Copyright © ${new Date().getFullYear()} Nightly | Built with Docusaurus.`
       },
       prism: {

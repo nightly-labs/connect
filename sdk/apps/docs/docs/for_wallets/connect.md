@@ -1,6 +1,6 @@
 ---
 title: Build & Connect
-slug: client/connect
+slug: for_wallets/connect
 ---
 
 import Tabs from '@theme/Tabs';

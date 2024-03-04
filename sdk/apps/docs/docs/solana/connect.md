@@ -1,10 +1,7 @@
 ---
-title: Establishing a Connection
-slug: application/connect
+title: Build & Connect
+slug: solana/connect
 ---
-
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
 
 :::info
 This part of documentation is targeted to applications that want to implement nightly connect
@@ -23,7 +20,7 @@ The other peer needs just to scan the QR code on its device. Extension wallets a
 
 ### Connect
 
-Application builds a connection using `build()` or `buildLazy()` function that returns interface to communicated with remote user. App should define `AppMetadata` so wallets will be able to show it to user.
+Application builds a connection using `build()` or `buildLazy()` function that returns interface to communicated with remote user. It is important to note, that the `buildLazy()` function allows for the modal to appear even when the sessionId is still undefined. App should define `AppMetadata` so wallets will be able to show it to user.
 
 To start sending request like `signTransaction` user first need to connect to session.
 Once user establishes connection, application will get public key and the connection will be confirmed.
@@ -40,16 +37,18 @@ interface AppMetadata {
 }
 ```
 
-<Tabs>
-<TabItem value="Solana" label="Solana">
+You may also want to specify some additional connection options. This can be achieved by creating an object that implements the below interface, and using it inside the `build()` or `buildLazy()` function. Note, that the `disableModal` property can be used for implementing a custom [External modal](../../customization/customization/external_modal).
 
-:::info
-We have ready to use templates that you can try here.
-
-Preview: https://solana-web3-template.nightly.app/
-
-Source code: https://github.com/nightly-labs/solana-web3-template
-:::
+```js
+interface ConnectionOptions {
+  disableModal?: boolean // default: false
+    //   Used for disabling modal in case you want to use your own
+  initOnConnect?: boolean // default: false
+    //   Ensures that the app is only build upon running the connect function
+  disableEagerConnect?: boolean // default: false
+    //   Do not connect eagerly, even if the previous session is saved
+}
+```
 
 You can implement nightly connect as full selector or use it with popular solana adapter https://github.com/solana-labs/wallet-adapter
 
@@ -97,8 +96,10 @@ const Context: FC<{ children: ReactNode }> = ({ children }) => {
             icon: 'https://docs.nightly.app/img/logo.png',
             additionalInfo: 'Courtesy of Nightly Connect team'
           }
-        },
-        true
+          //   persistent: false  -  Add this if you want to make the session non-persistent
+        }
+        // { initOnConnect: true, disableModal: true, disableEagerConnect: true }  -  You may specify the connection options object here
+        // document.getElementById("modalAnchor")  -  You can pass an optional anchor element for the modal here
       )
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -116,90 +117,6 @@ const Content: FC = () => {
   return <WalletMultiButton />
 }
 ```
-
-</TabItem>
-
-<TabItem value="SUI" label="SUI">
-
-:::info
-We have ready to use templates that you can try here.
-
-Preview: https://sui-web3-template.nightly.app/
-
-Source code: https://github.com/nightly-labs/sui-web3-template
-:::
-
-You can implement nightly connect as full selector or use it with popular sui adapter https://github.com/MystenLabs/sui/tree/main/sdk/wallet-adapter
-
-```js
-import { WalletStandardAdapterProvider } from '@mysten/wallet-adapter-wallet-standard'
-import { WalletKitProvider } from '@mysten/wallet-kit'
-import { NightlyConnectSuiAdapter } from '@nightlylabs/wallet-selector-sui'
-import dynamic from 'next/dynamic'
-export const SuiProvider = ({ children }: any) => {
-  return (
-    <WalletKitProvider
-      adapters={[
-        new WalletStandardAdapterProvider(),
-        NightlyConnectSuiAdapter.buildLazy(
-          {
-            appMetadata: {
-              name: 'NCTestSui',
-              description: 'Nightly Connect Test',
-              icon: 'https://docs.nightly.app/img/logo.png',
-              additionalInfo: 'Courtesy of Nightly Connect team'
-            }
-          },
-          true
-        )
-      ]}>
-      {children}
-    </WalletKitProvider>
-  )
-}
-export default dynamic(() => Promise.resolve(SuiProvider), {
-  ssr: false
-})
-```
-
-</TabItem>
-<TabItem value="Substrate" label="Substrate">
-
-:::info
-We have ready to use templates that you can try here.
-
-Preview: https://aleph-zero-web3-template.nightly.app/
-
-Source code: https://github.com/nightly-labs/aleph-zero-web3-template
-:::
-
-You can find example usage of this addapter here: https://github.com/nightly-labs/connect/blob/main/sdk/apps/modal-example/src/routes/aleph.tsx
-
-```js
-import { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-polkadot'
-const adapter = await NightlyConnectAdapter.build(
-  {
-    appMetadata: {
-      name: 'NC TEST AlephZero',
-      description: 'Nightly Connect Test',
-      icon: 'https://docs.nightly.app/img/logo.png',
-      additionalInfo: 'Courtesy of Nightly Connect team'
-    },
-    network: 'AlephZero'
-  },
-  true // should session be persisted
-)
-// Trigger connection
-await adapter.connect()
-// After connection adapter turns into remote signer
-// Sign transaction
-await payload.signAsync(publicKey, { signer: adapter.signer })
-// Disconnect client if you want to end session
-await adapter.disconnect()
-```
-
-</TabItem>
-</Tabs>
 
 ### Disconnect
 
