@@ -1,11 +1,12 @@
 ----------------- Hourly connection stats per app -----------------
 --- View
-CREATE MATERIALIZED VIEW hourly_connection_events WITH (timescaledb.continuous) AS
+CREATE MATERIALIZED VIEW hourly_connection_stats_per_app_and_network WITH (timescaledb.continuous) AS
 SELECT
     app_id,
     network,
     time_bucket('1 hour', connected_at) AS hourly_bucket,
-    COUNT(*) AS hourly_connection_count
+    COUNT(*) FILTER (WHERE entity_type = 'App') AS hourly_app_connection_count,
+    COUNT(*) FILTER (WHERE entity_type = 'Client') AS hourly_client_connection_count
 FROM
     connection_events
 GROUP BY
@@ -15,14 +16,14 @@ GROUP BY
 
 --- Refresh policy
 SELECT 
-    add_continuous_aggregate_policy('hourly_connection_events',
+    add_continuous_aggregate_policy('hourly_connection_stats_per_app_and_network',
         start_offset => INTERVAL '2 day',
         end_offset => INTERVAL '1 hour',
         schedule_interval => INTERVAL '1 hour'
     );
 
 --- Real time aggregation
-ALTER MATERIALIZED VIEW hourly_requests_stats_per_app
+ALTER MATERIALIZED VIEW hourly_connection_stats_per_app_and_network
 set
     (timescaledb.materialized_only = false);
 
@@ -30,14 +31,15 @@ set
 
 ----------------- Daily connection stats per app -----------------
 --- View
-CREATE MATERIALIZED VIEW daily_connection_events WITH (timescaledb.continuous) AS
+CREATE MATERIALIZED VIEW daily_connection_stats_per_app_and_network WITH (timescaledb.continuous) AS
 SELECT
     app_id,
     network,
     time_bucket('1 day', hourly_bucket) AS daily_bucket,
-    SUM(hourly_connection_count) AS daily_connection_count
+    SUM(hourly_app_connection_count) AS daily_app_connection_count,
+    SUM(hourly_client_connection_count) AS daily_client_connection_count
 FROM
-    hourly_connection_events
+    hourly_connection_stats_per_app_and_network
 GROUP BY
     app_id,
     network,
@@ -45,14 +47,14 @@ GROUP BY
 
 --- Refresh policy
 SELECT 
-    add_continuous_aggregate_policy('daily_connection_events',
+    add_continuous_aggregate_policy('daily_connection_stats_per_app_and_network',
         start_offset => INTERVAL '1 month',
         end_offset => INTERVAL '1 day',
         schedule_interval => INTERVAL '1 day'
     );
 
 --- Real time aggregation
-ALTER MATERIALIZED VIEW daily_connection_events
+ALTER MATERIALIZED VIEW daily_connection_stats_per_app_and_network
 set
     (timescaledb.materialized_only = false);
 
@@ -60,14 +62,15 @@ set
 
 ----------------- Monthly connection per app -----------------
 --- View
-CREATE MATERIALIZED VIEW monthly_connection_events WITH (timescaledb.continuous) AS
+CREATE MATERIALIZED VIEW monthly_connection_stats_per_app_and_network WITH (timescaledb.continuous) AS
 SELECT
     app_id,
     network,
     time_bucket('1 month', daily_bucket) AS monthly_bucket,
-    SUM(daily_connection_count) AS monthly_connection_count
+    SUM(daily_app_connection_count) AS monthly_app_connection_count,
+    SUM(daily_client_connection_count) AS monthly_client_connection_count
 FROM
-    daily_connection_events
+    daily_connection_stats_per_app_and_network
 GROUP BY
     app_id,
     network,
@@ -75,13 +78,13 @@ GROUP BY
 
 --- Refresh policy
 SELECT 
-    add_continuous_aggregate_policy('monthly_connection_events',
+    add_continuous_aggregate_policy('monthly_connection_stats_per_app_and_network',
         start_offset => INTERVAL '1 year',
         end_offset => INTERVAL '1 month',
         schedule_interval => INTERVAL '1 month'
     );
 
 --- Real time aggregation
-ALTER MATERIALIZED VIEW monthly_connection_events
+ALTER MATERIALIZED VIEW monthly_connection_stats_per_app_and_network
 set
     (timescaledb.materialized_only = false);

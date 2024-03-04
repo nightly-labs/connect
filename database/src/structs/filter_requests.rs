@@ -29,3 +29,12 @@ pub struct SessionAvgTime {
     pub bucket: DateTime<Utc>,
     pub average_duration_seconds: f64,
 }
+
+#[derive(Debug, sqlx::FromRow)]
+pub struct ConnectionStats {
+    pub app_id: String,
+    pub bucket: DateTime<Utc>,
+    pub network: String,
+    pub app_connections_count: i64,
+    pub clients_connections_count: i64,
+}
