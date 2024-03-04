@@ -26,3 +26,5 @@ cd ../selector-sui
 pnpm build
 cd ../selector-polkadot
 pnpm build
+cd ../selector-aptos
+pnpm build

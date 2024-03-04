@@ -10,10 +10,13 @@ import {
   AccountAuthenticator,
   AnyRawTransaction,
   Deserializer,
+  Ed25519PublicKey,
   PendingTransactionResponse,
+  PublicKey,
   RawTransaction,
   Serializer
 } from '@aptos-labs/ts-sdk'
+import { AccountInfo, NetworkInfo } from '@aptos-labs/wallet-standard'
 
 export type AppAptosInitialize = Omit<AppBaseInitialize, 'network'>
 
@@ -129,6 +132,53 @@ export const serializePendingTransactionResponse = (
 
 export const deserializePendingTransactionResponse = (s: string): PendingTransactionResponse => {
   return deserializeObject(s)
+}
+interface SerializedConnectData {
+  address: string
+  publicKey: string
+  networkInfo: NetworkInfo
+  ansName?: string
+}
+export const serializeConnectData = (
+  accountAuthenticator: AccountInfo,
+  networkInfo: NetworkInfo
+): string => {
+  const serializerAddress = new Serializer()
+  serializerAddress.serialize(accountAuthenticator.address)
+  const address = Buffer.from(serializerAddress.toUint8Array()).toString('hex')
+  const serializerPublicKey = new Serializer()
+  // TODO support other public key types
+  if (accountAuthenticator.publicKey instanceof Ed25519PublicKey) {
+    serializerPublicKey.serialize(accountAuthenticator.publicKey)
+  } else {
+    // We don't support other public key types
+    throw new Error('Unsupported public key type')
+  }
+  const publicKey = Buffer.from(serializerPublicKey.toUint8Array()).toString('hex')
+  const obj: SerializedConnectData = {
+    address,
+    publicKey,
+    ansName: accountAuthenticator.ansName,
+    networkInfo: networkInfo
+  }
+  return serializeObject(obj)
+}
+export const deserializeConnectData = (
+  s: string
+): { accountInfo: AccountInfo; networkInfo: NetworkInfo } => {
+  const obj = deserializeObject(s)
+  const deserializerAddress = new Deserializer(Buffer.from(obj.address, 'hex'))
+  const address = AccountAddress.deserialize(deserializerAddress)
+  const deserializerPublicKey = new Deserializer(Buffer.from(obj.publicKey, 'hex'))
+  const publicKey = Ed25519PublicKey.deserialize(deserializerPublicKey)
+  return {
+    accountInfo: {
+      address,
+      publicKey,
+      ansName: obj.ansName
+    },
+    networkInfo: obj.networkInfo
+  }
 }
 export const parseRequest = (request: RequestContent, sessionId: string): AptosRequest => {
   switch (request.content.type) {
