@@ -43,9 +43,6 @@ impl Db {
             ORDER BY {filter} DESC",
         );
 
-        println!("Query: {}", query);
-        println!("Start date: {}", start_date);
-
         sqlx::query_as::<_, SessionsStats>(&query)
             .bind(app_id)
             .bind(start_date)
