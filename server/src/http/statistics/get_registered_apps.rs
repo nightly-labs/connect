@@ -8,20 +8,20 @@ use ts_rs::TS;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct HttpGetDbRegisteredAppsRequest {
+pub struct HttpGetRegisteredAppsRequest {
     pub team_id: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct HttpGetDbRegisteredAppsResponse {
+pub struct HttpGetRegisteredAppsResponse {
     pub apps: Vec<RegisteredApp>,
 }
 
 pub async fn get_registered_apps(
     State(db): State<Db>,
-    Json(request): Json<HttpGetDbRegisteredAppsRequest>,
-) -> Result<Json<HttpGetDbRegisteredAppsResponse>, (StatusCode, String)> {
+    Json(request): Json<HttpGetRegisteredAppsRequest>,
+) -> Result<Json<HttpGetRegisteredAppsResponse>, (StatusCode, String)> {
     let _ = db
         .get_team_by_team_id(None, &request.team_id)
         .await
@@ -44,5 +44,5 @@ pub async fn get_registered_apps(
         }
     };
 
-    return Ok(Json(HttpGetDbRegisteredAppsResponse { apps }));
+    return Ok(Json(HttpGetRegisteredAppsResponse { apps }));
 }
