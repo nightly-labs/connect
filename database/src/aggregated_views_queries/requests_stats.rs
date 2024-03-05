@@ -56,7 +56,9 @@ mod test {
 
     use super::*;
     use crate::{
-        structs::{consts::DAY_IN_SECONDS, request_status::RequestStatus},
+        structs::{
+            consts::DAY_IN_SECONDS, request_status::RequestStatus, session_type::SessionType,
+        },
         tables::{
             registered_app::table_struct::RegisteredApp, requests::table_struct::Request,
             sessions::table_struct::DbNcSession,
@@ -83,6 +85,7 @@ mod test {
         let session = DbNcSession {
             session_id: "test_session_id".to_string(),
             app_id: app_id.to_string(),
+            session_type: SessionType::Relay,
             app_metadata: "test_app_metadata".to_string(),
             app_ip_address: "test_app_ip_address".to_string(),
             persistent: false,
@@ -189,6 +192,7 @@ mod test {
         let session = DbNcSession {
             session_id: "test_session_id".to_string(),
             app_id: "test_app_id".to_string(),
+            session_type: SessionType::Relay,
             app_metadata: "test_app_metadata".to_string(),
             app_ip_address: "test_app_ip_address".to_string(),
             persistent: false,
@@ -330,6 +334,7 @@ mod test {
         let session = DbNcSession {
             session_id: "test_session_id".to_string(),
             app_id: second_app_id.to_string(),
+            session_type: SessionType::Relay,
             app_metadata: "test_app_metadata".to_string(),
             app_ip_address: "test_app_ip_address".to_string(),
             persistent: false,

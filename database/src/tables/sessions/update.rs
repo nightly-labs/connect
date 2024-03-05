@@ -46,12 +46,13 @@ impl Db {
         session: &DbNcSession,
     ) -> Result<(), sqlx::Error> {
         let query_body = format!(
-            "INSERT INTO {SESSIONS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)",
+            "INSERT INTO {SESSIONS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)",
             SESSIONS_KEYS
         );
 
         let query_result = query(&query_body)
             .bind(&session.session_id)
+            .bind(&session.session_type)
             .bind(&session.app_id)
             .bind(&session.app_metadata)
             .bind(&session.app_ip_address)
@@ -99,7 +100,9 @@ impl Db {
         &self,
         client_data: &ClientData,
         connected_keys: &Vec<String>,
+        app_id: &String,
         session_id: &String,
+        network: &String,
     ) -> Result<(), sqlx::Error> {
         // Start a new transaction
         let mut tx = self.connection_pool.begin().await.unwrap();
@@ -185,6 +188,21 @@ impl Db {
             }
         }
 
+        // 4. Create new connection event
+        if let Err(err) = self
+            .create_new_connection_by_client(
+                &mut tx,
+                &app_id,
+                &session_id,
+                client_profile_id,
+                &network,
+            )
+            .await
+        {
+            tx.rollback().await.unwrap();
+            return Err(err);
+        }
+
         tx.commit().await.unwrap();
 
         Ok(())
@@ -196,7 +214,7 @@ mod tests {
 
     use super::*;
     use crate::{
-        structs::request_status::RequestStatus,
+        structs::{request_status::RequestStatus, session_type::SessionType},
         tables::{requests::table_struct::Request, utils::get_date_time},
     };
 
@@ -215,6 +233,7 @@ mod tests {
 
         let session = DbNcSession {
             session_id: "test_session_id".to_string(),
+            session_type: SessionType::Relay,
             app_id: "test_app_id".to_string(),
             app_metadata: "test_app_metadata".to_string(),
             app_ip_address: "test_app_ip_address".to_string(),

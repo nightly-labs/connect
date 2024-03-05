@@ -56,6 +56,8 @@ ALTER MATERIALIZED VIEW daily_sessions_stats_per_app
 SET
     (timescaledb.materialized_only = false);
 
+
+
 ----------------- Monthly session stats -----------------
 --- View
 CREATE MATERIALIZED VIEW monthly_sessions_stats_per_app WITH (timescaledb.continuous) AS
@@ -86,7 +88,7 @@ SET
 
 
 
-
+------------------------------------------------------------------
 ----------------- Daily Average session duration -----------------
 --- View
 CREATE MATERIALIZED VIEW daily_sessions_avg_time_per_app WITH (timescaledb.continuous) AS

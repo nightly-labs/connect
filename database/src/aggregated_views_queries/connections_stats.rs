@@ -61,7 +61,10 @@ impl Db {
 #[cfg(test)]
 mod tests {
 
-    use crate::{structs::time_filters::TimeFilter, tables::sessions::table_struct::DbNcSession};
+    use crate::{
+        structs::{session_type::SessionType, time_filters::TimeFilter},
+        tables::sessions::table_struct::DbNcSession,
+    };
     use sqlx::types::chrono::Utc;
 
     #[tokio::test]
@@ -91,6 +94,7 @@ mod tests {
             let session = DbNcSession {
                 session_id: session_id.clone(),
                 app_id: app_id.clone(),
+                session_type: SessionType::Relay,
                 app_metadata: "test_metadata".to_string(),
                 app_ip_address: "".to_string(),
                 persistent: true,

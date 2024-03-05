@@ -1,6 +1,7 @@
 use super::table_struct::ConnectionEvent;
 use crate::db::Db;
 use crate::structs::entity_type::EntityType;
+use crate::structs::filter_requests::DistinctConnectedClient;
 use crate::tables::connection_events::table_struct::CONNECTION_EVENTS_TABLE_NAME;
 use sqlx::query_as;
 
@@ -57,6 +58,25 @@ impl Db {
         return typed_query
             .bind(&app_id)
             .bind(&EntityType::App)
+            .fetch_all(&self.connection_pool)
+            .await;
+    }
+
+    pub async fn get_all_app_distinct_users(
+        &self,
+        app_id: &String,
+    ) -> Result<Vec<DistinctConnectedClient>, sqlx::Error> {
+        let query = format!(
+            "SELECT pk.public_key, MIN(ce.connected_at) AS first_connection, MAX(ce.connected_at) AS last_connection
+             FROM {CONNECTION_EVENTS_TABLE_NAME} ce
+             JOIN public_keys pk ON ce.entity_id = CAST(pk.client_profile_id AS TEXT)
+             WHERE ce.app_id = $1 AND ce.entity_type = $2 
+             GROUP BY pk.public_key"
+        );
+
+        return query_as::<_, DistinctConnectedClient>(&query)
+            .bind(app_id)
+            .bind(EntityType::Client)
             .fetch_all(&self.connection_pool)
             .await;
     }

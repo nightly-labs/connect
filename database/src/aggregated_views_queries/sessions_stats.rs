@@ -53,7 +53,10 @@ impl Db {
 
 #[cfg(test)]
 mod tests {
-    use crate::{structs::time_filters::TimeFilter, tables::sessions::table_struct::DbNcSession};
+    use crate::{
+        structs::{session_type::SessionType, time_filters::TimeFilter},
+        tables::sessions::table_struct::DbNcSession,
+    };
     use sqlx::types::chrono::Utc;
     use std::time::Duration;
 
@@ -63,27 +66,29 @@ mod tests {
         db.truncate_all_tables().await.unwrap();
 
         // Create test team instance
+        let now = Utc::now();
+        let start_of_period = now;
         let team_id = "test_team_id".to_string();
         let app_id = "test_app_id".to_string();
 
-        db.setup_test_team(&team_id, &app_id, Utc::now())
+        db.setup_test_team(&team_id, &app_id, start_of_period)
             .await
             .unwrap();
 
         // Number of sessions to create
         let num_sessions: u64 = 100;
-        let now = Utc::now();
-        let start_of_period = now - Duration::from_secs(60 * 60 * 24 * 14); // 14 days
 
         // Generate and save sessions
         for i in 0..num_sessions {
+            // spread sessions evenly across the day
             let session_start =
-                start_of_period + Duration::from_secs(i * 86400 / num_sessions as u64); // spread sessions evenly over 14 days
-            let session_end = session_start + Duration::from_secs(60 * 30); // duration of 30 minutes for each session
+                start_of_period + Duration::from_secs(i * 3600 / num_sessions as u64);
+            let session_end = session_start + Duration::from_secs(60 * 10); // duration of 10 minutes for each session
 
             let session = DbNcSession {
                 session_id: format!("session_{}_{}", app_id, i),
                 app_id: app_id.clone(),
+                session_type: SessionType::Relay,
                 app_metadata: "test_metadata".to_string(),
                 app_ip_address: "127.0.0.1".to_string(),
                 persistent: false,
@@ -151,6 +156,7 @@ mod tests {
             let session = DbNcSession {
                 session_id: format!("session_{}_{}", app_id, i),
                 app_id: app_id.clone(),
+                session_type: SessionType::Relay,
                 app_metadata: "test_metadata".to_string(),
                 app_ip_address: "127.0.0.1".to_string(),
                 persistent: false,
@@ -178,6 +184,7 @@ mod tests {
             let session = DbNcSession {
                 session_id: format!("session_{}_{}_2nd", app_id, i), // Ensure unique session IDs for the second period
                 app_id: app_id.clone(),
+                session_type: SessionType::Relay,
                 app_metadata: "test_metadata".to_string(),
                 app_ip_address: "127.0.0.1".to_string(),
                 persistent: false,
