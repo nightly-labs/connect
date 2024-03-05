@@ -3,7 +3,7 @@ use crate::{
     db::Db,
     structs::subscription::Subscription,
     tables::{
-        registered_app::table_struct::RegisteredApp,
+        registered_app::table_struct::DbRegisteredApp,
         team::table_struct::{Team, TEAM_TABLE_NAME},
         user_app_privileges::table_struct::UserAppPrivilege,
     },
@@ -55,7 +55,7 @@ impl Db {
     pub async fn setup_team(
         &self,
         team: &Team,
-        app: &RegisteredApp,
+        app: &DbRegisteredApp,
         admin: &UserAppPrivilege,
     ) -> Result<(), sqlx::Error> {
         // Start a transaction
@@ -96,9 +96,9 @@ mod tests {
     use crate::{
         structs::privelage_level::PrivilegeLevel,
         tables::{
-            grafana_users::table_struct::GrafanaUser, registered_app::table_struct::RegisteredApp,
-            team::table_struct::Team, user_app_privileges::table_struct::UserAppPrivilege,
-            utils::to_microsecond_precision,
+            grafana_users::table_struct::GrafanaUser,
+            registered_app::table_struct::DbRegisteredApp, team::table_struct::Team,
+            user_app_privileges::table_struct::UserAppPrivilege, utils::to_microsecond_precision,
         },
     };
     use sqlx::types::chrono::Utc;
@@ -126,7 +126,7 @@ mod tests {
             registration_timestamp: to_microsecond_precision(&Utc::now()),
         };
 
-        let app = RegisteredApp {
+        let app = DbRegisteredApp {
             app_id: "test_app_id".to_string(),
             team_id: "test_team_id".to_string(),
             app_name: "test_app_name".to_string(),

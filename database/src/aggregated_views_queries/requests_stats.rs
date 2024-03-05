@@ -60,7 +60,7 @@ mod test {
             consts::DAY_IN_SECONDS, request_status::RequestStatus, session_type::SessionType,
         },
         tables::{
-            registered_app::table_struct::RegisteredApp, requests::table_struct::Request,
+            registered_app::table_struct::DbRegisteredApp, requests::table_struct::Request,
             sessions::table_struct::DbNcSession,
         },
     };
@@ -311,7 +311,7 @@ mod test {
         // Test missing success due to all requests having pending status
         // Add new app to have a "clean" state
         let second_app_id = "test_app_id2".to_string();
-        let app = RegisteredApp {
+        let app = DbRegisteredApp {
             team_id: team_id.clone(),
             app_id: second_app_id.to_string(),
             app_name: "test_app_name".to_string(),

@@ -4,8 +4,9 @@ pub mod test_utils {
         db::Db,
         structs::privelage_level::PrivilegeLevel,
         tables::{
-            grafana_users::table_struct::GrafanaUser, registered_app::table_struct::RegisteredApp,
-            team::table_struct::Team, user_app_privileges::table_struct::UserAppPrivilege,
+            grafana_users::table_struct::GrafanaUser,
+            registered_app::table_struct::DbRegisteredApp, team::table_struct::Team,
+            user_app_privileges::table_struct::UserAppPrivilege,
         },
     };
     use sqlx::{
@@ -96,7 +97,7 @@ pub mod test_utils {
                 registration_timestamp: registration_timestamp,
             };
 
-            let registered_app = RegisteredApp {
+            let registered_app = DbRegisteredApp {
                 team_id: team_id.clone(),
                 app_id: app_id.clone(),
                 app_name: "test_app".to_string(),

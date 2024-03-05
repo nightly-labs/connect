@@ -1,9 +1,9 @@
-use super::table_struct::{RegisteredApp, REGISTERED_APPS_KEYS, REGISTERED_APPS_TABLE_NAME};
+use super::table_struct::{DbRegisteredApp, REGISTERED_APPS_KEYS, REGISTERED_APPS_TABLE_NAME};
 use crate::db::Db;
 use sqlx::{query, Transaction};
 
 impl Db {
-    pub async fn register_new_app(&self, app: &RegisteredApp) -> Result<(), sqlx::Error> {
+    pub async fn register_new_app(&self, app: &DbRegisteredApp) -> Result<(), sqlx::Error> {
         let query_body = format!(
             "INSERT INTO {REGISTERED_APPS_TABLE_NAME} ({REGISTERED_APPS_KEYS}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)"
         );
@@ -29,7 +29,7 @@ impl Db {
     pub async fn register_new_app_within_tx(
         &self,
         tx: &mut Transaction<'_, sqlx::Postgres>,
-        app: &RegisteredApp,
+        app: &DbRegisteredApp,
     ) -> Result<(), sqlx::Error> {
         let query_body = format!(
             "INSERT INTO {REGISTERED_APPS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
