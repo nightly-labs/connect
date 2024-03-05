@@ -8,6 +8,7 @@ use axum::extract::{
     ws::{Message, WebSocket},
     FromRef,
 };
+use database::db::Db;
 use futures::{stream::SplitSink, SinkExt};
 use log::info;
 use std::{
@@ -30,6 +31,7 @@ pub struct ServerState {
     pub client_to_sessions: ClientToSessions,
     pub wallets_metadata: Arc<Vec<WalletMetadata>>,
     pub session_to_app_map: SessionToAppMap,
+    pub db: Arc<Db>,
 }
 
 #[async_trait]
