@@ -26,6 +26,8 @@ use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::EnvFilter;
 
+use super::stats_router::stats_router;
+
 pub async fn get_router() -> Router {
     let state = ServerState {
         sessions: Default::default(),
@@ -78,6 +80,7 @@ pub async fn get_router() -> Router {
             &HttpEndpoint::GetWalletsMetadata.to_string(),
             get(get_wallets_metadata),
         )
+        .nest("/stats", stats_router(state.clone()))
         .with_state(state)
         .layer(TraceLayer::new_for_http())
         .layer(

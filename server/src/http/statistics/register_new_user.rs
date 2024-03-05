@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use axum::{extract::State, http::StatusCode, Json};
 use database::{
     db::Db,
@@ -23,7 +25,7 @@ pub struct HttpRegisterNewUserResponse {
 }
 
 pub async fn register_new_user(
-    State(db): State<Db>,
+    State(db): State<Arc<Db>>,
     Json(request): Json<HttpRegisterNewUserRequest>,
 ) -> Result<Json<HttpRegisterNewUserResponse>, (StatusCode, String)> {
     // Check if user already exists

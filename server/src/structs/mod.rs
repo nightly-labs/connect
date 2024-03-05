@@ -5,6 +5,7 @@ pub mod http_endpoints;
 pub mod notification_msg;
 pub mod requests_structs_filters;
 pub mod session;
+pub mod stats_http_endpoints;
 pub mod wallet_metadata;
 pub mod wallet_type;
 pub mod wallets;

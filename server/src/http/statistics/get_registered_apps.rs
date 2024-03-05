@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::structs::requests_structs_filters::registered_app::RegisteredApp;
 use axum::{extract::State, http::StatusCode, Json};
 use database::db::Db;
@@ -19,7 +21,7 @@ pub struct HttpGetRegisteredAppsResponse {
 }
 
 pub async fn get_registered_apps(
-    State(db): State<Db>,
+    State(db): State<Arc<Db>>,
     Json(request): Json<HttpGetRegisteredAppsRequest>,
 ) -> Result<Json<HttpGetRegisteredAppsResponse>, (StatusCode, String)> {
     let _ = db

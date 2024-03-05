@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use axum::{extract::State, http::StatusCode, Json};
 use database::{
     db::Db,
@@ -30,7 +32,7 @@ pub struct HttpRegisterNewAppResponse {
 }
 
 pub async fn register_new_app(
-    State(db): State<Db>,
+    State(db): State<Arc<Db>>,
     Json(request): Json<HttpRegisterNewAppRequest>,
 ) -> Result<Json<HttpRegisterNewAppResponse>, (StatusCode, String)> {
     // Check if app is already registered
