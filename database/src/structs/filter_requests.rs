@@ -38,3 +38,10 @@ pub struct ConnectionStats {
     pub app_connection_count: i64,
     pub clients_connection_count: i64,
 }
+
+#[derive(Debug, sqlx::FromRow)]
+pub struct DistinctConnectedClient {
+    pub public_key: String,
+    pub first_connection: DateTime<Utc>,
+    pub last_connection: DateTime<Utc>,
+}

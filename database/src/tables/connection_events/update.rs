@@ -119,6 +119,14 @@ impl Db {
 
 #[cfg(test)]
 mod tests {
+
+    use crate::{
+        structs::{client_data::ClientData, session_type::SessionType},
+        tables::{sessions::table_struct::DbNcSession, utils::to_microsecond_precision},
+    };
+    use sqlx::types::chrono::{DateTime, Utc};
+    use std::collections::HashMap;
+
     use super::*;
 
     #[tokio::test]
@@ -241,5 +249,221 @@ mod tests {
         events_by_app_id.iter().for_each(|event| {
             assert!(event.disconnected_at.is_some());
         });
+    }
+
+    #[tokio::test]
+    async fn get_all_users() {
+        let db = Db::connect_to_the_pool().await;
+        db.truncate_all_tables().await.unwrap();
+
+        // Create test team instance
+        let team_id = "test_team_id".to_string();
+        let app_id = "test_app_id".to_string();
+
+        db.setup_test_team(&team_id, &app_id, Utc::now())
+            .await
+            .unwrap();
+
+        let session = DbNcSession {
+            session_id: "test_session_id".to_string(),
+            session_type: SessionType::Relay,
+            app_id: "test_app_id".to_string(),
+            app_metadata: "test_app_metadata".to_string(),
+            app_ip_address: "test_app_ip_address".to_string(),
+            persistent: false,
+            network: "test_network".to_string(),
+            client_profile_id: None,
+            client: None,
+            session_open_timestamp: to_microsecond_precision(&Utc::now()),
+            session_close_timestamp: None,
+        };
+
+        // Create a new session entry
+        db.handle_new_session(&session, &"connection_id".to_string())
+            .await
+            .unwrap();
+
+        let first_client_data = ClientData {
+            client_id: Some("first_client_id".to_string()),
+            connected_at: to_microsecond_precision(&Utc::now()),
+            metadata: Some("test_metadata".to_string()),
+            device: Some("test_device".to_string()),
+            notification_endpoint: Some("test_notification_endpoint".to_string()),
+        };
+        let first_user_keys = vec![
+            "first_key".to_string(),
+            "second_key".to_string(),
+            "third_key".to_string(),
+        ];
+
+        db.connect_user_to_the_session(
+            &first_client_data,
+            &first_user_keys,
+            &app_id,
+            &session.session_id,
+            &session.network,
+        )
+        .await
+        .unwrap();
+
+        let second_client_data = ClientData {
+            client_id: Some("second_client_id".to_string()),
+            connected_at: to_microsecond_precision(&Utc::now()),
+            metadata: Some("test_metadata".to_string()),
+            device: Some("test_device".to_string()),
+            notification_endpoint: Some("test_notification_endpoint".to_string()),
+        };
+        let second_user_keys = vec!["fourth_key".to_string(), "sixth_key".to_string()];
+
+        db.connect_user_to_the_session(
+            &second_client_data,
+            &second_user_keys,
+            &app_id,
+            &session.session_id,
+            &session.network,
+        )
+        .await
+        .unwrap();
+
+        let third_client_data = ClientData {
+            client_id: Some("third_client_id".to_string()),
+            connected_at: to_microsecond_precision(&Utc::now()),
+            metadata: Some("test_metadata".to_string()),
+            device: Some("test_device".to_string()),
+            notification_endpoint: Some("test_notification_endpoint".to_string()),
+        };
+        let third_user_keys = vec!["seventh_key".to_string()];
+        db.connect_user_to_the_session(
+            &third_client_data,
+            &third_user_keys,
+            &app_id,
+            &session.session_id,
+            &session.network,
+        )
+        .await
+        .unwrap();
+
+        // Get all connected users
+        let connected_users = db.get_all_app_distinct_users(&app_id).await.unwrap();
+
+        assert_eq!(connected_users.len(), 3);
+        let first_connection_hashmap = connected_users
+            .iter()
+            .map(|user| {
+                (
+                    user.public_key.clone(),
+                    (user.first_connection, user.last_connection),
+                )
+            })
+            .collect::<HashMap<String, (DateTime<Utc>, DateTime<Utc>)>>();
+
+        // Connect as first user again
+        db.connect_user_to_the_session(
+            &first_client_data,
+            &first_user_keys,
+            &app_id,
+            &session.session_id,
+            &session.network,
+        )
+        .await
+        .unwrap();
+
+        // Connect as second user again
+        db.connect_user_to_the_session(
+            &second_client_data,
+            &second_user_keys,
+            &app_id,
+            &session.session_id,
+            &session.network,
+        )
+        .await
+        .unwrap();
+
+        // Get all connected users
+        let connected_users = db.get_all_app_distinct_users(&app_id).await.unwrap();
+
+        assert_eq!(connected_users.len(), 3);
+        let second_connection_hashmap = connected_users
+            .iter()
+            .map(|user| {
+                (
+                    user.public_key.clone(),
+                    (user.first_connection, user.last_connection),
+                )
+            })
+            .collect::<HashMap<String, (DateTime<Utc>, DateTime<Utc>)>>();
+
+        // Connect as third user again
+        db.connect_user_to_the_session(
+            &third_client_data,
+            &third_user_keys,
+            &app_id,
+            &session.session_id,
+            &session.network,
+        )
+        .await
+        .unwrap();
+
+        // Get all connected users
+        let connected_users = db.get_all_app_distinct_users(&app_id).await.unwrap();
+
+        assert_eq!(connected_users.len(), 3);
+        let third_connection_hashmap = connected_users
+            .iter()
+            .map(|user| {
+                (
+                    user.public_key.clone(),
+                    (user.first_connection, user.last_connection),
+                )
+            })
+            .collect::<HashMap<String, (DateTime<Utc>, DateTime<Utc>)>>();
+
+        // Check users, each of them should have been identified by the first key the provided
+
+        // Check first user,
+        // First connection
+        assert!(
+            first_connection_hashmap.get("first_key").unwrap().0
+                <= second_connection_hashmap.get("first_key").unwrap().0
+        );
+        // Last connection
+        assert!(
+            second_connection_hashmap.get("first_key").unwrap().1
+                >= first_connection_hashmap.get("first_key").unwrap().1
+        );
+        // Last connection should have stayed the same
+        assert!(
+            second_connection_hashmap.get("first_key").unwrap().1
+                == third_connection_hashmap.get("first_key").unwrap().1
+        );
+
+        // Check second user,
+        // First connection
+        assert!(
+            first_connection_hashmap.get("fourth_key").unwrap().0
+                <= second_connection_hashmap.get("fourth_key").unwrap().0
+        );
+        // Last connection
+        assert!(
+            second_connection_hashmap.get("fourth_key").unwrap().1
+                >= first_connection_hashmap.get("fourth_key").unwrap().1
+        );
+        // Last connection should have stayed the same
+        assert!(
+            second_connection_hashmap.get("fourth_key").unwrap().1
+                == third_connection_hashmap.get("fourth_key").unwrap().1
+        );
+
+        // Check third user,
+        // First connection
+        assert!(
+            first_connection_hashmap.get("seventh_key").unwrap().0
+                == third_connection_hashmap.get("seventh_key").unwrap().0
+        );
+        // Last connection
+        assert!(
+            third_connection_hashmap.get("seventh_key").unwrap().1
+                >= second_connection_hashmap.get("seventh_key").unwrap().1
+        );
     }
 }
