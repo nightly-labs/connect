@@ -1,6 +1,6 @@
 ---
 title: Sign Transaction
-slug: client/sign
+slug: for_wallets/sign_transaction
 ---
 
 import Tabs from '@theme/Tabs';

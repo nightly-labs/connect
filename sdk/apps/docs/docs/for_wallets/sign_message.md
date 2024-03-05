@@ -1,6 +1,6 @@
 ---
 title: Sign Messages
-slug: client/signMessage
+slug: for_wallets/sign_message
 ---
 
 import Tabs from '@theme/Tabs';
