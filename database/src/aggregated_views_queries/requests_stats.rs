@@ -319,7 +319,7 @@ mod test {
             subscription: None,
             ack_public_keys: vec!["test_key".to_string()],
             email: None,
-            registration_timestamp: 0,
+            registration_timestamp: Utc::now(),
             pass_hash: None,
         };
         db_arc.register_new_app(&app).await.unwrap();

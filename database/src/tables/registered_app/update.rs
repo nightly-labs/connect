@@ -15,7 +15,7 @@ impl Db {
             .bind(&app.whitelisted_domains)
             .bind(&app.ack_public_keys)
             .bind(&app.email)
-            .bind(&(app.registration_timestamp as i64))
+            .bind(&app.registration_timestamp)
             .bind(&app.pass_hash)
             .execute(&self.connection_pool)
             .await;
@@ -43,7 +43,7 @@ impl Db {
             .bind(&app.whitelisted_domains)
             .bind(&app.ack_public_keys)
             .bind(&app.email)
-            .bind(&(app.registration_timestamp as i64))
+            .bind(&app.registration_timestamp)
             .bind(&app.pass_hash)
             .execute(&mut **tx)
             .await;

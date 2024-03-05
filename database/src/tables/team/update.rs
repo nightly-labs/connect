@@ -134,7 +134,7 @@ mod tests {
             whitelisted_domains: vec!["test_whitelisted_domain".to_string()],
             email: None,
             pass_hash: None,
-            registration_timestamp: 0,
+            registration_timestamp: to_microsecond_precision(&Utc::now()),
             subscription: None,
         };
 
@@ -148,7 +148,7 @@ mod tests {
         db.setup_team(&team, &app, &admin_privilege).await.unwrap();
 
         let team_result = db.get_team_by_team_id(None, &team.team_id).await.unwrap();
-        assert_eq!(team_result, team);
+        assert_eq!(team_result, Some(team));
 
         let admin_result = db.get_user_by_user_id(&admin.user_id).await.unwrap();
         assert_eq!(admin_result, admin);

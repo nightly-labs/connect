@@ -106,7 +106,7 @@ pub mod test_utils {
                 ack_public_keys: vec!["key".to_string()],
                 email: None,
                 pass_hash: None,
-                registration_timestamp: registration_timestamp.timestamp() as u64,
+                registration_timestamp: registration_timestamp,
             };
 
             let admin_privilege = UserAppPrivilege {

@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use database::{
     structs::subscription::Subscription, tables::registered_app::table_struct::DbRegisteredApp,
 };
@@ -14,7 +15,7 @@ pub struct RegisteredApp {
     pub subscription: Option<Subscription>,
     pub ack_public_keys: Vec<String>,
     pub email: Option<String>,
-    pub registration_timestamp: u64,
+    pub registration_timestamp: DateTime<Utc>,
 }
 
 impl From<DbRegisteredApp> for RegisteredApp {

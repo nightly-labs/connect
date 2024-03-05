@@ -9,16 +9,16 @@ impl Db {
         &self,
         tx: Option<&mut Transaction<'_, sqlx::Postgres>>,
         team_id: &String,
-    ) -> Result<Team, sqlx::Error> {
+    ) -> Result<Option<Team>, sqlx::Error> {
         let query = format!("SELECT * FROM {TEAM_TABLE_NAME} WHERE team_id = $1");
         let typed_query = query_as::<_, Team>(&query);
 
         match tx {
-            Some(tx) => return typed_query.bind(&team_id).fetch_one(&mut **tx).await,
+            Some(tx) => return typed_query.bind(&team_id).fetch_optional(&mut **tx).await,
             None => {
                 return typed_query
                     .bind(&team_id)
-                    .fetch_one(&self.connection_pool)
+                    .fetch_optional(&self.connection_pool)
                     .await
             }
         }

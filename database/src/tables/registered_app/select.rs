@@ -34,4 +34,17 @@ impl Db {
             .fetch_all(&self.connection_pool)
             .await;
     }
+
+    pub async fn get_registered_app_by_app_name(
+        &self,
+        app_name: &String,
+    ) -> Result<DbRegisteredApp, sqlx::Error> {
+        let query = format!("SELECT * FROM {REGISTERED_APPS_TABLE_NAME} WHERE app_name = $1");
+        let typed_query = query_as::<_, DbRegisteredApp>(&query);
+
+        return typed_query
+            .bind(&app_name)
+            .fetch_one(&self.connection_pool)
+            .await;
+    }
 }
