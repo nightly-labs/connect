@@ -1,7 +1,9 @@
 use serde::{Deserialize, Serialize};
 use sqlx::Type;
+use ts_rs::TS;
 
-#[derive(Clone, Debug, Eq, PartialEq, Type, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Type)]
+#[ts(export)]
 #[sqlx(type_name = "subscription")]
 pub struct Subscription {
     pub subscription_type: String,
