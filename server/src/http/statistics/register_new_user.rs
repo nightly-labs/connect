@@ -1,12 +1,12 @@
-use std::sync::Arc;
-
 use axum::{extract::State, http::StatusCode, Json};
 use database::{
     db::Db,
     tables::{grafana_users::table_struct::GrafanaUser, utils::get_current_datetime},
 };
 use log::error;
+use pwhash::bcrypt;
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 use ts_rs::TS;
 use uuid7::uuid7;
 
@@ -36,13 +36,15 @@ pub async fn register_new_user(
         ));
     }
 
+    let hashed_password = bcrypt::hash(request.password.clone())
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+
     // Create new user
     let user_id = uuid7().to_string();
     let grafana_user = GrafanaUser {
         user_id: user_id.clone(),
         email: request.email.clone(),
-        // TODO: hash password
-        password_hash: request.password.clone(),
+        password_hash: hashed_password,
         creation_timestamp: get_current_datetime(),
     };
 

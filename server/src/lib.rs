@@ -1,3 +1,5 @@
+pub mod auth;
+pub mod env;
 pub mod errors;
 pub mod handle_error;
 pub mod http;

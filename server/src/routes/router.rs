@@ -1,4 +1,5 @@
 use crate::{
+    auth::auth_middleware::access_auth_middleware,
     handle_error::handle_error,
     http::relay::{
         connect_session::connect_session, drop_sessions::drop_sessions,
@@ -17,6 +18,7 @@ use crate::{
 };
 use axum::{
     error_handling::HandleErrorLayer,
+    middleware,
     routing::{get, post},
     Router,
 };
