@@ -61,7 +61,7 @@ mod test {
         },
         tables::{
             registered_app::table_struct::DbRegisteredApp, requests::table_struct::Request,
-            sessions::table_struct::DbNcSession,
+            sessions::table_struct::DbNcSession, utils::to_microsecond_precision,
         },
     };
     use sqlx::types::chrono::{DateTime, Utc};
@@ -199,7 +199,7 @@ mod test {
             network: "test_network".to_string(),
             client_profile_id: None,
             client: None,
-            session_open_timestamp: DateTime::from(Utc::now()),
+            session_open_timestamp: to_microsecond_precision(&Utc::now()),
             session_close_timestamp: None,
         };
 
@@ -236,7 +236,7 @@ mod test {
                         app_id: app_id.to_string(),
                         session_id: "test_session_id".to_string(),
                         network: "test_network".to_string(),
-                        creation_timestamp: creation_time,
+                        creation_timestamp: to_microsecond_precision(&creation_time),
                         request_status: status,
                         request_type: "test_request_type".to_string(),
                     };
@@ -319,7 +319,7 @@ mod test {
             subscription: None,
             ack_public_keys: vec!["test_key".to_string()],
             email: None,
-            registration_timestamp: Utc::now(),
+            registration_timestamp: to_microsecond_precision(&Utc::now()),
             pass_hash: None,
         };
         db_arc.register_new_app(&app).await.unwrap();
@@ -341,7 +341,7 @@ mod test {
             network: "test_network".to_string(),
             client_profile_id: None,
             client: None,
-            session_open_timestamp: DateTime::from(Utc::now()),
+            session_open_timestamp: to_microsecond_precision(&Utc::now()),
             session_close_timestamp: None,
         };
 
@@ -365,7 +365,7 @@ mod test {
                         app_id: app_id.to_string(),
                         session_id: "test_session_id".to_string(),
                         network: "test_network".to_string(),
-                        creation_timestamp: creation_time,
+                        creation_timestamp: to_microsecond_precision(&creation_time),
                         request_status: RequestStatus::Pending,
                         request_type: "test_request_type".to_string(),
                     };
