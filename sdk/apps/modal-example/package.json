@@ -15,8 +15,8 @@
     "vite": "^4.1.4"
   },
   "dependencies": {
-    "@aptos-labs/ts-sdk": "^1.9.0",
-    "@aptos-labs/wallet-standard": "^0.0.8",
+    "@aptos-labs/ts-sdk": "^1.9.1",
+    "@aptos-labs/wallet-standard": "^0.0.11",
     "@mysten/sui.js": "^0.42.0",
     "@mysten/wallet-adapter-wallet-standard": "^0.8.0",
     "@nightlylabs/nightly-connect-polkadot": "0.0.15",

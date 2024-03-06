@@ -1,5 +1,10 @@
 import { Account, Aptos, Ed25519PrivateKey, Network } from '@aptos-labs/ts-sdk'
-import { AptosSignMessageInput, NetworkInfo, UserResponseStatus } from '@aptos-labs/wallet-standard'
+import {
+  AccountInfo,
+  AptosSignMessageInput,
+  NetworkInfo,
+  UserResponseStatus
+} from '@aptos-labs/wallet-standard'
 import { ContentType, getRandomId } from '@nightlylabs/nightly-connect-base'
 import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { TEST_RELAY_ENDPOINT, smartDelay } from '../../../commonTestUtils'
@@ -44,11 +49,11 @@ describe('Aptos http-client tests', () => {
     app.on('userConnected', (accountInfo, networkInfo) => {
       connectFn(accountInfo, networkInfo)
     })
-    const accountInfo = {
+    const accountInfo: AccountInfo = new AccountInfo({
       address: alice.accountAddress,
       publicKey: alice.publicKey,
       ansName: undefined
-    }
+    })
     const networkInfo: NetworkInfo = {
       chainId: 69,
       name: Network.MAINNET,

@@ -1,4 +1,3 @@
-import { UserConnectedEvent } from '../../../bindings/UserConnectedEvent'
 import {
   AccountInfo,
   AptosSignAndSubmitTransactionMethod,

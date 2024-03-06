@@ -6,7 +6,12 @@ import { TEST_APP_INITIALIZE } from './testUtils'
 import { APTOS_NETWORK } from './utils'
 
 import { Account, Aptos, Ed25519PrivateKey, Network } from '@aptos-labs/ts-sdk'
-import { AptosSignMessageInput, NetworkInfo, UserResponseStatus } from '@aptos-labs/wallet-standard'
+import {
+  AccountInfo,
+  AptosSignMessageInput,
+  NetworkInfo,
+  UserResponseStatus
+} from '@aptos-labs/wallet-standard'
 import { TEST_RELAY_ENDPOINT, smartDelay } from '../../../commonTestUtils'
 import { SignTransactionsAptosRequest } from './requestTypes'
 
@@ -44,15 +49,14 @@ describe('Aptos client tests', () => {
   })
   test('#connect()', async () => {
     const connectFn = vi.fn()
-    console.log(alice.publicKey.toString())
     app.on('userConnected', (a, b) => {
       connectFn(a, b)
     })
-    const accountInfo = {
+    const accountInfo: AccountInfo = new AccountInfo({
       address: alice.accountAddress,
       publicKey: alice.publicKey,
       ansName: undefined
-    }
+    })
     const networkInfo: NetworkInfo = {
       chainId: 69,
       name: Network.MAINNET,

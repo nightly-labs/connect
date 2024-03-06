@@ -126,11 +126,11 @@ importers:
   apps/modal-example:
     dependencies:
       '@aptos-labs/ts-sdk':
-        specifier: ^1.9.0
-        version: 1.9.0
+        specifier: ^1.9.1
+        version: 1.9.1
       '@aptos-labs/wallet-standard':
-        specifier: ^0.0.8
-        version: 0.0.8
+        specifier: ^0.0.11
+        version: 0.0.11
       '@mysten/sui.js':
         specifier: ^0.42.0
         version: 0.42.0
@@ -281,11 +281,11 @@ importers:
   packages/aptos:
     dependencies:
       '@aptos-labs/ts-sdk':
-        specifier: ^1.9.0
-        version: 1.9.0
+        specifier: ^1.9.1
+        version: 1.9.1
       '@aptos-labs/wallet-standard':
-        specifier: ^0.0.8
-        version: 0.0.8
+        specifier: ^0.0.11
+        version: 0.0.11
       '@nightlylabs/nightly-connect-base':
         specifier: ^0.0.27
         version: link:../../apps/base
@@ -531,11 +531,11 @@ importers:
   packages/selector-aptos:
     dependencies:
       '@aptos-labs/ts-sdk':
-        specifier: ^1.9.0
-        version: 1.9.0
+        specifier: ^1.9.1
+        version: 1.9.1
       '@aptos-labs/wallet-standard':
-        specifier: ^0.0.8
-        version: 0.0.8
+        specifier: ^0.0.11
+        version: 0.0.11
       '@nightlylabs/nightly-connect-aptos':
         specifier: 0.0.1
         version: link:../aptos
@@ -1073,8 +1073,8 @@ packages:
       - debug
     dev: false
 
-  /@aptos-labs/ts-sdk@1.9.0:
-    resolution: {integrity: sha512-mEiKf8Mx/ap/1efUxmZElbEcl81xnPXGeMSpmcW19JOzcqGH0CabiQ0lyyaAJP2lAKylXLslzwT3FbVm9DEEIQ==}
+  /@aptos-labs/ts-sdk@1.9.1:
+    resolution: {integrity: sha512-aXoKbBKkhHutgKokEErFQHnyV8mheak01xqWZQIh3EExOkC0/KOFdWmCmOIXkXg1px2wiKHfPzg3ZW34142Kyw==}
     engines: {node: '>=11.0.0'}
     dependencies:
       '@aptos-labs/aptos-client': 0.1.0
@@ -1089,10 +1089,10 @@ packages:
       - debug
     dev: false
 
-  /@aptos-labs/wallet-standard@0.0.8:
-    resolution: {integrity: sha512-6FyjuxnjM4+NyOzRy48hdP/OT+HF2il6mVrSSPNvRjDEV8ewBGjSRA4twm4yvlXdiWU6AKDASlllO2/03Q3p4w==}
+  /@aptos-labs/wallet-standard@0.0.11:
+    resolution: {integrity: sha512-8dygyPBby7TaMJjUSyeVP4R1WC9D/FPpX9gVMMLaqTKCXrSbkzhGDxcuwbMZ3ziEwRmx3zz+d6BIJbDhd0hm5g==}
     dependencies:
-      '@aptos-labs/ts-sdk': 1.9.0
+      '@aptos-labs/ts-sdk': 1.9.1
       '@wallet-standard/core': 1.0.3
     transitivePeerDependencies:
       - debug

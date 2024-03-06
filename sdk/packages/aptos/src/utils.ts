@@ -134,31 +134,18 @@ export const deserializePendingTransactionResponse = (s: string): PendingTransac
   return deserializeObject(s)
 }
 interface SerializedConnectData {
-  address: string
-  publicKey: string
+  accountInfo: string
   networkInfo: NetworkInfo
-  ansName?: string
 }
 export const serializeConnectData = (
-  accountAuthenticator: AccountInfo,
+  accountInfo: AccountInfo,
   networkInfo: NetworkInfo
 ): string => {
-  const serializerAddress = new Serializer()
-  serializerAddress.serialize(accountAuthenticator.address)
-  const address = Buffer.from(serializerAddress.toUint8Array()).toString('hex')
-  const serializerPublicKey = new Serializer()
-  // TODO support other public key types
-  if (accountAuthenticator.publicKey instanceof Ed25519PublicKey) {
-    serializerPublicKey.serialize(accountAuthenticator.publicKey)
-  } else {
-    // We don't support other public key types
-    throw new Error('Unsupported public key type')
-  }
-  const publicKey = Buffer.from(serializerPublicKey.toUint8Array()).toString('hex')
+  const serializerAccountInfo = new Serializer()
+  serializerAccountInfo.serialize(accountInfo)
+
   const obj: SerializedConnectData = {
-    address,
-    publicKey,
-    ansName: accountAuthenticator.ansName,
+    accountInfo: Buffer.from(serializerAccountInfo.toUint8Array()).toString('hex'),
     networkInfo: networkInfo
   }
   return serializeObject(obj)
@@ -167,16 +154,10 @@ export const deserializeConnectData = (
   s: string
 ): { accountInfo: AccountInfo; networkInfo: NetworkInfo } => {
   const obj = deserializeObject(s)
-  const deserializerAddress = new Deserializer(Buffer.from(obj.address, 'hex'))
-  const address = AccountAddress.deserialize(deserializerAddress)
-  const deserializerPublicKey = new Deserializer(Buffer.from(obj.publicKey, 'hex'))
-  const publicKey = Ed25519PublicKey.deserialize(deserializerPublicKey)
+  const deserializerAccountInfo = new Deserializer(Buffer.from(obj.accountInfo, 'hex'))
+  const accountInfo = AccountInfo.deserialize(deserializerAccountInfo)
   return {
-    accountInfo: {
-      address,
-      publicKey,
-      ansName: obj.ansName
-    },
+    accountInfo: accountInfo,
     networkInfo: obj.networkInfo
   }
 }
