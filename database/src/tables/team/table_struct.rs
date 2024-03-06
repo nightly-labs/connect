@@ -7,7 +7,7 @@ use sqlx::{
 
 pub const TEAM_TABLE_NAME: &str = "team";
 pub const TEAM_KEYS: &str =
-    "team_id, personal, subscription, team_admin_id, registration_timestamp";
+    "team_id, team_name, personal, subscription, team_admin_id, registration_timestamp";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Team {

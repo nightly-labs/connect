@@ -17,10 +17,12 @@ impl Db {
         team: &Team,
     ) -> Result<(), sqlx::Error> {
         let query_body =
-            format!("INSERT INTO {TEAM_TABLE_NAME} ({TEAM_KEYS}) VALUES ($1, $2, $3, $4)");
+            format!("INSERT INTO {TEAM_TABLE_NAME} ({TEAM_KEYS}) VALUES ($1, $2, $3, $4, $5, $6)");
 
         let query_result = query(&query_body)
             .bind(&team.team_id)
+            .bind(&team.team_name)
+            .bind(&team.personal)
             .bind(&team.subscription)
             .bind(&team.team_admin_id)
             .bind(&team.registration_timestamp)
