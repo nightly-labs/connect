@@ -5,7 +5,7 @@ CREATE TABLE registered_apps(
     whitelisted_domains TEXT [] NOT NULL,
     ack_public_keys TEXT [] NOT NULL,
     email TEXT,
-    registration_timestamp BIGINT NOT NULL,
+    registration_timestamp TIMESTAMPTZ NOT NULL,
     pass_hash TEXT
 );
 
