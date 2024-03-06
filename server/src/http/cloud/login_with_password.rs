@@ -1,4 +1,7 @@
-use crate::{auth::AuthToken, env::JWT_SECRET};
+use crate::{
+    auth::AuthToken,
+    env::{JWT_SECRET, NONCE},
+};
 use axum::{
     extract::{ConnectInfo, State},
     http::StatusCode,
@@ -45,7 +48,11 @@ pub async fn login_with_password(
         .map_err(|_| (StatusCode::BAD_REQUEST, "Could not find user".to_string()))?;
 
     // Verify password
-    if bcrypt::verify(request.password, &user.password_hash) == false {
+    if bcrypt::verify(
+        format!("{}_{}", NONCE(), request.password),
+        &user.password_hash,
+    ) == false
+    {
         return Err((StatusCode::BAD_REQUEST, "Incorrect Password".to_string()));
     }
 

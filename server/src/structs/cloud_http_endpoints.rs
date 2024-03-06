@@ -6,8 +6,8 @@ use ts_rs::TS;
 pub enum HttpCloudEndpoint {
     #[serde(rename = "/register_new_app")]
     RegisterNewApp,
-    #[serde(rename = "/register_new_user")]
-    RegisterNewUser,
+    #[serde(rename = "/register_with_password")]
+    RegisterWithPassword,
     #[serde(rename = "/login_with_password")]
     LoginWithPassword,
 }
@@ -16,7 +16,7 @@ impl HttpCloudEndpoint {
     pub fn to_string(&self) -> String {
         match self {
             HttpCloudEndpoint::RegisterNewApp => "/register_new_app".to_string(),
-            HttpCloudEndpoint::RegisterNewUser => "/register_new_user".to_string(),
+            HttpCloudEndpoint::RegisterWithPassword => "/register_with_password".to_string(),
             HttpCloudEndpoint::LoginWithPassword => "/login_with_password".to_string(),
         }
     }

@@ -2,7 +2,7 @@ use crate::{
     auth::auth_middleware::access_auth_middleware,
     http::cloud::{
         login_with_password::login_with_password, register_new_app::register_new_app,
-        register_new_user::register_new_user,
+        register_with_password::register_with_password,
     },
     state::ServerState,
     structs::cloud_http_endpoints::HttpCloudEndpoint,
@@ -29,8 +29,8 @@ pub fn public_router(state: ServerState) -> Router<ServerState> {
             post(login_with_password),
         )
         .route(
-            &HttpCloudEndpoint::RegisterNewUser.to_string(),
-            post(register_new_user),
+            &HttpCloudEndpoint::RegisterWithPassword.to_string(),
+            post(register_with_password),
         )
         .with_state(state)
 }

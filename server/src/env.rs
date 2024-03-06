@@ -7,6 +7,7 @@ pub struct ENV {
     pub ENVIRONMENT: String,
     pub JWT_SECRET: String,
     pub ONLY_RELAY_SERVICE: bool,
+    pub NONCE: String,
 }
 pub fn get_env() -> &'static ENV {
     static INSTANCE: OnceCell<ENV> = OnceCell::new();
@@ -36,6 +37,7 @@ pub fn get_env() -> &'static ENV {
                 .expect("Failed to get ONLY_RELAY_SERVICE env")
                 .parse()
                 .expect("Failed to parse ONLY_RELAY_SERVICE env"),
+            NONCE: std::env::var("NONCE").expect("Failed to get NONCE env"),
         };
         return env;
     })
@@ -50,4 +52,8 @@ pub fn JWT_SECRET() -> &'static str {
 
 pub fn ONLY_RELAY_SERVICE() -> bool {
     get_env().ONLY_RELAY_SERVICE
+}
+
+pub fn NONCE() -> &'static str {
+    get_env().NONCE.as_str()
 }
