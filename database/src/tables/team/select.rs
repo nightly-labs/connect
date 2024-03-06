@@ -41,4 +41,17 @@ impl Db {
             .fetch_all(&self.connection_pool)
             .await;
     }
+
+    pub async fn get_team_by_admin_id(
+        &self,
+        admin_id: &String,
+    ) -> Result<Option<Team>, sqlx::Error> {
+        let query = format!("SELECT * FROM {TEAM_TABLE_NAME} WHERE team_admin_id = $1");
+        let typed_query = query_as::<_, Team>(&query);
+
+        return typed_query
+            .bind(&admin_id)
+            .fetch_optional(&self.connection_pool)
+            .await;
+    }
 }

@@ -1,6 +1,5 @@
-use std::sync::Arc;
-
-use axum::{extract::State, http::StatusCode, Json};
+use crate::auth::auth_middleware::UserId;
+use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::{
     db::Db,
     structs::privelage_level::PrivilegeLevel,
@@ -11,6 +10,7 @@ use database::{
 };
 use log::error;
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 use ts_rs::TS;
 use uuid7::uuid7;
 
@@ -18,8 +18,6 @@ use uuid7::uuid7;
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpRegisterNewAppRequest {
-    pub team_id: Option<String>,
-    pub user_id: String,
     pub app_name: String,
     pub whitelisted_domains: Vec<String>,
     pub ack_public_keys: Vec<String>,
@@ -33,6 +31,7 @@ pub struct HttpRegisterNewAppResponse {
 
 pub async fn register_new_app(
     State(db): State<Arc<Db>>,
+    Extension(user_id): Extension<UserId>,
     Json(request): Json<HttpRegisterNewAppRequest>,
 ) -> Result<Json<HttpRegisterNewAppResponse>, (StatusCode, String)> {
     // Check if app is already registered
@@ -43,87 +42,45 @@ pub async fn register_new_app(
         ));
     }
 
-    // Check if we are creating a new team or not
-    match request.team_id {
-        Some(team_id) => {
+    // check if user has created a team before
+    match db.get_team_by_admin_id(&user_id).await {
+        Ok(Some(team)) => {
+            // User is a admin of a team, register a new app under this team
             // Start a transaction
             let mut tx = db.connection_pool.begin().await.unwrap();
 
-            let team = db.get_team_by_team_id(Some(&mut tx), &team_id).await;
+            // Register a new app
+            let app_id = uuid7().to_string();
+            let db_registered_app =
+                database::tables::registered_app::table_struct::DbRegisteredApp {
+                    app_id: app_id.clone(),
+                    team_id: team.team_id.clone(),
+                    app_name: request.app_name.clone(),
+                    ack_public_keys: request.ack_public_keys.clone(),
+                    whitelisted_domains: request.whitelisted_domains.clone(),
+                    email: None,
+                    pass_hash: None,
+                    registration_timestamp: get_current_datetime(),
+                    subscription: None,
+                };
 
-            match team {
-                Ok(Some(team)) => {
-                    // If team_id is provided check if user is a admin of the team
-                    if team.team_admin_id != request.user_id {
-                        return Err((
-                            StatusCode::BAD_REQUEST,
-                            "User does not have permissions to create a new app for this team"
-                                .to_string(),
-                        ));
-                    }
-
-                    // Register a new app
-                    let app_id = uuid7().to_string();
-                    let db_registered_app =
-                        database::tables::registered_app::table_struct::DbRegisteredApp {
-                            app_id: app_id.clone(),
-                            team_id: team_id.clone(),
-                            app_name: request.app_name.clone(),
-                            ack_public_keys: request.ack_public_keys.clone(),
-                            whitelisted_domains: request.whitelisted_domains.clone(),
-                            email: None,
-                            pass_hash: None,
-                            registration_timestamp: get_current_datetime(),
-                            subscription: None,
-                        };
-
-                    if let Err(err) = db
-                        .register_new_app_within_tx(&mut tx, &db_registered_app)
-                        .await
-                    {
-                        tx.rollback().await.unwrap();
-                        error!("Failed to create app: {:?}", err);
-                        return Err((
-                            StatusCode::INTERNAL_SERVER_ERROR,
-                            "Failed to create app".to_string(),
-                        ));
-                    }
-
-                    tx.commit().await.unwrap();
-                    return Ok(Json(HttpRegisterNewAppResponse { app_id }));
-                }
-                Ok(None) => {
-                    return Err((StatusCode::BAD_REQUEST, "Team does not exist".to_string()));
-                }
-                Err(err) => {
-                    tx.rollback().await.unwrap();
-                    error!("Failed to create app: {:?}", err);
-                    return Err((
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        "Failed to create app".to_string(),
-                    ));
-                }
+            if let Err(err) = db
+                .register_new_app_within_tx(&mut tx, &db_registered_app)
+                .await
+            {
+                tx.rollback().await.unwrap();
+                error!("Failed to create app: {:?}", err);
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Failed to create app".to_string(),
+                ));
             }
+
+            tx.commit().await.unwrap();
+            return Ok(Json(HttpRegisterNewAppResponse { app_id }));
         }
-        None => {
-            // Check if user is already a admin of a team
-            if let Ok(privileges) = db.get_privileges_by_user_id(&request.user_id).await {
-                let is_already_admin = privileges.iter().any(|privilege| {
-                    if let PrivilegeLevel::Admin = privilege.privilege_level {
-                        return true;
-                    }
-                    return false;
-                });
-
-                if is_already_admin {
-                    return Err((
-                        StatusCode::BAD_REQUEST,
-                        "User is already an admin of a team".to_string(),
-                    ));
-                }
-            }
-
-            // Register a new app under a new team
+        Ok(None) => {
+            // User us not a admin of a team, create a new team and register a new app under this team
             let team_id = uuid7().to_string();
             let app_id = uuid7().to_string();
             let time = get_current_datetime();
@@ -131,7 +88,7 @@ pub async fn register_new_app(
             let team = Team {
                 team_id: team_id.clone(),
                 subscription: None,
-                team_admin_id: request.user_id.clone(),
+                team_admin_id: user_id.clone(),
                 registration_timestamp: time.clone(),
             };
 
@@ -151,14 +108,26 @@ pub async fn register_new_app(
                 app_id: app_id.clone(),
                 creation_timestamp: time,
                 privilege_level: PrivilegeLevel::Admin,
-                user_id: request.user_id.clone(),
+                user_id: user_id.clone(),
             };
 
-            db.setup_team(&team, &db_registered_app, &user_app_privilege)
+            if let Err(_) = db
+                .setup_team(&team, &db_registered_app, &user_app_privilege)
                 .await
-                .unwrap();
+            {
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Failed to register new app".to_string(),
+                ));
+            }
 
             return Ok(Json(HttpRegisterNewAppResponse { app_id }));
+        }
+        Err(_) => {
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Database error".to_string(),
+            ));
         }
     }
 }
