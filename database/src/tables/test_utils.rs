@@ -2,7 +2,7 @@
 pub mod test_utils {
     use crate::{
         db::Db,
-        structs::privelage_level::PrivilegeLevel,
+        structs::privilege_level::PrivilegeLevel,
         tables::{
             grafana_users::table_struct::GrafanaUser,
             registered_app::table_struct::DbRegisteredApp, team::table_struct::Team,

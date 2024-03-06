@@ -1,7 +1,7 @@
 use crate::auth::auth_middleware::UserId;
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::{
-    db::Db, structs::privelage_level::PrivilegeLevel, tables::utils::get_current_datetime,
+    db::Db, structs::privilege_level::PrivilegeLevel, tables::utils::get_current_datetime,
 };
 use log::error;
 use serde::{Deserialize, Serialize};
@@ -14,7 +14,6 @@ use uuid7::uuid7;
 #[serde(rename_all = "camelCase")]
 pub struct HttpRegisterNewAppRequest {
     pub team_id: String,
-    pub personal: bool,
     pub app_name: String,
     pub whitelisted_domains: Vec<String>,
     pub ack_public_keys: Vec<String>,

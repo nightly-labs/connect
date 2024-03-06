@@ -35,6 +35,26 @@ impl Db {
         }
     }
 
+    pub async fn create_new_team(&self, team: &Team) -> Result<(), sqlx::Error> {
+        let query_body =
+            format!("INSERT INTO {TEAM_TABLE_NAME} ({TEAM_KEYS}) VALUES ($1, $2, $3, $4, $5, $6)");
+
+        let query_result = query(&query_body)
+            .bind(&team.team_id)
+            .bind(&team.team_name)
+            .bind(&team.personal)
+            .bind(&team.subscription)
+            .bind(&team.team_admin_id)
+            .bind(&team.registration_timestamp)
+            .execute(&self.connection_pool)
+            .await;
+
+        match query_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e),
+        }
+    }
+
     pub async fn update_subscription(
         &self,
         team_id: &String,
@@ -96,7 +116,7 @@ impl Db {
 #[cfg(test)]
 mod tests {
     use crate::{
-        structs::privelage_level::PrivilegeLevel,
+        structs::privilege_level::PrivilegeLevel,
         tables::{
             grafana_users::table_struct::GrafanaUser,
             registered_app::table_struct::DbRegisteredApp, team::table_struct::Team,

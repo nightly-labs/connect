@@ -1,4 +1,4 @@
-use crate::structs::privelage_level::PrivilegeLevel;
+use crate::structs::privilege_level::PrivilegeLevel;
 use sqlx::{
     postgres::PgRow,
     types::chrono::{DateTime, Utc},

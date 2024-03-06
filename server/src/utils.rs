@@ -1,8 +1,10 @@
+use crate::structs::{wallet_metadata::WalletMetadata, wallets::*};
 use axum::http::{header, Method};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tower_http::cors::{Any, CorsLayer};
 
-use crate::structs::{wallet_metadata::WalletMetadata, wallets::*};
+pub const TEAMS_AMOUNT_LIMIT_PER_USER: usize = 10;
+pub const REGISTERED_APPS_LIMIT_PER_TEAM: usize = 20;
 
 pub fn get_timestamp_in_milliseconds() -> u64 {
     let now = SystemTime::now();
