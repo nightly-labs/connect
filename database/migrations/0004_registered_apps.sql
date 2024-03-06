@@ -1,7 +1,7 @@
 CREATE TABLE registered_apps(
-    team_id TEXT NOT NULL REFERENCES team(team_id) ON DELETE CASCADE,
+    team_id TEXT NOT NULL REFERENCES team(team_id),
     app_id TEXT NOT NULL UNIQUE,
-    app_name TEXT NOT NULL UNIQUE,
+    app_name TEXT NOT NULL,
     whitelisted_domains TEXT [] NOT NULL,
     ack_public_keys TEXT [] NOT NULL,
     email TEXT,

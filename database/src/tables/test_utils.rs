@@ -92,6 +92,7 @@ pub mod test_utils {
 
             let team = Team {
                 team_id: team_id.clone(),
+                personal: false,
                 subscription: None,
                 team_admin_id: admin.user_id.clone(),
                 registration_timestamp: registration_timestamp,

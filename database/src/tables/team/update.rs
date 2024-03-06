@@ -121,6 +121,7 @@ mod tests {
         // Create team and register app
         let team = Team {
             team_id: "test_team_id".to_string(),
+            personal: false,
             subscription: None,
             team_admin_id: "test_team_admin_id".to_string(),
             registration_timestamp: to_microsecond_precision(&Utc::now()),
