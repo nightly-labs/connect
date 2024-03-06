@@ -10,6 +10,8 @@ pub enum HttpStatsEndpoint {
     RegisterNewApp,
     #[serde(rename = "/register_new_user")]
     RegisterNewUser,
+    #[serde(rename = "/login_with_password")]
+    LoginWithPassword,
 }
 
 impl HttpStatsEndpoint {
@@ -18,6 +20,7 @@ impl HttpStatsEndpoint {
             HttpStatsEndpoint::GetRegisteredApps => "/get_registered_apps".to_string(),
             HttpStatsEndpoint::RegisterNewApp => "/register_new_app".to_string(),
             HttpStatsEndpoint::RegisterNewUser => "/register_new_user".to_string(),
+            HttpStatsEndpoint::LoginWithPassword => "/login_with_password".to_string(),
         }
     }
 }
