@@ -1,4 +1,7 @@
-use crate::{auth::AuthToken, env::JWT_SECRET};
+use crate::{
+    auth::AuthToken,
+    env::{JWT_SECRET, NONCE},
+};
 use axum::{
     extract::{ConnectInfo, State},
     http::StatusCode,
@@ -29,9 +32,15 @@ pub struct HttpLoginResponse {
 
 pub async fn login_with_password(
     ConnectInfo(ip): ConnectInfo<SocketAddr>,
-    State(db): State<Arc<Db>>,
+    State(db): State<Option<Arc<Db>>>,
     Json(request): Json<HttpLoginRequest>,
 ) -> Result<Json<HttpLoginResponse>, (StatusCode, String)> {
+    // Db connection has already been checked in the middleware
+    let db = db.as_ref().ok_or((
+        StatusCode::INTERNAL_SERVER_ERROR,
+        "Failed to get database connection".to_string(),
+    ))?;
+
     // Check if user exists
     let user = db
         .get_user_by_email(&request.email)
@@ -39,7 +48,11 @@ pub async fn login_with_password(
         .map_err(|_| (StatusCode::BAD_REQUEST, "Could not find user".to_string()))?;
 
     // Verify password
-    if bcrypt::verify(request.password, &user.password_hash) == false {
+    if bcrypt::verify(
+        format!("{}_{}", NONCE(), request.password),
+        &user.password_hash,
+    ) == false
+    {
         return Err((StatusCode::BAD_REQUEST, "Incorrect Password".to_string()));
     }
 

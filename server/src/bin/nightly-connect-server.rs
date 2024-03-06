@@ -1,12 +1,11 @@
+use server::env::ONLY_RELAY_SERVICE;
 use server::routes::router::get_router;
 use std::net::SocketAddr;
 use std::sync::mpsc::channel;
 
 #[tokio::main]
 async fn main() {
-    dotenvy::dotenv().expect(".env file not found");
-
-    let router = get_router().await;
+    let router = get_router(ONLY_RELAY_SERVICE()).await;
     let listener = tokio::net::TcpListener::bind(&"127.0.0.1:6969")
         .await
         .expect("Failed to bind socket");

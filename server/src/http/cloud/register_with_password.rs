@@ -10,24 +10,32 @@ use std::sync::Arc;
 use ts_rs::TS;
 use uuid7::uuid7;
 
+use crate::env::NONCE;
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct HttpRegisterNewUserRequest {
+pub struct HttpRegisterWithPasswordRequest {
     pub email: String,
     pub password: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct HttpRegisterNewUserResponse {
+pub struct HttpRegisterWithPasswordResponse {
     pub user_id: String,
 }
 
-pub async fn register_new_user(
-    State(db): State<Arc<Db>>,
-    Json(request): Json<HttpRegisterNewUserRequest>,
-) -> Result<Json<HttpRegisterNewUserResponse>, (StatusCode, String)> {
+pub async fn register_with_password(
+    State(db): State<Option<Arc<Db>>>,
+    Json(request): Json<HttpRegisterWithPasswordRequest>,
+) -> Result<Json<HttpRegisterWithPasswordResponse>, (StatusCode, String)> {
+    // Db connection has already been checked in the middleware
+    let db = db.as_ref().ok_or((
+        StatusCode::INTERNAL_SERVER_ERROR,
+        "Failed to get database connection".to_string(),
+    ))?;
+
     // Check if user already exists
     if let Ok(_) = db.get_user_by_email(&request.email).await {
         return Err((
@@ -36,7 +44,7 @@ pub async fn register_new_user(
         ));
     }
 
-    let hashed_password = bcrypt::hash(request.password.clone())
+    let hashed_password = bcrypt::hash(format!("{}_{}", NONCE(), request.password.clone()))
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
     // Create new user
@@ -56,5 +64,5 @@ pub async fn register_new_user(
         ));
     }
 
-    return Ok(Json(HttpRegisterNewUserResponse { user_id }));
+    return Ok(Json(HttpRegisterWithPasswordResponse { user_id }));
 }
