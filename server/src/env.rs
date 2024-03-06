@@ -14,7 +14,7 @@ pub fn get_env() -> &'static ENV {
 
     INSTANCE.get_or_init(|| {
         dotenvy::from_filename(".env").ok();
-        let ENVIRONMENT = std::env::var("ENVIRONMENT").expect("Failed to get ENVIRONMENT env");
+        let ENVIRONMENT = std::env::var("ENV").expect("Failed to get ENV env");
         let ENVIRONMENT = ENVIRONMENT.as_str();
 
         let env = ENV {
@@ -35,8 +35,7 @@ pub fn get_env() -> &'static ENV {
             },
             ONLY_RELAY_SERVICE: std::env::var("ONLY_RELAY_SERVICE")
                 .expect("Failed to get ONLY_RELAY_SERVICE env")
-                .parse()
-                .expect("Failed to parse ONLY_RELAY_SERVICE env"),
+                .eq_ignore_ascii_case("true"),
             NONCE: std::env::var("NONCE").expect("Failed to get NONCE env"),
         };
         return env;
