@@ -13,6 +13,7 @@ pub const TEAM_KEYS: &str =
 pub struct Team {
     pub team_id: String,
     pub personal: bool,
+    pub team_name: String,
     // Subscription is required to get access to the statistics
     pub subscription: Option<Subscription>,
     pub team_admin_id: String,
@@ -23,6 +24,7 @@ impl FromRow<'_, PgRow> for Team {
     fn from_row(row: &sqlx::postgres::PgRow) -> std::result::Result<Self, sqlx::Error> {
         Ok(Team {
             team_id: row.get("team_id"),
+            team_name: row.get("team_name"),
             personal: row.get("personal"),
             subscription: row.get("subscription"),
             registration_timestamp: row.get("registration_timestamp"),
