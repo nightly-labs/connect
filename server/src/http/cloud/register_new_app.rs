@@ -53,13 +53,11 @@ pub async fn register_new_app(
                 .get_registered_app_by_app_name_and_team_id(&request.app_name, &request.team_id)
                 .await
             {
-                Ok(Some(app)) => {
-                    if app.app_name == request.app_name {
-                        return Err((
-                            StatusCode::BAD_REQUEST,
-                            "App with this name already exists".to_string(),
-                        ));
-                    }
+                Ok(Some(_)) => {
+                    return Err((
+                        StatusCode::BAD_REQUEST,
+                        "App with this name already exists".to_string(),
+                    ));
                 }
                 Ok(None) => {}
                 Err(_) => {
