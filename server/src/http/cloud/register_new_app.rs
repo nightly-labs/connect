@@ -48,8 +48,11 @@ pub async fn register_new_app(
                 ));
             }
 
-            // Check if user has already registered an app with this name
-            match db.get_registered_app_by_app_name(&request.app_name).await {
+            // Check if user has already registered an app with this name in this team
+            match db
+                .get_registered_app_by_app_name_and_team_id(&request.app_name, &request.team_id)
+                .await
+            {
                 Ok(Some(app)) => {
                     if app.app_name == request.app_name {
                         return Err((

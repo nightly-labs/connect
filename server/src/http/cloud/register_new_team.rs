@@ -45,7 +45,7 @@ pub async fn register_new_team(
         }
         Ok(None) => {
             // Check how many teams the user has
-            match db.get_admin_user_teams_without_personal(&user_id).await {
+            match db.get_user_created_teams_without_personal(&user_id).await {
                 Ok(teams) => {
                     if teams.len() >= TEAMS_AMOUNT_LIMIT_PER_USER {
                         return Err((

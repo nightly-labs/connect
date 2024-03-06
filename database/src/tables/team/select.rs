@@ -42,7 +42,7 @@ impl Db {
             .await;
     }
 
-    pub async fn get_admin_user_teams_without_personal(
+    pub async fn get_user_created_teams_without_personal(
         &self,
         admin_id: &String,
     ) -> Result<Vec<Team>, sqlx::Error> {
