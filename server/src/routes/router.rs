@@ -1,6 +1,6 @@
 use crate::{
     handle_error::handle_error,
-    http::{
+    http::relay::{
         connect_session::connect_session, drop_sessions::drop_sessions,
         get_pending_request::get_pending_request, get_pending_requests::get_pending_requests,
         get_session_info::get_session_info, get_sessions::get_sessions,
@@ -20,10 +20,13 @@ use axum::{
     routing::{get, post},
     Router,
 };
+use database::db::Db;
 use std::{sync::Arc, time::Duration};
 use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::EnvFilter;
+
+use super::stats_router::stats_router;
 
 pub async fn get_router() -> Router {
     let state = ServerState {
@@ -32,6 +35,7 @@ pub async fn get_router() -> Router {
         client_to_sockets: Default::default(),
         wallets_metadata: Arc::new(get_wallets_metadata_vec()),
         session_to_app_map: Default::default(),
+        db: Arc::new(Db::connect_to_the_pool().await),
     };
     // Start cleaning outdated sessions
     start_cleaning_sessions(
@@ -76,6 +80,7 @@ pub async fn get_router() -> Router {
             &HttpEndpoint::GetWalletsMetadata.to_string(),
             get(get_wallets_metadata),
         )
+        .nest("/stats", stats_router(state.clone()))
         .with_state(state)
         .layer(TraceLayer::new_for_http())
         .layer(

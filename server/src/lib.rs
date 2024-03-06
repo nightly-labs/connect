@@ -1,7 +1,7 @@
 pub mod errors;
 pub mod handle_error;
 pub mod http;
-pub mod router;
+pub mod routes;
 mod sesssion_cleaner;
 pub mod state;
 pub mod structs;

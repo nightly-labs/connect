@@ -1,4 +1,4 @@
-use server::router::get_router;
+use server::routes::router::get_router;
 use std::net::SocketAddr;
 use std::sync::mpsc::channel;
 

@@ -11,6 +11,10 @@ pub fn get_date_time(timestamp: u64) -> Option<DateTime<Utc>> {
     Utc.timestamp_millis_opt(timestamp as i64).single()
 }
 
+pub fn get_current_datetime() -> DateTime<Utc> {
+    Utc::now()
+}
+
 pub fn to_microsecond_precision(datetime: &DateTime<Utc>) -> DateTime<Utc> {
     // Should never fail as we are converting from a valid DateTime<Utc>
     Utc.timestamp_micros(datetime.timestamp_micros()).unwrap()

@@ -3,7 +3,7 @@ use crate::{
     db::Db,
     structs::subscription::Subscription,
     tables::{
-        registered_app::table_struct::RegisteredApp,
+        registered_app::table_struct::DbRegisteredApp,
         team::table_struct::{Team, TEAM_TABLE_NAME},
         user_app_privileges::table_struct::UserAppPrivilege,
     },
@@ -55,7 +55,7 @@ impl Db {
     pub async fn setup_team(
         &self,
         team: &Team,
-        app: &RegisteredApp,
+        app: &DbRegisteredApp,
         admin: &UserAppPrivilege,
     ) -> Result<(), sqlx::Error> {
         // Start a transaction
@@ -96,9 +96,9 @@ mod tests {
     use crate::{
         structs::privelage_level::PrivilegeLevel,
         tables::{
-            grafana_users::table_struct::GrafanaUser, registered_app::table_struct::RegisteredApp,
-            team::table_struct::Team, user_app_privileges::table_struct::UserAppPrivilege,
-            utils::to_microsecond_precision,
+            grafana_users::table_struct::GrafanaUser,
+            registered_app::table_struct::DbRegisteredApp, team::table_struct::Team,
+            user_app_privileges::table_struct::UserAppPrivilege, utils::to_microsecond_precision,
         },
     };
     use sqlx::types::chrono::Utc;
@@ -126,7 +126,7 @@ mod tests {
             registration_timestamp: to_microsecond_precision(&Utc::now()),
         };
 
-        let app = RegisteredApp {
+        let app = DbRegisteredApp {
             app_id: "test_app_id".to_string(),
             team_id: "test_team_id".to_string(),
             app_name: "test_app_name".to_string(),
@@ -134,7 +134,7 @@ mod tests {
             whitelisted_domains: vec!["test_whitelisted_domain".to_string()],
             email: None,
             pass_hash: None,
-            registration_timestamp: 0,
+            registration_timestamp: to_microsecond_precision(&Utc::now()),
             subscription: None,
         };
 
@@ -148,7 +148,7 @@ mod tests {
         db.setup_team(&team, &app, &admin_privilege).await.unwrap();
 
         let team_result = db.get_team_by_team_id(None, &team.team_id).await.unwrap();
-        assert_eq!(team_result, team);
+        assert_eq!(team_result, Some(team));
 
         let admin_result = db.get_user_by_user_id(&admin.user_id).await.unwrap();
         assert_eq!(admin_result, admin);
