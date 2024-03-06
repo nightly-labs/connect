@@ -6,6 +6,7 @@ use rand::{distributions::Alphanumeric, thread_rng, Rng};
 pub struct ENV {
     pub ENVIRONMENT: String,
     pub JWT_SECRET: String,
+    pub ONLY_RELAY_SERVICE: bool,
 }
 pub fn get_env() -> &'static ENV {
     static INSTANCE: OnceCell<ENV> = OnceCell::new();
@@ -31,6 +32,10 @@ pub fn get_env() -> &'static ENV {
                 }
                 _ => panic!("Invalid ENVIRONMENT"),
             },
+            ONLY_RELAY_SERVICE: std::env::var("ONLY_RELAY_SERVICE")
+                .expect("Failed to get ONLY_RELAY_SERVICE env")
+                .parse()
+                .expect("Failed to parse ONLY_RELAY_SERVICE env"),
         };
         return env;
     })
@@ -41,4 +46,8 @@ pub fn ENVIRONMENT() -> &'static str {
 }
 pub fn JWT_SECRET() -> &'static str {
     get_env().JWT_SECRET.as_str()
+}
+
+pub fn ONLY_RELAY_SERVICE() -> bool {
+    get_env().ONLY_RELAY_SERVICE
 }

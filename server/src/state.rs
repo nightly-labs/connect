@@ -31,7 +31,7 @@ pub struct ServerState {
     pub client_to_sessions: ClientToSessions,
     pub wallets_metadata: Arc<Vec<WalletMetadata>>,
     pub session_to_app_map: SessionToAppMap,
-    pub db: Arc<Db>,
+    pub db: Option<Arc<Db>>,
 }
 
 #[async_trait]

@@ -38,42 +38,7 @@ impl AuthToken {
             exp: (Utc::now() + Duration::minutes(60 * 7 * 24)).timestamp() as u64, // Token expires in 7 days
         }
     }
-    pub fn new_read_only(user_id: &String, ip: Option<SocketAddr>) -> Self {
-        AuthToken {
-            id: uuid7::uuid7().to_string(),
-            user_id: user_id.clone(),
-            ip: match ip {
-                Some(ip) => Some(ip.ip()),
-                None => None,
-            },
-            token_type: AuthTokenType::ReadOnly,
-            exp: (Utc::now() + Duration::minutes(60 * 7 * 24)).timestamp() as u64, // Token expires in 7 days
-        }
-    }
-    pub fn new_api_read_only_refresh(user_id: &String, ip: Option<SocketAddr>) -> Self {
-        AuthToken {
-            id: uuid7::uuid7().to_string(),
-            user_id: user_id.clone(),
-            ip: match ip {
-                Some(ip) => Some(ip.ip()),
-                None => None,
-            },
-            token_type: AuthTokenType::ApiReadRefresh,
-            exp: u64::MAX, // Token never expires
-        }
-    }
-    pub fn new_api_read_write_refresh(user_id: &String, ip: Option<SocketAddr>) -> Self {
-        AuthToken {
-            id: uuid7::uuid7().to_string(),
-            user_id: user_id.clone(),
-            ip: match ip {
-                Some(ip) => Some(ip.ip()),
-                None => None,
-            },
-            token_type: AuthTokenType::ApiReadWriteRefresh,
-            exp: u64::MAX, // Token never expires
-        }
-    }
+
     pub fn encode(&self, secret: &str) -> Result<String, jsonwebtoken::errors::Error> {
         encode(
             &Header::new(Algorithm::HS256),

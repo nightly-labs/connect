@@ -1,11 +1,14 @@
+use super::cloud_router::cloud_router;
 use crate::{
-    auth::auth_middleware::access_auth_middleware,
     handle_error::handle_error,
-    http::relay::{
-        connect_session::connect_session, drop_sessions::drop_sessions,
-        get_pending_request::get_pending_request, get_pending_requests::get_pending_requests,
-        get_session_info::get_session_info, get_sessions::get_sessions,
-        get_wallets_metadata::get_wallets_metadata, resolve_request::resolve_request,
+    http::{
+        cloud::cloud_middleware::db_cloud_middleware,
+        relay::{
+            connect_session::connect_session, drop_sessions::drop_sessions,
+            get_pending_request::get_pending_request, get_pending_requests::get_pending_requests,
+            get_session_info::get_session_info, get_sessions::get_sessions,
+            get_wallets_metadata::get_wallets_metadata, resolve_request::resolve_request,
+        },
     },
     sesssion_cleaner::start_cleaning_sessions,
     state::ServerState,
@@ -28,17 +31,22 @@ use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::EnvFilter;
 
-use super::stats_router::stats_router;
+pub async fn get_router(only_relay_service: bool) -> Router {
+    let db = if only_relay_service {
+        None
+    } else {
+        Some(Arc::new(Db::connect_to_the_pool().await))
+    };
 
-pub async fn get_router() -> Router {
     let state = ServerState {
         sessions: Default::default(),
         client_to_sessions: Default::default(),
         client_to_sockets: Default::default(),
         wallets_metadata: Arc::new(get_wallets_metadata_vec()),
         session_to_app_map: Default::default(),
-        db: Arc::new(Db::connect_to_the_pool().await),
+        db,
     };
+
     // Start cleaning outdated sessions
     start_cleaning_sessions(
         &state.sessions,
@@ -53,7 +61,21 @@ pub async fn get_router() -> Router {
 
     tracing_subscriber::fmt().with_env_filter(filter).init();
 
-    return Router::new()
+    let router = if only_relay_service {
+        Router::new()
+    } else {
+        Router::new()
+            .nest(
+                "/cloud",
+                cloud_router(state.clone()).route_layer(middleware::from_fn_with_state(
+                    state.clone(),
+                    db_cloud_middleware,
+                )),
+            )
+            .with_state(state.clone())
+    };
+
+    return router
         .route("/client", get(on_new_client_connection))
         .route("/app", get(on_new_app_connection))
         .route(
@@ -82,7 +104,6 @@ pub async fn get_router() -> Router {
             &HttpEndpoint::GetWalletsMetadata.to_string(),
             get(get_wallets_metadata),
         )
-        .nest("/stats", stats_router(state.clone()))
         .with_state(state)
         .layer(TraceLayer::new_for_http())
         .layer(

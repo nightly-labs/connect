@@ -25,9 +25,15 @@ pub struct HttpRegisterNewUserResponse {
 }
 
 pub async fn register_new_user(
-    State(db): State<Arc<Db>>,
+    State(db): State<Option<Arc<Db>>>,
     Json(request): Json<HttpRegisterNewUserRequest>,
 ) -> Result<Json<HttpRegisterNewUserResponse>, (StatusCode, String)> {
+    // Db connection has already been checked in the middleware
+    let db = db.as_ref().ok_or((
+        StatusCode::INTERNAL_SERVER_ERROR,
+        "Failed to get database connection".to_string(),
+    ))?;
+
     // Check if user already exists
     if let Ok(_) = db.get_user_by_email(&request.email).await {
         return Err((

@@ -30,10 +30,16 @@ pub struct HttpRegisterNewAppResponse {
 }
 
 pub async fn register_new_app(
-    State(db): State<Arc<Db>>,
+    State(db): State<Option<Arc<Db>>>,
     Extension(user_id): Extension<UserId>,
     Json(request): Json<HttpRegisterNewAppRequest>,
 ) -> Result<Json<HttpRegisterNewAppResponse>, (StatusCode, String)> {
+    // Db connection has already been checked in the middleware
+    let db = db.as_ref().ok_or((
+        StatusCode::INTERNAL_SERVER_ERROR,
+        "Failed to get database connection".to_string(),
+    ))?;
+
     // Check if app is already registered
     if let Ok(_) = db.get_registered_app_by_app_name(&request.app_name).await {
         return Err((

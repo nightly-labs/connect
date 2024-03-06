@@ -1,19 +1,15 @@
 use crate::{
     auth::auth_middleware::access_auth_middleware,
-    http::statistics::{
-        get_registered_apps::get_registered_apps, login_with_password::login_with_password,
-        register_new_app::register_new_app, register_new_user::register_new_user,
+    http::cloud::{
+        login_with_password::login_with_password, register_new_app::register_new_app,
+        register_new_user::register_new_user,
     },
     state::ServerState,
-    structs::stats_http_endpoints::HttpStatsEndpoint,
+    structs::cloud_http_endpoints::HttpCloudEndpoint,
 };
-use axum::{
-    middleware,
-    routing::{get, post},
-    Router,
-};
+use axum::{middleware, routing::post, Router};
 
-pub fn stats_router(state: ServerState) -> Router<ServerState> {
+pub fn cloud_router(state: ServerState) -> Router<ServerState> {
     Router::new()
         .nest("/public", public_router(state.clone()))
         .nest(
@@ -29,15 +25,11 @@ pub fn stats_router(state: ServerState) -> Router<ServerState> {
 pub fn public_router(state: ServerState) -> Router<ServerState> {
     Router::new()
         .route(
-            &HttpStatsEndpoint::LoginWithPassword.to_string(),
+            &HttpCloudEndpoint::LoginWithPassword.to_string(),
             post(login_with_password),
         )
         .route(
-            &HttpStatsEndpoint::RegisterNewApp.to_string(),
-            post(register_new_app),
-        )
-        .route(
-            &HttpStatsEndpoint::RegisterNewUser.to_string(),
+            &HttpCloudEndpoint::RegisterNewUser.to_string(),
             post(register_new_user),
         )
         .with_state(state)
@@ -46,8 +38,8 @@ pub fn public_router(state: ServerState) -> Router<ServerState> {
 pub fn private_router(state: ServerState) -> Router<ServerState> {
     Router::new()
         .route(
-            &HttpStatsEndpoint::GetRegisteredApps.to_string(),
-            get(get_registered_apps),
+            &HttpCloudEndpoint::RegisterNewApp.to_string(),
+            post(register_new_app),
         )
         .with_state(state)
 }
