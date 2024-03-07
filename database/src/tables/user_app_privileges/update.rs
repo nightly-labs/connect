@@ -1,5 +1,8 @@
+use std::collections::HashSet;
+
 use super::table_struct::UserAppPrivilege;
 use crate::db::Db;
+use crate::structs::privilege_level::PrivilegeLevel;
 use crate::tables::registered_app::table_struct::REGISTERED_APPS_TABLE_NAME;
 use crate::tables::user_app_privileges::table_struct::{
     USER_APP_PRIVILEGES_KEYS, USER_APP_PRIVILEGES_TABLE_NAME,
@@ -67,34 +70,82 @@ impl Db {
             .map(|(app_id,): (String,)| app_id)
             .collect();
 
+        // Only proceed if there are apps to assign privileges for
+        if apps.is_empty() {
+            // TODO, add custom error type
+            return Err(sqlx::Error::RowNotFound);
+        }
+
         // Build values list for insertion
         let values_list: Vec<String> = apps
             .iter()
             .map(|app_id| {
                 format!(
-                    "('{}', '{}', 'Read', '{}')",
+                    "('{}', '{}', '{:?}', '{}')",
                     user_id,
-                    app_id,
+                    app_id.clone(),
+                    PrivilegeLevel::Read,
                     get_current_datetime()
                 )
             })
             .collect();
 
-        // Only proceed if there are apps to assign privileges for
-        if values_list.is_empty() {
-            // TODO, add custom error type
-            return Err(sqlx::Error::RowNotFound);
-        }
-
         let values_str = values_list.join(", ");
         let insert_query = format!(
-                "INSERT INTO {USER_APP_PRIVILEGES_TABLE_NAME} (user_id, app_id, privilege_level, creation_timestamp) VALUES {}",
-                values_str
-            );
+            "INSERT INTO {USER_APP_PRIVILEGES_TABLE_NAME} ({USER_APP_PRIVILEGES_KEYS}) VALUES {}",
+            values_str
+        );
 
         sqlx::query(&insert_query)
             .execute(&self.connection_pool)
             .await?;
+
+        Ok(())
+    }
+
+    pub async fn add_privileges_for_new_team_app_for_existing_users(
+        &self,
+        tx: &mut Transaction<'_, sqlx::Postgres>,
+        team_id: &String,
+        team_admin_id: &String,
+        app_id: &String,
+    ) -> Result<(), sqlx::Error> {
+        // Get all users that are part of the team
+        let users_privileges_query = self.get_privileges_by_team_id(team_id).await?;
+        let mut users_ids_list = users_privileges_query
+            .into_iter()
+            .map(|privilege| privilege.user_id)
+            .collect::<HashSet<String>>();
+
+        // Remove team admin from the list
+        users_ids_list.remove(team_admin_id);
+
+        // If list is empty, there is no need to proceed
+        if users_ids_list.is_empty() {
+            return Ok(());
+        }
+
+        // Build values list for insertion
+        let values_list: Vec<String> = users_ids_list
+            .iter()
+            .map(|user_id| {
+                format!(
+                    "('{}', '{}', '{:?}', '{}')",
+                    user_id,
+                    app_id.clone(),
+                    PrivilegeLevel::Read,
+                    get_current_datetime()
+                )
+            })
+            .collect();
+
+        let values_str = values_list.join(", ");
+        let insert_query = format!(
+            "INSERT INTO {USER_APP_PRIVILEGES_TABLE_NAME} ({USER_APP_PRIVILEGES_KEYS}) VALUES {}",
+            values_str
+        );
+
+        sqlx::query(&insert_query).execute(&mut **tx).await?;
 
         Ok(())
     }

@@ -137,6 +137,23 @@ pub async fn register_new_app(
                 ));
             }
 
+            // Add read access to the app for the existing users
+            if let Err(_) = db
+                .add_privileges_for_new_team_app_for_existing_users(
+                    &mut tx,
+                    &team.team_id,
+                    &team.team_admin_id,
+                    &app_id,
+                )
+                .await
+            {
+                tx.rollback().await.unwrap();
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Failed to add read privileges to existing users".to_string(),
+                ));
+            }
+
             // If nothing failed commit the transaction
             tx.commit().await.unwrap();
             return Ok(Json(HttpRegisterNewAppResponse { app_id }));
