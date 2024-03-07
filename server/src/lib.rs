@@ -6,6 +6,7 @@ pub mod http;
 pub mod routes;
 mod sesssion_cleaner;
 pub mod state;
+pub mod statics;
 pub mod structs;
 pub mod utils;
 pub mod ws;

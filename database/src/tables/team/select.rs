@@ -42,6 +42,51 @@ impl Db {
             .await;
     }
 
+    pub async fn get_user_created_teams_without_personal(
+        &self,
+        admin_id: &String,
+    ) -> Result<Vec<Team>, sqlx::Error> {
+        let query = format!(
+            "SELECT * FROM {TEAM_TABLE_NAME} WHERE team_admin_id = $1 AND personal = false"
+        );
+        let typed_query = query_as::<_, Team>(&query);
+
+        return typed_query
+            .bind(&admin_id)
+            .fetch_all(&self.connection_pool)
+            .await;
+    }
+
+    pub async fn get_personal_team_by_admin_id(
+        &self,
+        admin_id: &String,
+    ) -> Result<Option<Team>, sqlx::Error> {
+        let query =
+            format!("SELECT * FROM {TEAM_TABLE_NAME} WHERE team_admin_id = $1 AND personal = true");
+        let typed_query = query_as::<_, Team>(&query);
+
+        return typed_query
+            .bind(&admin_id)
+            .fetch_optional(&self.connection_pool)
+            .await;
+    }
+
+    pub async fn get_team_by_team_name_and_admin_id(
+        &self,
+        team_name: &String,
+        team_id: &String,
+    ) -> Result<Option<Team>, sqlx::Error> {
+        let query =
+            format!("SELECT * FROM {TEAM_TABLE_NAME} WHERE team_name = $1 AND team_id = $2");
+        let typed_query = query_as::<_, Team>(&query);
+
+        return typed_query
+            .bind(&team_name)
+            .bind(&team_id)
+            .fetch_optional(&self.connection_pool)
+            .await;
+    }
+
     pub async fn get_team_by_admin_id(
         &self,
         admin_id: &String,

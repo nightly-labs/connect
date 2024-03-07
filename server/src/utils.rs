@@ -1,8 +1,7 @@
+use crate::structs::{wallet_metadata::WalletMetadata, wallets::*};
 use axum::http::{header, Method};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tower_http::cors::{Any, CorsLayer};
-
-use crate::structs::{wallet_metadata::WalletMetadata, wallets::*};
 
 pub fn get_timestamp_in_milliseconds() -> u64 {
     let now = SystemTime::now();

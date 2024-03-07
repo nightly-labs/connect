@@ -53,7 +53,7 @@ impl Db {
 #[cfg(test)]
 mod tests {
     use crate::{
-        structs::privelage_level::PrivilegeLevel,
+        structs::privilege_level::PrivilegeLevel,
         tables::{
             grafana_users::table_struct::GrafanaUser,
             user_app_privileges::table_struct::UserAppPrivilege, utils::to_microsecond_precision,

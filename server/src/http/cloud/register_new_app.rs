@@ -1,7 +1,7 @@
-use crate::auth::auth_middleware::UserId;
+use crate::{auth::auth_middleware::UserId, statics::REGISTERED_APPS_LIMIT_PER_TEAM};
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::{
-    db::Db, structs::privelage_level::PrivilegeLevel, tables::utils::get_current_datetime,
+    db::Db, structs::privilege_level::PrivilegeLevel, tables::utils::get_current_datetime,
 };
 use log::error;
 use serde::{Deserialize, Serialize};
@@ -14,7 +14,6 @@ use uuid7::uuid7;
 #[serde(rename_all = "camelCase")]
 pub struct HttpRegisterNewAppRequest {
     pub team_id: String,
-    pub personal: bool,
     pub app_name: String,
     pub whitelisted_domains: Vec<String>,
     pub ack_public_keys: Vec<String>,
@@ -49,44 +48,36 @@ pub async fn register_new_app(
                 ));
             }
 
-            // Check if this is a personal team, check if user has already registered an app
-            if team.personal {
-                // Check if user has already registered an app
-                match db.get_registered_apps_by_team_id(&team.team_id).await {
-                    Ok(apps) => {
-                        // User can only have one app under the personal team
-                        if apps.len() > 0 {
-                            return Err((
-                                StatusCode::BAD_REQUEST,
-                                "Personal team can only have one app".to_string(),
-                            ));
-                        }
-                    }
-                    Err(_) => {
-                        return Err((
-                            StatusCode::INTERNAL_SERVER_ERROR,
-                            "Database error".to_string(),
-                        ));
-                    }
-                }
-
-                return Err((
-                    StatusCode::BAD_REQUEST,
-                    "Personal team can only have one app".to_string(),
-                ));
-            }
-
-            // Check if user has already registered an app with this name
-            match db.get_registered_app_by_app_name(&request.app_name).await {
-                Ok(Some(app)) => {
-                    if app.app_name == request.app_name {
-                        return Err((
-                            StatusCode::BAD_REQUEST,
-                            "App with this name already exists".to_string(),
-                        ));
-                    }
+            // Check if user has already registered an app with this name in this team
+            match db
+                .get_registered_app_by_app_name_and_team_id(&request.app_name, &request.team_id)
+                .await
+            {
+                Ok(Some(_)) => {
+                    return Err((
+                        StatusCode::BAD_REQUEST,
+                        "App with this name already exists".to_string(),
+                    ));
                 }
                 Ok(None) => {}
+                Err(_) => {
+                    return Err((
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        "Database error".to_string(),
+                    ));
+                }
+            }
+
+            // Check how many apps the team has
+            match db.get_registered_apps_by_team_id(&request.team_id).await {
+                Ok(apps) => {
+                    if apps.len() >= REGISTERED_APPS_LIMIT_PER_TEAM {
+                        return Err((
+                            StatusCode::BAD_REQUEST,
+                            "Team has reached the maximum number of apps".to_string(),
+                        ));
+                    }
+                }
                 Err(_) => {
                     return Err((
                         StatusCode::INTERNAL_SERVER_ERROR,
