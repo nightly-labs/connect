@@ -1,4 +1,4 @@
-use crate::{auth::auth_middleware::UserId, utils::TEAMS_AMOUNT_LIMIT_PER_USER};
+use crate::{auth::auth_middleware::UserId, statics::TEAMS_AMOUNT_LIMIT_PER_USER};
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::{
     db::Db,

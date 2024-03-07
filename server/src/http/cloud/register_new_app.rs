@@ -1,4 +1,4 @@
-use crate::{auth::auth_middleware::UserId, utils::REGISTERED_APPS_LIMIT_PER_TEAM};
+use crate::{auth::auth_middleware::UserId, statics::REGISTERED_APPS_LIMIT_PER_TEAM};
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::{
     db::Db, structs::privilege_level::PrivilegeLevel, tables::utils::get_current_datetime,
