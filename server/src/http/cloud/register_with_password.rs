@@ -10,7 +10,7 @@ use std::sync::Arc;
 use ts_rs::TS;
 use uuid7::uuid7;
 
-use crate::env::NONCE;
+use crate::{env::NONCE, structs::api_cloud_errors::CloudApiErrors};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
@@ -33,19 +33,25 @@ pub async fn register_with_password(
     // Db connection has already been checked in the middleware
     let db = db.as_ref().ok_or((
         StatusCode::INTERNAL_SERVER_ERROR,
-        "Failed to get database connection".to_string(),
+        CloudApiErrors::CloudFeatureDisabled.to_string(),
     ))?;
 
     // Check if user already exists
     if let Ok(_) = db.get_user_by_email(&request.email).await {
         return Err((
             StatusCode::BAD_REQUEST,
-            "User with this email already exists".to_string(),
+            CloudApiErrors::EmailAlreadyExists.to_string(),
         ));
     }
 
     let hashed_password = bcrypt::hash(format!("{}_{}", NONCE(), request.password.clone()))
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+        .map_err(|e| {
+            error!("Failed to hash password: {:?}", e);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::InternalServerError.to_string(),
+            )
+        })?;
 
     // Create new user
     let user_id = uuid7().to_string();
@@ -60,7 +66,7 @@ pub async fn register_with_password(
         error!("Failed to create user: {:?}", err);
         return Err((
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Failed to create user".to_string(),
+            CloudApiErrors::DatabaseError.to_string(),
         ));
     }
 

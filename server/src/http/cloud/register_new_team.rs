@@ -1,9 +1,13 @@
-use crate::{auth::auth_middleware::UserId, statics::TEAMS_AMOUNT_LIMIT_PER_USER};
+use crate::{
+    auth::auth_middleware::UserId, statics::TEAMS_AMOUNT_LIMIT_PER_USER,
+    structs::api_cloud_errors::CloudApiErrors,
+};
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::{
     db::Db,
     tables::{team::table_struct::Team, utils::get_current_datetime},
 };
+use log::error;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
@@ -31,7 +35,7 @@ pub async fn register_new_team(
     // Db connection has already been checked in the middleware
     let db = db.as_ref().ok_or((
         StatusCode::INTERNAL_SERVER_ERROR,
-        "Failed to get database connection".to_string(),
+        CloudApiErrors::CloudFeatureDisabled.to_string(),
     ))?;
 
     // First check if user is creating a new team
@@ -41,7 +45,10 @@ pub async fn register_new_team(
         .await
     {
         Ok(Some(_)) => {
-            return Err((StatusCode::BAD_REQUEST, "Team already exists".to_string()));
+            return Err((
+                StatusCode::BAD_REQUEST,
+                CloudApiErrors::TeamAlreadyExists.to_string(),
+            ));
         }
         Ok(None) => {
             // Check how many teams the user has
@@ -54,10 +61,14 @@ pub async fn register_new_team(
                         ));
                     }
                 }
-                Err(_) => {
+                Err(err) => {
+                    error!(
+                        "Failed to get user created teams without personal: {:?}",
+                        err
+                    );
                     return Err((
                         StatusCode::INTERNAL_SERVER_ERROR,
-                        "Database error".to_string(),
+                        CloudApiErrors::DatabaseError.to_string(),
                     ));
                 }
             }
@@ -68,16 +79,17 @@ pub async fn register_new_team(
                     Ok(Some(_)) => {
                         return Err((
                             StatusCode::BAD_REQUEST,
-                            "User already has a personal team".to_string(),
+                            CloudApiErrors::PersonalTeamAlreadyExists.to_string(),
                         ));
                     }
                     Ok(None) => {
                         // Continue
                     }
-                    Err(_) => {
+                    Err(err) => {
+                        error!("Failed to get personal team by admin id: {:?}", err);
                         return Err((
                             StatusCode::INTERNAL_SERVER_ERROR,
-                            "Database error".to_string(),
+                            CloudApiErrors::DatabaseError.to_string(),
                         ));
                     }
                 }
@@ -94,19 +106,21 @@ pub async fn register_new_team(
                 registration_timestamp: get_current_datetime(),
             };
 
-            if let Err(_) = db.create_new_team(&team).await {
+            if let Err(err) = db.create_new_team(&team).await {
+                error!("Failed to create team {:?}", err);
                 return Err((
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    "Failed to create a new team".to_string(),
+                    CloudApiErrors::DatabaseError.to_string(),
                 ));
             }
 
             return Ok(Json(HttpRegisterNewTeamResponse { team_id }));
         }
-        Err(_) => {
+        Err(err) => {
+            error!("Failed to get team by team name and admin id: {:?}", err);
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Database error".to_string(),
+                CloudApiErrors::DatabaseError.to_string(),
             ));
         }
     }

@@ -1,6 +1,7 @@
 use crate::{
     auth::AuthToken,
     env::{JWT_SECRET, NONCE},
+    structs::api_cloud_errors::CloudApiErrors,
 };
 use axum::{
     extract::{ConnectInfo, State},
@@ -8,6 +9,7 @@ use axum::{
     Json,
 };
 use database::db::Db;
+use log::error;
 use pwhash::bcrypt;
 use serde::{Deserialize, Serialize};
 use std::{net::SocketAddr, sync::Arc};
@@ -38,7 +40,7 @@ pub async fn login_with_password(
     // Db connection has already been checked in the middleware
     let db = db.as_ref().ok_or((
         StatusCode::INTERNAL_SERVER_ERROR,
-        "Failed to get database connection".to_string(),
+        CloudApiErrors::CloudFeatureDisabled.to_string(),
     ))?;
 
     // Check if user exists
@@ -47,13 +49,14 @@ pub async fn login_with_password(
         Ok(None) => {
             return Err((
                 StatusCode::BAD_REQUEST,
-                "User with this email does not exist".to_string(),
+                CloudApiErrors::UserDoesNotExist.to_string(),
             ));
         }
-        Err(_) => {
+        Err(err) => {
+            error!("Failed to get user by email: {:?}", err);
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Database error".to_string(),
+                CloudApiErrors::DatabaseError.to_string(),
             ));
         }
     };
@@ -64,16 +67,36 @@ pub async fn login_with_password(
         &user.password_hash,
     ) == false
     {
-        return Err((StatusCode::BAD_REQUEST, "Incorrect Password".to_string()));
+        return Err((
+            StatusCode::BAD_REQUEST,
+            CloudApiErrors::IncorrectPassword.to_string(),
+        ));
     }
 
+    // Generate tokens
     let ip = if request.enforce_ip { Some(ip) } else { None };
-    let token = AuthToken::new_access(&user.user_id, ip)
-        .encode(JWT_SECRET())
-        .expect("Could not encode token");
-    let refresh_token = AuthToken::new_refresh(&user.user_id, ip)
-        .encode(JWT_SECRET())
-        .expect("Could not encode token");
+    // Access token
+    let token = match AuthToken::new_access(&user.user_id, ip).encode(JWT_SECRET()) {
+        Ok(token) => token,
+        Err(err) => {
+            error!("Failed to create access token: {:?}", err);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::AccessTokenFailure.to_string(),
+            ));
+        }
+    };
+    // Refresh token
+    let refresh_token = match AuthToken::new_refresh(&user.user_id, ip).encode(JWT_SECRET()) {
+        Ok(token) => token,
+        Err(err) => {
+            error!("Failed to create refresh token: {:?}", err);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::RefreshTokenFailure.to_string(),
+            ));
+        }
+    };
 
     return Ok(Json(HttpLoginResponse {
         auth_token: token,

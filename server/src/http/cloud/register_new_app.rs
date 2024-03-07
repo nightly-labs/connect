@@ -1,4 +1,7 @@
-use crate::{auth::auth_middleware::UserId, statics::REGISTERED_APPS_LIMIT_PER_TEAM};
+use crate::{
+    auth::auth_middleware::UserId, statics::REGISTERED_APPS_LIMIT_PER_TEAM,
+    structs::api_cloud_errors::CloudApiErrors,
+};
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::{
     db::Db, structs::privilege_level::PrivilegeLevel, tables::utils::get_current_datetime,
@@ -33,7 +36,7 @@ pub async fn register_new_app(
     // Db connection has already been checked in the middleware
     let db = db.as_ref().ok_or((
         StatusCode::INTERNAL_SERVER_ERROR,
-        "Failed to get database connection".to_string(),
+        CloudApiErrors::CloudFeatureDisabled.to_string(),
     ))?;
 
     // First check if user is adding a new app to an existing team
@@ -44,7 +47,7 @@ pub async fn register_new_app(
             if team.team_admin_id != user_id {
                 return Err((
                     StatusCode::BAD_REQUEST,
-                    "Insufficient permissions to register new app".to_string(),
+                    CloudApiErrors::InsufficientPermissions.to_string(),
                 ));
             }
 
@@ -56,14 +59,18 @@ pub async fn register_new_app(
                 Ok(Some(_)) => {
                     return Err((
                         StatusCode::BAD_REQUEST,
-                        "App with this name already exists".to_string(),
+                        CloudApiErrors::AppAlreadyExists.to_string(),
                     ));
                 }
                 Ok(None) => {}
-                Err(_) => {
+                Err(err) => {
+                    error!(
+                        "Failed to get registered app by app name and team id: {:?}",
+                        err
+                    );
                     return Err((
                         StatusCode::INTERNAL_SERVER_ERROR,
-                        "Database error".to_string(),
+                        CloudApiErrors::DatabaseError.to_string(),
                     ));
                 }
             }
@@ -74,14 +81,15 @@ pub async fn register_new_app(
                     if apps.len() >= REGISTERED_APPS_LIMIT_PER_TEAM {
                         return Err((
                             StatusCode::BAD_REQUEST,
-                            "Team has reached the maximum number of apps".to_string(),
+                            CloudApiErrors::MaximumAppsPerTeamReached.to_string(),
                         ));
                     }
                 }
-                Err(_) => {
+                Err(err) => {
+                    error!("Failed to get registered apps by team id: {:?}", err);
                     return Err((
                         StatusCode::INTERNAL_SERVER_ERROR,
-                        "Database error".to_string(),
+                        CloudApiErrors::DatabaseError.to_string(),
                     ));
                 }
             }
@@ -113,7 +121,7 @@ pub async fn register_new_app(
                 error!("Failed to create app: {:?}", err);
                 return Err((
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    "Failed to create app".to_string(),
+                    CloudApiErrors::DatabaseError.to_string(),
                 ));
             }
 
@@ -126,14 +134,33 @@ pub async fn register_new_app(
                     user_id: user_id.clone(),
                 };
 
-            if let Err(_) = db
+            if let Err(err) = db
                 .add_new_privilege_within_tx(&mut tx, &user_app_privilege)
                 .await
             {
                 tx.rollback().await.unwrap();
+                error!("Failed to create user app privilege {:?}", err);
                 return Err((
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    "Failed to create user app privilege".to_string(),
+                    CloudApiErrors::DatabaseError.to_string(),
+                ));
+            }
+
+            // Add read access to the app for the existing users
+            if let Err(err) = db
+                .add_privileges_for_new_team_app_for_existing_users(
+                    &mut tx,
+                    &team.team_id,
+                    &team.team_admin_id,
+                    &app_id,
+                )
+                .await
+            {
+                tx.rollback().await.unwrap();
+                error!("Failed to add read privileges to existing users: {:?}", err);
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    CloudApiErrors::DatabaseError.to_string(),
                 ));
             }
 
@@ -142,12 +169,16 @@ pub async fn register_new_app(
             return Ok(Json(HttpRegisterNewAppResponse { app_id }));
         }
         Ok(None) => {
-            return Err((StatusCode::BAD_REQUEST, "Team does not exist".to_string()));
+            return Err((
+                StatusCode::BAD_REQUEST,
+                CloudApiErrors::TeamDoesNotExist.to_string(),
+            ));
         }
-        Err(_) => {
+        Err(err) => {
+            error!("Failed to get team by team id: {:?}", err);
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Database error".to_string(),
+                CloudApiErrors::DatabaseError.to_string(),
             ));
         }
     }

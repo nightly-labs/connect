@@ -1,8 +1,12 @@
-use crate::auth::auth_middleware::UserId;
+use crate::{
+    auth::auth_middleware::UserId, statics::USERS_AMOUNT_LIMIT_PER_TEAM,
+    structs::api_cloud_errors::CloudApiErrors,
+};
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::db::Db;
+use log::error;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
+use std::{collections::HashSet, sync::Arc};
 use ts_rs::TS;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
@@ -25,7 +29,7 @@ pub async fn add_user_to_team(
     // Db connection has already been checked in the middleware
     let db = db.as_ref().ok_or((
         StatusCode::INTERNAL_SERVER_ERROR,
-        "Failed to get database connection".to_string(),
+        CloudApiErrors::CloudFeatureDisabled.to_string(),
     ))?;
 
     // Get team data and perform checks
@@ -35,7 +39,7 @@ pub async fn add_user_to_team(
             if team.team_admin_id != user_id {
                 return Err((
                     StatusCode::BAD_REQUEST,
-                    "Insufficient permissions to add user to the team".to_string(),
+                    CloudApiErrors::InsufficientPermissions.to_string(),
                 ));
             }
 
@@ -45,14 +49,39 @@ pub async fn add_user_to_team(
                     if apps.is_empty() {
                         return Err((
                             StatusCode::BAD_REQUEST,
-                            "Team has no registered apps".to_string(),
+                            CloudApiErrors::TeamHasNoRegisteredApps.to_string(),
                         ));
                     }
                 }
-                Err(_) => {
+                Err(err) => {
+                    error!("Failed to get registered apps by team id: {:?}", err);
                     return Err((
                         StatusCode::INTERNAL_SERVER_ERROR,
-                        "Database error".to_string(),
+                        CloudApiErrors::DatabaseError.to_string(),
+                    ));
+                }
+            }
+
+            // Check if limit of users in the team has been reached
+            match db.get_privileges_by_team_id(&request.team_id).await {
+                Ok(privileges) => {
+                    let users = privileges
+                        .iter()
+                        .map(|privilege| privilege.user_id.clone())
+                        .collect::<HashSet<String>>();
+
+                    if users.len() >= USERS_AMOUNT_LIMIT_PER_TEAM {
+                        return Err((
+                            StatusCode::BAD_REQUEST,
+                            CloudApiErrors::MaximumUsersPerTeamReached.to_string(),
+                        ));
+                    }
+                }
+                Err(err) => {
+                    error!("Failed to get privileges by team id: {:?}", err);
+                    return Err((
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        CloudApiErrors::DatabaseError.to_string(),
                     ));
                 }
             }
@@ -63,13 +92,14 @@ pub async fn add_user_to_team(
                 Ok(None) => {
                     return Err((
                         StatusCode::BAD_REQUEST,
-                        "User with this email does not exist".to_string(),
+                        CloudApiErrors::UserDoesNotExist.to_string(),
                     ));
                 }
-                Err(_) => {
+                Err(err) => {
+                    error!("Failed to get user by email: {:?}", err);
                     return Err((
                         StatusCode::INTERNAL_SERVER_ERROR,
-                        "Database error".to_string(),
+                        CloudApiErrors::DatabaseError.to_string(),
                     ));
                 }
             };
@@ -84,14 +114,18 @@ pub async fn add_user_to_team(
                     if teams.iter().any(|(team_id, _)| team_id == &request.team_id) {
                         return Err((
                             StatusCode::BAD_REQUEST,
-                            "User already belongs to the team".to_string(),
+                            CloudApiErrors::UserAlreadyBelongsToTheTeam.to_string(),
                         ));
                     }
                 }
-                Err(_) => {
+                Err(err) => {
+                    error!(
+                        "Failed to get teams and apps membership by user id: {:?}",
+                        err
+                    );
                     return Err((
                         StatusCode::INTERNAL_SERVER_ERROR,
-                        "Database error".to_string(),
+                        CloudApiErrors::DatabaseError.to_string(),
                     ));
                 }
             }
@@ -104,10 +138,11 @@ pub async fn add_user_to_team(
                 Ok(_) => {
                     return Ok(Json(HttpAddUserToTeamResponse {}));
                 }
-                Err(_) => {
+                Err(err) => {
+                    error!("Failed to add user to the team: {:?}", err);
                     return Err((
                         StatusCode::INTERNAL_SERVER_ERROR,
-                        "Database error".to_string(),
+                        CloudApiErrors::DatabaseError.to_string(),
                     ));
                 }
             }
@@ -115,10 +150,11 @@ pub async fn add_user_to_team(
         Ok(None) => {
             return Err((StatusCode::BAD_REQUEST, "Team does not exist".to_string()));
         }
-        Err(_) => {
+        Err(err) => {
+            error!("Failed to get team: {:?}", err);
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Database error".to_string(),
+                CloudApiErrors::DatabaseError.to_string(),
             ));
         }
     }
