@@ -1,9 +1,9 @@
 use super::table_struct::{DbRegisteredApp, REGISTERED_APPS_KEYS, REGISTERED_APPS_TABLE_NAME};
-use crate::db::Db;
+use crate::{db::Db, structs::db_error::DbError};
 use sqlx::{query, Transaction};
 
 impl Db {
-    pub async fn register_new_app(&self, app: &DbRegisteredApp) -> Result<(), sqlx::Error> {
+    pub async fn register_new_app(&self, app: &DbRegisteredApp) -> Result<(), DbError> {
         let query_body = format!(
             "INSERT INTO {REGISTERED_APPS_TABLE_NAME} ({REGISTERED_APPS_KEYS}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)"
         );
@@ -22,7 +22,7 @@ impl Db {
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
 
@@ -30,7 +30,7 @@ impl Db {
         &self,
         tx: &mut Transaction<'_, sqlx::Postgres>,
         app: &DbRegisteredApp,
-    ) -> Result<(), sqlx::Error> {
+    ) -> Result<(), DbError> {
         let query_body = format!(
             "INSERT INTO {REGISTERED_APPS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
             REGISTERED_APPS_KEYS
@@ -50,7 +50,7 @@ impl Db {
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
 }

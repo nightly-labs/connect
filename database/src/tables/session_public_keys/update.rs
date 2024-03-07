@@ -1,4 +1,5 @@
 use crate::db::Db;
+use crate::structs::db_error::DbError;
 use crate::tables::session_public_keys::table_struct::{
     SESSION_PUBLIC_KEYS_KEYS, SESSION_PUBLIC_KEYS_TABLE_NAME,
 };
@@ -13,7 +14,7 @@ impl Db {
         public_key: String,
         client_profile_id: Option<i64>,
         main_session_key: bool,
-    ) -> Result<(), sqlx::Error> {
+    ) -> Result<(), DbError> {
         let query_body = format!(
             "INSERT INTO {SESSION_PUBLIC_KEYS_TABLE_NAME} ({SESSION_PUBLIC_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, DEFAULT)"
         );
@@ -28,7 +29,7 @@ impl Db {
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
 }

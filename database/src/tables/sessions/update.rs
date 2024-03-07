@@ -1,5 +1,8 @@
 use super::table_struct::{DbNcSession, SESSIONS_KEYS, SESSIONS_TABLE_NAME};
-use crate::{db::Db, structs::client_data::ClientData};
+use crate::{
+    db::Db,
+    structs::{client_data::ClientData, db_error::DbError},
+};
 use log::error;
 use sqlx::{
     query,
@@ -12,7 +15,7 @@ impl Db {
         &self,
         session: &DbNcSession,
         connection_id: &String,
-    ) -> Result<(), sqlx::Error> {
+    ) -> Result<(), DbError> {
         let mut tx = self.connection_pool.begin().await.unwrap();
 
         // 1. Save the new session
@@ -51,7 +54,7 @@ impl Db {
         &self,
         tx: &mut Transaction<'_, Postgres>,
         session: &DbNcSession,
-    ) -> Result<(), sqlx::Error> {
+    ) -> Result<(), DbError> {
         let query_body = format!(
             "INSERT INTO {SESSIONS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)",
             SESSIONS_KEYS
@@ -78,7 +81,7 @@ impl Db {
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
 
@@ -86,7 +89,7 @@ impl Db {
         &self,
         session_id: &String,
         close_timestamp: DateTime<Utc>,
-    ) -> Result<(), sqlx::Error> {
+    ) -> Result<(), DbError> {
         let query_body = format!(
             "UPDATE {SESSIONS_TABLE_NAME} SET session_close_timestamp = $1 WHERE session_id = $2"
         );
@@ -99,7 +102,7 @@ impl Db {
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
 
@@ -110,14 +113,15 @@ impl Db {
         app_id: &String,
         session_id: &String,
         network: &String,
-    ) -> Result<(), sqlx::Error> {
+    ) -> Result<(), DbError> {
         // Start a new transaction
         let mut tx = self.connection_pool.begin().await.unwrap();
 
         // User can't connect to the session without any connected keys
         if connected_keys.is_empty() {
-            // TODO for now return this error, replace with a custom error
-            return Err(sqlx::Error::RowNotFound);
+            return Err(DbError::DatabaseError(
+                "No connected keys provided".to_string(),
+            ));
         }
 
         // 1. Handle connected keys
@@ -156,7 +160,7 @@ impl Db {
                 .rollback()
                 .await
                 .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
-            return Err(err);
+            return Err(err).map_err(|e| e.into());
         }
 
         // 3. Create new session public key entry for each connected key

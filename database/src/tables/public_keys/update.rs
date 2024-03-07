@@ -1,4 +1,5 @@
 use crate::db::Db;
+use crate::structs::db_error::DbError;
 use crate::tables::client_profiles::table_struct::ClientProfile;
 use crate::tables::public_keys::table_struct::{
     PublicKey, PUBLIC_KEYS_KEYS, PUBLIC_KEYS_TABLE_NAME,
@@ -11,7 +12,7 @@ impl Db {
         &self,
         mut tx: &mut Transaction<'_, Postgres>,
         public_keys: &Vec<String>,
-    ) -> Result<(i64, String), sqlx::Error> {
+    ) -> Result<(i64, String), DbError> {
         // Always take the first key as the reference key.
         let public_key = &public_keys[0];
 
@@ -45,7 +46,7 @@ impl Db {
         tx: &mut Transaction<'_, Postgres>,
         public_key: &String,
         client_profile: &ClientProfile,
-    ) -> Result<(), sqlx::Error> {
+    ) -> Result<(), DbError> {
         let query_body = format!(
             "INSERT INTO {PUBLIC_KEYS_TABLE_NAME} ({PUBLIC_KEYS_KEYS}) VALUES ($1, $2, $3, $4)"
         );
@@ -60,7 +61,7 @@ impl Db {
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
 
@@ -68,13 +69,17 @@ impl Db {
         &self,
         tx: &mut Transaction<'_, Postgres>,
         public_key: &String,
-    ) -> Result<PublicKey, sqlx::Error> {
+    ) -> Result<PublicKey, DbError> {
         let query = format!(
             "UPDATE {PUBLIC_KEYS_TABLE_NAME} SET last_seen = NOW() WHERE public_key = $1 RETURNING {PUBLIC_KEYS_KEYS}"
         );
         let typed_query = query_as::<_, PublicKey>(&query);
 
-        return typed_query.bind(public_key).fetch_one(&mut **tx).await;
+        return typed_query
+            .bind(public_key)
+            .fetch_one(&mut **tx)
+            .await
+            .map_err(|e| e.into());
     }
 }
 

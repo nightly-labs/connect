@@ -1,9 +1,12 @@
 use super::table_struct::{Request, REQUESTS_KEYS, REQUESTS_TABLE_NAME};
-use crate::{db::Db, structs::request_status::RequestStatus};
+use crate::{
+    db::Db,
+    structs::{db_error::DbError, request_status::RequestStatus},
+};
 use sqlx::query;
 
 impl Db {
-    pub async fn save_request(&self, request: &Request) -> Result<(), sqlx::Error> {
+    pub async fn save_request(&self, request: &Request) -> Result<(), DbError> {
         let query_body = format!(
             "INSERT INTO {REQUESTS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6, $7)",
             REQUESTS_KEYS
@@ -22,7 +25,7 @@ impl Db {
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
 
@@ -30,7 +33,7 @@ impl Db {
         &self,
         request_id: &String,
         new_status: &RequestStatus,
-    ) -> Result<(), sqlx::Error> {
+    ) -> Result<(), DbError> {
         let query_body =
             format!("UPDATE {REQUESTS_TABLE_NAME} SET request_status = $1 WHERE request_id = $2");
         let query_result = query(&query_body)
@@ -41,7 +44,7 @@ impl Db {
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
 }

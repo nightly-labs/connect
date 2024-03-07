@@ -2,6 +2,7 @@ use std::collections::HashSet;
 
 use super::table_struct::UserAppPrivilege;
 use crate::db::Db;
+use crate::structs::db_error::DbError;
 use crate::structs::privilege_level::PrivilegeLevel;
 use crate::tables::registered_app::table_struct::REGISTERED_APPS_TABLE_NAME;
 use crate::tables::user_app_privileges::table_struct::{
@@ -16,7 +17,7 @@ impl Db {
         &self,
         tx: &mut Transaction<'_, sqlx::Postgres>,
         privilege: &UserAppPrivilege,
-    ) -> Result<(), sqlx::Error> {
+    ) -> Result<(), DbError> {
         let query_body = format!(
             "INSERT INTO {USER_APP_PRIVILEGES_TABLE_NAME} ({USER_APP_PRIVILEGES_KEYS}) VALUES ($1, $2, $3, $4)"
         );
@@ -31,11 +32,11 @@ impl Db {
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
 
-    pub async fn add_new_privilege(&self, privilege: &UserAppPrivilege) -> Result<(), sqlx::Error> {
+    pub async fn add_new_privilege(&self, privilege: &UserAppPrivilege) -> Result<(), DbError> {
         let query_body = format!(
             "INSERT INTO {USER_APP_PRIVILEGES_TABLE_NAME} ({USER_APP_PRIVILEGES_KEYS}) VALUES ($1, $2, $3, $4)"
         );
@@ -50,7 +51,7 @@ impl Db {
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
 
@@ -58,7 +59,7 @@ impl Db {
         &self,
         user_id: &String,
         team_id: &String,
-    ) -> Result<(), sqlx::Error> {
+    ) -> Result<(), DbError> {
         // Retrieve all apps associated with the team
         let apps_query =
             format!("SELECT app_id FROM {REGISTERED_APPS_TABLE_NAME} WHERE team_id = $1");
@@ -72,8 +73,9 @@ impl Db {
 
         // Only proceed if there are apps to assign privileges for
         if apps.is_empty() {
-            // TODO, add custom error type
-            return Err(sqlx::Error::RowNotFound);
+            return Err(DbError::DatabaseError(
+                "No apps associated with the team".to_string(),
+            ));
         }
 
         // Build values list for insertion
@@ -109,7 +111,7 @@ impl Db {
         team_id: &String,
         team_admin_id: &String,
         app_id: &String,
-    ) -> Result<(), sqlx::Error> {
+    ) -> Result<(), DbError> {
         // Get all users that are part of the team
         let users_privileges_query = self.get_privileges_by_team_id(team_id).await?;
         let mut users_ids_list = users_privileges_query

@@ -2,7 +2,7 @@
 pub mod test_utils {
     use crate::{
         db::Db,
-        structs::privilege_level::PrivilegeLevel,
+        structs::{db_error::DbError, privilege_level::PrivilegeLevel},
         tables::{
             grafana_users::table_struct::GrafanaUser,
             registered_app::table_struct::DbRegisteredApp, team::table_struct::Team,
@@ -15,7 +15,7 @@ pub mod test_utils {
     };
 
     impl Db {
-        pub async fn truncate_all_tables(&self) -> Result<(), sqlx::Error> {
+        pub async fn truncate_all_tables(&self) -> Result<(), DbError> {
             let rows = sqlx::query(
                 "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'",
             )
@@ -59,7 +59,7 @@ pub mod test_utils {
         pub async fn refresh_continuous_aggregates(
             &self,
             views: Vec<String>,
-        ) -> Result<(), sqlx::Error> {
+        ) -> Result<(), DbError> {
             // Refresh views
             for view in views.iter() {
                 let _ = sqlx::query(&format!(
@@ -80,7 +80,7 @@ pub mod test_utils {
             team_id: &String,
             app_id: &String,
             registration_timestamp: DateTime<Utc>,
-        ) -> anyhow::Result<()> {
+        ) -> Result<(), DbError> {
             let admin = GrafanaUser {
                 creation_timestamp: registration_timestamp,
                 email: "email".to_string(),

@@ -1,4 +1,5 @@
 use crate::db::Db;
+use crate::structs::db_error::DbError;
 use crate::structs::entity_type::EntityType;
 use crate::tables::connection_events::table_struct::{
     CONNECTION_EVENTS_KEYS_KEYS, CONNECTION_EVENTS_TABLE_NAME,
@@ -14,7 +15,7 @@ impl Db {
         connection_id: &String,
         app_id: &String,
         network: &String,
-    ) -> Result<(), sqlx::Error> {
+    ) -> Result<(), DbError> {
         let query_body = format!(
             "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, NOW(), NULL)"
         );
@@ -31,7 +32,7 @@ impl Db {
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
 
@@ -42,7 +43,7 @@ impl Db {
         session_id: &String,
         client_profile_id: i64,
         network: &String,
-    ) -> Result<(), sqlx::Error> {
+    ) -> Result<(), DbError> {
         let query_body = format!(
             "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, NULL, $3, $4, $5, NOW(), NULL)"
         );
@@ -58,7 +59,7 @@ impl Db {
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
 
@@ -68,7 +69,7 @@ impl Db {
         app_id: &String,
         connection_id: &String,
         session_id: &String,
-    ) -> Result<(), sqlx::Error> {
+    ) -> Result<(), DbError> {
         let query_body = format!(
             "UPDATE {CONNECTION_EVENTS_TABLE_NAME} 
                 SET disconnected_at = NOW() 
@@ -85,7 +86,7 @@ impl Db {
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
 
@@ -95,7 +96,7 @@ impl Db {
         app_id: &String,
         session_id: &String,
         client_profile_id: i64,
-    ) -> Result<(), sqlx::Error> {
+    ) -> Result<(), DbError> {
         let query_body = format!(
             "UPDATE {CONNECTION_EVENTS_TABLE_NAME} 
                 SET disconnected_at = NOW() 
@@ -112,7 +113,7 @@ impl Db {
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
 }
