@@ -1,8 +1,10 @@
 use super::table_struct::UserAppPrivilege;
 use crate::db::Db;
+use crate::tables::registered_app::table_struct::REGISTERED_APPS_TABLE_NAME;
 use crate::tables::user_app_privileges::table_struct::{
     USER_APP_PRIVILEGES_KEYS, USER_APP_PRIVILEGES_TABLE_NAME,
 };
+use crate::tables::utils::get_current_datetime;
 use sqlx::query;
 use sqlx::Transaction;
 
@@ -48,6 +50,54 @@ impl Db {
             Err(e) => Err(e),
         }
     }
+
+    pub async fn add_user_to_the_team(
+        &self,
+        user_id: &String,
+        team_id: &String,
+    ) -> Result<(), sqlx::Error> {
+        // Retrieve all apps associated with the team
+        let apps_query =
+            format!("SELECT app_id FROM {REGISTERED_APPS_TABLE_NAME} WHERE team_id = $1");
+        let apps: Vec<String> = sqlx::query_as(&apps_query)
+            .bind(team_id)
+            .fetch_all(&self.connection_pool)
+            .await?
+            .into_iter()
+            .map(|(app_id,): (String,)| app_id)
+            .collect();
+
+        // Build values list for insertion
+        let values_list: Vec<String> = apps
+            .iter()
+            .map(|app_id| {
+                format!(
+                    "('{}', '{}', 'Read', '{}')",
+                    user_id,
+                    app_id,
+                    get_current_datetime()
+                )
+            })
+            .collect();
+
+        // Only proceed if there are apps to assign privileges for
+        if values_list.is_empty() {
+            // TODO, add custom error type
+            return Err(sqlx::Error::RowNotFound);
+        }
+
+        let values_str = values_list.join(", ");
+        let insert_query = format!(
+                "INSERT INTO {USER_APP_PRIVILEGES_TABLE_NAME} (user_id, app_id, privilege_level, creation_timestamp) VALUES {}",
+                values_str
+            );
+
+        sqlx::query(&insert_query)
+            .execute(&self.connection_pool)
+            .await?;
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -56,6 +106,7 @@ mod tests {
         structs::privilege_level::PrivilegeLevel,
         tables::{
             grafana_users::table_struct::GrafanaUser,
+            registered_app::table_struct::DbRegisteredApp, team::table_struct::Team,
             user_app_privileges::table_struct::UserAppPrivilege, utils::to_microsecond_precision,
         },
     };
@@ -102,5 +153,92 @@ mod tests {
         let get_by_app_id = db.get_privileges_by_app_id(&app_id).await.unwrap();
         assert!(get_by_app_id.len() == 2);
         assert!(get_by_app_id.contains(&privilege));
+    }
+
+    #[tokio::test]
+    async fn test_add_user_to_team() {
+        let db = super::Db::connect_to_the_pool().await;
+        db.truncate_all_tables().await.unwrap();
+
+        // Create test team instance
+        let team_id = "test_team_id".to_string();
+        let app_id = "test_app_id".to_string();
+
+        db.setup_test_team(&team_id, &app_id, Utc::now())
+            .await
+            .unwrap();
+
+        let user = GrafanaUser {
+            email: "test_user_email".to_string(),
+            password_hash: "test_password_hash".to_string(),
+            user_id: "test_user_id".to_string(),
+            creation_timestamp: to_microsecond_precision(&Utc::now()),
+        };
+        db.add_new_user(&user).await.unwrap();
+
+        // Create 7 more apps under the same team
+        for i in 0..7 {
+            let app_id = format!("test_app_id_{}", i);
+            let app = DbRegisteredApp {
+                ack_public_keys: vec!["test_ack_public_key".to_string()],
+                whitelisted_domains: vec!["test_whitelisted_domain".to_string()],
+                app_id: app_id.clone(),
+                app_name: format!("test_app_name_{}", i),
+                team_id: team_id.clone(),
+                email: None,
+                pass_hash: None,
+                registration_timestamp: to_microsecond_precision(&Utc::now()),
+                subscription: None,
+            };
+
+            db.register_new_app(&app).await.unwrap();
+        }
+
+        db.add_user_to_the_team(&user.user_id, &team_id)
+            .await
+            .unwrap();
+
+        let get_by_user_id = db.get_privileges_by_user_id(&user.user_id).await.unwrap();
+        assert!(get_by_user_id.len() == 8);
+
+        // Create new team
+        let team_id = "test_team_id_2".to_string();
+
+        let team = Team {
+            team_id: team_id.clone(),
+            team_name: "test_team_name".to_string(),
+            personal: false,
+            subscription: None,
+            team_admin_id: "test_team_admin_id".to_string(),
+            registration_timestamp: to_microsecond_precision(&Utc::now()),
+        };
+
+        db.create_new_team(&team).await.unwrap();
+
+        // Add 2 apps to the new team
+        for i in 0..2 {
+            let app_id = format!("test_app_id_2_{}", i);
+            let app = DbRegisteredApp {
+                ack_public_keys: vec!["test_ack_public_key".to_string()],
+                whitelisted_domains: vec!["test_whitelisted_domain".to_string()],
+                app_id: app_id.clone(),
+                app_name: format!("test_app_name_{}", i),
+                team_id: team_id.clone(),
+                email: None,
+                pass_hash: None,
+                registration_timestamp: to_microsecond_precision(&Utc::now()),
+                subscription: None,
+            };
+
+            db.register_new_app(&app).await.unwrap();
+        }
+
+        // Add user to the new team
+        db.add_user_to_the_team(&user.user_id, &team_id)
+            .await
+            .unwrap();
+
+        let get_by_user_id = db.get_privileges_by_user_id(&user.user_id).await.unwrap();
+        assert!(get_by_user_id.len() == 10);
     }
 }

@@ -42,10 +42,21 @@ pub async fn login_with_password(
     ))?;
 
     // Check if user exists
-    let user = db
-        .get_user_by_email(&request.email)
-        .await
-        .map_err(|_| (StatusCode::BAD_REQUEST, "Could not find user".to_string()))?;
+    let user = match db.get_user_by_email(&request.email).await {
+        Ok(Some(user)) => user,
+        Ok(None) => {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                "User with this email does not exist".to_string(),
+            ));
+        }
+        Err(_) => {
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Database error".to_string(),
+            ));
+        }
+    };
 
     // Verify password
     if bcrypt::verify(

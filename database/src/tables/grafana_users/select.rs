@@ -14,13 +14,16 @@ impl Db {
             .await;
     }
 
-    pub async fn get_user_by_email(&self, email: &String) -> Result<GrafanaUser, sqlx::Error> {
+    pub async fn get_user_by_email(
+        &self,
+        email: &String,
+    ) -> Result<Option<GrafanaUser>, sqlx::Error> {
         let query = format!("SELECT * FROM {GRAFANA_USERS_TABLE_NAME} WHERE email = $1");
         let typed_query = query_as::<_, GrafanaUser>(&query);
 
         return typed_query
             .bind(&email)
-            .fetch_one(&self.connection_pool)
+            .fetch_optional(&self.connection_pool)
             .await;
     }
 }
