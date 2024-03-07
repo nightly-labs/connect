@@ -11,7 +11,7 @@ pub mod test_utils {
     };
     use sqlx::{
         types::chrono::{DateTime, Utc},
-        Row,
+        Row, Transaction,
     };
 
     impl Db {
@@ -118,13 +118,40 @@ pub mod test_utils {
                 user_id: admin.user_id.clone(),
             };
 
-            match self
-                .setup_team(&team, &registered_app, &admin_privilege)
-                .await
-            {
-                Ok(_) => Ok(()),
-                Err(e) => Err(anyhow::anyhow!(e)),
+            // Start a transaction
+            let mut tx: Transaction<'_, sqlx::Postgres> = self.connection_pool.begin().await?;
+
+            // Attempt to create the new team within the transaction
+            let create_team_result = self.create_new_team_within_tx(&mut tx, &team).await;
+            if create_team_result.is_err() {
+                // If creating the team fails, roll back the transaction and return the error
+                tx.rollback().await?;
+                return create_team_result.map_err(|err| err.into());
             }
+
+            // Attempt to register the new app within the same transaction
+            let register_app_result = self
+                .register_new_app_within_tx(&mut tx, &registered_app)
+                .await;
+            if register_app_result.is_err() {
+                // If registering the app fails, roll back the transaction and return the error
+                tx.rollback().await?;
+                return register_app_result.map_err(|err| err.into());
+            }
+
+            // Attempt to add team admin within the same transaction
+            let add_admin_result = self
+                .add_new_privilege_within_tx(&mut tx, &admin_privilege)
+                .await;
+            if add_admin_result.is_err() {
+                // If adding the admin fails, roll back the transaction and return the error
+                tx.rollback().await?;
+                return add_admin_result.map_err(|err| err.into());
+            }
+
+            // If both actions succeeded, commit the transaction
+            tx.commit().await?;
+            Ok(())
         }
     }
 }
