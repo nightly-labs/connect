@@ -1,3 +1,4 @@
+pub mod api_cloud_errors;
 pub mod app_messages;
 pub mod client_messages;
 pub mod cloud_http_endpoints;
