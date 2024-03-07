@@ -1,20 +1,25 @@
 use super::table_struct::{CLIENT_PROFILES_KEYS, CLIENT_PROFILES_TABLE_NAME};
-use crate::{db::Db, tables::client_profiles::table_struct::ClientProfile};
+use crate::{
+    db::Db, structs::db_error::DbError, tables::client_profiles::table_struct::ClientProfile,
+};
 use sqlx::{query_as, Transaction};
 
 impl Db {
     pub async fn create_new_profile(
         &self,
         tx: Option<&mut Transaction<'_, sqlx::Postgres>>,
-    ) -> Result<ClientProfile, sqlx::Error> {
+    ) -> Result<ClientProfile, DbError> {
         let query_body = format!(
             "INSERT INTO {CLIENT_PROFILES_TABLE_NAME} ({CLIENT_PROFILES_KEYS}) VALUES (DEFAULT, DEFAULT) RETURNING {CLIENT_PROFILES_KEYS}"
         );
         let typed_query = query_as::<_, ClientProfile>(&query_body);
 
         return match tx {
-            Some(tx) => typed_query.fetch_one(&mut **tx).await,
-            None => typed_query.fetch_one(&self.connection_pool).await,
+            Some(tx) => typed_query.fetch_one(&mut **tx).await.map_err(|e| e.into()),
+            None => typed_query
+                .fetch_one(&self.connection_pool)
+                .await
+                .map_err(|e| e.into()),
         };
     }
 }

@@ -1,5 +1,6 @@
 use super::table_struct::UserAppPrivilege;
 use crate::db::Db;
+use crate::structs::db_error::DbError;
 use crate::tables::registered_app::table_struct::REGISTERED_APPS_TABLE_NAME;
 use crate::tables::user_app_privileges::table_struct::USER_APP_PRIVILEGES_TABLE_NAME;
 use sqlx::query_as;
@@ -9,7 +10,7 @@ impl Db {
         &self,
         user_id: &String,
         app_id: &String,
-    ) -> Result<UserAppPrivilege, sqlx::Error> {
+    ) -> Result<UserAppPrivilege, DbError> {
         let query = format!(
             "SELECT * FROM {USER_APP_PRIVILEGES_TABLE_NAME} WHERE user_id = $1 AND app_id = $2"
         );
@@ -19,40 +20,43 @@ impl Db {
             .bind(&user_id)
             .bind(&app_id)
             .fetch_one(&self.connection_pool)
-            .await;
+            .await
+            .map_err(|e| e.into());
     }
 
     pub async fn get_privileges_by_user_id(
         &self,
         user_id: &String,
-    ) -> Result<Vec<UserAppPrivilege>, sqlx::Error> {
+    ) -> Result<Vec<UserAppPrivilege>, DbError> {
         let query = format!("SELECT * FROM {USER_APP_PRIVILEGES_TABLE_NAME} WHERE user_id = $1");
         let typed_query = query_as::<_, UserAppPrivilege>(&query);
 
         return typed_query
             .bind(&user_id)
             .fetch_all(&self.connection_pool)
-            .await;
+            .await
+            .map_err(|e| e.into());
     }
 
     pub async fn get_privileges_by_app_id(
         &self,
         app_id: &String,
-    ) -> Result<Vec<UserAppPrivilege>, sqlx::Error> {
+    ) -> Result<Vec<UserAppPrivilege>, DbError> {
         let query = format!("SELECT * FROM {USER_APP_PRIVILEGES_TABLE_NAME} WHERE app_id = $1");
         let typed_query = query_as::<_, UserAppPrivilege>(&query);
 
         return typed_query
             .bind(&app_id)
             .fetch_all(&self.connection_pool)
-            .await;
+            .await
+            .map_err(|e| e.into());
     }
 
     // Get all privileges for a team
     pub async fn get_privileges_by_team_id(
         &self,
         team_id: &String,
-    ) -> Result<Vec<UserAppPrivilege>, sqlx::Error> {
+    ) -> Result<Vec<UserAppPrivilege>, DbError> {
         let query = format!(
             "SELECT uap.* FROM {USER_APP_PRIVILEGES_TABLE_NAME} uap 
              JOIN {REGISTERED_APPS_TABLE_NAME} ra ON uap.app_id = ra.app_id 
@@ -64,13 +68,14 @@ impl Db {
         return typed_query
             .bind(team_id)
             .fetch_all(&self.connection_pool)
-            .await;
+            .await
+            .map_err(|e| e.into());
     }
 
     pub async fn get_teams_and_apps_membership_by_user_id(
         &self,
         user_id: &String,
-    ) -> Result<Vec<(String, String)>, sqlx::Error> {
+    ) -> Result<Vec<(String, String)>, DbError> {
         let query = format!(
             "SELECT ra.team_id, ra.app_id FROM {USER_APP_PRIVILEGES_TABLE_NAME} uap 
              JOIN {REGISTERED_APPS_TABLE_NAME} ra ON uap.app_id = ra.app_id 
@@ -81,6 +86,7 @@ impl Db {
         return typed_query
             .bind(user_id)
             .fetch_all(&self.connection_pool)
-            .await;
+            .await
+            .map_err(|e| e.into());
     }
 }

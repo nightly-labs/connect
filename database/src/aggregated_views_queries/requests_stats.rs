@@ -1,9 +1,8 @@
 use crate::{
     db::Db,
-    structs::{filter_requests::RequestsStats, time_filters::TimeFilter},
+    structs::{db_error::DbError, filter_requests::RequestsStats, time_filters::TimeFilter},
     tables::utils::{format_view_keys, format_view_name},
 };
-use sqlx::Error;
 
 pub const REQUESTS_STATS_BASE_VIEW_NAME: &str = "requests_stats_per_app";
 pub const REQUESTS_STATS_BASE_KEYS: [(&'static str, bool); 4] = [
@@ -18,7 +17,7 @@ impl Db {
         &self,
         app_id: &str,
         filter: TimeFilter,
-    ) -> Result<Vec<RequestsStats>, Error> {
+    ) -> Result<Vec<RequestsStats>, DbError> {
         let start_date = filter.to_date();
         let bucket_size = filter.bucket_size();
 
@@ -27,8 +26,7 @@ impl Db {
             "1 hour" => "hourly",
             "1 day" => "daily",
             "1 month" => "monthly",
-            // TODO for now return WorkerCrashed but later create custom error
-            _ => return Err(Error::WorkerCrashed),
+            _ => return Err(DbError::DatabaseError("Invalid bucket size".to_string())),
         };
 
         let formatted_keys = format_view_keys(prefix, &REQUESTS_STATS_BASE_KEYS);
@@ -48,6 +46,7 @@ impl Db {
             .bind(start_date)
             .fetch_all(&self.connection_pool)
             .await
+            .map_err(|e| e.into())
     }
 }
 

@@ -1,7 +1,7 @@
 use super::table_struct::TEAM_KEYS;
 use crate::{
     db::Db,
-    structs::subscription::Subscription,
+    structs::{db_error::DbError, subscription::Subscription},
     tables::team::table_struct::{Team, TEAM_TABLE_NAME},
 };
 use sqlx::{query, Transaction};
@@ -11,7 +11,7 @@ impl Db {
         &self,
         tx: &mut Transaction<'_, sqlx::Postgres>,
         team: &Team,
-    ) -> Result<(), sqlx::Error> {
+    ) -> Result<(), DbError> {
         let query_body =
             format!("INSERT INTO {TEAM_TABLE_NAME} ({TEAM_KEYS}) VALUES ($1, $2, $3, $4, $5, $6)");
 
@@ -27,11 +27,11 @@ impl Db {
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
 
-    pub async fn create_new_team(&self, team: &Team) -> Result<(), sqlx::Error> {
+    pub async fn create_new_team(&self, team: &Team) -> Result<(), DbError> {
         let query_body =
             format!("INSERT INTO {TEAM_TABLE_NAME} ({TEAM_KEYS}) VALUES ($1, $2, $3, $4, $5, $6)");
 
@@ -47,7 +47,7 @@ impl Db {
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
 
@@ -55,7 +55,7 @@ impl Db {
         &self,
         team_id: &String,
         subscription: &Subscription,
-    ) -> Result<(), sqlx::Error> {
+    ) -> Result<(), DbError> {
         let query_body =
             format!("UPDATE {TEAM_TABLE_NAME} SET subscription = $1 WHERE team_id = $2");
         let query_result = query(&query_body)
@@ -66,7 +66,7 @@ impl Db {
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
 }

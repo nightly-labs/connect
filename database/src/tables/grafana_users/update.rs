@@ -1,5 +1,6 @@
 use super::table_struct::{GrafanaUser, GRAFANA_USERS_KEYS, GRAFANA_USERS_TABLE_NAME};
 use crate::db::Db;
+use crate::structs::db_error::DbError;
 use sqlx::query;
 use sqlx::Transaction;
 
@@ -8,7 +9,7 @@ impl Db {
         &self,
         tx: &mut Transaction<'_, sqlx::Postgres>,
         user: &GrafanaUser,
-    ) -> Result<(), sqlx::Error> {
+    ) -> Result<(), DbError> {
         let query_body = format!(
             "INSERT INTO {GRAFANA_USERS_TABLE_NAME} ({GRAFANA_USERS_KEYS}) VALUES ($1, $2, $3, $4)"
         );
@@ -23,11 +24,11 @@ impl Db {
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
 
-    pub async fn add_new_user(&self, user: &GrafanaUser) -> Result<(), sqlx::Error> {
+    pub async fn add_new_user(&self, user: &GrafanaUser) -> Result<(), DbError> {
         let query_body = format!(
             "INSERT INTO {GRAFANA_USERS_TABLE_NAME} ({GRAFANA_USERS_KEYS}) VALUES ($1, $2, $3, $4)"
         );
@@ -42,7 +43,7 @@ impl Db {
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
 }
