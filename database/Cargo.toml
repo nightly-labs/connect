@@ -11,5 +11,4 @@ serde = { workspace = true }
 ts-rs = { workspace = true }
 tokio = { workspace = true }
 dotenvy = { workspace = true }
-anyhow = { workspace = true }
 log = { workspace = true }
