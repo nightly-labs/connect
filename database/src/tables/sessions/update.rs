@@ -1,5 +1,6 @@
 use super::table_struct::{DbNcSession, SESSIONS_KEYS, SESSIONS_TABLE_NAME};
 use crate::{db::Db, structs::client_data::ClientData};
+use log::error;
 use sqlx::{
     query,
     types::chrono::{DateTime, Utc},
@@ -16,7 +17,10 @@ impl Db {
 
         // 1. Save the new session
         if let Err(err) = self.save_new_session(&mut tx, &session).await {
-            tx.rollback().await.unwrap();
+            let _ = tx
+                .rollback()
+                .await
+                .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
             return Err(err);
         }
 
@@ -31,7 +35,10 @@ impl Db {
             )
             .await
         {
-            tx.rollback().await.unwrap();
+            let _ = tx
+                .rollback()
+                .await
+                .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
             return Err(err);
         }
 
@@ -120,7 +127,10 @@ impl Db {
         {
             Ok(profile_id) => profile_id,
             Err(err) => {
-                tx.rollback().await.unwrap();
+                let _ = tx
+                    .rollback()
+                    .await
+                    .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
                 return Err(err);
             }
         };
@@ -142,7 +152,10 @@ impl Db {
             .await;
 
         if let Err(err) = query_result {
-            tx.rollback().await.unwrap();
+            let _ = tx
+                .rollback()
+                .await
+                .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
             return Err(err);
         }
 
@@ -160,7 +173,10 @@ impl Db {
                     )
                     .await
                 {
-                    tx.rollback().await.unwrap();
+                    let _ = tx
+                        .rollback()
+                        .await
+                        .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
                     return Err(err);
                 }
             } else {
@@ -182,7 +198,10 @@ impl Db {
                     )
                     .await
                 {
-                    tx.rollback().await.unwrap();
+                    let _ = tx
+                        .rollback()
+                        .await
+                        .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
                     return Err(err);
                 }
             }
@@ -199,7 +218,10 @@ impl Db {
             )
             .await
         {
-            tx.rollback().await.unwrap();
+            let _ = tx
+                .rollback()
+                .await
+                .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
             return Err(err);
         }
 

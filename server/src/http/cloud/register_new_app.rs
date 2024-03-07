@@ -117,7 +117,10 @@ pub async fn register_new_app(
                 .register_new_app_within_tx(&mut tx, &db_registered_app)
                 .await
             {
-                tx.rollback().await.unwrap();
+                let _ = tx
+                    .rollback()
+                    .await
+                    .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
                 error!("Failed to create app: {:?}", err);
                 return Err((
                     StatusCode::INTERNAL_SERVER_ERROR,
@@ -138,7 +141,10 @@ pub async fn register_new_app(
                 .add_new_privilege_within_tx(&mut tx, &user_app_privilege)
                 .await
             {
-                tx.rollback().await.unwrap();
+                let _ = tx
+                    .rollback()
+                    .await
+                    .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
                 error!("Failed to create user app privilege {:?}", err);
                 return Err((
                     StatusCode::INTERNAL_SERVER_ERROR,
@@ -156,7 +162,10 @@ pub async fn register_new_app(
                 )
                 .await
             {
-                tx.rollback().await.unwrap();
+                let _ = tx
+                    .rollback()
+                    .await
+                    .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
                 error!("Failed to add read privileges to existing users: {:?}", err);
                 return Err((
                     StatusCode::INTERNAL_SERVER_ERROR,
