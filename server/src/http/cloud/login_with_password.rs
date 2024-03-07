@@ -9,18 +9,22 @@ use axum::{
     Json,
 };
 use database::db::Db;
+use garde::Validate;
 use log::error;
 use pwhash::bcrypt;
 use serde::{Deserialize, Serialize};
 use std::{net::SocketAddr, sync::Arc};
 use ts_rs::TS;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpLoginRequest {
+    #[garde(email)]
     pub email: String,
+    #[garde(ascii, length(min = 6, max = 30))]
     pub password: String,
+    #[garde(skip)]
     pub enforce_ip: bool,
 }
 

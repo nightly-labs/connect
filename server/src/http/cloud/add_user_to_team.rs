@@ -1,19 +1,22 @@
 use crate::{
     auth::auth_middleware::UserId, statics::USERS_AMOUNT_LIMIT_PER_TEAM,
-    structs::api_cloud_errors::CloudApiErrors,
+    structs::api_cloud_errors::CloudApiErrors, utils::custom_validate_uuid,
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::db::Db;
+use garde::Validate;
 use log::error;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, sync::Arc};
 use ts_rs::TS;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpAddUserToTeamRequest {
+    #[garde(custom(custom_validate_uuid))]
     pub team_id: String,
+    #[garde(email)]
     pub user_email: String,
 }
 

@@ -7,17 +7,20 @@ use database::{
     db::Db,
     tables::{team::table_struct::Team, utils::get_current_datetime},
 };
+use garde::Validate;
 use log::error;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
 use uuid7::uuid7;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpRegisterNewTeamRequest {
+    #[garde(ascii, length(min = 3, max = 30))]
     pub team_name: String,
+    #[garde(skip)]
     pub personal: bool,
 }
 

@@ -30,3 +30,4 @@ chrono = { workspace = true }
 jsonwebtoken = { workspace = true }
 pwhash = { workspace = true }
 rand = { workspace = true }
+garde = { workspace = true }

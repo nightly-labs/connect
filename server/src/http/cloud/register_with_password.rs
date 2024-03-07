@@ -3,6 +3,7 @@ use database::{
     db::Db,
     tables::{grafana_users::table_struct::GrafanaUser, utils::get_current_datetime},
 };
+use garde::Validate;
 use log::error;
 use pwhash::bcrypt;
 use serde::{Deserialize, Serialize};
@@ -12,11 +13,13 @@ use uuid7::uuid7;
 
 use crate::{env::NONCE, structs::api_cloud_errors::CloudApiErrors};
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpRegisterWithPasswordRequest {
+    #[garde(email)]
     pub email: String,
+    #[garde(ascii, length(min = 6, max = 30))]
     pub password: String,
 }
 
