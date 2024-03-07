@@ -1,8 +1,8 @@
-use crate::auth::auth_middleware::UserId;
+use crate::{auth::auth_middleware::UserId, statics::USERS_AMOUNT_LIMIT_PER_TEAM};
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::db::Db;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
+use std::{collections::HashSet, sync::Arc};
 use ts_rs::TS;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
@@ -46,6 +46,29 @@ pub async fn add_user_to_team(
                         return Err((
                             StatusCode::BAD_REQUEST,
                             "Team has no registered apps".to_string(),
+                        ));
+                    }
+                }
+                Err(_) => {
+                    return Err((
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        "Database error".to_string(),
+                    ));
+                }
+            }
+
+            // Check if limit of users in the team has been reached
+            match db.get_privileges_by_team_id(&request.team_id).await {
+                Ok(privileges) => {
+                    let users = privileges
+                        .iter()
+                        .map(|privilege| privilege.user_id.clone())
+                        .collect::<HashSet<String>>();
+
+                    if users.len() >= USERS_AMOUNT_LIMIT_PER_TEAM {
+                        return Err((
+                            StatusCode::BAD_REQUEST,
+                            "Team has reached the maximum number of users".to_string(),
                         ));
                     }
                 }
