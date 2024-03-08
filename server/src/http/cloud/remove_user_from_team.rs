@@ -1,6 +1,7 @@
 use crate::{
-    auth::auth_middleware::UserId, structs::api_cloud_errors::CloudApiErrors,
-    utils::custom_validate_uuid,
+    auth::auth_middleware::UserId,
+    structs::api_cloud_errors::CloudApiErrors,
+    utils::{custom_validate_uuid, validate_request},
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::db::Db;
@@ -34,6 +35,9 @@ pub async fn remove_user_to_team(
         StatusCode::INTERNAL_SERVER_ERROR,
         CloudApiErrors::CloudFeatureDisabled.to_string(),
     ))?;
+
+    // Validate request
+    validate_request(&request, &())?;
 
     // Get team data and perform checks
     match db.get_team_by_team_id(None, &request.team_id).await {
