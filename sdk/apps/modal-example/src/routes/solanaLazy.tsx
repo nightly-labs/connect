@@ -21,7 +21,7 @@ export default function SolanaLazy() {
         },
         url: 'https://nc2.nightly.app'
       },
-      true,
+      {},
       document.getElementById('modalAnchor')
     )
 

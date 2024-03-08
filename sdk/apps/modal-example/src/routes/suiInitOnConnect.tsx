@@ -8,7 +8,7 @@ export default function Sui() {
   const [adapter, setAdapter] = createSignal<NightlyConnectSuiAdapter>()
   const [publicKey, setPublicKey] = createSignal<string>()
   onMount(async () => {
-    const adapter = NightlyConnectSuiAdapter.buildWithInitOnConnect(
+    const adapter = NightlyConnectSuiAdapter.buildLazy(
       {
         appMetadata: {
           name: 'NCTestSui',
@@ -17,9 +17,24 @@ export default function Sui() {
           additionalInfo: 'Courtesy of Nightly Connect team'
         }
       },
-      true,
+      { initOnConnect: true },
       document.getElementById('modalAnchor')
     )
+
+    adapter.on('connect', (accounts) => {
+      setPublicKey(accounts[0].address)
+    })
+
+    adapter.on('disconnect', () => {
+      setPublicKey(undefined)
+      console.log('adapter disconnected')
+    })
+
+    adapter.on('change', (a) => {
+      if (!!a.accounts?.length && a.accounts[0].address) {
+        setPublicKey(a.accounts[0].address)
+      }
+    })
 
     setAdapter(adapter)
   })
@@ -36,9 +51,7 @@ export default function Sui() {
               adapter()
                 ?.connect()
                 .then(
-                  async () => {
-                    const accounts = await adapter()!.getAccounts()
-                    setPublicKey(accounts[0].address)
+                  () => {
                     console.log('connect resolved successfully')
                   },
                   () => {

@@ -16,17 +16,44 @@ const sidebars = {
   // By default, Docusaurus generates a sidebar from the docs folder structure
   docs: [
     'home',
+    'start',
     {
       type: 'category',
-      label: '💻 Application',
+      className: 'drop solana-dropdown',
+      label: ' Solana',
       collapsed: false,
-      items: ['application/connect', 'application/sign_transaction']
+      items: ['solana/start', 'solana/connect', 'solana/events', 'solana/sign_transaction']
     },
     {
       type: 'category',
-      label: '📱 Client',
+      className: 'drop sui-dropdown',
+      label: 'Sui',
       collapsed: false,
-      items: ['client/connect', 'client/sign', 'client/signMessage', 'client/push']
+      items: ['sui/start', 'sui/connect', 'sui/events', 'sui/sign_transaction']
+    },
+    {
+      type: 'category',
+      className: 'drop substrate-dropdown',
+      label: 'Substrate',
+      collapsed: false,
+      items: ['substrate/start', 'substrate/connect', 'substrate/sign_transaction']
+    },
+    {
+      type: 'category',
+      label: 'Customization',
+      collapsed: true,
+      items: ['customization/ui_overrides', 'customization/external_modal']
+    },
+    {
+      type: 'category',
+      label: 'For wallets',
+      collapsed: true,
+      items: [
+        'for_wallets/connect',
+        'for_wallets/sign_transaction',
+        'for_wallets/sign_message',
+        'for_wallets/push'
+      ]
     }
   ]
 

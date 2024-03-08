@@ -29,7 +29,6 @@ export default function Polkadot() {
     )
 
     adapter.canEagerConnect().then((canEagerConnect: boolean) => {
-      console.log('canEagerConnect', canEagerConnect)
       setEager(canEagerConnect)
     })
     setAdapter(adapter)
@@ -67,12 +66,16 @@ export default function Polkadot() {
         fallback={
           <button
             onClick={async () => {
-              console.log(getPolkadotWallets())
-              await adapter()!.connect()
-              const accounts = await adapter()!.accounts.get()
-              console.log(accounts)
-              setPublicKey(accounts[0].address)
-              console.log('adapter', adapter())
+              try {
+                console.log(getPolkadotWallets())
+                await adapter()!.connect()
+                const accounts = await adapter()!.accounts.get()
+                console.log(accounts)
+                setPublicKey(accounts[0].address)
+                console.log('adapter', adapter())
+              } catch (err) {
+                console.log(err)
+              }
             }}>
             Connect
           </button>

@@ -1,49 +1,87 @@
 use super::table_struct::{DbNcSession, SESSIONS_KEYS, SESSIONS_TABLE_NAME};
-use crate::db::Db;
+use crate::{
+    db::Db,
+    structs::{client_data::ClientData, db_error::DbError},
+};
+use log::error;
 use sqlx::{
     query,
     types::chrono::{DateTime, Utc},
+    Postgres, Transaction,
 };
 
 impl Db {
-    pub async fn save_new_session(&self, session: &DbNcSession) -> Result<(), sqlx::Error> {
+    pub async fn handle_new_session(
+        &self,
+        session: &DbNcSession,
+        connection_id: &String,
+    ) -> Result<(), DbError> {
+        let mut tx = self.connection_pool.begin().await.unwrap();
+
+        // 1. Save the new session
+        if let Err(err) = self.save_new_session(&mut tx, &session).await {
+            let _ = tx
+                .rollback()
+                .await
+                .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
+            return Err(err);
+        }
+
+        // 2. Add new app connection event
+        if let Err(err) = self
+            .create_new_connection_event_by_app(
+                &mut tx,
+                &session.session_id,
+                &connection_id,
+                &session.app_id,
+                &session.network,
+            )
+            .await
+        {
+            let _ = tx
+                .rollback()
+                .await
+                .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
+            return Err(err);
+        }
+
+        tx.commit().await.unwrap();
+
+        Ok(())
+    }
+
+    pub async fn save_new_session(
+        &self,
+        tx: &mut Transaction<'_, Postgres>,
+        session: &DbNcSession,
+    ) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {SESSIONS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)",
+            "INSERT INTO {SESSIONS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)",
             SESSIONS_KEYS
         );
 
-        let (client_id, device, metadata, notification_endpoint, connected_at) =
-            match &session.client {
-                Some(client) => (
-                    &client.client_id,
-                    &client.device,
-                    &client.metadata,
-                    &client.notification_endpoint,
-                    Some(client.connected_at.clone()),
-                ),
-                None => (&None, &None, &None, &None, None),
-            };
-
         let query_result = query(&query_body)
             .bind(&session.session_id)
+            .bind(&session.session_type)
             .bind(&session.app_id)
             .bind(&session.app_metadata)
             .bind(&session.app_ip_address)
             .bind(&session.persistent)
             .bind(&session.network)
-            .bind(&client_id)
-            .bind(&device)
-            .bind(&metadata)
-            .bind(&notification_endpoint)
-            .bind(&connected_at)
+            .bind(&None::<i64>)
+            .bind(&None::<String>)
+            .bind(&None::<String>)
+            .bind(&None::<String>)
+            .bind(&None::<String>)
+            .bind(&None::<DateTime<Utc>>)
             .bind(&session.session_open_timestamp)
             .bind(&None::<DateTime<Utc>>)
-            .execute(&self.connection_pool)
+            .execute(&mut **tx)
             .await;
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
 
@@ -51,7 +89,7 @@ impl Db {
         &self,
         session_id: &String,
         close_timestamp: DateTime<Utc>,
-    ) -> Result<(), sqlx::Error> {
+    ) -> Result<(), DbError> {
         let query_body = format!(
             "UPDATE {SESSIONS_TABLE_NAME} SET session_close_timestamp = $1 WHERE session_id = $2"
         );
@@ -64,8 +102,136 @@ impl Db {
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
+    }
+
+    pub async fn connect_user_to_the_session(
+        &self,
+        client_data: &ClientData,
+        connected_keys: &Vec<String>,
+        app_id: &String,
+        session_id: &String,
+        network: &String,
+    ) -> Result<(), DbError> {
+        // Start a new transaction
+        let mut tx = self.connection_pool.begin().await.unwrap();
+
+        // User can't connect to the session without any connected keys
+        if connected_keys.is_empty() {
+            return Err(DbError::DatabaseError(
+                "No connected keys provided".to_string(),
+            ));
+        }
+
+        // 1. Handle connected keys
+        let (client_profile_id, used_public_key) = match self
+            .handle_public_keys_entries(&mut tx, &connected_keys)
+            .await
+        {
+            Ok(profile_id) => profile_id,
+            Err(err) => {
+                let _ = tx
+                    .rollback()
+                    .await
+                    .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
+                return Err(err);
+            }
+        };
+
+        // 2. Update the session with the client data
+        let query_body = format!(
+            "UPDATE {SESSIONS_TABLE_NAME} SET client_id = $1, client_device = $2, client_metadata = $3, client_notification_endpoint = $4, client_connected_at = $5, client_profile_id = $6 WHERE session_id = $7"
+        );
+
+        let query_result = query(&query_body)
+            .bind(&client_data.client_id)
+            .bind(&client_data.device)
+            .bind(&client_data.metadata)
+            .bind(&client_data.notification_endpoint)
+            .bind(&client_data.connected_at)
+            .bind(&client_profile_id)
+            .bind(&session_id)
+            .execute(&self.connection_pool)
+            .await;
+
+        if let Err(err) = query_result {
+            let _ = tx
+                .rollback()
+                .await
+                .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
+            return Err(err).map_err(|e| e.into());
+        }
+
+        // 3. Create new session public key entry for each connected key
+        for key in connected_keys {
+            if key == &used_public_key {
+                // For the used key, create a new session public key entry which will be marked as the main session key
+                if let Err(err) = self
+                    .create_new_session_public_key(
+                        &mut tx,
+                        &session_id,
+                        key.clone(),
+                        Some(client_profile_id),
+                        true,
+                    )
+                    .await
+                {
+                    let _ = tx
+                        .rollback()
+                        .await
+                        .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
+                    return Err(err);
+                }
+            } else {
+                // For the rest of the keys, create a new session public key entry which would act as a soft relation between used keys and the profiles to which they belong
+                // Check if the key is already used by the client, this might be dangerous in case somebody spams the connection with lots of keys
+                let client_profile_id_option = self
+                    .get_public_key(&key)
+                    .await
+                    .ok()
+                    .map(|key| key.client_profile_id);
+
+                if let Err(err) = self
+                    .create_new_session_public_key(
+                        &mut tx,
+                        &session_id,
+                        key.clone(),
+                        client_profile_id_option,
+                        false,
+                    )
+                    .await
+                {
+                    let _ = tx
+                        .rollback()
+                        .await
+                        .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
+                    return Err(err);
+                }
+            }
+        }
+
+        // 4. Create new connection event
+        if let Err(err) = self
+            .create_new_connection_by_client(
+                &mut tx,
+                &app_id,
+                &session_id,
+                client_profile_id,
+                &network,
+            )
+            .await
+        {
+            let _ = tx
+                .rollback()
+                .await
+                .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
+            return Err(err);
+        }
+
+        tx.commit().await.unwrap();
+
+        Ok(())
     }
 }
 
@@ -74,11 +240,8 @@ mod tests {
 
     use super::*;
     use crate::{
-        structs::{client_data::ClientData, request_status::RequestStatus},
-        tables::{
-            registered_app::table_struct::RegisteredApp, requests::table_struct::Request,
-            utils::get_date_time,
-        },
+        structs::{request_status::RequestStatus, session_type::SessionType},
+        tables::{requests::table_struct::Request, utils::get_date_time},
     };
 
     #[tokio::test]
@@ -86,39 +249,32 @@ mod tests {
         let db = super::Db::connect_to_the_pool().await;
         db.truncate_all_tables().await.unwrap();
 
-        // Create basic app to satisfy foreign key constraint
-        let app = RegisteredApp {
-            app_id: "test_app_id".to_string(),
-            app_name: "test_app_name".to_string(),
-            whitelisted_domains: vec!["test_domain".to_string()],
-            subscription: None,
-            ack_public_keys: vec!["test_key".to_string()],
-            email: Some("test_email".to_string()),
-            registration_timestamp: 10,
-            pass_hash: Some("test_pass_hash".to_string()),
-        };
-        db.register_new_app(&app).await.unwrap();
+        // Create test team instance
+        let team_id = "test_team_id".to_string();
+        let app_id = "test_app_id".to_string();
+
+        db.setup_test_team(&team_id, &app_id, Utc::now())
+            .await
+            .unwrap();
 
         let session = DbNcSession {
             session_id: "test_session_id".to_string(),
+            session_type: SessionType::Relay,
             app_id: "test_app_id".to_string(),
             app_metadata: "test_app_metadata".to_string(),
             app_ip_address: "test_app_ip_address".to_string(),
             persistent: false,
             network: "test_network".to_string(),
-            client: Some(ClientData {
-                client_id: Some("test_client_id".to_string()),
-                device: Some("test_device".to_string()),
-                metadata: Some("test_metadata".to_string()),
-                notification_endpoint: Some("test_notification_endpoint".to_string()),
-                connected_at: get_date_time(10).unwrap(),
-            }),
+            client_profile_id: None,
+            client: None,
             session_open_timestamp: get_date_time(10).unwrap(),
             session_close_timestamp: None,
         };
 
         // Create a new session entry
-        db.save_new_session(&session).await.unwrap();
+        db.handle_new_session(&session, &"connection_id".to_string())
+            .await
+            .unwrap();
 
         // Get all sessions by app_id
         let sessions = db.get_sessions_by_app_id(&session.app_id).await.unwrap();

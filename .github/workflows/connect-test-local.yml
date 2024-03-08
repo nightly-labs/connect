@@ -62,11 +62,11 @@ jobs:
       - name: test solana local
         run: |
           pnpm test:ci
-        working-directory: ./sdk/apps/solana
+        working-directory: ./sdk/packages/solana
       - name: test sui local
         run: |
           pnpm test:ci
-        working-directory: ./sdk/apps/sui
+        working-directory: ./sdk/packages/sui
       - name: Clean target
         working-directory: ./infra
         run: |

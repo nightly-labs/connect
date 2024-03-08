@@ -29,7 +29,7 @@ export default function Polkadot() {
         },
         network: 'AlephZero'
       },
-      true, // change this to false to test disabling eager connect
+      { initOnConnect: false, disableModal: false, disableEagerConnect: false }, // change this to false to test disabling eager connect
       document.getElementById('modalAnchor'),
       {
         variablesOverride: {
@@ -97,12 +97,16 @@ export default function Polkadot() {
         fallback={
           <button
             onClick={async () => {
-              console.log(getPolkadotWallets())
-              await adapter()!.connect()
-              const accounts = await adapter()!.accounts.get()
-              console.log(accounts)
-              setPublicKey(accounts[0].address)
-              console.log('adapter', adapter())
+              try {
+                console.log(getPolkadotWallets())
+                await adapter()!.connect()
+                const accounts = await adapter()!.accounts.get()
+                console.log(accounts)
+                setPublicKey(accounts[0].address)
+                console.log('adapter', adapter())
+              } catch (err) {
+                console.log(err)
+              }
             }}>
             Connect
           </button>

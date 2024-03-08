@@ -10,7 +10,7 @@ export default function SolanaLazy() {
   const [adapter, setAdapter] = createSignal<NightlyConnectAdapter>()
   const [publicKey, setPublicKey] = createSignal<PublicKey>()
   onMount(() => {
-    const adapter = NightlyConnectAdapter.buildWithInitOnConnect(
+    const adapter = NightlyConnectAdapter.buildLazy(
       {
         appMetadata: {
           name: 'NCTestSolana',
@@ -20,7 +20,7 @@ export default function SolanaLazy() {
         },
         url: 'https://nc2.nightly.app'
       },
-      true,
+      { initOnConnect: true },
       document.getElementById('modalAnchor')
     )
 

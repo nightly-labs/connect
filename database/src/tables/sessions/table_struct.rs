@@ -1,4 +1,4 @@
-use crate::structs::client_data::ClientData;
+use crate::structs::{client_data::ClientData, session_type::SessionType};
 use sqlx::{
     postgres::PgRow,
     types::chrono::{DateTime, Utc},
@@ -7,16 +7,18 @@ use sqlx::{
 
 pub const SESSIONS_TABLE_NAME: &str = "sessions";
 pub const SESSIONS_KEYS: &str =
-    "session_id, app_id, app_metadata, app_ip_address, persistent, network, client_id, client_device, client_metadata, client_notification_endpoint, client_connected_at, session_open_timestamp, session_close_timestamp";
+    "session_id, session_type, app_id, app_metadata, app_ip_address, persistent, network, client_profile_id, client_id, client_device, client_metadata, client_notification_endpoint, client_connected_at, session_open_timestamp, session_close_timestamp";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct DbNcSession {
     pub session_id: String,
+    pub session_type: SessionType,
     pub app_id: String,
     pub app_metadata: String,
     pub app_ip_address: String,
     pub persistent: bool,
     pub network: String,
+    pub client_profile_id: Option<String>,
     pub client: Option<ClientData>, // Some if user has ever connected to the session
     pub session_open_timestamp: DateTime<Utc>,
     pub session_close_timestamp: Option<DateTime<Utc>>,
@@ -27,11 +29,13 @@ impl FromRow<'_, PgRow> for DbNcSession {
         let client_connected_at: Option<DateTime<Utc>> = row.get("client_connected_at");
         Ok(DbNcSession {
             app_id: row.get("app_id"),
+            session_type: row.get("session_type"),
             app_metadata: row.get("app_metadata"),
             app_ip_address: row.get("app_ip_address"),
             persistent: row.get("persistent"),
             network: row.get("network"),
             session_id: row.get("session_id"),
+            client_profile_id: row.get("client_profile_id"),
             // If client has ever connected to the session, return the client data
             client: match client_connected_at {
                 Some(client_connected_at) => Some(ClientData {

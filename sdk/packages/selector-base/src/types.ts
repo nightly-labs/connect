@@ -2,6 +2,8 @@ import { type AppBaseInitialize } from '@nightlylabs/nightly-connect-base'
 import { type Deeplink } from '@nightlylabs/nightly-connect-base/dist/types/bindings/Deeplink'
 import { type Wallet } from '@wallet-standard/core'
 import { type WalletType } from '../../../bindings/WalletType'
+import { WalletMetadata } from '../../../bindings/WalletMetadata'
+export { type WalletMetadata } from '../../../bindings/WalletMetadata'
 
 export interface Adapter {
   connect: () => Promise<void>
@@ -17,7 +19,11 @@ export interface MetadataWallet {
   walletType: WalletType
 }
 
-export interface IWalletListItem extends MetadataWallet {
+export interface IWalletListItem
+  extends Pick<
+    WalletMetadata,
+    'name' | 'slug' | 'walletType' | 'mobile' | 'desktop' | 'image' | 'homepage'
+  > {
   recent?: boolean
   detected?: boolean
   standardWallet?: Wallet

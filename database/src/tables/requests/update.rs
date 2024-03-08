@@ -1,9 +1,12 @@
 use super::table_struct::{Request, REQUESTS_KEYS, REQUESTS_TABLE_NAME};
-use crate::{db::Db, structs::request_status::RequestStatus};
+use crate::{
+    db::Db,
+    structs::{db_error::DbError, request_status::RequestStatus},
+};
 use sqlx::query;
 
 impl Db {
-    pub async fn save_request(&self, request: &Request) -> Result<(), sqlx::Error> {
+    pub async fn save_request(&self, request: &Request) -> Result<(), DbError> {
         let query_body = format!(
             "INSERT INTO {REQUESTS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6, $7)",
             REQUESTS_KEYS
@@ -22,7 +25,7 @@ impl Db {
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
 
@@ -30,7 +33,7 @@ impl Db {
         &self,
         request_id: &String,
         new_status: &RequestStatus,
-    ) -> Result<(), sqlx::Error> {
+    ) -> Result<(), DbError> {
         let query_body =
             format!("UPDATE {REQUESTS_TABLE_NAME} SET request_status = $1 WHERE request_id = $2");
         let query_result = query(&query_body)
@@ -41,7 +44,7 @@ impl Db {
 
         match query_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e),
+            Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
 }
@@ -51,52 +54,43 @@ mod tests {
 
     use super::*;
     use crate::{
-        structs::client_data::ClientData,
-        tables::{
-            registered_app::table_struct::RegisteredApp, sessions::table_struct::DbNcSession,
-            utils::get_date_time,
-        },
+        structs::session_type::SessionType,
+        tables::{sessions::table_struct::DbNcSession, utils::get_date_time},
     };
+    use sqlx::types::chrono::Utc;
 
     #[tokio::test]
     async fn test_requests() {
         let db = super::Db::connect_to_the_pool().await;
         db.truncate_all_tables().await.unwrap();
 
-        // Create basic app to satisfy foreign key constraint
-        let app = RegisteredApp {
-            app_id: "test_app_id".to_string(),
-            app_name: "test_app_name".to_string(),
-            whitelisted_domains: vec!["test_domain".to_string()],
-            subscription: None,
-            ack_public_keys: vec!["test_key".to_string()],
-            email: Some("test_email".to_string()),
-            registration_timestamp: 10,
-            pass_hash: Some("test_pass_hash".to_string()),
-        };
-        db.register_new_app(&app).await.unwrap();
+        // Create test team instance
+        let team_id = "test_team_id".to_string();
+        let app_id = "test_app_id".to_string();
+
+        db.setup_test_team(&team_id, &app_id, Utc::now())
+            .await
+            .unwrap();
 
         // Create basic session to satisfy foreign key constraint
         let session = DbNcSession {
             session_id: "test_session_id".to_string(),
+            session_type: SessionType::Relay,
             app_id: "test_app_id".to_string(),
             app_metadata: "test_app_metadata".to_string(),
             app_ip_address: "test_app_ip_address".to_string(),
             persistent: false,
             network: "test_network".to_string(),
-            client: Some(ClientData {
-                client_id: Some("test_client_id".to_string()),
-                device: Some("test_device".to_string()),
-                metadata: Some("test_metadata".to_string()),
-                notification_endpoint: Some("test_notification_endpoint".to_string()),
-                connected_at: get_date_time(10).unwrap(),
-            }),
+            client_profile_id: Some("profile_id".to_string()),
+            client: None,
             session_open_timestamp: get_date_time(10).unwrap(),
             session_close_timestamp: None,
         };
 
         // Create a new session entry
-        db.save_new_session(&session).await.unwrap();
+        db.handle_new_session(&session, &"connection_id".to_string())
+            .await
+            .unwrap();
 
         let request = Request {
             request_id: "test_request_id".to_string(),

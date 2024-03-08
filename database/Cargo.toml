@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 sqlx = { workspace = true }
 serde = { workspace = true }
+ts-rs = { workspace = true }
 tokio = { workspace = true }
 dotenvy = { workspace = true }
-axum = { workspace = true }
+log = { workspace = true }

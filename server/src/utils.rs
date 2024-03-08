@@ -1,8 +1,15 @@
-use axum::http::{header, Method};
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use crate::{
+    statics::{NAME_REGEX, REGISTER_PASSWORD_VALIDATOR},
+    structs::{api_cloud_errors::CloudApiErrors, wallet_metadata::WalletMetadata, wallets::*},
+};
+use axum::http::{header, Method, StatusCode};
+use garde::Validate;
+use std::{
+    str::FromStr,
+    time::{Duration, SystemTime, UNIX_EPOCH},
+};
 use tower_http::cors::{Any, CorsLayer};
-
-use crate::structs::{wallet_metadata::WalletMetadata, wallets::*};
+use uuid7::Uuid;
 
 pub fn get_timestamp_in_milliseconds() -> u64 {
     let now = SystemTime::now();
@@ -34,4 +41,44 @@ pub fn get_wallets_metadata_vec() -> Vec<WalletMetadata> {
         aleph_zero_signer_metadata(),
         subwallet_metadata(),
     ]
+}
+
+pub fn validate_request<T>(payload: T, ctx: &T::Context) -> Result<(), (StatusCode, String)>
+where
+    T: Validate,
+{
+    payload.validate(ctx).map_err(|report| {
+        let error_message = match report.iter().next() {
+            Some((_, error)) => error.message().to_string(),
+            None => "Unknown error".to_string(),
+        };
+
+        (StatusCode::BAD_REQUEST, format!("{}", error_message))
+    })?;
+    return Ok(());
+}
+
+pub fn custom_validate_uuid(string_uuid: &String, _context: &()) -> garde::Result {
+    Uuid::from_str(&string_uuid)
+        .map_err(|_| garde::Error::new("Invalid UUID format".to_string()))?;
+    Ok(())
+}
+
+pub fn custom_validate_name(name: &String, _context: &()) -> garde::Result {
+    NAME_REGEX
+        .is_match(name)
+        .then(|| ())
+        .ok_or_else(|| garde::Error::new(CloudApiErrors::InvalidName.to_string()))
+}
+
+pub fn custom_validate_new_password(password: &String, _context: &()) -> garde::Result {
+    if !password.is_ascii() {
+        return Err(garde::Error::new("Password contains non-ascii characters"));
+    }
+    for validator in REGISTER_PASSWORD_VALIDATOR.iter() {
+        if !validator.re.is_match(password) {
+            return Err(garde::Error::new(validator.error.as_str()));
+        }
+    }
+    Ok(())
 }

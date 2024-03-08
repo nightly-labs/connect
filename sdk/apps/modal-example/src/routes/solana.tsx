@@ -20,7 +20,7 @@ export default function Solana() {
           additionalInfo: 'Courtesy of Nightly Connect team'
         }
       },
-      true,
+      {},
       document.getElementById('modalAnchor')
     ).then((adapter) => {
       adapter.on('connect', (pk) => {
@@ -30,7 +30,11 @@ export default function Solana() {
       adapter.on('disconnect', () => {
         setPublicKey(undefined)
       })
-
+      adapter.on('change', (a) => {
+        if (!!a.accounts?.length && a.accounts[0].publicKey) {
+          setPublicKey(new PublicKey(a.accounts[0].publicKey))
+        }
+      })
       adapter.canEagerConnect().then((canEagerConnect) => {
         setEager(canEagerConnect)
       })
