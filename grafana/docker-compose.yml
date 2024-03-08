@@ -10,6 +10,7 @@ services:
     volumes:
       - ./grafana-data:/var/lib/grafana # Persists Grafana data
       - ./grafana.ini:/etc/grafana/grafana.ini # Optional: Custom Grafana configuration
+      - ../jwt_keys/grafana.key.pub:/etc/grafana/public-key.pem # Optional: Custom Grafana configuration
     ports:
       - '3000:3000'
     restart: unless-stopped

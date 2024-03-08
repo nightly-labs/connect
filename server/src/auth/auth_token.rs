@@ -10,6 +10,7 @@ pub struct AuthToken {
     pub user_id: String,
     pub ip: Option<IpAddr>,
     pub token_type: AuthTokenType,
+    pub sub: String,
     pub exp: u64, // Required (validate_exp defaults to true in validation). Expiration time (as UTC timestamp)
 }
 
@@ -23,6 +24,7 @@ impl AuthToken {
                 None => None,
             },
             token_type: AuthTokenType::Access,
+            sub: user_id.clone(),
             exp: (Utc::now() + Duration::minutes(30)).timestamp() as u64, // Token expires in 30 minutes
         }
     }
@@ -35,15 +37,16 @@ impl AuthToken {
                 None => None,
             },
             token_type: AuthTokenType::Refresh,
+            sub: user_id.clone(),
             exp: (Utc::now() + Duration::minutes(60 * 7 * 24)).timestamp() as u64, // Token expires in 7 days
         }
     }
 
     pub fn encode(&self, secret: &str) -> Result<String, jsonwebtoken::errors::Error> {
         encode(
-            &Header::new(Algorithm::HS256),
+            &Header::new(Algorithm::RS256),
             &self,
-            &EncodingKey::from_secret(secret.as_ref()),
+            &EncodingKey::from_rsa_pem(secret.as_bytes()).unwrap(),
         )
     }
     pub fn decode(
@@ -53,8 +56,8 @@ impl AuthToken {
     ) -> Result<Self, jsonwebtoken::errors::Error> {
         let token_data = match decode::<AuthToken>(
             token,
-            &DecodingKey::from_secret(secret.as_ref()),
-            &Validation::new(Algorithm::HS256),
+            &DecodingKey::from_rsa_pem(secret.as_bytes()).unwrap(),
+            &Validation::new(Algorithm::RS256),
         ) {
             Ok(token) => token.claims,
             Err(e) => return Err(e),
@@ -84,7 +87,6 @@ mod tests {
         // Test the `new` method to create a new `AuthToken` instance.
         let ip = SocketAddr::from(([123, 233, 3, 21], 8080));
         let auth_token = AuthToken::new_access(&"1".to_string(), Some(ip));
-
         // Check that the `user_id` and `exp` fields are set correctly.
         assert_eq!(auth_token.user_id, "1".to_string());
         assert_eq!(auth_token.ip.unwrap(), ip.ip());
@@ -159,10 +161,11 @@ mod tests {
         let exp = (Utc::now() - Duration::minutes(30)).timestamp() as u64;
         let auth_token = AuthToken {
             id: uuid7::uuid7().to_string(),
-            user_id,
+            user_id: user_id.clone(),
             exp,
             ip: Some(ip.ip()),
             token_type: AuthTokenType::Access,
+            sub: user_id,
         };
 
         let token = auth_token.encode(secret).unwrap();
