@@ -4,5 +4,6 @@ CREATE TABLE team(
     personal BOOLEAN NOT NULL,
     subscription subscription,
     team_admin_id TEXT NOT NULL,
-    registration_timestamp TIMESTAMPTZ NOT NULL
+    registration_timestamp TIMESTAMPTZ NOT NULL,
+    PRIMARY KEY (team_name, team_admin_id)
 );

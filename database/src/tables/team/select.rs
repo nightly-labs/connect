@@ -85,15 +85,15 @@ impl Db {
     pub async fn get_team_by_team_name_and_admin_id(
         &self,
         team_name: &String,
-        team_id: &String,
+        admin_id: &String,
     ) -> Result<Option<Team>, DbError> {
         let query =
-            format!("SELECT * FROM {TEAM_TABLE_NAME} WHERE team_name = $1 AND team_id = $2");
+            format!("SELECT * FROM {TEAM_TABLE_NAME} WHERE team_name = $1 AND team_admin_id = $2");
         let typed_query = query_as::<_, Team>(&query);
 
         return typed_query
             .bind(&team_name)
-            .bind(&team_id)
+            .bind(&admin_id)
             .fetch_optional(&self.connection_pool)
             .await
             .map_err(|e| e.into());
