@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-database = { path = "../database" }
+database = { path = "../database"}
 
 serde = { workspace = true }
 tokio = { workspace = true }
@@ -31,3 +31,4 @@ jsonwebtoken = { workspace = true }
 pwhash = { workspace = true }
 rand = { workspace = true }
 garde = { workspace = true }
+sqlx = { workspace = true }

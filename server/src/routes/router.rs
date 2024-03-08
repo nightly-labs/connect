@@ -29,7 +29,6 @@ use database::db::Db;
 use std::{sync::Arc, time::Duration};
 use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
-use tracing_subscriber::EnvFilter;
 
 pub async fn get_router(only_relay_service: bool) -> Router {
     let db = if only_relay_service {
@@ -54,12 +53,6 @@ pub async fn get_router(only_relay_service: bool) -> Router {
         &state.session_to_app_map,
     );
     let cors = get_cors();
-
-    let filter: EnvFilter = "debug,tower_http=trace,hyper=warn"
-        .parse()
-        .expect("filter should parse");
-
-    tracing_subscriber::fmt().with_env_filter(filter).init();
 
     let router = if only_relay_service {
         Router::new()
