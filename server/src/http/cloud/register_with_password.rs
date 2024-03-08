@@ -102,7 +102,6 @@ mod tests {
         structs::cloud_http_endpoints::HttpCloudEndpoint,
         test_utils::test_utils::{
             convert_response, convert_response_into_error_string, create_test_app,
-            truncate_all_tables,
         },
     };
     use axum::{

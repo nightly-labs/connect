@@ -5,6 +5,7 @@ pub mod test_utils {
         env::JWT_SECRET,
         http::cloud::{
             login_with_password::{HttpLoginRequest, HttpLoginResponse},
+            register_new_team::{HttpRegisterNewTeamRequest, HttpRegisterNewTeamResponse},
             register_with_password::HttpRegisterWithPasswordRequest,
         },
         routes::router::get_router,
@@ -146,6 +147,41 @@ pub mod test_utils {
 
         let auth_token = AuthToken::decode(&response.auth_token, JWT_SECRET(), ip.0).unwrap();
         return (auth_token, email, password);
+    }
+
+    pub async fn add_test_team(
+        team_name: &String,
+        admin_token: &AuthToken,
+        app: &Router,
+    ) -> anyhow::Result<String> {
+        // Register new team
+        let request = HttpRegisterNewTeamRequest {
+            team_name: team_name.clone(),
+            personal: false,
+        };
+
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&request).unwrap();
+        let auth = admin_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::RegisterNewTeam.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // Send request
+        let response = app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        convert_response::<HttpRegisterNewTeamResponse>(response)
+            .await
+            .map(|response| Ok(response.team_id))?
     }
 
     pub async fn body_to_vec(response: Response<Body>) -> anyhow::Result<Vec<u8>> {
