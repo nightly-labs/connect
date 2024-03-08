@@ -11,7 +11,7 @@ use std::sync::Arc;
 use ts_rs::TS;
 use uuid7::uuid7;
 
-use crate::{env::NONCE, structs::api_cloud_errors::CloudApiErrors};
+use crate::{env::NONCE, structs::api_cloud_errors::CloudApiErrors, utils::validate_request};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
@@ -38,6 +38,9 @@ pub async fn register_with_password(
         StatusCode::INTERNAL_SERVER_ERROR,
         CloudApiErrors::CloudFeatureDisabled.to_string(),
     ))?;
+
+    // Validate request
+    validate_request(&request, &())?;
 
     // Check if user already exists
     if let Ok(_) = db.get_user_by_email(&request.email).await {

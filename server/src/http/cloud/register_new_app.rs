@@ -2,7 +2,7 @@ use crate::{
     auth::auth_middleware::UserId,
     statics::REGISTERED_APPS_LIMIT_PER_TEAM,
     structs::api_cloud_errors::CloudApiErrors,
-    utils::{custom_validate_name, custom_validate_uuid},
+    utils::{custom_validate_name, custom_validate_uuid, validate_request},
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::{
@@ -45,6 +45,9 @@ pub async fn register_new_app(
         StatusCode::INTERNAL_SERVER_ERROR,
         CloudApiErrors::CloudFeatureDisabled.to_string(),
     ))?;
+
+    // Validate request
+    validate_request(&request, &())?;
 
     // First check if user is adding a new app to an existing team
     // Get team data and perform checks

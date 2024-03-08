@@ -1,6 +1,8 @@
 use crate::{
-    auth::auth_middleware::UserId, statics::TEAMS_AMOUNT_LIMIT_PER_USER,
-    structs::api_cloud_errors::CloudApiErrors, utils::custom_validate_name,
+    auth::auth_middleware::UserId,
+    statics::TEAMS_AMOUNT_LIMIT_PER_USER,
+    structs::api_cloud_errors::CloudApiErrors,
+    utils::{custom_validate_name, validate_request},
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::{
@@ -40,6 +42,9 @@ pub async fn register_new_team(
         StatusCode::INTERNAL_SERVER_ERROR,
         CloudApiErrors::CloudFeatureDisabled.to_string(),
     ))?;
+
+    // Validate request
+    validate_request(&request, &())?;
 
     // First check if user is creating a new team
     // Get team data and perform checks
