@@ -8,5 +8,6 @@ mod sesssion_cleaner;
 pub mod state;
 pub mod statics;
 pub mod structs;
+pub mod test_utils;
 pub mod utils;
 pub mod ws;
