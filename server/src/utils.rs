@@ -1,6 +1,6 @@
 use crate::{
     statics::{NAME_REGEX, REGISTER_PASSWORD_VALIDATOR},
-    structs::{wallet_metadata::WalletMetadata, wallets::*},
+    structs::{api_cloud_errors::CloudApiErrors, wallet_metadata::WalletMetadata, wallets::*},
 };
 use axum::http::{header, Method, StatusCode};
 use garde::Validate;
@@ -68,7 +68,7 @@ pub fn custom_validate_name(name: &String, _context: &()) -> garde::Result {
     NAME_REGEX
         .is_match(name)
         .then(|| ())
-        .ok_or_else(|| garde::Error::new("App name must be 3-30 characters long and include only alphanumeric characters, underscores, or slashes.".to_string()))
+        .ok_or_else(|| garde::Error::new(CloudApiErrors::InvalidName.to_string()))
 }
 
 pub fn custom_validate_new_password(password: &String, _context: &()) -> garde::Result {

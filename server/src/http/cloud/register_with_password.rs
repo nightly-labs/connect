@@ -102,7 +102,6 @@ mod tests {
         structs::cloud_http_endpoints::HttpCloudEndpoint,
         test_utils::test_utils::{
             convert_response, convert_response_into_error_string, create_test_app,
-            truncate_all_tables,
         },
     };
     use axum::{
@@ -250,10 +249,6 @@ mod tests {
     #[tokio::test]
     async fn test_invalid_password() {
         let test_app = create_test_app(false).await;
-
-        // Truncate db
-        let mut db = Db::connect_to_the_pool().await;
-        truncate_all_tables(&mut db).await.unwrap();
 
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
         let uri = format!(

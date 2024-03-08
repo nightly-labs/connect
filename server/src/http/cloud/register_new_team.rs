@@ -133,3 +133,204 @@ pub async fn register_new_team(
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::{
+        env::JWT_SECRET,
+        http::cloud::register_new_team::{HttpRegisterNewTeamRequest, HttpRegisterNewTeamResponse},
+        structs::{api_cloud_errors::CloudApiErrors, cloud_http_endpoints::HttpCloudEndpoint},
+        test_utils::test_utils::{
+            convert_response, create_test_app, register_and_login_random_user, truncate_all_tables,
+        },
+    };
+    use axum::{
+        body::Body,
+        extract::ConnectInfo,
+        http::{Method, Request},
+    };
+    use database::db::Db;
+    use std::net::SocketAddr;
+    use tower::ServiceExt;
+
+    #[tokio::test]
+    async fn test_register_new_normal_team() {
+        let test_app = create_test_app(false).await;
+
+        // Truncate db
+        let mut db = Db::connect_to_the_pool().await;
+        truncate_all_tables(&mut db).await.unwrap();
+
+        let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
+
+        // Register new team
+        let first_team_name = "MyFirstTeam".to_string();
+        let request = HttpRegisterNewTeamRequest {
+            team_name: first_team_name.clone(),
+            personal: false,
+        };
+
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&request).unwrap();
+        let auth = auth_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::RegisterNewTeam.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // Send request
+        let response = test_app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        convert_response::<HttpRegisterNewTeamResponse>(response)
+            .await
+            .unwrap();
+
+        // Try to register the same team again, should fail
+        let json = serde_json::to_string(&request).unwrap();
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::RegisterNewTeam.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // Send request
+        let response = test_app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        let err = convert_response::<HttpRegisterNewTeamResponse>(response)
+            .await
+            .unwrap_err();
+
+        assert_eq!(
+            err.to_string(),
+            CloudApiErrors::TeamAlreadyExists.to_string()
+        );
+    }
+
+    #[tokio::test]
+    async fn test_register_new_personal_team() {
+        let test_app = create_test_app(false).await;
+
+        // Truncate db
+        let mut db = Db::connect_to_the_pool().await;
+        truncate_all_tables(&mut db).await.unwrap();
+
+        let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
+
+        // Register new team
+        let first_team_name = "MyFirstTeam".to_string();
+        let request = HttpRegisterNewTeamRequest {
+            team_name: first_team_name.clone(),
+            personal: true,
+        };
+
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&request).unwrap();
+        let auth = auth_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::RegisterNewTeam.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // Send request
+        let response = test_app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        convert_response::<HttpRegisterNewTeamResponse>(response)
+            .await
+            .unwrap();
+
+        // Try to register the new personal team, should fail
+        let second_team_name = "MySecondTeam".to_string();
+        let request = HttpRegisterNewTeamRequest {
+            team_name: second_team_name.clone(),
+            personal: true,
+        };
+
+        let json = serde_json::to_string(&request).unwrap();
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::RegisterNewTeam.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // Send request
+        let response = test_app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        let err = convert_response::<HttpRegisterNewTeamResponse>(response)
+            .await
+            .unwrap_err();
+
+        assert_eq!(
+            err.to_string(),
+            CloudApiErrors::PersonalTeamAlreadyExists.to_string()
+        );
+    }
+
+    #[tokio::test]
+    async fn test_invalid_team_name() {
+        let test_app = create_test_app(false).await;
+
+        // Truncate db
+        let mut db = Db::connect_to_the_pool().await;
+        truncate_all_tables(&mut db).await.unwrap();
+
+        let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
+
+        let request = HttpRegisterNewTeamRequest {
+            team_name: "My_Invalid_Team!!!".to_string(),
+            personal: true,
+        };
+
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&request).unwrap();
+        let auth = auth_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::RegisterNewTeam.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // Send request
+        let response = test_app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        let err = convert_response::<HttpRegisterNewTeamResponse>(response)
+            .await
+            .unwrap_err();
+
+        assert_eq!(err.to_string(), CloudApiErrors::InvalidName.to_string());
+    }
+}

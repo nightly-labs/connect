@@ -23,4 +23,5 @@ pub enum CloudApiErrors {
     EmailAlreadyExists,
     InternalServerError,
     UserDoesNotBelongsToTheTeam,
+    InvalidName,
 }
