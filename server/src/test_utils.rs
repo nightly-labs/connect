@@ -175,7 +175,7 @@ pub mod test_utils {
             }
             _ => {
                 let error_message = convert_response_into_error_string(response).await?;
-                bail!("Error response: {}", error_message);
+                bail!(error_message);
             }
         }
     }
