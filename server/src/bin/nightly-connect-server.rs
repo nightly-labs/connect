@@ -2,9 +2,16 @@ use server::env::ONLY_RELAY_SERVICE;
 use server::routes::router::get_router;
 use std::net::SocketAddr;
 use std::sync::mpsc::channel;
+use tracing_subscriber::EnvFilter;
 
 #[tokio::main]
 async fn main() {
+    let filter: EnvFilter = "debug,tower_http=trace,hyper=warn"
+        .parse()
+        .expect("filter should parse");
+
+    tracing_subscriber::fmt().with_env_filter(filter).init();
+
     let router = get_router(ONLY_RELAY_SERVICE()).await;
     let listener = tokio::net::TcpListener::bind(&"127.0.0.1:6969")
         .await

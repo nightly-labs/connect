@@ -22,4 +22,5 @@ pub enum CloudApiErrors {
     PersonalTeamAlreadyExists,
     EmailAlreadyExists,
     InternalServerError,
+    UserDoesNotBelongsToTheTeam,
 }

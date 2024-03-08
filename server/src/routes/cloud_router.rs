@@ -1,8 +1,10 @@
 use crate::{
     auth::auth_middleware::access_auth_middleware,
     http::cloud::{
-        login_with_password::login_with_password, register_new_app::register_new_app,
+        add_user_to_team::add_user_to_team, login_with_password::login_with_password,
+        register_new_app::register_new_app, register_new_team::register_new_team,
         register_with_password::register_with_password,
+        remove_user_from_team::remove_user_from_team,
     },
     state::ServerState,
     structs::cloud_http_endpoints::HttpCloudEndpoint,
@@ -40,6 +42,18 @@ pub fn private_router(state: ServerState) -> Router<ServerState> {
         .route(
             &HttpCloudEndpoint::RegisterNewApp.to_string(),
             post(register_new_app),
+        )
+        .route(
+            &HttpCloudEndpoint::RegisterNewTeam.to_string(),
+            post(register_new_team),
+        )
+        .route(
+            &HttpCloudEndpoint::AddUserToTeam.to_string(),
+            post(add_user_to_team),
+        )
+        .route(
+            &HttpCloudEndpoint::RemoveUserFromTeam.to_string(),
+            post(remove_user_from_team),
         )
         .with_state(state)
 }
