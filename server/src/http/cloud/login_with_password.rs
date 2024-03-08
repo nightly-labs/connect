@@ -2,6 +2,7 @@ use crate::{
     auth::AuthToken,
     env::{JWT_SECRET, NONCE},
     structs::api_cloud_errors::CloudApiErrors,
+    utils::validate_request,
 };
 use axum::{
     extract::{ConnectInfo, State},
@@ -9,18 +10,22 @@ use axum::{
     Json,
 };
 use database::db::Db;
+use garde::Validate;
 use log::error;
 use pwhash::bcrypt;
 use serde::{Deserialize, Serialize};
 use std::{net::SocketAddr, sync::Arc};
 use ts_rs::TS;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpLoginRequest {
+    #[garde(email)]
     pub email: String,
+    #[garde(ascii, length(min = 6, max = 30))]
     pub password: String,
+    #[garde(skip)]
     pub enforce_ip: bool,
 }
 
@@ -42,6 +47,9 @@ pub async fn login_with_password(
         StatusCode::INTERNAL_SERVER_ERROR,
         CloudApiErrors::CloudFeatureDisabled.to_string(),
     ))?;
+
+    // Validate request
+    validate_request(&request, &())?;
 
     // Check if user exists
     let user = match db.get_user_by_email(&request.email).await {

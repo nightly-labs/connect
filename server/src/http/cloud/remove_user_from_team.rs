@@ -1,6 +1,5 @@
 use crate::{
     auth::auth_middleware::UserId,
-    statics::USERS_AMOUNT_LIMIT_PER_TEAM,
     structs::api_cloud_errors::CloudApiErrors,
     utils::{custom_validate_uuid, validate_request},
 };
@@ -9,13 +8,13 @@ use database::db::Db;
 use garde::Validate;
 use log::error;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashSet, sync::Arc};
+use std::sync::Arc;
 use ts_rs::TS;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct HttpAddUserToTeamRequest {
+pub struct HttpRemoveUserFromTeamRequest {
     #[garde(custom(custom_validate_uuid))]
     pub team_id: String,
     #[garde(email)]
@@ -24,13 +23,13 @@ pub struct HttpAddUserToTeamRequest {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct HttpAddUserToTeamResponse {}
+pub struct HttpRemoveUserFromTeamResponse {}
 
-pub async fn add_user_to_team(
+pub async fn remove_user_from_team(
     State(db): State<Option<Arc<Db>>>,
     Extension(user_id): Extension<UserId>,
-    Json(request): Json<HttpAddUserToTeamRequest>,
-) -> Result<Json<HttpAddUserToTeamResponse>, (StatusCode, String)> {
+    Json(request): Json<HttpRemoveUserFromTeamRequest>,
+) -> Result<Json<HttpRemoveUserFromTeamResponse>, (StatusCode, String)> {
     // Db connection has already been checked in the middleware
     let db = db.as_ref().ok_or((
         StatusCode::INTERNAL_SERVER_ERROR,
@@ -49,49 +48,6 @@ pub async fn add_user_to_team(
                     StatusCode::BAD_REQUEST,
                     CloudApiErrors::InsufficientPermissions.to_string(),
                 ));
-            }
-
-            // Check if team has at least one registered app
-            match db.get_registered_apps_by_team_id(&request.team_id).await {
-                Ok(apps) => {
-                    if apps.is_empty() {
-                        return Err((
-                            StatusCode::BAD_REQUEST,
-                            CloudApiErrors::TeamHasNoRegisteredApps.to_string(),
-                        ));
-                    }
-                }
-                Err(err) => {
-                    error!("Failed to get registered apps by team id: {:?}", err);
-                    return Err((
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        CloudApiErrors::DatabaseError.to_string(),
-                    ));
-                }
-            }
-
-            // Check if limit of users in the team has been reached
-            match db.get_privileges_by_team_id(&request.team_id).await {
-                Ok(privileges) => {
-                    let users = privileges
-                        .iter()
-                        .map(|privilege| privilege.user_id.clone())
-                        .collect::<HashSet<String>>();
-
-                    if users.len() >= USERS_AMOUNT_LIMIT_PER_TEAM {
-                        return Err((
-                            StatusCode::BAD_REQUEST,
-                            CloudApiErrors::MaximumUsersPerTeamReached.to_string(),
-                        ));
-                    }
-                }
-                Err(err) => {
-                    error!("Failed to get privileges by team id: {:?}", err);
-                    return Err((
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        CloudApiErrors::DatabaseError.to_string(),
-                    ));
-                }
             }
 
             // Get user data and perform checks
@@ -119,10 +75,10 @@ pub async fn add_user_to_team(
             {
                 Ok(teams) => {
                     // This won't check if user has permissions to all apps in the team
-                    if teams.iter().any(|(team_id, _)| team_id == &request.team_id) {
+                    if !teams.iter().any(|(team_id, _)| team_id == &request.team_id) {
                         return Err((
                             StatusCode::BAD_REQUEST,
-                            CloudApiErrors::UserAlreadyBelongsToTheTeam.to_string(),
+                            CloudApiErrors::UserDoesNotBelongsToTheTeam.to_string(),
                         ));
                     }
                 }
@@ -140,14 +96,14 @@ pub async fn add_user_to_team(
 
             // Add user to the team
             match db
-                .add_user_to_the_team(&user.user_id, &request.team_id)
+                .remove_user_from_the_team(&user.user_id, &request.team_id)
                 .await
             {
                 Ok(_) => {
-                    return Ok(Json(HttpAddUserToTeamResponse {}));
+                    return Ok(Json(HttpRemoveUserFromTeamResponse {}));
                 }
                 Err(err) => {
-                    error!("Failed to add user to the team: {:?}", err);
+                    error!("Failed to remove user from the team: {:?}", err);
                     return Err((
                         StatusCode::INTERNAL_SERVER_ERROR,
                         CloudApiErrors::DatabaseError.to_string(),

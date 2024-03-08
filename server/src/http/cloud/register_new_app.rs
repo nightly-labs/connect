@@ -1,24 +1,31 @@
 use crate::{
-    auth::auth_middleware::UserId, statics::REGISTERED_APPS_LIMIT_PER_TEAM,
+    auth::auth_middleware::UserId,
+    statics::REGISTERED_APPS_LIMIT_PER_TEAM,
     structs::api_cloud_errors::CloudApiErrors,
+    utils::{custom_validate_name, custom_validate_uuid, validate_request},
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::{
     db::Db, structs::privilege_level::PrivilegeLevel, tables::utils::get_current_datetime,
 };
+use garde::Validate;
 use log::error;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
 use uuid7::uuid7;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpRegisterNewAppRequest {
+    #[garde(custom(custom_validate_uuid))]
     pub team_id: String,
+    #[garde(custom(custom_validate_name))]
     pub app_name: String,
+    #[garde(skip)]
     pub whitelisted_domains: Vec<String>,
+    #[garde(skip)]
     pub ack_public_keys: Vec<String>,
 }
 
@@ -38,6 +45,9 @@ pub async fn register_new_app(
         StatusCode::INTERNAL_SERVER_ERROR,
         CloudApiErrors::CloudFeatureDisabled.to_string(),
     ))?;
+
+    // Validate request
+    validate_request(&request, &())?;
 
     // First check if user is adding a new app to an existing team
     // Get team data and perform checks

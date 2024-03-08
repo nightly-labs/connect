@@ -105,6 +105,52 @@ impl Db {
         Ok(())
     }
 
+    pub async fn remove_user_from_the_team(
+        &self,
+        user_id: &String,
+        team_id: &String,
+    ) -> Result<(), DbError> {
+        // Retrieve all apps associated with the team
+        let apps_query =
+            format!("SELECT app_id FROM {REGISTERED_APPS_TABLE_NAME} WHERE team_id = $1");
+        let apps: Vec<String> = sqlx::query_as(&apps_query)
+            .bind(team_id)
+            .fetch_all(&self.connection_pool)
+            .await?
+            .into_iter()
+            .map(|(app_id,): (String,)| app_id)
+            .collect();
+
+        // Only proceed if there are apps to assign privileges for
+        if apps.is_empty() {
+            return Err(DbError::DatabaseError(
+                "No apps associated with the team".to_string(),
+            ));
+        }
+
+        // Start a transaction
+        let mut tx = self.connection_pool.begin().await?;
+
+        for app_id in apps.iter() {
+            let delete_query = format!(
+                "DELETE FROM {USER_APP_PRIVILEGES_TABLE_NAME} WHERE user_id = $1 AND app_id = $2",
+            );
+
+            // If any of the queries fail, rollback the transaction
+            if let Err(err) = sqlx::query(&delete_query)
+                .bind(user_id)
+                .bind(app_id)
+                .execute(&mut *tx)
+                .await
+            {
+                let _ = tx.rollback().await;
+                return Err(err.into());
+            }
+        }
+
+        Ok(())
+    }
+
     pub async fn add_privileges_for_new_team_app_for_existing_users(
         &self,
         tx: &mut Transaction<'_, sqlx::Postgres>,

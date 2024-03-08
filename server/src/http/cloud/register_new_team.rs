@@ -1,23 +1,28 @@
 use crate::{
-    auth::auth_middleware::UserId, statics::TEAMS_AMOUNT_LIMIT_PER_USER,
+    auth::auth_middleware::UserId,
+    statics::TEAMS_AMOUNT_LIMIT_PER_USER,
     structs::api_cloud_errors::CloudApiErrors,
+    utils::{custom_validate_name, validate_request},
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::{
     db::Db,
     tables::{team::table_struct::Team, utils::get_current_datetime},
 };
+use garde::Validate;
 use log::error;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
 use uuid7::uuid7;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpRegisterNewTeamRequest {
+    #[garde(custom(custom_validate_name))]
     pub team_name: String,
+    #[garde(skip)]
     pub personal: bool,
 }
 
@@ -37,6 +42,9 @@ pub async fn register_new_team(
         StatusCode::INTERNAL_SERVER_ERROR,
         CloudApiErrors::CloudFeatureDisabled.to_string(),
     ))?;
+
+    // Validate request
+    validate_request(&request, &())?;
 
     // First check if user is creating a new team
     // Get team data and perform checks
