@@ -1,6 +1,6 @@
 use crate::{
     auth::auth_middleware::UserId, statics::TEAMS_AMOUNT_LIMIT_PER_USER,
-    structs::api_cloud_errors::CloudApiErrors,
+    structs::api_cloud_errors::CloudApiErrors, utils::custom_validate_name,
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::{
@@ -18,7 +18,7 @@ use uuid7::uuid7;
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpRegisterNewTeamRequest {
-    #[garde(ascii, length(min = 3, max = 30))]
+    #[garde(custom(custom_validate_name))]
     pub team_name: String,
     #[garde(skip)]
     pub personal: bool,

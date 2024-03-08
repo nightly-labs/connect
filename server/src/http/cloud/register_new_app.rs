@@ -1,6 +1,8 @@
 use crate::{
-    auth::auth_middleware::UserId, statics::REGISTERED_APPS_LIMIT_PER_TEAM,
-    structs::api_cloud_errors::CloudApiErrors, utils::custom_validate_uuid,
+    auth::auth_middleware::UserId,
+    statics::REGISTERED_APPS_LIMIT_PER_TEAM,
+    structs::api_cloud_errors::CloudApiErrors,
+    utils::{custom_validate_name, custom_validate_uuid},
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::{
@@ -19,7 +21,7 @@ use uuid7::uuid7;
 pub struct HttpRegisterNewAppRequest {
     #[garde(custom(custom_validate_uuid))]
     pub team_id: String,
-    #[garde(ascii, length(min = 3, max = 30))]
+    #[garde(custom(custom_validate_name))]
     pub app_name: String,
     #[garde(skip)]
     pub whitelisted_domains: Vec<String>,

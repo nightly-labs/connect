@@ -1,4 +1,7 @@
-use crate::structs::{wallet_metadata::WalletMetadata, wallets::*};
+use crate::{
+    statics::NAME_REGEX,
+    structs::{wallet_metadata::WalletMetadata, wallets::*},
+};
 use axum::http::{header, Method};
 use std::{
     str::FromStr,
@@ -43,4 +46,11 @@ pub fn custom_validate_uuid(string_uuid: &String, _context: &()) -> garde::Resul
     Uuid::from_str(&string_uuid)
         .map_err(|_| garde::Error::new("Invalid UUID format".to_string()))?;
     Ok(())
+}
+
+pub fn custom_validate_name(name: &String, _context: &()) -> garde::Result {
+    NAME_REGEX
+        .is_match(name)
+        .then(|| ())
+        .ok_or_else(|| garde::Error::new("App name must be 3-30 characters long and include only alphanumeric characters, underscores, or slashes.".to_string()))
 }
