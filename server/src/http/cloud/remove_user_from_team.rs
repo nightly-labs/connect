@@ -25,7 +25,7 @@ pub struct HttpRemoveUserFromTeamRequest {
 #[ts(export)]
 pub struct HttpRemoveUserFromTeamResponse {}
 
-pub async fn remove_user_to_team(
+pub async fn remove_user_from_team(
     State(db): State<Option<Arc<Db>>>,
     Extension(user_id): Extension<UserId>,
     Json(request): Json<HttpRemoveUserFromTeamRequest>,
