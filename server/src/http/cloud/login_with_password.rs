@@ -2,6 +2,7 @@ use crate::{
     auth::AuthToken,
     env::{JWT_SECRET, NONCE},
     structs::api_cloud_errors::CloudApiErrors,
+    utils::validate_request,
 };
 use axum::{
     extract::{ConnectInfo, State},
@@ -46,6 +47,9 @@ pub async fn login_with_password(
         StatusCode::INTERNAL_SERVER_ERROR,
         CloudApiErrors::CloudFeatureDisabled.to_string(),
     ))?;
+
+    // Validate request
+    validate_request(&request, &())?;
 
     // Check if user exists
     let user = match db.get_user_by_email(&request.email).await {

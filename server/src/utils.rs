@@ -2,7 +2,8 @@ use crate::{
     statics::NAME_REGEX,
     structs::{wallet_metadata::WalletMetadata, wallets::*},
 };
-use axum::http::{header, Method};
+use axum::http::{header, Method, StatusCode};
+use garde::Validate;
 use std::{
     str::FromStr,
     time::{Duration, SystemTime, UNIX_EPOCH},
@@ -40,6 +41,21 @@ pub fn get_wallets_metadata_vec() -> Vec<WalletMetadata> {
         aleph_zero_signer_metadata(),
         subwallet_metadata(),
     ]
+}
+
+pub fn validate_request<T>(payload: T, ctx: &T::Context) -> Result<(), (StatusCode, String)>
+where
+    T: Validate,
+{
+    payload.validate(ctx).map_err(|report| {
+        let error_message = match report.iter().next() {
+            Some((_, error)) => error.message().to_string(),
+            None => "Unknown error".to_string(),
+        };
+
+        (StatusCode::BAD_REQUEST, format!("{}", error_message))
+    })?;
+    return Ok(());
 }
 
 pub fn custom_validate_uuid(string_uuid: &String, _context: &()) -> garde::Result {
