@@ -5,7 +5,7 @@ use sqlx::{query, Transaction};
 impl Db {
     pub async fn register_new_app(&self, app: &DbRegisteredApp) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {REGISTERED_APPS_TABLE_NAME} ({REGISTERED_APPS_KEYS}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)"
+            "INSERT INTO {REGISTERED_APPS_TABLE_NAME} ({REGISTERED_APPS_KEYS}) VALUES ($1, $2, $3, $4, $5, $6)"
         );
 
         let query_result = query(&query_body)
@@ -14,9 +14,7 @@ impl Db {
             .bind(&app.app_name)
             .bind(&app.whitelisted_domains)
             .bind(&app.ack_public_keys)
-            .bind(&app.email)
             .bind(&app.registration_timestamp)
-            .bind(&app.pass_hash)
             .execute(&self.connection_pool)
             .await;
 
@@ -32,7 +30,7 @@ impl Db {
         app: &DbRegisteredApp,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {REGISTERED_APPS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+            "INSERT INTO {REGISTERED_APPS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6)",
             REGISTERED_APPS_KEYS
         );
 
@@ -42,9 +40,7 @@ impl Db {
             .bind(&app.app_name)
             .bind(&app.whitelisted_domains)
             .bind(&app.ack_public_keys)
-            .bind(&app.email)
             .bind(&app.registration_timestamp)
-            .bind(&app.pass_hash)
             .execute(&mut **tx)
             .await;
 

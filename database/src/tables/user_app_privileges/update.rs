@@ -284,10 +284,7 @@ mod tests {
                 app_id: app_id.clone(),
                 app_name: format!("test_app_name_{}", i),
                 team_id: team_id.clone(),
-                email: None,
-                pass_hash: None,
                 registration_timestamp: to_microsecond_precision(&Utc::now()),
-                subscription: None,
             };
 
             db.register_new_app(&app).await.unwrap();
@@ -323,10 +320,7 @@ mod tests {
                 app_id: app_id.clone(),
                 app_name: format!("test_app_name_{}", i),
                 team_id: team_id.clone(),
-                email: None,
-                pass_hash: None,
                 registration_timestamp: to_microsecond_precision(&Utc::now()),
-                subscription: None,
             };
 
             db.register_new_app(&app).await.unwrap();

@@ -117,10 +117,7 @@ pub async fn register_new_app(
                     app_name: request.app_name.clone(),
                     ack_public_keys: request.ack_public_keys.clone(),
                     whitelisted_domains: request.whitelisted_domains.clone(),
-                    email: None,
-                    pass_hash: None,
                     registration_timestamp: get_current_datetime(),
-                    subscription: None,
                 };
 
             if let Err(err) = db

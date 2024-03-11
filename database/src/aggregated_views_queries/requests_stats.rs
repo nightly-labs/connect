@@ -315,11 +315,8 @@ mod test {
             app_id: second_app_id.to_string(),
             app_name: "test_app_name".to_string(),
             whitelisted_domains: vec!["test_domain".to_string()],
-            subscription: None,
             ack_public_keys: vec!["test_key".to_string()],
-            email: None,
             registration_timestamp: to_microsecond_precision(&Utc::now()),
-            pass_hash: None,
         };
         db_arc.register_new_app(&app).await.unwrap();
 
