@@ -43,38 +43,32 @@ impl AuthToken {
     }
 
     pub fn encode(&self, secret: &str) -> Result<String, jsonwebtoken::errors::Error> {
-        encode(
-            &Header::new(Algorithm::RS256),
-            &self,
-            &EncodingKey::from_rsa_pem(secret.as_bytes()).expect("Failed to decode private key"),
-        )
+        EncodingKey::from_rsa_pem(secret.as_bytes())
+            .map_err(|e| e.into())
+            .and_then(|key| encode(&Header::new(Algorithm::RS256), &self, &key))
     }
+
     pub fn decode(
         token: &str,
         public_key: &str,
         ip: SocketAddr,
     ) -> Result<Self, jsonwebtoken::errors::Error> {
-        let token_data = match decode::<AuthToken>(
-            token,
-            &DecodingKey::from_rsa_pem(public_key.as_bytes()).expect("Failed to decode public key"),
-            &Validation::new(Algorithm::RS256),
-        ) {
-            Ok(token) => token.claims,
-            Err(e) => return Err(e),
-        };
+        let decoding_key = DecodingKey::from_rsa_pem(public_key.as_bytes()).map_err(|e| e)?;
 
-        match token_data.ip {
-            Some(token_ip) => {
-                if token_ip == ip.ip() {
-                    return Ok(token_data);
-                } else {
-                    return Err(jsonwebtoken::errors::Error::from(
-                        jsonwebtoken::errors::ErrorKind::InvalidToken,
-                    ));
-                }
+        let token_data =
+            decode::<AuthToken>(token, &decoding_key, &Validation::new(Algorithm::RS256))?.claims;
+
+        if let Some(token_ip) = token_data.ip {
+            if token_ip == ip.ip() {
+                Ok(token_data)
+            } else {
+                Err(jsonwebtoken::errors::Error::from(
+                    jsonwebtoken::errors::ErrorKind::InvalidToken,
+                ))
             }
+        } else {
             // Token does not have to be ip specific
-            None => return Ok(token_data),
+            Ok(token_data)
         }
     }
 }
