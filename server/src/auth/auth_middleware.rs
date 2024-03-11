@@ -1,5 +1,5 @@
 use super::{auth_token_type::AuthTokenType, AuthToken};
-use crate::env::JWT_SECRET;
+use crate::env::JWT_PUBLIC_KEY;
 use axum::{
     extract::{ConnectInfo, Request},
     http::{HeaderMap, StatusCode},
@@ -27,7 +27,7 @@ pub async fn access_auth_middleware(
         Some(auth_header) => {
             let token = auth_header.replace("Bearer ", "");
             // Decode and validate the token
-            let decoded = match AuthToken::decode(&token, JWT_SECRET(), ip) {
+            let decoded = match AuthToken::decode(&token, JWT_PUBLIC_KEY(), ip) {
                 Ok(decoded) => decoded,
                 Err(e) => return Err((StatusCode::UNAUTHORIZED, e.to_string())),
             };
