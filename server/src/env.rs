@@ -1,11 +1,11 @@
 #![allow(non_snake_case)]
 use once_cell::sync::OnceCell;
-use rand::{distributions::Alphanumeric, thread_rng, Rng};
 
 #[derive(Debug)]
 pub struct ENV {
     pub ENVIRONMENT: String,
     pub JWT_SECRET: String,
+    pub JWT_PUBLIC_KEY: String,
     pub ONLY_RELAY_SERVICE: bool,
     pub NONCE: String,
 }
@@ -19,20 +19,8 @@ pub fn get_env() -> &'static ENV {
 
         let env = ENV {
             ENVIRONMENT: ENVIRONMENT.to_owned(),
-            JWT_SECRET: match ENVIRONMENT {
-                "PROD" => std::env::var("JWT_SECRET").expect("JWT_SECRET env not set"),
-                "DEV" => {
-                    let rand_string: String = thread_rng()
-                        .sample_iter(&Alphanumeric)
-                        .take(6)
-                        .map(char::from)
-                        .collect();
-
-                    std::env::var("JWT_SECRET").expect("JWT_SECRET env not set")
-                        + rand_string.as_str()
-                }
-                _ => panic!("Invalid ENVIRONMENT"),
-            },
+            JWT_SECRET: std::env::var("JWT_SECRET").expect("JWT_SECRET env not set"),
+            JWT_PUBLIC_KEY: std::env::var("JWT_PUBLIC_KEY").expect("JWT_PUBLIC_KEY env not set"),
             ONLY_RELAY_SERVICE: std::env::var("ONLY_RELAY_SERVICE")
                 .expect("Failed to get ONLY_RELAY_SERVICE env")
                 .eq_ignore_ascii_case("true"),
@@ -49,6 +37,9 @@ pub fn JWT_SECRET() -> &'static str {
     get_env().JWT_SECRET.as_str()
 }
 
+pub fn JWT_PUBLIC_KEY() -> &'static str {
+    get_env().JWT_PUBLIC_KEY.as_str()
+}
 pub fn ONLY_RELAY_SERVICE() -> bool {
     get_env().ONLY_RELAY_SERVICE
 }
