@@ -2,7 +2,7 @@
 pub mod test_utils {
     use crate::{
         auth::AuthToken,
-        env::JWT_SECRET,
+        env::{JWT_PUBLIC_KEY, JWT_SECRET},
         http::cloud::{
             login_with_password::{HttpLoginRequest, HttpLoginResponse},
             register_new_team::{HttpRegisterNewTeamRequest, HttpRegisterNewTeamResponse},
@@ -145,7 +145,7 @@ pub mod test_utils {
         )
         .unwrap();
 
-        let auth_token = AuthToken::decode(&response.auth_token, JWT_SECRET(), ip.0).unwrap();
+        let auth_token = AuthToken::decode(&response.auth_token, JWT_PUBLIC_KEY(), ip.0).unwrap();
         return (auth_token, email, password);
     }
 
