@@ -15,6 +15,7 @@ pub mod test_utils {
             },
         },
         routes::router::get_router,
+        statics::NAME_REGEX,
         structs::cloud_http_endpoints::HttpCloudEndpoint,
     };
     use anyhow::bail;
@@ -25,7 +26,10 @@ pub mod test_utils {
         Router,
     };
     use database::db::Db;
-    use rand::{distributions::Alphanumeric, thread_rng, Rng};
+    use rand::{
+        distributions::{Alphanumeric, Uniform},
+        thread_rng, Rng,
+    };
     use sqlx::Row;
     use std::net::SocketAddr;
     use tower::ServiceExt;
@@ -355,5 +359,33 @@ pub mod test_utils {
                 bail!("{}", status)
             }
         }
+    }
+
+    pub fn generate_valid_name() -> String {
+        let mut rng = rand::thread_rng();
+
+        // Define ranges for alphanumeric characters and individual characters for underscore and slash.
+        let char_ranges = ['a'..'z', 'A'..'Z', '0'..'9'];
+        let single_chars = ['_', '/'];
+
+        // Flatten the char_ranges into a single collection of characters and add individual characters.
+        let mut chars: Vec<char> = char_ranges.into_iter().flat_map(|range| range).collect();
+        chars.extend(single_chars.iter());
+
+        // Ensure the distribution covers the range of available characters.
+        let dist = Uniform::from(0..chars.len());
+
+        // Define minimum and maximum length based on the regex pattern.
+        let min_len = 3;
+        let max_len = 30;
+        let name_len = rng.gen_range(min_len..=max_len);
+
+        // Generate a random string of valid characters within the defined length.
+        let name: String = (0..name_len).map(|_| chars[rng.sample(&dist)]).collect();
+
+        // Ensure the generated name matches the regex pattern.
+        assert!(NAME_REGEX.is_match(&name));
+
+        name
     }
 }

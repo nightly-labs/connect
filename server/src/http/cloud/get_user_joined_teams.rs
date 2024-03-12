@@ -96,14 +96,16 @@ pub async fn get_user_joined_teams(
 
 #[cfg(test)]
 mod tests {
-    use crate::test_utils::test_utils::{add_user_to_test_team, get_test_user_joined_teams};
+    use crate::test_utils::test_utils::{
+        add_user_to_test_team, generate_valid_name, get_test_user_joined_teams,
+    };
     use crate::{
         env::JWT_SECRET,
         http::cloud::register_new_app::HttpRegisterNewAppRequest,
         structs::cloud_http_endpoints::HttpCloudEndpoint,
         test_utils::test_utils::{
             add_test_app, add_test_team, convert_response, create_test_app,
-            register_and_login_random_user, truncate_all_tables,
+            register_and_login_random_user,
         },
     };
     use axum::{
@@ -111,19 +113,13 @@ mod tests {
         extract::ConnectInfo,
         http::{Method, Request},
     };
-    use database::db::Db;
     use database::tables::utils::get_current_datetime;
     use std::net::SocketAddr;
     use tower::ServiceExt;
-    use tracing_subscriber::EnvFilter;
 
     #[tokio::test]
     async fn test_get_user_joined_teams() {
         let test_app = create_test_app(false).await;
-
-        // Truncate db
-        let mut db = Db::connect_to_the_pool().await;
-        truncate_all_tables(&mut db).await.unwrap();
 
         let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
 
@@ -131,8 +127,8 @@ mod tests {
         let mut team_ids = Vec::new();
 
         // Create teams
-        for i in 0..num_of_teams {
-            let team_name = format!("MyFirstTeam{}", i);
+        for _ in 0..num_of_teams {
+            let team_name = generate_valid_name();
             let team_id = add_test_team(&team_name, &auth_token, &test_app, false)
                 .await
                 .unwrap();
@@ -143,8 +139,8 @@ mod tests {
         // Register 3 + [team index] apps for each team
         for (j, team_id) in team_ids.iter().enumerate() {
             let mut team_app_ids = Vec::new();
-            for i in 0..3 + j {
-                let app_name = format!("MyFirstApp{}{}", j, i);
+            for _ in 0..3 + j {
+                let app_name = generate_valid_name();
                 let request = HttpRegisterNewAppRequest {
                     team_id: team_id.clone(),
                     app_name: app_name.clone(),
@@ -219,7 +215,7 @@ mod tests {
         assert!(response.user_privileges.get(&team_ids[1]).unwrap().len() == 4);
 
         // Create personal team as a test user
-        let personal_team_name = "PersonalTeam".to_string();
+        let personal_team_name = generate_valid_name();
         let personal_team_id =
             add_test_team(&personal_team_name, &app_user_auth_token, &test_app, true)
                 .await
@@ -263,14 +259,10 @@ mod tests {
     async fn test_get_user_joined_teams_empty_teams() {
         let test_app = create_test_app(false).await;
 
-        // Truncate db
-        let mut db = Db::connect_to_the_pool().await;
-        truncate_all_tables(&mut db).await.unwrap();
-
         let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
 
         // Create personal team
-        let personal_team_name = "PersonalTeam".to_string();
+        let personal_team_name = generate_valid_name();
         let personal_team_id = add_test_team(&personal_team_name, &auth_token, &test_app, true)
             .await
             .unwrap();
@@ -286,7 +278,7 @@ mod tests {
         assert!(response.user_privileges.len() == 0);
 
         // Add new "normal" team
-        let team_name = "MyFirstTeam".to_string();
+        let team_name = generate_valid_name();
         let team_id = add_test_team(&team_name, &auth_token, &test_app, false)
             .await
             .unwrap();
@@ -306,10 +298,6 @@ mod tests {
     #[tokio::test]
     async fn test_get_user_joined_teams_empty_account() {
         let test_app = create_test_app(false).await;
-
-        // Truncate db
-        let mut db = Db::connect_to_the_pool().await;
-        truncate_all_tables(&mut db).await.unwrap();
 
         let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
 
