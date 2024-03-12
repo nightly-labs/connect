@@ -4,7 +4,9 @@ pub mod test_utils {
         auth::AuthToken,
         env::JWT_SECRET,
         http::cloud::{
+            add_user_to_team::{HttpAddUserToTeamRequest, HttpAddUserToTeamResponse},
             login_with_password::{HttpLoginRequest, HttpLoginResponse},
+            register_new_app::{HttpRegisterNewAppRequest, HttpRegisterNewAppResponse},
             register_new_team::{HttpRegisterNewTeamRequest, HttpRegisterNewTeamResponse},
             register_with_password::HttpRegisterWithPasswordRequest,
         },
@@ -182,6 +184,72 @@ pub mod test_utils {
         convert_response::<HttpRegisterNewTeamResponse>(response)
             .await
             .map(|response| Ok(response.team_id))?
+    }
+
+    pub async fn add_test_app(
+        request: &HttpRegisterNewAppRequest,
+        admin_token: &AuthToken,
+        app: &Router,
+    ) -> anyhow::Result<String> {
+        // Register new app
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&request).unwrap();
+        let auth = admin_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::RegisterNewApp.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // Send request
+        let response = app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        convert_response::<HttpRegisterNewAppResponse>(response)
+            .await
+            .map(|response| Ok(response.app_id))?
+    }
+
+    pub async fn add_user_to_test_team(
+        team_id: &String,
+        user_email: &String,
+        admin_token: &AuthToken,
+        app: &Router,
+    ) -> anyhow::Result<()> {
+        // Add user to test team
+        let request = HttpAddUserToTeamRequest {
+            team_id: team_id.clone(),
+            user_email: user_email.clone(),
+        };
+
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&request).unwrap();
+        let auth = admin_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::AddUserToTeam.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // Send request
+        let response = app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        convert_response::<HttpAddUserToTeamResponse>(response)
+            .await
+            .map(|_| Ok(()))?
     }
 
     pub async fn body_to_vec(response: Response<Body>) -> anyhow::Result<Vec<u8>> {

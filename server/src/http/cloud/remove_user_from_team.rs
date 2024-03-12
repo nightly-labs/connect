@@ -112,7 +112,10 @@ pub async fn remove_user_from_team(
             }
         }
         Ok(None) => {
-            return Err((StatusCode::BAD_REQUEST, "Team does not exist".to_string()));
+            return Err((
+                StatusCode::BAD_REQUEST,
+                CloudApiErrors::TeamDoesNotExist.to_string(),
+            ));
         }
         Err(err) => {
             error!("Failed to get team: {:?}", err);
