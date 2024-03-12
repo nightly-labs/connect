@@ -5,6 +5,7 @@ pub mod test_utils {
         env::JWT_SECRET,
         http::cloud::{
             add_user_to_team::{HttpAddUserToTeamRequest, HttpAddUserToTeamResponse},
+            get_user_joined_teams::HttpGetUserJoinedTeamsResponse,
             login_with_password::{HttpLoginRequest, HttpLoginResponse},
             register_new_app::{HttpRegisterNewAppRequest, HttpRegisterNewAppResponse},
             register_new_team::{HttpRegisterNewTeamRequest, HttpRegisterNewTeamResponse},
@@ -158,11 +159,12 @@ pub mod test_utils {
         team_name: &String,
         admin_token: &AuthToken,
         app: &Router,
+        personal: bool,
     ) -> anyhow::Result<String> {
         // Register new team
         let request = HttpRegisterNewTeamRequest {
             team_name: team_name.clone(),
-            personal: false,
+            personal: personal,
         };
 
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
@@ -291,6 +293,31 @@ pub mod test_utils {
             .map(|_| Ok(()))?
     }
 
+    pub async fn get_test_user_joined_teams(
+        user_token: &AuthToken,
+        app: &Router,
+    ) -> anyhow::Result<HttpGetUserJoinedTeamsResponse> {
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let auth = user_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::GET)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::GetUserJoinedTeams.to_string()
+            ))
+            .extension(ip)
+            .body(Body::empty())
+            .unwrap();
+
+        // Send request
+        let response = app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        convert_response::<HttpGetUserJoinedTeamsResponse>(response).await
+    }
+
     pub async fn body_to_vec(response: Response<Body>) -> anyhow::Result<Vec<u8>> {
         match to_bytes(response.into_body(), usize::MAX).await {
             Ok(body) => Ok(body.to_vec()),
@@ -313,12 +340,19 @@ pub mod test_utils {
     {
         match response.status() {
             StatusCode::OK => {
-                let payload = serde_json::from_slice(&body_to_vec(response).await?)?;
-                return Ok(payload);
+                let body = body_to_vec(response).await?;
+                match serde_json::from_slice::<T>(&body) {
+                    Ok(payload) => Ok(payload),
+                    Err(e) => bail!("Error deserializing response: {}", e),
+                }
+            }
+            StatusCode::INTERNAL_SERVER_ERROR | StatusCode::BAD_REQUEST => {
+                let error_message = convert_response_into_error_string(response).await?;
+                bail!("{}", error_message)
             }
             _ => {
-                let error_message = convert_response_into_error_string(response).await?;
-                bail!(error_message);
+                let status = response.status();
+                bail!("{}", status)
             }
         }
     }

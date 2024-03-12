@@ -74,7 +74,6 @@ pub async fn remove_user_from_team(
                 .await
             {
                 Ok(teams) => {
-                    println!("TEAMS {:?}", teams);
                     // This won't check if user has permissions to all apps in the team
                     if !teams.iter().any(|(team_id, _)| team_id == &request.team_id) {
                         return Err((
@@ -165,7 +164,7 @@ mod tests {
 
         // Register new team
         let team_name = "MyFirstTeam".to_string();
-        let team_id = add_test_team(&team_name, &auth_token, &test_app)
+        let team_id = add_test_team(&team_name, &auth_token, &test_app, false)
             .await
             .unwrap();
 
@@ -288,7 +287,7 @@ mod tests {
 
         // Register new team
         let team_name = "MyFirstTeam".to_string();
-        let team_id = add_test_team(&team_name, &auth_token, &test_app)
+        let team_id = add_test_team(&team_name, &auth_token, &test_app, false)
             .await
             .unwrap();
 

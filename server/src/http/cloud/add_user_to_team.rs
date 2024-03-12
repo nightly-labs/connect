@@ -144,11 +144,9 @@ pub async fn add_user_to_team(
                 .await
             {
                 Ok(_) => {
-                    println!("HERE 9");
                     return Ok(Json(HttpAddUserToTeamResponse {}));
                 }
                 Err(err) => {
-                    println!("HERE 10");
                     error!("Failed to add user to the team: {:?}", err);
                     return Err((
                         StatusCode::INTERNAL_SERVER_ERROR,
@@ -209,7 +207,7 @@ mod tests {
 
         // Register new team
         let team_name = "MyFirstTeam".to_string();
-        let team_id = add_test_team(&team_name, &auth_token, &test_app)
+        let team_id = add_test_team(&team_name, &auth_token, &test_app, false)
             .await
             .unwrap();
 
@@ -332,7 +330,7 @@ mod tests {
 
         // Register new team
         let team_name = "MyFirstTeam".to_string();
-        let team_id = add_test_team(&team_name, &auth_token, &test_app)
+        let team_id = add_test_team(&team_name, &auth_token, &test_app, false)
             .await
             .unwrap();
 
@@ -364,7 +362,7 @@ mod tests {
 
         // Register new team
         let team_name = "MyFirstTeam".to_string();
-        let team_id = add_test_team(&team_name, &auth_token, &test_app)
+        let team_id = add_test_team(&team_name, &auth_token, &test_app, false)
             .await
             .unwrap();
 
@@ -427,7 +425,7 @@ mod tests {
 
         // Register new team
         let team_name = "MyFirstTeam".to_string();
-        let team_id = add_test_team(&team_name, &auth_token, &test_app)
+        let team_id = add_test_team(&team_name, &auth_token, &test_app, false)
             .await
             .unwrap();
 
