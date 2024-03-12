@@ -9,6 +9,9 @@ pub mod test_utils {
             register_new_app::{HttpRegisterNewAppRequest, HttpRegisterNewAppResponse},
             register_new_team::{HttpRegisterNewTeamRequest, HttpRegisterNewTeamResponse},
             register_with_password::HttpRegisterWithPasswordRequest,
+            remove_user_from_team::{
+                HttpRemoveUserFromTeamRequest, HttpRemoveUserFromTeamResponse,
+            },
         },
         routes::router::get_router,
         structs::cloud_http_endpoints::HttpCloudEndpoint,
@@ -248,6 +251,42 @@ pub mod test_utils {
         let response = app.clone().oneshot(req).await.unwrap();
         // Validate response
         convert_response::<HttpAddUserToTeamResponse>(response)
+            .await
+            .map(|_| Ok(()))?
+    }
+
+    pub async fn remove_user_from_test_team(
+        team_id: &String,
+        user_email: &String,
+        admin_token: &AuthToken,
+        app: &Router,
+    ) -> anyhow::Result<()> {
+        // Add user to test team
+        let request = HttpRemoveUserFromTeamRequest {
+            team_id: team_id.clone(),
+            user_email: user_email.clone(),
+        };
+
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&request).unwrap();
+        let auth = admin_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::RemoveUserFromTeam.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // Send request
+        let response = app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        convert_response::<HttpRemoveUserFromTeamResponse>(response)
             .await
             .map(|_| Ok(()))?
     }

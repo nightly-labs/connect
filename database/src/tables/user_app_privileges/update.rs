@@ -148,6 +148,9 @@ impl Db {
             }
         }
 
+        // Commit the transaction
+        tx.commit().await?;
+
         Ok(())
     }
 
