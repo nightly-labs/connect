@@ -117,10 +117,7 @@ pub async fn register_new_app(
                     app_name: request.app_name.clone(),
                     ack_public_keys: request.ack_public_keys.clone(),
                     whitelisted_domains: request.whitelisted_domains.clone(),
-                    email: None,
-                    pass_hash: None,
                     registration_timestamp: get_current_datetime(),
-                    subscription: None,
                 };
 
             if let Err(err) = db
@@ -210,8 +207,8 @@ mod tests {
         http::cloud::register_new_app::{HttpRegisterNewAppRequest, HttpRegisterNewAppResponse},
         structs::{api_cloud_errors::CloudApiErrors, cloud_http_endpoints::HttpCloudEndpoint},
         test_utils::test_utils::{
-            add_test_team, convert_response, create_test_app, register_and_login_random_user,
-            truncate_all_tables,
+            add_test_team, convert_response, create_test_app, generate_valid_name,
+            register_and_login_random_user,
         },
     };
     use axum::{
@@ -219,7 +216,6 @@ mod tests {
         extract::ConnectInfo,
         http::{Method, Request},
     };
-    use database::db::Db;
     use std::net::SocketAddr;
     use tower::ServiceExt;
 
@@ -227,20 +223,16 @@ mod tests {
     async fn test_register_new_app() {
         let test_app = create_test_app(false).await;
 
-        // Truncate db
-        let mut db = Db::connect_to_the_pool().await;
-        truncate_all_tables(&mut db).await.unwrap();
-
         let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
 
         // Register new team
-        let team_name = "MyFirstTeam".to_string();
-        let team_id = add_test_team(&team_name, &auth_token, &test_app)
+        let team_name = generate_valid_name();
+        let team_id = add_test_team(&team_name, &auth_token, &test_app, false)
             .await
             .unwrap();
 
         // Register new app
-        let app_name = "MyFirstApp".to_string();
+        let app_name = generate_valid_name();
         let request = HttpRegisterNewAppRequest {
             team_id: team_id.clone(),
             app_name: app_name.clone(),
@@ -309,20 +301,16 @@ mod tests {
     async fn test_invalid_app_name() {
         let test_app = create_test_app(false).await;
 
-        // Truncate db
-        let mut db = Db::connect_to_the_pool().await;
-        truncate_all_tables(&mut db).await.unwrap();
-
         let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
 
         // Register new team
-        let team_name = "MyFirstTeam".to_string();
-        let team_id = add_test_team(&team_name, &auth_token, &test_app)
+        let team_name = generate_valid_name();
+        let team_id = add_test_team(&team_name, &auth_token, &test_app, false)
             .await
             .unwrap();
 
         // Register new app
-        let app_name = "MyINVALIDAPP_NAME!!!!".to_string();
+        let app_name = generate_valid_name() + "18702dhb12n1902hd89b1n28sd1 02n>>>>>>>>>>>>>>>";
         let request = HttpRegisterNewAppRequest {
             team_id: team_id.clone(),
             app_name: app_name.clone(),

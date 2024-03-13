@@ -4,11 +4,18 @@ pub mod test_utils {
         auth::AuthToken,
         env::{JWT_PUBLIC_KEY, JWT_SECRET},
         http::cloud::{
+            add_user_to_team::{HttpAddUserToTeamRequest, HttpAddUserToTeamResponse},
+            get_user_joined_teams::HttpGetUserJoinedTeamsResponse,
             login_with_password::{HttpLoginRequest, HttpLoginResponse},
+            register_new_app::{HttpRegisterNewAppRequest, HttpRegisterNewAppResponse},
             register_new_team::{HttpRegisterNewTeamRequest, HttpRegisterNewTeamResponse},
             register_with_password::HttpRegisterWithPasswordRequest,
+            remove_user_from_team::{
+                HttpRemoveUserFromTeamRequest, HttpRemoveUserFromTeamResponse,
+            },
         },
         routes::router::get_router,
+        statics::NAME_REGEX,
         structs::cloud_http_endpoints::HttpCloudEndpoint,
     };
     use anyhow::bail;
@@ -19,7 +26,10 @@ pub mod test_utils {
         Router,
     };
     use database::db::Db;
-    use rand::{distributions::Alphanumeric, thread_rng, Rng};
+    use rand::{
+        distributions::{Alphanumeric, Uniform},
+        thread_rng, Rng,
+    };
     use sqlx::Row;
     use std::net::SocketAddr;
     use tower::ServiceExt;
@@ -153,11 +163,12 @@ pub mod test_utils {
         team_name: &String,
         admin_token: &AuthToken,
         app: &Router,
+        personal: bool,
     ) -> anyhow::Result<String> {
         // Register new team
         let request = HttpRegisterNewTeamRequest {
             team_name: team_name.clone(),
-            personal: false,
+            personal: personal,
         };
 
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
@@ -184,6 +195,133 @@ pub mod test_utils {
             .map(|response| Ok(response.team_id))?
     }
 
+    pub async fn add_test_app(
+        request: &HttpRegisterNewAppRequest,
+        admin_token: &AuthToken,
+        app: &Router,
+    ) -> anyhow::Result<String> {
+        // Register new app
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&request).unwrap();
+        let auth = admin_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::RegisterNewApp.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // Send request
+        let response = app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        convert_response::<HttpRegisterNewAppResponse>(response)
+            .await
+            .map(|response| Ok(response.app_id))?
+    }
+
+    pub async fn add_user_to_test_team(
+        team_id: &String,
+        user_email: &String,
+        admin_token: &AuthToken,
+        app: &Router,
+    ) -> anyhow::Result<()> {
+        // Add user to test team
+        let request = HttpAddUserToTeamRequest {
+            team_id: team_id.clone(),
+            user_email: user_email.clone(),
+        };
+
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&request).unwrap();
+        let auth = admin_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::AddUserToTeam.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // Send request
+        let response = app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        convert_response::<HttpAddUserToTeamResponse>(response)
+            .await
+            .map(|_| Ok(()))?
+    }
+
+    pub async fn remove_user_from_test_team(
+        team_id: &String,
+        user_email: &String,
+        admin_token: &AuthToken,
+        app: &Router,
+    ) -> anyhow::Result<()> {
+        // Add user to test team
+        let request = HttpRemoveUserFromTeamRequest {
+            team_id: team_id.clone(),
+            user_email: user_email.clone(),
+        };
+
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&request).unwrap();
+        let auth = admin_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::RemoveUserFromTeam.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // Send request
+        let response = app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        convert_response::<HttpRemoveUserFromTeamResponse>(response)
+            .await
+            .map(|_| Ok(()))?
+    }
+
+    pub async fn get_test_user_joined_teams(
+        user_token: &AuthToken,
+        app: &Router,
+    ) -> anyhow::Result<HttpGetUserJoinedTeamsResponse> {
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let auth = user_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::GET)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::GetUserJoinedTeams.to_string()
+            ))
+            .extension(ip)
+            .body(Body::empty())
+            .unwrap();
+
+        // Send request
+        let response = app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        convert_response::<HttpGetUserJoinedTeamsResponse>(response).await
+    }
+
     pub async fn body_to_vec(response: Response<Body>) -> anyhow::Result<Vec<u8>> {
         match to_bytes(response.into_body(), usize::MAX).await {
             Ok(body) => Ok(body.to_vec()),
@@ -206,13 +344,48 @@ pub mod test_utils {
     {
         match response.status() {
             StatusCode::OK => {
-                let payload = serde_json::from_slice(&body_to_vec(response).await?)?;
-                return Ok(payload);
+                let body = body_to_vec(response).await?;
+                match serde_json::from_slice::<T>(&body) {
+                    Ok(payload) => Ok(payload),
+                    Err(e) => bail!("Error deserializing response: {}", e),
+                }
+            }
+            StatusCode::INTERNAL_SERVER_ERROR | StatusCode::BAD_REQUEST => {
+                let error_message = convert_response_into_error_string(response).await?;
+                bail!("{}", error_message)
             }
             _ => {
-                let error_message = convert_response_into_error_string(response).await?;
-                bail!(error_message);
+                let status = response.status();
+                bail!("{}", status)
             }
         }
+    }
+
+    pub fn generate_valid_name() -> String {
+        let mut rng = rand::thread_rng();
+
+        // Define ranges for alphanumeric characters and individual characters for underscore and slash.
+        let char_ranges = ['a'..'z', 'A'..'Z', '0'..'9'];
+        let single_chars = ['_', '-'];
+
+        // Flatten the char_ranges into a single collection of characters and add individual characters.
+        let mut chars: Vec<char> = char_ranges.into_iter().flat_map(|range| range).collect();
+        chars.extend(single_chars.iter());
+
+        // Ensure the distribution covers the range of available characters.
+        let dist = Uniform::from(0..chars.len());
+
+        // Define minimum and maximum length based on the regex pattern.
+        let min_len = 3;
+        let max_len = 30;
+        let name_len = rng.gen_range(min_len..=max_len);
+
+        // Generate a random string of valid characters within the defined length.
+        let name: String = (0..name_len).map(|_| chars[rng.sample(&dist)]).collect();
+
+        // Ensure the generated name matches the regex pattern.
+        assert!(NAME_REGEX.is_match(&name));
+
+        name
     }
 }

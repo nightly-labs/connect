@@ -104,10 +104,7 @@ pub mod test_utils {
                 app_id: app_id.clone(),
                 app_name: "test_app".to_string(),
                 whitelisted_domains: vec!["localhost".to_string()],
-                subscription: None,
                 ack_public_keys: vec!["key".to_string()],
-                email: None,
-                pass_hash: None,
                 registration_timestamp: registration_timestamp,
             };
 

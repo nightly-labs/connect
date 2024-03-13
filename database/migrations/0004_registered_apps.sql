@@ -4,9 +4,7 @@ CREATE TABLE registered_apps(
     app_name TEXT NOT NULL,
     whitelisted_domains TEXT [] NOT NULL,
     ack_public_keys TEXT [] NOT NULL,
-    email TEXT,
-    registration_timestamp TIMESTAMPTZ NOT NULL,
-    pass_hash TEXT
+    registration_timestamp TIMESTAMPTZ NOT NULL
 );
 
 CREATE UNIQUE INDEX app_id_idx ON registered_apps(app_id);
