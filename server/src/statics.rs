@@ -7,7 +7,7 @@ pub const USERS_AMOUNT_LIMIT_PER_TEAM: usize = 50;
 
 // Name must be 3-30 characters long and include only alphanumeric characters, underscores, or slashes.
 pub static NAME_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"^[a-zA-Z0-9_\/]{3,30}$").expect("Regex creation failed"));
+    Lazy::new(|| Regex::new(r"^[a-zA-Z0-9_-]{3,30}$").expect("Regex creation failed"));
 
 pub struct PasswordValidator {
     pub re: Regex,

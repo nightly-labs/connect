@@ -139,66 +139,67 @@ impl Db {
         let rows = sqlx::query(&query)
             .bind(user_id)
             .fetch_all(&self.connection_pool)
-            .await
-            .map_err(|e| e.into());
+            .await;
 
-        if let Err(e) = rows {
-            return Err(e);
-        }
+        match rows {
+            Err(e) => return Err(e.into()),
+            Ok(rows) => {
+                let mut team_app_map: HashMap<
+                    String,
+                    (
+                        Team,
+                        String,
+                        DateTime<Utc>,
+                        Vec<(DbRegisteredApp, UserAppPrivilege)>,
+                    ),
+                > = HashMap::new();
 
-        let rows = rows.unwrap();
-        let mut team_app_map: HashMap<
-            String,
-            (
-                Team,
-                String,
-                DateTime<Utc>,
-                Vec<(DbRegisteredApp, UserAppPrivilege)>,
-            ),
-        > = HashMap::new();
-
-        for row in rows {
-            let team = Team {
-                team_id: row.get("team_id"),
-                personal: row.get("personal"),
-                team_name: row.get("team_name"),
-                subscription: row.get("subscription"),
-                registration_timestamp: row.get("registration_timestamp"),
-                team_admin_id: row.get("team_admin_id"),
-            };
-
-            let admin_email = row.get("team_admin_email");
-            let user_joined_team_timestamp: DateTime<Utc> = row.get("user_joined_team_timestamp");
-
-            let team_id = team.team_id.clone();
-            let team_entry = team_app_map
-                .entry(team.team_id.clone())
-                .or_insert_with(|| (team, admin_email, user_joined_team_timestamp, Vec::new()));
-
-            if let Ok(app_id) = row.try_get("app_id") {
-                if app_id != "" {
-                    // Checking if app_id is present and not an empty string
-                    let app = DbRegisteredApp {
-                        team_id: team_id.clone(),
-                        app_id,
-                        app_name: row.get("app_name"),
-                        whitelisted_domains: row.get("whitelisted_domains"),
-                        ack_public_keys: row.get("ack_public_keys"),
-                        registration_timestamp: row.get("app_registration_timestamp"),
+                for row in rows {
+                    let team = Team {
+                        team_id: row.get("team_id"),
+                        personal: row.get("personal"),
+                        team_name: row.get("team_name"),
+                        subscription: row.get("subscription"),
+                        registration_timestamp: row.get("registration_timestamp"),
+                        team_admin_id: row.get("team_admin_id"),
                     };
 
-                    let privilege = UserAppPrivilege {
-                        user_id: row.get("user_id"),
-                        app_id: app.app_id.clone(),
-                        privilege_level: row.get("privilege_level"),
-                        creation_timestamp: row.get("privilege_creation_timestamp"),
-                    };
+                    let admin_email = row.get("team_admin_email");
+                    let user_joined_team_timestamp: DateTime<Utc> =
+                        row.get("user_joined_team_timestamp");
 
-                    team_entry.3.push((app, privilege));
+                    let team_id = team.team_id.clone();
+                    let team_entry =
+                        team_app_map.entry(team.team_id.clone()).or_insert_with(|| {
+                            (team, admin_email, user_joined_team_timestamp, Vec::new())
+                        });
+
+                    if let Ok(app_id) = row.try_get("app_id") {
+                        if app_id != "" {
+                            // Checking if app_id is present and not an empty string
+                            let app = DbRegisteredApp {
+                                team_id: team_id.clone(),
+                                app_id,
+                                app_name: row.get("app_name"),
+                                whitelisted_domains: row.get("whitelisted_domains"),
+                                ack_public_keys: row.get("ack_public_keys"),
+                                registration_timestamp: row.get("app_registration_timestamp"),
+                            };
+
+                            let privilege = UserAppPrivilege {
+                                user_id: row.get("user_id"),
+                                app_id: app.app_id.clone(),
+                                privilege_level: row.get("privilege_level"),
+                                creation_timestamp: row.get("privilege_creation_timestamp"),
+                            };
+
+                            team_entry.3.push((app, privilege));
+                        }
+                    }
                 }
+
+                Ok(team_app_map.into_values().collect())
             }
         }
-
-        Ok(team_app_map.into_values().collect())
     }
 }

@@ -366,7 +366,7 @@ pub mod test_utils {
 
         // Define ranges for alphanumeric characters and individual characters for underscore and slash.
         let char_ranges = ['a'..'z', 'A'..'Z', '0'..'9'];
-        let single_chars = ['_', '/'];
+        let single_chars = ['_', '-'];
 
         // Flatten the char_ranges into a single collection of characters and add individual characters.
         let mut chars: Vec<char> = char_ranges.into_iter().flat_map(|range| range).collect();

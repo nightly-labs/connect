@@ -9,6 +9,7 @@ use ts_rs::TS;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct UserPrivilege {
     pub app_id: AppId,
     pub granted_at: DateTime<Utc>,
