@@ -1,8 +1,9 @@
 use crate::{
     http::cloud::{
-        add_user_to_team::add_user_to_team, get_user_joined_teams::get_user_joined_teams,
-        login_with_password::login_with_password, register_new_app::register_new_app,
-        register_new_team::register_new_team, register_with_password::register_with_password,
+        add_user_to_team::add_user_to_team, events::events,
+        get_user_joined_teams::get_user_joined_teams, login_with_password::login_with_password,
+        register_new_app::register_new_app, register_new_team::register_new_team,
+        register_with_password::register_with_password,
         remove_user_from_team::remove_user_from_team,
     },
     middlewares::auth_middleware::access_auth_middleware,
@@ -38,6 +39,7 @@ pub fn public_router(state: ServerState) -> Router<ServerState> {
             &HttpCloudEndpoint::RegisterWithPassword.to_string(),
             post(register_with_password),
         )
+        .route(&HttpCloudEndpoint::EventsTest.to_string(), post(events))
         .with_state(state)
 }
 

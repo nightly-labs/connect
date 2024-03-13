@@ -18,6 +18,8 @@ pub enum HttpCloudEndpoint {
     RemoveUserFromTeam,
     #[serde(rename = "/get_user_joined_teams")]
     GetUserJoinedTeams,
+    #[serde(rename = "/events_test")]
+    EventsTest,
 }
 
 impl HttpCloudEndpoint {
@@ -30,6 +32,7 @@ impl HttpCloudEndpoint {
             HttpCloudEndpoint::AddUserToTeam => "/add_user_to_team".to_string(),
             HttpCloudEndpoint::RemoveUserFromTeam => "/remove_user_from_team".to_string(),
             HttpCloudEndpoint::GetUserJoinedTeams => "/get_user_joined_teams".to_string(),
+            HttpCloudEndpoint::EventsTest => "/events_test".to_string(),
         }
     }
 }

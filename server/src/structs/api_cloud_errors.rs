@@ -24,4 +24,6 @@ pub enum CloudApiErrors {
     InternalServerError,
     UserDoesNotBelongsToTheTeam,
     InvalidName,
+    UnauthorizedOriginError,
+    AppDoesNotExist,
 }

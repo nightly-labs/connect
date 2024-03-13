@@ -324,7 +324,7 @@ mod test {
             .get_registered_app_by_app_id(&second_app_id)
             .await
             .unwrap();
-        assert_eq!(app, result);
+        assert_eq!(app, result.unwrap());
 
         // Create session
         let session = DbNcSession {
