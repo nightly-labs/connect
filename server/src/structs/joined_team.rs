@@ -6,6 +6,7 @@ pub type TeamId = String;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct JoinedTeam {
     pub team_id: TeamId,
     pub team_name: String,

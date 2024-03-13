@@ -156,7 +156,10 @@ pub async fn add_user_to_team(
             }
         }
         Ok(None) => {
-            return Err((StatusCode::BAD_REQUEST, "Team does not exist".to_string()));
+            return Err((
+                StatusCode::BAD_REQUEST,
+                CloudApiErrors::TeamDoesNotExist.to_string(),
+            ));
         }
         Err(err) => {
             error!("Failed to get team: {:?}", err);
@@ -165,5 +168,274 @@ pub async fn add_user_to_team(
                 CloudApiErrors::DatabaseError.to_string(),
             ));
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{
+        env::JWT_SECRET,
+        http::cloud::{
+            add_user_to_team::{HttpAddUserToTeamRequest, HttpAddUserToTeamResponse},
+            register_new_app::HttpRegisterNewAppRequest,
+        },
+        statics::USERS_AMOUNT_LIMIT_PER_TEAM,
+        structs::{api_cloud_errors::CloudApiErrors, cloud_http_endpoints::HttpCloudEndpoint},
+        test_utils::test_utils::{
+            add_test_app, add_test_team, add_user_to_test_team, convert_response, create_test_app,
+            generate_valid_name, register_and_login_random_user,
+        },
+    };
+    use axum::{
+        body::Body,
+        extract::ConnectInfo,
+        http::{Method, Request},
+    };
+    use std::net::SocketAddr;
+    use tower::ServiceExt;
+
+    #[tokio::test]
+    async fn test_add_user_to_team() {
+        let test_app = create_test_app(false).await;
+
+        let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
+
+        // Register new team
+        let team_name = generate_valid_name();
+        let team_id = add_test_team(&team_name, &auth_token, &test_app, false)
+            .await
+            .unwrap();
+
+        // Register app under the team
+        let app_name = generate_valid_name();
+        let request = HttpRegisterNewAppRequest {
+            team_id: team_id.clone(),
+            app_name: app_name.clone(),
+            whitelisted_domains: vec![],
+            ack_public_keys: vec![],
+        };
+
+        // unwrap err as it should have failed
+        let _ = add_test_app(&request, &auth_token, &test_app)
+            .await
+            .unwrap();
+
+        // Register new user
+        let (_test_user_auth_token, test_user_email, _test_user_password) =
+            register_and_login_random_user(&test_app).await;
+
+        // Add user to the team
+        let request = HttpAddUserToTeamRequest {
+            team_id: team_id.clone(),
+            user_email: test_user_email.clone(),
+        };
+
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&request).unwrap();
+        let auth = auth_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::AddUserToTeam.to_string()
+            ))
+            .extension(ip.clone())
+            .body(Body::from(json))
+            .unwrap();
+
+        // Send request
+        let response = test_app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        convert_response::<HttpAddUserToTeamResponse>(response)
+            .await
+            .unwrap();
+
+        // Try to add user to the team again, should fail as user is already in the team
+        let request = HttpAddUserToTeamRequest {
+            team_id: team_id.clone(),
+            user_email: test_user_email.clone(),
+        };
+
+        let json = serde_json::to_string(&request).unwrap();
+        let auth = auth_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::AddUserToTeam.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // Send request
+        let response = test_app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        let err = convert_response::<HttpAddUserToTeamResponse>(response)
+            .await
+            .unwrap_err();
+
+        assert_eq!(
+            err.to_string(),
+            CloudApiErrors::UserAlreadyBelongsToTheTeam.to_string()
+        );
+    }
+
+    #[tokio::test]
+    async fn test_add_user_to_team_team_not_found() {
+        let test_app = create_test_app(false).await;
+
+        let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
+
+        // Team does not exist, use random uuid
+        let resp = add_user_to_test_team(
+            &uuid7::uuid7().to_string(),
+            &"test_user_email@gmail.com".to_string(),
+            &auth_token,
+            &test_app,
+        )
+        .await
+        .unwrap_err();
+
+        assert_eq!(
+            resp.to_string(),
+            CloudApiErrors::TeamDoesNotExist.to_string()
+        );
+    }
+
+    #[tokio::test]
+    async fn test_add_user_to_team_no_registered_apps() {
+        let test_app = create_test_app(false).await;
+
+        let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
+
+        // Register new team
+        let team_name = generate_valid_name();
+        let team_id = add_test_team(&team_name, &auth_token, &test_app, false)
+            .await
+            .unwrap();
+
+        // Team does not exist, use random uuid
+        let resp = add_user_to_test_team(
+            &team_id.to_string(),
+            &"test_user_email@gmail.com".to_string(),
+            &auth_token,
+            &test_app,
+        )
+        .await
+        .unwrap_err();
+
+        assert_eq!(
+            resp.to_string(),
+            CloudApiErrors::TeamHasNoRegisteredApps.to_string()
+        );
+    }
+
+    #[tokio::test]
+    async fn test_add_user_to_team_user_limit_reached() {
+        let test_app = create_test_app(false).await;
+
+        let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
+
+        // Register new team
+        let team_name = generate_valid_name();
+        let team_id = add_test_team(&team_name, &auth_token, &test_app, false)
+            .await
+            .unwrap();
+
+        // Register app under the team
+        let app_name = generate_valid_name();
+        let request = HttpRegisterNewAppRequest {
+            team_id: team_id.clone(),
+            app_name: app_name.clone(),
+            whitelisted_domains: vec![],
+            ack_public_keys: vec![],
+        };
+
+        let _ = add_test_app(&request, &auth_token, &test_app)
+            .await
+            .unwrap();
+
+        // Add [USERS_AMOUNT_LIMIT_PER_TEAM] users to the team
+        for _ in 1..USERS_AMOUNT_LIMIT_PER_TEAM {
+            let (_, test_user_email, _) = register_and_login_random_user(&test_app).await;
+
+            // Add user to the team
+            add_user_to_test_team(
+                &team_id.to_string(),
+                &test_user_email.to_string(),
+                &auth_token,
+                &test_app,
+            )
+            .await
+            .unwrap();
+        }
+
+        // Try to add another user to the team, should fail as user limit has been reached
+        let (_, test_user_email, _) = register_and_login_random_user(&test_app).await;
+
+        // Add user to the team
+        let resp = add_user_to_test_team(
+            &team_id.to_string(),
+            &test_user_email.to_string(),
+            &auth_token,
+            &test_app,
+        )
+        .await
+        .unwrap_err();
+
+        assert_eq!(
+            resp.to_string(),
+            CloudApiErrors::MaximumUsersPerTeamReached.to_string()
+        );
+    }
+
+    #[tokio::test]
+    async fn test_add_user_to_team_user_does_not_exist() {
+        let test_app = create_test_app(false).await;
+
+        let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
+
+        // Register new team
+        let team_name = generate_valid_name();
+        let team_id = add_test_team(&team_name, &auth_token, &test_app, false)
+            .await
+            .unwrap();
+
+        // Register app under the team
+        let app_name = generate_valid_name();
+        let request = HttpRegisterNewAppRequest {
+            team_id: team_id.clone(),
+            app_name: app_name.clone(),
+            whitelisted_domains: vec![],
+            ack_public_keys: vec![],
+        };
+
+        let _ = add_test_app(&request, &auth_token, &test_app)
+            .await
+            .unwrap();
+
+        // Try to add non-existing user to the team, should fail as user limit has been reached
+
+        // Add user to the team
+        let resp = add_user_to_test_team(
+            &team_id.to_string(),
+            &"non-existing-user@gmail.com".to_string(),
+            &auth_token,
+            &test_app,
+        )
+        .await
+        .unwrap_err();
+
+        assert_eq!(
+            resp.to_string(),
+            CloudApiErrors::UserDoesNotExist.to_string()
+        );
     }
 }

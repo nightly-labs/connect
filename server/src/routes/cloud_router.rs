@@ -1,15 +1,19 @@
 use crate::{
     auth::auth_middleware::access_auth_middleware,
     http::cloud::{
-        add_user_to_team::add_user_to_team, login_with_password::login_with_password,
-        register_new_app::register_new_app, register_new_team::register_new_team,
-        register_with_password::register_with_password,
+        add_user_to_team::add_user_to_team, get_user_joined_teams::get_user_joined_teams,
+        login_with_password::login_with_password, register_new_app::register_new_app,
+        register_new_team::register_new_team, register_with_password::register_with_password,
         remove_user_from_team::remove_user_from_team,
     },
     state::ServerState,
     structs::cloud_http_endpoints::HttpCloudEndpoint,
 };
-use axum::{middleware, routing::post, Router};
+use axum::{
+    middleware,
+    routing::{get, post},
+    Router,
+};
 
 pub fn cloud_router(state: ServerState) -> Router<ServerState> {
     Router::new()
@@ -54,6 +58,10 @@ pub fn private_router(state: ServerState) -> Router<ServerState> {
         .route(
             &HttpCloudEndpoint::RemoveUserFromTeam.to_string(),
             post(remove_user_from_team),
+        )
+        .route(
+            &HttpCloudEndpoint::GetUserJoinedTeams.to_string(),
+            get(get_user_joined_teams),
         )
         .with_state(state)
 }

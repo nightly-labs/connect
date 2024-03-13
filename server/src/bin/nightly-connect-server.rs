@@ -6,7 +6,7 @@ use tracing_subscriber::EnvFilter;
 
 #[tokio::main]
 async fn main() {
-    let filter: EnvFilter = "debug,tower_http=trace,hyper=warn"
+    let filter: EnvFilter = "debug,sqlx=warn,tower_http=trace,hyper=warn"
         .parse()
         .expect("filter should parse");
 

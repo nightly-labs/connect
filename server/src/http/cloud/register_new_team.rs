@@ -141,7 +141,7 @@ mod tests {
         http::cloud::register_new_team::{HttpRegisterNewTeamRequest, HttpRegisterNewTeamResponse},
         structs::{api_cloud_errors::CloudApiErrors, cloud_http_endpoints::HttpCloudEndpoint},
         test_utils::test_utils::{
-            convert_response, create_test_app, register_and_login_random_user, truncate_all_tables,
+            convert_response, create_test_app, generate_valid_name, register_and_login_random_user,
         },
     };
     use axum::{
@@ -149,7 +149,6 @@ mod tests {
         extract::ConnectInfo,
         http::{Method, Request},
     };
-    use database::db::Db;
     use std::net::SocketAddr;
     use tower::ServiceExt;
 
@@ -157,14 +156,10 @@ mod tests {
     async fn test_register_new_normal_team() {
         let test_app = create_test_app(false).await;
 
-        // Truncate db
-        let mut db = Db::connect_to_the_pool().await;
-        truncate_all_tables(&mut db).await.unwrap();
-
         let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
 
         // Register new team
-        let first_team_name = "MyFirstTeam".to_string();
+        let first_team_name = generate_valid_name();
         let request = HttpRegisterNewTeamRequest {
             team_name: first_team_name.clone(),
             personal: false,
@@ -224,14 +219,10 @@ mod tests {
     async fn test_register_new_personal_team() {
         let test_app = create_test_app(false).await;
 
-        // Truncate db
-        let mut db = Db::connect_to_the_pool().await;
-        truncate_all_tables(&mut db).await.unwrap();
-
         let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
 
         // Register new team
-        let first_team_name = "MyFirstTeam".to_string();
+        let first_team_name = generate_valid_name();
         let request = HttpRegisterNewTeamRequest {
             team_name: first_team_name.clone(),
             personal: true,
@@ -297,14 +288,10 @@ mod tests {
     async fn test_invalid_team_name() {
         let test_app = create_test_app(false).await;
 
-        // Truncate db
-        let mut db = Db::connect_to_the_pool().await;
-        truncate_all_tables(&mut db).await.unwrap();
-
         let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
 
         let request = HttpRegisterNewTeamRequest {
-            team_name: "My_Invalid_Team!!!".to_string(),
+            team_name: generate_valid_name() + "1827389012hds012hd!!>>>>>>>>.",
             personal: true,
         };
 
