@@ -1,5 +1,5 @@
 use crate::{
-    auth::auth_middleware::UserId,
+    middlewares::auth_middleware::UserId,
     state::AppId,
     structs::{
         api_cloud_errors::CloudApiErrors,

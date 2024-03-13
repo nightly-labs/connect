@@ -3,6 +3,7 @@ pub mod env;
 pub mod errors;
 pub mod handle_error;
 pub mod http;
+pub mod middlewares;
 pub mod routes;
 mod sesssion_cleaner;
 pub mod state;

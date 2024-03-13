@@ -1,5 +1,5 @@
 use crate::{
-    auth::auth_middleware::UserId,
+    middlewares::auth_middleware::UserId,
     structs::api_cloud_errors::CloudApiErrors,
     utils::{custom_validate_uuid, validate_request},
 };

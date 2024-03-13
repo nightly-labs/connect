@@ -1,5 +1,5 @@
 use crate::{
-    auth::auth_middleware::UserId,
+    middlewares::auth_middleware::UserId,
     statics::TEAMS_AMOUNT_LIMIT_PER_USER,
     structs::api_cloud_errors::CloudApiErrors,
     utils::{custom_validate_name, validate_request},
