@@ -82,8 +82,7 @@ pub async fn process_event_app_connect(
                 &event.session_id,
                 &event.connection_id,
                 &app_id,
-                // TODO remove network from connection event ?
-                &"Mock connection network data".to_string(),
+                &ip.to_string(),
             )
             .await
         {

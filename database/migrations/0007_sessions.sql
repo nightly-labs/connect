@@ -3,7 +3,6 @@ CREATE TABLE sessions (
     session_type session_type_enum NOT NULL,
     app_id TEXT NOT NULL,
     app_metadata TEXT NOT NULL,
-    app_ip_address TEXT NOT NULL,
     persistent BOOLEAN NOT NULL,
     network TEXT NOT NULL,
     client_profile_id BIGINT,

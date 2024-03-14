@@ -14,7 +14,7 @@ impl Db {
         session_id: &String,
         connection_id: &String,
         app_id: &String,
-        network: &String,
+        ip: &String,
     ) -> Result<(), DbError> {
         let query_body = format!(
             "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, NOW(), NULL)"
@@ -26,7 +26,7 @@ impl Db {
             .bind(&connection_id)
             .bind(&app_id)
             .bind(&EntityType::App)
-            .bind(&network)
+            .bind(&ip)
             .execute(&mut **tx)
             .await;
 
@@ -42,7 +42,7 @@ impl Db {
         app_id: &String,
         session_id: &String,
         client_profile_id: i64,
-        network: &String,
+        ip: &String,
     ) -> Result<(), DbError> {
         let query_body = format!(
             "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, NULL, $3, $4, $5, NOW(), NULL)"
@@ -53,7 +53,7 @@ impl Db {
             .bind(&session_id)
             .bind(&client_profile_id)
             .bind(&EntityType::Client)
-            .bind(&network)
+            .bind(&ip)
             .execute(&mut **tx)
             .await;
 

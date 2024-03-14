@@ -34,7 +34,6 @@ pub struct SessionAvgTime {
 pub struct ConnectionStats {
     pub app_id: String,
     pub bucket: DateTime<Utc>,
-    pub network: String,
     pub app_connection_count: i64,
     pub clients_connection_count: i64,
 }

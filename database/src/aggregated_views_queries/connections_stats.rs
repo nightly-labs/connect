@@ -4,10 +4,9 @@ use crate::{
     tables::utils::{format_view_keys, format_view_name},
 };
 
-pub const CONNECTIONS_STATS_BASE_VIEW_NAME: &str = "connection_stats_per_app_and_network";
-pub const CONNECTIONS_STATS_BASE_KEYS: [(&'static str, bool); 5] = [
+pub const CONNECTIONS_STATS_BASE_VIEW_NAME: &str = "connection_stats_per_app";
+pub const CONNECTIONS_STATS_BASE_KEYS: [(&'static str, bool); 4] = [
     ("app_id", false),
-    ("network", false),
     ("bucket", true),
     ("app_connection_count", true),
     ("clients_connection_count", true),
@@ -17,7 +16,6 @@ impl Db {
     pub async fn get_connections_stats_by_app_id(
         &self,
         app_id: &str,
-        network: Option<&str>,
         filter: TimeFilter,
     ) -> Result<Vec<ConnectionStats>, DbError> {
         let start_date = filter.to_date();
@@ -33,18 +31,13 @@ impl Db {
 
         let formatted_keys = format_view_keys(prefix, &CONNECTIONS_STATS_BASE_KEYS);
         let formatted_view_name = format_view_name(prefix, CONNECTIONS_STATS_BASE_VIEW_NAME);
-        let date_filter_key = CONNECTIONS_STATS_BASE_KEYS[2].0;
+        let date_filter_key = CONNECTIONS_STATS_BASE_KEYS[1].0;
         let filter = format!("{prefix}_{date_filter_key}");
-
-        let network_filter = match network {
-            Some(network) => format!("AND network = '{network}'"),
-            None => "".to_string(),
-        };
 
         let query = format!(
             "SELECT {formatted_keys}
             FROM {formatted_view_name}
-            WHERE app_id = $1 AND {filter} >= $2 {network_filter}
+            WHERE app_id = $1 AND {filter} >= $2
             ORDER BY {filter} DESC",
         );
 
@@ -67,7 +60,7 @@ mod tests {
     use sqlx::types::chrono::Utc;
 
     #[tokio::test]
-    async fn test_connections_all_networks() {
+    async fn test_connections() {
         let db = super::Db::connect_to_the_pool().await;
         db.truncate_all_tables().await.unwrap();
 
@@ -146,23 +139,22 @@ mod tests {
 
         // Manually refresh the continuous aggregates
         db.refresh_continuous_aggregates(vec![
-            "hourly_connection_stats_per_app_and_network".to_string(),
-            "daily_connection_stats_per_app_and_network".to_string(),
-            "monthly_connection_stats_per_app_and_network".to_string(),
+            "hourly_connection_stats_per_app".to_string(),
+            "daily_connection_stats_per_app".to_string(),
+            "monthly_connection_stats_per_app".to_string(),
         ])
         .await
         .unwrap();
 
-        // Get stats for all networks
+        // Get stats for each network
         let stats = db
-            .get_connections_stats_by_app_id(&app_id, None, TimeFilter::LastMonth)
+            .get_connections_stats_by_app_id(&app_id, TimeFilter::LastMonth)
             .await
             .unwrap();
 
-        for (i, network) in networks.iter().enumerate() {
-            let network_stats = stats.iter().find(|s| s.network == *network).unwrap();
-            assert_eq!(network_stats.app_connection_count, 3);
-            assert_eq!(network_stats.clients_connection_count, i as i64);
-        }
+        assert_eq!(stats.len(), 1);
+        assert_eq!(stats[0].app_id, app_id);
+        assert_eq!(stats[0].app_connection_count, 15);
+        assert_eq!(stats[0].clients_connection_count, 10);
     }
 }
