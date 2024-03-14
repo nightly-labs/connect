@@ -41,8 +41,6 @@ pub async fn process_event_app_connect(
                         app_id: app_id.clone(),
                         // TODO update the app_metadata field in db
                         app_metadata: "App metadata".to_string(),
-                        // TODO move this ip to connection event ?
-                        app_ip_address: ip.to_string(),
                         persistent: session.persistent,
                         network: session.network.0.clone(),
                         // Client data should be empty if the session was just created

@@ -95,7 +95,6 @@ mod tests {
                 app_id: app_id.clone(),
                 session_type: SessionType::Relay,
                 app_metadata: "test_metadata".to_string(),
-                app_ip_address: "".to_string(),
                 persistent: true,
                 network: network.to_string(),
                 client_profile_id: None,

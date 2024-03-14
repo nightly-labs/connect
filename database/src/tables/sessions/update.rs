@@ -56,7 +56,7 @@ impl Db {
         session: &DbNcSession,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {SESSIONS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)",
+            "INSERT INTO {SESSIONS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)",
             SESSIONS_KEYS
         );
 
@@ -65,7 +65,6 @@ impl Db {
             .bind(&session.session_type)
             .bind(&session.app_id)
             .bind(&session.app_metadata)
-            .bind(&session.app_ip_address)
             .bind(&session.persistent)
             .bind(&session.network)
             .bind(&None::<i64>)
@@ -262,7 +261,6 @@ mod tests {
             session_type: SessionType::Relay,
             app_id: "test_app_id".to_string(),
             app_metadata: "test_app_metadata".to_string(),
-            app_ip_address: "test_app_ip_address".to_string(),
             persistent: false,
             network: "test_network".to_string(),
             client_profile_id: None,
