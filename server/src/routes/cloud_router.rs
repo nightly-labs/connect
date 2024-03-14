@@ -39,7 +39,7 @@ pub fn public_router(state: ServerState) -> Router<ServerState> {
             &HttpCloudEndpoint::RegisterWithPassword.to_string(),
             post(register_with_password),
         )
-        .route(&HttpCloudEndpoint::EventsTest.to_string(), post(events))
+        .route(&HttpCloudEndpoint::Events.to_string(), post(events))
         .with_state(state)
 }
 
