@@ -7,6 +7,7 @@ use crate::{
         remove_user_from_team::remove_user_from_team,
     },
     middlewares::auth_middleware::access_auth_middleware,
+    routes::cloud_router::events::events,
     state::ServerState,
     structs::cloud::cloud_http_endpoints::HttpCloudEndpoint,
 };
