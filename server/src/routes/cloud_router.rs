@@ -8,7 +8,7 @@ use crate::{
     },
     middlewares::auth_middleware::access_auth_middleware,
     state::ServerState,
-    structs::cloud_http_endpoints::HttpCloudEndpoint,
+    structs::cloud::cloud_http_endpoints::HttpCloudEndpoint,
 };
 use axum::{
     middleware,

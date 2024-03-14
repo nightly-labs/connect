@@ -1,7 +1,7 @@
 use crate::{
     middlewares::auth_middleware::UserId,
     state::AppId,
-    structs::{
+    structs::cloud::{
         api_cloud_errors::CloudApiErrors,
         app_info::AppInfo,
         joined_team::{JoinedTeam, TeamId},
@@ -96,13 +96,13 @@ pub async fn get_user_joined_teams(
 
 #[cfg(test)]
 mod tests {
+    use crate::structs::cloud::cloud_http_endpoints::HttpCloudEndpoint;
     use crate::test_utils::test_utils::{
         add_user_to_test_team, generate_valid_name, get_test_user_joined_teams,
     };
     use crate::{
         env::JWT_SECRET,
         http::cloud::register_new_app::HttpRegisterNewAppRequest,
-        structs::cloud_http_endpoints::HttpCloudEndpoint,
         test_utils::test_utils::{
             add_test_app, add_test_team, convert_response, create_test_app,
             register_and_login_random_user,

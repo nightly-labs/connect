@@ -1,3 +1,8 @@
+use crate::{
+    env::NONCE,
+    structs::cloud::api_cloud_errors::CloudApiErrors,
+    utils::{custom_validate_new_password, validate_request},
+};
 use axum::{extract::State, http::StatusCode, Json};
 use database::{
     db::Db,
@@ -10,12 +15,6 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
 use uuid7::uuid7;
-
-use crate::{
-    env::NONCE,
-    structs::api_cloud_errors::CloudApiErrors,
-    utils::{custom_validate_new_password, validate_request},
-};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
@@ -99,7 +98,7 @@ pub async fn register_with_password(
 mod tests {
     use super::*;
     use crate::{
-        structs::cloud_http_endpoints::HttpCloudEndpoint,
+        structs::cloud::cloud_http_endpoints::HttpCloudEndpoint,
         test_utils::test_utils::{
             convert_response, convert_response_into_error_string, create_test_app,
         },
