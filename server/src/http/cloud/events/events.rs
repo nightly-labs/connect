@@ -1,6 +1,6 @@
+use crate::structs::cloud::cloud_events::events::EventData;
 use crate::{
-    middlewares::origin_middleware::Origin,
-    structs::{api_cloud_errors::CloudApiErrors, cloud_events::events::EventData},
+    middlewares::origin_middleware::Origin, structs::cloud::api_cloud_errors::CloudApiErrors,
 };
 use axum::{extract::State, http::StatusCode, Json};
 use database::db::Db;
@@ -20,7 +20,7 @@ pub struct HttpNightlyConnectCloudEvent {
 pub async fn events(
     State(db): State<Option<Arc<Db>>>,
     Origin(origin): Origin,
-    Json(request): Json<HttpNightlyConnectCloudEvent>,
+    Json(_request): Json<HttpNightlyConnectCloudEvent>,
 ) -> Result<Json<()>, (StatusCode, String)> {
     // Db connection has already been checked in the middleware
     let db = db.as_ref().ok_or((

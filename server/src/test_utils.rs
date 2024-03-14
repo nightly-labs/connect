@@ -16,7 +16,7 @@ pub mod test_utils {
         },
         routes::router::get_router,
         statics::NAME_REGEX,
-        structs::cloud_http_endpoints::HttpCloudEndpoint,
+        structs::cloud::cloud_http_endpoints::HttpCloudEndpoint,
     };
     use anyhow::bail;
     use axum::{

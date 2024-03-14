@@ -1,6 +1,8 @@
 use crate::{
     statics::{NAME_REGEX, REGISTER_PASSWORD_VALIDATOR},
-    structs::{api_cloud_errors::CloudApiErrors, wallet_metadata::WalletMetadata, wallets::*},
+    structs::{
+        cloud::api_cloud_errors::CloudApiErrors, wallet_metadata::WalletMetadata, wallets::*,
+    },
 };
 use axum::http::{header, Method, StatusCode};
 use garde::Validate;
