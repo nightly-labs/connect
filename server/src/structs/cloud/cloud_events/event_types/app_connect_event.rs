@@ -1,3 +1,4 @@
+use database::structs::session_type::SessionType;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
@@ -6,4 +7,7 @@ use ts_rs::TS;
 #[serde(rename_all = "camelCase")]
 pub struct AppConnectEvent {
     pub session_id: String,
+    pub connection_id: String,
+    pub session_type: SessionType,
+    pub new_session: bool,
 }

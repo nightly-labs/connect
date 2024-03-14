@@ -68,17 +68,15 @@ impl Db {
         tx: &mut Transaction<'_, Postgres>,
         app_id: &String,
         connection_id: &String,
-        session_id: &String,
     ) -> Result<(), DbError> {
         let query_body = format!(
             "UPDATE {CONNECTION_EVENTS_TABLE_NAME} 
                 SET disconnected_at = NOW() 
-                WHERE app_id = $1 AND session_id = $2 AND entity_type = $3 AND connection_id = $4 AND disconnected_at IS NULL"
+                WHERE app_id = $1 AND entity_type = $2 AND connection_id = $3 AND disconnected_at IS NULL"
         );
 
         let query_result = query(&query_body)
             .bind(&app_id)
-            .bind(&session_id)
             .bind(&EntityType::App)
             .bind(&connection_id)
             .execute(&mut **tx)
@@ -215,7 +213,7 @@ mod tests {
 
         // Close app first connection
         let mut tx = db.connection_pool.begin().await.unwrap();
-        db.close_app_connection(&mut tx, &app_id, &first_connection_id, &session_id)
+        db.close_app_connection(&mut tx, &app_id, &first_connection_id)
             .await
             .unwrap();
 
@@ -235,7 +233,7 @@ mod tests {
 
         // Close remaining connections
         let mut tx = db.connection_pool.begin().await.unwrap();
-        db.close_app_connection(&mut tx, &app_id, &second_connection_id, &session_id)
+        db.close_app_connection(&mut tx, &app_id, &second_connection_id)
             .await
             .unwrap();
         db.close_client_connection(&mut tx, &app_id, &session_id, client_profile_id)
