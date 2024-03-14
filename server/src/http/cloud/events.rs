@@ -11,7 +11,8 @@ use ts_rs::TS;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct HttpNightlyConnectEvent {
+#[serde(rename_all = "camelCase")]
+pub struct HttpNightlyConnectCloudEvent {
     pub app_id: String,
     pub event: EventData,
 }
@@ -19,6 +20,7 @@ pub struct HttpNightlyConnectEvent {
 pub async fn events(
     State(db): State<Option<Arc<Db>>>,
     Origin(origin): Origin,
+    Json(request): Json<HttpNightlyConnectCloudEvent>,
 ) -> Result<Json<()>, (StatusCode, String)> {
     // Db connection has already been checked in the middleware
     let db = db.as_ref().ok_or((

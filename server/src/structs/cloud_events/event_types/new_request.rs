@@ -5,7 +5,6 @@ use ts_rs::TS;
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct NewRequestEvent {
-    pub app_id: String,
     pub session_id: String,
     pub request_id: String,
     pub content: String,
