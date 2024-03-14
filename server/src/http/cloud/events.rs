@@ -1,4 +1,7 @@
-use crate::{middlewares::origin_middleware::Origin, structs::api_cloud_errors::CloudApiErrors};
+use crate::{
+    middlewares::origin_middleware::Origin,
+    structs::{api_cloud_errors::CloudApiErrors, cloud_events::events::EventData},
+};
 use axum::{extract::State, http::StatusCode, Json};
 use database::db::Db;
 use log::error;
@@ -8,9 +11,9 @@ use ts_rs::TS;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct Event {
+pub struct HttpNightlyConnectEvent {
     pub app_id: String,
-    // pub event: EventData,
+    pub event: EventData,
 }
 
 pub async fn events(

@@ -2,6 +2,7 @@ pub mod api_cloud_errors;
 pub mod app_info;
 pub mod app_messages;
 pub mod client_messages;
+pub mod cloud_events;
 pub mod cloud_http_endpoints;
 pub mod common;
 pub mod http_endpoints;
