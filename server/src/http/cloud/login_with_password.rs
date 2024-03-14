@@ -1,7 +1,7 @@
 use crate::{
     auth::AuthToken,
     env::{JWT_SECRET, NONCE},
-    structs::api_cloud_errors::CloudApiErrors,
+    structs::cloud::api_cloud_errors::CloudApiErrors,
     utils::validate_request,
 };
 use axum::{
@@ -120,7 +120,7 @@ mod tests {
         http::cloud::register_with_password::{
             HttpRegisterWithPasswordRequest, HttpRegisterWithPasswordResponse,
         },
-        structs::cloud_http_endpoints::HttpCloudEndpoint,
+        structs::cloud::cloud_http_endpoints::HttpCloudEndpoint,
         test_utils::test_utils::{convert_response, create_test_app},
     };
     use axum::{

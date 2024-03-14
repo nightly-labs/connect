@@ -1,15 +1,13 @@
 use super::cloud_router::cloud_router;
 use crate::{
     handle_error::handle_error,
-    http::{
-        cloud::cloud_middleware::db_cloud_middleware,
-        relay::{
-            connect_session::connect_session, drop_sessions::drop_sessions,
-            get_pending_request::get_pending_request, get_pending_requests::get_pending_requests,
-            get_session_info::get_session_info, get_sessions::get_sessions,
-            get_wallets_metadata::get_wallets_metadata, resolve_request::resolve_request,
-        },
+    http::relay::{
+        connect_session::connect_session, drop_sessions::drop_sessions,
+        get_pending_request::get_pending_request, get_pending_requests::get_pending_requests,
+        get_session_info::get_session_info, get_sessions::get_sessions,
+        get_wallets_metadata::get_wallets_metadata, resolve_request::resolve_request,
     },
+    middlewares::cloud_middleware::db_cloud_middleware,
     sesssion_cleaner::start_cleaning_sessions,
     state::ServerState,
     structs::http_endpoints::HttpEndpoint,

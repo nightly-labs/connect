@@ -1,4 +1,4 @@
-use super::{auth_token_type::AuthTokenType, AuthToken};
+use crate::auth::{auth_token_type::AuthTokenType, AuthToken};
 use crate::env::JWT_PUBLIC_KEY;
 use axum::{
     extract::{ConnectInfo, Request},

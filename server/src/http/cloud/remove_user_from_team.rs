@@ -1,6 +1,6 @@
 use crate::{
-    auth::auth_middleware::UserId,
-    structs::api_cloud_errors::CloudApiErrors,
+    middlewares::auth_middleware::UserId,
+    structs::cloud::api_cloud_errors::CloudApiErrors,
     utils::{custom_validate_uuid, validate_request},
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
@@ -137,7 +137,9 @@ mod tests {
                 HttpRemoveUserFromTeamRequest, HttpRemoveUserFromTeamResponse,
             },
         },
-        structs::{api_cloud_errors::CloudApiErrors, cloud_http_endpoints::HttpCloudEndpoint},
+        structs::cloud::{
+            api_cloud_errors::CloudApiErrors, cloud_http_endpoints::HttpCloudEndpoint,
+        },
         test_utils::test_utils::{
             add_test_app, add_test_team, add_user_to_test_team, convert_response, create_test_app,
             generate_valid_name, register_and_login_random_user, remove_user_from_test_team,

@@ -1,13 +1,15 @@
 use crate::{
-    auth::auth_middleware::access_auth_middleware,
     http::cloud::{
-        add_user_to_team::add_user_to_team, get_user_joined_teams::get_user_joined_teams,
-        login_with_password::login_with_password, register_new_app::register_new_app,
-        register_new_team::register_new_team, register_with_password::register_with_password,
+        add_user_to_team::add_user_to_team, events::events,
+        get_user_joined_teams::get_user_joined_teams, login_with_password::login_with_password,
+        register_new_app::register_new_app, register_new_team::register_new_team,
+        register_with_password::register_with_password,
         remove_user_from_team::remove_user_from_team,
     },
+    middlewares::auth_middleware::access_auth_middleware,
+    routes::cloud_router::events::events,
     state::ServerState,
-    structs::cloud_http_endpoints::HttpCloudEndpoint,
+    structs::cloud::cloud_http_endpoints::HttpCloudEndpoint,
 };
 use axum::{
     middleware,
@@ -38,6 +40,7 @@ pub fn public_router(state: ServerState) -> Router<ServerState> {
             &HttpCloudEndpoint::RegisterWithPassword.to_string(),
             post(register_with_password),
         )
+        .route(&HttpCloudEndpoint::Events.to_string(), post(events))
         .with_state(state)
 }
 

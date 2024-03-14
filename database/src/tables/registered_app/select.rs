@@ -8,13 +8,13 @@ impl Db {
     pub async fn get_registered_app_by_app_id(
         &self,
         app_id: &String,
-    ) -> Result<DbRegisteredApp, DbError> {
+    ) -> Result<Option<DbRegisteredApp>, DbError> {
         let query = format!("SELECT * FROM {REGISTERED_APPS_TABLE_NAME} WHERE app_id = $1");
         let typed_query = query_as::<_, DbRegisteredApp>(&query);
 
         return typed_query
             .bind(&app_id)
-            .fetch_one(&self.connection_pool)
+            .fetch_optional(&self.connection_pool)
             .await
             .map_err(|e| e.into());
     }

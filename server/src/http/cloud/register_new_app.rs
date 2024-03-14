@@ -1,7 +1,7 @@
 use crate::{
-    auth::auth_middleware::UserId,
+    middlewares::auth_middleware::UserId,
     statics::REGISTERED_APPS_LIMIT_PER_TEAM,
-    structs::api_cloud_errors::CloudApiErrors,
+    structs::cloud::api_cloud_errors::CloudApiErrors,
     utils::{custom_validate_name, custom_validate_uuid, validate_request},
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
@@ -205,7 +205,9 @@ mod tests {
     use crate::{
         env::JWT_SECRET,
         http::cloud::register_new_app::{HttpRegisterNewAppRequest, HttpRegisterNewAppResponse},
-        structs::{api_cloud_errors::CloudApiErrors, cloud_http_endpoints::HttpCloudEndpoint},
+        structs::cloud::{
+            api_cloud_errors::CloudApiErrors, cloud_http_endpoints::HttpCloudEndpoint,
+        },
         test_utils::test_utils::{
             add_test_team, convert_response, create_test_app, generate_valid_name,
             register_and_login_random_user,
