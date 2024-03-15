@@ -95,16 +95,13 @@ mod tests {
                 session_close_timestamp: None,
             };
 
-            db.handle_new_session(&session, &format!("connection_id_{app_id}_{i}").to_string())
-                .await
-                .unwrap();
+            db.handle_new_session(&session).await.unwrap();
 
             // Each time a session is created, means that app has been connected, create 2 more connections
             let mut tx = db.connection_pool.begin().await.unwrap();
             db.create_new_connection_event_by_app(
                 &mut tx,
                 &session_id,
-                &format!("connection_id_{app_id}_{i}_1").to_string(),
                 &app_id,
                 &network.to_string(),
             )
@@ -114,7 +111,6 @@ mod tests {
             db.create_new_connection_event_by_app(
                 &mut tx,
                 &session_id,
-                &format!("connection_id_{app_id}_{i}_2").to_string(),
                 &app_id,
                 &network.to_string(),
             )

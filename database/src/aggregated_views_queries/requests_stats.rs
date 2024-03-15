@@ -93,9 +93,7 @@ mod test {
             session_close_timestamp: None,
         };
 
-        db.handle_new_session(&session, &"connection_id".to_string())
-            .await
-            .unwrap();
+        db.handle_new_session(&session).await.unwrap();
 
         let result = db.get_sessions_by_app_id(&app_id).await.unwrap();
         assert_eq!(result.len(), 1);
@@ -199,9 +197,7 @@ mod test {
             session_close_timestamp: None,
         };
 
-        db.handle_new_session(&session, &"connection_id".to_string())
-            .await
-            .unwrap();
+        db.handle_new_session(&session).await.unwrap();
 
         let result = db.get_sessions_by_app_id(&app_id).await.unwrap();
         assert_eq!(result.len(), 1);
@@ -336,10 +332,7 @@ mod test {
             session_close_timestamp: None,
         };
 
-        db_arc
-            .handle_new_session(&session, &"connection_id".to_string())
-            .await
-            .unwrap();
+        db_arc.handle_new_session(&session).await.unwrap();
 
         let mut tasks = Vec::new();
         for i in 0..10 {

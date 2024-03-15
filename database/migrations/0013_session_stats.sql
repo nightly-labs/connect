@@ -5,7 +5,7 @@ SELECT
     app_id,
     time_bucket('1 hour' :: interval, session_open_timestamp) AS hourly_bucket,
     COUNT(*) :: BIGINT AS hourly_sessions_opened,
-    COUNT(DISTINCT client_profile_id) FILTER (WHERE client_profile_id IS NOT NULL) :: BIGINT AS hourly_active_users
+    COUNT(DISTINCT (client_data).client_profile_id) :: BIGINT AS hourly_active_users
 FROM
     sessions
 GROUP BY

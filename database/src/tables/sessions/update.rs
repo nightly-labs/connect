@@ -11,11 +11,7 @@ use sqlx::{
 };
 
 impl Db {
-    pub async fn handle_new_session(
-        &self,
-        session: &DbNcSession,
-        connection_id: &String,
-    ) -> Result<(), DbError> {
+    pub async fn handle_new_session(&self, session: &DbNcSession) -> Result<(), DbError> {
         let mut tx = self.connection_pool.begin().await.unwrap();
 
         // 1. Save the new session
@@ -32,7 +28,6 @@ impl Db {
             .create_new_connection_event_by_app(
                 &mut tx,
                 &session.session_id,
-                &connection_id,
                 &session.app_id,
                 &session.network,
             )
@@ -56,7 +51,7 @@ impl Db {
         session: &DbNcSession,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {SESSIONS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)",
+            "INSERT INTO {SESSIONS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
             SESSIONS_KEYS
         );
 
@@ -67,12 +62,7 @@ impl Db {
             .bind(&session.app_metadata)
             .bind(&session.persistent)
             .bind(&session.network)
-            .bind(&None::<i64>)
-            .bind(&None::<String>)
-            .bind(&None::<String>)
-            .bind(&None::<String>)
-            .bind(&None::<String>)
-            .bind(&None::<DateTime<Utc>>)
+            .bind(&None::<ClientData>)
             .bind(&session.session_open_timestamp)
             .bind(&None::<DateTime<Utc>>)
             .execute(&mut **tx)
@@ -140,7 +130,7 @@ impl Db {
 
         // 2. Update the session with the client data
         let query_body =
-            format!("UPDATE {SESSIONS_TABLE_NAME} SET client_data = $1, WHERE session_id = $2");
+            format!("UPDATE {SESSIONS_TABLE_NAME} SET client_data = $1 WHERE session_id = $2");
 
         let query_result = query(&query_body)
             .bind(&client_data)
@@ -263,9 +253,7 @@ mod tests {
         };
 
         // Create a new session entry
-        db.handle_new_session(&session, &"connection_id".to_string())
-            .await
-            .unwrap();
+        db.handle_new_session(&session).await.unwrap();
 
         // Get all sessions by app_id
         let sessions = db.get_sessions_by_app_id(&session.app_id).await.unwrap();

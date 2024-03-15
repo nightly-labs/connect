@@ -86,9 +86,7 @@ mod tests {
         };
 
         // Create a new session entry
-        db.handle_new_session(&session, &"connection_id".to_string())
-            .await
-            .unwrap();
+        db.handle_new_session(&session).await.unwrap();
 
         let request = Request {
             request_id: "test_request_id".to_string(),
