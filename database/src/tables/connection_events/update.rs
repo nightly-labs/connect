@@ -64,18 +64,21 @@ impl Db {
     pub async fn close_app_connection(
         &self,
         tx: &mut Transaction<'_, Postgres>,
+        session_id: &String,
         app_id: &String,
     ) -> Result<(), DbError> {
         // If there is more than 1 concurrent connection, we will close all of them
         let query_body = format!(
             "UPDATE {CONNECTION_EVENTS_TABLE_NAME} 
                 SET disconnected_at = NOW() 
-                WHERE app_id = $1 AND entity_type = $2 AND disconnected_at IS NULL"
+                WHERE app_id = $1 AND session_id = $2 AND entity_type = $3 AND entity_id = $4 AND disconnected_at IS NULL"
         );
 
         let query_result = query(&query_body)
             .bind(&app_id)
+            .bind(&session_id)
             .bind(&EntityType::App)
+            .bind(&app_id)
             .execute(&mut **tx)
             .await;
 
@@ -195,7 +198,9 @@ mod tests {
 
         // Close app first connection
         let mut tx = db.connection_pool.begin().await.unwrap();
-        db.close_app_connection(&mut tx, &app_id).await.unwrap();
+        db.close_app_connection(&mut tx, &session_id, &app_id)
+            .await
+            .unwrap();
 
         tx.commit().await.unwrap();
 

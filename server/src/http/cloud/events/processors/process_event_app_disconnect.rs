@@ -11,7 +11,10 @@ pub async fn process_event_app_disconnect(
 ) {
     // Close app connection in the database
     let mut tx = db.connection_pool.begin().await.unwrap();
-    match db.close_app_connection(&mut tx, &app_id).await {
+    match db
+        .close_app_connection(&mut tx, &event.session_id, &app_id)
+        .await
+    {
         Ok(_) => {
             // Commit the transaction
             if let Err(err) = tx.commit().await {
