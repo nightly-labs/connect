@@ -91,8 +91,7 @@ mod tests {
                 app_metadata: "test_metadata".to_string(),
                 persistent: false,
                 network: "test_network".to_string(),
-                client_profile_id: None,
-                client: None,
+                client_data: None,
                 session_open_timestamp: session_start,
                 session_close_timestamp: None,
             };
@@ -158,8 +157,7 @@ mod tests {
                 app_metadata: "test_metadata".to_string(),
                 persistent: false,
                 network: "test_network".to_string(),
-                client_profile_id: None,
-                client: None,
+                client_data: None,
                 session_open_timestamp: session_start,
                 session_close_timestamp: Some(session_end),
             };
@@ -185,8 +183,7 @@ mod tests {
                 app_metadata: "test_metadata".to_string(),
                 persistent: false,
                 network: "test_network".to_string(),
-                client_profile_id: None,
-                client: None,
+                client_data: None,
                 session_open_timestamp: session_start,
                 session_close_timestamp: Some(session_end),
             };

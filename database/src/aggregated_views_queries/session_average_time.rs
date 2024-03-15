@@ -69,8 +69,7 @@ mod test {
 
                 persistent: false,
                 network: "test_network".to_string(),
-                client_profile_id: None,
-                client: None,
+                client_data: None,
                 session_open_timestamp: *start,
                 session_close_timestamp: None,
             };

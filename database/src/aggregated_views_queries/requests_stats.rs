@@ -88,8 +88,7 @@ mod test {
             app_metadata: "test_app_metadata".to_string(),
             persistent: false,
             network: "test_network".to_string(),
-            client_profile_id: None,
-            client: None,
+            client_data: None,
             session_open_timestamp: DateTime::from(Utc::now()),
             session_close_timestamp: None,
         };
@@ -195,8 +194,7 @@ mod test {
 
             persistent: false,
             network: "test_network".to_string(),
-            client_profile_id: None,
-            client: None,
+            client_data: None,
             session_open_timestamp: to_microsecond_precision(&Utc::now()),
             session_close_timestamp: None,
         };
@@ -333,8 +331,7 @@ mod test {
             app_metadata: "test_app_metadata".to_string(),
             persistent: false,
             network: "test_network".to_string(),
-            client_profile_id: None,
-            client: None,
+            client_data: None,
             session_open_timestamp: to_microsecond_precision(&Utc::now()),
             session_close_timestamp: None,
         };

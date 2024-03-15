@@ -80,8 +80,7 @@ mod tests {
             app_metadata: "test_app_metadata".to_string(),
             persistent: false,
             network: "test_network".to_string(),
-            client_profile_id: Some("profile_id".to_string()),
-            client: None,
+            client_data: None,
             session_open_timestamp: get_date_time(10).unwrap(),
             session_close_timestamp: None,
         };

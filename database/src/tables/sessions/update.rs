@@ -139,17 +139,11 @@ impl Db {
         };
 
         // 2. Update the session with the client data
-        let query_body = format!(
-            "UPDATE {SESSIONS_TABLE_NAME} SET client_id = $1, client_device = $2, client_metadata = $3, client_notification_endpoint = $4, client_connected_at = $5, client_profile_id = $6 WHERE session_id = $7"
-        );
+        let query_body =
+            format!("UPDATE {SESSIONS_TABLE_NAME} SET client_data = $1, WHERE session_id = $2");
 
         let query_result = query(&query_body)
-            .bind(&client_data.client_id)
-            .bind(&client_data.device)
-            .bind(&client_data.metadata)
-            .bind(&client_data.notification_endpoint)
-            .bind(&client_data.connected_at)
-            .bind(&client_profile_id)
+            .bind(&client_data)
             .bind(&session_id)
             .execute(&self.connection_pool)
             .await;
@@ -263,8 +257,7 @@ mod tests {
             app_metadata: "test_app_metadata".to_string(),
             persistent: false,
             network: "test_network".to_string(),
-            client_profile_id: None,
-            client: None,
+            client_data: None,
             session_open_timestamp: get_date_time(10).unwrap(),
             session_close_timestamp: None,
         };

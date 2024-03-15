@@ -44,8 +44,7 @@ pub async fn process_event_app_connect(
                         persistent: session.persistent,
                         network: session.network.0.clone(),
                         // Client data should be empty if the session was just created
-                        client_profile_id: None,
-                        client: None,
+                        client_data: None,
                         // Getting the current datetime from timestamp should never fail, just in case we will use the current datetime
                         session_open_timestamp: get_date_time(session.creation_timestamp)
                             .unwrap_or(get_current_datetime()),

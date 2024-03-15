@@ -270,8 +270,7 @@ mod tests {
             app_metadata: "test_app_metadata".to_string(),
             persistent: false,
             network: "test_network".to_string(),
-            client_profile_id: None,
-            client: None,
+            client_data: None,
             session_open_timestamp: to_microsecond_precision(&Utc::now()),
             session_close_timestamp: None,
         };
@@ -282,11 +281,11 @@ mod tests {
             .unwrap();
 
         let first_client_data = ClientData {
-            client_id: Some("first_client_id".to_string()),
+            client_id: "first_client_id".to_string(),
             connected_at: to_microsecond_precision(&Utc::now()),
-            metadata: Some("test_metadata".to_string()),
-            device: Some("test_device".to_string()),
-            notification_endpoint: Some("test_notification_endpoint".to_string()),
+            client_profile_id: 1,
+            wallet_name: "test_wallet_name".to_string(),
+            wallet_type: "test_wallet_type".to_string(),
         };
         let first_user_keys = vec![
             "first_key".to_string(),
@@ -305,11 +304,11 @@ mod tests {
         .unwrap();
 
         let second_client_data = ClientData {
-            client_id: Some("second_client_id".to_string()),
+            client_id: "second_client_id".to_string(),
             connected_at: to_microsecond_precision(&Utc::now()),
-            metadata: Some("test_metadata".to_string()),
-            device: Some("test_device".to_string()),
-            notification_endpoint: Some("test_notification_endpoint".to_string()),
+            client_profile_id: 2,
+            wallet_name: "test_wallet_name".to_string(),
+            wallet_type: "test_wallet_type".to_string(),
         };
         let second_user_keys = vec!["fourth_key".to_string(), "sixth_key".to_string()];
 
@@ -324,11 +323,11 @@ mod tests {
         .unwrap();
 
         let third_client_data = ClientData {
-            client_id: Some("third_client_id".to_string()),
+            client_id: "third_client_id".to_string(),
             connected_at: to_microsecond_precision(&Utc::now()),
-            metadata: Some("test_metadata".to_string()),
-            device: Some("test_device".to_string()),
-            notification_endpoint: Some("test_notification_endpoint".to_string()),
+            client_profile_id: 3,
+            wallet_name: "test_wallet_name".to_string(),
+            wallet_type: "test_wallet_type".to_string(),
         };
         let third_user_keys = vec!["seventh_key".to_string()];
         db.connect_user_to_the_session(

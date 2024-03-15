@@ -90,8 +90,7 @@ mod tests {
                 app_metadata: "test_metadata".to_string(),
                 persistent: true,
                 network: network.to_string(),
-                client_profile_id: None,
-                client: None,
+                client_data: None,
                 session_open_timestamp: Utc::now(),
                 session_close_timestamp: None,
             };
