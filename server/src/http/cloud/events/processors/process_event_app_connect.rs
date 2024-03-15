@@ -63,10 +63,7 @@ pub async fn process_event_app_connect(
         };
 
         // Should not fail, but if it does then we will have a problem
-        if let Err(err) = db
-            .handle_new_session(&session_data, &event.connection_id)
-            .await
-        {
+        if let Err(err) = db.handle_new_session(&session_data).await {
             error!(
                 "Failed to create new session, app_id: [{}], ip: [{}], event: [{:?}], err: [{}]",
                 app_id, ip, event, err
@@ -79,7 +76,6 @@ pub async fn process_event_app_connect(
             .create_new_connection_event_by_app(
                 &mut tx,
                 &event.session_id,
-                &event.connection_id,
                 &app_id,
                 &ip.to_string(),
             )
