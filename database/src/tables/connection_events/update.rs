@@ -275,7 +275,10 @@ mod tests {
         ];
 
         db.connect_user_to_the_session(
-            &first_client_data,
+            &first_client_data.client_id,
+            &first_client_data.wallet_name,
+            &first_client_data.wallet_type,
+            &first_client_data.connected_at,
             &first_user_keys,
             &app_id,
             &session.session_id,
@@ -294,7 +297,10 @@ mod tests {
         let second_user_keys = vec!["fourth_key".to_string(), "sixth_key".to_string()];
 
         db.connect_user_to_the_session(
-            &second_client_data,
+            &second_client_data.client_id,
+            &second_client_data.wallet_name,
+            &second_client_data.wallet_type,
+            &second_client_data.connected_at,
             &second_user_keys,
             &app_id,
             &session.session_id,
@@ -312,7 +318,10 @@ mod tests {
         };
         let third_user_keys = vec!["seventh_key".to_string()];
         db.connect_user_to_the_session(
-            &third_client_data,
+            &third_client_data.client_id,
+            &third_client_data.wallet_name,
+            &third_client_data.wallet_type,
+            &third_client_data.connected_at,
             &third_user_keys,
             &app_id,
             &session.session_id,
@@ -337,7 +346,10 @@ mod tests {
 
         // Connect as first user again
         db.connect_user_to_the_session(
-            &first_client_data,
+            &first_client_data.client_id,
+            &first_client_data.wallet_name,
+            &first_client_data.wallet_type,
+            &first_client_data.connected_at,
             &first_user_keys,
             &app_id,
             &session.session_id,
@@ -348,7 +360,10 @@ mod tests {
 
         // Connect as second user again
         db.connect_user_to_the_session(
-            &second_client_data,
+            &second_client_data.client_id,
+            &second_client_data.wallet_name,
+            &second_client_data.wallet_type,
+            &second_client_data.connected_at,
             &second_user_keys,
             &app_id,
             &session.session_id,
@@ -373,7 +388,10 @@ mod tests {
 
         // Connect as third user again
         db.connect_user_to_the_session(
-            &third_client_data,
+            &third_client_data.client_id,
+            &third_client_data.wallet_name,
+            &third_client_data.wallet_type,
+            &third_client_data.connected_at,
             &third_user_keys,
             &app_id,
             &session.session_id,

@@ -97,7 +97,10 @@ impl Db {
 
     pub async fn connect_user_to_the_session(
         &self,
-        client_data: &ClientData,
+        client_id: &String,
+        wallet_name: &String,
+        wallet_type: &String,
+        connected_at: &DateTime<Utc>,
         connected_keys: &Vec<String>,
         app_id: &String,
         session_id: &String,
@@ -126,6 +129,14 @@ impl Db {
                     .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
                 return Err(err);
             }
+        };
+
+        let client_data = ClientData {
+            client_profile_id,
+            client_id: client_id.clone(),
+            wallet_name: wallet_name.clone(),
+            wallet_type: wallet_type.clone(),
+            connected_at: connected_at.clone(),
         };
 
         // 2. Update the session with the client data

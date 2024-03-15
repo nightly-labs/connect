@@ -23,7 +23,8 @@ pub async fn process_event(
         EventData::AppDisconnect(event) => {
             process_event_app_disconnect(event, &event_payload.app_id, ip, db_connection).await;
         }
-        EventData::ClientConnect(event) => todo!(),
+        EventData::ClientConnectInit(event) => todo!(),
+        EventData::ClientConnectResolve(event) => todo!(),
         EventData::ClientDisconnect(event) => todo!(),
         EventData::NewRequest(event) => todo!(),
         EventData::RequestResolved(event) => todo!(),
