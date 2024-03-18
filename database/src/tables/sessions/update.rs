@@ -11,11 +11,7 @@ use sqlx::{
 };
 
 impl Db {
-    pub async fn handle_new_session(
-        &self,
-        session: &DbNcSession,
-        connection_id: &String,
-    ) -> Result<(), DbError> {
+    pub async fn handle_new_session(&self, session: &DbNcSession) -> Result<(), DbError> {
         let mut tx = self.connection_pool.begin().await.unwrap();
 
         // 1. Save the new session
@@ -32,7 +28,6 @@ impl Db {
             .create_new_connection_event_by_app(
                 &mut tx,
                 &session.session_id,
-                &connection_id,
                 &session.app_id,
                 &session.network,
             )
@@ -56,7 +51,7 @@ impl Db {
         session: &DbNcSession,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {SESSIONS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)",
+            "INSERT INTO {SESSIONS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
             SESSIONS_KEYS
         );
 
@@ -65,15 +60,9 @@ impl Db {
             .bind(&session.session_type)
             .bind(&session.app_id)
             .bind(&session.app_metadata)
-            .bind(&session.app_ip_address)
             .bind(&session.persistent)
             .bind(&session.network)
-            .bind(&None::<i64>)
-            .bind(&None::<String>)
-            .bind(&None::<String>)
-            .bind(&None::<String>)
-            .bind(&None::<String>)
-            .bind(&None::<DateTime<Utc>>)
+            .bind(&None::<ClientData>)
             .bind(&session.session_open_timestamp)
             .bind(&None::<DateTime<Utc>>)
             .execute(&mut **tx)
@@ -108,11 +97,14 @@ impl Db {
 
     pub async fn connect_user_to_the_session(
         &self,
-        client_data: &ClientData,
+        client_id: &String,
+        wallet_name: &String,
+        wallet_type: &String,
+        connected_at: &DateTime<Utc>,
         connected_keys: &Vec<String>,
         app_id: &String,
         session_id: &String,
-        network: &String,
+        ip: &String,
     ) -> Result<(), DbError> {
         // Start a new transaction
         let mut tx = self.connection_pool.begin().await.unwrap();
@@ -139,18 +131,20 @@ impl Db {
             }
         };
 
+        let client_data = ClientData {
+            client_profile_id,
+            client_id: client_id.clone(),
+            wallet_name: wallet_name.clone(),
+            wallet_type: wallet_type.clone(),
+            connected_at: connected_at.clone(),
+        };
+
         // 2. Update the session with the client data
-        let query_body = format!(
-            "UPDATE {SESSIONS_TABLE_NAME} SET client_id = $1, client_device = $2, client_metadata = $3, client_notification_endpoint = $4, client_connected_at = $5, client_profile_id = $6 WHERE session_id = $7"
-        );
+        let query_body =
+            format!("UPDATE {SESSIONS_TABLE_NAME} SET client_data = $1 WHERE session_id = $2");
 
         let query_result = query(&query_body)
-            .bind(&client_data.client_id)
-            .bind(&client_data.device)
-            .bind(&client_data.metadata)
-            .bind(&client_data.notification_endpoint)
-            .bind(&client_data.connected_at)
-            .bind(&client_profile_id)
+            .bind(&client_data)
             .bind(&session_id)
             .execute(&self.connection_pool)
             .await;
@@ -213,13 +207,7 @@ impl Db {
 
         // 4. Create new connection event
         if let Err(err) = self
-            .create_new_connection_by_client(
-                &mut tx,
-                &app_id,
-                &session_id,
-                client_profile_id,
-                &network,
-            )
+            .create_new_connection_by_client(&mut tx, &app_id, &session_id, client_profile_id, &ip)
             .await
         {
             let _ = tx
@@ -262,19 +250,15 @@ mod tests {
             session_type: SessionType::Relay,
             app_id: "test_app_id".to_string(),
             app_metadata: "test_app_metadata".to_string(),
-            app_ip_address: "test_app_ip_address".to_string(),
             persistent: false,
             network: "test_network".to_string(),
-            client_profile_id: None,
-            client: None,
+            client_data: None,
             session_open_timestamp: get_date_time(10).unwrap(),
             session_close_timestamp: None,
         };
 
         // Create a new session entry
-        db.handle_new_session(&session, &"connection_id".to_string())
-            .await
-            .unwrap();
+        db.handle_new_session(&session).await.unwrap();
 
         // Get all sessions by app_id
         let sessions = db.get_sessions_by_app_id(&session.app_id).await.unwrap();

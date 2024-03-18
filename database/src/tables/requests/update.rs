@@ -78,19 +78,15 @@ mod tests {
             session_type: SessionType::Relay,
             app_id: "test_app_id".to_string(),
             app_metadata: "test_app_metadata".to_string(),
-            app_ip_address: "test_app_ip_address".to_string(),
             persistent: false,
             network: "test_network".to_string(),
-            client_profile_id: Some("profile_id".to_string()),
-            client: None,
+            client_data: None,
             session_open_timestamp: get_date_time(10).unwrap(),
             session_close_timestamp: None,
         };
 
         // Create a new session entry
-        db.handle_new_session(&session, &"connection_id".to_string())
-            .await
-            .unwrap();
+        db.handle_new_session(&session).await.unwrap();
 
         let request = Request {
             request_id: "test_request_id".to_string(),

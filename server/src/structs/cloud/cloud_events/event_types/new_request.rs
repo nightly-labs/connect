@@ -1,3 +1,4 @@
+use super::request_type::RequestType;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
@@ -7,5 +8,5 @@ use ts_rs::TS;
 pub struct NewRequestEvent {
     pub session_id: String,
     pub request_id: String,
-    pub content: String,
+    pub request_type: RequestType,
 }

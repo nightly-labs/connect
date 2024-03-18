@@ -89,21 +89,14 @@ mod tests {
                 app_id: app_id.clone(),
                 session_type: SessionType::Relay,
                 app_metadata: "test_metadata".to_string(),
-                app_ip_address: "127.0.0.1".to_string(),
                 persistent: false,
                 network: "test_network".to_string(),
-                client_profile_id: None,
-                client: None,
+                client_data: None,
                 session_open_timestamp: session_start,
                 session_close_timestamp: None,
             };
 
-            db.handle_new_session(
-                &session,
-                &format!("connection_id_{}_{}", app_id, i).to_string(),
-            )
-            .await
-            .unwrap();
+            db.handle_new_session(&session).await.unwrap();
             db.close_session(&session.session_id, session_end)
                 .await
                 .unwrap();
@@ -157,18 +150,14 @@ mod tests {
                 app_id: app_id.clone(),
                 session_type: SessionType::Relay,
                 app_metadata: "test_metadata".to_string(),
-                app_ip_address: "127.0.0.1".to_string(),
                 persistent: false,
                 network: "test_network".to_string(),
-                client_profile_id: None,
-                client: None,
+                client_data: None,
                 session_open_timestamp: session_start,
                 session_close_timestamp: Some(session_end),
             };
 
-            db.handle_new_session(&session, &"connection_id".to_string())
-                .await
-                .unwrap();
+            db.handle_new_session(&session).await.unwrap();
             db.close_session(&session.session_id, session_end)
                 .await
                 .unwrap();
@@ -185,18 +174,14 @@ mod tests {
                 app_id: app_id.clone(),
                 session_type: SessionType::Relay,
                 app_metadata: "test_metadata".to_string(),
-                app_ip_address: "127.0.0.1".to_string(),
                 persistent: false,
                 network: "test_network".to_string(),
-                client_profile_id: None,
-                client: None,
+                client_data: None,
                 session_open_timestamp: session_start,
                 session_close_timestamp: Some(session_end),
             };
 
-            db.handle_new_session(&session, &"connection_id".to_string())
-                .await
-                .unwrap();
+            db.handle_new_session(&session).await.unwrap();
             db.close_session(&session.session_id, session_end)
                 .await
                 .unwrap();

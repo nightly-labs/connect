@@ -66,18 +66,15 @@ mod test {
                 app_id: "test_app_id".to_string(),
                 session_type: SessionType::Relay,
                 app_metadata: "test_app_metadata".to_string(),
-                app_ip_address: "test_app_ip_address".to_string(),
+
                 persistent: false,
                 network: "test_network".to_string(),
-                client_profile_id: None,
-                client: None,
+                client_data: None,
                 session_open_timestamp: *start,
                 session_close_timestamp: None,
             };
 
-            db.handle_new_session(&session, &"connection_id".to_string())
-                .await
-                .unwrap();
+            db.handle_new_session(&session).await.unwrap();
             db.close_session(&session.session_id, *end).await.unwrap();
         }
 

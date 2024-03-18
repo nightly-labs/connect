@@ -12,9 +12,8 @@ impl Db {
         &self,
         tx: &mut Transaction<'_, Postgres>,
         session_id: &String,
-        connection_id: &String,
         app_id: &String,
-        network: &String,
+        ip: &String,
     ) -> Result<(), DbError> {
         let query_body = format!(
             "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, NOW(), NULL)"
@@ -23,10 +22,11 @@ impl Db {
         let query_result = query(&query_body)
             .bind(&app_id)
             .bind(&session_id)
-            .bind(&connection_id)
             .bind(&app_id)
             .bind(&EntityType::App)
-            .bind(&network)
+            .bind(&ip)
+            // initialize connect event with false success flag, only update to true if we receive a successful connection event
+            .bind(false)
             .execute(&mut **tx)
             .await;
 
@@ -42,18 +42,20 @@ impl Db {
         app_id: &String,
         session_id: &String,
         client_profile_id: i64,
-        network: &String,
+        ip: &String,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, NULL, $3, $4, $5, NOW(), NULL)"
+            "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, NOW(), NULL)"
         );
 
         let query_result = query(&query_body)
             .bind(&app_id)
             .bind(&session_id)
-            .bind(&client_profile_id)
+            .bind(&client_profile_id.to_string())
             .bind(&EntityType::Client)
-            .bind(&network)
+            .bind(&ip)
+            // initialize connect event with false success flag, only update to true if we receive a successful connection event
+            .bind(false)
             .execute(&mut **tx)
             .await;
 
@@ -66,21 +68,21 @@ impl Db {
     pub async fn close_app_connection(
         &self,
         tx: &mut Transaction<'_, Postgres>,
-        app_id: &String,
-        connection_id: &String,
         session_id: &String,
+        app_id: &String,
     ) -> Result<(), DbError> {
+        // If there is more than 1 concurrent connection, we will close all of them
         let query_body = format!(
             "UPDATE {CONNECTION_EVENTS_TABLE_NAME} 
                 SET disconnected_at = NOW() 
-                WHERE app_id = $1 AND session_id = $2 AND entity_type = $3 AND connection_id = $4 AND disconnected_at IS NULL"
+                WHERE app_id = $1 AND session_id = $2 AND entity_type = $3 AND entity_id = $4 AND disconnected_at IS NULL"
         );
 
         let query_result = query(&query_body)
             .bind(&app_id)
             .bind(&session_id)
             .bind(&EntityType::App)
-            .bind(&connection_id)
+            .bind(&app_id)
             .execute(&mut **tx)
             .await;
 
@@ -138,20 +140,13 @@ mod tests {
         let mut tx = db.connection_pool.begin().await.unwrap();
 
         let session_id = "session_id".to_string();
-        let first_connection_id = "connection_id".to_string();
         let app_id = "app_id".to_string();
         let network = "network".to_string();
 
         // Create event by app
-        db.create_new_connection_event_by_app(
-            &mut tx,
-            &session_id,
-            &first_connection_id,
-            &app_id,
-            &network,
-        )
-        .await
-        .unwrap();
+        db.create_new_connection_event_by_app(&mut tx, &session_id, &app_id, &network)
+            .await
+            .unwrap();
 
         // Create event by client
         let client_profile_id = 1;
@@ -188,19 +183,11 @@ mod tests {
 
         assert_eq!(events_by_client_profile_id.len(), 1);
 
-        // Add another connection event by app with different connection id
-        let second_connection_id = "connection_id_2".to_string();
-
+        // Add another connection event by app
         let mut tx = db.connection_pool.begin().await.unwrap();
-        db.create_new_connection_event_by_app(
-            &mut tx,
-            &session_id,
-            &second_connection_id,
-            &app_id,
-            &network,
-        )
-        .await
-        .unwrap();
+        db.create_new_connection_event_by_app(&mut tx, &session_id, &app_id, &network)
+            .await
+            .unwrap();
 
         tx.commit().await.unwrap();
 
@@ -215,7 +202,7 @@ mod tests {
 
         // Close app first connection
         let mut tx = db.connection_pool.begin().await.unwrap();
-        db.close_app_connection(&mut tx, &app_id, &first_connection_id, &session_id)
+        db.close_app_connection(&mut tx, &session_id, &app_id)
             .await
             .unwrap();
 
@@ -226,18 +213,16 @@ mod tests {
 
         assert_eq!(events_by_app_id.len(), 3);
 
-        let first_connection = events_by_app_id
-            .iter()
-            .find(|event| event.connection_id == Some(first_connection_id.clone()))
-            .unwrap();
-
-        assert!(first_connection.disconnected_at.is_some());
+        events_by_app_id.iter().for_each(|event| {
+            if event.entity_type == EntityType::App {
+                assert!(event.disconnected_at.is_some());
+            } else {
+                assert!(event.disconnected_at.is_none());
+            }
+        });
 
         // Close remaining connections
         let mut tx = db.connection_pool.begin().await.unwrap();
-        db.close_app_connection(&mut tx, &app_id, &second_connection_id, &session_id)
-            .await
-            .unwrap();
         db.close_client_connection(&mut tx, &app_id, &session_id, client_profile_id)
             .await
             .unwrap();
@@ -270,26 +255,22 @@ mod tests {
             session_type: SessionType::Relay,
             app_id: "test_app_id".to_string(),
             app_metadata: "test_app_metadata".to_string(),
-            app_ip_address: "test_app_ip_address".to_string(),
             persistent: false,
             network: "test_network".to_string(),
-            client_profile_id: None,
-            client: None,
+            client_data: None,
             session_open_timestamp: to_microsecond_precision(&Utc::now()),
             session_close_timestamp: None,
         };
 
         // Create a new session entry
-        db.handle_new_session(&session, &"connection_id".to_string())
-            .await
-            .unwrap();
+        db.handle_new_session(&session).await.unwrap();
 
         let first_client_data = ClientData {
-            client_id: Some("first_client_id".to_string()),
+            client_id: "first_client_id".to_string(),
             connected_at: to_microsecond_precision(&Utc::now()),
-            metadata: Some("test_metadata".to_string()),
-            device: Some("test_device".to_string()),
-            notification_endpoint: Some("test_notification_endpoint".to_string()),
+            client_profile_id: 1,
+            wallet_name: "test_wallet_name".to_string(),
+            wallet_type: "test_wallet_type".to_string(),
         };
         let first_user_keys = vec![
             "first_key".to_string(),
@@ -298,7 +279,10 @@ mod tests {
         ];
 
         db.connect_user_to_the_session(
-            &first_client_data,
+            &first_client_data.client_id,
+            &first_client_data.wallet_name,
+            &first_client_data.wallet_type,
+            &first_client_data.connected_at,
             &first_user_keys,
             &app_id,
             &session.session_id,
@@ -308,16 +292,19 @@ mod tests {
         .unwrap();
 
         let second_client_data = ClientData {
-            client_id: Some("second_client_id".to_string()),
+            client_id: "second_client_id".to_string(),
             connected_at: to_microsecond_precision(&Utc::now()),
-            metadata: Some("test_metadata".to_string()),
-            device: Some("test_device".to_string()),
-            notification_endpoint: Some("test_notification_endpoint".to_string()),
+            client_profile_id: 2,
+            wallet_name: "test_wallet_name".to_string(),
+            wallet_type: "test_wallet_type".to_string(),
         };
         let second_user_keys = vec!["fourth_key".to_string(), "sixth_key".to_string()];
 
         db.connect_user_to_the_session(
-            &second_client_data,
+            &second_client_data.client_id,
+            &second_client_data.wallet_name,
+            &second_client_data.wallet_type,
+            &second_client_data.connected_at,
             &second_user_keys,
             &app_id,
             &session.session_id,
@@ -327,15 +314,18 @@ mod tests {
         .unwrap();
 
         let third_client_data = ClientData {
-            client_id: Some("third_client_id".to_string()),
+            client_id: "third_client_id".to_string(),
             connected_at: to_microsecond_precision(&Utc::now()),
-            metadata: Some("test_metadata".to_string()),
-            device: Some("test_device".to_string()),
-            notification_endpoint: Some("test_notification_endpoint".to_string()),
+            client_profile_id: 3,
+            wallet_name: "test_wallet_name".to_string(),
+            wallet_type: "test_wallet_type".to_string(),
         };
         let third_user_keys = vec!["seventh_key".to_string()];
         db.connect_user_to_the_session(
-            &third_client_data,
+            &third_client_data.client_id,
+            &third_client_data.wallet_name,
+            &third_client_data.wallet_type,
+            &third_client_data.connected_at,
             &third_user_keys,
             &app_id,
             &session.session_id,
@@ -360,7 +350,10 @@ mod tests {
 
         // Connect as first user again
         db.connect_user_to_the_session(
-            &first_client_data,
+            &first_client_data.client_id,
+            &first_client_data.wallet_name,
+            &first_client_data.wallet_type,
+            &first_client_data.connected_at,
             &first_user_keys,
             &app_id,
             &session.session_id,
@@ -371,7 +364,10 @@ mod tests {
 
         // Connect as second user again
         db.connect_user_to_the_session(
-            &second_client_data,
+            &second_client_data.client_id,
+            &second_client_data.wallet_name,
+            &second_client_data.wallet_type,
+            &second_client_data.connected_at,
             &second_user_keys,
             &app_id,
             &session.session_id,
@@ -396,7 +392,10 @@ mod tests {
 
         // Connect as third user again
         db.connect_user_to_the_session(
-            &third_client_data,
+            &third_client_data.client_id,
+            &third_client_data.wallet_name,
+            &third_client_data.wallet_type,
+            &third_client_data.connected_at,
             &third_user_keys,
             &app_id,
             &session.session_id,

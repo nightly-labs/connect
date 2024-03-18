@@ -4,9 +4,11 @@ use ts_rs::TS;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct RequestResolvedEvent {
+pub struct ClientConnectResolveEvent {
+    pub client_id: String,
     pub session_id: String,
-    pub request_id: String,
-    #[ts(optional)]
-    pub failure_reason: Option<String>,
+    pub public_keys: Vec<String>,
+    pub wallet_name: String,
+    pub wallet_type: String,
+    pub success: bool,
 }

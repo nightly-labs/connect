@@ -86,18 +86,14 @@ mod test {
             app_id: app_id.to_string(),
             session_type: SessionType::Relay,
             app_metadata: "test_app_metadata".to_string(),
-            app_ip_address: "test_app_ip_address".to_string(),
             persistent: false,
             network: "test_network".to_string(),
-            client_profile_id: None,
-            client: None,
+            client_data: None,
             session_open_timestamp: DateTime::from(Utc::now()),
             session_close_timestamp: None,
         };
 
-        db.handle_new_session(&session, &"connection_id".to_string())
-            .await
-            .unwrap();
+        db.handle_new_session(&session).await.unwrap();
 
         let result = db.get_sessions_by_app_id(&app_id).await.unwrap();
         assert_eq!(result.len(), 1);
@@ -193,18 +189,15 @@ mod test {
             app_id: "test_app_id".to_string(),
             session_type: SessionType::Relay,
             app_metadata: "test_app_metadata".to_string(),
-            app_ip_address: "test_app_ip_address".to_string(),
+
             persistent: false,
             network: "test_network".to_string(),
-            client_profile_id: None,
-            client: None,
+            client_data: None,
             session_open_timestamp: to_microsecond_precision(&Utc::now()),
             session_close_timestamp: None,
         };
 
-        db.handle_new_session(&session, &"connection_id".to_string())
-            .await
-            .unwrap();
+        db.handle_new_session(&session).await.unwrap();
 
         let result = db.get_sessions_by_app_id(&app_id).await.unwrap();
         assert_eq!(result.len(), 1);
@@ -332,19 +325,14 @@ mod test {
             app_id: second_app_id.to_string(),
             session_type: SessionType::Relay,
             app_metadata: "test_app_metadata".to_string(),
-            app_ip_address: "test_app_ip_address".to_string(),
             persistent: false,
             network: "test_network".to_string(),
-            client_profile_id: None,
-            client: None,
+            client_data: None,
             session_open_timestamp: to_microsecond_precision(&Utc::now()),
             session_close_timestamp: None,
         };
 
-        db_arc
-            .handle_new_session(&session, &"connection_id".to_string())
-            .await
-            .unwrap();
+        db_arc.handle_new_session(&session).await.unwrap();
 
         let mut tasks = Vec::new();
         for i in 0..10 {
