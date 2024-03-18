@@ -5,6 +5,7 @@ CREATE TABLE connection_events (
     entity_id TEXT NOT NULL, -- The ID of the connecting entity (could be the same app_id or client_profile_id or client_id)
     entity_type entity_type_enum NOT NULL, -- Distinguishes between 'client' and 'app'
     ip_address TEXT NOT NULL,
+    session_type session_type_enum, -- Null for app connections
     success BOOLEAN NOT NULL,
     connected_at TIMESTAMPTZ NOT NULL,
     disconnected_at TIMESTAMPTZ

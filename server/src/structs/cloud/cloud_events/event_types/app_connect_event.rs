@@ -1,5 +1,4 @@
 use crate::structs::cloud::device_metadata::DeviceMetadata;
-use database::structs::session_type::SessionType;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
@@ -12,6 +11,5 @@ pub struct AppConnectEvent {
     pub language: String,
     pub timezone: String,
     pub network: String,
-    pub session_type: SessionType,
     pub new_session: bool,
 }

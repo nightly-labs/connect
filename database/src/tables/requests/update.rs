@@ -53,10 +53,7 @@ impl Db {
 mod tests {
 
     use super::*;
-    use crate::{
-        structs::session_type::SessionType,
-        tables::{sessions::table_struct::DbNcSession, utils::get_date_time},
-    };
+    use crate::tables::{sessions::table_struct::DbNcSession, utils::get_date_time};
     use sqlx::types::chrono::Utc;
 
     #[tokio::test]
@@ -75,7 +72,6 @@ mod tests {
         // Create basic session to satisfy foreign key constraint
         let session = DbNcSession {
             session_id: "test_session_id".to_string(),
-            session_type: SessionType::Relay,
             app_id: "test_app_id".to_string(),
             app_metadata: "test_app_metadata".to_string(),
             persistent: false,

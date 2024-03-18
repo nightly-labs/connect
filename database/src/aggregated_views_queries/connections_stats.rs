@@ -86,7 +86,6 @@ mod tests {
             let session = DbNcSession {
                 session_id: session_id.clone(),
                 app_id: app_id.clone(),
-                session_type: SessionType::Relay,
                 app_metadata: "test_metadata".to_string(),
                 persistent: true,
                 network: network.to_string(),
@@ -123,6 +122,7 @@ mod tests {
                     &app_id,
                     &session_id,
                     j as i64,
+                    &SessionType::Relay,
                     &network.to_string(),
                 )
                 .await

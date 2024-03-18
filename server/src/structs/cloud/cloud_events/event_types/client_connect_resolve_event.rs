@@ -1,3 +1,4 @@
+use database::structs::session_type::SessionType;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
@@ -10,5 +11,6 @@ pub struct ClientConnectResolveEvent {
     pub public_keys: Vec<String>,
     pub wallet_name: String,
     pub wallet_type: String,
+    pub session_type: SessionType,
     pub success: bool,
 }

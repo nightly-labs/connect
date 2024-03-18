@@ -52,10 +52,7 @@ impl Db {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        structs::{session_type::SessionType, time_filters::TimeFilter},
-        tables::sessions::table_struct::DbNcSession,
-    };
+    use crate::{structs::time_filters::TimeFilter, tables::sessions::table_struct::DbNcSession};
     use sqlx::types::chrono::Utc;
     use std::time::Duration;
 
@@ -87,7 +84,6 @@ mod tests {
             let session = DbNcSession {
                 session_id: format!("session_{}_{}", app_id, i),
                 app_id: app_id.clone(),
-                session_type: SessionType::Relay,
                 app_metadata: "test_metadata".to_string(),
                 persistent: false,
                 network: "test_network".to_string(),
@@ -148,7 +144,6 @@ mod tests {
             let session = DbNcSession {
                 session_id: format!("session_{}_{}", app_id, i),
                 app_id: app_id.clone(),
-                session_type: SessionType::Relay,
                 app_metadata: "test_metadata".to_string(),
                 persistent: false,
                 network: "test_network".to_string(),
@@ -172,7 +167,6 @@ mod tests {
             let session = DbNcSession {
                 session_id: format!("session_{}_{}_2nd", app_id, i), // Ensure unique session IDs for the second period
                 app_id: app_id.clone(),
-                session_type: SessionType::Relay,
                 app_metadata: "test_metadata".to_string(),
                 persistent: false,
                 network: "test_network".to_string(),

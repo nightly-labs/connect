@@ -37,7 +37,6 @@ pub async fn process_event_app_connect(
 
                     DbNcSession {
                         session_id: session.session_id.clone(),
-                        session_type: event.session_type.clone(),
                         app_id: app_id.clone(),
                         // TODO update the app_metadata field in db
                         app_metadata: "App metadata".to_string(),

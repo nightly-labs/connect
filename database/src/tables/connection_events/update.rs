@@ -1,6 +1,7 @@
 use crate::db::Db;
 use crate::structs::db_error::DbError;
 use crate::structs::entity_type::EntityType;
+use crate::structs::session_type::SessionType;
 use crate::tables::connection_events::table_struct::{
     CONNECTION_EVENTS_KEYS_KEYS, CONNECTION_EVENTS_TABLE_NAME,
 };
@@ -16,7 +17,7 @@ impl Db {
         ip: &String,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, NOW(), NULL)"
+            "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7, NOW(), NULL)"
         );
 
         let query_result = query(&query_body)
@@ -25,8 +26,9 @@ impl Db {
             .bind(&app_id)
             .bind(&EntityType::App)
             .bind(&ip)
-            // initialize connect event with false success flag, only update to true if we receive a successful connection event
-            .bind(false)
+            .bind(None::<SessionType>)
+            // initialize connect event with true success flag
+            .bind(true)
             .execute(&mut **tx)
             .await;
 
@@ -42,10 +44,11 @@ impl Db {
         app_id: &String,
         session_id: &String,
         client_profile_id: i64,
+        session_type: &SessionType,
         ip: &String,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, NOW(), NULL)"
+            "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7, NOW(), NULL)"
         );
 
         let query_result = query(&query_body)
@@ -54,6 +57,7 @@ impl Db {
             .bind(&client_profile_id.to_string())
             .bind(&EntityType::Client)
             .bind(&ip)
+            .bind(Some(session_type))
             // initialize connect event with false success flag, only update to true if we receive a successful connection event
             .bind(false)
             .execute(&mut **tx)
@@ -123,14 +127,13 @@ impl Db {
 #[cfg(test)]
 mod tests {
 
+    use super::*;
     use crate::{
-        structs::{client_data::ClientData, session_type::SessionType},
+        structs::client_data::ClientData,
         tables::{sessions::table_struct::DbNcSession, utils::to_microsecond_precision},
     };
     use sqlx::types::chrono::{DateTime, Utc};
     use std::collections::HashMap;
-
-    use super::*;
 
     #[tokio::test]
     async fn test_connection_events() {
@@ -155,6 +158,7 @@ mod tests {
             &app_id,
             &session_id,
             client_profile_id,
+            &SessionType::Relay,
             &network,
         )
         .await
@@ -252,7 +256,6 @@ mod tests {
 
         let session = DbNcSession {
             session_id: "test_session_id".to_string(),
-            session_type: SessionType::Relay,
             app_id: "test_app_id".to_string(),
             app_metadata: "test_app_metadata".to_string(),
             persistent: false,
@@ -286,6 +289,7 @@ mod tests {
             &first_user_keys,
             &app_id,
             &session.session_id,
+            &SessionType::Relay,
             &session.network,
         )
         .await
@@ -308,6 +312,7 @@ mod tests {
             &second_user_keys,
             &app_id,
             &session.session_id,
+            &SessionType::Relay,
             &session.network,
         )
         .await
@@ -329,6 +334,7 @@ mod tests {
             &third_user_keys,
             &app_id,
             &session.session_id,
+            &SessionType::Relay,
             &session.network,
         )
         .await
@@ -357,6 +363,7 @@ mod tests {
             &first_user_keys,
             &app_id,
             &session.session_id,
+            &SessionType::Relay,
             &session.network,
         )
         .await
@@ -371,6 +378,7 @@ mod tests {
             &second_user_keys,
             &app_id,
             &session.session_id,
+            &SessionType::Relay,
             &session.network,
         )
         .await
@@ -399,6 +407,7 @@ mod tests {
             &third_user_keys,
             &app_id,
             &session.session_id,
+            &SessionType::Relay,
             &session.network,
         )
         .await

@@ -1,4 +1,4 @@
-use crate::structs::{client_data::ClientData, session_type::SessionType};
+use crate::structs::client_data::ClientData;
 use sqlx::{
     postgres::PgRow,
     types::chrono::{DateTime, Utc},
@@ -7,12 +7,11 @@ use sqlx::{
 
 pub const SESSIONS_TABLE_NAME: &str = "sessions";
 pub const SESSIONS_KEYS: &str =
-    "session_id, session_type, app_id, app_metadata, persistent, network, client_data, session_open_timestamp, session_close_timestamp";
+    "session_id, app_id, app_metadata, persistent, network, client_data, session_open_timestamp, session_close_timestamp";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct DbNcSession {
     pub session_id: String,
-    pub session_type: SessionType,
     pub app_id: String,
     pub app_metadata: String,
     pub persistent: bool,
@@ -26,7 +25,6 @@ impl FromRow<'_, PgRow> for DbNcSession {
     fn from_row(row: &sqlx::postgres::PgRow) -> std::result::Result<Self, sqlx::Error> {
         Ok(DbNcSession {
             app_id: row.get("app_id"),
-            session_type: row.get("session_type"),
             app_metadata: row.get("app_metadata"),
             persistent: row.get("persistent"),
             network: row.get("network"),
