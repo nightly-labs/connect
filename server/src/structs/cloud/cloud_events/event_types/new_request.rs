@@ -1,4 +1,4 @@
-use super::request_type::request_type::RequestType;
+use super::request_type::RequestType;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 

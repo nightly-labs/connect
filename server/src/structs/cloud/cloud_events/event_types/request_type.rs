@@ -1,4 +1,3 @@
-use super::{message_to_sign::MessageToSign, transaction_to_sign::TransactionToSign};
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
@@ -6,9 +5,9 @@ use ts_rs::TS;
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub enum RequestType {
-    SignMessages(Vec<MessageToSign>),
-    SignTransactions(Vec<TransactionToSign>),
-    SignAndSendTransactions(Vec<TransactionToSign>),
+    SignMessage,
+    SignTransaction,
+    SignAndSendTransaction,
     ChangeWallet,
     ChangeNetwork,
 }
