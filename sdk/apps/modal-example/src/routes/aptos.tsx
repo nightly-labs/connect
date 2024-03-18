@@ -91,7 +91,10 @@ export default function AptosPage() {
                 data: {
                   function: '0x1::coin::transfer',
                   typeArguments: ['0x1::aptos_coin::AptosCoin'],
-                  functionArguments: ['0xb0b', 100]
+                  functionArguments: [
+                    '0x960dbc655b847cad38b6dd056913086e5e0475abc27152b81570fd302cb10c38',
+                    100
+                  ]
                 }
               })
               const signedTx = await adapter()!.signAndSubmitTransaction({
@@ -119,7 +122,10 @@ export default function AptosPage() {
                 data: {
                   function: '0x1::coin::transfer',
                   typeArguments: ['0x1::aptos_coin::AptosCoin'],
-                  functionArguments: ['0xb0b', 100]
+                  functionArguments: [
+                    '0x960dbc655b847cad38b6dd056913086e5e0475abc27152b81570fd302cb10c38',
+                    100
+                  ]
                 }
               })
               const signedTx = await adapter()!.signTransaction(transaction)
