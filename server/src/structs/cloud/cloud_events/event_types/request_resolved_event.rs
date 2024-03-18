@@ -5,8 +5,8 @@ use ts_rs::TS;
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct RequestResolvedEvent {
-    pub client_id: String,
     pub session_id: String,
     pub request_id: String,
-    pub success: bool,
+    #[ts(optional)]
+    pub failure_reason: Option<String>,
 }
