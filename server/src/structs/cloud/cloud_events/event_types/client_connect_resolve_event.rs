@@ -10,6 +10,5 @@ pub struct ClientConnectResolveEvent {
     pub public_keys: Vec<String>,
     pub wallet_name: String,
     pub wallet_type: String,
-    pub network: String,
     pub success: bool,
 }

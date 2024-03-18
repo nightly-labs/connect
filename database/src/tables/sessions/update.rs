@@ -104,7 +104,7 @@ impl Db {
         connected_keys: &Vec<String>,
         app_id: &String,
         session_id: &String,
-        network: &String,
+        ip: &String,
     ) -> Result<(), DbError> {
         // Start a new transaction
         let mut tx = self.connection_pool.begin().await.unwrap();
@@ -207,13 +207,7 @@ impl Db {
 
         // 4. Create new connection event
         if let Err(err) = self
-            .create_new_connection_by_client(
-                &mut tx,
-                &app_id,
-                &session_id,
-                client_profile_id,
-                &network,
-            )
+            .create_new_connection_by_client(&mut tx, &app_id, &session_id, client_profile_id, &ip)
             .await
         {
             let _ = tx

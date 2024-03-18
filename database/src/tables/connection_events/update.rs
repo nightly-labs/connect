@@ -16,7 +16,7 @@ impl Db {
         ip: &String,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, NOW(), NULL)"
+            "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, NOW(), NULL)"
         );
 
         let query_result = query(&query_body)
@@ -25,6 +25,8 @@ impl Db {
             .bind(&app_id)
             .bind(&EntityType::App)
             .bind(&ip)
+            // initialize connect event with false success flag, only update to true if we receive a successful connection event
+            .bind(false)
             .execute(&mut **tx)
             .await;
 
@@ -43,7 +45,7 @@ impl Db {
         ip: &String,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, NOW(), NULL)"
+            "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, NOW(), NULL)"
         );
 
         let query_result = query(&query_body)
@@ -52,6 +54,8 @@ impl Db {
             .bind(&client_profile_id.to_string())
             .bind(&EntityType::Client)
             .bind(&ip)
+            // initialize connect event with false success flag, only update to true if we receive a successful connection event
+            .bind(false)
             .execute(&mut **tx)
             .await;
 

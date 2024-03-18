@@ -21,7 +21,7 @@ pub async fn process_event_client_connect_resolve(
                 &event.public_keys,
                 &app_id.clone(),
                 &event.session_id,
-                &event.network,
+                &ip.to_string(),
             )
             .await
         {
