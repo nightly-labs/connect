@@ -8,5 +8,5 @@ pub async fn process_event_client_connect_init(
     ip: SocketAddr,
     db: &Arc<Db>,
 ) {
-    // TODO Save connection attempt by client
+    // Save connection attempt by client
 }

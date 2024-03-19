@@ -86,17 +86,6 @@ pub async fn get_geolocation_data(
     match geo_loc_requester.get_geolocation(&ip.to_string()).await {
         Ok(geo_location) => match (geo_location.lat, geo_location.lon) {
             (Some(_), Some(_)) => {
-                let mut tx = match db.connection_pool.begin().await {
-                    Ok(tx) => tx,
-                    Err(err) => {
-                        warn!(
-                            "Failed to start transaction for new ip address, ip: [{}], err: [{}]",
-                            ip, err
-                        );
-                        return None;
-                    }
-                };
-
                 let ip_address_entry = IpAddressEntry {
                     ip_addr: ip.to_string(),
                     last_updated_at: get_current_datetime(),
@@ -107,26 +96,9 @@ pub async fn get_geolocation_data(
                 };
 
                 // Try to safely insert the new ip address
-                if let Err(err) = db.upsert_ip_address(&mut tx, &ip_address_entry).await {
+                if let Err(err) = db.upsert_ip_address(&ip_address_entry).await {
                     warn!(
                         "Failed to insert new ip address, ip: [{}], err: [{}]",
-                        ip, err
-                    );
-                    // Rollback the transaction
-                    if let Err(err) = tx.rollback().await {
-                        warn!(
-                            "Failed to rollback transaction for new ip address, ip: [{}], err: [{}]",
-                            ip, err
-                        );
-                    }
-
-                    return None;
-                }
-
-                // If the transaction was successful, commit it, if this fails, we will return the data anyway
-                if let Err(err) = tx.commit().await {
-                    warn!(
-                        "Failed to commit transaction for new ip address, ip: [{}], err: [{}]",
                         ip, err
                     );
                 }
