@@ -1,7 +1,10 @@
 use super::table_struct::{DbNcSession, SESSIONS_KEYS, SESSIONS_TABLE_NAME};
 use crate::{
     db::Db,
-    structs::{client_data::ClientData, db_error::DbError},
+    structs::{
+        client_data::ClientData, db_error::DbError, geo_location::GeoLocation,
+        session_type::SessionType,
+    },
 };
 use log::error;
 use sqlx::{
@@ -11,7 +14,11 @@ use sqlx::{
 };
 
 impl Db {
-    pub async fn handle_new_session(&self, session: &DbNcSession) -> Result<(), DbError> {
+    pub async fn handle_new_session(
+        &self,
+        session: &DbNcSession,
+        geo_location: Option<&GeoLocation>,
+    ) -> Result<(), DbError> {
         let mut tx = self.connection_pool.begin().await.unwrap();
 
         // 1. Save the new session
@@ -30,6 +37,7 @@ impl Db {
                 &session.session_id,
                 &session.app_id,
                 &session.network,
+                geo_location,
             )
             .await
         {
@@ -51,13 +59,12 @@ impl Db {
         session: &DbNcSession,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {SESSIONS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
+            "INSERT INTO {SESSIONS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
             SESSIONS_KEYS
         );
 
         let query_result = query(&query_body)
             .bind(&session.session_id)
-            .bind(&session.session_type)
             .bind(&session.app_id)
             .bind(&session.app_metadata)
             .bind(&session.persistent)
@@ -104,6 +111,7 @@ impl Db {
         connected_keys: &Vec<String>,
         app_id: &String,
         session_id: &String,
+        session_type: &SessionType,
         ip: &String,
     ) -> Result<(), DbError> {
         // Start a new transaction
@@ -207,7 +215,15 @@ impl Db {
 
         // 4. Create new connection event
         if let Err(err) = self
-            .create_new_connection_by_client(&mut tx, &app_id, &session_id, client_profile_id, &ip)
+            .create_new_connection_by_client(
+                &mut tx,
+                &app_id,
+                &session_id,
+                client_profile_id,
+                &session_type,
+                &ip,
+                None,
+            )
             .await
         {
             let _ = tx
@@ -228,7 +244,7 @@ mod tests {
 
     use super::*;
     use crate::{
-        structs::{request_status::RequestStatus, session_type::SessionType},
+        structs::request_status::RequestStatus,
         tables::{requests::table_struct::Request, utils::get_date_time},
     };
 
@@ -247,7 +263,6 @@ mod tests {
 
         let session = DbNcSession {
             session_id: "test_session_id".to_string(),
-            session_type: SessionType::Relay,
             app_id: "test_app_id".to_string(),
             app_metadata: "test_app_metadata".to_string(),
             persistent: false,
@@ -258,7 +273,7 @@ mod tests {
         };
 
         // Create a new session entry
-        db.handle_new_session(&session).await.unwrap();
+        db.handle_new_session(&session, None).await.unwrap();
 
         // Get all sessions by app_id
         let sessions = db.get_sessions_by_app_id(&session.app_id).await.unwrap();

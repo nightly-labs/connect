@@ -27,7 +27,7 @@ tower = { version = "0.4.13", features = [
   "limit",
 ] }
 tower-http = { version = "0.5.1", features = ["cors", "trace"] }
-reqwest = "0.11.24"
+reqwest = {version = "0.11.24", features = ["json"]}
 tokio = { version = "1.35.1", features = ["full"] }
 async-trait = "0.1.77"
 

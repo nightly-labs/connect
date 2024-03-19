@@ -24,3 +24,10 @@ CREATE TYPE client_data AS (
     wallet_type TEXT,
     connected_at TIMESTAMPTZ
 );
+
+CREATE TYPE geo_location AS (
+    country TEXT,
+    city TEXT,
+    lat FLOAT8,
+    lon FLOAT8
+);

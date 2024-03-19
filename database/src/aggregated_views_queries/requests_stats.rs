@@ -55,9 +55,7 @@ mod test {
 
     use super::*;
     use crate::{
-        structs::{
-            consts::DAY_IN_SECONDS, request_status::RequestStatus, session_type::SessionType,
-        },
+        structs::{consts::DAY_IN_SECONDS, request_status::RequestStatus},
         tables::{
             registered_app::table_struct::DbRegisteredApp, requests::table_struct::Request,
             sessions::table_struct::DbNcSession, utils::to_microsecond_precision,
@@ -84,7 +82,6 @@ mod test {
         let session = DbNcSession {
             session_id: "test_session_id".to_string(),
             app_id: app_id.to_string(),
-            session_type: SessionType::Relay,
             app_metadata: "test_app_metadata".to_string(),
             persistent: false,
             network: "test_network".to_string(),
@@ -93,7 +90,7 @@ mod test {
             session_close_timestamp: None,
         };
 
-        db.handle_new_session(&session).await.unwrap();
+        db.handle_new_session(&session, None).await.unwrap();
 
         let result = db.get_sessions_by_app_id(&app_id).await.unwrap();
         assert_eq!(result.len(), 1);
@@ -187,9 +184,7 @@ mod test {
         let session = DbNcSession {
             session_id: "test_session_id".to_string(),
             app_id: "test_app_id".to_string(),
-            session_type: SessionType::Relay,
             app_metadata: "test_app_metadata".to_string(),
-
             persistent: false,
             network: "test_network".to_string(),
             client_data: None,
@@ -197,7 +192,7 @@ mod test {
             session_close_timestamp: None,
         };
 
-        db.handle_new_session(&session).await.unwrap();
+        db.handle_new_session(&session, None).await.unwrap();
 
         let result = db.get_sessions_by_app_id(&app_id).await.unwrap();
         assert_eq!(result.len(), 1);
@@ -323,7 +318,6 @@ mod test {
         let session = DbNcSession {
             session_id: "test_session_id".to_string(),
             app_id: second_app_id.to_string(),
-            session_type: SessionType::Relay,
             app_metadata: "test_app_metadata".to_string(),
             persistent: false,
             network: "test_network".to_string(),
@@ -332,7 +326,7 @@ mod test {
             session_close_timestamp: None,
         };
 
-        db_arc.handle_new_session(&session).await.unwrap();
+        db_arc.handle_new_session(&session, None).await.unwrap();
 
         let mut tasks = Vec::new();
         for i in 0..10 {

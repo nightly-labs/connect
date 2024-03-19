@@ -26,7 +26,7 @@ impl Db {
 #[cfg(test)]
 mod test {
 
-    use crate::{structs::session_type::SessionType, tables::sessions::table_struct::DbNcSession};
+    use crate::tables::sessions::table_struct::DbNcSession;
     use sqlx::types::chrono::Utc;
     use std::time::Duration;
 
@@ -64,9 +64,7 @@ mod test {
             let session = DbNcSession {
                 session_id: format!("session_id_{}", start.timestamp()),
                 app_id: "test_app_id".to_string(),
-                session_type: SessionType::Relay,
                 app_metadata: "test_app_metadata".to_string(),
-
                 persistent: false,
                 network: "test_network".to_string(),
                 client_data: None,
@@ -74,7 +72,7 @@ mod test {
                 session_close_timestamp: None,
             };
 
-            db.handle_new_session(&session).await.unwrap();
+            db.handle_new_session(&session, None).await.unwrap();
             db.close_session(&session.session_id, *end).await.unwrap();
         }
 

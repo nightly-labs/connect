@@ -1,6 +1,7 @@
 pub mod client_profiles;
 pub mod connection_events;
 pub mod grafana_users;
+pub mod ip_addresses;
 pub mod public_keys;
 pub mod registered_app;
 pub mod requests;
