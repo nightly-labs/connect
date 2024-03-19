@@ -62,7 +62,9 @@ pub async fn process_event_app_connect(
         };
 
         // Should not fail, but if it does then we will have a problem
-        if let Err(err) = db.handle_new_session(&session_data).await {
+        // TODO get geolocation and pass it to the function
+        // TODO pass ip address to the function
+        if let Err(err) = db.handle_new_session(&session_data, None).await {
             error!(
                 "Failed to create new session, app_id: [{}], ip: [{}], event: [{:?}], err: [{}]",
                 app_id, ip, event, err
@@ -71,12 +73,15 @@ pub async fn process_event_app_connect(
     } else {
         // Reconnection to an existing session
         let mut tx = db.connection_pool.begin().await.unwrap();
+        // TODO get geolocation and pass it to the function
+        // TODO pass ip address to the function
         match db
             .create_new_connection_event_by_app(
                 &mut tx,
                 &event.session_id,
                 &app_id,
                 &ip.to_string(),
+                None,
             )
             .await
         {

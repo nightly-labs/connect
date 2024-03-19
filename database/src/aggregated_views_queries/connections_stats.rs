@@ -94,7 +94,7 @@ mod tests {
                 session_close_timestamp: None,
             };
 
-            db.handle_new_session(&session).await.unwrap();
+            db.handle_new_session(&session, None).await.unwrap();
 
             // Each time a session is created, means that app has been connected, create 2 more connections
             let mut tx = db.connection_pool.begin().await.unwrap();
@@ -103,6 +103,7 @@ mod tests {
                 &session_id,
                 &app_id,
                 &network.to_string(),
+                None,
             )
             .await
             .unwrap();
@@ -112,6 +113,7 @@ mod tests {
                 &session_id,
                 &app_id,
                 &network.to_string(),
+                None,
             )
             .await
             .unwrap();
@@ -124,6 +126,7 @@ mod tests {
                     j as i64,
                     &SessionType::Relay,
                     &network.to_string(),
+                    None,
                 )
                 .await
                 .unwrap();

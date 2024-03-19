@@ -1,6 +1,7 @@
 use crate::db::Db;
 use crate::structs::db_error::DbError;
 use crate::structs::entity_type::EntityType;
+use crate::structs::geo_location::GeoLocation;
 use crate::structs::session_type::SessionType;
 use crate::tables::connection_events::table_struct::{
     CONNECTION_EVENTS_KEYS_KEYS, CONNECTION_EVENTS_TABLE_NAME,
@@ -15,9 +16,10 @@ impl Db {
         session_id: &String,
         app_id: &String,
         ip: &String,
+        geo_location: Option<&GeoLocation>,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7, NOW(), NULL)"
+            "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, NOW(), NULL)"
         );
 
         let query_result = query(&query_body)
@@ -27,6 +29,7 @@ impl Db {
             .bind(&EntityType::App)
             .bind(&ip)
             .bind(None::<SessionType>)
+            .bind(geo_location)
             // initialize connect event with true success flag
             .bind(true)
             .execute(&mut **tx)
@@ -46,9 +49,10 @@ impl Db {
         client_profile_id: i64,
         session_type: &SessionType,
         ip: &String,
+        geo_location: Option<&GeoLocation>,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7, NOW(), NULL)"
+            "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, NOW(), NULL)"
         );
 
         let query_result = query(&query_body)
@@ -58,6 +62,7 @@ impl Db {
             .bind(&EntityType::Client)
             .bind(&ip)
             .bind(Some(session_type))
+            .bind(geo_location)
             // initialize connect event with false success flag, only update to true if we receive a successful connection event
             .bind(false)
             .execute(&mut **tx)
@@ -147,7 +152,7 @@ mod tests {
         let network = "network".to_string();
 
         // Create event by app
-        db.create_new_connection_event_by_app(&mut tx, &session_id, &app_id, &network)
+        db.create_new_connection_event_by_app(&mut tx, &session_id, &app_id, &network, None)
             .await
             .unwrap();
 
@@ -160,6 +165,7 @@ mod tests {
             client_profile_id,
             &SessionType::Relay,
             &network,
+            None,
         )
         .await
         .unwrap();
@@ -189,7 +195,7 @@ mod tests {
 
         // Add another connection event by app
         let mut tx = db.connection_pool.begin().await.unwrap();
-        db.create_new_connection_event_by_app(&mut tx, &session_id, &app_id, &network)
+        db.create_new_connection_event_by_app(&mut tx, &session_id, &app_id, &network, None)
             .await
             .unwrap();
 
@@ -266,7 +272,7 @@ mod tests {
         };
 
         // Create a new session entry
-        db.handle_new_session(&session).await.unwrap();
+        db.handle_new_session(&session, None).await.unwrap();
 
         let first_client_data = ClientData {
             client_id: "first_client_id".to_string(),
