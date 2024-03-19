@@ -1,14 +1,18 @@
-import { Account, Aptos, Ed25519PrivateKey } from '@aptos-labs/ts-sdk'
-import { AptosSignMessageInput, UserResponseStatus } from '@aptos-labs/wallet-standard'
-import { Connect, ContentType, getRandomId } from '@nightlylabs/nightly-connect-base'
+import { Account, Aptos, Ed25519PrivateKey, Network } from '@aptos-labs/ts-sdk'
+import {
+  AccountInfo,
+  AptosSignMessageInput,
+  NetworkInfo,
+  UserResponseStatus
+} from '@aptos-labs/wallet-standard'
+import { ContentType, getRandomId } from '@nightlylabs/nightly-connect-base'
 import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { TEST_RELAY_ENDPOINT, smartDelay } from '../../../commonTestUtils'
 import { AppAptos } from './app'
 import { HttpClientAptos } from './http-client'
 import { SignMessagesAptosRequest, SignTransactionsAptosRequest } from './requestTypes'
 import { TEST_APP_INITIALIZE } from './testUtils'
-import { APTOS_NETWORK } from './utils'
-
+import { APTOS_NETWORK, serializeConnectData } from './utils'
 // Edit an assertion and save to see HMR in action
 const aptos = new Aptos() // default to devnet
 const alice: Account = Account.fromPrivateKey({
@@ -42,17 +46,27 @@ describe('Aptos http-client tests', () => {
   })
   test('#connect()', async () => {
     const connectFn = vi.fn()
-    app.on('userConnected', (a) => {
-      connectFn(a.publicKeys[0])
+    app.on('userConnected', (accountInfo, networkInfo) => {
+      connectFn(accountInfo, networkInfo)
     })
-    const msg: Connect = {
-      publicKeys: [alice.accountAddress.toString()],
-      sessionId: app.sessionId
+    const accountInfo: AccountInfo = new AccountInfo({
+      address: alice.accountAddress,
+      publicKey: alice.publicKey,
+      ansName: undefined
+    })
+    const networkInfo: NetworkInfo = {
+      chainId: 69,
+      name: Network.MAINNET,
+      url: undefined
     }
-    await client.connect(msg)
+    await client.connect({
+      sessionId: app.sessionId,
+      metadata: serializeConnectData(accountInfo, networkInfo),
+      publicKeys: [accountInfo.address.toString()]
+    })
     await smartDelay()
     expect(connectFn).toHaveBeenCalledOnce()
-    expect(connectFn).toHaveBeenCalledWith(alice.accountAddress.toString())
+    expect(connectFn).toHaveBeenCalledWith(accountInfo, networkInfo)
   })
   test('#resolveSignTransaction()', async () => {
     const bobAddress = '0xb0b'

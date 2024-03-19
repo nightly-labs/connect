@@ -1,9 +1,10 @@
-import { UserConnectedEvent } from '../../../bindings/UserConnectedEvent'
 import {
+  AccountInfo,
   AptosSignAndSubmitTransactionMethod,
   AptosSignMessageMethod,
   AptosSignMessageOutput,
   AptosSignTransactionMethod,
+  NetworkInfo,
   UserResponseStatus
 } from '@aptos-labs/wallet-standard'
 import {
@@ -18,6 +19,7 @@ import {
   AppAptosInitialize,
   APTOS_NETWORK,
   deserializeAccountAuthenticator,
+  deserializeConnectData,
   deserializeObject,
   deserializePendingTransactionResponse,
   serializeAptosTx,
@@ -27,7 +29,7 @@ import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
 import { WalletMetadata } from '../../../bindings/WalletMetadata'
 
 interface AptosAppEvents {
-  userConnected: (e: UserConnectedEvent) => void
+  userConnected: (e: AccountInfo, networkInfo: NetworkInfo) => void
   userDisconnected: (e: UserDisconnectedEvent) => void
   serverDisconnected: () => void
 }
@@ -41,7 +43,12 @@ export class AppAptos extends EventEmitter<AptosAppEvents> {
     this.base = base
     this.sessionId = base.sessionId
     this.base.on('userConnected', (e) => {
-      this.emit('userConnected', e)
+      if (e.metadata === undefined) {
+        // Metadata has to be defined
+        return
+      }
+      const { accountInfo, networkInfo } = deserializeConnectData(e.metadata)
+      this.emit('userConnected', accountInfo, networkInfo)
     })
     this.base.on('userDisconnected', (e) => {
       this.emit('userDisconnected', e)
@@ -61,13 +68,22 @@ export class AppAptos extends EventEmitter<AptosAppEvents> {
       }
       // If user was connected, emit userConnected
       if (base.connectedPublicKeys.length > 0) {
-        this.emit('userConnected', {
-          publicKeys: base.connectedPublicKeys,
-          metadata: base.clientMetadata
-        })
+        if (base.clientMetadata === undefined) {
+          // Metadata has to be defined
+          this.emit('serverDisconnected')
+
+          return
+        }
+        const { accountInfo, networkInfo } = deserializeConnectData(base.clientMetadata)
+        this.emit('userConnected', accountInfo, networkInfo)
       }
       base.on('userConnected', (e) => {
-        this.emit('userConnected', e)
+        if (e.metadata === undefined) {
+          // Metadata has to be defined
+          return
+        }
+        const { accountInfo, networkInfo } = deserializeConnectData(e.metadata)
+        this.emit('userConnected', accountInfo, networkInfo)
       })
       base.on('userDisconnected', (e) => {
         this.emit('userDisconnected', e)

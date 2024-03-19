@@ -1,5 +1,9 @@
 import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
-import { BaseClient, ClientBaseInitialize, Connect } from '@nightlylabs/nightly-connect-base'
+import {
+  BaseClient,
+  ClientBaseInitialize,
+  Connect as ConnectBase
+} from '@nightlylabs/nightly-connect-base'
 import { EventEmitter } from 'eventemitter3'
 import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
 import { AptosRequest } from './requestTypes'
@@ -8,15 +12,18 @@ import {
   deserializeObject,
   parseRequest,
   serializeAccountAuthenticator,
+  serializeConnectData,
   serializeObject,
   serializePendingTransactionResponse
 } from './utils'
 import { AnyRawTransaction } from '@aptos-labs/ts-sdk'
 import {
+  AccountInfo,
   AptosSignAndSubmitTransactionOutput,
   AptosSignMessageInput,
   AptosSignMessageOutput,
-  AptosSignTransactionOutput
+  AptosSignTransactionOutput,
+  NetworkInfo
 } from '@aptos-labs/wallet-standard'
 export interface SignAndSubmitTransactionEvent {
   sessionId: string
@@ -110,7 +117,13 @@ export class ClientAptos extends EventEmitter<ClientAptosEvents> {
     return response
   }
   public connect = async (connect: Connect) => {
-    await this.baseClient.connect(connect)
+    await this.baseClient.connect({
+      sessionId: connect.sessionId,
+      device: connect.device,
+      metadata: serializeConnectData(connect.accountInfo, connect.networkInfo),
+      notification: connect.notification,
+      publicKeys: [connect.accountInfo.address.toString()]
+    })
     this.sessionId = connect.sessionId
   }
   public getPendingRequests = async (sessionId?: string): Promise<AptosRequest[]> => {
@@ -199,7 +212,10 @@ export class ClientAptos extends EventEmitter<ClientAptosEvents> {
     return await this.baseClient.dropSessions(sessionsToDrop)
   }
 }
-
+export type Connect = Omit<ConnectBase, 'publicKeys' | 'metadata'> & {
+  accountInfo: AccountInfo
+  networkInfo: NetworkInfo
+}
 export interface RejectRequest {
   requestId: string
   reason?: string

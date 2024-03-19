@@ -32,6 +32,9 @@ export default function Home() {
       <A href="/alephCustom">
         <button>Aleph - customized modal</button>
       </A>
+      <A href="/aptos">
+        <button>Aptos</button>
+      </A>
     </main>
   )
 }

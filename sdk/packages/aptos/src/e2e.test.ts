@@ -1,12 +1,17 @@
-import { Connect, ContentType } from '@nightlylabs/nightly-connect-base'
+import { ContentType } from '@nightlylabs/nightly-connect-base'
 import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { AppAptos } from './app'
-import { ClientAptos } from './client'
+import { ClientAptos, Connect } from './client'
 import { TEST_APP_INITIALIZE } from './testUtils'
 import { APTOS_NETWORK } from './utils'
 
-import { Account, Aptos, Ed25519PrivateKey } from '@aptos-labs/ts-sdk'
-import { AptosSignMessageInput, UserResponseStatus } from '@aptos-labs/wallet-standard'
+import { Account, Aptos, Ed25519PrivateKey, Network } from '@aptos-labs/ts-sdk'
+import {
+  AccountInfo,
+  AptosSignMessageInput,
+  NetworkInfo,
+  UserResponseStatus
+} from '@aptos-labs/wallet-standard'
 import { TEST_RELAY_ENDPOINT, smartDelay } from '../../../commonTestUtils'
 import { SignTransactionsAptosRequest } from './requestTypes'
 
@@ -44,17 +49,28 @@ describe('Aptos client tests', () => {
   })
   test('#connect()', async () => {
     const connectFn = vi.fn()
-    app.on('userConnected', (a) => {
-      connectFn(a.publicKeys[0])
+    app.on('userConnected', (a, b) => {
+      connectFn(a, b)
     })
+    const accountInfo: AccountInfo = new AccountInfo({
+      address: alice.accountAddress,
+      publicKey: alice.publicKey,
+      ansName: undefined
+    })
+    const networkInfo: NetworkInfo = {
+      chainId: 69,
+      name: Network.MAINNET,
+      url: undefined
+    }
     const msg: Connect = {
-      publicKeys: [alice.accountAddress.toString()],
+      accountInfo: accountInfo,
+      networkInfo: networkInfo,
       sessionId: app.sessionId
     }
     await client.connect(msg)
     await smartDelay()
     expect(connectFn).toHaveBeenCalledOnce()
-    expect(connectFn).toHaveBeenCalledWith(alice.accountAddress.toString())
+    expect(connectFn).toHaveBeenCalledWith(accountInfo, networkInfo)
   })
   test('#on("signTransaction")', async () => {
     const bobAddress = '0xb0b'

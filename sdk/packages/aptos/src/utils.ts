@@ -10,10 +10,13 @@ import {
   AccountAuthenticator,
   AnyRawTransaction,
   Deserializer,
+  Ed25519PublicKey,
   PendingTransactionResponse,
+  PublicKey,
   RawTransaction,
   Serializer
 } from '@aptos-labs/ts-sdk'
+import { AccountInfo, NetworkInfo } from '@aptos-labs/wallet-standard'
 
 export type AppAptosInitialize = Omit<AppBaseInitialize, 'network'>
 
@@ -129,6 +132,34 @@ export const serializePendingTransactionResponse = (
 
 export const deserializePendingTransactionResponse = (s: string): PendingTransactionResponse => {
   return deserializeObject(s)
+}
+interface SerializedConnectData {
+  accountInfo: string
+  networkInfo: NetworkInfo
+}
+export const serializeConnectData = (
+  accountInfo: AccountInfo,
+  networkInfo: NetworkInfo
+): string => {
+  const serializerAccountInfo = new Serializer()
+  serializerAccountInfo.serialize(accountInfo)
+
+  const obj: SerializedConnectData = {
+    accountInfo: Buffer.from(serializerAccountInfo.toUint8Array()).toString('hex'),
+    networkInfo: networkInfo
+  }
+  return serializeObject(obj)
+}
+export const deserializeConnectData = (
+  s: string
+): { accountInfo: AccountInfo; networkInfo: NetworkInfo } => {
+  const obj = deserializeObject(s)
+  const deserializerAccountInfo = new Deserializer(Buffer.from(obj.accountInfo, 'hex'))
+  const accountInfo = AccountInfo.deserialize(deserializerAccountInfo)
+  return {
+    accountInfo: accountInfo,
+    networkInfo: obj.networkInfo
+  }
 }
 export const parseRequest = (request: RequestContent, sessionId: string): AptosRequest => {
   switch (request.content.type) {
