@@ -1,5 +1,5 @@
 use crate::structs::{
-    entity_type::EntityType, geo_location::GeoLocation, session_type::SessionType,
+    entity_type::EntityType, geo_location::Geolocation, session_type::SessionType,
 };
 use sqlx::{
     postgres::PgRow,
@@ -20,7 +20,7 @@ pub struct ConnectionEvent {
     pub entity_type: EntityType,
     pub ip_address: String,
     pub session_type: Option<SessionType>,
-    pub geo_location: Option<GeoLocation>,
+    pub geo_location: Option<Geolocation>,
     pub success: bool,
     pub connected_at: DateTime<Utc>,
     pub disconnected_at: Option<DateTime<Utc>>,

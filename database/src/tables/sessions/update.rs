@@ -2,7 +2,7 @@ use super::table_struct::{DbNcSession, SESSIONS_KEYS, SESSIONS_TABLE_NAME};
 use crate::{
     db::Db,
     structs::{
-        client_data::ClientData, db_error::DbError, geo_location::GeoLocation,
+        client_data::ClientData, db_error::DbError, geo_location::Geolocation,
         session_type::SessionType,
     },
 };
@@ -17,7 +17,8 @@ impl Db {
     pub async fn handle_new_session(
         &self,
         session: &DbNcSession,
-        geo_location: Option<&GeoLocation>,
+        geo_location: Option<Geolocation>,
+        ip_address: &String,
     ) -> Result<(), DbError> {
         let mut tx = self.connection_pool.begin().await.unwrap();
 
@@ -36,7 +37,7 @@ impl Db {
                 &mut tx,
                 &session.session_id,
                 &session.app_id,
-                &session.network,
+                &ip_address,
                 geo_location,
             )
             .await
@@ -273,7 +274,9 @@ mod tests {
         };
 
         // Create a new session entry
-        db.handle_new_session(&session, None).await.unwrap();
+        db.handle_new_session(&session, None, &"127.0.0.1".to_string())
+            .await
+            .unwrap();
 
         // Get all sessions by app_id
         let sessions = db.get_sessions_by_app_id(&session.app_id).await.unwrap();

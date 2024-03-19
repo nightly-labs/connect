@@ -1,5 +1,7 @@
 use crate::{
-    state::Sessions, structs::cloud::cloud_events::event_types::app_connect_event::AppConnectEvent,
+    ip_geolocation::GeolocationRequester, state::Sessions,
+    structs::cloud::cloud_events::event_types::app_connect_event::AppConnectEvent,
+    utils::get_geolocation_data,
 };
 use database::{
     db::Db,
@@ -16,6 +18,7 @@ pub async fn process_event_app_connect(
     app_id: &String,
     ip: SocketAddr,
     db: &Arc<Db>,
+    geo_loc_requester: &Arc<GeolocationRequester>,
     sessions: &Sessions,
 ) {
     if event.new_session {
@@ -61,10 +64,14 @@ pub async fn process_event_app_connect(
             }
         };
 
+        // Get the geolocation data
+        let geo_location_data = get_geolocation_data(&db, &geo_loc_requester, &ip).await;
+
         // Should not fail, but if it does then we will have a problem
-        // TODO get geolocation and pass it to the function
-        // TODO pass ip address to the function
-        if let Err(err) = db.handle_new_session(&session_data, None).await {
+        if let Err(err) = db
+            .handle_new_session(&session_data, geo_location_data, &ip.to_string())
+            .await
+        {
             error!(
                 "Failed to create new session, app_id: [{}], ip: [{}], event: [{:?}], err: [{}]",
                 app_id, ip, event, err
@@ -73,15 +80,17 @@ pub async fn process_event_app_connect(
     } else {
         // Reconnection to an existing session
         let mut tx = db.connection_pool.begin().await.unwrap();
-        // TODO get geolocation and pass it to the function
-        // TODO pass ip address to the function
+
+        // Get the geolocation data
+        let geo_location_data = get_geolocation_data(&db, &geo_loc_requester, &ip).await;
+
         match db
             .create_new_connection_event_by_app(
                 &mut tx,
                 &event.session_id,
                 &app_id,
                 &ip.to_string(),
-                None,
+                geo_location_data,
             )
             .await
         {

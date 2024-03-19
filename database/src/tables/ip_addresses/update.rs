@@ -1,7 +1,9 @@
 use crate::{
     db::Db,
     structs::db_error::DbError,
-    tables::ip_addresses::table_struct::{IpAddresses, IP_ADDRESSES_KEYS, IP_ADDRESSES_TABLE_NAME},
+    tables::ip_addresses::table_struct::{
+        IpAddressEntry, IP_ADDRESSES_KEYS, IP_ADDRESSES_TABLE_NAME,
+    },
 };
 use sqlx::Transaction;
 use sqlx::{query, Postgres};
@@ -10,7 +12,7 @@ impl Db {
     pub async fn upsert_ip_address(
         &self,
         tx: &mut Transaction<'_, Postgres>,
-        ip_address: &IpAddresses,
+        ip_address: &IpAddressEntry,
     ) -> Result<(), DbError> {
         let query_body = format!(
             "INSERT INTO {IP_ADDRESSES_TABLE_NAME} ({IP_ADDRESSES_KEYS}) VALUES ($1, $2, $3, $4, $5, $6)
@@ -64,7 +66,7 @@ mod tests {
 
         // Scenario 1: Insert new IP address
         let mut tx = db.connection_pool.begin().await.unwrap();
-        let test_ip_address = IpAddresses {
+        let test_ip_address = IpAddressEntry {
             ip_addr: first_ip_address.clone(),
             last_updated_at: get_current_datetime(),
             country: Some(country.clone()),
@@ -85,7 +87,7 @@ mod tests {
 
         // Scenario 2: Update the existing IP address
         tokio::time::sleep(Duration::from_millis(1000)).await;
-        let updated_ip_address = IpAddresses {
+        let updated_ip_address = IpAddressEntry {
             ip_addr: first_ip_address.clone(),
             last_updated_at: get_current_datetime(), // Updated timestamp
             country: Some(country.clone()),
@@ -105,7 +107,7 @@ mod tests {
         assert!(updated_ip_data.last_updated_at > inserted_ip_address.last_updated_at);
 
         // Scenario 3: Insert a new distinct IP address
-        let new_ip_address = IpAddresses {
+        let new_ip_address = IpAddressEntry {
             ip_addr: second_ip_address.clone(),
             last_updated_at: get_current_datetime(),
             country: Some("AnotherCountry".to_string()),

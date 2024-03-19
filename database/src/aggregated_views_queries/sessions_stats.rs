@@ -92,7 +92,9 @@ mod tests {
                 session_close_timestamp: None,
             };
 
-            db.handle_new_session(&session, None).await.unwrap();
+            db.handle_new_session(&session, None, &"127.0.0.1".to_string())
+                .await
+                .unwrap();
             db.close_session(&session.session_id, session_end)
                 .await
                 .unwrap();
@@ -152,7 +154,9 @@ mod tests {
                 session_close_timestamp: Some(session_end),
             };
 
-            db.handle_new_session(&session, None).await.unwrap();
+            db.handle_new_session(&session, None, &"127.0.0.1".to_string())
+                .await
+                .unwrap();
             db.close_session(&session.session_id, session_end)
                 .await
                 .unwrap();
@@ -175,7 +179,9 @@ mod tests {
                 session_close_timestamp: Some(session_end),
             };
 
-            db.handle_new_session(&session, None).await.unwrap();
+            db.handle_new_session(&session, None, &"127.0.0.1".to_string())
+                .await
+                .unwrap();
             db.close_session(&session.session_id, session_end)
                 .await
                 .unwrap();

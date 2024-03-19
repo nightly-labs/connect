@@ -1,7 +1,7 @@
 use crate::db::Db;
 use crate::structs::db_error::DbError;
 use crate::structs::entity_type::EntityType;
-use crate::structs::geo_location::GeoLocation;
+use crate::structs::geo_location::Geolocation;
 use crate::structs::session_type::SessionType;
 use crate::tables::connection_events::table_struct::{
     CONNECTION_EVENTS_KEYS_KEYS, CONNECTION_EVENTS_TABLE_NAME,
@@ -16,7 +16,7 @@ impl Db {
         session_id: &String,
         app_id: &String,
         ip: &String,
-        geo_location: Option<&GeoLocation>,
+        geo_location: Option<Geolocation>,
     ) -> Result<(), DbError> {
         let query_body = format!(
             "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, NOW(), NULL)"
@@ -49,7 +49,7 @@ impl Db {
         client_profile_id: i64,
         session_type: &SessionType,
         ip: &String,
-        geo_location: Option<&GeoLocation>,
+        geo_location: Option<&Geolocation>,
     ) -> Result<(), DbError> {
         let query_body = format!(
             "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, NOW(), NULL)"
@@ -272,7 +272,9 @@ mod tests {
         };
 
         // Create a new session entry
-        db.handle_new_session(&session, None).await.unwrap();
+        db.handle_new_session(&session, None, &"127.0.0.1".to_string())
+            .await
+            .unwrap();
 
         let first_client_data = ClientData {
             client_id: "first_client_id".to_string(),
