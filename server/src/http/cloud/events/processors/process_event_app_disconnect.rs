@@ -1,6 +1,6 @@
 use crate::structs::cloud::cloud_events::event_types::app_disconnect_event::AppDisconnectEvent;
 use database::db::Db;
-use log::error;
+use log::{error, warn};
 use std::{net::SocketAddr, sync::Arc};
 
 pub async fn process_event_app_disconnect(
@@ -29,6 +29,14 @@ pub async fn process_event_app_disconnect(
                 "Failed to close app connection, app_id: [{}], ip: [{}], event: [{:?}], err: [{}]",
                 app_id, ip, event, err
             );
+
+            // Rollback the transaction
+            if let Err(err) = tx.rollback().await {
+                warn!(
+                    "Failed to rollback transaction for new ip address, ip: [{}], err: [{}]",
+                    ip, err
+                );
+            }
         }
     }
 }
