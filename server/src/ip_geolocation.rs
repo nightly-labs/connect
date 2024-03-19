@@ -36,6 +36,7 @@ impl GeolocationRequester {
 pub struct IpGeolocation {
     pub query: String,
     pub message: Option<String>,
+    pub country: Option<String>,
     pub city: Option<String>,
     pub lat: Option<f64>,
     pub lon: Option<f64>,
