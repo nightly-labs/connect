@@ -76,7 +76,6 @@ impl Db {
 
     pub async fn close_app_connection(
         &self,
-        tx: &mut Transaction<'_, Postgres>,
         session_id: &String,
         app_id: &String,
     ) -> Result<(), DbError> {
@@ -92,7 +91,7 @@ impl Db {
             .bind(&session_id)
             .bind(&EntityType::App)
             .bind(&app_id)
-            .execute(&mut **tx)
+            .execute(&self.connection_pool)
             .await;
 
         match query_result {
@@ -211,12 +210,7 @@ mod tests {
         });
 
         // Close app first connection
-        let mut tx = db.connection_pool.begin().await.unwrap();
-        db.close_app_connection(&mut tx, &session_id, &app_id)
-            .await
-            .unwrap();
-
-        tx.commit().await.unwrap();
+        db.close_app_connection(&session_id, &app_id).await.unwrap();
 
         // Get events by app id
         let events_by_app_id = db.get_connection_events_by_app_id(&app_id).await.unwrap();
