@@ -32,3 +32,6 @@ pwhash = { workspace = true }
 rand = { workspace = true }
 garde = { workspace = true }
 sqlx = { workspace = true }
+
+[features]
+cloud_db_tests = []

@@ -13,3 +13,6 @@ tokio = { workspace = true }
 dotenvy = { workspace = true }
 log = { workspace = true }
 strum = { workspace = true }
+
+[features]
+cloud_db_tests = []
