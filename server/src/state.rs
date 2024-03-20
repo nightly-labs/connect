@@ -1,6 +1,9 @@
-use crate::structs::{
-    client_messages::client_messages::ServerToClient, session::Session,
-    wallet_metadata::WalletMetadata,
+use crate::{
+    ip_geolocation::GeolocationRequester,
+    structs::{
+        client_messages::client_messages::ServerToClient, session::Session,
+        wallet_metadata::WalletMetadata,
+    },
 };
 use anyhow::Result;
 use async_trait::async_trait;
@@ -32,6 +35,7 @@ pub struct ServerState {
     pub wallets_metadata: Arc<Vec<WalletMetadata>>,
     pub session_to_app_map: SessionToAppMap,
     pub db: Option<Arc<Db>>,
+    pub geo_location: Option<Arc<GeolocationRequester>>,
 }
 
 #[async_trait]

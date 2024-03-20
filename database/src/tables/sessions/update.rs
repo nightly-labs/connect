@@ -1,10 +1,7 @@
 use super::table_struct::{DbNcSession, SESSIONS_KEYS, SESSIONS_TABLE_NAME};
 use crate::{
     db::Db,
-    structs::{
-        client_data::ClientData, db_error::DbError, geo_location::GeoLocation,
-        session_type::SessionType,
-    },
+    structs::{client_data::ClientData, db_error::DbError, geo_location::Geolocation},
 };
 use log::error;
 use sqlx::{
@@ -17,7 +14,8 @@ impl Db {
     pub async fn handle_new_session(
         &self,
         session: &DbNcSession,
-        geo_location: Option<&GeoLocation>,
+        geo_location: Option<Geolocation>,
+        ip_address: &String,
     ) -> Result<(), DbError> {
         let mut tx = self.connection_pool.begin().await.unwrap();
 
@@ -36,7 +34,7 @@ impl Db {
                 &mut tx,
                 &session.session_id,
                 &session.app_id,
-                &session.network,
+                &ip_address,
                 geo_location,
             )
             .await
@@ -111,8 +109,6 @@ impl Db {
         connected_keys: &Vec<String>,
         app_id: &String,
         session_id: &String,
-        session_type: &SessionType,
-        ip: &String,
     ) -> Result<(), DbError> {
         // Start a new transaction
         let mut tx = self.connection_pool.begin().await.unwrap();
@@ -213,16 +209,14 @@ impl Db {
             }
         }
 
-        // 4. Create new connection event
+        // 4. Update last connection event attempt
         if let Err(err) = self
-            .create_new_connection_by_client(
+            .resolve_successful_connection_by_client(
                 &mut tx,
                 &app_id,
                 &session_id,
                 client_profile_id,
-                &session_type,
-                &ip,
-                None,
+                connected_at,
             )
             .await
         {
@@ -239,12 +233,13 @@ impl Db {
     }
 }
 
+#[cfg(feature = "cloud_db_tests")]
 #[cfg(test)]
 mod tests {
 
     use super::*;
     use crate::{
-        structs::request_status::RequestStatus,
+        structs::{request_status::RequestStatus, request_type::RequestType},
         tables::{requests::table_struct::Request, utils::get_date_time},
     };
 
@@ -273,7 +268,9 @@ mod tests {
         };
 
         // Create a new session entry
-        db.handle_new_session(&session, None).await.unwrap();
+        db.handle_new_session(&session, None, &"127.0.0.1".to_string())
+            .await
+            .unwrap();
 
         // Get all sessions by app_id
         let sessions = db.get_sessions_by_app_id(&session.app_id).await.unwrap();
@@ -304,7 +301,7 @@ mod tests {
         // Create a few requests for the session
         let request = Request {
             request_id: "test_request_id".to_string(),
-            request_type: "test_request_type".to_string(),
+            request_type: RequestType::SignAndSendTransaction,
             app_id: "test_app_id".to_string(),
             session_id: "test_session_id".to_string(),
             request_status: RequestStatus::Pending,
@@ -314,7 +311,7 @@ mod tests {
 
         let second_request = Request {
             request_id: "test_request_id2".to_string(),
-            request_type: "test_request_type".to_string(),
+            request_type: RequestType::SignAndSendTransaction,
             session_id: "test_session_id".to_string(),
             app_id: "test_app_id".to_string(),
             request_status: RequestStatus::Pending,

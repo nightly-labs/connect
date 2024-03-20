@@ -1,4 +1,5 @@
 use anyhow::{bail, Result};
+use database::structs::geo_location::Geolocation;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
@@ -40,6 +41,17 @@ pub struct IpGeolocation {
     pub city: Option<String>,
     pub lat: Option<f64>,
     pub lon: Option<f64>,
+}
+
+impl Into<Geolocation> for IpGeolocation {
+    fn into(self) -> Geolocation {
+        Geolocation {
+            country: self.country,
+            city: self.city,
+            lat: self.lat,
+            lon: self.lon,
+        }
+    }
 }
 
 #[cfg(test)]

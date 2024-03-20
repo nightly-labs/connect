@@ -48,6 +48,7 @@ impl Db {
     }
 }
 
+#[cfg(feature = "cloud_db_tests")]
 #[cfg(test)]
 mod tests {
     use crate::tables::{

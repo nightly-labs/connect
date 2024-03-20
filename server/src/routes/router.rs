@@ -7,6 +7,7 @@ use crate::{
         get_session_info::get_session_info, get_sessions::get_sessions,
         get_wallets_metadata::get_wallets_metadata, resolve_request::resolve_request,
     },
+    ip_geolocation::GeolocationRequester,
     middlewares::cloud_middleware::db_cloud_middleware,
     sesssion_cleaner::start_cleaning_sessions,
     state::ServerState,
@@ -29,10 +30,13 @@ use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
 
 pub async fn get_router(only_relay_service: bool) -> Router {
-    let db = if only_relay_service {
-        None
+    let (db, geo_loc_requester) = if only_relay_service {
+        (None, None)
     } else {
-        Some(Arc::new(Db::connect_to_the_pool().await))
+        (
+            Some(Arc::new(Db::connect_to_the_pool().await)),
+            Some(Arc::new(GeolocationRequester::new().await)),
+        )
     };
 
     let state = ServerState {
@@ -42,6 +46,7 @@ pub async fn get_router(only_relay_service: bool) -> Router {
         wallets_metadata: Arc::new(get_wallets_metadata_vec()),
         session_to_app_map: Default::default(),
         db,
+        geo_location: geo_loc_requester,
     };
 
     // Start cleaning outdated sessions
