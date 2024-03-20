@@ -53,7 +53,7 @@ interface ConnectionOptions {
 ```js
 import { NightlyConnectSuiAdapter } from '@nightlylabs/wallet-selector-sui'
 
-const adapter = NightlyConnectSuiAdapter.build(
+const adapter = await NightlyConnectSuiAdapter.build(
   {
     appMetadata: {
       name: 'NCTestSui',
