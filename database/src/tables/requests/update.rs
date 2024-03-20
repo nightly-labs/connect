@@ -16,7 +16,7 @@ impl Db {
             .bind(&request.request_id)
             .bind(&request.session_id)
             .bind(&request.app_id)
-            .bind(&request.request_type)
+            .bind(&request.request_type.to_string())
             .bind(&request.request_status)
             .bind(&request.network)
             .bind(&request.creation_timestamp)
@@ -49,11 +49,15 @@ impl Db {
     }
 }
 
+#[cfg(feature = "cloud_db_tests")]
 #[cfg(test)]
 mod tests {
 
     use super::*;
-    use crate::tables::{sessions::table_struct::DbNcSession, utils::get_date_time};
+    use crate::{
+        structs::request_type::RequestType,
+        tables::{sessions::table_struct::DbNcSession, utils::get_date_time},
+    };
     use sqlx::types::chrono::Utc;
 
     #[tokio::test]
@@ -88,7 +92,7 @@ mod tests {
 
         let request = Request {
             request_id: "test_request_id".to_string(),
-            request_type: "test_request_type".to_string(),
+            request_type: RequestType::SignAndSendTransaction,
             session_id: "test_session_id".to_string(),
             request_status: RequestStatus::Pending,
             network: "test_network".to_string(),
@@ -107,7 +111,7 @@ mod tests {
 
         let second_request = Request {
             request_id: "test_request_id2".to_string(),
-            request_type: "test_request_type".to_string(),
+            request_type: RequestType::SignAndSendTransaction,
             session_id: "test_session_id".to_string(),
             request_status: RequestStatus::Pending,
             app_id: "test_app_id".to_string(),

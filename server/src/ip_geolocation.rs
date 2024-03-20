@@ -1,7 +1,5 @@
 use anyhow::{bail, Result};
-use database::{
-    structs::geo_location::Geolocation, tables::ip_addresses::table_struct::IpAddressEntry,
-};
+use database::structs::geo_location::Geolocation;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 

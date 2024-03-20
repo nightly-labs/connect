@@ -6,6 +6,7 @@ pub mod filter_requests;
 pub mod geo_location;
 pub mod privilege_level;
 pub mod request_status;
+pub mod request_type;
 pub mod session_type;
 pub mod subscription;
 pub mod time_filters;

@@ -10,6 +10,7 @@ use ts_rs::TS;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(tag = "type")]
 pub enum EventData {
     AppConnect(AppConnectEvent),
     AppDisconnect(AppDisconnectEvent),

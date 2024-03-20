@@ -1,3 +1,4 @@
+#[cfg(feature = "cloud_db_tests")]
 #[cfg(test)]
 pub mod test_utils {
     use crate::{

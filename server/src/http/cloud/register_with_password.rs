@@ -94,6 +94,7 @@ pub async fn register_with_password(
     return Ok(Json(HttpRegisterWithPasswordResponse { user_id }));
 }
 
+#[cfg(feature = "cloud_db_tests")]
 #[cfg(test)]
 mod tests {
     use super::*;

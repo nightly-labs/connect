@@ -233,12 +233,13 @@ impl Db {
     }
 }
 
+#[cfg(feature = "cloud_db_tests")]
 #[cfg(test)]
 mod tests {
 
     use super::*;
     use crate::{
-        structs::request_status::RequestStatus,
+        structs::{request_status::RequestStatus, request_type::RequestType},
         tables::{requests::table_struct::Request, utils::get_date_time},
     };
 
@@ -300,7 +301,7 @@ mod tests {
         // Create a few requests for the session
         let request = Request {
             request_id: "test_request_id".to_string(),
-            request_type: "test_request_type".to_string(),
+            request_type: RequestType::SignAndSendTransaction,
             app_id: "test_app_id".to_string(),
             session_id: "test_session_id".to_string(),
             request_status: RequestStatus::Pending,
@@ -310,7 +311,7 @@ mod tests {
 
         let second_request = Request {
             request_id: "test_request_id2".to_string(),
-            request_type: "test_request_type".to_string(),
+            request_type: RequestType::SignAndSendTransaction,
             session_id: "test_session_id".to_string(),
             app_id: "test_app_id".to_string(),
             request_status: RequestStatus::Pending,

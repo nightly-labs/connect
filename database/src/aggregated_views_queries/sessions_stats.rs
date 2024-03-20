@@ -50,6 +50,7 @@ impl Db {
     }
 }
 
+#[cfg(feature = "cloud_db_tests")]
 #[cfg(test)]
 mod tests {
     use crate::{structs::time_filters::TimeFilter, tables::sessions::table_struct::DbNcSession};

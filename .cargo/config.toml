@@ -1,2 +1,3 @@
 [alias]
-tests = "test -- --test-threads 1"
+tests-relay = "test"
+tests-with-db = "test --features cloud_db_tests -- --test-threads=1"

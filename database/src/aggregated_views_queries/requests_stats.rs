@@ -50,12 +50,15 @@ impl Db {
     }
 }
 
+#[cfg(feature = "cloud_db_tests")]
 #[cfg(test)]
 mod test {
 
     use super::*;
     use crate::{
-        structs::{consts::DAY_IN_SECONDS, request_status::RequestStatus},
+        structs::{
+            consts::DAY_IN_SECONDS, request_status::RequestStatus, request_type::RequestType,
+        },
         tables::{
             registered_app::table_struct::DbRegisteredApp, requests::table_struct::Request,
             sessions::table_struct::DbNcSession, utils::to_microsecond_precision,
@@ -116,7 +119,7 @@ mod test {
                         network: "test_network".to_string(),
                         creation_timestamp: creation_time,
                         request_status: RequestStatus::Pending,
-                        request_type: "test_request_type".to_string(),
+                        request_type: RequestType::SignAndSendTransaction,
                     };
 
                     if let Err(e) = db_clone.save_request(&request).await {
@@ -229,7 +232,7 @@ mod test {
                         network: "test_network".to_string(),
                         creation_timestamp: to_microsecond_precision(&creation_time),
                         request_status: status,
-                        request_type: "test_request_type".to_string(),
+                        request_type: RequestType::SignAndSendTransaction,
                     };
                     if let Err(e) = db_clone.save_request(&request).await {
                         eprintln!("Failed to save request: {}", e);
@@ -352,7 +355,7 @@ mod test {
                         network: "test_network".to_string(),
                         creation_timestamp: to_microsecond_precision(&creation_time),
                         request_status: RequestStatus::Pending,
-                        request_type: "test_request_type".to_string(),
+                        request_type: RequestType::SignAndSendTransaction,
                     };
                     if let Err(e) = db_clone.save_request(&request).await {
                         eprintln!("Failed to save request: {}", e);

@@ -7,4 +7,4 @@ import type { ClientDisconnectEvent } from "./ClientDisconnectEvent";
 import type { NewRequestEvent } from "./NewRequestEvent";
 import type { RequestResolvedEvent } from "./RequestResolvedEvent";
 
-export type EventData = { AppConnect: AppConnectEvent } | { AppDisconnect: AppDisconnectEvent } | { ClientConnectInit: ClientConnectInitEvent } | { ClientConnectResolve: ClientConnectResolveEvent } | { ClientDisconnect: ClientDisconnectEvent } | { NewRequest: NewRequestEvent } | { RequestResolved: RequestResolvedEvent };
+export type EventData = { type: "AppConnect" } & AppConnectEvent | { type: "AppDisconnect" } & AppDisconnectEvent | { type: "ClientConnectInit" } & ClientConnectInitEvent | { type: "ClientConnectResolve" } & ClientConnectResolveEvent | { type: "ClientDisconnect" } & ClientDisconnectEvent | { type: "NewRequest" } & NewRequestEvent | { type: "RequestResolved" } & RequestResolvedEvent;

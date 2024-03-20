@@ -94,6 +94,7 @@ pub async fn get_user_joined_teams(
     }
 }
 
+#[cfg(feature = "cloud_db_tests")]
 #[cfg(test)]
 mod tests {
     use crate::structs::cloud::cloud_http_endpoints::HttpCloudEndpoint;
