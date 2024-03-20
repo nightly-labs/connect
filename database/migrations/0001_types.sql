@@ -32,7 +32,7 @@ CREATE TYPE geo_location AS (
     lon FLOAT8
 );
 
-CREATE TYPE event_type AS ENUM (
+CREATE TYPE event_type_enum AS ENUM (
     'AppConnect',
     'AppDisconnect',
     'ClientConnectInit',

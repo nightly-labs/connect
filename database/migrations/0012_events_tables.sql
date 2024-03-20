@@ -4,12 +4,12 @@ CREATE TABLE event_app_connect(
     device_metadata TEXT NOT NULL,
     lang TEXT NOT NULL,
     timezone TEXT NOT NULL,
-    new_session BOOLEAN NOT NULL,
+    new_session BOOLEAN NOT NULL
 );
 
 CREATE TABLE event_app_disconnect(
     event_id BIGINT PRIMARY KEY REFERENCES events(event_id),
-    session_id TEXT NOT NULL,
+    session_id TEXT NOT NULL
 );
 
 CREATE TABLE event_client_connect_init(
