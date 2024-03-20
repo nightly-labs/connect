@@ -67,4 +67,34 @@ client.on('signMessages', async (e) => {
 <TabItem value="Substrate" label="Substrate">
 Signing messages on Substrate works the same way as signing transactions
 </TabItem>
+
+<TabItem value="Aptos" label="Aptos">
+
+```js
+export interface ResolveSignAptosMessage {
+  requestId: string
+  signedMessages: Array<AptosSignMessageOutput>
+  sessionId: string
+}
+
+client.on('signMessage', async (e) => {
+  const payload = e.messages[0]
+  const signature = alice.sign(new Buffer(payload.message).toString('hex'))
+
+  await client.resolveSignMessage({
+    requestId: e.requestId,
+    signedMessages: [
+      {
+        message: payload.message,
+        signature: signature,
+        fullMessage: payload.message,
+        nonce: payload.nonce,
+        prefix: 'APTOS'
+      }
+    ],
+  })
+})
+```
+
+</TabItem>
 </Tabs>

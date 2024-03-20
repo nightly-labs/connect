@@ -1,6 +1,6 @@
 ---
 title: Build & Connect
-slug: sui/connect
+slug: aptos/connect
 ---
 
 :::info
@@ -51,12 +51,12 @@ interface ConnectionOptions {
 ```
 
 ```js
-import { NightlyConnectSuiAdapter } from '@nightlylabs/wallet-selector-sui'
+import { NightlyConnectAptosAdapter } from '@nightlylabs/wallet-selector-aptos'
 
-const adapter = await NightlyConnectSuiAdapter.build(
+const adapter = await NightlyConnectAptosAdapter.build(
   {
     appMetadata: {
-      name: 'NCTestSui',
+      name: 'NCTestAptos',
       description: 'Nightly Connect Test',
       icon: 'https://docs.nightly.app/img/logo.png',
       additionalInfo: 'Courtesy of Nightly Connect team'
@@ -72,7 +72,7 @@ await adapter.connect()
 // After connection adapter turns into remote signer
 
 // Sign transaction
-await adapter.signTransactionBlock()
+await adapter.signAndSubmitTransaction()
 
 // Disconnect client if you want to end session
 await adapter.disconnect()

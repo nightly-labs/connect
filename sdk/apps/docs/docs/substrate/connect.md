@@ -14,7 +14,7 @@ In order to do so, application generates the sessionId, a unique id that identif
 ---
 
 This process is initialized by one side displaying a sessionId through QR code (see the screenshot).
-The other peer needs just to scan the QR code on its device. Extension wallets are auto detected so you are always up to date and dont need to upgrade your dapp.
+The other peer needs just to scan the QR code on its device. Extension wallets are auto detected so you are always up to date and don't need to upgrade your dapp.
 
 ![ConnectImage](../../static/img/connect.png#connectImage)
 
@@ -50,7 +50,7 @@ interface ConnectionOptions {
 }
 ```
 
-You can find example usage of this addapter here: https://github.com/nightly-labs/connect/blob/main/sdk/apps/modal-example/src/routes/aleph.tsx
+You can find example usage of this adapter here: https://github.com/nightly-labs/connect/blob/main/sdk/apps/modal-example/src/routes/aleph.tsx
 
 ```js
 import { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-polkadot'

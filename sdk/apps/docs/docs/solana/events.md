@@ -18,7 +18,7 @@ const adapter = NightlyConnectAdapter.buildLazy({
   url: 'https://nc2.nightly.app'
 })
 
-adapter.on('connect', (public_key) => {
+adapter.on('connect', (publicKey) => {
     ...
 })
 
