@@ -12,17 +12,11 @@ CREATE TABLE event_app_disconnect(
     session_id TEXT NOT NULL
 );
 
-CREATE TABLE event_client_connect_init(
-    event_id BIGINT PRIMARY KEY REFERENCES events(event_id),
-    session_id TEXT NOT NULL,
-    session_type session_type_enum NOT NULL
-);
-
-CREATE TABLE event_client_connect_resolve(
+CREATE TABLE event_client_connect(
     event_id BIGINT PRIMARY KEY REFERENCES events(event_id),
     client_id TEXT NOT NULL,
     session_id TEXT NOT NULL,
-    public_keys TEXT[] NOT NULL,
+    addresses TEXT[],
     wallet_name TEXT NOT NULL,
     wallet_type TEXT NOT NULL,
     session_type session_type_enum NOT NULL,
@@ -67,7 +61,9 @@ CREATE TABLE event_change_wallet(
     request_status request_status_enum NOT NULL,
     network TEXT NOT NULL,
     wallet_name TEXT NOT NULL,
-    wallet_type TEXT NOT NULL
+    wallet_type TEXT NOT NULL,
+    old_wallet_address TEXT NOT NULL,
+    new_wallet_address TEXT NOT NULL
 );
 
 CREATE TABLE event_change_network(
@@ -75,5 +71,6 @@ CREATE TABLE event_change_network(
     session_id TEXT NOT NULL,
     request_id TEXT NOT NULL,
     request_status request_status_enum NOT NULL,
+    old_network TEXT NOT NULL,
     new_network TEXT NOT NULL
 );

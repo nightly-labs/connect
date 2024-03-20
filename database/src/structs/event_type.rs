@@ -8,8 +8,7 @@ use ts_rs::TS;
 pub enum EventType {
     AppConnect,
     AppDisconnect,
-    ClientConnectInit,
-    ClientConnectResolve,
+    ClientConnect,
     ClientDisconnect,
     SignMessage,
     SignTransaction,

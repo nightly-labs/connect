@@ -7,6 +7,8 @@ use ts_rs::TS;
 #[serde(rename_all = "camelCase")]
 pub struct ClientConnectInitEvent {
     pub client_id: String,
-    pub session_type: SessionType,
     pub session_id: String,
+    pub wallet_name: String,
+    pub wallet_type: String,
+    pub session_type: SessionType,
 }
