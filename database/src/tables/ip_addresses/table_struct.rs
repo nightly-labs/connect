@@ -8,7 +8,7 @@ pub const IP_ADDRESSES_TABLE_NAME: &str = "ip_addresses";
 pub const IP_ADDRESSES_KEYS: &str = "ip_addr, last_updated_at, country, city, lat, lon";
 
 #[derive(Clone, Debug)]
-pub struct IpAddresses {
+pub struct IpAddressEntry {
     pub ip_addr: String,
     pub last_updated_at: DateTime<Utc>,
     pub country: Option<String>,
@@ -17,9 +17,9 @@ pub struct IpAddresses {
     pub lon: Option<f64>,
 }
 
-impl FromRow<'_, PgRow> for IpAddresses {
+impl FromRow<'_, PgRow> for IpAddressEntry {
     fn from_row(row: &sqlx::postgres::PgRow) -> std::result::Result<Self, sqlx::Error> {
-        Ok(IpAddresses {
+        Ok(IpAddressEntry {
             ip_addr: row.get("ip_addr"),
             last_updated_at: row.get("last_updated_at"),
             city: row.get("city"),
