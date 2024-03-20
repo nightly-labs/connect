@@ -113,6 +113,34 @@ await client.connect(message)
 ```
 
 </TabItem>
+
+<TabItem value="Aptos" label="Aptos">
+
+```js
+import { ClientSui } from '@nightlylabs/nightly-connect-aptos'
+
+const client: ClientAptos = await ClientAptos.create({
+  url: RELAY_ENDPOINT // default: https://nc2.nightly.app
+})
+const info: GetInfoResponse = await client.getInfo(sessionId)
+
+const message: Connect = {
+  accountInfo: {
+    address: accountAddress,
+    publicKey: publicKey,
+    ansName: undefined
+  },
+  networkInfo: {
+    chainId: 10,
+    name: Network.MAINNET,
+    url: undefined
+  },
+  sessionId: app.sessionId
+}
+await client.connect(message)
+```
+
+</TabItem>
 </Tabs>
 
 ### Disconnect

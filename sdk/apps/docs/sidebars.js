@@ -21,22 +21,29 @@ const sidebars = {
       type: 'category',
       className: 'drop solana-dropdown',
       label: ' Solana',
-      collapsed: false,
+      collapsed: true,
       items: ['solana/start', 'solana/connect', 'solana/events', 'solana/sign_transaction']
     },
     {
       type: 'category',
       className: 'drop sui-dropdown',
       label: 'Sui',
-      collapsed: false,
+      collapsed: true,
       items: ['sui/start', 'sui/connect', 'sui/events', 'sui/sign_transaction']
     },
     {
       type: 'category',
       className: 'drop substrate-dropdown',
       label: 'Substrate',
-      collapsed: false,
+      collapsed: true,
       items: ['substrate/start', 'substrate/connect', 'substrate/sign_transaction']
+    },
+    {
+      type: 'category',
+      className: 'drop aptos-dropdown',
+      label: 'Aptos',
+      collapsed: true,
+      items: ['aptos/start', 'aptos/connect', 'aptos/sign_transaction', 'aptos/events']
     },
     {
       type: 'category',
