@@ -14,7 +14,7 @@ In order to do so, application generates the sessionId, a unique id that identif
 ---
 
 This process is initialized by one side displaying a sessionId through QR code (see the screenshot).
-The other peer needs just to scan the QR code on its device. Extension wallets are auto detected so you are always up to date and dont need to upgrade your dapp.
+The other peer needs just to scan the QR code on its device. Extension wallets are auto detected so you are always up to date and don't need to upgrade your dapp.
 
 ![ConnectImage](../../static/img/connect.png#connectImage)
 
