@@ -5,6 +5,5 @@ use ts_rs::TS;
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct AppDisconnectEvent {
-    pub connection_id: String,
     pub session_id: String,
 }
