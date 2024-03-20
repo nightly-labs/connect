@@ -1,7 +1,6 @@
 use super::table_struct::{DbNcSession, SESSIONS_TABLE_NAME};
 use crate::db::Db;
 use crate::structs::db_error::DbError;
-use crate::tables::requests::table_struct::{Request, REQUESTS_TABLE_NAME};
 use sqlx::query_as;
 
 impl Db {
@@ -29,17 +28,6 @@ impl Db {
         return typed_query
             .bind(&session_id)
             .fetch_optional(&self.connection_pool)
-            .await
-            .map_err(|e| e.into());
-    }
-
-    pub async fn get_session_requests(&self, session_id: &String) -> Result<Vec<Request>, DbError> {
-        let query = format!("SELECT * FROM {REQUESTS_TABLE_NAME} WHERE session_id = $1");
-        let typed_query = query_as::<_, Request>(&query);
-
-        return typed_query
-            .bind(&session_id)
-            .fetch_all(&self.connection_pool)
             .await
             .map_err(|e| e.into());
     }

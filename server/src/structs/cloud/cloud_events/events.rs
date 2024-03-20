@@ -1,9 +1,14 @@
 use super::event_types::{
     app_connect_event::AppConnectEvent, app_disconnect_event::AppDisconnectEvent,
+    change_network_event::ChangeNetworkEvent, change_wallet_event::ChangeWalletEvent,
     client_connect_init_event::ClientConnectInitEvent,
     client_connect_resolve_event::ClientConnectResolveEvent,
-    client_disconnect_event::ClientDisconnectEvent, new_request::NewRequestEvent,
-    request_resolved_event::RequestResolvedEvent,
+    client_disconnect_event::ClientDisconnectEvent,
+    sign_and_send_transaction_event::SignAndSendTransactionEvent,
+    sign_and_send_transaction_resolve_event::SignAndSendTransactionResolveEvent,
+    sign_message_event::SignMessageEvent, sign_message_resolve_event::SignMessageResolveEvent,
+    sign_transaction_event::SignTransactionEvent,
+    sign_transaction_resolve_event::SignTransactionResolveEvent,
 };
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
@@ -17,6 +22,12 @@ pub enum EventData {
     ClientConnectInit(ClientConnectInitEvent),
     ClientConnectResolve(ClientConnectResolveEvent),
     ClientDisconnect(ClientDisconnectEvent),
-    NewRequest(NewRequestEvent),
-    RequestResolved(RequestResolvedEvent),
+    SignMessage(SignMessageEvent),
+    SignMessageResolve(SignMessageResolveEvent),
+    SignTransaction(SignTransactionEvent),
+    SignTransactionResolve(SignTransactionResolveEvent),
+    SignAndSendTransaction(SignAndSendTransactionEvent),
+    SignAndSendTransactionResolve(SignAndSendTransactionResolveEvent),
+    ChangeNetwork(ChangeNetworkEvent),
+    ChangeWallet(ChangeWalletEvent),
 }
