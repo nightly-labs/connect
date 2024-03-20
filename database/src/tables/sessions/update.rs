@@ -1,10 +1,7 @@
 use super::table_struct::{DbNcSession, SESSIONS_KEYS, SESSIONS_TABLE_NAME};
 use crate::{
     db::Db,
-    structs::{
-        client_data::ClientData, db_error::DbError, geo_location::Geolocation,
-        session_type::SessionType,
-    },
+    structs::{client_data::ClientData, db_error::DbError, geo_location::Geolocation},
 };
 use log::error;
 use sqlx::{
@@ -112,8 +109,6 @@ impl Db {
         connected_keys: &Vec<String>,
         app_id: &String,
         session_id: &String,
-        session_type: &SessionType,
-        ip: &String,
     ) -> Result<(), DbError> {
         // Start a new transaction
         let mut tx = self.connection_pool.begin().await.unwrap();
@@ -214,16 +209,14 @@ impl Db {
             }
         }
 
-        // 4. Create new connection event
+        // 4. Update last connection event attempt
         if let Err(err) = self
-            .create_new_connection_by_client(
+            .resolve_successful_connection_by_client(
                 &mut tx,
                 &app_id,
                 &session_id,
                 client_profile_id,
-                &session_type,
-                &ip,
-                None,
+                connected_at,
             )
             .await
         {

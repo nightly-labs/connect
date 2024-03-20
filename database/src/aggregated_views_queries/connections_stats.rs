@@ -120,12 +120,11 @@ mod tests {
             .await
             .unwrap();
 
-            for j in 0..i {
-                db.create_new_connection_by_client(
+            for _j in 0..i {
+                db.create_new_connection_event_by_client(
                     &mut tx,
                     &app_id,
                     &session_id,
-                    j as i64,
                     &SessionType::Relay,
                     &network.to_string(),
                     None,
