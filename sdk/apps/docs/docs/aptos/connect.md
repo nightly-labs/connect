@@ -53,7 +53,7 @@ interface ConnectionOptions {
 ```js
 import { NightlyConnectAptosAdapter } from '@nightlylabs/wallet-selector-aptos'
 
-const adapter = NightlyConnectAptosAdapter.buildLazy(
+const adapter = NightlyConnectAptosAdapter.build(
   {
     appMetadata: {
       name: 'NCTestAptos',

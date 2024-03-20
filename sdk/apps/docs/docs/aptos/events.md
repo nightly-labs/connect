@@ -20,7 +20,7 @@ const adapter = NightlyConnectAptosAdapter.buildLazy(
   }
 )
 
-adapter.on('connect', (public_key) => {
+adapter.on('connect', (publicKey) => {
     ...
 })
 
