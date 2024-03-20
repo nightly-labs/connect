@@ -48,7 +48,7 @@ CREATE TABLE event_sign_transaction(
     request_id TEXT NOT NULL,
     request_status request_status_enum NOT NULL,
     network TEXT NOT NULL,
-    transaction_id TEXT
+    tx_hash TEXT
 );
 
 CREATE TABLE event_sign_and_send_transaction(
@@ -57,7 +57,7 @@ CREATE TABLE event_sign_and_send_transaction(
     request_id TEXT NOT NULL,
     request_status request_status_enum NOT NULL,
     network TEXT NOT NULL,
-    transaction_id TEXT
+    tx_hash TEXT
 );
 
 CREATE TABLE event_change_wallet(

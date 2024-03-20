@@ -1,7 +1,13 @@
 pub mod app_connect_event;
 pub mod app_disconnect_event;
+pub mod change_network_event;
+pub mod change_wallet_event;
 pub mod client_connect_init_event;
 pub mod client_connect_resolve_event;
 pub mod client_disconnect_event;
-pub mod new_request;
-pub mod request_resolved_event;
+pub mod sign_and_send_transaction_event;
+pub mod sign_and_send_transaction_resolve_event;
+pub mod sign_message_event;
+pub mod sign_message_resolve_event;
+pub mod sign_transaction_event;
+pub mod sign_transaction_resolve_event;

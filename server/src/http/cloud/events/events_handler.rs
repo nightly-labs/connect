@@ -6,8 +6,6 @@ use super::{
         process_event_client_connect_init::process_event_client_connect_init,
         process_event_client_connect_resolve::process_event_client_connect_resolve,
         process_event_client_disconnect::process_event_client_disconnect,
-        process_event_new_request::process_event_new_request,
-        process_event_request_resolved::process_event_request_resolved,
     },
 };
 use crate::{
@@ -56,11 +54,13 @@ pub async fn process_event(
         EventData::ClientDisconnect(event) => {
             process_event_client_disconnect(event, &event_payload.app_id, ip, db_connection).await;
         }
-        EventData::NewRequest(event) => {
-            process_event_new_request(event, &event_payload.app_id, ip, db_connection).await;
-        }
-        EventData::RequestResolved(event) => {
-            process_event_request_resolved(event, &event_payload.app_id, ip, db_connection).await;
-        }
+        EventData::SignMessage(_) => todo!(),
+        EventData::SignMessageResolve(_) => todo!(),
+        EventData::SignTransaction(_) => todo!(),
+        EventData::SignTransactionResolve(_) => todo!(),
+        EventData::SignAndSendTransaction(_) => todo!(),
+        EventData::SignAndSendTransactionResolve(_) => todo!(),
+        EventData::ChangeNetwork(_) => todo!(),
+        EventData::ChangeWallet(_) => todo!(),
     }
 }
