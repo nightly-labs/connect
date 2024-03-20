@@ -21,7 +21,10 @@ export class Signer implements SignerInterface {
   }
   signPayload = async (payload: SignerPayloadJSON): Promise<SignerResult> => {
     const transactionToSign: TransactionToSign = {
-      transaction: JSON.stringify(payload)
+      transaction: JSON.stringify(payload),
+      metadata: JSON.stringify({
+        network: this.base.initializeData.network
+      })
     }
     const signedTxs = await this.base.signTransactions([transactionToSign])
     const result = JSON.parse(signedTxs[0].transaction) as SignerResult

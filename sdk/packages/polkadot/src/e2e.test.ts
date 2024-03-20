@@ -63,7 +63,7 @@ describe('Base Client tests', () => {
   })
 
   test('#on("signTransactions")', async () => {
-    const payload = polkadotApi.tx.balances.transfer(RECEIVER, 50000000)
+    const payload = polkadotApi.tx.balances.transferKeepAlive(RECEIVER, 50000000)
 
     let payloadToSign: string | Uint8Array = ''
 
@@ -108,7 +108,7 @@ describe('Base Client tests', () => {
   })
   test('#getPendingRequests()', async () => {
     client.removeListener('signTransactions')
-    const payload = polkadotApi.tx.balances.transfer(RECEIVER, 50000000)
+    const payload = polkadotApi.tx.balances.transferKeepAlive(RECEIVER, 50000000)
     payload.signAsync(RECEIVER, { signer: app.signer })
     payload.signAsync(RECEIVER, { signer: app.signer })
     await smartDelay(500)

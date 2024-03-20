@@ -61,7 +61,7 @@ describe('Base Client tests', () => {
     await client.connect(msg)
   })
   test('#resolveSignTransaction()', async () => {
-    const payload = polkadotApi.tx.balances.transfer(RECEIVER, 50000000)
+    const payload = polkadotApi.tx.balances.transferKeepAlive(RECEIVER, 50000000)
 
     const promiseSignTransaction = payload.signAsync(RECEIVER, { signer: app.signer })
     await smartDelay(1000)
