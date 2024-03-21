@@ -8,6 +8,7 @@ impl Db {
     pub async fn create_new_event_app_connect(
         &self,
         tx: &mut Transaction<'_, Postgres>,
+        event_id: i64,
         session_id: &String,
         device_metadata: &String,
         lang: &String,
@@ -15,10 +16,11 @@ impl Db {
         new_session: bool,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {EVENT_APP_CONNECT_TABLE_NAME} ({EVENT_APP_CONNECT_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5)"
+            "INSERT INTO {EVENT_APP_CONNECT_TABLE_NAME} ({EVENT_APP_CONNECT_KEYS}) VALUES ($1, $2, $3, $4, $5, $6)"
         );
 
         let query_result = query(&query_body)
+            .bind(event_id)
             .bind(session_id)
             .bind(device_metadata)
             .bind(lang)

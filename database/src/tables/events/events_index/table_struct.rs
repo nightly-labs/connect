@@ -8,7 +8,7 @@ pub const EVENTS_KEYS: &str = "event_id, app_id, event_type, creation_timestamp"
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Event {
-    pub event_id: String,
+    pub event_id: i64,
     pub app_id: String,
     pub event_type: EventType,
     pub creation_timestamp: DateTime<Utc>,

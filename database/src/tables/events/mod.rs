@@ -1,3 +1,10 @@
 pub mod app_connect;
 pub mod app_disconnect;
+pub mod change_network;
+pub mod change_wallet;
+pub mod client_connect;
+pub mod client_disconnect;
 pub mod events_index;
+pub mod sign_and_send_transaction;
+pub mod sign_message;
+pub mod sign_transaction;

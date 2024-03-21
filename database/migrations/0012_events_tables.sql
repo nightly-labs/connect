@@ -25,6 +25,7 @@ CREATE TABLE event_client_connect(
 
 CREATE TABLE event_client_disconnect(
     event_id BIGINT PRIMARY KEY REFERENCES events(event_id),
+    client_id TEXT NOT NULL,
     disconnected_session_id TEXT NOT NULL
 );
 
@@ -63,7 +64,7 @@ CREATE TABLE event_change_wallet(
     wallet_name TEXT NOT NULL,
     wallet_type TEXT NOT NULL,
     old_wallet_address TEXT NOT NULL,
-    new_wallet_address TEXT NOT NULL
+    new_wallet_address TEXT
 );
 
 CREATE TABLE event_change_network(
@@ -72,5 +73,5 @@ CREATE TABLE event_change_network(
     request_id TEXT NOT NULL,
     request_status request_status_enum NOT NULL,
     old_network TEXT NOT NULL,
-    new_network TEXT NOT NULL
+    new_network TEXT
 );
