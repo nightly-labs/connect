@@ -4,7 +4,7 @@ pub mod change_network_event;
 pub mod change_network_resolve_event;
 pub mod change_wallet_event;
 pub mod change_wallet_resolve_event;
-pub mod client_connect_init_event;
+pub mod client_connect_event;
 pub mod client_connect_resolve_event;
 pub mod client_disconnect_event;
 pub mod sign_and_send_transaction_event;

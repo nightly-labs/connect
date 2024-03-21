@@ -3,7 +3,7 @@ use super::{
     processors::{
         process_event_app_connect::process_event_app_connect,
         process_event_app_disconnect::process_event_app_disconnect,
-        process_event_client_connect_init::process_event_client_connect_init,
+        process_event_client_connect::process_event_client_connect_init,
         process_event_client_connect_resolve::process_event_client_connect_resolve,
         process_event_client_disconnect::process_event_client_disconnect,
     },
@@ -37,7 +37,7 @@ pub async fn process_event(
         EventData::AppDisconnect(event) => {
             process_event_app_disconnect(event, &event_payload.app_id, ip, db_connection).await;
         }
-        EventData::ClientConnectInit(event) => {
+        EventData::ClientConnect(event) => {
             process_event_client_connect_init(
                 event,
                 &event_payload.app_id,

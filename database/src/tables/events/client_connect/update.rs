@@ -1,6 +1,6 @@
 use crate::{
     db::Db,
-    structs::db_error::DbError,
+    structs::{db_error::DbError, session_type::SessionType},
     tables::events::client_connect::table_struct::{
         EVENT_CLIENT_CONNECT_KEYS, EVENT_CLIENT_CONNECT_TABLE_NAME,
     },
@@ -16,7 +16,7 @@ impl Db {
         session_id: &String,
         wallet_name: &String,
         wallet_type: &String,
-        session_type: &String,
+        session_type: &SessionType,
     ) -> Result<(), DbError> {
         let query_body = format!(
             "INSERT INTO {EVENT_CLIENT_CONNECT_TABLE_NAME} ({EVENT_CLIENT_CONNECT_KEYS}) VALUES ($1, $2, $3, NULL, $4, $5, $6, false)"
@@ -38,13 +38,13 @@ impl Db {
         }
     }
 
-    pub async fn update_event_client_connect_success(
+    pub async fn update_event_client_connect(
         &self,
         tx: &mut Transaction<'_, Postgres>,
         client_id: &String,
         session_id: &String,
         success: bool,
-        new_addresses: Vec<String>,
+        new_addresses: &Vec<String>,
     ) -> Result<(), DbError> {
         let query_body = format!(
             "UPDATE {EVENT_CLIENT_CONNECT_TABLE_NAME} SET success = $1, addresses = $2 WHERE client_id = $3 AND session_id = $4 AND success = false"

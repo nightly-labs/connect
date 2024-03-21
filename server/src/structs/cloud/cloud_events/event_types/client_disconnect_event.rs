@@ -5,5 +5,6 @@ use ts_rs::TS;
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct ClientDisconnectEvent {
+    pub client_id: String,
     pub disconnected_session_id: String,
 }
