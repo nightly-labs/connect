@@ -47,7 +47,7 @@ export default [
     external: ['uuid']
   },
   {
-    input: 'dist/types/packages/analytics/src/index.d.ts',
+    input: 'dist/types/packages/cloud/src/index.d.ts',
     output: [{ file: 'dist/index.d.ts', format: 'esm' }],
     plugins: [dts()]
   }
