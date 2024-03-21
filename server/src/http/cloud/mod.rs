@@ -1,6 +1,7 @@
 pub mod add_user_to_team;
 pub mod events;
 pub mod get_user_joined_teams;
+pub mod login_with_google;
 pub mod login_with_password;
 pub mod register_new_app;
 pub mod register_new_team;
