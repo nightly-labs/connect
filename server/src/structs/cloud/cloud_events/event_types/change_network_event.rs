@@ -8,5 +8,4 @@ pub struct ChangeNetworkEvent {
     pub session_id: String,
     pub request_id: String,
     pub old_network: String,
-    pub new_network: String,
 }

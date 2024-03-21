@@ -41,7 +41,7 @@ impl Db {
         tx: &mut Transaction<'_, Postgres>,
         request_id: &String,
         request_status: RequestStatus,
-        new_network: Option<String>,
+        new_network: &Option<String>,
     ) -> Result<(), DbError> {
         let query_body = format!(
             "UPDATE {EVENT_CHANGE_NETWORK_TABLE_NAME} SET request_status = $1, new_network = $2 WHERE request_id = $3",

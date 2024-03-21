@@ -42,7 +42,7 @@ impl Db {
         tx: &mut Transaction<'_, Postgres>,
         request_id: &String,
         request_status: RequestStatus,
-        tx_hash: Option<String>,
+        tx_hash: &Option<String>,
     ) -> Result<(), DbError> {
         let query_body = format!(
             "UPDATE {EVENT_SIGN_TRANSACTION_TABLE_NAME} SET request_status = $1, tx_hash = $2 WHERE request_id = $3"
