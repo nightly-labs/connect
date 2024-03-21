@@ -1,4 +1,7 @@
+use std::str::FromStr;
+
 use crate::structs::request_status::RequestStatus;
+use crate::structs::request_type::RequestType;
 use chrono::{DateTime, Utc};
 use sqlx::types::chrono;
 use sqlx::{postgres::PgRow, FromRow, Row};
@@ -12,7 +15,7 @@ pub struct Request {
     pub request_id: String,
     pub session_id: String,
     pub app_id: String,
-    pub request_type: String,
+    pub request_type: RequestType,
     pub request_status: RequestStatus,
     pub network: String,
     pub creation_timestamp: DateTime<Utc>,
@@ -23,7 +26,7 @@ impl FromRow<'_, PgRow> for Request {
         Ok(Request {
             request_id: row.get("request_id"),
             app_id: row.get("app_id"),
-            request_type: row.get("request_type"),
+            request_type: RequestType::from_str(row.get("request_type")).unwrap(),
             session_id: row.get("session_id"),
             request_status: row.get("request_status"),
             network: row.get("network"),

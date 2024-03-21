@@ -109,4 +109,29 @@ client.on('signTransactions', async (e) => {
 ```
 
 </TabItem>
+
+<TabItem value="Aptos" label="Aptos">
+
+```js
+interface ResolveSignAptosTransactions {
+  requestId: string
+  signedTransactions: Array<AptosSignTransactionOutput>
+  sessionId: string
+}
+
+client.on('signTransaction', async (e) => {
+  const tx = e.transactions[0]
+  const senderAuthenticator = aptos.transaction.sign({
+    signer: alice,
+    transaction: tx
+  })
+  // resolve
+  await client.resolveSignTransaction({
+    requestId: e.requestId,
+    signedTransactions: [senderAuthenticator]
+  })
+})
+```
+
+</TabItem>
 </Tabs>

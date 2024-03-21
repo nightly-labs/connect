@@ -16,4 +16,8 @@ slug: /start
         <img src="https://registry.nightly.app/networks/polkadot.png"/>
     Substrate
     </a>
+    <a href="./aptos/aptos/start" class="card">
+        <img src="https://aptosfoundation.org/brandbook/logomark/PNG/Aptos_mark_WHT.png"/>
+    Aptos
+    </a>
 </div>

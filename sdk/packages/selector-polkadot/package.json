@@ -1,6 +1,6 @@
 {
   "name": "@nightlylabs/wallet-selector-polkadot",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "",
   "type": "module",
   "exports": {
@@ -24,7 +24,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@nightlylabs/nightly-connect-polkadot": "^0.0.15",
+    "@nightlylabs/nightly-connect-polkadot": "^0.0.16",
     "@nightlylabs/wallet-selector-base": "^0.4.0",
     "@polkadot/api": "10.10.1",
     "@polkadot/extension-inject": "0.46.5",

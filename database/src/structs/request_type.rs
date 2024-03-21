@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
+use strum::{Display, EnumString};
 use ts_rs::TS;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[derive(Debug, Display, Clone, PartialEq, Eq, Serialize, Deserialize, TS, EnumString)]
 #[ts(export)]
-#[serde(rename_all = "camelCase")]
 pub enum RequestType {
     SignMessage,
     SignTransaction,

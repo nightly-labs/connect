@@ -38,7 +38,7 @@ pub enum SessionStatus {
     Idle, // Both disconnected, but session is still alive for a while in case client reconnects
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
+#[derive(Debug, Display, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub enum Device {
     Apple,

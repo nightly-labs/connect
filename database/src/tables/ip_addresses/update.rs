@@ -1,17 +1,14 @@
 use crate::{
     db::Db,
     structs::db_error::DbError,
-    tables::ip_addresses::table_struct::{IpAddresses, IP_ADDRESSES_KEYS, IP_ADDRESSES_TABLE_NAME},
+    tables::ip_addresses::table_struct::{
+        IpAddressEntry, IP_ADDRESSES_KEYS, IP_ADDRESSES_TABLE_NAME,
+    },
 };
-use sqlx::Transaction;
-use sqlx::{query, Postgres};
+use sqlx::query;
 
 impl Db {
-    pub async fn upsert_ip_address(
-        &self,
-        tx: &mut Transaction<'_, Postgres>,
-        ip_address: &IpAddresses,
-    ) -> Result<(), DbError> {
+    pub async fn upsert_ip_address(&self, ip_address: &IpAddressEntry) -> Result<(), DbError> {
         let query_body = format!(
             "INSERT INTO {IP_ADDRESSES_TABLE_NAME} ({IP_ADDRESSES_KEYS}) VALUES ($1, $2, $3, $4, $5, $6)
              ON CONFLICT (ip_addr) DO UPDATE SET 
@@ -29,7 +26,7 @@ impl Db {
             .bind(&ip_address.city)
             .bind(&ip_address.lat)
             .bind(&ip_address.lon)
-            .execute(&mut **tx)
+            .execute(&self.connection_pool)
             .await;
 
         match query_result {
@@ -39,6 +36,7 @@ impl Db {
     }
 }
 
+#[cfg(feature = "cloud_db_tests")]
 #[cfg(test)]
 mod tests {
 
@@ -63,8 +61,7 @@ mod tests {
         let lon = 5.678;
 
         // Scenario 1: Insert new IP address
-        let mut tx = db.connection_pool.begin().await.unwrap();
-        let test_ip_address = IpAddresses {
+        let test_ip_address = IpAddressEntry {
             ip_addr: first_ip_address.clone(),
             last_updated_at: get_current_datetime(),
             country: Some(country.clone()),
@@ -72,10 +69,7 @@ mod tests {
             lat: Some(lat),
             lon: Some(lon),
         };
-        db.upsert_ip_address(&mut tx, &test_ip_address)
-            .await
-            .unwrap();
-        tx.commit().await.unwrap();
+        db.upsert_ip_address(&test_ip_address).await.unwrap();
 
         // Retrieve the inserted IP address to verify
         let inserted_ip_address = db.get_ip_address(&first_ip_address).await.unwrap().unwrap();
@@ -85,7 +79,8 @@ mod tests {
 
         // Scenario 2: Update the existing IP address
         tokio::time::sleep(Duration::from_millis(1000)).await;
-        let updated_ip_address = IpAddresses {
+
+        let updated_ip_address = IpAddressEntry {
             ip_addr: first_ip_address.clone(),
             last_updated_at: get_current_datetime(), // Updated timestamp
             country: Some(country.clone()),
@@ -93,19 +88,14 @@ mod tests {
             lat: Some(lat),
             lon: Some(lon),
         };
-
-        let mut tx = db.connection_pool.begin().await.unwrap();
-        db.upsert_ip_address(&mut tx, &updated_ip_address)
-            .await
-            .unwrap();
-        tx.commit().await.unwrap();
+        db.upsert_ip_address(&updated_ip_address).await.unwrap();
 
         let updated_ip_data = db.get_ip_address(&first_ip_address).await.unwrap().unwrap();
         assert_eq!(updated_ip_data.ip_addr, first_ip_address);
         assert!(updated_ip_data.last_updated_at > inserted_ip_address.last_updated_at);
 
         // Scenario 3: Insert a new distinct IP address
-        let new_ip_address = IpAddresses {
+        let new_ip_address = IpAddressEntry {
             ip_addr: second_ip_address.clone(),
             last_updated_at: get_current_datetime(),
             country: Some("AnotherCountry".to_string()),
@@ -113,12 +103,7 @@ mod tests {
             lat: Some(9.876),
             lon: Some(5.432),
         };
-
-        let mut tx = db.connection_pool.begin().await.unwrap();
-        db.upsert_ip_address(&mut tx, &new_ip_address)
-            .await
-            .unwrap();
-        tx.commit().await.unwrap();
+        db.upsert_ip_address(&new_ip_address).await.unwrap();
 
         let second_ip_data = db
             .get_ip_address(&second_ip_address)

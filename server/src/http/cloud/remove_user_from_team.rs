@@ -127,6 +127,7 @@ pub async fn remove_user_from_team(
     }
 }
 
+#[cfg(feature = "cloud_db_tests")]
 #[cfg(test)]
 mod tests {
     use crate::{

@@ -50,6 +50,7 @@ impl Db {
     }
 }
 
+#[cfg(feature = "cloud_db_tests")]
 #[cfg(test)]
 mod tests {
 
@@ -94,7 +95,9 @@ mod tests {
                 session_close_timestamp: None,
             };
 
-            db.handle_new_session(&session, None).await.unwrap();
+            db.handle_new_session(&session, None, &"127.0.0.1".to_string())
+                .await
+                .unwrap();
 
             // Each time a session is created, means that app has been connected, create 2 more connections
             let mut tx = db.connection_pool.begin().await.unwrap();
@@ -118,12 +121,11 @@ mod tests {
             .await
             .unwrap();
 
-            for j in 0..i {
-                db.create_new_connection_by_client(
+            for _j in 0..i {
+                db.create_new_connection_event_by_client(
                     &mut tx,
                     &app_id,
                     &session_id,
-                    j as i64,
                     &SessionType::Relay,
                     &network.to_string(),
                     None,

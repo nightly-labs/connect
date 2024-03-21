@@ -31,3 +31,16 @@ CREATE TYPE geo_location AS (
     lat FLOAT8,
     lon FLOAT8
 );
+
+CREATE TYPE event_type_enum AS ENUM (
+    'AppConnect',
+    'AppDisconnect',
+    'ClientConnectInit',
+    'ClientConnectResolve'
+    'ClientDisconnect',
+    'SingMessage',
+    'SignTransaction',
+    'SignAndSendTransaction',
+    'ChangeWallet',
+    'ChangeNetwork'
+);
