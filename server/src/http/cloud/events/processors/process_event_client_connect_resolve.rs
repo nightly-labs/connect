@@ -82,7 +82,7 @@ async fn save_event_client_connect_resolve(
         }
         Err(err) => {
             error!(
-                "Failed to create new transaction to save client disconnect event, app_id: [{}], event: [{:?}], err: [{}]",
+                "Failed to create new transaction to save client connect event, app_id: [{}], event: [{:?}], err: [{}]",
                 app_id, event, err
             );
         }

@@ -18,11 +18,12 @@ pub enum RequestFail {
     TimedOut,
 }
 
-impl Into<RequestStatus> for RequestFail {
-    fn into(self) -> RequestStatus {
-        match self {
-            RequestFail::Rejected => RequestStatus::Rejected,
-            RequestFail::TimedOut => RequestStatus::TimedOut,
+impl From<&Option<RequestFail>> for RequestStatus {
+    fn from(fail: &Option<RequestFail>) -> Self {
+        match fail {
+            Some(RequestFail::Rejected) => RequestStatus::Rejected,
+            Some(RequestFail::TimedOut) => RequestStatus::TimedOut,
+            None => RequestStatus::Completed,
         }
     }
 }

@@ -1,5 +1,15 @@
 pub mod process_event_app_connect;
 pub mod process_event_app_disconnect;
+pub mod process_event_change_network;
+pub mod process_event_change_network_resolve;
+pub mod process_event_change_wallet;
+pub mod process_event_change_wallet_resolve;
 pub mod process_event_client_connect;
 pub mod process_event_client_connect_resolve;
 pub mod process_event_client_disconnect;
+pub mod process_event_sign_and_send_transaction;
+pub mod process_event_sign_and_send_transaction_resolve;
+pub mod process_event_sign_message;
+pub mod process_event_sign_message_resolve;
+pub mod process_event_sign_transaction;
+pub mod process_event_sign_transaction_resolve;
