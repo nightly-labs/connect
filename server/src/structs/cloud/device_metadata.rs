@@ -27,3 +27,13 @@ pub struct WebMetadata {
     pub os: String,
     pub os_version: String,
 }
+
+impl DeviceMetadata {
+    pub fn to_string(&self) -> Result<String, serde_json::Error> {
+        serde_json::to_string(self)
+    }
+
+    pub fn from_string(s: &str) -> Result<Self, serde_json::Error> {
+        serde_json::from_str(s)
+    }
+}

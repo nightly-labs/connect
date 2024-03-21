@@ -1,7 +1,7 @@
 use super::event_types::{
     app_connect_event::AppConnectEvent, app_disconnect_event::AppDisconnectEvent,
     change_network_event::ChangeNetworkEvent, change_wallet_event::ChangeWalletEvent,
-    client_connect_init_event::ClientConnectInitEvent,
+    client_connect_event::ClientConnectEvent,
     client_connect_resolve_event::ClientConnectResolveEvent,
     client_disconnect_event::ClientDisconnectEvent,
     sign_and_send_transaction_event::SignAndSendTransactionEvent,
@@ -19,7 +19,7 @@ use ts_rs::TS;
 pub enum EventData {
     AppConnect(AppConnectEvent),
     AppDisconnect(AppDisconnectEvent),
-    ClientConnectInit(ClientConnectInitEvent),
+    ClientConnect(ClientConnectEvent),
     ClientConnectResolve(ClientConnectResolveEvent),
     ClientDisconnect(ClientDisconnectEvent),
     SignMessage(SignMessageEvent),

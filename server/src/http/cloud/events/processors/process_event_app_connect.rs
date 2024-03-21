@@ -5,6 +5,7 @@ use crate::{
 };
 use database::{
     db::Db,
+    structs::event_type::EventType,
     tables::{
         sessions::table_struct::DbNcSession,
         utils::{get_current_datetime, get_date_time},
@@ -21,6 +22,9 @@ pub async fn process_event_app_connect(
     geo_loc_requester: &Arc<GeolocationRequester>,
     sessions: &Sessions,
 ) {
+    // Save event to Db
+    save_event_app_connect(db, app_id, event).await;
+
     if event.new_session {
         // New session, get the data from sessions and create a new session in the database
         let session_data = {
@@ -98,17 +102,88 @@ pub async fn process_event_app_connect(
                 // Commit the transaction
                 if let Err(err) = tx.commit().await {
                     error!(
-                        "Failed to commit transaction for new app connection event, app_id: [{}], ip: [{}], event: [{:?}], err: [{}]",
+                        "Failed to commit transaction for new app connection, app_id: [{}], ip: [{}], event: [{:?}], err: [{}]",
                         app_id, ip, event, err
                     );
                 }
             }
             Err(err) => {
                 error!(
-                    "Failed to create new connection event, app_id: [{}], ip: [{}], event: [{:?}], err: [{}]",
+                    "Failed to create new connection, app_id: [{}], ip: [{}], event: [{:?}], err: [{}]",
                     app_id, ip, event, err
                 );
             }
+        }
+    }
+}
+
+async fn save_event_app_connect(db: &Arc<Db>, app_id: &String, event: &AppConnectEvent) {
+    // Establish a new transaction
+    match db.connection_pool.begin().await {
+        Ok(mut tx) => {
+            // Create a new event index in the database
+            match db
+                .create_new_event_entry(&mut tx, &app_id, &EventType::AppConnect)
+                .await
+            {
+                Ok(event_id) => {
+                    // Now create a new event app connect corresponding to the event
+                    match db
+                        .create_new_event_app_connect(
+                            &mut tx,
+                            event_id,
+                            &event.session_id,
+                            &event
+                                .device_metadata
+                                .to_string()
+                                .unwrap_or("Failed to serialize device metadata".to_string()),
+                            &event.language,
+                            &event.timezone,
+                            event.new_session,
+                        )
+                        .await
+                    {
+                        Ok(_) => {
+                            // Commit the transaction
+                            if let Err(err) = tx.commit().await {
+                                error!(
+                                    "Failed to commit transaction for new app connection event, app_id: [{}], event: [{:?}], err: [{}]",
+                                    app_id, event, err
+                                );
+                            }
+
+                            return;
+                        }
+                        Err(err) => {
+                            error!(
+                                "Failed to create new app connection event, app_id: [{}], event: [{:?}], err: [{}]",
+                                app_id, event, err
+                            );
+                        }
+                    }
+                }
+                Err(err) => {
+                    error!(
+                        "Failed to create new event index, app_id: [{}], event: [{:?}], err: [{}]",
+                        app_id, event, err
+                    );
+                }
+            }
+
+            // If we have not returned yet, then we have failed to save the event
+            // Rollback the transaction
+            if let Err(err) = tx.rollback().await {
+                error!(
+                    "Failed to rollback transaction for new app connection event, app_id: [{}], event: [{:?}], err: [{}]",
+                    app_id, event, err
+                );
+            }
+        }
+        Err(err) => {
+            error!(
+                "Failed to create new transaction to save app connection event, app_id: [{}], event: [{:?}], err: [{}]",
+                app_id, event, err
+            );
         }
     }
 }

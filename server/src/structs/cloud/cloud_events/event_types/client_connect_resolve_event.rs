@@ -8,5 +8,7 @@ pub struct ClientConnectResolveEvent {
     pub client_id: String,
     pub session_id: String,
     pub addresses: Vec<String>,
+    pub wallet_name: String,
+    pub wallet_type: String,
     pub success: bool,
 }
