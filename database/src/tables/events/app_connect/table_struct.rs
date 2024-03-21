@@ -6,7 +6,7 @@ pub const EVENT_APP_CONNECT_KEYS: &str =
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct AppConnectEvent {
-    pub event_id: String,
+    pub event_id: i64,
     pub app_id: String,
     pub session_id: String,
     pub device_metadata: String,
