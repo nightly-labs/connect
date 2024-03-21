@@ -1,4 +1,6 @@
 use crate::{
+    auth::AuthToken,
+    env::JWT_SECRET,
     ip_geolocation::GeolocationRequester,
     statics::{NAME_REGEX, REGISTER_PASSWORD_VALIDATOR},
     structs::{
@@ -11,7 +13,7 @@ use database::{
 };
 use database::{structs::geo_location::Geolocation, tables::utils::get_current_datetime};
 use garde::Validate;
-use log::warn;
+use log::{error, warn};
 use std::{
     net::SocketAddr,
     str::FromStr,
@@ -159,4 +161,38 @@ pub fn custom_validate_new_password(password: &String, _context: &()) -> garde::
         }
     }
     Ok(())
+}
+
+pub fn generate_tokens(
+    enforce_ip: bool,
+    ip: SocketAddr,
+    user_id: &String,
+    // (Auth Token, Refresh Token)
+) -> Result<(String, String), (StatusCode, String)> {
+    // Generate tokens
+    let ip = if enforce_ip { Some(ip) } else { None };
+    // Access token
+    let token = match AuthToken::new_access(&user_id, ip).encode(JWT_SECRET()) {
+        Ok(token) => token,
+        Err(err) => {
+            error!("Failed to create access token: {:?}", err);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::AccessTokenFailure.to_string(),
+            ));
+        }
+    };
+    // Refresh token
+    let refresh_token = match AuthToken::new_refresh(&user_id, ip).encode(JWT_SECRET()) {
+        Ok(token) => token,
+        Err(err) => {
+            error!("Failed to create refresh token: {:?}", err);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::RefreshTokenFailure.to_string(),
+            ));
+        }
+    };
+
+    Ok((token, refresh_token))
 }
