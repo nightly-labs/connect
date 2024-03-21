@@ -9,50 +9,49 @@ pub async fn process_event_sign_and_send_transaction_resolve(
     db: &Arc<Db>,
 ) {
     // Establish a new transaction
-    match db.connection_pool.begin().await {
-        Ok(mut tx) => {
-            // Update the sign and send transaction event in the database
-            match db
-                .update_event_sign_and_send_transaction(
-                    &mut tx,
-                    &event.request_id,
-                    RequestStatus::from(&event.failure_reason),
-                    &event.tx_hash,
-                )
-                .await
-            {
-                Ok(_) => {
-                    // Commit the transaction
-                    if let Err(err) = tx.commit().await {
-                        error!(
-                                "Failed to commit transaction for update sign and send transaction event, app_id: [{}], event: [{:?}], err: [{}]",
-                                app_id, event, err
-                            );
-                    }
-                }
-                Err(err) => {
-                    error!(
-                            "Failed to update sign transaction status, app_id: [{}], event: [{:?}], err: [{}]",
-                            app_id, event, err
-                        );
+    let mut tx = match db.connection_pool.begin().await {
+        Ok(tx) => tx,
+        Err(err) => {
+            error!(
+                "Failed to create new transaction to save sign and send transaction event, app_id: [{}], event: [{:?}], err: [{}]",
+                app_id, event, err
+            );
+            return;
+        }
+    };
 
-                    // Rollback the transaction
-                    if let Err(err) = tx.rollback().await {
-                        error!(
-                                "Failed to rollback transaction for update sign and send transaction event, app_id: [{}], event: [{:?}], err: [{}]",
-                                app_id, event, err
-                            );
-
-                        return;
-                    }
-                }
+    // Update the sign and send transaction event in the database
+    match db
+        .update_event_sign_and_send_transaction(
+            &mut tx,
+            &event.request_id,
+            RequestStatus::from(&event.failure_reason),
+            &event.tx_hash,
+        )
+        .await
+    {
+        Ok(_) => {
+            // Commit the transaction
+            if let Err(err) = tx.commit().await {
+                error!(
+                    "Failed to commit transaction for update sign and send transaction event, app_id: [{}], event: [{:?}], err: [{}]",
+                    app_id, event, err
+                );
             }
         }
         Err(err) => {
             error!(
-                    "Failed to create new transaction to update sign transaction event, app_id: [{}], event: [{:?}], err: [{}]",
+                "Failed to update sign and send transaction status, app_id: [{}], event: [{:?}], err: [{}]",
+                app_id, event, err
+            );
+
+            // Rollback the transaction
+            if let Err(err) = tx.rollback().await {
+                error!(
+                    "Failed to rollback transaction for update sign and send transaction event, app_id: [{}], event: [{:?}], err: [{}]",
                     app_id, event, err
                 );
+            }
         }
     }
 }

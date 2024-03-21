@@ -40,51 +40,50 @@ async fn save_event_client_connect_resolve(
     event: &ClientConnectResolveEvent,
 ) {
     // Establish a new transaction
-    match db.connection_pool.begin().await {
-        Ok(mut tx) => {
-            // Update the connection status for the user
-            match db
-                .update_event_client_connect(
-                    &mut tx,
-                    &event.client_id,
-                    &event.session_id,
-                    event.success,
-                    &event.addresses,
-                )
-                .await
-            {
-                Ok(_) => {
-                    // Commit the transaction
-                    if let Err(err) = tx.commit().await {
-                        error!(
-                            "Failed to commit transaction for update client connect event, app_id: [{}], event: [{:?}], err: [{}]",
-                            app_id, event, err
-                        );
-                    }
-                }
-                Err(err) => {
-                    error!(
-                        "Failed to update client connect status, app_id: [{}], event: [{:?}], err: [{}]",
-                        app_id, event, err
-                    );
-
-                    // Rollback the transaction
-                    if let Err(err) = tx.rollback().await {
-                        error!(
-                            "Failed to rollback transaction for update client connect event, app_id: [{}], event: [{:?}], err: [{}]",
-                            app_id, event, err
-                        );
-
-                        return;
-                    }
-                }
-            }
-        }
+    let mut tx = match db.connection_pool.begin().await {
+        Ok(tx) => tx,
         Err(err) => {
             error!(
                 "Failed to create new transaction to save client connect event, app_id: [{}], event: [{:?}], err: [{}]",
                 app_id, event, err
             );
+            return;
+        }
+    };
+
+    // Update the event in the database
+    match db
+        .update_event_client_connect(
+            &mut tx,
+            &event.client_id,
+            &event.session_id,
+            event.success,
+            &event.addresses,
+        )
+        .await
+    {
+        Ok(_) => {
+            // Commit the transaction
+            if let Err(err) = tx.commit().await {
+                error!(
+                    "Failed to commit transaction for update client connect event, app_id: [{}], event: [{:?}], err: [{}]",
+                    app_id, event, err
+                );
+            }
+        }
+        Err(err) => {
+            error!(
+                "Failed to update client connect status, app_id: [{}], event: [{:?}], err: [{}]",
+                app_id, event, err
+            );
+
+            // Rollback the transaction
+            if let Err(err) = tx.rollback().await {
+                error!(
+                    "Failed to rollback transaction for update client connect event, app_id: [{}], event: [{:?}], err: [{}]",
+                    app_id, event, err
+                );
+            }
         }
     }
 }

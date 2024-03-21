@@ -34,9 +34,9 @@ pub async fn process_event_change_network_resolve(
             // Commit the transaction
             if let Err(err) = tx.commit().await {
                 error!(
-                        "Failed to commit transaction for update change network event, app_id: [{}], event: [{:?}], err: [{}]",
-                        app_id, event, err
-                    );
+                    "Failed to commit transaction for update change network event, app_id: [{}], event: [{:?}], err: [{}]",
+                    app_id, event, err
+                );
             }
         }
         Err(err) => {
