@@ -14,14 +14,14 @@ pub enum HttpCloudEndpoint {
     LoginWithGoogle,
     #[serde(rename = "/register_new_team")]
     RegisterNewTeam,
-    #[serde(rename = "/add_user_to_team")]
-    AddUserToTeam,
     #[serde(rename = "/remove_user_from_team")]
     RemoveUserFromTeam,
     #[serde(rename = "/get_user_joined_teams")]
     GetUserJoinedTeams,
     #[serde(rename = "/events")]
     Events,
+    #[serde(rename = "/invite_user_to_team")]
+    InviteUserToTeam,
 }
 
 impl HttpCloudEndpoint {
@@ -32,10 +32,10 @@ impl HttpCloudEndpoint {
             HttpCloudEndpoint::LoginWithPassword => "/login_with_password".to_string(),
             HttpCloudEndpoint::LoginWithGoogle => "/login_with_google".to_string(),
             HttpCloudEndpoint::RegisterNewTeam => "/register_new_team".to_string(),
-            HttpCloudEndpoint::AddUserToTeam => "/add_user_to_team".to_string(),
             HttpCloudEndpoint::RemoveUserFromTeam => "/remove_user_from_team".to_string(),
             HttpCloudEndpoint::GetUserJoinedTeams => "/get_user_joined_teams".to_string(),
             HttpCloudEndpoint::Events => "/events".to_string(),
+            HttpCloudEndpoint::InviteUserToTeam => "/invite_user_to_team".to_string(),
         }
     }
 }

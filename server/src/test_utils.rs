@@ -4,8 +4,8 @@ pub mod test_utils {
         auth::AuthToken,
         env::{JWT_PUBLIC_KEY, JWT_SECRET},
         http::cloud::{
-            add_user_to_team::{HttpAddUserToTeamRequest, HttpAddUserToTeamResponse},
             get_user_joined_teams::HttpGetUserJoinedTeamsResponse,
+            invite_user_to_team::{HttpAddUserToTeamRequest, HttpAddUserToTeamResponse},
             login_with_password::{HttpLoginRequest, HttpLoginResponse},
             register_new_app::{HttpRegisterNewAppRequest, HttpRegisterNewAppResponse},
             register_new_team::{HttpRegisterNewTeamRequest, HttpRegisterNewTeamResponse},
