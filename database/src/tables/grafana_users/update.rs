@@ -79,6 +79,6 @@ mod tests {
         db.add_new_user(&user).await.unwrap();
 
         let user_result = db.get_user_by_user_id(&user.user_id).await.unwrap();
-        assert_eq!(user_result, user);
+        assert_eq!(user_result, Some(user));
     }
 }

@@ -6,16 +6,16 @@ use sqlx::{
 
 pub const TEAM_INVITES_TABLE_NAME: &str = "team_invites";
 pub const TEAM_INVITES_KEYS: &str =
-    "invite_id, team_id, user_email, created_at, accepted_at, canceled_at";
+    "invite_id, team_id, user_email, created_at, accepted_at, cancelled_at";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct TeamInvite {
-    pub invite_id: String,
+    pub invite_id: i64,
     pub team_id: String,
     pub user_email: String,
     pub created_at: DateTime<Utc>,
     pub accepted_at: Option<DateTime<Utc>>,
-    pub canceled_at: Option<DateTime<Utc>>,
+    pub cancelled_at: Option<DateTime<Utc>>,
 }
 
 impl FromRow<'_, PgRow> for TeamInvite {
@@ -26,7 +26,7 @@ impl FromRow<'_, PgRow> for TeamInvite {
             user_email: row.get("user_email"),
             created_at: row.get("created_at"),
             accepted_at: row.get("accepted_at"),
-            canceled_at: row.get("canceled_at"),
+            cancelled_at: row.get("cancelled_at"),
         })
     }
 }

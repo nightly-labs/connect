@@ -29,18 +29,19 @@ impl Db {
 
     pub async fn accept_team_invite(
         &self,
+        tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
         team_id: &String,
         user_email: &String,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "UPDATE {TEAM_INVITES_TABLE_NAME} SET accepted_at = $1 WHERE team_id = $2 AND user_email = $3"
+            "UPDATE {TEAM_INVITES_TABLE_NAME} SET accepted_at = $1 WHERE team_id = $2 AND user_email = $3 AND accepted_at IS NULL AND cancelled_at IS NULL"
         );
 
         let query_result = query(&query_body)
             .bind(&get_current_datetime())
             .bind(&team_id)
             .bind(&user_email)
-            .execute(&self.connection_pool)
+            .execute(&mut **tx)
             .await;
 
         match query_result {
@@ -55,7 +56,7 @@ impl Db {
         user_email: &String,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "UPDATE {TEAM_INVITES_TABLE_NAME} SET canceled_at = $1 WHERE team_id = $2 AND user_email = $3"
+            "UPDATE {TEAM_INVITES_TABLE_NAME} SET cancelled_at = $1 WHERE team_id = $2 AND user_email = $3 AND accepted_at IS NULL AND cancelled_at IS NULL"
         );
 
         let query_result = query(&query_body)

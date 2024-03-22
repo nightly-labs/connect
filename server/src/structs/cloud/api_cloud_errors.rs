@@ -28,4 +28,5 @@ pub enum CloudApiErrors {
     AppDoesNotExist,
     UserAlreadyInvitedToTheTeam,
     MaximumInvitesPerTeamReached,
+    InviteNotFound,
 }

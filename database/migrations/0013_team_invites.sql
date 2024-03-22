@@ -1,5 +1,5 @@
 CREATE TABLE team_invites(
-    invite_id SERIAL PRIMARY KEY,
+    invite_id BIGSERIAL PRIMARY KEY,
     team_id TEXT NOT NULL REFERENCES team(team_id),
     user_email TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL,

@@ -4,8 +4,9 @@ pub mod test_utils {
         auth::AuthToken,
         env::{JWT_PUBLIC_KEY, JWT_SECRET},
         http::cloud::{
+            accept_team_invite::{HttpAcceptTeamInviteRequest, HttpAcceptTeamInviteResponse},
             get_user_joined_teams::HttpGetUserJoinedTeamsResponse,
-            invite_user_to_team::{HttpAddUserToTeamRequest, HttpAddUserToTeamResponse},
+            invite_user_to_team::{HttpInviteUserToTeamRequest, HttpInviteUserToTeamResponse},
             login_with_password::{HttpLoginRequest, HttpLoginResponse},
             register_new_app::{HttpRegisterNewAppRequest, HttpRegisterNewAppResponse},
             register_new_team::{HttpRegisterNewTeamRequest, HttpRegisterNewTeamResponse},
@@ -225,14 +226,14 @@ pub mod test_utils {
             .map(|response| Ok(response.app_id))?
     }
 
-    pub async fn add_user_to_test_team(
+    pub async fn invite_user_to_test_team(
         team_id: &String,
         user_email: &String,
         admin_token: &AuthToken,
         app: &Router,
     ) -> anyhow::Result<()> {
-        // Add user to test team
-        let request = HttpAddUserToTeamRequest {
+        // Invite user to test team
+        let request = HttpInviteUserToTeamRequest {
             team_id: team_id.clone(),
             user_email: user_email.clone(),
         };
@@ -247,7 +248,7 @@ pub mod test_utils {
             .header("authorization", format!("Bearer {auth}"))
             .uri(format!(
                 "/cloud/private{}",
-                HttpCloudEndpoint::AddUserToTeam.to_string()
+                HttpCloudEndpoint::InviteUserToTeam.to_string()
             ))
             .extension(ip)
             .body(Body::from(json))
@@ -256,9 +257,57 @@ pub mod test_utils {
         // Send request
         let response = app.clone().oneshot(req).await.unwrap();
         // Validate response
-        convert_response::<HttpAddUserToTeamResponse>(response)
+        convert_response::<HttpInviteUserToTeamResponse>(response)
             .await
             .map(|_| Ok(()))?
+    }
+
+    pub async fn accept_invite_to_test_team(
+        team_id: &String,
+        user_token: &AuthToken,
+        app: &Router,
+    ) -> anyhow::Result<()> {
+        // Invite user to test team
+        let request = HttpAcceptTeamInviteRequest {
+            team_id: team_id.clone(),
+        };
+
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&request).unwrap();
+        let auth = user_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::AcceptTeamInvite.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // Send request
+        let response = app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        convert_response::<HttpAcceptTeamInviteResponse>(response)
+            .await
+            .map(|_| Ok(()))?
+    }
+
+    pub async fn add_user_to_test_team(
+        team_id: &String,
+        user_email: &String,
+        admin_token: &AuthToken,
+        user_token: &AuthToken,
+        app: &Router,
+    ) -> anyhow::Result<()> {
+        // Add user to test team
+        match invite_user_to_test_team(team_id, user_email, admin_token, app).await {
+            Ok(_) => accept_invite_to_test_team(team_id, user_token, app).await,
+            Err(e) => bail!("Failed to invite user to the team: {}", e),
+        }
     }
 
     pub async fn remove_user_from_test_team(
