@@ -51,6 +51,14 @@ pub async fn invite_user_to_team(
                 ));
             }
 
+            // Check team type
+            if team.personal {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    CloudApiErrors::CantInviteToPersonalTeam.to_string(),
+                ));
+            }
+
             // Check if team has at least one registered app
             match db.get_registered_apps_by_team_id(&request.team_id).await {
                 Ok(apps) => {
