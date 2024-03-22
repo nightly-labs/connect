@@ -136,7 +136,6 @@ pub async fn accept_team_invite(
         .await
     {
         error!("Failed to add user to the team: {:?}", err);
-        println!("Failed to add user to the team: {:?}", err);
         if let Err(err) = tx.rollback().await {
             error!("Failed to rollback transaction: {:?}", err);
         }
