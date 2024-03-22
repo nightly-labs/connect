@@ -9,6 +9,7 @@ pub mod test_utils {
                 HttpGetTeamUserInvitesRequest, HttpGetTeamUserInvitesResponse,
             },
             get_user_joined_teams::HttpGetUserJoinedTeamsResponse,
+            get_user_team_invites::HttpGetUserTeamInvitesResponse,
             invite_user_to_team::{HttpInviteUserToTeamRequest, HttpInviteUserToTeamResponse},
             login_with_password::{HttpLoginRequest, HttpLoginResponse},
             register_new_app::{HttpRegisterNewAppRequest, HttpRegisterNewAppResponse},
@@ -343,6 +344,33 @@ pub mod test_utils {
         let response = app.clone().oneshot(req).await.unwrap();
         // Validate response
         convert_response::<HttpGetTeamUserInvitesResponse>(response).await
+    }
+
+    pub async fn get_test_user_team_invites(
+        user_token: &AuthToken,
+        app: &Router,
+    ) -> anyhow::Result<HttpGetUserTeamInvitesResponse> {
+        // Get use team invites
+
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let auth = user_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::GET)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::GetUserTeamInvites.to_string()
+            ))
+            .extension(ip)
+            .body(Body::empty())
+            .unwrap();
+
+        // Send request
+        let response = app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        convert_response::<HttpGetUserTeamInvitesResponse>(response).await
     }
 
     pub async fn remove_user_from_test_team(

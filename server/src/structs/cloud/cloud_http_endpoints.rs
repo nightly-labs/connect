@@ -26,6 +26,8 @@ pub enum HttpCloudEndpoint {
     AcceptTeamInvite,
     #[serde(rename = "/get_team_user_invites")]
     GetTeamUserInvites,
+    #[serde(rename = "/get_user_team_invites")]
+    GetUserTeamInvites,
 }
 
 impl HttpCloudEndpoint {
@@ -42,6 +44,7 @@ impl HttpCloudEndpoint {
             HttpCloudEndpoint::InviteUserToTeam => "/invite_user_to_team".to_string(),
             HttpCloudEndpoint::AcceptTeamInvite => "/accept_team_invite".to_string(),
             HttpCloudEndpoint::GetTeamUserInvites => "/get_team_user_invites".to_string(),
+            HttpCloudEndpoint::GetUserTeamInvites => "/get_user_team_invites".to_string(),
         }
     }
 }
