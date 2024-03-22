@@ -12,10 +12,10 @@ impl Db {
     ) -> Result<Vec<TeamInvite>, DbError> {
         let query = if active_invites {
             format!(
-                "SELECT * FROM {TEAM_INVITES_TABLE_NAME} WHERE team_id = $1 AND accepted_at IS NULL AND cancelled_at IS NULL"
+                "SELECT * FROM {TEAM_INVITES_TABLE_NAME} WHERE team_id = $1 AND accepted_at IS NULL AND cancelled_at IS NULL ORDER BY created_at DESC"
             )
         } else {
-            format!("SELECT * FROM {TEAM_INVITES_TABLE_NAME} WHERE team_id = $1")
+            format!("SELECT * FROM {TEAM_INVITES_TABLE_NAME} WHERE team_id = $1 ORDER BY created_at DESC")
         };
         let typed_query = query_as::<_, TeamInvite>(&query);
 
@@ -33,10 +33,10 @@ impl Db {
     ) -> Result<Vec<TeamInvite>, DbError> {
         let query = if active_invites {
             format!(
-                "SELECT * FROM {TEAM_INVITES_TABLE_NAME} WHERE user_email = $1 AND accepted_at IS NULL AND cancelled_at IS NULL"
+                "SELECT * FROM {TEAM_INVITES_TABLE_NAME} WHERE user_email = $1 AND accepted_at IS NULL AND cancelled_at IS NULL ORDER BY created_at DESC"
             )
         } else {
-            format!("SELECT * FROM {TEAM_INVITES_TABLE_NAME} WHERE user_email = $1")
+            format!("SELECT * FROM {TEAM_INVITES_TABLE_NAME} WHERE user_email = $1 ORDER BY created_at DESC")
         };
         let typed_query = query_as::<_, TeamInvite>(&query);
 

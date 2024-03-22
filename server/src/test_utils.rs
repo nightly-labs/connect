@@ -5,6 +5,9 @@ pub mod test_utils {
         env::{JWT_PUBLIC_KEY, JWT_SECRET},
         http::cloud::{
             accept_team_invite::{HttpAcceptTeamInviteRequest, HttpAcceptTeamInviteResponse},
+            get_team_user_invites::{
+                HttpGetTeamUserInvitesRequest, HttpGetTeamUserInvitesResponse,
+            },
             get_user_joined_teams::HttpGetUserJoinedTeamsResponse,
             invite_user_to_team::{HttpInviteUserToTeamRequest, HttpInviteUserToTeamResponse},
             login_with_password::{HttpLoginRequest, HttpLoginResponse},
@@ -17,7 +20,7 @@ pub mod test_utils {
         },
         routes::router::get_router,
         statics::NAME_REGEX,
-        structs::cloud::cloud_http_endpoints::HttpCloudEndpoint,
+        structs::cloud::{cloud_http_endpoints::HttpCloudEndpoint, team_invite::TeamInvite},
     };
     use anyhow::bail;
     use axum::{
@@ -308,6 +311,38 @@ pub mod test_utils {
             Ok(_) => accept_invite_to_test_team(team_id, user_token, app).await,
             Err(e) => bail!("Failed to invite user to the team: {}", e),
         }
+    }
+
+    pub async fn get_test_team_user_invites(
+        team_id: &String,
+        user_token: &AuthToken,
+        app: &Router,
+    ) -> anyhow::Result<HttpGetTeamUserInvitesResponse> {
+        // Get team invites for users
+        let request = HttpGetTeamUserInvitesRequest {
+            team_id: team_id.clone(),
+        };
+
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&request).unwrap();
+        let auth = user_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::GET)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::GetTeamUserInvites.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // Send request
+        let response = app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        convert_response::<HttpGetTeamUserInvitesResponse>(response).await
     }
 
     pub async fn remove_user_from_test_team(
