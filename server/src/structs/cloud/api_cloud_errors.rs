@@ -26,4 +26,9 @@ pub enum CloudApiErrors {
     InvalidName,
     UnauthorizedOriginError,
     AppDoesNotExist,
+    UserAlreadyInvitedToTheTeam,
+    MaximumInvitesPerTeamReached,
+    InviteNotFound,
+    ActionForbiddenForPersonalTeam,
+    InviteDoesNotExist,
 }

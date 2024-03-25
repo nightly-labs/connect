@@ -57,6 +57,7 @@ impl Db {
 
     pub async fn add_user_to_the_team(
         &self,
+        tx: &mut Transaction<'_, sqlx::Postgres>,
         user_id: &String,
         team_id: &String,
     ) -> Result<(), DbError> {
@@ -98,9 +99,7 @@ impl Db {
             values_str
         );
 
-        sqlx::query(&insert_query)
-            .execute(&self.connection_pool)
-            .await?;
+        sqlx::query(&insert_query).execute(&mut **tx).await?;
 
         Ok(())
     }
@@ -294,9 +293,11 @@ mod tests {
             db.register_new_app(&app).await.unwrap();
         }
 
-        db.add_user_to_the_team(&user.user_id, &team_id)
+        let mut tx = db.connection_pool.begin().await.unwrap();
+        db.add_user_to_the_team(&mut tx, &user.user_id, &team_id)
             .await
             .unwrap();
+        tx.commit().await.unwrap();
 
         let get_by_user_id = db.get_privileges_by_user_id(&user.user_id).await.unwrap();
         assert!(get_by_user_id.len() == 8);
@@ -331,9 +332,11 @@ mod tests {
         }
 
         // Add user to the new team
-        db.add_user_to_the_team(&user.user_id, &team_id)
+        let mut tx = db.connection_pool.begin().await.unwrap();
+        db.add_user_to_the_team(&mut tx, &user.user_id, &team_id)
             .await
             .unwrap();
+        tx.commit().await.unwrap();
 
         let get_by_user_id = db.get_privileges_by_user_id(&user.user_id).await.unwrap();
         assert!(get_by_user_id.len() == 10);

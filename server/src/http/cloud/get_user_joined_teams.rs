@@ -17,6 +17,7 @@ use ts_rs::TS;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct HttpGetUserJoinedTeamsResponse {
     pub teams: HashMap<TeamId, JoinedTeam>,
     pub teams_apps: HashMap<TeamId, Vec<AppInfo>>,
@@ -163,18 +164,30 @@ mod tests {
 
         // Add user to first team
         let before_first_join = get_current_datetime();
-        add_user_to_test_team(&team_ids[0], &app_user_email, &auth_token, &test_app)
-            .await
-            .unwrap();
+        add_user_to_test_team(
+            &team_ids[0],
+            &app_user_email,
+            &auth_token,
+            &app_user_auth_token,
+            &test_app,
+        )
+        .await
+        .unwrap();
         let after_first_join = get_current_datetime();
 
         // Wait for 1 second
         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
 
         // Add user to second team
-        add_user_to_test_team(&team_ids[1], &app_user_email, &auth_token, &test_app)
-            .await
-            .unwrap();
+        add_user_to_test_team(
+            &team_ids[1],
+            &app_user_email,
+            &auth_token,
+            &app_user_auth_token,
+            &test_app,
+        )
+        .await
+        .unwrap();
         let after_second_join = get_current_datetime();
 
         // Get user joined teams

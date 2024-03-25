@@ -37,6 +37,8 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+          default: true
+          override: true
       - name: install packages
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: |

@@ -1,0 +1,248 @@
+use crate::{
+    middlewares::auth_middleware::UserId,
+    structs::cloud::{api_cloud_errors::CloudApiErrors, team_invite::TeamInvite},
+    utils::{custom_validate_uuid, validate_request},
+};
+use axum::{extract::State, http::StatusCode, Extension, Json};
+use database::db::Db;
+use garde::Validate;
+use log::error;
+use serde::{Deserialize, Serialize};
+use std::sync::Arc;
+use ts_rs::TS;
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
+#[ts(export)]
+#[serde(rename_all = "camelCase")]
+pub struct HttpGetTeamUserInvitesRequest {
+    #[garde(custom(custom_validate_uuid))]
+    pub team_id: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[ts(export)]
+#[serde(rename_all = "camelCase")]
+pub struct HttpGetTeamUserInvitesResponse {
+    pub team_invites: Vec<TeamInvite>,
+}
+
+pub async fn get_team_user_invites(
+    State(db): State<Option<Arc<Db>>>,
+    Extension(user_id): Extension<UserId>,
+    Json(request): Json<HttpGetTeamUserInvitesRequest>,
+) -> Result<Json<HttpGetTeamUserInvitesResponse>, (StatusCode, String)> {
+    // Db connection has already been checked in the middleware
+    let db = db.as_ref().ok_or((
+        StatusCode::INTERNAL_SERVER_ERROR,
+        CloudApiErrors::CloudFeatureDisabled.to_string(),
+    ))?;
+
+    // Validate request
+    validate_request(&request, &())?;
+
+    // Get team data and perform checks
+    match db.get_team_by_team_id(None, &request.team_id).await {
+        Ok(Some(team)) => {
+            // Check if user is a admin of this team
+            if team.team_admin_id != user_id {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    CloudApiErrors::InsufficientPermissions.to_string(),
+                ));
+            }
+
+            // Check team type
+            if team.personal {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    CloudApiErrors::ActionForbiddenForPersonalTeam.to_string(),
+                ));
+            }
+
+            // Get active invites for the team
+            match db.get_invites_by_team_id(&request.team_id, true).await {
+                Ok(invites) => {
+                    let team_invites: Vec<TeamInvite> = invites
+                        .into_iter()
+                        .map(|invite| TeamInvite::from(invite))
+                        .collect();
+
+                    Ok(Json(HttpGetTeamUserInvitesResponse { team_invites }))
+                }
+                Err(err) => {
+                    error!("Failed to get team invites: {:?}", err);
+                    return Err((
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        CloudApiErrors::DatabaseError.to_string(),
+                    ));
+                }
+            }
+        }
+        Ok(None) => {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                CloudApiErrors::TeamDoesNotExist.to_string(),
+            ));
+        }
+        Err(err) => {
+            error!("Failed to get team: {:?}", err);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::DatabaseError.to_string(),
+            ));
+        }
+    }
+}
+
+#[cfg(feature = "cloud_db_tests")]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_utils::test_utils::get_test_team_user_invites;
+    use crate::{
+        env::JWT_SECRET,
+        http::cloud::register_new_app::HttpRegisterNewAppRequest,
+        structs::cloud::cloud_http_endpoints::HttpCloudEndpoint,
+        test_utils::test_utils::{
+            add_test_app, add_test_team, convert_response, create_test_app, generate_valid_name,
+            invite_user_to_test_team, register_and_login_random_user,
+        },
+    };
+    use axum::{
+        body::Body,
+        extract::ConnectInfo,
+        http::{Method, Request},
+    };
+    use std::net::SocketAddr;
+    use tower::ServiceExt;
+
+    #[tokio::test]
+    async fn test_team_user_invites() {
+        let test_app = create_test_app(false).await;
+
+        let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
+
+        // Register new team
+        let team_name = generate_valid_name();
+        let team_id = add_test_team(&team_name, &auth_token, &test_app, false)
+            .await
+            .unwrap();
+
+        // Register app under the team
+        let app_name = generate_valid_name();
+        let request = HttpRegisterNewAppRequest {
+            team_id: team_id.clone(),
+            app_name: app_name.clone(),
+            whitelisted_domains: vec![],
+            ack_public_keys: vec![],
+        };
+
+        // unwrap err as it should have failed
+        let _ = add_test_app(&request, &auth_token, &test_app)
+            .await
+            .unwrap();
+
+        let mut users_emails: Vec<String> = vec![];
+        // Invite a few users to the team
+        for _ in 0..3 {
+            // Register new user
+            let (_test_user_auth_token, test_user_email, _test_user_password) =
+                register_and_login_random_user(&test_app).await;
+
+            users_emails.push(test_user_email.clone());
+
+            // Create invite
+            invite_user_to_test_team(&team_id, &test_user_email, &auth_token, &test_app)
+                .await
+                .unwrap();
+        }
+
+        // Get team invites
+        let request = HttpGetTeamUserInvitesRequest {
+            team_id: team_id.clone(),
+        };
+
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&request).unwrap();
+        let auth = auth_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::GET)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::GetTeamUserInvites.to_string()
+            ))
+            .extension(ip.clone())
+            .body(Body::from(json))
+            .unwrap();
+
+        // Send request
+        let response = test_app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        let res = convert_response::<HttpGetTeamUserInvitesResponse>(response)
+            .await
+            .unwrap();
+
+        assert_eq!(res.team_invites.len(), 3);
+        assert_eq!(res.team_invites[0].user_email, users_emails[2]);
+        assert_eq!(res.team_invites[1].user_email, users_emails[1]);
+        assert_eq!(res.team_invites[2].user_email, users_emails[0]);
+
+        // Invite another user to the team
+        // Register new user
+        let (_test_user_auth_token, test_user_email, _test_user_password) =
+            register_and_login_random_user(&test_app).await;
+
+        // Create invite
+        invite_user_to_test_team(&team_id, &test_user_email, &auth_token, &test_app)
+            .await
+            .unwrap();
+
+        // Get team invites
+        let resp = get_test_team_user_invites(&team_id, &auth_token, &test_app)
+            .await
+            .unwrap();
+
+        assert_eq!(resp.team_invites.len(), 4);
+        assert_eq!(resp.team_invites[0].user_email, test_user_email);
+        assert_eq!(resp.team_invites[1].user_email, users_emails[2]);
+        assert_eq!(resp.team_invites[2].user_email, users_emails[1]);
+        assert_eq!(resp.team_invites[3].user_email, users_emails[0]);
+    }
+
+    #[tokio::test]
+    async fn test_no_invites() {
+        let test_app = create_test_app(false).await;
+
+        let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
+
+        // Register new team
+        let team_name = generate_valid_name();
+        let team_id = add_test_team(&team_name, &auth_token, &test_app, false)
+            .await
+            .unwrap();
+
+        // Register app under the team
+        let app_name = generate_valid_name();
+        let request = HttpRegisterNewAppRequest {
+            team_id: team_id.clone(),
+            app_name: app_name.clone(),
+            whitelisted_domains: vec![],
+            ack_public_keys: vec![],
+        };
+
+        // unwrap err as it should have failed
+        let _ = add_test_app(&request, &auth_token, &test_app)
+            .await
+            .unwrap();
+
+        // Get team invites
+        let resp = get_test_team_user_invites(&team_id, &auth_token, &test_app)
+            .await
+            .unwrap();
+
+        assert_eq!(resp.team_invites.len(), 0);
+    }
+}
