@@ -29,5 +29,6 @@ pub enum CloudApiErrors {
     UserAlreadyInvitedToTheTeam,
     MaximumInvitesPerTeamReached,
     InviteNotFound,
-    CantInviteToPersonalTeam,
+    ActionForbiddenForPersonalTeam,
+    InviteDoesNotExist,
 }

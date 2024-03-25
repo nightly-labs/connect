@@ -55,7 +55,7 @@ pub async fn invite_user_to_team(
             if team.personal {
                 return Err((
                     StatusCode::BAD_REQUEST,
-                    CloudApiErrors::CantInviteToPersonalTeam.to_string(),
+                    CloudApiErrors::ActionForbiddenForPersonalTeam.to_string(),
                 ));
             }
 

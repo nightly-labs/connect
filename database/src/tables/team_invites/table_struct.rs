@@ -16,6 +16,9 @@ pub struct TeamInvite {
     pub created_at: DateTime<Utc>,
     pub accepted_at: Option<DateTime<Utc>>,
     pub cancelled_at: Option<DateTime<Utc>>,
+    // Not present in the table, queried from the team table
+    pub team_name: String,
+    pub admin_email: String,
 }
 
 impl FromRow<'_, PgRow> for TeamInvite {
@@ -27,6 +30,8 @@ impl FromRow<'_, PgRow> for TeamInvite {
             created_at: row.get("created_at"),
             accepted_at: row.get("accepted_at"),
             cancelled_at: row.get("cancelled_at"),
+            team_name: row.get("team_name"),
+            admin_email: row.get("admin_email"),
         })
     }
 }

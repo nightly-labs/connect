@@ -17,6 +17,7 @@ use ts_rs::TS;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct HttpGetUserJoinedTeamsResponse {
     pub teams: HashMap<TeamId, JoinedTeam>,
     pub teams_apps: HashMap<TeamId, Vec<AppInfo>>,

@@ -31,6 +31,7 @@ pub struct HttpRegisterNewAppRequest {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct HttpRegisterNewAppResponse {
     pub app_id: String,
 }
