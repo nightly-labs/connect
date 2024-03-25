@@ -204,7 +204,7 @@ mod tests {
         let auth = auth_token.encode(JWT_SECRET()).unwrap();
 
         let req = Request::builder()
-            .method(Method::GET)
+            .method(Method::POST)
             .header("content-type", "application/json")
             .header("authorization", format!("Bearer {auth}"))
             .uri(format!(
