@@ -1,11 +1,11 @@
 use crate::{
     http::cloud::{
-        accept_team_invite::accept_team_invite, events::events,
-        get_team_user_invites::get_team_user_invites, get_user_joined_teams::get_user_joined_teams,
-        get_user_team_invites::get_user_team_invites, invite_user_to_team::invite_user_to_team,
-        login_with_google::login_with_google, login_with_password::login_with_password,
-        register_new_app::register_new_app, register_new_team::register_new_team,
-        register_with_password::register_with_password,
+        accept_team_invite::accept_team_invite, cancel_team_invite::cancel_team_user_invite,
+        events::events, get_team_user_invites::get_team_user_invites,
+        get_user_joined_teams::get_user_joined_teams, get_user_team_invites::get_user_team_invites,
+        invite_user_to_team::invite_user_to_team, login_with_google::login_with_google,
+        login_with_password::login_with_password, register_new_app::register_new_app,
+        register_new_team::register_new_team, register_with_password::register_with_password,
         remove_user_from_team::remove_user_from_team,
     },
     middlewares::auth_middleware::access_auth_middleware,
@@ -83,6 +83,10 @@ pub fn private_router(state: ServerState) -> Router<ServerState> {
         .route(
             &HttpCloudEndpoint::GetUserTeamInvites.to_string(),
             get(get_user_team_invites),
+        )
+        .route(
+            &HttpCloudEndpoint::CancelTeamInvite.to_string(),
+            get(cancel_team_user_invite),
         )
         .with_state(state)
 }

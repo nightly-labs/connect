@@ -11,6 +11,7 @@ use ts_rs::TS;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct HttpGetUserTeamInvitesResponse {
     pub team_invites: Vec<TeamInvite>,
 }

@@ -31,6 +31,7 @@ pub struct HttpLoginRequest {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct HttpLoginResponse {
     pub user_id: String,
     pub auth_token: String,

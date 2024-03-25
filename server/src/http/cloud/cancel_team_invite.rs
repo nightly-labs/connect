@@ -14,23 +14,22 @@ use ts_rs::TS;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct HttpGetTeamUserInvitesRequest {
+pub struct HttpCancelTeamUserInviteRequest {
     #[garde(custom(custom_validate_uuid))]
     pub team_id: String,
+    #[garde(email)]
+    pub user_email: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-#[serde(rename_all = "camelCase")]
-pub struct HttpGetTeamUserInvitesResponse {
-    pub team_invites: Vec<TeamInvite>,
-}
+pub struct HttpCancelTeamUserInviteResponse {}
 
-pub async fn get_team_user_invites(
+pub async fn cancel_team_user_invite(
     State(db): State<Option<Arc<Db>>>,
     Extension(user_id): Extension<UserId>,
-    Json(request): Json<HttpGetTeamUserInvitesRequest>,
-) -> Result<Json<HttpGetTeamUserInvitesResponse>, (StatusCode, String)> {
+    Json(request): Json<HttpCancelTeamUserInviteRequest>,
+) -> Result<Json<HttpCancelTeamUserInviteResponse>, (StatusCode, String)> {
     // Db connection has already been checked in the middleware
     let db = db.as_ref().ok_or((
         StatusCode::INTERNAL_SERVER_ERROR,
@@ -59,7 +58,7 @@ pub async fn get_team_user_invites(
                 ));
             }
 
-            // Get active invites for the team
+            // Check if invite exists
             match db.get_invites_by_team_id(&request.team_id, true).await {
                 Ok(invites) => {
                     let team_invites: Vec<TeamInvite> = invites
@@ -67,10 +66,38 @@ pub async fn get_team_user_invites(
                         .map(|invite| TeamInvite::from(invite))
                         .collect();
 
-                    Ok(Json(HttpGetTeamUserInvitesResponse { team_invites }))
+                    // Find the invite
+                    let invite = team_invites
+                        .iter()
+                        .find(|invite| invite.user_email == request.user_email);
+
+                    if let None = invite {
+                        return Err((
+                            StatusCode::BAD_REQUEST,
+                            CloudApiErrors::InviteDoesNotExist.to_string(),
+                        ));
+                    }
                 }
                 Err(err) => {
                     error!("Failed to get team invites: {:?}", err);
+                    return Err((
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        CloudApiErrors::DatabaseError.to_string(),
+                    ));
+                }
+            }
+
+            // Cancel invite
+            // Cancel the invite
+            match db
+                .cancel_team_invite(&request.team_id, &request.user_email)
+                .await
+            {
+                Ok(_) => {
+                    return Ok(Json(HttpCancelTeamUserInviteResponse {}));
+                }
+                Err(err) => {
+                    error!("Failed to cancel invite: {:?}", err);
                     return Err((
                         StatusCode::INTERNAL_SERVER_ERROR,
                         CloudApiErrors::DatabaseError.to_string(),
@@ -117,7 +144,7 @@ mod tests {
     use tower::ServiceExt;
 
     #[tokio::test]
-    async fn test_team_user_invites() {
+    async fn test_cancel_team_user_invite() {
         let test_app = create_test_app(false).await;
 
         let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
@@ -137,7 +164,6 @@ mod tests {
             ack_public_keys: vec![],
         };
 
-        // unwrap err as it should have failed
         let _ = add_test_app(&request, &auth_token, &test_app)
             .await
             .unwrap();
@@ -157,9 +183,20 @@ mod tests {
                 .unwrap();
         }
 
-        // Get team invites
-        let request = HttpGetTeamUserInvitesRequest {
+        // Check if team invite exists
+        let team_invites = get_test_team_user_invites(&team_id, &auth_token, &test_app)
+            .await
+            .unwrap();
+
+        assert_eq!(team_invites.team_invites.len(), 3);
+        assert_eq!(team_invites.team_invites[0].user_email, users_emails[2]);
+        assert_eq!(team_invites.team_invites[1].user_email, users_emails[1]);
+        assert_eq!(team_invites.team_invites[2].user_email, users_emails[0]);
+
+        // Cancel team invite for the first user
+        let request = HttpCancelTeamUserInviteRequest {
             team_id: team_id.clone(),
+            user_email: users_emails[0].clone(),
         };
 
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
@@ -172,7 +209,7 @@ mod tests {
             .header("authorization", format!("Bearer {auth}"))
             .uri(format!(
                 "/cloud/private{}",
-                HttpCloudEndpoint::GetTeamUserInvites.to_string()
+                HttpCloudEndpoint::CancelTeamInvite.to_string()
             ))
             .extension(ip.clone())
             .body(Body::from(json))
@@ -181,22 +218,7 @@ mod tests {
         // Send request
         let response = test_app.clone().oneshot(req).await.unwrap();
         // Validate response
-        let res = convert_response::<HttpGetTeamUserInvitesResponse>(response)
-            .await
-            .unwrap();
-
-        assert_eq!(res.team_invites.len(), 3);
-        assert_eq!(res.team_invites[0].user_email, users_emails[2]);
-        assert_eq!(res.team_invites[1].user_email, users_emails[1]);
-        assert_eq!(res.team_invites[2].user_email, users_emails[0]);
-
-        // Invite another user to the team
-        // Register new user
-        let (_test_user_auth_token, test_user_email, _test_user_password) =
-            register_and_login_random_user(&test_app).await;
-
-        // Create invite
-        invite_user_to_test_team(&team_id, &test_user_email, &auth_token, &test_app)
+        convert_response::<HttpCancelTeamUserInviteResponse>(response)
             .await
             .unwrap();
 
@@ -205,11 +227,9 @@ mod tests {
             .await
             .unwrap();
 
-        assert_eq!(resp.team_invites.len(), 4);
-        assert_eq!(resp.team_invites[0].user_email, test_user_email);
-        assert_eq!(resp.team_invites[1].user_email, users_emails[2]);
-        assert_eq!(resp.team_invites[2].user_email, users_emails[1]);
-        assert_eq!(resp.team_invites[3].user_email, users_emails[0]);
+        assert_eq!(resp.team_invites.len(), 2);
+        assert_eq!(resp.team_invites[0].user_email, users_emails[2]);
+        assert_eq!(resp.team_invites[1].user_email, users_emails[1]);
     }
 
     #[tokio::test]

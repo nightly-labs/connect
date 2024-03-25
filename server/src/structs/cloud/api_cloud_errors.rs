@@ -30,4 +30,5 @@ pub enum CloudApiErrors {
     MaximumInvitesPerTeamReached,
     InviteNotFound,
     ActionForbiddenForPersonalTeam,
+    InviteDoesNotExist,
 }
