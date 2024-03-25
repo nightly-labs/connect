@@ -28,8 +28,10 @@ pub enum HttpCloudEndpoint {
     GetTeamUserInvites,
     #[serde(rename = "/get_user_team_invites")]
     GetUserTeamInvites,
-    #[serde(rename = "/cancel_team_invite")]
-    CancelTeamInvite,
+    #[serde(rename = "/cancel_team_user_invite")]
+    CancelTeamUserInvite,
+    #[serde(rename = "/cancel_team_user_invite")]
+    CancelUserTeamInvite,
 }
 
 impl HttpCloudEndpoint {
@@ -47,7 +49,8 @@ impl HttpCloudEndpoint {
             HttpCloudEndpoint::AcceptTeamInvite => "/accept_team_invite".to_string(),
             HttpCloudEndpoint::GetTeamUserInvites => "/get_team_user_invites".to_string(),
             HttpCloudEndpoint::GetUserTeamInvites => "/get_user_team_invites".to_string(),
-            HttpCloudEndpoint::CancelTeamInvite => "/cancel_team_invite".to_string(),
+            HttpCloudEndpoint::CancelTeamUserInvite => "/cancel_team_user_invite".to_string(),
+            HttpCloudEndpoint::CancelUserTeamInvite => "/cancel_user_team_invite".to_string(),
         }
     }
 }

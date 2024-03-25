@@ -209,7 +209,7 @@ mod tests {
             .header("authorization", format!("Bearer {auth}"))
             .uri(format!(
                 "/cloud/private{}",
-                HttpCloudEndpoint::CancelTeamInvite.to_string()
+                HttpCloudEndpoint::CancelTeamUserInvite.to_string()
             ))
             .extension(ip.clone())
             .body(Body::from(json))
@@ -230,39 +230,39 @@ mod tests {
         assert_eq!(resp.team_invites.len(), 2);
         assert_eq!(resp.team_invites[0].user_email, users_emails[2]);
         assert_eq!(resp.team_invites[1].user_email, users_emails[1]);
-    }
 
-    #[tokio::test]
-    async fn test_no_invites() {
-        let test_app = create_test_app(false).await;
-
-        let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
-
-        // Register new team
-        let team_name = generate_valid_name();
-        let team_id = add_test_team(&team_name, &auth_token, &test_app, false)
-            .await
-            .unwrap();
-
-        // Register app under the team
-        let app_name = generate_valid_name();
-        let request = HttpRegisterNewAppRequest {
+        // Try to cancel the same invite again
+        let request = HttpCancelTeamUserInviteRequest {
             team_id: team_id.clone(),
-            app_name: app_name.clone(),
-            whitelisted_domains: vec![],
-            ack_public_keys: vec![],
+            user_email: users_emails[0].clone(),
         };
 
-        // unwrap err as it should have failed
-        let _ = add_test_app(&request, &auth_token, &test_app)
-            .await
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&request).unwrap();
+        let auth = auth_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::CancelTeamUserInvite.to_string()
+            ))
+            .extension(ip.clone())
+            .body(Body::from(json))
             .unwrap();
 
-        // Get team invites
-        let resp = get_test_team_user_invites(&team_id, &auth_token, &test_app)
+        // Send request
+        let response = test_app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        let err = convert_response::<HttpCancelTeamUserInviteResponse>(response)
             .await
-            .unwrap();
+            .unwrap_err();
 
-        assert_eq!(resp.team_invites.len(), 0);
+        assert_eq!(
+            err.to_string(),
+            CloudApiErrors::InviteDoesNotExist.to_string()
+        );
     }
 }
