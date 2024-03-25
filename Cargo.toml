@@ -19,14 +19,14 @@ log = "0.4.20"
 jsonwebtoken = "9.2.0"
 pwhash = "1.0.0"
 futures = "0.3.30"
-axum = { version = "0.7.4", features = ["ws", "macros"] }
+axum = { version = "0.7.5", features = ["ws", "macros"] }
 tower = { version = "0.4.13", features = [
   "util",
   "timeout",
   "load-shed",
   "limit",
 ] }
-tower-http = { version = "0.5.1", features = ["cors", "trace"] }
+tower-http = { version = "0.5.2", features = ["cors", "trace"] }
 reqwest = {version = "0.11.24", features = ["json"]}
 tokio = { version = "1.35.1", features = ["full"] }
 async-trait = "0.1.77"
