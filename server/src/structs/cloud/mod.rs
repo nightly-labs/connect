@@ -1,4 +1,5 @@
 pub mod api_cloud_errors;
+pub mod app_event;
 pub mod app_info;
 pub mod cloud_events;
 pub mod cloud_http_endpoints;

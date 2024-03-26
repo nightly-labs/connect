@@ -1,7 +1,7 @@
 use crate::{
     http::cloud::{
         accept_team_invite::accept_team_invite, cancel_team_user_invite::cancel_team_user_invite,
-        cancel_user_team_invite::cancel_user_team_invite, events::events,
+        cancel_user_team_invite::cancel_user_team_invite, get_events::events,
         get_team_user_invites::get_team_user_invites, get_user_joined_teams::get_user_joined_teams,
         get_user_team_invites::get_user_team_invites, invite_user_to_team::invite_user_to_team,
         login_with_google::login_with_google, login_with_password::login_with_password,
@@ -10,7 +10,6 @@ use crate::{
         remove_user_from_team::remove_user_from_team,
     },
     middlewares::auth_middleware::access_auth_middleware,
-    routes::cloud_router::events::events,
     state::ServerState,
     structs::cloud::cloud_http_endpoints::HttpCloudEndpoint,
 };

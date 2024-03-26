@@ -28,3 +28,61 @@ impl Db {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_create_new_event_entry() {
+        let db = super::Db::connect_to_the_pool().await;
+        db.truncate_all_tables().await.unwrap();
+
+        let app_id = "test_app".to_string();
+        let event_type = EventType::AppConnect;
+
+        // Create 1001 entries
+        let mut tx = db
+            .connection_pool
+            .begin()
+            .await
+            .expect("Failed to start transaction");
+
+        for _ in 0..2001 {
+            let _ = db
+                .create_new_event_entry(&mut tx, &app_id, &event_type)
+                .await
+                .unwrap();
+        }
+
+        // Commit the transaction
+        tx.commit().await.expect("Failed to commit transaction");
+
+        // Get events
+        let (events, cursor) = db
+            .get_events_by_app_id(None, &app_id)
+            .await
+            .expect("Failed to get events");
+
+        assert_eq!(events.len(), 1000);
+        assert!(cursor.is_some());
+
+        // Get the next page
+        let (events, cursor) = db
+            .get_events_by_app_id(cursor, &app_id)
+            .await
+            .expect("Failed to get events");
+
+        assert_eq!(events.len(), 1000);
+        assert!(cursor.is_some());
+
+        // Get the next page
+        let next_page_events = db
+            .get_events_by_app_id(cursor, &app_id)
+            .await
+            .expect("Failed to get next page events");
+
+        assert_eq!(next_page_events.0.len(), 1);
+        assert!(next_page_events.1.is_none());
+    }
+}
