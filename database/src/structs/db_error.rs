@@ -26,3 +26,9 @@ impl From<String> for DbError {
         DbError::DatabaseError(error)
     }
 }
+
+impl From<&str> for DbError {
+    fn from(error: &str) -> DbError {
+        DbError::DatabaseError(error.to_string())
+    }
+}

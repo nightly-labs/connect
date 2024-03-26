@@ -1,5 +1,5 @@
 CREATE TABLE event_app_connect(
-    event_id BIGINT PRIMARY KEY REFERENCES events(event_id),
+    event_id BIGINT PRIMARY KEY,
     session_id TEXT NOT NULL,
     device_metadata TEXT NOT NULL,
     lang TEXT NOT NULL,
@@ -8,12 +8,12 @@ CREATE TABLE event_app_connect(
 );
 
 CREATE TABLE event_app_disconnect(
-    event_id BIGINT PRIMARY KEY REFERENCES events(event_id),
+    event_id BIGINT PRIMARY KEY,
     session_id TEXT NOT NULL
 );
 
 CREATE TABLE event_client_connect(
-    event_id BIGINT PRIMARY KEY REFERENCES events(event_id),
+    event_id BIGINT PRIMARY KEY,
     client_id TEXT NOT NULL,
     session_id TEXT NOT NULL,
     addresses TEXT[],
@@ -24,13 +24,13 @@ CREATE TABLE event_client_connect(
 );
 
 CREATE TABLE event_client_disconnect(
-    event_id BIGINT PRIMARY KEY REFERENCES events(event_id),
+    event_id BIGINT PRIMARY KEY,
     client_id TEXT NOT NULL,
     disconnected_session_id TEXT NOT NULL
 );
 
 CREATE TABLE event_sign_message(
-    event_id BIGINT PRIMARY KEY REFERENCES events(event_id),
+    event_id BIGINT PRIMARY KEY,
     session_id TEXT NOT NULL,
     request_id TEXT NOT NULL,
     request_status request_status_enum NOT NULL,
@@ -38,7 +38,7 @@ CREATE TABLE event_sign_message(
 );
 
 CREATE TABLE event_sign_transaction(
-    event_id BIGINT PRIMARY KEY REFERENCES events(event_id),
+    event_id BIGINT PRIMARY KEY,
     session_id TEXT NOT NULL,
     request_id TEXT NOT NULL,
     request_status request_status_enum NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE event_sign_transaction(
 );
 
 CREATE TABLE event_sign_and_send_transaction(
-    event_id BIGINT PRIMARY KEY REFERENCES events(event_id),
+    event_id BIGINT PRIMARY KEY,
     session_id TEXT NOT NULL,
     request_id TEXT NOT NULL,
     request_status request_status_enum NOT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE event_sign_and_send_transaction(
 );
 
 CREATE TABLE event_change_wallet(
-    event_id BIGINT PRIMARY KEY REFERENCES events(event_id),
+    event_id BIGINT PRIMARY KEY,
     session_id TEXT NOT NULL,
     request_id TEXT NOT NULL,
     request_status request_status_enum NOT NULL,
@@ -68,7 +68,7 @@ CREATE TABLE event_change_wallet(
 );
 
 CREATE TABLE event_change_network(
-    event_id BIGINT PRIMARY KEY REFERENCES events(event_id),
+    event_id BIGINT PRIMARY KEY,
     session_id TEXT NOT NULL,
     request_id TEXT NOT NULL,
     request_status request_status_enum NOT NULL,
