@@ -247,7 +247,7 @@ mod tests {
             .get_privilege_by_user_id_and_app_id(&user.user_id, &app_id)
             .await
             .unwrap();
-        assert_eq!(privilege, get_by_user_id_and_app_id);
+        assert_eq!(privilege, get_by_user_id_and_app_id.unwrap());
 
         let get_by_user_id = db.get_privileges_by_user_id(&user.user_id).await.unwrap();
         assert_eq!(vec![privilege.clone()], get_by_user_id);

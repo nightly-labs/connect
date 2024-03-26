@@ -18,7 +18,7 @@ impl Db {
         &self,
         user_id: &String,
         app_id: &String,
-    ) -> Result<UserAppPrivilege, DbError> {
+    ) -> Result<Option<UserAppPrivilege>, DbError> {
         let query = format!(
             "SELECT * FROM {USER_APP_PRIVILEGES_TABLE_NAME} WHERE user_id = $1 AND app_id = $2"
         );
@@ -27,7 +27,7 @@ impl Db {
         return typed_query
             .bind(&user_id)
             .bind(&app_id)
-            .fetch_one(&self.connection_pool)
+            .fetch_optional(&self.connection_pool)
             .await
             .map_err(|e| e.into());
     }

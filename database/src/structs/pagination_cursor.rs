@@ -1,9 +1,10 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
 use super::{consts::PAGINATION_PAGE_SIZE, db_error::DbError};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Clone, Deserialize, Debug, TS)]
 pub struct PaginationCursor(pub String);
 
 impl PaginationCursor {

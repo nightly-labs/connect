@@ -9,7 +9,9 @@ use crate::{
 };
 use axum::http::{header, Method, StatusCode};
 use database::{
-    db::Db, structs::consts::DAY_IN_SECONDS, tables::ip_addresses::table_struct::IpAddressEntry,
+    db::Db,
+    structs::{consts::DAY_IN_SECONDS, pagination_cursor::PaginationCursor},
+    tables::ip_addresses::table_struct::IpAddressEntry,
 };
 use database::{structs::geo_location::Geolocation, tables::utils::get_current_datetime};
 use garde::Validate;
@@ -161,6 +163,23 @@ pub fn custom_validate_new_password(password: &String, _context: &()) -> garde::
         }
     }
     Ok(())
+}
+
+pub fn custom_validate_optional_pagination_cursor(
+    cursor: &Option<PaginationCursor>,
+    _context: &(),
+) -> garde::Result {
+    match cursor {
+        Some(cursor) => {
+            if cursor.0.is_empty() {
+                return Err(garde::Error::new(
+                    CloudApiErrors::InvalidPaginationCursor.to_string(),
+                ));
+            }
+            Ok(())
+        }
+        None => Ok(()),
+    }
 }
 
 pub fn generate_tokens(

@@ -31,4 +31,5 @@ pub enum CloudApiErrors {
     InviteNotFound,
     ActionForbiddenForPersonalTeam,
     InviteDoesNotExist,
+    InvalidPaginationCursor,
 }
