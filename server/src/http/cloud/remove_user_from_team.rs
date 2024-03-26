@@ -181,13 +181,19 @@ mod tests {
             .unwrap();
 
         // Register new user
-        let (_test_user_auth_token, test_user_email, _test_user_password) =
+        let (test_user_auth_token, test_user_email, _test_user_password) =
             register_and_login_random_user(&test_app).await;
 
         // Add user to the team
-        add_user_to_test_team(&team_id, &test_user_email, &auth_token, &test_app)
-            .await
-            .unwrap();
+        add_user_to_test_team(
+            &team_id,
+            &test_user_email,
+            &auth_token,
+            &test_user_auth_token,
+            &test_app,
+        )
+        .await
+        .unwrap();
 
         // Remove user from the team
         let request = HttpRemoveUserFromTeamRequest {

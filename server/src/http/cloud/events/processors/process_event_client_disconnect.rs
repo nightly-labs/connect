@@ -43,52 +43,29 @@ async fn save_event_client_disconnect(
     event: &ClientDisconnectEvent,
 ) {
     // Establish a new transaction
-    match db.connection_pool.begin().await {
-        Ok(mut tx) => {
-            // Create a new event index in the database
-            match db
-                .create_new_event_entry(&mut tx, &app_id, &EventType::ClientDisconnect)
-                .await
-            {
-                Ok(event_id) => {
-                    // Now create a new event client disconnect corresponding to the event
-                    match db
-                        .create_new_event_client_disconnect(
-                            &mut tx,
-                            event_id,
-                            &event.client_id,
-                            &event.disconnected_session_id,
-                        )
-                        .await
-                    {
-                        Ok(_) => {
-                            // Commit the transaction
-                            if let Err(err) = tx.commit().await {
-                                error!(
-                                    "Failed to commit transaction for new client disconnect event, app_id: [{}], event: [{:?}], err: [{}]",
-                                    app_id, event, err
-                                );
-                            }
+    let mut tx = match db.connection_pool.begin().await {
+        Ok(tx) => tx,
+        Err(err) => {
+            error!(
+                "Failed to create new transaction to save client disconnect event, app_id: [{}], event: [{:?}], err: [{}]",
+                app_id, event, err
+            );
+            return;
+        }
+    };
 
-                            return;
-                        }
-                        Err(err) => {
-                            error!(
-                                "Failed to create new client disconnect event, app_id: [{}], event: [{:?}], err: [{}]",
-                                app_id, event, err
-                            );
-                        }
-                    }
-                }
-                Err(err) => {
-                    error!(
-                        "Failed to create new event index, app_id: [{}], event: [{:?}], err: [{}]",
-                        app_id, event, err
-                    );
-                }
-            }
+    // Create a new event index
+    let event_id = match db
+        .create_new_event_entry(&mut tx, &app_id, &EventType::ClientDisconnect)
+        .await
+    {
+        Ok(event_id) => event_id,
+        Err(err) => {
+            error!(
+                "Failed to create new event index, app_id: [{}], event: [{:?}], err: [{}]",
+                app_id, event, err
+            );
 
-            // If we have not returned yet, then we have failed to save the event
             // Rollback the transaction
             if let Err(err) = tx.rollback().await {
                 error!(
@@ -96,12 +73,43 @@ async fn save_event_client_disconnect(
                     app_id, event, err
                 );
             }
+
+            return;
+        }
+    };
+
+    // Now create a event client disconnect corresponding to the event
+    match db
+        .create_new_event_client_disconnect(
+            &mut tx,
+            event_id,
+            &event.client_id,
+            &event.disconnected_session_id,
+        )
+        .await
+    {
+        Ok(_) => {
+            // Commit the transaction
+            if let Err(err) = tx.commit().await {
+                error!(
+                    "Failed to commit transaction for new client disconnect event, app_id: [{}], event: [{:?}], err: [{}]",
+                    app_id, event, err
+                );
+            }
         }
         Err(err) => {
             error!(
-                "Failed to create new transaction to save client disconnect event, app_id: [{}], event: [{:?}], err: [{}]",
+                "Failed to create new client disconnect event, app_id: [{}], event: [{:?}], err: [{}]",
                 app_id, event, err
             );
+
+            // Rollback the transaction
+            if let Err(err) = tx.rollback().await {
+                error!(
+                    "Failed to rollback transaction for new client disconnect event, app_id: [{}], event: [{:?}], err: [{}]",
+                    app_id, event, err
+                );
+            }
         }
     }
 }

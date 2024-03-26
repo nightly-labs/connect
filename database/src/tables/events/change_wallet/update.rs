@@ -12,7 +12,7 @@ impl Db {
     pub async fn create_new_event_change_wallet(
         &self,
         tx: &mut Transaction<'_, Postgres>,
-        event_id: &i64,
+        event_id: i64,
         session_id: &String,
         request_id: &String,
         network_id: &String,
@@ -47,7 +47,7 @@ impl Db {
         tx: &mut Transaction<'_, Postgres>,
         request_id: &String,
         request_status: RequestStatus,
-        new_wallet_address: Option<String>,
+        new_wallet_address: &Option<String>,
     ) -> Result<(), DbError> {
         let query_body = format!(
             "UPDATE {EVENT_CHANGE_WALLET_TABLE_NAME} SET request_status = $1, new_wallet_address = $2 WHERE request_id = $3",

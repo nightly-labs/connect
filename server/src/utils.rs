@@ -1,4 +1,6 @@
 use crate::{
+    auth::AuthToken,
+    env::JWT_SECRET,
     ip_geolocation::GeolocationRequester,
     statics::{NAME_REGEX, REGISTER_PASSWORD_VALIDATOR},
     structs::{
@@ -7,11 +9,13 @@ use crate::{
 };
 use axum::http::{header, Method, StatusCode};
 use database::{
-    db::Db, structs::consts::DAY_IN_SECONDS, tables::ip_addresses::table_struct::IpAddressEntry,
+    db::Db,
+    structs::{consts::DAY_IN_SECONDS, pagination_cursor::PaginationCursor},
+    tables::ip_addresses::table_struct::IpAddressEntry,
 };
 use database::{structs::geo_location::Geolocation, tables::utils::get_current_datetime};
 use garde::Validate;
-use log::warn;
+use log::{error, warn};
 use std::{
     net::SocketAddr,
     str::FromStr,
@@ -159,4 +163,55 @@ pub fn custom_validate_new_password(password: &String, _context: &()) -> garde::
         }
     }
     Ok(())
+}
+
+pub fn custom_validate_optional_pagination_cursor(
+    cursor: &Option<PaginationCursor>,
+    _context: &(),
+) -> garde::Result {
+    match cursor {
+        Some(cursor) => {
+            if cursor.0.is_empty() {
+                return Err(garde::Error::new(
+                    CloudApiErrors::InvalidPaginationCursor.to_string(),
+                ));
+            }
+            Ok(())
+        }
+        None => Ok(()),
+    }
+}
+
+pub fn generate_tokens(
+    enforce_ip: bool,
+    ip: SocketAddr,
+    user_id: &String,
+    // (Auth Token, Refresh Token)
+) -> Result<(String, String), (StatusCode, String)> {
+    // Generate tokens
+    let ip = if enforce_ip { Some(ip) } else { None };
+    // Access token
+    let token = match AuthToken::new_access(&user_id, ip).encode(JWT_SECRET()) {
+        Ok(token) => token,
+        Err(err) => {
+            error!("Failed to create access token: {:?}", err);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::AccessTokenFailure.to_string(),
+            ));
+        }
+    };
+    // Refresh token
+    let refresh_token = match AuthToken::new_refresh(&user_id, ip).encode(JWT_SECRET()) {
+        Ok(token) => token,
+        Err(err) => {
+            error!("Failed to create refresh token: {:?}", err);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::RefreshTokenFailure.to_string(),
+            ));
+        }
+    };
+
+    Ok((token, refresh_token))
 }

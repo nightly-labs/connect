@@ -28,6 +28,7 @@ pub struct HttpRegisterNewTeamRequest {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
+#[serde(rename_all = "camelCase")]
 pub struct HttpRegisterNewTeamResponse {
     pub team_id: String,
 }

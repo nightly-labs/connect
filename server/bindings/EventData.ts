@@ -3,7 +3,7 @@ import type { AppConnectEvent } from "./AppConnectEvent";
 import type { AppDisconnectEvent } from "./AppDisconnectEvent";
 import type { ChangeNetworkEvent } from "./ChangeNetworkEvent";
 import type { ChangeWalletEvent } from "./ChangeWalletEvent";
-import type { ClientConnectInitEvent } from "./ClientConnectInitEvent";
+import type { ClientConnectEvent } from "./ClientConnectEvent";
 import type { ClientConnectResolveEvent } from "./ClientConnectResolveEvent";
 import type { ClientDisconnectEvent } from "./ClientDisconnectEvent";
 import type { SignAndSendTransactionEvent } from "./SignAndSendTransactionEvent";
@@ -13,4 +13,4 @@ import type { SignMessageResolveEvent } from "./SignMessageResolveEvent";
 import type { SignTransactionEvent } from "./SignTransactionEvent";
 import type { SignTransactionResolveEvent } from "./SignTransactionResolveEvent";
 
-export type EventData = { type: "AppConnect" } & AppConnectEvent | { type: "AppDisconnect" } & AppDisconnectEvent | { type: "ClientConnectInit" } & ClientConnectInitEvent | { type: "ClientConnectResolve" } & ClientConnectResolveEvent | { type: "ClientDisconnect" } & ClientDisconnectEvent | { type: "SignMessage" } & SignMessageEvent | { type: "SignMessageResolve" } & SignMessageResolveEvent | { type: "SignTransaction" } & SignTransactionEvent | { type: "SignTransactionResolve" } & SignTransactionResolveEvent | { type: "SignAndSendTransaction" } & SignAndSendTransactionEvent | { type: "SignAndSendTransactionResolve" } & SignAndSendTransactionResolveEvent | { type: "ChangeNetwork" } & ChangeNetworkEvent | { type: "ChangeWallet" } & ChangeWalletEvent;
+export type EventData = { type: "AppConnect" } & AppConnectEvent | { type: "AppDisconnect" } & AppDisconnectEvent | { type: "ClientConnect" } & ClientConnectEvent | { type: "ClientConnectResolve" } & ClientConnectResolveEvent | { type: "ClientDisconnect" } & ClientDisconnectEvent | { type: "SignMessage" } & SignMessageEvent | { type: "SignMessageResolve" } & SignMessageResolveEvent | { type: "SignTransaction" } & SignTransactionEvent | { type: "SignTransactionResolve" } & SignTransactionResolveEvent | { type: "SignAndSendTransaction" } & SignAndSendTransactionEvent | { type: "SignAndSendTransactionResolve" } & SignAndSendTransactionResolveEvent | { type: "ChangeNetwork" } & ChangeNetworkEvent | { type: "ChangeWallet" } & ChangeWalletEvent;

@@ -119,58 +119,29 @@ pub async fn process_event_app_connect(
 
 async fn save_event_app_connect(db: &Arc<Db>, app_id: &String, event: &AppConnectEvent) {
     // Establish a new transaction
-    match db.connection_pool.begin().await {
-        Ok(mut tx) => {
-            // Create a new event index in the database
-            match db
-                .create_new_event_entry(&mut tx, &app_id, &EventType::AppConnect)
-                .await
-            {
-                Ok(event_id) => {
-                    // Now create a new event app connect corresponding to the event
-                    match db
-                        .create_new_event_app_connect(
-                            &mut tx,
-                            event_id,
-                            &event.session_id,
-                            &event
-                                .device_metadata
-                                .to_string()
-                                .unwrap_or("Failed to serialize device metadata".to_string()),
-                            &event.language,
-                            &event.timezone,
-                            event.new_session,
-                        )
-                        .await
-                    {
-                        Ok(_) => {
-                            // Commit the transaction
-                            if let Err(err) = tx.commit().await {
-                                error!(
-                                    "Failed to commit transaction for new app connection event, app_id: [{}], event: [{:?}], err: [{}]",
-                                    app_id, event, err
-                                );
-                            }
+    let mut tx = match db.connection_pool.begin().await {
+        Ok(tx) => tx,
+        Err(err) => {
+            error!(
+                "Failed to create new transaction to save app connection event, app_id: [{}], event: [{:?}], err: [{}]",
+                app_id, event, err
+            );
+            return;
+        }
+    };
 
-                            return;
-                        }
-                        Err(err) => {
-                            error!(
-                                "Failed to create new app connection event, app_id: [{}], event: [{:?}], err: [{}]",
-                                app_id, event, err
-                            );
-                        }
-                    }
-                }
-                Err(err) => {
-                    error!(
-                        "Failed to create new event index, app_id: [{}], event: [{:?}], err: [{}]",
-                        app_id, event, err
-                    );
-                }
-            }
+    // Create a new event index
+    let event_id = match db
+        .create_new_event_entry(&mut tx, &app_id, &EventType::AppConnect)
+        .await
+    {
+        Ok(event_id) => event_id,
+        Err(err) => {
+            error!(
+                "Failed to create new event index, app_id: [{}], event: [{:?}], err: [{}]",
+                app_id, event, err
+            );
 
-            // If we have not returned yet, then we have failed to save the event
             // Rollback the transaction
             if let Err(err) = tx.rollback().await {
                 error!(
@@ -178,12 +149,49 @@ async fn save_event_app_connect(db: &Arc<Db>, app_id: &String, event: &AppConnec
                     app_id, event, err
                 );
             }
+
+            return;
+        }
+    };
+
+    // Now create a new event app connect corresponding to the event
+    match db
+        .create_new_event_app_connect(
+            &mut tx,
+            event_id,
+            &event.session_id,
+            &event
+                .device_metadata
+                .to_string()
+                .unwrap_or("Failed to serialize device metadata".to_string()),
+            &event.language,
+            &event.timezone,
+            event.new_session,
+        )
+        .await
+    {
+        Ok(_) => {
+            // Commit the transaction
+            if let Err(err) = tx.commit().await {
+                error!(
+                    "Failed to commit transaction for new app connection event, app_id: [{}], event: [{:?}], err: [{}]",
+                    app_id, event, err
+                );
+            }
         }
         Err(err) => {
             error!(
-                "Failed to create new transaction to save app connection event, app_id: [{}], event: [{:?}], err: [{}]",
+                "Failed to create new app connection event, app_id: [{}], event: [{:?}], err: [{}]",
                 app_id, event, err
             );
+
+            // Rollback the transaction
+            if let Err(err) = tx.rollback().await {
+                error!(
+                    "Failed to rollback transaction for new app connection event, app_id: [{}], event: [{:?}], err: [{}]",
+                    app_id, event, err
+                );
+            }
         }
     }
 }

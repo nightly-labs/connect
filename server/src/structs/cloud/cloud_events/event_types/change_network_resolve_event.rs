@@ -8,6 +8,7 @@ use ts_rs::TS;
 pub struct ChangeNetworkResolveEvent {
     pub session_id: String,
     pub request_id: String,
+    pub new_network: Option<String>,
     #[ts(optional)]
     pub failure_reason: Option<RequestFail>,
 }

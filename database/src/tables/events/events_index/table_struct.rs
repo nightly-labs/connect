@@ -1,4 +1,5 @@
 use crate::structs::event_type::EventType;
+use crate::structs::pagination_cursor::CursorParams;
 use chrono::{DateTime, Utc};
 use sqlx::types::chrono;
 use sqlx::{postgres::PgRow, FromRow, Row};
@@ -12,6 +13,16 @@ pub struct Event {
     pub app_id: String,
     pub event_type: EventType,
     pub creation_timestamp: DateTime<Utc>,
+}
+
+impl CursorParams for Event {
+    fn get_date(&self) -> DateTime<Utc> {
+        self.creation_timestamp
+    }
+
+    fn get_id(&self) -> i64 {
+        self.event_id
+    }
 }
 
 impl FromRow<'_, PgRow> for Event {
