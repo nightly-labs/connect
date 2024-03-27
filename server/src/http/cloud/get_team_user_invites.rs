@@ -35,20 +35,14 @@ pub async fn get_team_user_invites(
     Extension(user_id): Extension<UserId>,
     Query(request): Query<HttpGetTeamUserInvitesRequest>,
 ) -> Result<Json<HttpGetTeamUserInvitesResponse>, (StatusCode, String)> {
-    println!("HERE");
-
     // Db connection has already been checked in the middleware
     let db = db.as_ref().ok_or((
         StatusCode::INTERNAL_SERVER_ERROR,
         CloudApiErrors::CloudFeatureDisabled.to_string(),
     ))?;
 
-    println!("HERE");
-
     // Validate request
     validate_request(&request, &())?;
-
-    println!("HERE2");
 
     // Get team data and perform checks
     match db.get_team_by_team_id(None, &request.team_id).await {
@@ -168,12 +162,7 @@ mod tests {
         }
 
         // Get team invites
-        let request = HttpGetTeamUserInvitesRequest {
-            team_id: team_id.clone(),
-        };
-
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
-        let json = serde_json::to_string(&request).unwrap();
         let auth = auth_token.encode(JWT_SECRET()).unwrap();
 
         let req = Request::builder()
@@ -181,11 +170,11 @@ mod tests {
             .header("content-type", "application/json")
             .header("authorization", format!("Bearer {auth}"))
             .uri(format!(
-                "/cloud/private{}",
+                "/cloud/private{}?teamId={team_id}",
                 HttpCloudEndpoint::GetTeamUserInvites.to_string()
             ))
             .extension(ip.clone())
-            .body(Body::from(json))
+            .body(Body::empty())
             .unwrap();
 
         // Send request
