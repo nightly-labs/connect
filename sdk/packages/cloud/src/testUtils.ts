@@ -11,20 +11,20 @@ export async function createUser(
   const email = randomEmail() + '@gmail.com'
   const password = 'Password123'
 
-  let registerPayload = {
+  const registerPayload = {
     email,
     password
   } as HttpRegisterWithPasswordRequest
 
   await await cloudClient.registerWithPassword(registerPayload)
 
-  let loginPayload = {
+  const loginPayload = {
     email,
     password,
     enforceIp: false
   } as HttpLoginRequest
 
-  let userId = (await cloudClient.loginWithPassword(loginPayload)).userId.toString()
+  const userId = (await cloudClient.loginWithPassword(loginPayload)).userId.toString()
 
   return { userId, email }
 }
@@ -35,7 +35,7 @@ export async function addUserToTeam(
   teamId: string,
   userEmail: string
 ): Promise<void> {
-  let invitePayload = {
+  const invitePayload = {
     teamId: teamId,
     userEmail: userEmail
   } as HttpInviteUserToTeamRequest
@@ -44,7 +44,7 @@ export async function addUserToTeam(
   await adminClient.inviteUserToTeam(invitePayload)
 
   // Accept team invite
-  let acceptPayload = {
+  const acceptPayload = {
     teamId: teamId
   } as HttpInviteUserToTeamRequest
 
@@ -55,22 +55,22 @@ export async function basicTeamSetup(
   cloudClient: NightlyCloud
 ): Promise<{ teamId: string; appId: string }> {
   // create team
-  let registerTeamPayload = {
+  const registerTeamPayload = {
     personal: false,
     teamName: 'Test_Team'
   } as HttpRegisterNewTeamRequest
 
-  let teamId = (await cloudClient.registerNewTeam(registerTeamPayload)).teamId
+  const teamId = (await cloudClient.registerNewTeam(registerTeamPayload)).teamId
 
   // create app
-  let registerAppPayload = {
+  const registerAppPayload = {
     teamId: teamId,
     appName: 'Test_App',
     ackPublicKeys: [],
     whitelistedDomains: []
   } as HttpRegisterNewAppRequest
 
-  let appId = (await cloudClient.registerNewApp(registerAppPayload)).appId
+  const appId = (await cloudClient.registerNewApp(registerAppPayload)).appId
 
   // Return both teamId and appId in an object
   return { teamId, appId }

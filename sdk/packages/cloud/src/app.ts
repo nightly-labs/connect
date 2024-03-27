@@ -64,12 +64,12 @@ export class NightlyCloud {
         headers: headers
       })
       if (response.status !== 200) {
-        let msg = await response.text()
+        const msg = await response.text()
         throw new Error(msg)
       }
       return await response.json()
     } catch (e) {
-      let error = e as any
+      const error = e as any
       throw new Error(error)
     }
   }
@@ -113,12 +113,12 @@ export class NightlyCloud {
         headers: headers
       })
       if (response.status !== 200) {
-        let msg = await response.text()
+        const msg = await response.text()
         throw new Error(msg)
       }
       return await response.json()
     } catch (e) {
-      let error = e as any
+      const error = e as any
       throw new Error(error)
     }
   }
