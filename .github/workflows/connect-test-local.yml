@@ -69,6 +69,13 @@ jobs:
         run: |
           pnpm test:ci
         working-directory: ./sdk/packages/sui
+      - name: test cloud local
+        run: |
+          pnpm test:ci
+        working-directory: ./sdk/packages/cloud
+        env:
+          ONLY_RELAY_SERVICE: FALSE
+
       - name: Clean target
         working-directory: ./infra
         run: |
