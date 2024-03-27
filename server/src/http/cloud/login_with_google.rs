@@ -24,7 +24,7 @@ use uuid7::uuid7;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct LoginWithGoogleResponse {
+pub struct HttpLoginWithGoogleResponse {
     pub user_id: String,
     pub auth_token: String,
     pub refresh_token: String,
@@ -53,7 +53,7 @@ pub async fn login_with_google(
     ConnectInfo(ip): ConnectInfo<SocketAddr>,
     State(db): State<Option<Arc<Db>>>,
     Json(request): Json<HttpLoginWithGoogleRequest>,
-) -> Result<Json<LoginWithGoogleResponse>, (StatusCode, String)> {
+) -> Result<Json<HttpLoginWithGoogleResponse>, (StatusCode, String)> {
     // Db connection has already been checked in the middleware
     let db = db.as_ref().ok_or((
         StatusCode::INTERNAL_SERVER_ERROR,
@@ -80,7 +80,7 @@ pub async fn login_with_google(
             let (auth_token, refresh_token) =
                 generate_tokens(request.enforce_ip, ip, &user.user_id)?;
 
-            return Ok(Json(LoginWithGoogleResponse {
+            return Ok(Json(HttpLoginWithGoogleResponse {
                 user_id: user.user_id,
                 auth_token: auth_token,
                 refresh_token: refresh_token,
@@ -121,7 +121,7 @@ pub async fn login_with_google(
             // Generate tokens
             let (auth_token, refresh_token) = generate_tokens(request.enforce_ip, ip, &user_id)?;
 
-            return Ok(Json(LoginWithGoogleResponse {
+            return Ok(Json(HttpLoginWithGoogleResponse {
                 user_id: user_id,
                 auth_token: auth_token,
                 refresh_token: refresh_token,
