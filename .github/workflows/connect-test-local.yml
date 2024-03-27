@@ -69,13 +69,18 @@ jobs:
         run: |
           pnpm test:ci
         working-directory: ./sdk/packages/sui
+      - name: kill-nightly-connect
+        run: |
+          kill $(pgrep -f 'nightly-connect-server')
+      - name: run connect with db
+        run: |
+          cargo run --bin nightly-connect-server &
+        env:
+          ONLY_RELAY_SERVICE: FALSE
       - name: test cloud local
         run: |
           pnpm test:ci
         working-directory: ./sdk/packages/cloud
-        env:
-          ONLY_RELAY_SERVICE: FALSE
-
       - name: Clean target
         working-directory: ./infra
         run: |
