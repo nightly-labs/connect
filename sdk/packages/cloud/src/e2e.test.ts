@@ -19,12 +19,12 @@ describe('Base Client tests', () => {
   test('#registerWithPassword()', async () => {
     const email = randomEmail() + '@gmail.com'
 
-    let registerPayload = {
+    const registerPayload = {
       email,
       password: 'Password123'
     } as HttpRegisterWithPasswordRequest
 
-    let response = await (await cloudClient.registerWithPassword(registerPayload)).userId
+    const response = await (await cloudClient.registerWithPassword(registerPayload)).userId
 
     assert(response.length > 0)
   })
@@ -33,20 +33,20 @@ describe('Base Client tests', () => {
     const email = randomEmail() + '@gmail.com'
     const password = 'Password123'
 
-    let registerPayload = {
+    const registerPayload = {
       email,
       password
     } as HttpRegisterWithPasswordRequest
 
-    let registerResponse = await await cloudClient.registerWithPassword(registerPayload)
+    const registerResponse = await await cloudClient.registerWithPassword(registerPayload)
 
-    let loginPayload = {
+    const loginPayload = {
       email,
       password,
       enforceIp: false
     } as HttpLoginRequest
 
-    let loginResponse = await cloudClient.loginWithPassword(loginPayload)
+    const loginResponse = await cloudClient.loginWithPassword(loginPayload)
 
     assert(registerResponse.userId === loginResponse.userId)
   })
@@ -56,12 +56,12 @@ describe('Base Client tests', () => {
     await createUser(cloudClient)
 
     // create team
-    let registerTeamPayload = {
+    const registerTeamPayload = {
       personal: false,
       teamName: 'Test_Team'
     } as HttpRegisterNewTeamRequest
 
-    let response = await cloudClient.registerNewTeam(registerTeamPayload)
+    const response = await cloudClient.registerNewTeam(registerTeamPayload)
 
     assert(response.teamId.length > 0)
   })
@@ -71,46 +71,24 @@ describe('Base Client tests', () => {
     await createUser(cloudClient)
 
     // create team
-    let registerTeamPayload = {
+    const registerTeamPayload = {
       personal: false,
       teamName: 'Test_Team'
     } as HttpRegisterNewTeamRequest
 
-    let teamId = (await cloudClient.registerNewTeam(registerTeamPayload)).teamId
+    const teamId = (await cloudClient.registerNewTeam(registerTeamPayload)).teamId
 
     // create app
-    let registerAppPayload = {
+    const registerAppPayload = {
       teamId: teamId,
       appName: 'Test_App',
       ackPublicKeys: [],
       whitelistedDomains: []
     } as HttpRegisterNewAppRequest
 
-    let response = await cloudClient.registerNewApp(registerAppPayload)
+    const response = await cloudClient.registerNewApp(registerAppPayload)
 
     assert(response.appId.length > 0)
-  })
-
-  test('#inviteUserToTeam()', async () => {
-    // create user
-    await createUser(cloudClient)
-
-    // create basic team setup
-    let { teamId, appId } = await basicTeamSetup(cloudClient)
-
-    // register new user
-    let newClient = new NightlyCloud({
-      url: TEST_ENDPOINT
-    })
-    let { userId, email } = await createUser(newClient)
-
-    let invitePayload = {
-      teamId: teamId,
-      userEmail: email
-    } as HttpInviteUserToTeamRequest
-
-    // Use team admin client to invite new user
-    await cloudClient.inviteUserToTeam(invitePayload)
   })
 
   test('#getUserTeamInvites()', async () => {
@@ -118,15 +96,15 @@ describe('Base Client tests', () => {
     await createUser(cloudClient)
 
     // create basic team setup
-    let { teamId, appId } = await basicTeamSetup(cloudClient)
+    const { teamId, appId } = await basicTeamSetup(cloudClient)
 
     // register new user
-    let newClient = new NightlyCloud({
+    const newClient = new NightlyCloud({
       url: TEST_ENDPOINT
     })
-    let { userId, email } = await createUser(newClient)
+    const { userId, email } = await createUser(newClient)
 
-    let invitePayload = {
+    const invitePayload = {
       teamId: teamId,
       userEmail: email
     } as HttpInviteUserToTeamRequest
@@ -135,7 +113,7 @@ describe('Base Client tests', () => {
     await cloudClient.inviteUserToTeam(invitePayload)
 
     // Get use team invites by new user
-    let response = await newClient.getUserTeamInvites()
+    const response = await newClient.getUserTeamInvites()
 
     assert(response.teamInvites.length > 0)
     assert(response.teamInvites[0].teamName === 'Test_Team')
@@ -147,15 +125,15 @@ describe('Base Client tests', () => {
     await createUser(cloudClient)
 
     // create basic team setup
-    let { teamId, appId } = await basicTeamSetup(cloudClient)
+    const { teamId, appId } = await basicTeamSetup(cloudClient)
 
     // register new user
-    let newClient = new NightlyCloud({
+    const newClient = new NightlyCloud({
       url: TEST_ENDPOINT
     })
-    let { userId, email } = await createUser(newClient)
+    const { userId, email } = await createUser(newClient)
 
-    let invitePayload = {
+    const invitePayload = {
       teamId: teamId,
       userEmail: email
     } as HttpInviteUserToTeamRequest
@@ -164,11 +142,11 @@ describe('Base Client tests', () => {
     await cloudClient.inviteUserToTeam(invitePayload)
 
     // Get team invites by team admin
-    let payload = {
+    const payload = {
       teamId: teamId
     } as HttpInviteUserToTeamRequest
 
-    let response = await cloudClient.getTeamUserInvites(payload)
+    const response = await cloudClient.getTeamUserInvites(payload)
 
     assert(response.teamInvites.length > 0)
     assert(response.teamInvites[0].teamName === 'Test_Team')
@@ -180,15 +158,15 @@ describe('Base Client tests', () => {
     await createUser(cloudClient)
 
     // create basic team setup
-    let { teamId, appId } = await basicTeamSetup(cloudClient)
+    const { teamId, appId } = await basicTeamSetup(cloudClient)
 
     // register new user
-    let newClient = new NightlyCloud({
+    const newClient = new NightlyCloud({
       url: TEST_ENDPOINT
     })
-    let { userId, email } = await createUser(newClient)
+    const { userId, email } = await createUser(newClient)
 
-    let invitePayload = {
+    const invitePayload = {
       teamId: teamId,
       userEmail: email
     } as HttpInviteUserToTeamRequest
@@ -197,25 +175,25 @@ describe('Base Client tests', () => {
     await cloudClient.inviteUserToTeam(invitePayload)
 
     // Get team invites by invited user
-    let payload = {
+    const payload = {
       teamId: teamId
     } as HttpInviteUserToTeamRequest
 
-    let response = await cloudClient.getTeamUserInvites(payload)
+    const response = await cloudClient.getTeamUserInvites(payload)
 
     assert(response.teamInvites.length > 0)
     assert(response.teamInvites[0].teamName === 'Test_Team')
     assert(response.teamInvites[0].userEmail === email)
 
     // Accept team invite
-    let acceptPayload = {
+    const acceptPayload = {
       teamId: teamId
     } as HttpInviteUserToTeamRequest
 
     await newClient.acceptTeamInvite(acceptPayload)
 
     // Get team invites by invited user
-    let secondResponse = await cloudClient.getTeamUserInvites(payload)
+    const secondResponse = await cloudClient.getTeamUserInvites(payload)
 
     assert(secondResponse.teamInvites.length === 0)
   })
@@ -225,16 +203,16 @@ describe('Base Client tests', () => {
     await createUser(cloudClient)
 
     // create basic team setup
-    let { teamId, appId } = await basicTeamSetup(cloudClient)
+    const { teamId, appId } = await basicTeamSetup(cloudClient)
 
     // register new user
-    let newClient = new NightlyCloud({
+    const newClient = new NightlyCloud({
       url: TEST_ENDPOINT
     })
-    let { userId, email } = await createUser(newClient)
+    const { userId, email } = await createUser(newClient)
 
     // Get user joined team
-    let response = await newClient.getUserJoinedTeams()
+    const response = await newClient.getUserJoinedTeams()
 
     expect(Object.keys(response.teams)).toHaveLength(0)
     expect(Object.keys(response.teamsApps)).toHaveLength(0)
@@ -244,7 +222,7 @@ describe('Base Client tests', () => {
     await addUserToTeam(cloudClient, newClient, teamId, email)
 
     // Get user joined team
-    let secondResponse = await newClient.getUserJoinedTeams()
+    const secondResponse = await newClient.getUserJoinedTeams()
 
     expect(Object.keys(secondResponse.teams)).toHaveLength(1)
     expect(Object.keys(secondResponse.teamsApps)).toHaveLength(1)
@@ -256,16 +234,16 @@ describe('Base Client tests', () => {
     await createUser(cloudClient)
 
     // create basic team setup
-    let { teamId, appId } = await basicTeamSetup(cloudClient)
+    const { teamId, appId } = await basicTeamSetup(cloudClient)
 
     // register new user
-    let newClient = new NightlyCloud({
+    const newClient = new NightlyCloud({
       url: TEST_ENDPOINT
     })
-    let { userId, email } = await createUser(newClient)
+    const { userId, email } = await createUser(newClient)
 
     // Get user joined team
-    let response = await newClient.getUserJoinedTeams()
+    const response = await newClient.getUserJoinedTeams()
 
     expect(Object.keys(response.teams)).toHaveLength(0)
     expect(Object.keys(response.teamsApps)).toHaveLength(0)
@@ -275,13 +253,13 @@ describe('Base Client tests', () => {
     await addUserToTeam(cloudClient, newClient, teamId, email)
 
     // Get user joined team
-    let secondResponse = await newClient.getUserJoinedTeams()
+    const secondResponse = await newClient.getUserJoinedTeams()
 
     expect(Object.keys(secondResponse.teams)).toHaveLength(1)
     expect(Object.keys(secondResponse.teamsApps)).toHaveLength(1)
     expect(Object.keys(secondResponse.userPrivileges)).toHaveLength(1)
 
-    let removePayload = {
+    const removePayload = {
       teamId: teamId,
       userEmail: email
     } as HttpRemoveUserFromTeamRequest
@@ -290,7 +268,7 @@ describe('Base Client tests', () => {
     await cloudClient.removeUserFromTeam(removePayload)
 
     // Get user joined team
-    let thirdResponse = await newClient.getUserJoinedTeams()
+    const thirdResponse = await newClient.getUserJoinedTeams()
 
     expect(Object.keys(thirdResponse.teams)).toHaveLength(0)
     expect(Object.keys(thirdResponse.teamsApps)).toHaveLength(0)
@@ -302,15 +280,15 @@ describe('Base Client tests', () => {
     await createUser(cloudClient)
 
     // create basic team setup
-    let { teamId, appId } = await basicTeamSetup(cloudClient)
+    const { teamId, appId } = await basicTeamSetup(cloudClient)
 
     // register new user
-    let newClient = new NightlyCloud({
+    const newClient = new NightlyCloud({
       url: TEST_ENDPOINT
     })
-    let { userId, email } = await createUser(newClient)
+    const { userId, email } = await createUser(newClient)
 
-    let invitePayload = {
+    const invitePayload = {
       teamId: teamId,
       userEmail: email
     } as HttpInviteUserToTeamRequest
@@ -319,18 +297,18 @@ describe('Base Client tests', () => {
     await cloudClient.inviteUserToTeam(invitePayload)
 
     // Get team invites by team admin
-    let payload = {
+    const payload = {
       teamId: teamId
     } as HttpInviteUserToTeamRequest
 
-    let response = await cloudClient.getTeamUserInvites(payload)
+    const response = await cloudClient.getTeamUserInvites(payload)
 
     assert(response.teamInvites.length > 0)
     assert(response.teamInvites[0].teamName === 'Test_Team')
     assert(response.teamInvites[0].userEmail === email)
 
     // Cancel team invite
-    let cancelPayload = {
+    const cancelPayload = {
       teamId: teamId,
       userEmail: email
     } as HttpInviteUserToTeamRequest
@@ -338,7 +316,7 @@ describe('Base Client tests', () => {
     await cloudClient.cancelTeamUserInvite(cancelPayload)
 
     // Get team invites by team admin
-    let secondResponse = await cloudClient.getTeamUserInvites(payload)
+    const secondResponse = await cloudClient.getTeamUserInvites(payload)
 
     assert(secondResponse.teamInvites.length === 0)
   })
@@ -348,15 +326,15 @@ describe('Base Client tests', () => {
     await createUser(cloudClient)
 
     // create basic team setup
-    let { teamId, appId } = await basicTeamSetup(cloudClient)
+    const { teamId, appId } = await basicTeamSetup(cloudClient)
 
     // register new user
-    let newClient = new NightlyCloud({
+    const newClient = new NightlyCloud({
       url: TEST_ENDPOINT
     })
-    let { userId, email } = await createUser(newClient)
+    const { userId, email } = await createUser(newClient)
 
-    let invitePayload = {
+    const invitePayload = {
       teamId: teamId,
       userEmail: email
     } as HttpInviteUserToTeamRequest
@@ -365,21 +343,21 @@ describe('Base Client tests', () => {
     await cloudClient.inviteUserToTeam(invitePayload)
 
     // Get team invites by new user
-    let response = await newClient.getUserTeamInvites()
+    const response = await newClient.getUserTeamInvites()
 
     assert(response.teamInvites.length > 0)
     assert(response.teamInvites[0].teamName === 'Test_Team')
     assert(response.teamInvites[0].userEmail === email)
 
     // Cancel team invite by invited user
-    let cancelPayload = {
+    const cancelPayload = {
       teamId: teamId
     } as HttpCancelUserTeamInviteRequest
 
     await newClient.cancelUserTeamInvite(cancelPayload)
 
     // Get team invites by new user
-    let secondResponse = await newClient.getUserTeamInvites()
+    const secondResponse = await newClient.getUserTeamInvites()
 
     assert(secondResponse.teamInvites.length === 0)
   })
