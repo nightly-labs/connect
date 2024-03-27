@@ -2,6 +2,7 @@ use crate::middlewares::auth_middleware::UserId;
 use crate::structs::cloud::api_cloud_errors::CloudApiErrors;
 use crate::structs::cloud::app_event::AppEvent;
 use crate::utils::{custom_validate_optional_pagination_cursor, custom_validate_uuid};
+use axum::extract::Query;
 use axum::Extension;
 use axum::{extract::State, http::StatusCode, Json};
 use database::db::Db;
@@ -34,7 +35,7 @@ pub struct HttpGetAppEventsResponse {
 pub async fn events(
     State(db): State<Option<Arc<Db>>>,
     Extension(user_id): Extension<UserId>,
-    Json(request): Json<HttpGetAppEventsEventRequest>,
+    Query(request): Query<HttpGetAppEventsEventRequest>,
 ) -> Result<Json<HttpGetAppEventsResponse>, (StatusCode, String)> {
     // Db connection has already been checked in the middleware
     let db = db.as_ref().ok_or((

@@ -3,7 +3,11 @@ use crate::{
     structs::cloud::{api_cloud_errors::CloudApiErrors, team_invite::TeamInvite},
     utils::{custom_validate_uuid, validate_request},
 };
-use axum::{extract::State, http::StatusCode, Extension, Json};
+use axum::{
+    extract::{Query, State},
+    http::StatusCode,
+    Extension, Json,
+};
 use database::db::Db;
 use garde::Validate;
 use log::error;
@@ -29,16 +33,22 @@ pub struct HttpGetTeamUserInvitesResponse {
 pub async fn get_team_user_invites(
     State(db): State<Option<Arc<Db>>>,
     Extension(user_id): Extension<UserId>,
-    Json(request): Json<HttpGetTeamUserInvitesRequest>,
+    Query(request): Query<HttpGetTeamUserInvitesRequest>,
 ) -> Result<Json<HttpGetTeamUserInvitesResponse>, (StatusCode, String)> {
+    println!("HERE");
+
     // Db connection has already been checked in the middleware
     let db = db.as_ref().ok_or((
         StatusCode::INTERNAL_SERVER_ERROR,
         CloudApiErrors::CloudFeatureDisabled.to_string(),
     ))?;
 
+    println!("HERE");
+
     // Validate request
     validate_request(&request, &())?;
+
+    println!("HERE2");
 
     // Get team data and perform checks
     match db.get_team_by_team_id(None, &request.team_id).await {

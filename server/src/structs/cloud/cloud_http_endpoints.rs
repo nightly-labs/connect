@@ -30,7 +30,7 @@ pub enum HttpCloudEndpoint {
     GetUserTeamInvites,
     #[serde(rename = "/cancel_team_user_invite")]
     CancelTeamUserInvite,
-    #[serde(rename = "/cancel_team_user_invite")]
+    #[serde(rename = "/cancel_user_team_invite")]
     CancelUserTeamInvite,
 }
 
