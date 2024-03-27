@@ -24,6 +24,7 @@ import { HttpRegisterWithPasswordResponse } from '../../../bindings/HttpRegister
 import { HttpRemoveUserFromTeamRequest } from '../../../bindings/HttpRemoveUserFromTeamRequest'
 import { HttpRemoveUserFromTeamResponse } from '../../../bindings/HttpRemoveUserFromTeamResponse'
 import { DEFAULT_CLOUD_URL, EndpointType, Method } from './utils'
+import { fetch } from 'cross-fetch'
 
 export interface NightlyCloudParams {
   url?: string
