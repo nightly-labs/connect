@@ -15,6 +15,7 @@ import { SignMessageResolveEvent } from '../../../bindings/SignMessageResolveEve
 import { SignTransactionEvent } from '../../../bindings/SignTransactionEvent'
 import { SignTransactionResolveEvent } from '../../../bindings/SignTransactionResolveEvent'
 import { DEFAULT_ANALYTICS_URL } from './utils'
+import { fetch } from 'cross-fetch'
 
 export interface NightlyAnalyticsParams {
   sessionId: string

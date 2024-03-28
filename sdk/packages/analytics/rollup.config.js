@@ -21,7 +21,7 @@ export default [
       }
     ],
     plugins: [typescript(), nodeResolve(), commonjs(), terser()],
-    external: ['uuid']
+    external: ['uuid', 'cross-fetch']
   },
   {
     input: 'src/index.ts',
