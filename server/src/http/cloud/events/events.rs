@@ -42,7 +42,7 @@ pub async fn events(
     };
 
     // Check if origin and app_id match in the database
-    match db.get_registered_app_by_app_id(&origin).await {
+    match db.get_registered_app_by_app_id(&request.app_id).await {
         Ok(Some(app)) => {
             app.whitelisted_domains
                 .iter()

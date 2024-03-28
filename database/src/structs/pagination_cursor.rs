@@ -5,6 +5,7 @@ use ts_rs::TS;
 use super::{consts::PAGINATION_PAGE_SIZE, db_error::DbError};
 
 #[derive(Serialize, Clone, Deserialize, Debug, TS)]
+#[ts(export)]
 pub struct PaginationCursor(pub String);
 
 impl PaginationCursor {

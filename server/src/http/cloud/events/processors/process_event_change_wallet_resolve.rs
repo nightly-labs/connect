@@ -3,7 +3,7 @@ use database::{db::Db, structs::request_status::RequestStatus};
 use log::error;
 use std::sync::Arc;
 
-pub async fn process_event_change_network_resolve(
+pub async fn process_event_change_wallet_resolve(
     event: &ChangeWalletResolveEvent,
     app_id: &String,
     db: &Arc<Db>,

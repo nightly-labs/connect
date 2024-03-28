@@ -4,7 +4,9 @@ use super::{
         process_event_app_connect::process_event_app_connect,
         process_event_app_disconnect::process_event_app_disconnect,
         process_event_change_network::process_event_change_network,
+        process_event_change_network_resolve::process_event_change_network_resolve,
         process_event_change_wallet::process_event_change_wallet,
+        process_event_change_wallet_resolve::process_event_change_wallet_resolve,
         process_event_client_connect::process_event_client_connect_init,
         process_event_client_connect_resolve::process_event_client_connect_resolve,
         process_event_client_disconnect::process_event_client_disconnect,
@@ -90,8 +92,14 @@ pub async fn process_event(
         EventData::ChangeNetwork(event) => {
             process_event_change_network(event, &event_payload.app_id, db_connection).await;
         }
+        EventData::ChangeNetworkResolve(event) => {
+            process_event_change_network_resolve(event, &event_payload.app_id, db_connection).await;
+        }
         EventData::ChangeWallet(event) => {
             process_event_change_wallet(event, &event_payload.app_id, db_connection).await;
+        }
+        EventData::ChangeWalletResolve(event) => {
+            process_event_change_wallet_resolve(event, &event_payload.app_id, db_connection).await;
         }
     }
 }
