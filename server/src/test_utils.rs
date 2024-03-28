@@ -5,9 +5,7 @@ pub mod test_utils {
         env::{JWT_PUBLIC_KEY, JWT_SECRET},
         http::cloud::{
             accept_team_invite::{HttpAcceptTeamInviteRequest, HttpAcceptTeamInviteResponse},
-            get_team_user_invites::{
-                HttpGetTeamUserInvitesRequest, HttpGetTeamUserInvitesResponse,
-            },
+            get_team_user_invites::HttpGetTeamUserInvitesResponse,
             get_user_joined_teams::HttpGetUserJoinedTeamsResponse,
             get_user_team_invites::HttpGetUserTeamInvitesResponse,
             invite_user_to_team::{HttpInviteUserToTeamRequest, HttpInviteUserToTeamResponse},
@@ -21,7 +19,7 @@ pub mod test_utils {
         },
         routes::router::get_router,
         statics::NAME_REGEX,
-        structs::cloud::{cloud_http_endpoints::HttpCloudEndpoint, team_invite::TeamInvite},
+        structs::cloud::cloud_http_endpoints::HttpCloudEndpoint,
     };
     use anyhow::bail;
     use axum::{
@@ -320,12 +318,7 @@ pub mod test_utils {
         app: &Router,
     ) -> anyhow::Result<HttpGetTeamUserInvitesResponse> {
         // Get team invites for users
-        let request = HttpGetTeamUserInvitesRequest {
-            team_id: team_id.clone(),
-        };
-
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
-        let json = serde_json::to_string(&request).unwrap();
         let auth = user_token.encode(JWT_SECRET()).unwrap();
 
         let req = Request::builder()
@@ -333,11 +326,11 @@ pub mod test_utils {
             .header("content-type", "application/json")
             .header("authorization", format!("Bearer {auth}"))
             .uri(format!(
-                "/cloud/private{}",
+                "/cloud/private{}?teamId={team_id}",
                 HttpCloudEndpoint::GetTeamUserInvites.to_string()
             ))
             .extension(ip)
-            .body(Body::from(json))
+            .body(Body::empty())
             .unwrap();
 
         // Send request

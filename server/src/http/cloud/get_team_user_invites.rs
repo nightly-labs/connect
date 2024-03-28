@@ -3,7 +3,11 @@ use crate::{
     structs::cloud::{api_cloud_errors::CloudApiErrors, team_invite::TeamInvite},
     utils::{custom_validate_uuid, validate_request},
 };
-use axum::{extract::State, http::StatusCode, Extension, Json};
+use axum::{
+    extract::{Query, State},
+    http::StatusCode,
+    Extension, Json,
+};
 use database::db::Db;
 use garde::Validate;
 use log::error;
@@ -29,7 +33,7 @@ pub struct HttpGetTeamUserInvitesResponse {
 pub async fn get_team_user_invites(
     State(db): State<Option<Arc<Db>>>,
     Extension(user_id): Extension<UserId>,
-    Json(request): Json<HttpGetTeamUserInvitesRequest>,
+    Query(request): Query<HttpGetTeamUserInvitesRequest>,
 ) -> Result<Json<HttpGetTeamUserInvitesResponse>, (StatusCode, String)> {
     // Db connection has already been checked in the middleware
     let db = db.as_ref().ok_or((
@@ -158,12 +162,7 @@ mod tests {
         }
 
         // Get team invites
-        let request = HttpGetTeamUserInvitesRequest {
-            team_id: team_id.clone(),
-        };
-
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
-        let json = serde_json::to_string(&request).unwrap();
         let auth = auth_token.encode(JWT_SECRET()).unwrap();
 
         let req = Request::builder()
@@ -171,11 +170,11 @@ mod tests {
             .header("content-type", "application/json")
             .header("authorization", format!("Bearer {auth}"))
             .uri(format!(
-                "/cloud/private{}",
+                "/cloud/private{}?teamId={team_id}",
                 HttpCloudEndpoint::GetTeamUserInvites.to_string()
             ))
             .extension(ip.clone())
-            .body(Body::from(json))
+            .body(Body::empty())
             .unwrap();
 
         // Send request
