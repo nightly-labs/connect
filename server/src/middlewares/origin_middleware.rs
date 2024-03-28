@@ -21,7 +21,6 @@ where
             .and_then(|value| value.to_str().ok())
             .map(|s| s.to_owned())
             .ok_or_else(|| {
-                println!("Origin header is required");
                 (
                     StatusCode::BAD_REQUEST,
                     "Origin header is required".to_string(),

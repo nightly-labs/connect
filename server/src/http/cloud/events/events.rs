@@ -30,8 +30,6 @@ pub async fn events(
     Origin(origin): Origin,
     Json(request): Json<HttpNightlyConnectCloudEvent>,
 ) -> Result<Json<()>, (StatusCode, String)> {
-    println!("STARTING event");
-
     // Check if the feature is enabled
     let (db, geolocation_requester) = match (&db, &geo_loc_requester) {
         (Some(db), Some(geo)) => (db, geo),
@@ -55,7 +53,6 @@ pub async fn events(
                 ))?;
         }
         Ok(None) => {
-            println!("App not found");
             return Err((
                 StatusCode::BAD_REQUEST,
                 CloudApiErrors::AppDoesNotExist.to_string(),
