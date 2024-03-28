@@ -284,6 +284,9 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0
     devDependencies:
+      '@nightlylabs/nightly-cloud':
+        specifier: workspace:*
+        version: link:../cloud
       '@rollup/plugin-commonjs':
         specifier: ^25.0.0
         version: 25.0.0(rollup@3.23.1)

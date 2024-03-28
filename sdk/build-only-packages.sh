@@ -17,6 +17,12 @@ pnpm build
 cd ../modal
 pnpm build
 
+# connect cloud
+cd ../cloud
+pnpm build
+cd ../analytics
+pnpm build
+
 # selector packages
 cd ../selector-base
 pnpm build
