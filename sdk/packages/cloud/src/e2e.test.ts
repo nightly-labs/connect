@@ -8,6 +8,7 @@ import { HttpRegisterNewAppRequest } from '../../../bindings/HttpRegisterNewAppR
 import { HttpInviteUserToTeamRequest } from '../../../bindings/HttpInviteUserToTeamRequest'
 import { HttpRemoveUserFromTeamRequest } from '../../../bindings/HttpRemoveUserFromTeamRequest'
 import { HttpCancelUserTeamInviteRequest } from '../../../bindings/HttpCancelUserTeamInviteRequest'
+import { HttpGetAppEventsRequest } from '../../../bindings/HttpGetAppEventsRequest'
 
 const TEST_ENDPOINT = 'http://127.0.0.1:6969/cloud'
 
@@ -360,5 +361,22 @@ describe('Base Client tests', () => {
     const secondResponse = await newClient.getUserTeamInvites()
 
     assert(secondResponse.teamInvites.length === 0)
+  })
+
+  test('#getAppEvents()', async () => {
+    // create user
+    await createUser(cloudClient)
+
+    // create basic team setup
+    const { teamId, appId } = await basicTeamSetup(cloudClient)
+
+    // Get app events, should be empty
+    const payload = {
+      appId: appId
+    } as HttpGetAppEventsRequest
+
+    const response = await cloudClient.getAppEvents(payload)
+
+    expect(response.events).toHaveLength(0)
   })
 })

@@ -5,6 +5,8 @@ import { HttpCancelTeamUserInviteResponse } from '../../../bindings/HttpCancelTe
 import { HttpCancelUserTeamInviteRequest } from '../../../bindings/HttpCancelUserTeamInviteRequest'
 import { HttpCancelUserTeamInviteResponse } from '../../../bindings/HttpCancelUserTeamInviteResponse'
 import { HttpCloudEndpoint } from '../../../bindings/HttpCloudEndpoint'
+import { HttpGetAppEventsRequest } from '../../../bindings/HttpGetAppEventsRequest'
+import { HttpGetAppEventsResponse } from '../../../bindings/HttpGetAppEventsResponse'
 import { HttpGetTeamUserInvitesRequest } from '../../../bindings/HttpGetTeamUserInvitesRequest'
 import { HttpGetTeamUserInvitesResponse } from '../../../bindings/HttpGetTeamUserInvitesResponse'
 import { HttpGetUserJoinedTeamsResponse } from '../../../bindings/HttpGetUserJoinedTeamsResponse'
@@ -275,6 +277,16 @@ export class NightlyCloud {
       '/get_user_joined_teams',
       EndpointType.Private
     )) as HttpGetUserJoinedTeamsResponse
+
+    return response
+  }
+
+  getAppEvents = async (request: HttpGetAppEventsRequest): Promise<HttpGetAppEventsResponse> => {
+    const response = (await this.sendGetJson(
+      '/get_app_events',
+      EndpointType.Private,
+      request
+    )) as HttpGetAppEventsResponse
 
     return response
   }
