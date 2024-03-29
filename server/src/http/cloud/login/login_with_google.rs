@@ -1,7 +1,7 @@
 use crate::{
     env::NONCE,
+    http::cloud::utils::{generate_tokens, validate_request},
     structs::cloud::api_cloud_errors::CloudApiErrors,
-    utils::{generate_tokens, validate_request},
 };
 use axum::{
     extract::{ConnectInfo, State},
@@ -51,15 +51,9 @@ pub struct GoogleResponse {
 
 pub async fn login_with_google(
     ConnectInfo(ip): ConnectInfo<SocketAddr>,
-    State(db): State<Option<Arc<Db>>>,
+    State(db): State<Arc<Db>>,
     Json(request): Json<HttpLoginWithGoogleRequest>,
 ) -> Result<Json<HttpLoginWithGoogleResponse>, (StatusCode, String)> {
-    // Db connection has already been checked in the middleware
-    let db = db.as_ref().ok_or((
-        StatusCode::INTERNAL_SERVER_ERROR,
-        CloudApiErrors::CloudFeatureDisabled.to_string(),
-    ))?;
-
     // Validate request
     validate_request(&request, &())?;
 

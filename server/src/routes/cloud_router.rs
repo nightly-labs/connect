@@ -1,12 +1,21 @@
 use crate::{
     http::cloud::{
-        accept_team_invite::accept_team_invite, cancel_team_user_invite::cancel_team_user_invite,
-        cancel_user_team_invite::cancel_user_team_invite, events::events::events,
-        get_events::get_events, get_team_user_invites::get_team_user_invites,
-        get_user_joined_teams::get_user_joined_teams, get_user_team_invites::get_user_team_invites,
-        invite_user_to_team::invite_user_to_team, login_with_google::login_with_google,
-        login_with_password::login_with_password, register_new_app::register_new_app,
-        register_new_team::register_new_team, register_with_password::register_with_password,
+        accept_team_invite::accept_team_invite,
+        cancel_team_user_invite::cancel_team_user_invite,
+        cancel_user_team_invite::cancel_user_team_invite,
+        events::events::events,
+        get_events::get_events,
+        get_team_user_invites::get_team_user_invites,
+        get_user_joined_teams::get_user_joined_teams,
+        get_user_team_invites::get_user_team_invites,
+        invite_user_to_team::invite_user_to_team,
+        login::{login_with_google::login_with_google, login_with_password::login_with_password},
+        register::{
+            register_with_password_finish::register_with_password_finish,
+            register_with_password_start::register_with_password_start,
+        },
+        register_new_app::register_new_app,
+        register_new_team::register_new_team,
         remove_user_from_team::remove_user_from_team,
     },
     middlewares::auth_middleware::access_auth_middleware,
@@ -43,8 +52,12 @@ pub fn public_router(state: ServerState) -> Router<ServerState> {
             post(login_with_google),
         )
         .route(
-            &HttpCloudEndpoint::RegisterWithPassword.to_string(),
-            post(register_with_password),
+            &HttpCloudEndpoint::RegisterWithPasswordStart.to_string(),
+            post(register_with_password_start),
+        )
+        .route(
+            &HttpCloudEndpoint::RegisterWithPasswordFinish.to_string(),
+            post(register_with_password_finish),
         )
         .route(&HttpCloudEndpoint::Events.to_string(), post(events))
         .with_state(state)

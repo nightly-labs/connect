@@ -1,5 +1,6 @@
 use super::cloud_router::cloud_router;
 use crate::{
+    cloud_state::CloudState,
     handle_error::handle_error,
     http::relay::{
         connect_session::connect_session, drop_sessions::drop_sessions,
@@ -8,7 +9,7 @@ use crate::{
         get_wallets_metadata::get_wallets_metadata, resolve_request::resolve_request,
     },
     ip_geolocation::GeolocationRequester,
-    middlewares::cloud_middleware::db_cloud_middleware,
+    middlewares::cloud_middleware::cloud_middleware,
     sesssion_cleaner::start_cleaning_sessions,
     state::ServerState,
     structs::http_endpoints::HttpEndpoint,
@@ -30,13 +31,15 @@ use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
 
 pub async fn get_router(only_relay_service: bool) -> Router {
-    let (db, geo_loc_requester) = if only_relay_service {
-        (None, None)
+    let cloud_state = if only_relay_service {
+        None
     } else {
-        (
-            Some(Arc::new(Db::connect_to_the_pool().await)),
-            Some(Arc::new(GeolocationRequester::new().await)),
-        )
+        let db_arc = Arc::new(Db::connect_to_the_pool().await);
+        let geo_loc_requester = Arc::new(GeolocationRequester::new().await);
+
+        let cloud_state = CloudState::new(db_arc, geo_loc_requester);
+
+        Some(Arc::new(cloud_state))
     };
 
     let state = ServerState {
@@ -45,8 +48,7 @@ pub async fn get_router(only_relay_service: bool) -> Router {
         client_to_sockets: Default::default(),
         wallets_metadata: Arc::new(get_wallets_metadata_vec()),
         session_to_app_map: Default::default(),
-        db,
-        geo_location: geo_loc_requester,
+        cloud_state: cloud_state,
     };
 
     // Start cleaning outdated sessions
@@ -65,7 +67,7 @@ pub async fn get_router(only_relay_service: bool) -> Router {
                 "/cloud",
                 cloud_router(state.clone()).route_layer(middleware::from_fn_with_state(
                     state.clone(),
-                    db_cloud_middleware,
+                    cloud_middleware,
                 )),
             )
             .with_state(state.clone())

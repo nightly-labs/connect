@@ -9,10 +9,13 @@ pub mod test_utils {
             get_user_joined_teams::HttpGetUserJoinedTeamsResponse,
             get_user_team_invites::HttpGetUserTeamInvitesResponse,
             invite_user_to_team::{HttpInviteUserToTeamRequest, HttpInviteUserToTeamResponse},
-            login_with_password::{HttpLoginRequest, HttpLoginResponse},
+            login::login_with_password::{HttpLoginRequest, HttpLoginResponse},
+            register::{
+                register_with_password_finish::HttpVerifyRegisterWithPasswordRequest,
+                register_with_password_start::HttpRegisterWithPasswordRequest,
+            },
             register_new_app::{HttpRegisterNewAppRequest, HttpRegisterNewAppResponse},
             register_new_team::{HttpRegisterNewTeamRequest, HttpRegisterNewTeamResponse},
-            register_with_password::HttpRegisterWithPasswordRequest,
             remove_user_from_team::{
                 HttpRemoveUserFromTeamRequest, HttpRemoveUserFromTeamResponse,
             },
@@ -121,7 +124,7 @@ pub mod test_utils {
             .header("content-type", "application/json")
             .uri(format!(
                 "/cloud/public{}",
-                HttpCloudEndpoint::RegisterWithPassword.to_string()
+                HttpCloudEndpoint::RegisterWithPasswordStart.to_string()
             ))
             .extension(ip)
             .body(Body::from(json))
@@ -130,6 +133,31 @@ pub mod test_utils {
         // send request to app and get response
         let register_response = app.clone().oneshot(req).await.unwrap();
         assert_eq!(register_response.status(), StatusCode::OK);
+
+        // Validate register
+        let verify_register_payload = HttpVerifyRegisterWithPasswordRequest {
+            email: email.to_string(),
+            // Random valid code for testing
+            code: "123456".to_string(),
+        };
+
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&verify_register_payload).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .uri(format!(
+                "/cloud/public{}",
+                HttpCloudEndpoint::RegisterWithPasswordFinish.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // send request to app and get response
+        let verify_register_response = app.clone().oneshot(req).await.unwrap();
+        assert_eq!(verify_register_response.status(), StatusCode::OK);
 
         // Login user
         let login_payload = HttpLoginRequest {

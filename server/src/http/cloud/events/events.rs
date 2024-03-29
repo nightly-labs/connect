@@ -24,23 +24,12 @@ pub struct HttpNightlyConnectCloudEvent {
 
 pub async fn events(
     ConnectInfo(ip): ConnectInfo<SocketAddr>,
-    State(db): State<Option<Arc<Db>>>,
-    State(geo_loc_requester): State<Option<Arc<GeolocationRequester>>>,
+    State(db): State<Arc<Db>>,
+    State(geo_loc_requester): State<Arc<GeolocationRequester>>,
     State(sessions): State<Sessions>,
     Origin(origin): Origin,
     Json(request): Json<HttpNightlyConnectCloudEvent>,
 ) -> Result<Json<()>, (StatusCode, String)> {
-    // Check if the feature is enabled
-    let (db, geolocation_requester) = match (&db, &geo_loc_requester) {
-        (Some(db), Some(geo)) => (db, geo),
-        _ => {
-            return Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                CloudApiErrors::CloudFeatureDisabled.to_string(),
-            ));
-        }
-    };
-
     // Check if origin and app_id match in the database
     match db.get_registered_app_by_app_id(&request.app_id).await {
         Ok(Some(app)) => {
@@ -68,7 +57,7 @@ pub async fn events(
     }
 
     // Process the event
-    process_event(request, ip, &db, &geolocation_requester, &sessions).await;
+    process_event(request, ip, &db, &geo_loc_requester, &sessions).await;
 
     return Ok(Json(()));
 }

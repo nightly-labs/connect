@@ -1,7 +1,6 @@
 use crate::{
     middlewares::auth_middleware::UserId,
     structs::cloud::{api_cloud_errors::CloudApiErrors, team_invite::TeamInvite},
-    utils::{custom_validate_uuid, validate_request},
 };
 use axum::{
     extract::{Query, State},
@@ -14,6 +13,8 @@ use log::error;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
+
+use super::utils::{custom_validate_uuid, validate_request};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
@@ -31,16 +32,10 @@ pub struct HttpGetTeamUserInvitesResponse {
 }
 
 pub async fn get_team_user_invites(
-    State(db): State<Option<Arc<Db>>>,
+    State(db): State<Arc<Db>>,
     Extension(user_id): Extension<UserId>,
     Query(request): Query<HttpGetTeamUserInvitesRequest>,
 ) -> Result<Json<HttpGetTeamUserInvitesResponse>, (StatusCode, String)> {
-    // Db connection has already been checked in the middleware
-    let db = db.as_ref().ok_or((
-        StatusCode::INTERNAL_SERVER_ERROR,
-        CloudApiErrors::CloudFeatureDisabled.to_string(),
-    ))?;
-
     // Validate request
     validate_request(&request, &())?;
 

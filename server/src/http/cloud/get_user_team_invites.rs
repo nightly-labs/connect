@@ -17,15 +17,9 @@ pub struct HttpGetUserTeamInvitesResponse {
 }
 
 pub async fn get_user_team_invites(
-    State(db): State<Option<Arc<Db>>>,
+    State(db): State<Arc<Db>>,
     Extension(user_id): Extension<UserId>,
 ) -> Result<Json<HttpGetUserTeamInvitesResponse>, (StatusCode, String)> {
-    // Db connection has already been checked in the middleware
-    let db = db.as_ref().ok_or((
-        StatusCode::INTERNAL_SERVER_ERROR,
-        CloudApiErrors::CloudFeatureDisabled.to_string(),
-    ))?;
-
     // Get user data and perform checks
     let user = match db.get_user_by_user_id(&user_id).await {
         Ok(Some(user)) => user,

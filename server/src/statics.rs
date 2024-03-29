@@ -9,6 +9,10 @@ pub const USERS_AMOUNT_LIMIT_PER_TEAM: usize = 50;
 pub static NAME_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"^[a-zA-Z0-9_-]{3,30}$").expect("Regex creation failed"));
 
+// Code must be 6 digits long.
+pub static CODE_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"^\d{6}$").expect("Regex creation failed"));
+
 pub struct PasswordValidator {
     pub re: Regex,
     pub error: String,

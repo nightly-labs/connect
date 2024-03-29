@@ -30,20 +30,21 @@ pub fn get_env() -> &'static ENV {
     })
 }
 
+pub fn is_env_production() -> bool {
+    ENVIRONMENT() == "PROD"
+}
 pub fn ENVIRONMENT() -> &'static str {
     get_env().ENVIRONMENT.as_str()
 }
 pub fn JWT_SECRET() -> &'static str {
     get_env().JWT_SECRET.as_str()
 }
-
 pub fn JWT_PUBLIC_KEY() -> &'static str {
     get_env().JWT_PUBLIC_KEY.as_str()
 }
 pub fn ONLY_RELAY_SERVICE() -> bool {
     get_env().ONLY_RELAY_SERVICE
 }
-
 pub fn NONCE() -> &'static str {
     get_env().NONCE.as_str()
 }
