@@ -83,6 +83,10 @@ jobs:
         run: |
           pnpm test:ci
         working-directory: ./sdk/packages/cloud
+      - name: test analytics local
+        run: |
+          pnpm test:ci
+        working-directory: ./sdk/packages/analytics
       - name: Clean target
         working-directory: ./infra
         run: |

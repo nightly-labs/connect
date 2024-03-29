@@ -1,6 +1,8 @@
 use super::event_types::{
     app_connect_event::AppConnectEvent, app_disconnect_event::AppDisconnectEvent,
-    change_network_event::ChangeNetworkEvent, change_wallet_event::ChangeWalletEvent,
+    change_network_event::ChangeNetworkEvent,
+    change_network_resolve_event::ChangeNetworkResolveEvent,
+    change_wallet_event::ChangeWalletEvent, change_wallet_resolve_event::ChangeWalletResolveEvent,
     client_connect_event::ClientConnectEvent,
     client_connect_resolve_event::ClientConnectResolveEvent,
     client_disconnect_event::ClientDisconnectEvent,
@@ -29,5 +31,7 @@ pub enum EventData {
     SignAndSendTransaction(SignAndSendTransactionEvent),
     SignAndSendTransactionResolve(SignAndSendTransactionResolveEvent),
     ChangeNetwork(ChangeNetworkEvent),
+    ChangeNetworkResolve(ChangeNetworkResolveEvent),
     ChangeWallet(ChangeWalletEvent),
+    ChangeWalletResolve(ChangeWalletResolveEvent),
 }
