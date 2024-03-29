@@ -37,218 +37,168 @@ export class NightlyAnalytics {
     this.appId = params.appId
   }
 
-  sendEvent = async (
-    request: HttpNightlyConnectCloudEvent,
-    originHeader: string,
-    method = 'POST'
-  ) => {
+  sendEvent = async (request: HttpNightlyConnectCloudEvent, method = 'POST') => {
     // We don't need response
-    return await await fetch(this.endpoint, {
+    return await fetch(this.endpoint, {
       body: JSON.stringify(request),
       method: method,
       headers: {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
-        Origin: originHeader
+        'Content-Type': 'application/json'
       }
     })
   }
 
-  appConnected = async (event: AppConnectEvent, originHeader: string) => {
-    return await this.sendEvent(
-      {
-        appId: this.appId,
-        event: {
-          type: 'AppConnect',
-          ...event
-        }
-      },
-      originHeader
-    )
+  appConnected = async (event: AppConnectEvent) => {
+    return await this.sendEvent({
+      appId: this.appId,
+      event: {
+        type: 'AppConnect',
+        ...event
+      }
+    })
   }
 
-  appDisconnected = async (event: AppDisconnectEvent, originHeader: string) => {
-    return await this.sendEvent(
-      {
-        appId: this.appId,
-        event: {
-          type: 'AppDisconnect',
-          ...event
-        }
-      },
-      originHeader
-    )
+  appDisconnected = async (event: AppDisconnectEvent) => {
+    return await this.sendEvent({
+      appId: this.appId,
+      event: {
+        type: 'AppDisconnect',
+        ...event
+      }
+    })
   }
 
-  clientConnect = async (event: ClientConnectEvent, originHeader: string) => {
-    return await this.sendEvent(
-      {
-        appId: this.appId,
-        event: {
-          type: 'ClientConnect',
-          ...event
-        }
-      },
-      originHeader
-    )
+  clientConnect = async (event: ClientConnectEvent) => {
+    return await this.sendEvent({
+      appId: this.appId,
+      event: {
+        type: 'ClientConnect',
+        ...event
+      }
+    })
   }
 
-  clientConnectResolve = async (event: ClientConnectResolveEvent, originHeader: string) => {
-    return await this.sendEvent(
-      {
-        appId: this.appId,
-        event: {
-          type: 'ClientConnectResolve',
-          ...event
-        }
-      },
-      originHeader
-    )
+  clientConnectResolve = async (event: ClientConnectResolveEvent) => {
+    return await this.sendEvent({
+      appId: this.appId,
+      event: {
+        type: 'ClientConnectResolve',
+        ...event
+      }
+    })
   }
 
-  clientDisconnect = async (event: ClientDisconnectEvent, originHeader: string) => {
-    return await this.sendEvent(
-      {
-        appId: this.appId,
-        event: {
-          type: 'ClientDisconnect',
-          ...event
-        }
-      },
-      originHeader
-    )
+  clientDisconnect = async (event: ClientDisconnectEvent) => {
+    return await this.sendEvent({
+      appId: this.appId,
+      event: {
+        type: 'ClientDisconnect',
+        ...event
+      }
+    })
   }
 
-  signMessage = async (event: SignMessageEvent, originHeader: string) => {
-    return await this.sendEvent(
-      {
-        appId: this.appId,
-        event: {
-          type: 'SignMessage',
-          ...event
-        }
-      },
-      originHeader
-    )
+  signMessage = async (event: SignMessageEvent) => {
+    return await this.sendEvent({
+      appId: this.appId,
+      event: {
+        type: 'SignMessage',
+        ...event
+      }
+    })
   }
 
-  signMessageResolve = async (event: SignMessageResolveEvent, originHeader: string) => {
-    return await this.sendEvent(
-      {
-        appId: this.appId,
-        event: {
-          type: 'SignMessageResolve',
-          ...event
-        }
-      },
-      originHeader
-    )
+  signMessageResolve = async (event: SignMessageResolveEvent) => {
+    return await this.sendEvent({
+      appId: this.appId,
+      event: {
+        type: 'SignMessageResolve',
+        ...event
+      }
+    })
   }
 
-  signTransaction = async (event: SignTransactionEvent, originHeader: string) => {
-    return await this.sendEvent(
-      {
-        appId: this.appId,
-        event: {
-          type: 'SignTransaction',
-          ...event
-        }
-      },
-      originHeader
-    )
+  signTransaction = async (event: SignTransactionEvent) => {
+    return await this.sendEvent({
+      appId: this.appId,
+      event: {
+        type: 'SignTransaction',
+        ...event
+      }
+    })
   }
 
-  signTransactionResolve = async (event: SignTransactionResolveEvent, originHeader: string) => {
-    return await this.sendEvent(
-      {
-        appId: this.appId,
-        event: {
-          type: 'SignTransactionResolve',
-          ...event
-        }
-      },
-      originHeader
-    )
+  signTransactionResolve = async (event: SignTransactionResolveEvent) => {
+    return await this.sendEvent({
+      appId: this.appId,
+      event: {
+        type: 'SignTransactionResolve',
+        ...event
+      }
+    })
   }
 
-  signAndSendTransaction = async (event: SignAndSendTransactionEvent, originHeader: string) => {
-    return await this.sendEvent(
-      {
-        appId: this.appId,
-        event: {
-          type: 'SignAndSendTransaction',
-          ...event
-        }
-      },
-      originHeader
-    )
+  signAndSendTransaction = async (event: SignAndSendTransactionEvent) => {
+    return await this.sendEvent({
+      appId: this.appId,
+      event: {
+        type: 'SignAndSendTransaction',
+        ...event
+      }
+    })
   }
 
   signAndSendTransactionResolve = async (
     event: SignAndSendTransactionResolveEvent,
     originHeader: string
   ) => {
-    return await this.sendEvent(
-      {
-        appId: this.appId,
-        event: {
-          type: 'SignAndSendTransactionResolve',
-          ...event
-        }
-      },
-      originHeader
-    )
+    return await this.sendEvent({
+      appId: this.appId,
+      event: {
+        type: 'SignAndSendTransactionResolve',
+        ...event
+      }
+    })
   }
 
-  changeNetwork = async (event: ChangeNetworkEvent, originHeader: string) => {
-    return await this.sendEvent(
-      {
-        appId: this.appId,
-        event: {
-          type: 'ChangeNetwork',
-          ...event
-        }
-      },
-      originHeader
-    )
+  changeNetwork = async (event: ChangeNetworkEvent) => {
+    return await this.sendEvent({
+      appId: this.appId,
+      event: {
+        type: 'ChangeNetwork',
+        ...event
+      }
+    })
   }
 
-  changeNetworkResolve = async (event: ChangeNetworkResolveEvent, originHeader: string) => {
-    return await this.sendEvent(
-      {
-        appId: this.appId,
-        event: {
-          type: 'ChangeNetworkResolve',
-          ...event
-        }
-      },
-      originHeader
-    )
+  changeNetworkResolve = async (event: ChangeNetworkResolveEvent) => {
+    return await this.sendEvent({
+      appId: this.appId,
+      event: {
+        type: 'ChangeNetworkResolve',
+        ...event
+      }
+    })
   }
 
-  changeWallet = async (event: ChangeWalletEvent, originHeader: string) => {
-    return await this.sendEvent(
-      {
-        appId: this.appId,
-        event: {
-          type: 'ChangeWallet',
-          ...event
-        }
-      },
-      originHeader
-    )
+  changeWallet = async (event: ChangeWalletEvent) => {
+    return await this.sendEvent({
+      appId: this.appId,
+      event: {
+        type: 'ChangeWallet',
+        ...event
+      }
+    })
   }
 
-  changeWalletResolve = async (event: ChangeWalletResolveEvent, originHeader: string) => {
-    return await this.sendEvent(
-      {
-        appId: this.appId,
-        event: {
-          type: 'ChangeWalletResolve',
-          ...event
-        }
-      },
-      originHeader
-    )
+  changeWalletResolve = async (event: ChangeWalletResolveEvent) => {
+    return await this.sendEvent({
+      appId: this.appId,
+      event: {
+        type: 'ChangeWalletResolve',
+        ...event
+      }
+    })
   }
 }
