@@ -28,12 +28,9 @@ pub struct HttpRegisterWithPasswordRequest {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-#[serde(rename_all = "camelCase")]
-pub struct HttpRegisterWithPasswordResponse {
-    pub user_id: String,
-}
+pub struct HttpRegisterWithPasswordResponse {}
 
-pub async fn register_with_password(
+pub async fn register_with_password_start(
     State(db): State<Option<Arc<Db>>>,
     Json(request): Json<HttpRegisterWithPasswordRequest>,
 ) -> Result<Json<HttpRegisterWithPasswordResponse>, (StatusCode, String)> {
@@ -92,7 +89,7 @@ pub async fn register_with_password(
         ));
     }
 
-    return Ok(Json(HttpRegisterWithPasswordResponse { user_id }));
+    return Ok(Json(HttpRegisterWithPasswordResponse {}));
 }
 
 #[cfg(feature = "cloud_db_tests")]

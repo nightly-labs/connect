@@ -119,7 +119,7 @@ pub async fn login_with_password(
 mod tests {
     use super::*;
     use crate::{
-        http::cloud::register_with_password::{
+        http::cloud::register::register_with_password_start::{
             HttpRegisterWithPasswordRequest, HttpRegisterWithPasswordResponse,
         },
         structs::cloud::cloud_http_endpoints::HttpCloudEndpoint,

@@ -8,7 +8,7 @@ pub mod get_user_joined_teams;
 pub mod get_user_team_invites;
 pub mod invite_user_to_team;
 pub mod login;
+pub mod register;
 pub mod register_new_app;
 pub mod register_new_team;
-pub mod register_with_password;
 pub mod remove_user_from_team;

@@ -10,9 +10,9 @@ use crate::{
         get_user_team_invites::get_user_team_invites,
         invite_user_to_team::invite_user_to_team,
         login::{login_with_google::login_with_google, login_with_password::login_with_password},
+        register::register_with_password_start::register_with_password_start,
         register_new_app::register_new_app,
         register_new_team::register_new_team,
-        register_with_password::register_with_password,
         remove_user_from_team::remove_user_from_team,
     },
     middlewares::auth_middleware::access_auth_middleware,
@@ -50,7 +50,7 @@ pub fn public_router(state: ServerState) -> Router<ServerState> {
         )
         .route(
             &HttpCloudEndpoint::RegisterWithPassword.to_string(),
-            post(register_with_password),
+            post(register_with_password_start),
         )
         .route(&HttpCloudEndpoint::Events.to_string(), post(events))
         .with_state(state)
