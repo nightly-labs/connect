@@ -33,16 +33,10 @@ pub struct HttpGetAppEventsResponse {
 }
 
 pub async fn get_events(
-    State(db): State<Option<Arc<Db>>>,
+    State(db): State<Arc<Db>>,
     Extension(user_id): Extension<UserId>,
     Query(request): Query<HttpGetAppEventsRequest>,
 ) -> Result<Json<HttpGetAppEventsResponse>, (StatusCode, String)> {
-    // Db connection has already been checked in the middleware
-    let db = db.as_ref().ok_or((
-        StatusCode::INTERNAL_SERVER_ERROR,
-        CloudApiErrors::CloudFeatureDisabled.to_string(),
-    ))?;
-
     // Check if user has sufficient permissions
     match db
         .get_privilege_by_user_id_and_app_id(&user_id, &request.app_id)

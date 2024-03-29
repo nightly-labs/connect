@@ -31,22 +31,15 @@ use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
 
 pub async fn get_router(only_relay_service: bool) -> Router {
-    let (db, geo_loc_requester, cloud_state) = if only_relay_service {
-        (None, None, None)
+    let cloud_state = if only_relay_service {
+        None
     } else {
         let db_arc = Arc::new(Db::connect_to_the_pool().await);
         let geo_loc_requester = Arc::new(GeolocationRequester::new().await);
 
-        let cloud_state = CloudState {
-            db: db_arc.clone(),
-            geo_location: geo_loc_requester.clone(),
-        };
+        let cloud_state = CloudState::new(db_arc, geo_loc_requester);
 
-        (
-            Some(db_arc),
-            Some(geo_loc_requester),
-            Some(Arc::new(cloud_state)),
-        )
+        Some(Arc::new(cloud_state))
     };
 
     let state = ServerState {
@@ -56,8 +49,6 @@ pub async fn get_router(only_relay_service: bool) -> Router {
         wallets_metadata: Arc::new(get_wallets_metadata_vec()),
         session_to_app_map: Default::default(),
         cloud_state: cloud_state,
-        db,
-        geo_location: geo_loc_requester,
     };
 
     // Start cleaning outdated sessions

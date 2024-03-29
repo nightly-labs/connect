@@ -36,14 +36,19 @@ pub struct ServerState {
     pub wallets_metadata: Arc<Vec<WalletMetadata>>,
     pub session_to_app_map: SessionToAppMap,
     pub cloud_state: Option<Arc<CloudState>>,
-    pub db: Option<Arc<Db>>,
-    pub geo_location: Option<Arc<GeolocationRequester>>,
 }
 
 impl FromRef<ServerState> for Arc<Db> {
     fn from_ref(state: &ServerState) -> Self {
         // Safe as middleware will prevent this from being None
         state.cloud_state.as_ref().unwrap().db.clone()
+    }
+}
+
+impl FromRef<ServerState> for Arc<GeolocationRequester> {
+    fn from_ref(state: &ServerState) -> Self {
+        // Safe as middleware will prevent this from being None
+        state.cloud_state.as_ref().unwrap().geo_location.clone()
     }
 }
 

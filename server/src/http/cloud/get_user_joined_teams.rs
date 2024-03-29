@@ -25,15 +25,9 @@ pub struct HttpGetUserJoinedTeamsResponse {
 }
 
 pub async fn get_user_joined_teams(
-    State(db): State<Option<Arc<Db>>>,
+    State(db): State<Arc<Db>>,
     Extension(user_id): Extension<UserId>,
 ) -> Result<Json<HttpGetUserJoinedTeamsResponse>, (StatusCode, String)> {
-    // Db connection has already been checked in the middleware
-    let db = db.as_ref().ok_or((
-        StatusCode::INTERNAL_SERVER_ERROR,
-        CloudApiErrors::CloudFeatureDisabled.to_string(),
-    ))?;
-
     // Check if user already belongs to the team
     match db.get_joined_teams_by_user_id(&user_id).await {
         Ok(joined_teams) => {

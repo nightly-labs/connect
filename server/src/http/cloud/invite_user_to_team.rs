@@ -27,16 +27,10 @@ pub struct HttpInviteUserToTeamRequest {
 pub struct HttpInviteUserToTeamResponse {}
 
 pub async fn invite_user_to_team(
-    State(db): State<Option<Arc<Db>>>,
+    State(db): State<Arc<Db>>,
     Extension(user_id): Extension<UserId>,
     Json(request): Json<HttpInviteUserToTeamRequest>,
 ) -> Result<Json<HttpInviteUserToTeamResponse>, (StatusCode, String)> {
-    // Db connection has already been checked in the middleware
-    let db = db.as_ref().ok_or((
-        StatusCode::INTERNAL_SERVER_ERROR,
-        CloudApiErrors::CloudFeatureDisabled.to_string(),
-    ))?;
-
     // Validate request
     validate_request(&request, &())?;
 

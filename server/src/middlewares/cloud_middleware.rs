@@ -7,18 +7,7 @@ pub async fn cloud_middleware(
     req: Request,
     next: Next,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
-    // if let Some(cloud_state) = &server_state.cloud_state {
-    //     req.extensions_mut().insert(cloud_state.db.clone());
-    //     req.extensions_mut()
-    //         .insert(cloud_state.geo_location.clone());
-    // } else {
-    //     return Err((
-    //         StatusCode::FORBIDDEN,
-    //         "Cloud endpoints are disabled".to_string(),
-    //     ));
-    // }
-
-    if let None = server_state.db {
+    if let None = server_state.cloud_state {
         return Err((
             StatusCode::FORBIDDEN,
             "Cloud endpoints are disabled".to_string(),

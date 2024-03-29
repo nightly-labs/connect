@@ -37,16 +37,10 @@ pub struct HttpRegisterNewAppResponse {
 }
 
 pub async fn register_new_app(
-    State(db): State<Option<Arc<Db>>>,
+    State(db): State<Arc<Db>>,
     Extension(user_id): Extension<UserId>,
     Json(request): Json<HttpRegisterNewAppRequest>,
 ) -> Result<Json<HttpRegisterNewAppResponse>, (StatusCode, String)> {
-    // Db connection has already been checked in the middleware
-    let db = db.as_ref().ok_or((
-        StatusCode::INTERNAL_SERVER_ERROR,
-        CloudApiErrors::CloudFeatureDisabled.to_string(),
-    ))?;
-
     // Validate request
     validate_request(&request, &())?;
 
