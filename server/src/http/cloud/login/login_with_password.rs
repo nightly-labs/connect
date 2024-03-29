@@ -90,8 +90,11 @@ pub async fn login_with_password(
 mod tests {
     use super::*;
     use crate::{
-        http::cloud::register::register_with_password_start::{
-            HttpRegisterWithPasswordRequest, HttpRegisterWithPasswordResponse,
+        http::cloud::register::{
+            register_with_password_finish::HttpVerifyRegisterWithPasswordRequest,
+            register_with_password_start::{
+                HttpRegisterWithPasswordRequest, HttpRegisterWithPasswordResponse,
+            },
         },
         structs::cloud::cloud_http_endpoints::HttpCloudEndpoint,
         test_utils::test_utils::{convert_response, create_test_app},
@@ -132,7 +135,7 @@ mod tests {
             .header("content-type", "application/json")
             .uri(format!(
                 "/cloud/public{}",
-                HttpCloudEndpoint::RegisterWithPassword.to_string()
+                HttpCloudEndpoint::RegisterWithPasswordStart.to_string()
             ))
             .extension(ip)
             .body(Body::from(json))
@@ -144,6 +147,31 @@ mod tests {
         convert_response::<HttpRegisterWithPasswordResponse>(register_response)
             .await
             .unwrap();
+
+        // Validate register
+        let verify_register_payload = HttpVerifyRegisterWithPasswordRequest {
+            email: email.to_string(),
+            // Random valid code for testing
+            code: "123456".to_string(),
+        };
+
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&verify_register_payload).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .uri(format!(
+                "/cloud/public{}",
+                HttpCloudEndpoint::RegisterWithPasswordFinish.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // send request to app and get response
+        let verify_register_response = test_app.clone().oneshot(req).await.unwrap();
+        assert_eq!(verify_register_response.status(), StatusCode::OK);
 
         // Login user
         let login_payload = HttpLoginRequest {
@@ -240,7 +268,7 @@ mod tests {
             .header("content-type", "application/json")
             .uri(format!(
                 "/cloud/public{}",
-                HttpCloudEndpoint::RegisterWithPassword.to_string()
+                HttpCloudEndpoint::RegisterWithPasswordStart.to_string()
             ))
             .extension(ip)
             .body(Body::from(json))
@@ -253,7 +281,32 @@ mod tests {
             .await
             .unwrap();
 
-        // Login user with wring password, should fail
+        // Validate register
+        let verify_register_payload = HttpVerifyRegisterWithPasswordRequest {
+            email: email.to_string(),
+            // Random valid code for testing
+            code: "123456".to_string(),
+        };
+
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&verify_register_payload).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .uri(format!(
+                "/cloud/public{}",
+                HttpCloudEndpoint::RegisterWithPasswordFinish.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // send request to app and get response
+        let verify_register_response = test_app.clone().oneshot(req).await.unwrap();
+        assert_eq!(verify_register_response.status(), StatusCode::OK);
+
+        // Login user with wrong password, should fail
         let login_payload = HttpLoginRequest {
             email: email.to_string(),
             password: "WrongPassword".to_string(),

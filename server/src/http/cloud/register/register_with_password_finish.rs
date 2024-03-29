@@ -1,22 +1,22 @@
 use crate::{
-    env::NONCE,
+    env::is_env_production,
+    http::cloud::utils::{custom_validate_verification_code, validate_request},
     structs::{
         cloud::api_cloud_errors::CloudApiErrors,
-        session_cache::{ApiSessionsCache, RegisterVerification, SessionCache},
-    },
-    utils::{
-        custom_validate_new_password, generate_verification_code, get_timestamp_in_milliseconds,
-        validate_request,
+        session_cache::{ApiSessionsCache, SessionCache},
     },
 };
 use axum::{extract::State, http::StatusCode, Json};
-use database::db::Db;
+use database::{
+    db::Db,
+    tables::{grafana_users::table_struct::GrafanaUser, utils::get_current_datetime},
+};
 use garde::Validate;
 use log::error;
-use pwhash::bcrypt;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
+use uuid7::uuid7;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
@@ -24,69 +24,64 @@ use ts_rs::TS;
 pub struct HttpVerifyRegisterWithPasswordRequest {
     #[garde(email)]
     pub email: String,
-    #[garde(custom(custom_validate_new_password))]
+    #[garde(custom(custom_validate_verification_code))]
     pub code: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct HttpRegisterWithPasswordResponse {}
+pub struct HttpVerifyRegisterWithPasswordResponse {}
 
-pub async fn register_with_password_start(
+pub async fn register_with_password_finish(
     State(db): State<Arc<Db>>,
     State(sessions_cache): State<Arc<ApiSessionsCache>>,
-    Json(request): Json<HttpRegisterWithPasswordRequest>,
-) -> Result<Json<HttpRegisterWithPasswordResponse>, (StatusCode, String)> {
+    Json(request): Json<HttpVerifyRegisterWithPasswordRequest>,
+) -> Result<Json<HttpVerifyRegisterWithPasswordResponse>, (StatusCode, String)> {
     // Validate request
     validate_request(&request, &())?;
 
-    // Check if user already exists
-    match db.get_user_by_email(&request.email).await {
-        Ok(Some(_)) => {
-            return Err((
-                StatusCode::BAD_REQUEST,
-                CloudApiErrors::EmailAlreadyExists.to_string(),
-            ))
-        }
-        Ok(None) => {
-            // Continue
-        }
-        Err(err) => {
-            error!("Failed to check if user exists: {:?}", err);
+    // Get session data
+    let session_data = match sessions_cache.get(&request.email) {
+        Some(SessionCache::VerifyRegister(session)) => session,
+        _ => {
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
-                CloudApiErrors::DatabaseError.to_string(),
+                CloudApiErrors::InternalServerError.to_string(),
+            ));
+        }
+    };
+
+    // Remove leftover session data
+    sessions_cache.remove(&request.email);
+
+    // validate code only on production
+    if is_env_production() {
+        // Validate the code
+        if session_data.code != request.code {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                CloudApiErrors::InvalidVerificationCode.to_string(),
             ));
         }
     }
 
-    let hashed_password = bcrypt::hash(format!("{}_{}", NONCE(), request.password.clone()))
-        .map_err(|e| {
-            error!("Failed to hash password: {:?}", e);
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                CloudApiErrors::InternalServerError.to_string(),
-            )
-        })?;
+    // Save the user to the database
+    let user_id = uuid7().to_string();
+    let grafana_user = GrafanaUser {
+        user_id: user_id.clone(),
+        email: request.email.clone(),
+        password_hash: session_data.hashed_password,
+        creation_timestamp: get_current_datetime(),
+    };
+    if let Err(err) = db.add_new_user(&grafana_user).await {
+        error!("Failed to create user: {:?}", err);
+        return Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            CloudApiErrors::DatabaseError.to_string(),
+        ));
+    }
 
-    // Save to cache register request
-    // Remove leftover session data
-    sessions_cache.remove(&request.email);
-
-    sessions_cache.set(
-        request.email.clone(),
-        SessionCache::VerifyRegister(RegisterVerification {
-            email: request.email.clone(),
-            hashed_password,
-            code: generate_verification_code(),
-            created_at: get_timestamp_in_milliseconds(),
-        }),
-        None,
-    );
-
-    // TODO send code via email
-
-    return Ok(Json(HttpRegisterWithPasswordResponse {}));
+    return Ok(Json(HttpVerifyRegisterWithPasswordResponse {}));
 }
 
 #[cfg(feature = "cloud_db_tests")]
@@ -94,6 +89,9 @@ pub async fn register_with_password_start(
 mod tests {
     use super::*;
     use crate::{
+        http::cloud::register::register_with_password_start::{
+            HttpRegisterWithPasswordRequest, HttpRegisterWithPasswordResponse,
+        },
         structs::cloud::cloud_http_endpoints::HttpCloudEndpoint,
         test_utils::test_utils::{
             convert_response, convert_response_into_error_string, create_test_app,
@@ -135,7 +133,7 @@ mod tests {
             .header("content-type", "application/json")
             .uri(format!(
                 "/cloud/public{}",
-                HttpCloudEndpoint::RegisterWithPassword.to_string()
+                HttpCloudEndpoint::RegisterWithPasswordStart.to_string()
             ))
             .extension(ip)
             .body(Body::from(json))
@@ -147,33 +145,6 @@ mod tests {
         convert_response::<HttpRegisterWithPasswordResponse>(register_response)
             .await
             .unwrap();
-
-        // Try to register the same user again, should fail
-        let register_payload = HttpRegisterWithPasswordRequest {
-            email: email.to_string(),
-            password: password.to_string(),
-        };
-
-        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
-        let json = serde_json::to_string(&register_payload).unwrap();
-
-        let req = Request::builder()
-            .method(Method::POST)
-            .header("content-type", "application/json")
-            .uri(format!(
-                "/cloud/public{}",
-                HttpCloudEndpoint::RegisterWithPassword.to_string()
-            ))
-            .extension(ip)
-            .body(Body::from(json))
-            .unwrap();
-
-        // Send request
-        let register_response = test_app.clone().oneshot(req).await.unwrap();
-        // Validate response
-        convert_response::<HttpRegisterWithPasswordResponse>(register_response)
-            .await
-            .unwrap_err();
     }
 
     #[tokio::test]
@@ -197,7 +168,7 @@ mod tests {
             .header("content-type", "application/json")
             .uri(format!(
                 "/cloud/public{}",
-                HttpCloudEndpoint::RegisterWithPassword.to_string()
+                HttpCloudEndpoint::RegisterWithPasswordStart.to_string()
             ))
             .extension(ip)
             .body(Body::from(json))
@@ -227,7 +198,7 @@ mod tests {
             .header("content-type", "application/json")
             .uri(format!(
                 "/cloud/public{}",
-                HttpCloudEndpoint::RegisterWithPassword.to_string()
+                HttpCloudEndpoint::RegisterWithPasswordStart.to_string()
             ))
             .extension(ip)
             .body(Body::from(json))
@@ -248,7 +219,7 @@ mod tests {
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
         let uri = format!(
             "/cloud/public{}",
-            HttpCloudEndpoint::RegisterWithPassword.to_string()
+            HttpCloudEndpoint::RegisterWithPasswordStart.to_string()
         );
 
         {

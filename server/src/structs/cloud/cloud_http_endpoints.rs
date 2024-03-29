@@ -7,8 +7,10 @@ pub enum HttpCloudEndpoint {
     #[serde(rename = "/register_new_app")]
     RegisterNewApp,
     #[serde(rename = "/register_with_password")]
-    RegisterWithPassword,
-    #[serde(rename = "/login_with_password")]
+    RegisterWithPasswordStart,
+    #[serde(rename = "/login_with_password_start")]
+    RegisterWithPasswordFinish,
+    #[serde(rename = "/login_with_password_finish")]
     LoginWithPassword,
     #[serde(rename = "/login_with_google")]
     LoginWithGoogle,
@@ -40,7 +42,12 @@ impl HttpCloudEndpoint {
     pub fn to_string(&self) -> String {
         match self {
             HttpCloudEndpoint::RegisterNewApp => "/register_new_app".to_string(),
-            HttpCloudEndpoint::RegisterWithPassword => "/register_with_password".to_string(),
+            HttpCloudEndpoint::RegisterWithPasswordStart => {
+                "/register_with_password_start".to_string()
+            }
+            HttpCloudEndpoint::RegisterWithPasswordFinish => {
+                "/login_with_password_finish".to_string()
+            }
             HttpCloudEndpoint::LoginWithPassword => "/login_with_password".to_string(),
             HttpCloudEndpoint::LoginWithGoogle => "/login_with_google".to_string(),
             HttpCloudEndpoint::RegisterNewTeam => "/register_new_team".to_string(),
