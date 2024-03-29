@@ -69,8 +69,6 @@ pub async fn register_with_password_start(
             )
         })?;
 
-    // TODO Should we reject if session already exists?, will this count as resending the code?
-
     // Save to cache register request
     // Remove leftover session data
     sessions_cache.remove(&request.email);
