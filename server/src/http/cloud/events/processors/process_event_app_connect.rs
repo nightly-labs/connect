@@ -1,7 +1,6 @@
 use crate::{
-    ip_geolocation::GeolocationRequester, state::Sessions,
-    structs::cloud::cloud_events::event_types::app_connect_event::AppConnectEvent,
-    utils::get_geolocation_data,
+    http::cloud::utils::get_geolocation_data, ip_geolocation::GeolocationRequester,
+    state::Sessions, structs::cloud::cloud_events::event_types::app_connect_event::AppConnectEvent,
 };
 use database::{
     db::Db,

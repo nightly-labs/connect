@@ -1,8 +1,7 @@
 use crate::{
-    auth::AuthToken,
-    env::{JWT_SECRET, NONCE},
+    env::NONCE,
+    http::cloud::utils::{generate_tokens, validate_request},
     structs::cloud::api_cloud_errors::CloudApiErrors,
-    utils::validate_request,
 };
 use axum::{
     extract::{ConnectInfo, State},
@@ -77,32 +76,10 @@ pub async fn login_with_password(
     }
 
     // Generate tokens
-    let ip = if request.enforce_ip { Some(ip) } else { None };
-    // Access token
-    let token = match AuthToken::new_access(&user.user_id, ip).encode(JWT_SECRET()) {
-        Ok(token) => token,
-        Err(err) => {
-            error!("Failed to create access token: {:?}", err);
-            return Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                CloudApiErrors::AccessTokenFailure.to_string(),
-            ));
-        }
-    };
-    // Refresh token
-    let refresh_token = match AuthToken::new_refresh(&user.user_id, ip).encode(JWT_SECRET()) {
-        Ok(token) => token,
-        Err(err) => {
-            error!("Failed to create refresh token: {:?}", err);
-            return Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                CloudApiErrors::RefreshTokenFailure.to_string(),
-            ));
-        }
-    };
+    let (auth_token, refresh_token) = generate_tokens(request.enforce_ip, ip, &user.user_id)?;
 
     return Ok(Json(HttpLoginResponse {
-        auth_token: token,
+        auth_token,
         refresh_token,
         user_id: user.user_id,
     }));

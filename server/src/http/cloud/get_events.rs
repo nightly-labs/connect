@@ -1,7 +1,7 @@
-use crate::middlewares::auth_middleware::UserId;
-use crate::structs::cloud::api_cloud_errors::CloudApiErrors;
-use crate::structs::cloud::app_event::AppEvent;
-use crate::utils::{custom_validate_optional_pagination_cursor, custom_validate_uuid};
+use crate::{
+    middlewares::auth_middleware::UserId,
+    structs::cloud::{api_cloud_errors::CloudApiErrors, app_event::AppEvent},
+};
 use axum::extract::Query;
 use axum::Extension;
 use axum::{extract::State, http::StatusCode, Json};
@@ -12,6 +12,8 @@ use log::error;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
+
+use super::utils::{custom_validate_optional_pagination_cursor, custom_validate_uuid};
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]

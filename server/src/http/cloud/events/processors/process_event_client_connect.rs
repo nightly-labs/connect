@@ -1,7 +1,6 @@
 use crate::{
-    ip_geolocation::GeolocationRequester,
+    http::cloud::utils::get_geolocation_data, ip_geolocation::GeolocationRequester,
     structs::cloud::cloud_events::event_types::client_connect_event::ClientConnectEvent,
-    utils::get_geolocation_data,
 };
 use database::{db::Db, structs::event_type::EventType};
 use log::error;

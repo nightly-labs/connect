@@ -1,7 +1,7 @@
 use crate::{
     env::NONCE,
+    http::cloud::utils::{generate_tokens, validate_request},
     structs::cloud::api_cloud_errors::CloudApiErrors,
-    utils::{generate_tokens, validate_request},
 };
 use axum::{
     extract::{ConnectInfo, State},

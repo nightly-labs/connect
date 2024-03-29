@@ -1,7 +1,5 @@
 use crate::{
-    middlewares::auth_middleware::UserId,
-    structs::cloud::api_cloud_errors::CloudApiErrors,
-    utils::{custom_validate_uuid, validate_request},
+    middlewares::auth_middleware::UserId, structs::cloud::api_cloud_errors::CloudApiErrors,
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::db::Db;
@@ -10,6 +8,8 @@ use log::error;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
+
+use super::utils::{custom_validate_uuid, validate_request};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]

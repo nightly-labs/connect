@@ -1,8 +1,7 @@
+use super::utils::{custom_validate_name, custom_validate_uuid, validate_request};
 use crate::{
-    middlewares::auth_middleware::UserId,
-    statics::REGISTERED_APPS_LIMIT_PER_TEAM,
+    middlewares::auth_middleware::UserId, statics::REGISTERED_APPS_LIMIT_PER_TEAM,
     structs::cloud::api_cloud_errors::CloudApiErrors,
-    utils::{custom_validate_name, custom_validate_uuid, validate_request},
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::{

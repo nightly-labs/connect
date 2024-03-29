@@ -1,13 +1,13 @@
 use crate::{
     env::NONCE,
-    http::cloud::utils::{
-        custom_validate_new_password, generate_verification_code, validate_request,
-    },
     structs::{
         cloud::api_cloud_errors::CloudApiErrors,
         session_cache::{ApiSessionsCache, RegisterVerification, SessionCache},
     },
-    utils::get_timestamp_in_milliseconds,
+    utils::{
+        custom_validate_new_password, generate_verification_code, get_timestamp_in_milliseconds,
+        validate_request,
+    },
 };
 use axum::{extract::State, http::StatusCode, Json};
 use database::db::Db;
@@ -21,11 +21,11 @@ use ts_rs::TS;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct HttpRegisterWithPasswordRequest {
+pub struct HttpVerifyRegisterWithPasswordRequest {
     #[garde(email)]
     pub email: String,
     #[garde(custom(custom_validate_new_password))]
-    pub password: String,
+    pub code: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
