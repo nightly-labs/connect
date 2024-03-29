@@ -16,6 +16,7 @@ use database::{
 use database::{structs::geo_location::Geolocation, tables::utils::get_current_datetime};
 use garde::Validate;
 use log::{error, warn};
+use rand::{distributions::Uniform, Rng};
 use std::{
     net::SocketAddr,
     str::FromStr,
@@ -55,6 +56,13 @@ pub fn get_wallets_metadata_vec() -> Vec<WalletMetadata> {
         aleph_zero_signer_metadata(),
         subwallet_metadata(),
     ]
+}
+
+pub fn generate_verification_code() -> String {
+    let mut rng = rand::thread_rng();
+    let range = Uniform::new(0, 10);
+    let code = (0..6).map(|_| rng.sample(&range).to_string()).collect();
+    code
 }
 
 pub async fn get_geolocation_data(

@@ -1,20 +1,22 @@
 use crate::{
     env::NONCE,
-    structs::cloud::api_cloud_errors::CloudApiErrors,
-    utils::{custom_validate_new_password, validate_request},
+    structs::{
+        cloud::api_cloud_errors::CloudApiErrors,
+        session_cache::{ApiSessionsCache, RegisterVerification, SessionCache},
+    },
+    utils::{
+        custom_validate_new_password, generate_verification_code, get_timestamp_in_milliseconds,
+        validate_request,
+    },
 };
 use axum::{extract::State, http::StatusCode, Json};
-use database::{
-    db::Db,
-    tables::{grafana_users::table_struct::GrafanaUser, utils::get_current_datetime},
-};
+use database::db::Db;
 use garde::Validate;
 use log::error;
 use pwhash::bcrypt;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
-use uuid7::uuid7;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
@@ -32,6 +34,7 @@ pub struct HttpRegisterWithPasswordResponse {}
 
 pub async fn register_with_password_start(
     State(db): State<Arc<Db>>,
+    State(sessions_cache): State<Arc<ApiSessionsCache>>,
     Json(request): Json<HttpRegisterWithPasswordRequest>,
 ) -> Result<Json<HttpRegisterWithPasswordResponse>, (StatusCode, String)> {
     // Validate request
@@ -66,22 +69,22 @@ pub async fn register_with_password_start(
             )
         })?;
 
-    // Create new user
-    let user_id = uuid7().to_string();
-    let grafana_user = GrafanaUser {
-        user_id: user_id.clone(),
-        email: request.email.clone(),
-        password_hash: hashed_password,
-        creation_timestamp: get_current_datetime(),
-    };
+    // Save to cache register request
+    // Remove leftover session data
+    sessions_cache.remove(&request.email);
 
-    if let Err(err) = db.add_new_user(&grafana_user).await {
-        error!("Failed to create user: {:?}", err);
-        return Err((
-            StatusCode::INTERNAL_SERVER_ERROR,
-            CloudApiErrors::DatabaseError.to_string(),
-        ));
-    }
+    sessions_cache.set(
+        request.email.clone(),
+        SessionCache::VerifyRegister(RegisterVerification {
+            email: request.email.clone(),
+            hashed_password,
+            code: generate_verification_code(),
+            created_at: get_timestamp_in_milliseconds(),
+        }),
+        None,
+    );
+
+    // TODO send code via email
 
     return Ok(Json(HttpRegisterWithPasswordResponse {}));
 }

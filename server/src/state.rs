@@ -3,7 +3,7 @@ use crate::{
     ip_geolocation::GeolocationRequester,
     structs::{
         client_messages::client_messages::ServerToClient, session::Session,
-        wallet_metadata::WalletMetadata,
+        session_cache::ApiSessionsCache, wallet_metadata::WalletMetadata,
     },
 };
 use anyhow::Result;
@@ -49,6 +49,13 @@ impl FromRef<ServerState> for Arc<GeolocationRequester> {
     fn from_ref(state: &ServerState) -> Self {
         // Safe as middleware will prevent this from being None
         state.cloud_state.as_ref().unwrap().geo_location.clone()
+    }
+}
+
+impl FromRef<ServerState> for Arc<ApiSessionsCache> {
+    fn from_ref(state: &ServerState) -> Self {
+        // Safe as middleware will prevent this from being None
+        state.cloud_state.as_ref().unwrap().sessions_cache.clone()
     }
 }
 
