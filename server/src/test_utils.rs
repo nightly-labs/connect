@@ -9,7 +9,7 @@ pub mod test_utils {
             get_user_joined_teams::HttpGetUserJoinedTeamsResponse,
             get_user_team_invites::HttpGetUserTeamInvitesResponse,
             invite_user_to_team::{HttpInviteUserToTeamRequest, HttpInviteUserToTeamResponse},
-            login_with_password::{HttpLoginRequest, HttpLoginResponse},
+            login::login_with_password::{HttpLoginRequest, HttpLoginResponse},
             register_new_app::{HttpRegisterNewAppRequest, HttpRegisterNewAppResponse},
             register_new_team::{HttpRegisterNewTeamRequest, HttpRegisterNewTeamResponse},
             register_with_password::HttpRegisterWithPasswordRequest,
