@@ -31,15 +31,9 @@ pub struct HttpRegisterWithPasswordRequest {
 pub struct HttpRegisterWithPasswordResponse {}
 
 pub async fn register_with_password_start(
-    State(db): State<Option<Arc<Db>>>,
+    State(db): State<Arc<Db>>,
     Json(request): Json<HttpRegisterWithPasswordRequest>,
 ) -> Result<Json<HttpRegisterWithPasswordResponse>, (StatusCode, String)> {
-    // Db connection has already been checked in the middleware
-    let db = db.as_ref().ok_or((
-        StatusCode::INTERNAL_SERVER_ERROR,
-        CloudApiErrors::CloudFeatureDisabled.to_string(),
-    ))?;
-
     // Validate request
     validate_request(&request, &())?;
 
