@@ -3,7 +3,7 @@ use crate::{
     http::cloud::utils::{custom_validate_verification_code, validate_request},
     structs::{
         cloud::api_cloud_errors::CloudApiErrors,
-        session_cache::{ApiSessionsCache, SessionCache},
+        session_cache::{ApiSessionsCache, SessionCache, SessionsCacheKey},
     },
 };
 use axum::{extract::State, http::StatusCode, Json};
@@ -52,7 +52,8 @@ pub async fn register_with_password_finish(
     };
 
     // Remove leftover session data
-    sessions_cache.remove(&request.email);
+    let sessions_key = SessionsCacheKey::RegisterVerification(request.email.clone()).to_string();
+    sessions_cache.remove(&sessions_key);
 
     // validate code only on production
     if is_env_production() {

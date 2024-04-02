@@ -5,7 +5,7 @@ use crate::{
     },
     structs::{
         cloud::api_cloud_errors::CloudApiErrors,
-        session_cache::{ApiSessionsCache, RegisterVerification, SessionCache},
+        session_cache::{ApiSessionsCache, RegisterVerification, SessionCache, SessionsCacheKey},
     },
     utils::get_timestamp_in_milliseconds,
 };
@@ -70,11 +70,13 @@ pub async fn register_with_password_start(
         })?;
 
     // Save to cache register request
+    let sessions_key = SessionsCacheKey::RegisterVerification(request.email.clone()).to_string();
+
     // Remove leftover session data
-    sessions_cache.remove(&request.email);
+    sessions_cache.remove(&sessions_key);
 
     sessions_cache.set(
-        request.email.clone(),
+        sessions_key,
         SessionCache::VerifyRegister(RegisterVerification {
             email: request.email.clone(),
             hashed_password,
