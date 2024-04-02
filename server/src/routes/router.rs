@@ -8,7 +8,6 @@ use crate::{
         get_session_info::get_session_info, get_sessions::get_sessions,
         get_wallets_metadata::get_wallets_metadata, resolve_request::resolve_request,
     },
-    ip_geolocation::GeolocationRequester,
     middlewares::cloud_middleware::cloud_middleware,
     sesssion_cleaner::start_cleaning_sessions,
     state::ServerState,
@@ -25,7 +24,6 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use database::db::Db;
 use std::{sync::Arc, time::Duration};
 use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
@@ -34,12 +32,7 @@ pub async fn get_router(only_relay_service: bool) -> Router {
     let cloud_state = if only_relay_service {
         None
     } else {
-        let db_arc = Arc::new(Db::connect_to_the_pool().await);
-        let geo_loc_requester = Arc::new(GeolocationRequester::new().await);
-
-        let cloud_state = CloudState::new(db_arc, geo_loc_requester);
-
-        Some(Arc::new(cloud_state))
+        Some(Arc::new(CloudState::new().await))
     };
 
     let state = ServerState {
