@@ -1,6 +1,7 @@
 use crate::{
     cloud_state::CloudState,
     ip_geolocation::GeolocationRequester,
+    mailer::mailer::Mailer,
     structs::{
         client_messages::client_messages::ServerToClient, session::Session,
         session_cache::ApiSessionsCache, wallet_metadata::WalletMetadata,
@@ -56,6 +57,13 @@ impl FromRef<ServerState> for Arc<ApiSessionsCache> {
     fn from_ref(state: &ServerState) -> Self {
         // Safe as middleware will prevent this from being None
         state.cloud_state.as_ref().unwrap().sessions_cache.clone()
+    }
+}
+
+impl FromRef<ServerState> for Arc<Mailer> {
+    fn from_ref(state: &ServerState) -> Self {
+        // Safe as middleware will prevent this from being None
+        state.cloud_state.as_ref().unwrap().mailer.clone()
     }
 }
 

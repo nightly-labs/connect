@@ -7,7 +7,7 @@ use crate::mailer::{
 };
 
 impl Mailer {
-    pub fn handle_email_request(&self, request: SendEmailRequest) -> SendEmailResponse {
+    pub fn handle_email_request(&self, request: &SendEmailRequest) -> SendEmailResponse {
         let templates = self.templates.clone();
         let mail_sender = self.transport.clone();
         let mailbox = self.mailbox.clone();
