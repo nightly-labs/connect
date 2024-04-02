@@ -46,6 +46,26 @@ impl Db {
             Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
+
+    pub async fn set_new_password(
+        &self,
+        user_email: &String,
+        new_password: &String,
+    ) -> Result<(), DbError> {
+        let query_body =
+            format!("UPDATE {GRAFANA_USERS_TABLE_NAME} SET password_hash = $1 WHERE email = $2");
+
+        let query_result = query(&query_body)
+            .bind(new_password)
+            .bind(user_email)
+            .execute(&self.connection_pool)
+            .await;
+
+        match query_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e).map_err(|e| e.into()),
+        }
+    }
 }
 
 #[cfg(feature = "cloud_db_tests")]

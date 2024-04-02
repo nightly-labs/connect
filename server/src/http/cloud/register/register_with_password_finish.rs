@@ -3,7 +3,7 @@ use crate::{
     http::cloud::utils::{custom_validate_verification_code, validate_request},
     structs::{
         cloud::api_cloud_errors::CloudApiErrors,
-        session_cache::{ApiSessionsCache, SessionCache},
+        session_cache::{ApiSessionsCache, SessionCache, SessionsCacheKey},
     },
 };
 use axum::{extract::State, http::StatusCode, Json};
@@ -41,7 +41,8 @@ pub async fn register_with_password_finish(
     validate_request(&request, &())?;
 
     // Get session data
-    let session_data = match sessions_cache.get(&request.email) {
+    let sessions_key = SessionsCacheKey::RegisterVerification(request.email.clone()).to_string();
+    let session_data = match sessions_cache.get(&sessions_key) {
         Some(SessionCache::VerifyRegister(session)) => session,
         _ => {
             return Err((
@@ -52,7 +53,7 @@ pub async fn register_with_password_finish(
     };
 
     // Remove leftover session data
-    sessions_cache.remove(&request.email);
+    sessions_cache.remove(&sessions_key);
 
     // validate code only on production
     if is_env_production() {
@@ -145,6 +146,31 @@ mod tests {
         convert_response::<HttpRegisterWithPasswordResponse>(register_response)
             .await
             .unwrap();
+
+        // Validate register
+        let verify_register_payload = HttpVerifyRegisterWithPasswordRequest {
+            email: email.to_string(),
+            // Random valid code for testing
+            code: "123456".to_string(),
+        };
+
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&verify_register_payload).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .uri(format!(
+                "/cloud/public{}",
+                HttpCloudEndpoint::RegisterWithPasswordFinish.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // send request to app and get response
+        let verify_register_response = test_app.clone().oneshot(req).await.unwrap();
+        assert_eq!(verify_register_response.status(), StatusCode::OK);
     }
 
     #[tokio::test]

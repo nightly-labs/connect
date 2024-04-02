@@ -36,6 +36,10 @@ pub enum HttpCloudEndpoint {
     CancelUserTeamInvite,
     #[serde(rename = "/get_app_events")]
     GetEvents,
+    #[serde(rename = "/reset_password_start")]
+    ResetPasswordStart,
+    #[serde(rename = "/reset_password_finish")]
+    ResetPasswordFinish,
 }
 
 impl HttpCloudEndpoint {
@@ -61,6 +65,8 @@ impl HttpCloudEndpoint {
             HttpCloudEndpoint::CancelTeamUserInvite => "/cancel_team_user_invite".to_string(),
             HttpCloudEndpoint::CancelUserTeamInvite => "/cancel_user_team_invite".to_string(),
             HttpCloudEndpoint::GetEvents => "/get_app_events".to_string(),
+            HttpCloudEndpoint::ResetPasswordStart => "/reset_password_start".to_string(),
+            HttpCloudEndpoint::ResetPasswordFinish => "/reset_password_finish".to_string(),
         }
     }
 }
