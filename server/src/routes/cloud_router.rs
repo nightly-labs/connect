@@ -56,7 +56,7 @@ pub fn public_router(state: ServerState) -> Router<ServerState> {
             post(register_with_password_start),
         )
         .route(
-            &HttpCloudEndpoint::RegisterWithPasswordFinish.to_string(),
+            &HttpCloudEndpoint::ResetPasswordStart.to_string(),
             post(register_with_password_finish),
         )
         .route(&HttpCloudEndpoint::Events.to_string(), post(events))

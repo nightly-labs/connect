@@ -12,4 +12,5 @@ pub mod register;
 pub mod register_new_app;
 pub mod register_new_team;
 pub mod remove_user_from_team;
+pub mod reset_credentials;
 pub mod utils;
