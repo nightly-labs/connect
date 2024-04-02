@@ -13,7 +13,7 @@ export default function Home(): JSX.Element {
       <meta property="twitter:title" content="Nightly Connect - entire Web3 in one place" />
       <meta
         property="twitter:description"
-        content="Find Nightly Connect documentation in one place. Try Nightly Connect's open-source code and push your projects on Solana, Aleph Zero, or Sui to the next level."
+        content="Find Nightly Connect documentation in one place. Try Nightly Connect's open-source code and push your projects on Solana, Aleph Zero, Sui or Aptos to the next level."
       />
       {/* <meta
         property="twitter:image"
@@ -23,7 +23,7 @@ export default function Home(): JSX.Element {
       <meta property="DC.title" content="Nightly Connect - entire Web3 in one place" />
       <meta
         property="DC.description"
-        content="Find Nightly Connect documentation in one place. Try Nightly Connect's open-source code and push your projects on Solana, Aleph Zero, or Sui to the next level."
+        content="Find Nightly Connect documentation in one place. Try Nightly Connect's open-source code and push your projects on Solana, Aleph Zero, Sui or Aptos to the next level."
       />
       {/* <meta property="DC:image" content="https://near.game.nightly.app/graphicRaffleNear.png" /> */}
 
@@ -32,7 +32,7 @@ export default function Home(): JSX.Element {
       <meta property="og:title" content="Nightly Connect - entire Web3 in one place" />
       <meta
         property="og:description"
-        content="Find Nightly Connect documentation in one place. Try Nightly Connect's open-source code and push your projects on Solana, Aleph Zero, or Sui to the next level."
+        content="Find Nightly Connect documentation in one place. Try Nightly Connect's open-source code and push your projects on Solana, Aleph Zero, Sui or Aptos to the next level."
       />
       {/* <meta property="og:image" content="https://near.game.nightly.app/graphicRaffleNear.png" /> */}
 
