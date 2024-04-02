@@ -1,5 +1,5 @@
-use std::{net::SocketAddr, str::FromStr, sync::Arc, time::Duration};
-
+use addr::parse_domain_name;
+use anyhow::bail;
 use axum::http::StatusCode;
 use database::{
     db::Db,
@@ -11,6 +11,7 @@ use database::{
 use garde::Validate;
 use log::{error, warn};
 use rand::{distributions::Uniform, Rng};
+use std::{net::SocketAddr, str::FromStr, sync::Arc, time::Duration};
 use uuid7::Uuid;
 
 use crate::{
@@ -192,4 +193,50 @@ pub fn generate_tokens(
     };
 
     Ok((token, refresh_token))
+}
+
+pub fn custom_validate_domain_name(domain_name: &String) -> anyhow::Result<String> {
+    // Check if the domain name is empty
+    if domain_name.trim().is_empty() {
+        error!("Domain name is empty: {:?}", domain_name);
+        bail!(CloudApiErrors::InvalidDomainName);
+    }
+
+    match parse_domain_name(domain_name) {
+        Ok(name) => Ok(name.to_string()),
+        Err(err) => {
+            error!("Failed to convert domain name to ascii: {:?}", err);
+            bail!(CloudApiErrors::InvalidDomainName);
+        }
+    }
+}
+
+#[cfg(feature = "cloud_db_tests")]
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_valid_ascii_domain() {
+        let domain_name = String::from("example.com");
+        assert!(custom_validate_domain_name(&domain_name).is_ok());
+    }
+
+    #[test]
+    fn test_valid_unicode_domain() {
+        let domain_name = String::from("münchen.de");
+        assert!(custom_validate_domain_name(&domain_name).is_ok());
+    }
+
+    #[test]
+    fn test_invalid_domain() {
+        let domain_name = String::from("this is not a domain");
+        assert!(custom_validate_domain_name(&domain_name).is_err());
+    }
+
+    #[test]
+    fn test_empty_domain() {
+        let domain_name = String::from("");
+        assert!(custom_validate_domain_name(&domain_name).is_err());
+    }
 }
