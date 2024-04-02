@@ -3,6 +3,9 @@ use crate::{
         accept_team_invite::accept_team_invite,
         cancel_team_user_invite::cancel_team_user_invite,
         cancel_user_team_invite::cancel_user_team_invite,
+        domains::{
+            verify_domain_finish::verify_domain_finish, verify_domain_start::verify_domain_start,
+        },
         events::events::events,
         get_events::get_events,
         get_team_user_invites::get_team_user_invites,
@@ -118,5 +121,13 @@ pub fn private_router(state: ServerState) -> Router<ServerState> {
             post(cancel_user_team_invite),
         )
         .route(&HttpCloudEndpoint::GetEvents.to_string(), get(get_events))
+        .route(
+            &HttpCloudEndpoint::VerifyDomainStart.to_string(),
+            post(verify_domain_start),
+        )
+        .route(
+            &HttpCloudEndpoint::VerifyDomainFinish.to_string(),
+            post(verify_domain_finish),
+        )
         .with_state(state)
 }

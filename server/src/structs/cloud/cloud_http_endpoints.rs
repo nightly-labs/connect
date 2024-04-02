@@ -40,6 +40,10 @@ pub enum HttpCloudEndpoint {
     ResetPasswordStart,
     #[serde(rename = "/reset_password_finish")]
     ResetPasswordFinish,
+    #[serde(rename = "/verify_domain_start")]
+    VerifyDomainStart,
+    #[serde(rename = "/verify_domain_finish")]
+    VerifyDomainFinish,
 }
 
 impl HttpCloudEndpoint {
@@ -67,6 +71,8 @@ impl HttpCloudEndpoint {
             HttpCloudEndpoint::GetEvents => "/get_app_events".to_string(),
             HttpCloudEndpoint::ResetPasswordStart => "/reset_password_start".to_string(),
             HttpCloudEndpoint::ResetPasswordFinish => "/reset_password_finish".to_string(),
+            HttpCloudEndpoint::VerifyDomainStart => "/verify_domain_start".to_string(),
+            HttpCloudEndpoint::VerifyDomainFinish => "/verify_domain_finish".to_string(),
         }
     }
 }
