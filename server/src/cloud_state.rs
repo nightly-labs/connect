@@ -1,4 +1,8 @@
-use crate::{ip_geolocation::GeolocationRequester, structs::session_cache::ApiSessionsCache};
+use crate::{
+    ip_geolocation::GeolocationRequester,
+    mailer::{entry::run_mailer, mailer::Mailer},
+    structs::session_cache::ApiSessionsCache,
+};
 use axum::extract::FromRef;
 use database::db::Db;
 use r_cache::cache::Cache;
@@ -10,16 +14,21 @@ pub struct CloudState {
     pub db: Arc<Db>,
     pub geo_location: Arc<GeolocationRequester>,
     pub sessions_cache: Arc<ApiSessionsCache>,
+    pub mailer: Arc<Mailer>,
 }
 
 impl CloudState {
-    pub fn new(db: Arc<Db>, geo_location: Arc<GeolocationRequester>) -> Self {
+    pub async fn new() -> Self {
         let sessions_cache = get_new_session();
+        let db_arc = Arc::new(Db::connect_to_the_pool().await);
+        let geo_loc_requester = Arc::new(GeolocationRequester::new().await);
+        let mailer = Arc::new(run_mailer().await.unwrap());
 
         Self {
-            db,
-            geo_location,
+            db: db_arc,
+            geo_location: geo_loc_requester,
             sessions_cache,
+            mailer,
         }
     }
 }

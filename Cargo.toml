@@ -31,6 +31,7 @@ reqwest = {version = "0.11.24", features = ["json"]}
 tokio = { version = "1.35.1", features = ["full"] }
 async-trait = "0.1.77"
 r-cache = "0.5.0"
+lettre = "0.11.6"
 
 # If you're updating sqlx, make sure that chrono version below is the same as the one in sqlx
 sqlx = { version = "0.7.3", features = [

@@ -1,7 +1,11 @@
 use crate::{
-    env::NONCE,
+    env::{is_env_production, NONCE},
     http::cloud::utils::{
         custom_validate_new_password, generate_verification_code, validate_request,
+    },
+    mailer::{
+        mail_requests::{EmailConfirmationRequest, SendEmailRequest},
+        mailer::Mailer,
     },
     structs::{
         cloud::api_cloud_errors::CloudApiErrors,
@@ -35,6 +39,7 @@ pub struct HttpRegisterWithPasswordResponse {}
 pub async fn register_with_password_start(
     State(db): State<Arc<Db>>,
     State(sessions_cache): State<Arc<ApiSessionsCache>>,
+    State(mailer): State<Arc<Mailer>>,
     Json(request): Json<HttpRegisterWithPasswordRequest>,
 ) -> Result<Json<HttpRegisterWithPasswordResponse>, (StatusCode, String)> {
     // Validate request
@@ -75,18 +80,39 @@ pub async fn register_with_password_start(
     // Remove leftover session data
     sessions_cache.remove(&sessions_key);
 
+    let code = generate_verification_code();
+
     sessions_cache.set(
         sessions_key,
         SessionCache::VerifyRegister(RegisterVerification {
             email: request.email.clone(),
             hashed_password,
-            code: generate_verification_code(),
+            code: code.clone(),
             created_at: get_timestamp_in_milliseconds(),
         }),
         None,
     );
 
-    // TODO send code via email
+    // Send code via email, only on PROD
+    if is_env_production() {
+        let request = SendEmailRequest::EmailConfirmation(EmailConfirmationRequest {
+            email: request.email,
+            code: code,
+        });
 
-    return Ok(Json(HttpRegisterWithPasswordResponse {}));
+        match mailer.handle_email_request(&request).error_message {
+            Some(err) => {
+                error!("Failed to send email: {:?}, request: {:?}", err, request);
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    CloudApiErrors::InternalServerError.to_string(),
+                ));
+            }
+            None => {
+                return Ok(Json(HttpRegisterWithPasswordResponse {}));
+            }
+        }
+    }
+
+    Ok(Json(HttpRegisterWithPasswordResponse {}))
 }
