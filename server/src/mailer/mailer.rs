@@ -1,5 +1,3 @@
-use crate::env::is_env_production;
-
 use super::templates::templates::{get_templates, Templates};
 use lettre::{
     message::Mailbox, transport::smtp::authentication::Credentials, Address, SmtpTransport,
@@ -28,14 +26,6 @@ impl Mailer {
         Templates::iter().for_each(|template| {
             assert!(templates.contains_key(&template));
         });
-
-        // create mailbox
-        // let address = if is_env_production() {
-        //     Address::new(None, domain)
-        // } else {
-        //     format!("<{}>", username)
-        //     "<do_not_reply@nightly.app>"
-        // };
 
         let address = username.parse::<Address>().expect("Invalid address");
         let mailbox = Mailbox::new(Some("Nightly".to_string()), address);
