@@ -1,5 +1,5 @@
 use crate::{
-    env::NONCE,
+    env::{is_env_production, NONCE},
     http::cloud::utils::{
         custom_validate_new_password, generate_verification_code, validate_request,
     },
@@ -93,22 +93,26 @@ pub async fn register_with_password_start(
         None,
     );
 
-    // Send code via email
-    let request = SendEmailRequest::EmailConfirmation(EmailConfirmationRequest {
-        email: request.email,
-        code: code,
-    });
+    // Send code via email, only on PROD
+    if is_env_production() {
+        let request = SendEmailRequest::EmailConfirmation(EmailConfirmationRequest {
+            email: request.email,
+            code: code,
+        });
 
-    match mailer.handle_email_request(&request).error_message {
-        Some(err) => {
-            error!("Failed to send email: {:?}, request: {:?}", err, request);
-            return Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                CloudApiErrors::InternalServerError.to_string(),
-            ));
-        }
-        None => {
-            return Ok(Json(HttpRegisterWithPasswordResponse {}));
+        match mailer.handle_email_request(&request).error_message {
+            Some(err) => {
+                error!("Failed to send email: {:?}, request: {:?}", err, request);
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    CloudApiErrors::InternalServerError.to_string(),
+                ));
+            }
+            None => {
+                return Ok(Json(HttpRegisterWithPasswordResponse {}));
+            }
         }
     }
+
+    Ok(Json(HttpRegisterWithPasswordResponse {}))
 }
