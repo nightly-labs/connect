@@ -33,6 +33,7 @@ async-trait = "0.1.77"
 r-cache = "0.5.0"
 lettre = "0.11.6"
 addr = "0.15.6"
+hickory-resolver = "0.24.0"
 
 # If you're updating sqlx, make sure that chrono version below is the same as the one in sqlx
 sqlx = { version = "0.7.3", features = [

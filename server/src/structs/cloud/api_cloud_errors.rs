@@ -35,4 +35,5 @@ pub enum CloudApiErrors {
     InvalidVerificationCode,
     InvalidDomainName,
     DomainAlreadyVerified,
+    DomainVerificationFailure,
 }

@@ -1,5 +1,5 @@
 use crate::{
-    cloud_state::CloudState,
+    cloud_state::{CloudState, DnsResolver},
     ip_geolocation::GeolocationRequester,
     mailer::mailer::Mailer,
     structs::{
@@ -64,6 +64,12 @@ impl FromRef<ServerState> for Arc<Mailer> {
     fn from_ref(state: &ServerState) -> Self {
         // Safe as middleware will prevent this from being None
         state.cloud_state.as_ref().unwrap().mailer.clone()
+    }
+}
+
+impl FromRef<ServerState> for Arc<DnsResolver> {
+    fn from_ref(state: &ServerState) -> Self {
+        state.cloud_state.as_ref().unwrap().dns_resolver.clone()
     }
 }
 
