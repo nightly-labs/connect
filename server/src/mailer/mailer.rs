@@ -13,7 +13,7 @@ pub struct Mailer {
 
 impl Mailer {
     pub async fn init(username: String, password: String) -> Self {
-        let creds = Credentials::new(username, password);
+        let creds = Credentials::new(username.clone(), password);
         let mailer = SmtpTransport::relay("mail.privateemail.com")
             .expect("Could not create mailer")
             .credentials(creds)
@@ -28,7 +28,7 @@ impl Mailer {
         });
 
         // create mailbox
-        let address = "<do_not_reply@nightly.app>"
+        let address = format!("<{username}>")
             .parse::<Address>()
             .expect("Invalid address");
         let mailbox = Mailbox::new(Some("Nightly".to_string()), address);
