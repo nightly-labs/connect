@@ -10,7 +10,7 @@ pub const DOMAIN_VERIFICATIONS_KEYS: &str = "domain_name, app_id, code, created_
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct DomainVerification {
     pub domain_name: String,
-    pub app_id: i64,
+    pub app_id: String,
     pub code: String,
     pub created_at: DateTime<Utc>,
     pub finished_at: Option<DateTime<Utc>>,

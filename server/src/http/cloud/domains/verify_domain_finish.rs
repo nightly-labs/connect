@@ -3,10 +3,7 @@ use crate::{
     env::is_env_production,
     http::cloud::utils::{custom_validate_domain_name, custom_validate_uuid},
     middlewares::auth_middleware::UserId,
-    structs::{
-        cloud::api_cloud_errors::CloudApiErrors,
-        session_cache::{ApiSessionsCache, SessionCache, SessionsCacheKey},
-    },
+    structs::cloud::api_cloud_errors::CloudApiErrors,
 };
 use anyhow::bail;
 use axum::{extract::State, http::StatusCode, Extension, Json};
@@ -33,7 +30,6 @@ pub struct HttpVerifyDomainFinishResponse {}
 
 pub async fn verify_domain_finish(
     State(db): State<Arc<Db>>,
-    State(sessions_cache): State<Arc<ApiSessionsCache>>,
     State(dns_resolver): State<Arc<DnsResolver>>,
     Extension(user_id): Extension<UserId>,
     Json(request): Json<HttpVerifyDomainFinishRequest>,
@@ -105,26 +101,36 @@ pub async fn verify_domain_finish(
         ));
     }
 
-    // Get session data
-    let sessions_key = SessionsCacheKey::DomainVerification(domain_name.clone()).to_string();
-    let session_data = match sessions_cache.get(&sessions_key) {
-        Some(SessionCache::VerifyDomain(session)) => session,
-        _ => {
+    // Get challenge data
+    let domain_verification_challenge = match db
+        .get_domain_verification_by_domain_name(&domain_name)
+        .await
+    {
+        Ok(Some(challenge)) => challenge,
+        Ok(None) => {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                CloudApiErrors::DomainVerificationNotStarted.to_string(),
+            ))
+        }
+        Err(err) => {
+            error!("Failed to get domain verification challenge: {:?}", err);
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
-                CloudApiErrors::InternalServerError.to_string(),
+                CloudApiErrors::DatabaseError.to_string(),
             ));
         }
     };
 
-    // Remove leftover session data
-    sessions_cache.remove(&sessions_key);
-
     // Validate the code
     // Attempt to resolve the TXT records for the given domain, only on PROD
     if is_env_production() {
-        if let Err(err) =
-            check_verification_code(&dns_resolver, &domain_name, &session_data.code).await
+        if let Err(err) = check_verification_code(
+            &dns_resolver,
+            &domain_name,
+            &domain_verification_challenge.code,
+        )
+        .await
         {
             error!("Failed to verify domain: {:?}, err: {:?}", domain_name, err);
             return Err((
@@ -135,11 +141,42 @@ pub async fn verify_domain_finish(
     }
 
     // Add domain to whitelist
+    let mut tx = db.connection_pool.begin().await.unwrap();
+
     if let Err(err) = db
-        .add_new_whitelisted_domain(&request.app_id, &domain_name)
+        .add_new_whitelisted_domain(&mut tx, &request.app_id, &domain_name)
         .await
     {
+        let _ = tx
+            .rollback()
+            .await
+            .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
+
         error!("Failed to add domain to whitelist: {:?}", err);
+        return Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            CloudApiErrors::DatabaseError.to_string(),
+        ));
+    }
+
+    // Update domain verification entry
+    if let Err(err) = db.finish_domain_verification(&mut tx, &domain_name).await {
+        let _ = tx
+            .rollback()
+            .await
+            .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
+
+        error!("Failed to finish domain verification: {:?}", err);
+        return Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            CloudApiErrors::DatabaseError.to_string(),
+        ));
+    }
+
+    // Commit transaction
+    if let Err(err) = tx.commit().await {
+        error!("Failed to commit transaction: {:?}", err);
+
         return Err((
             StatusCode::INTERNAL_SERVER_ERROR,
             CloudApiErrors::DatabaseError.to_string(),

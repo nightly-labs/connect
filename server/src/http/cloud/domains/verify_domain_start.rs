@@ -1,11 +1,7 @@
 use crate::{
     http::cloud::utils::{custom_validate_domain_name, custom_validate_uuid},
     middlewares::auth_middleware::UserId,
-    structs::{
-        cloud::api_cloud_errors::CloudApiErrors,
-        session_cache::{ApiSessionsCache, DomainVerification, SessionCache, SessionsCacheKey},
-    },
-    utils::get_timestamp_in_milliseconds,
+    structs::cloud::api_cloud_errors::CloudApiErrors,
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::{db::Db, structs::privilege_level::PrivilegeLevel};
@@ -33,7 +29,6 @@ pub struct HttpVerifyDomainStartResponse {
 
 pub async fn verify_domain_start(
     State(db): State<Arc<Db>>,
-    State(sessions_cache): State<Arc<ApiSessionsCache>>,
     Extension(user_id): Extension<UserId>,
     Json(request): Json<HttpVerifyDomainStartRequest>,
 ) -> Result<Json<HttpVerifyDomainStartResponse>, (StatusCode, String)> {
@@ -104,24 +99,38 @@ pub async fn verify_domain_start(
         ));
     }
 
-    // Generate verification code
-    let verification_code =
-        format!("TXT Nc verification code {}", uuid7::uuid7().to_string()).to_string();
+    // Check if challenge already exists
+    let verification_code = match db
+        .get_domain_verification_by_domain_name(&domain_name)
+        .await
+    {
+        Ok(Some(challenge)) => challenge.code,
+        Ok(None) => {
+            // Challenge does not exist, generate new code
+            let code =
+                format!("TXT NCC verification code {}", uuid7::uuid7().to_string()).to_string();
 
-    // Save to cache
-    let sessions_key = SessionsCacheKey::DomainVerification(domain_name.clone()).to_string();
-    // Remove leftover session data
-    sessions_cache.remove(&sessions_key);
+            // Save challenge to the database
+            db.create_new_domain_verification_entry(&domain_name, &request.app_id, &code)
+                .await
+                .map_err(|e| {
+                    error!("Failed to create new domain verification entry: {:?}", e);
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        CloudApiErrors::DatabaseError.to_string(),
+                    )
+                })?;
 
-    sessions_cache.set(
-        sessions_key,
-        SessionCache::VerifyDomain(DomainVerification {
-            domain_name: domain_name.clone(),
-            code: verification_code.clone(),
-            created_at: get_timestamp_in_milliseconds(),
-        }),
-        None,
-    );
+            code
+        }
+        Err(err) => {
+            error!("Failed to check if challenge exists: {:?}", err);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::DatabaseError.to_string(),
+            ));
+        }
+    };
 
     Ok(Json(HttpVerifyDomainStartResponse {
         code: verification_code,
