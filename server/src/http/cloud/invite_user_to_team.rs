@@ -1,5 +1,11 @@
 use crate::{
-    middlewares::auth_middleware::UserId, statics::USERS_AMOUNT_LIMIT_PER_TEAM,
+    env::is_env_production,
+    mailer::{
+        mail_requests::{SendEmailRequest, TeamInviteNotification},
+        mailer::Mailer,
+    },
+    middlewares::auth_middleware::UserId,
+    statics::USERS_AMOUNT_LIMIT_PER_TEAM,
     structs::cloud::api_cloud_errors::CloudApiErrors,
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
@@ -28,6 +34,7 @@ pub struct HttpInviteUserToTeamResponse {}
 
 pub async fn invite_user_to_team(
     State(db): State<Arc<Db>>,
+    State(mailer): State<Arc<Mailer>>,
     Extension(user_id): Extension<UserId>,
     Json(request): Json<HttpInviteUserToTeamRequest>,
 ) -> Result<Json<HttpInviteUserToTeamResponse>, (StatusCode, String)> {
@@ -176,21 +183,33 @@ pub async fn invite_user_to_team(
             }
 
             // Add invite to the team
-            match db
+            if let Err(err) = db
                 .create_new_team_invite(&request.team_id, &request.user_email)
                 .await
             {
-                Ok(_) => {
-                    return Ok(Json(HttpInviteUserToTeamResponse {}));
-                }
-                Err(err) => {
-                    error!("Failed to invite user to the team: {:?}", err);
-                    return Err((
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        CloudApiErrors::DatabaseError.to_string(),
-                    ));
+                error!("Failed to invite user to the team: {:?}", err);
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    CloudApiErrors::DatabaseError.to_string(),
+                ));
+            }
+
+            // Send email notification
+            if is_env_production() {
+                let request = SendEmailRequest::TeamInvite(TeamInviteNotification {
+                    email: request.user_email.clone(),
+                    team_name: team.team_name.clone(),
+                    inviter_email: user.email.clone(),
+                });
+
+                // It doesn't matter if this fails
+                if let Some(err) = mailer.handle_email_request(&request).error_message {
+                    error!("Failed to send email: {:?}, request: {:?}", err, request);
                 }
             }
+
+            // Return response
+            Ok(Json(HttpInviteUserToTeamResponse {}))
         }
         Ok(None) => {
             return Err((

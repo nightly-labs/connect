@@ -1,5 +1,11 @@
 use crate::{
-    middlewares::auth_middleware::UserId, structs::cloud::api_cloud_errors::CloudApiErrors,
+    env::is_env_production,
+    mailer::{
+        mail_requests::{SendEmailRequest, TeamRemovalNotification},
+        mailer::Mailer,
+    },
+    middlewares::auth_middleware::UserId,
+    structs::cloud::api_cloud_errors::CloudApiErrors,
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::db::Db;
@@ -27,6 +33,7 @@ pub struct HttpRemoveUserFromTeamResponse {}
 
 pub async fn remove_user_from_team(
     State(db): State<Arc<Db>>,
+    State(mailer): State<Arc<Mailer>>,
     Extension(user_id): Extension<UserId>,
     Json(request): Json<HttpRemoveUserFromTeamRequest>,
 ) -> Result<Json<HttpRemoveUserFromTeamResponse>, (StatusCode, String)> {
@@ -89,21 +96,33 @@ pub async fn remove_user_from_team(
             }
 
             // Remove user from the team
-            match db
+            if let Err(err) = db
                 .remove_user_from_the_team(&user.user_id, &request.team_id)
                 .await
             {
-                Ok(_) => {
-                    return Ok(Json(HttpRemoveUserFromTeamResponse {}));
-                }
-                Err(err) => {
-                    error!("Failed to remove user from the team: {:?}", err);
-                    return Err((
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        CloudApiErrors::DatabaseError.to_string(),
-                    ));
+                error!("Failed to remove user from the team: {:?}", err);
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    CloudApiErrors::DatabaseError.to_string(),
+                ));
+            }
+
+            // Send email notification
+            if is_env_production() {
+                let request = SendEmailRequest::TeamRemoval(TeamRemovalNotification {
+                    email: user.email.clone(),
+                    team_name: team.team_name.clone(),
+                    remover_email: user_id,
+                });
+
+                // It doesn't matter if this fails
+                if let Some(err) = mailer.handle_email_request(&request).error_message {
+                    error!("Failed to send email: {:?}, request: {:?}", err, request);
                 }
             }
+
+            // Return response
+            Ok(Json(HttpRemoveUserFromTeamResponse {}))
         }
         Ok(None) => {
             return Err((

@@ -1,5 +1,5 @@
 use crate::mailer::{
-    mail_requests::{EmailConfirmationRequest, SendEmailResponse, TeamInviteNotification},
+    mail_requests::{SendEmailResponse, TeamInviteNotification},
     request_handler::utils::create_message,
     templates::templates::Templates,
 };
