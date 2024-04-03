@@ -10,6 +10,7 @@ pub enum Templates {
     EmailConfirmation,
     ResetPassword,
     TeamInviteNotification,
+    TeamRemovalNotification,
 }
 
 pub fn get_templates() -> HashMap<Templates, String> {

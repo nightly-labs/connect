@@ -1,5 +1,7 @@
 use super::processors::{
     email_confirmation::send_email_confirmation, reset_password::send_password_reset,
+    team_invite_notification::send_team_invite_notification,
+    team_removal_notification::send_team_removal_notification,
 };
 use crate::mailer::{
     mail_requests::{SendEmailRequest, SendEmailResponse},
@@ -25,9 +27,20 @@ impl Mailer {
                 return send_password_reset(&templates, mailbox.clone(), &mail_sender, &request);
             }
             SendEmailRequest::TeamInvite(request) => {
-                return SendEmailResponse {
-                    error_message: Some("Not implemented".to_string()),
-                };
+                return send_team_invite_notification(
+                    &templates,
+                    mailbox.clone(),
+                    &mail_sender,
+                    &request,
+                );
+            }
+            SendEmailRequest::TeamRemoval(request) => {
+                return send_team_removal_notification(
+                    &templates,
+                    mailbox.clone(),
+                    &mail_sender,
+                    &request,
+                );
             }
         }
     }
