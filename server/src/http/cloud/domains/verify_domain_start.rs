@@ -111,15 +111,16 @@ pub async fn verify_domain_start(
                 format!("TXT NCC verification code {}", uuid7::uuid7().to_string()).to_string();
 
             // Save challenge to the database
-            db.create_new_domain_verification_entry(&domain_name, &request.app_id, &code)
+            if let Err(err) = db
+                .create_new_domain_verification_entry(&domain_name, &request.app_id, &code)
                 .await
-                .map_err(|e| {
-                    error!("Failed to create new domain verification entry: {:?}", e);
-                    (
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        CloudApiErrors::DatabaseError.to_string(),
-                    )
-                })?;
+            {
+                error!("Failed to save challenge to the database: {:?}", err);
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    CloudApiErrors::DatabaseError.to_string(),
+                ));
+            }
 
             code
         }
