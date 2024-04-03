@@ -1,25 +1,32 @@
 use crate::mailer::{
-    mail_requests::{EmailConfirmationRequest, SendEmailResponse},
+    mail_requests::{SendEmailResponse, TeamRemovalNotification},
     request_handler::utils::create_message,
     templates::templates::Templates,
 };
 use lettre::{message::Mailbox, SmtpTransport, Transport};
 use log::{error, warn};
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
-pub fn send_email_confirmation(
-    templates: &Arc<std::collections::HashMap<Templates, String>>,
+pub fn send_team_removal_notification(
+    templates: &Arc<HashMap<Templates, String>>,
     mailbox: Mailbox,
     mail_sender: &Arc<SmtpTransport>,
-    request: &EmailConfirmationRequest,
+    request: &TeamRemovalNotification,
 ) -> SendEmailResponse {
-    let html = match templates.get(&Templates::EmailConfirmation) {
-        Some(template) => template.replace("EMAIL_CONFIRMATION_LINK_TO_REPLACE", &request.code),
+    let html = match templates.get(&Templates::TeamRemovalNotification) {
+        Some(template) => template.replace(
+            "TEAM_REMOVAL_MESSAGE_TO_REPLACE",
+            format!(
+                "{} removed you from team {}",
+                request.remover_email, request.team_name
+            )
+            .as_str(),
+        ),
         None => {
             // Only possible if someone messes with the templates, print error and go along
             error!(
-                "MAILER: Could not find email confirmation template under: {:?}",
-                Templates::EmailConfirmation
+                "MAILER: Could not find team invite notification template under: {:?}",
+                Templates::TeamInviteNotification
             );
             return SendEmailResponse {
                 error_message: Some("Internal Error".to_string()),
@@ -31,11 +38,11 @@ pub fn send_email_confirmation(
         html,
         mailbox,
         &request.email,
-        "Nightly Connect Cloud - Confirm your email address".to_string(),
+        "Nightly Connect Cloud - Removed from team".to_string(),
     ) {
         Ok(message) => {
             if let Err(e) = mail_sender.send(&message) {
-                warn!("MAILER: Failed to send email confirmation: {:?}", e);
+                warn!("MAILER: Failed to send team removal notification: {:?}", e);
                 return SendEmailResponse {
                     error_message: Some("Internal Error".to_string()),
                 };
@@ -46,7 +53,10 @@ pub fn send_email_confirmation(
             }
         }
         Err(err) => {
-            warn!("MAILER: Failed to create email: {:?}", err);
+            warn!(
+                "MAILER: Failed to create team removal notification: {:?}",
+                err
+            );
             return SendEmailResponse {
                 error_message: Some("Internal Error".to_string()),
             };
