@@ -4,6 +4,7 @@ use crate::{
         cancel_team_user_invite::cancel_team_user_invite,
         cancel_user_team_invite::cancel_user_team_invite,
         domains::{
+            remove_whitelisted_domain::remove_whitelisted_domain,
             verify_domain_finish::verify_domain_finish, verify_domain_start::verify_domain_start,
         },
         events::events::events,
@@ -128,6 +129,10 @@ pub fn private_router(state: ServerState) -> Router<ServerState> {
         .route(
             &HttpCloudEndpoint::VerifyDomainFinish.to_string(),
             post(verify_domain_finish),
+        )
+        .route(
+            &HttpCloudEndpoint::RemoveWhitelistedDomain.to_string(),
+            post(remove_whitelisted_domain),
         )
         .with_state(state)
 }

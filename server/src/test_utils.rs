@@ -5,6 +5,14 @@ pub mod test_utils {
         env::{JWT_PUBLIC_KEY, JWT_SECRET},
         http::cloud::{
             accept_team_invite::{HttpAcceptTeamInviteRequest, HttpAcceptTeamInviteResponse},
+            domains::{
+                verify_domain_finish::{
+                    HttpVerifyDomainFinishRequest, HttpVerifyDomainFinishResponse,
+                },
+                verify_domain_start::{
+                    HttpVerifyDomainStartRequest, HttpVerifyDomainStartResponse,
+                },
+            },
             get_team_user_invites::HttpGetTeamUserInvitesResponse,
             get_user_joined_teams::HttpGetUserJoinedTeamsResponse,
             get_user_team_invites::HttpGetUserTeamInvitesResponse,
@@ -22,7 +30,7 @@ pub mod test_utils {
         },
         routes::router::get_router,
         statics::NAME_REGEX,
-        structs::cloud::cloud_http_endpoints::HttpCloudEndpoint,
+        structs::cloud::{app_info::AppInfo, cloud_http_endpoints::HttpCloudEndpoint},
     };
     use anyhow::bail;
     use axum::{
@@ -453,6 +461,85 @@ pub mod test_utils {
         let response = app.clone().oneshot(req).await.unwrap();
         // Validate response
         convert_response::<HttpGetUserJoinedTeamsResponse>(response).await
+    }
+
+    pub async fn verify_new_domain(
+        domain_name: &String,
+        app_id: &String,
+        admin_token: &AuthToken,
+        app: &Router,
+    ) -> anyhow::Result<()> {
+        // Start domain verification
+        let request = HttpVerifyDomainStartRequest {
+            domain_name: domain_name.clone(),
+            app_id: app_id.clone(),
+        };
+
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&request).unwrap();
+        let auth = admin_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::VerifyDomainStart.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // Send request
+        let response = app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        convert_response::<HttpVerifyDomainStartResponse>(response).await?;
+
+        // Finish domain verification
+        let request = HttpVerifyDomainFinishRequest {
+            domain_name: domain_name.clone(),
+            app_id: app_id.clone(),
+        };
+
+        let json = serde_json::to_string(&request).unwrap();
+        let auth = admin_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::VerifyDomainFinish.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // Send request
+        let response = app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        convert_response::<HttpVerifyDomainFinishResponse>(response)
+            .await
+            .map(|_| Ok(()))?
+    }
+
+    pub async fn get_test_app_data(
+        team_id: &String,
+        app_id: &String,
+        user_token: &AuthToken,
+        app: &Router,
+    ) -> anyhow::Result<AppInfo> {
+        let user_joined_teams = get_test_user_joined_teams(user_token, app).await?;
+
+        match user_joined_teams.teams_apps.get(team_id) {
+            Some(apps) => match apps.iter().find(|app| &app.app_id == app_id) {
+                Some(app) => Ok(app.clone()),
+                None => bail!("App not found"),
+            },
+            None => bail!("Team not found"),
+        }
     }
 
     pub async fn body_to_vec(response: Response<Body>) -> anyhow::Result<Vec<u8>> {
