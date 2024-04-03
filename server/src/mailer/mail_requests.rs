@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 pub enum SendEmailRequest {
     EmailConfirmation(EmailConfirmationRequest),
     ResetPassword(ResetPasswordRequest),
+    TeamInvite(TeamInviteNotification),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -21,4 +22,11 @@ pub struct EmailConfirmationRequest {
 pub struct ResetPasswordRequest {
     pub email: String,
     pub code: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct TeamInviteNotification {
+    pub email: String,
+    pub team_name: String,
+    pub inviter_email: String,
 }

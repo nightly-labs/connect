@@ -24,6 +24,11 @@ impl Mailer {
             SendEmailRequest::ResetPassword(request) => {
                 return send_password_reset(&templates, mailbox.clone(), &mail_sender, &request);
             }
+            SendEmailRequest::TeamInvite(request) => {
+                return SendEmailResponse {
+                    error_message: Some("Not implemented".to_string()),
+                };
+            }
         }
     }
 }
