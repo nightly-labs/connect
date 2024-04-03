@@ -1,6 +1,7 @@
 use super::{
     emailConfirmation::EMAIL_CONFIRMATION_TEMPLATE, resetPassword::RESET_PASSWORD_TEMPLATE,
     teamInviteNotification::TEAM_INVITE_NOTIFICATION_TEMPLATE,
+    teamRemovalNotification::TEAM_REMOVAL_NOTIFICATION_TEMPLATE,
 };
 use std::collections::HashMap;
 use strum::EnumIter;
@@ -27,6 +28,10 @@ pub fn get_templates() -> HashMap<Templates, String> {
     templates.insert(
         Templates::TeamInviteNotification,
         TEAM_INVITE_NOTIFICATION_TEMPLATE.to_string(),
+    );
+    templates.insert(
+        Templates::TeamRemovalNotification,
+        TEAM_REMOVAL_NOTIFICATION_TEMPLATE.to_string(),
     );
 
     templates
