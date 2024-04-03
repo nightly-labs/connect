@@ -33,4 +33,7 @@ pub enum CloudApiErrors {
     InviteDoesNotExist,
     InvalidPaginationCursor,
     InvalidVerificationCode,
+    InvalidDomainName,
+    DomainAlreadyVerified,
+    DomainVerificationFailure,
 }

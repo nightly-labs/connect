@@ -22,10 +22,6 @@ pub struct HttpRegisterNewAppRequest {
     pub team_id: String,
     #[garde(custom(custom_validate_name))]
     pub app_name: String,
-    #[garde(skip)]
-    pub whitelisted_domains: Vec<String>,
-    #[garde(skip)]
-    pub ack_public_keys: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
@@ -109,8 +105,8 @@ pub async fn register_new_app(
                     app_id: app_id.clone(),
                     team_id: team.team_id.clone(),
                     app_name: request.app_name.clone(),
-                    ack_public_keys: request.ack_public_keys.clone(),
-                    whitelisted_domains: request.whitelisted_domains.clone(),
+                    ack_public_keys: vec![],
+                    whitelisted_domains: vec![],
                     registration_timestamp: get_current_datetime(),
                 };
 
@@ -233,8 +229,6 @@ mod tests {
         let request = HttpRegisterNewAppRequest {
             team_id: team_id.clone(),
             app_name: app_name.clone(),
-            whitelisted_domains: vec![],
-            ack_public_keys: vec![],
         };
 
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
@@ -264,8 +258,6 @@ mod tests {
         let request = HttpRegisterNewAppRequest {
             team_id: team_id.clone(),
             app_name: app_name.clone(),
-            whitelisted_domains: vec![],
-            ack_public_keys: vec![],
         };
 
         let json = serde_json::to_string(&request).unwrap();
@@ -311,8 +303,6 @@ mod tests {
         let request = HttpRegisterNewAppRequest {
             team_id: team_id.clone(),
             app_name: app_name.clone(),
-            whitelisted_domains: vec![],
-            ack_public_keys: vec![],
         };
 
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));

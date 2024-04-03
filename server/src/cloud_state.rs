@@ -5,9 +5,15 @@ use crate::{
 };
 use axum::extract::FromRef;
 use database::db::Db;
+use hickory_resolver::{
+    name_server::{GenericConnector, TokioRuntimeProvider},
+    AsyncResolver, TokioAsyncResolver,
+};
 use r_cache::cache::Cache;
 use std::{sync::Arc, time::Duration};
 use tokio::task;
+
+pub type DnsResolver = AsyncResolver<GenericConnector<TokioRuntimeProvider>>;
 
 #[derive(Clone, FromRef)]
 pub struct CloudState {
@@ -15,6 +21,7 @@ pub struct CloudState {
     pub geo_location: Arc<GeolocationRequester>,
     pub sessions_cache: Arc<ApiSessionsCache>,
     pub mailer: Arc<Mailer>,
+    pub dns_resolver: Arc<TokioAsyncResolver>,
 }
 
 impl CloudState {
@@ -23,12 +30,14 @@ impl CloudState {
         let db_arc = Arc::new(Db::connect_to_the_pool().await);
         let geo_loc_requester = Arc::new(GeolocationRequester::new().await);
         let mailer = Arc::new(run_mailer().await.unwrap());
+        let dns_resolver = Arc::new(TokioAsyncResolver::tokio_from_system_conf().unwrap());
 
         Self {
             db: db_arc,
             geo_location: geo_loc_requester,
             sessions_cache,
             mailer,
+            dns_resolver,
         }
     }
 }

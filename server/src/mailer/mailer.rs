@@ -27,10 +27,7 @@ impl Mailer {
             assert!(templates.contains_key(&template));
         });
 
-        // create mailbox
-        let address = format!("<{username}>")
-            .parse::<Address>()
-            .expect("Invalid address");
+        let address = username.parse::<Address>().expect("Invalid address");
         let mailbox = Mailbox::new(Some("Nightly".to_string()), address);
 
         Self {

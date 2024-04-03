@@ -132,8 +132,6 @@ mod tests {
         let request = HttpRegisterNewAppRequest {
             team_id: team_id.clone(),
             app_name: app_name.clone(),
-            whitelisted_domains: vec![],
-            ack_public_keys: vec![],
         };
 
         // unwrap err as it should have failed
@@ -223,8 +221,6 @@ mod tests {
         let request = HttpRegisterNewAppRequest {
             team_id: team_id.clone(),
             app_name: app_name.clone(),
-            whitelisted_domains: vec![],
-            ack_public_keys: vec![],
         };
 
         // unwrap err as it should have failed

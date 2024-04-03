@@ -140,8 +140,6 @@ mod tests {
                 let request = HttpRegisterNewAppRequest {
                     team_id: team_id.clone(),
                     app_name: app_name.clone(),
-                    whitelisted_domains: vec![],
-                    ack_public_keys: vec![],
                 };
                 let app_id = add_test_app(&request, &auth_token, &test_app)
                     .await
