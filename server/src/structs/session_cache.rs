@@ -44,6 +44,7 @@ pub struct ResetPasswordVerification {
 #[derive(Debug, Clone)]
 pub struct PasskeyVerification {
     pub email: String,
+    pub code: String,
     pub passkey_registration_state: webauthn_rs::prelude::PasskeyRegistration,
     pub created_at: u64,
 }

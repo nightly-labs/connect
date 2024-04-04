@@ -1,5 +1,10 @@
 use crate::{
-    http::cloud::utils::validate_request,
+    env::is_env_production,
+    http::cloud::utils::{generate_verification_code, validate_request},
+    mailer::{
+        mail_requests::{EmailConfirmationRequest, SendEmailRequest},
+        mailer::Mailer,
+    },
     structs::{
         cloud::api_cloud_errors::CloudApiErrors,
         session_cache::{ApiSessionsCache, PasskeyVerification, SessionCache, SessionsCacheKey},
@@ -29,6 +34,7 @@ pub type HttpRegisterWithPasskeyStartResponse = CreationChallengeResponse;
 pub async fn register_with_passkey_start(
     State(db): State<Arc<Db>>,
     State(web_auth): State<Arc<Webauthn>>,
+    State(mailer): State<Arc<Mailer>>,
     State(sessions_cache): State<Arc<ApiSessionsCache>>,
     Json(request): Json<HttpRegisterWithPasskeyStartRequest>,
 ) -> Result<Json<HttpRegisterWithPasskeyStartResponse>, (StatusCode, String)> {
@@ -66,25 +72,46 @@ pub async fn register_with_passkey_start(
     let res =
         web_auth.start_passkey_registration(temp_user_id, &request.email, &request.email, None);
 
-    match res {
-        Ok((ccr, reg_state)) => {
-            sessions_cache.set(
-                sessions_key,
-                SessionCache::VerifyPasskeyRegister(PasskeyVerification {
-                    email: request.email.clone(),
-                    passkey_registration_state: reg_state,
-                    created_at: get_timestamp_in_milliseconds(),
-                }),
-                None,
-            );
-
-            return Ok(Json(ccr));
-        }
+    let (ccr, reg_state) = match res {
+        Ok((ccr, reg_state)) => (ccr, reg_state),
         Err(_) => {
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 CloudApiErrors::WebAuthnError.to_string(),
             ))
         }
+    };
+
+    // Generate email verification code
+    let code = generate_verification_code();
+
+    // Send email with code, only for PROD
+    if is_env_production() {
+        let request = SendEmailRequest::EmailConfirmation(EmailConfirmationRequest {
+            email: request.email.clone(),
+            code: code.clone(),
+        });
+
+        if let Some(err) = mailer.handle_email_request(&request).error_message {
+            error!("Failed to send email: {:?}, request: {:?}", err, request);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::InternalServerError.to_string(),
+            ));
+        }
     }
+
+    // Save the challenge to the cache
+    sessions_cache.set(
+        sessions_key,
+        SessionCache::VerifyPasskeyRegister(PasskeyVerification {
+            email: request.email.clone(),
+            passkey_registration_state: reg_state,
+            code,
+            created_at: get_timestamp_in_milliseconds(),
+        }),
+        None,
+    );
+
+    return Ok(Json(ccr));
 }

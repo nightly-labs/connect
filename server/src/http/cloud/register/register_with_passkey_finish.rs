@@ -1,5 +1,6 @@
 use crate::{
-    http::cloud::utils::validate_request,
+    env::is_env_production,
+    http::cloud::utils::{custom_validate_verification_code, validate_request},
     structs::{
         cloud::api_cloud_errors::CloudApiErrors,
         session_cache::{ApiSessionsCache, SessionCache, SessionsCacheKey},
@@ -23,6 +24,8 @@ pub struct HttpRegisterWithPasskeyFinishRequest {
     pub email: String,
     #[garde(skip)]
     pub credential: RegisterPublicKeyCredential,
+    #[garde(custom(custom_validate_verification_code))]
+    pub code: String,
 }
 
 #[derive(Validate, Clone, Debug, Deserialize, Serialize, TS)]
@@ -52,6 +55,17 @@ pub async fn register_with_passkey_finish(
 
     // Remove leftover session data
     sessions_cache.remove(&sessions_key);
+
+    // validate code only on production
+    if is_env_production() {
+        // Validate the code
+        if session_data.code != request.code {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                CloudApiErrors::InvalidVerificationCode.to_string(),
+            ));
+        }
+    }
 
     // Validate passkey register
     let passkey = match web_auth.finish_passkey_registration(
