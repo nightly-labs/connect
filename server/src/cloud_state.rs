@@ -1,4 +1,5 @@
 use crate::{
+    env::ENVIRONMENT,
     ip_geolocation::GeolocationRequester,
     mailer::{entry::run_mailer, mailer::Mailer},
     structs::session_cache::ApiSessionsCache,
@@ -10,8 +11,10 @@ use hickory_resolver::{
     AsyncResolver, TokioAsyncResolver,
 };
 use r_cache::cache::Cache;
+use reqwest::Url;
 use std::{sync::Arc, time::Duration};
 use tokio::task;
+use webauthn_rs::{Webauthn, WebauthnBuilder};
 
 pub type DnsResolver = AsyncResolver<GenericConnector<TokioRuntimeProvider>>;
 
@@ -22,6 +25,7 @@ pub struct CloudState {
     pub sessions_cache: Arc<ApiSessionsCache>,
     pub mailer: Arc<Mailer>,
     pub dns_resolver: Arc<TokioAsyncResolver>,
+    pub webauthn: Arc<Webauthn>,
 }
 
 impl CloudState {
@@ -32,12 +36,31 @@ impl CloudState {
         let mailer = Arc::new(run_mailer().await.unwrap());
         let dns_resolver = Arc::new(TokioAsyncResolver::tokio_from_system_conf().unwrap());
 
+        // Passkey
+        let rp_id = match ENVIRONMENT() {
+            "DEV" => "localhost",
+            _ => panic!("Invalid ENVIRONMENT env"),
+        };
+        // Url containing the effective domain name
+        let rp_origin = Url::parse(match ENVIRONMENT() {
+            "DEV" => "http://localhost:3000",
+            _ => panic!("Invalid ENVIRONMENT env"),
+        })
+        .expect("Cant parse rp_origin");
+        let builder = WebauthnBuilder::new(rp_id, &rp_origin)
+            .expect("Invalid configuration")
+            .rp_name("Nightly Connect Cloud");
+
+        // Consume the builder and create our webauthn instance.
+        let webauthn = Arc::new(builder.build().expect("Invalid configuration"));
+
         Self {
             db: db_arc,
             geo_location: geo_loc_requester,
             sessions_cache,
             mailer,
             dns_resolver,
+            webauthn,
         }
     }
 }
