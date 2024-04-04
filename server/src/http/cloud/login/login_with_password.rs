@@ -63,12 +63,19 @@ pub async fn login_with_password(
         }
     };
 
+    // Check if user has password
+    let password_hash = match user.password_hash {
+        Some(password_hash) => password_hash,
+        None => {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                CloudApiErrors::PasswordNotSet.to_string(),
+            ));
+        }
+    };
+
     // Verify password
-    if bcrypt::verify(
-        format!("{}_{}", NONCE(), request.password),
-        &user.password_hash,
-    ) == false
-    {
+    if bcrypt::verify(format!("{}_{}", NONCE(), request.password), &password_hash) == false {
         return Err((
             StatusCode::BAD_REQUEST,
             CloudApiErrors::IncorrectPassword.to_string(),

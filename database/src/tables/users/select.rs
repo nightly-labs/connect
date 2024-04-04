@@ -1,7 +1,7 @@
 use super::table_struct::GrafanaUser;
 use crate::db::Db;
 use crate::structs::db_error::DbError;
-use crate::tables::grafana_users::table_struct::GRAFANA_USERS_TABLE_NAME;
+use crate::tables::users::table_struct::USERS_TABLE_NAME;
 use sqlx::query_as;
 
 impl Db {
@@ -9,7 +9,7 @@ impl Db {
         &self,
         user_id: &String,
     ) -> Result<Option<GrafanaUser>, DbError> {
-        let query = format!("SELECT * FROM {GRAFANA_USERS_TABLE_NAME} WHERE user_id = $1");
+        let query = format!("SELECT * FROM {USERS_TABLE_NAME} WHERE user_id = $1");
         let typed_query = query_as::<_, GrafanaUser>(&query);
 
         return typed_query
@@ -20,7 +20,7 @@ impl Db {
     }
 
     pub async fn get_user_by_email(&self, email: &String) -> Result<Option<GrafanaUser>, DbError> {
-        let query = format!("SELECT * FROM {GRAFANA_USERS_TABLE_NAME} WHERE email = $1");
+        let query = format!("SELECT * FROM {USERS_TABLE_NAME} WHERE email = $1");
         let typed_query = query_as::<_, GrafanaUser>(&query);
 
         return typed_query

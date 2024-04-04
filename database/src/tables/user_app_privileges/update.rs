@@ -207,7 +207,6 @@ mod tests {
     use crate::{
         structs::privilege_level::PrivilegeLevel,
         tables::{
-            grafana_users::table_struct::GrafanaUser,
             registered_app::table_struct::DbRegisteredApp, team::table_struct::Team,
             user_app_privileges::table_struct::UserAppPrivilege, utils::to_microsecond_precision,
         },
@@ -227,16 +226,16 @@ mod tests {
             .await
             .unwrap();
 
-        let user = GrafanaUser {
-            email: "test_user_email".to_string(),
-            password_hash: "test_password_hash".to_string(),
-            user_id: "test_user_id".to_string(),
-            creation_timestamp: to_microsecond_precision(&Utc::now()),
-        };
-        db.add_new_user(&user).await.unwrap();
+        let user_id = "test_user_id".to_string();
+        let email = "test_user_email".to_string();
+        let password_hash = "test_password_hash".to_string();
+
+        db.add_new_user(&user_id, &email, Some(&password_hash), None)
+            .await
+            .unwrap();
 
         let privilege = UserAppPrivilege {
-            user_id: user.user_id.clone(),
+            user_id: user_id.clone(),
             app_id: app_id.clone(),
             privilege_level: PrivilegeLevel::Edit,
             creation_timestamp: to_microsecond_precision(&Utc::now()),
@@ -244,12 +243,12 @@ mod tests {
         db.add_new_privilege(&privilege).await.unwrap();
 
         let get_by_user_id_and_app_id = db
-            .get_privilege_by_user_id_and_app_id(&user.user_id, &app_id)
+            .get_privilege_by_user_id_and_app_id(&user_id, &app_id)
             .await
             .unwrap();
         assert_eq!(privilege, get_by_user_id_and_app_id.unwrap());
 
-        let get_by_user_id = db.get_privileges_by_user_id(&user.user_id).await.unwrap();
+        let get_by_user_id = db.get_privileges_by_user_id(&user_id).await.unwrap();
         assert_eq!(vec![privilege.clone()], get_by_user_id);
 
         let get_by_app_id = db.get_privileges_by_app_id(&app_id).await.unwrap();
@@ -270,13 +269,13 @@ mod tests {
             .await
             .unwrap();
 
-        let user = GrafanaUser {
-            email: "test_user_email".to_string(),
-            password_hash: "test_password_hash".to_string(),
-            user_id: "test_user_id".to_string(),
-            creation_timestamp: to_microsecond_precision(&Utc::now()),
-        };
-        db.add_new_user(&user).await.unwrap();
+        let user_id = "test_user_id".to_string();
+        let email = "test_user_email".to_string();
+        let password_hash = "test_password_hash".to_string();
+
+        db.add_new_user(&user_id, &email, Some(&password_hash), None)
+            .await
+            .unwrap();
 
         // Create 7 more apps under the same team
         for i in 0..7 {
@@ -294,12 +293,12 @@ mod tests {
         }
 
         let mut tx = db.connection_pool.begin().await.unwrap();
-        db.add_user_to_the_team(&mut tx, &user.user_id, &team_id)
+        db.add_user_to_the_team(&mut tx, &user_id, &team_id)
             .await
             .unwrap();
         tx.commit().await.unwrap();
 
-        let get_by_user_id = db.get_privileges_by_user_id(&user.user_id).await.unwrap();
+        let get_by_user_id = db.get_privileges_by_user_id(&user_id).await.unwrap();
         assert!(get_by_user_id.len() == 8);
 
         // Create new team
@@ -333,12 +332,12 @@ mod tests {
 
         // Add user to the new team
         let mut tx = db.connection_pool.begin().await.unwrap();
-        db.add_user_to_the_team(&mut tx, &user.user_id, &team_id)
+        db.add_user_to_the_team(&mut tx, &user_id, &team_id)
             .await
             .unwrap();
         tx.commit().await.unwrap();
 
-        let get_by_user_id = db.get_privileges_by_user_id(&user.user_id).await.unwrap();
+        let get_by_user_id = db.get_privileges_by_user_id(&user_id).await.unwrap();
         assert!(get_by_user_id.len() == 10);
     }
 }

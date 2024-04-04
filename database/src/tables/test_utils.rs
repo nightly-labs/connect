@@ -5,7 +5,6 @@ pub mod test_utils {
         db::Db,
         structs::{db_error::DbError, privilege_level::PrivilegeLevel},
         tables::{
-            grafana_users::table_struct::GrafanaUser,
             registered_app::table_struct::DbRegisteredApp, team::table_struct::Team,
             user_app_privileges::table_struct::UserAppPrivilege,
         },
@@ -82,21 +81,19 @@ pub mod test_utils {
             app_id: &String,
             registration_timestamp: DateTime<Utc>,
         ) -> Result<(), DbError> {
-            let admin = GrafanaUser {
-                creation_timestamp: registration_timestamp,
-                email: "email".to_string(),
-                password_hash: "pass_hash".to_string(),
-                user_id: "test_admin".to_string(),
-            };
+            let user_id = "test_admin".to_string();
+            let email = "email".to_string();
+            let password_hash = "pass_hash".to_string();
 
-            self.add_new_user(&admin).await?;
+            self.add_new_user(&user_id, &email, Some(&password_hash), None)
+                .await?;
 
             let team = Team {
                 team_id: team_id.clone(),
                 team_name: "test_team_name".to_string(),
                 personal: false,
                 subscription: None,
-                team_admin_id: admin.user_id.clone(),
+                team_admin_id: user_id.clone(),
                 registration_timestamp: registration_timestamp,
             };
 
@@ -113,7 +110,7 @@ pub mod test_utils {
                 app_id: app_id.clone(),
                 creation_timestamp: registration_timestamp,
                 privilege_level: PrivilegeLevel::Admin,
-                user_id: admin.user_id.clone(),
+                user_id: user_id.clone(),
             };
 
             // Start a transaction

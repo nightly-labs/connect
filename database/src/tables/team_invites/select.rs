@@ -20,7 +20,7 @@ impl Db {
              ti.accepted_at, ti.cancelled_at, t.team_name, gu.email AS admin_email
              FROM {TEAM_INVITES_TABLE_NAME} ti
              INNER JOIN team t ON ti.team_id = t.team_id
-             INNER JOIN grafana_users gu ON t.team_admin_id = gu.user_id
+             INNER JOIN users gu ON t.team_admin_id = gu.user_id
              WHERE ti.team_id = $1 {additional_filter}
              ORDER BY ti.created_at DESC",
         );
@@ -49,7 +49,7 @@ impl Db {
              ti.accepted_at, ti.cancelled_at, t.team_name, gu.email AS admin_email \
              FROM {TEAM_INVITES_TABLE_NAME} ti \
              INNER JOIN team t ON ti.team_id = t.team_id \
-             INNER JOIN grafana_users gu ON t.team_admin_id = gu.user_id \
+             INNER JOIN users gu ON t.team_admin_id = gu.user_id \
              WHERE ti.user_email = $1 {additional_filter} \
              ORDER BY ti.created_at DESC",
             TEAM_INVITES_TABLE_NAME = TEAM_INVITES_TABLE_NAME

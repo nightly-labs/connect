@@ -6,10 +6,7 @@ use crate::{
     },
 };
 use axum::{extract::State, http::StatusCode, Json};
-use database::{
-    db::Db,
-    tables::{grafana_users::table_struct::GrafanaUser, utils::get_current_datetime},
-};
+use database::db::Db;
 use garde::Validate;
 use log::error;
 use serde::{Deserialize, Serialize};
@@ -73,14 +70,17 @@ pub async fn register_with_passkey_finish(
 
     // Save user to database
     let user_id = uuid7().to_string();
-    let grafana_user = GrafanaUser {
-        user_id: user_id.clone(),
-        email: request.email.clone(),
-        // TEMP
-        password_hash: serde_json::to_string(&passkey).unwrap(),
-        creation_timestamp: get_current_datetime(),
-    };
-    match db.add_new_user(&grafana_user).await {
+
+    match db
+        .add_new_user(
+            &user_id,
+            &request.email,
+            // None for password
+            None,
+            Some(&passkey),
+        )
+        .await
+    {
         Ok(_) => {
             return Ok(Json(HttpRegisterWithPasskeyFinishResponse {}));
         }
