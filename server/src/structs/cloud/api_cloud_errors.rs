@@ -37,4 +37,7 @@ pub enum CloudApiErrors {
     DomainAlreadyVerified,
     DomainVerificationFailure,
     DomainNotFound,
+    DomainVerificationNotStarted,
+    WebAuthnError,
+    PasswordNotSet,
 }

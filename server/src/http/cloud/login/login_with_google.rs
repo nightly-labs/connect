@@ -8,10 +8,7 @@ use axum::{
     http::StatusCode,
     Json,
 };
-use database::{
-    db::Db,
-    tables::{grafana_users::table_struct::GrafanaUser, utils::get_current_datetime},
-};
+use database::db::Db;
 use garde::Validate;
 use log::error;
 use pwhash::bcrypt;
@@ -98,13 +95,17 @@ pub async fn login_with_google(
 
             // Register user
             let user_id = uuid7().to_string();
-            let grafana_user = GrafanaUser {
-                user_id: user_id.clone(),
-                email: request.email.clone(),
-                password_hash: hashed_password,
-                creation_timestamp: get_current_datetime(),
-            };
-            if let Err(err) = db.add_new_user(&grafana_user).await {
+
+            if let Err(err) = db
+                .add_new_user(
+                    &user_id,
+                    &request.email,
+                    Some(&hashed_password),
+                    // None for passkeys
+                    None,
+                )
+                .await
+            {
                 error!("Failed to create user: {:?}", err);
                 return Err((
                     StatusCode::INTERNAL_SERVER_ERROR,

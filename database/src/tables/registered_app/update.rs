@@ -52,6 +52,7 @@ impl Db {
 
     pub async fn add_new_whitelisted_domain(
         &self,
+        tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
         app_id: &str,
         domain: &str,
     ) -> Result<(), DbError> {
@@ -62,7 +63,7 @@ impl Db {
         let query_result = query(&query_body)
             .bind(domain)
             .bind(app_id)
-            .execute(&self.connection_pool)
+            .execute(&mut **tx)
             .await;
 
         match query_result {

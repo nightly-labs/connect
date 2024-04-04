@@ -6,13 +6,13 @@ pub type ApiSessionsCache = Cache<String, SessionCache>;
 pub enum SessionCache {
     VerifyRegister(RegisterVerification),
     ResetPassword(ResetPasswordVerification),
-    VerifyDomain(DomainVerification),
+    VerifyPasskeyRegister(PasskeyVerification),
 }
 
 pub enum SessionsCacheKey {
     RegisterVerification(String),      // user email
     ResetPasswordVerification(String), // user email
-    DomainVerification(String),        // domain name
+    PasskeyVerification(String),       // user email
 }
 
 impl SessionsCacheKey {
@@ -20,7 +20,7 @@ impl SessionsCacheKey {
         match self {
             SessionsCacheKey::RegisterVerification(email) => format!("reg_ver_{}", email),
             SessionsCacheKey::ResetPasswordVerification(email) => format!("pass_res_{}", email),
-            SessionsCacheKey::DomainVerification(domain_name) => format!("dom_ver_{}", domain_name),
+            SessionsCacheKey::PasskeyVerification(email) => format!("pass_reg_{}", email),
         }
     }
 }
@@ -42,8 +42,9 @@ pub struct ResetPasswordVerification {
 }
 
 #[derive(Debug, Clone)]
-pub struct DomainVerification {
-    pub domain_name: String,
+pub struct PasskeyVerification {
+    pub email: String,
     pub code: String,
+    pub passkey_registration_state: webauthn_rs::prelude::PasskeyRegistration,
     pub created_at: u64,
 }
