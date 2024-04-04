@@ -68,7 +68,7 @@ impl Db {
 #[cfg(feature = "cloud_db_tests")]
 #[cfg(test)]
 mod tests {
-    use crate::tables::{users::table_struct::GrafanaUser, utils::to_microsecond_precision};
+    use crate::tables::{users::table_struct::User, utils::to_microsecond_precision};
     use sqlx::types::chrono::Utc;
 
     #[tokio::test]
@@ -85,7 +85,7 @@ mod tests {
             .unwrap();
 
         let password = "test_password_hash".to_string();
-        let user = GrafanaUser {
+        let user = User {
             email: "test_user_email".to_string(),
             password_hash: Some(password.clone()),
             user_id: "test_user_id".to_string(),

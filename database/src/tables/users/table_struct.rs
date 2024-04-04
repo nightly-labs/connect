@@ -9,7 +9,7 @@ pub const USERS_TABLE_NAME: &str = "users";
 pub const USERS_KEYS: &str = "user_id, email, password_hash, passkeys, creation_timestamp";
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct GrafanaUser {
+pub struct User {
     pub user_id: String,
     pub email: String,
     pub password_hash: Option<String>,
@@ -17,10 +17,10 @@ pub struct GrafanaUser {
     pub creation_timestamp: DateTime<Utc>,
 }
 
-impl FromRow<'_, PgRow> for GrafanaUser {
+impl FromRow<'_, PgRow> for User {
     fn from_row(row: &sqlx::postgres::PgRow) -> std::result::Result<Self, sqlx::Error> {
         let passkeys: Option<String> = row.get("passkeys");
-        Ok(GrafanaUser {
+        Ok(User {
             email: row.get("email"),
             password_hash: row.get("password_hash"),
             passkeys: match passkeys {
