@@ -19,19 +19,19 @@ use webauthn_rs::Webauthn;
 #[derive(Validate, Clone, Debug, Deserialize, Serialize, TS)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct RegisterWithPasskeyStartRequest {
+pub struct HttpRegisterWithPasskeyStartRequest {
     #[garde(email)]
     pub email: String,
 }
 
-pub type RegisterWithPasskeyStartResponse = CreationChallengeResponse;
+pub type HttpRegisterWithPasskeyStartResponse = CreationChallengeResponse;
 
 pub async fn register_with_passkey_start(
     State(db): State<Arc<Db>>,
     State(web_auth): State<Arc<Webauthn>>,
     State(sessions_cache): State<Arc<ApiSessionsCache>>,
-    Json(request): Json<RegisterWithPasskeyStartRequest>,
-) -> Result<Json<RegisterWithPasskeyStartResponse>, (StatusCode, String)> {
+    Json(request): Json<HttpRegisterWithPasskeyStartRequest>,
+) -> Result<Json<HttpRegisterWithPasskeyStartResponse>, (StatusCode, String)> {
     // Validate request
     validate_request(&request, &())?;
 
