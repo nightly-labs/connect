@@ -36,6 +36,7 @@ r-cache = { workspace = true }
 lettre = { workspace = true }
 addr = { workspace = true }
 hickory-resolver = { workspace = true }
+webauthn-rs = { workspace = true }
 
 [features]
 cloud_db_tests = []

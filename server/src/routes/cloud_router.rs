@@ -15,6 +15,8 @@ use crate::{
         invite_user_to_team::invite_user_to_team,
         login::{login_with_google::login_with_google, login_with_password::login_with_password},
         register::{
+            register_with_passkey_finish::register_with_passkey_finish,
+            register_with_passkey_start::register_with_passkey_start,
             register_with_password_finish::register_with_password_finish,
             register_with_password_start::register_with_password_start,
         },
@@ -74,6 +76,14 @@ pub fn public_router(state: ServerState) -> Router<ServerState> {
         .route(
             &HttpCloudEndpoint::ResetPasswordFinish.to_string(),
             post(reset_password_finish),
+        )
+        .route(
+            &HttpCloudEndpoint::RegisterWithPasskeyStart.to_string(),
+            post(register_with_passkey_start),
+        )
+        .route(
+            &HttpCloudEndpoint::RegisterWithPasskeyFinish.to_string(),
+            post(register_with_passkey_finish),
         )
         .route(&HttpCloudEndpoint::Events.to_string(), post(events))
         .with_state(state)
