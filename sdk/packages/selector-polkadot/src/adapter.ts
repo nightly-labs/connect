@@ -58,6 +58,10 @@ export class NightlyConnectAdapter
 
   private _loading: boolean
 
+  // interval used for checking for wallets with delayed detection
+  private _detectionIntervalId: NodeJS.Timeout | undefined
+  private _maxNumberOfChecks = 10
+
   constructor(appInitData: AppSelectorInitialize, connectionOptions?: ConnectionOptions) {
     super()
     this._connecting = false
@@ -192,6 +196,8 @@ export class NightlyConnectAdapter
       metadataWallets,
       getRecentWalletForNetwork(adapter.network)?.walletName ?? undefined
     )
+
+    adapter.checkForArrivingWallets(metadataWallets)
     // Add event listener for userConnected
     app.on('userConnected', async () => {
       try {
@@ -263,6 +269,8 @@ export class NightlyConnectAdapter
             metadataWallets,
             getRecentWalletForNetwork(adapter.network)?.walletName ?? undefined
           )
+
+          adapter.checkForArrivingWallets(metadataWallets)
 
           adapter._loading = false
           // Add event listener for userConnected
@@ -537,6 +545,8 @@ export class NightlyConnectAdapter
                   getRecentWalletForNetwork(this.network)?.walletName ?? undefined
                 )
 
+                this.checkForArrivingWallets(metadataWallets)
+
                 // Add event listener for userConnected
                 app.on('userConnected', async () => {
                   try {
@@ -573,6 +583,7 @@ export class NightlyConnectAdapter
             this._connecting = true
             this._modal.onClose = () => {
               clearInterval(loadingInterval)
+              clearInterval(this._detectionIntervalId)
               if (this._connecting) {
                 this._connecting = false
                 const error = new Error('Connection cancelled')
@@ -655,6 +666,26 @@ export class NightlyConnectAdapter
     return this.walletsList
   }
 
+  checkForArrivingWallets = (metadataWallets: WalletMetadata[]) => {
+    clearInterval(this._detectionIntervalId)
+    let checks = 0
+
+    this._detectionIntervalId = setInterval(() => {
+      if (checks >= this._maxNumberOfChecks || this.connected) {
+        clearInterval(this._detectionIntervalId)
+      }
+      checks++
+      this.walletsList = getPolkadotWalletsList(
+        metadataWallets,
+        getRecentWalletForNetwork(this.network)?.walletName ?? undefined
+      )
+    }, 1000)
+  }
+
+  stopIntervalsOnExit = () => {
+    clearInterval(this._detectionIntervalId)
+  }
+
   disconnect = async () => {
     try {
       // Some apps might use disconnect to reset state / recreate session
@@ -675,6 +706,8 @@ export class NightlyConnectAdapter
     } finally {
       this._connecting = false
       this.emit('disconnect')
+
+      clearInterval(this._detectionIntervalId)
     }
   }
 }

@@ -1,4 +1,4 @@
-import { createEffect, createSignal, onMount, Show } from 'solid-js'
+import { createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js'
 import { Title } from 'solid-start'
 import { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-solana'
 import { Connection, PublicKey, SystemProgram, Transaction as SolanaTx } from '@solana/web3.js'
@@ -53,6 +53,10 @@ export default function SolanaLazy() {
           }
         )
     }
+  })
+
+  onCleanup(() => {
+    adapter()?.stopIntervalsOnExit()
   })
 
   return (

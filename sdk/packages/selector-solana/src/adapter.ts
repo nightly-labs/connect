@@ -612,6 +612,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
             this._connecting = true
             this._modal.onClose = () => {
               clearInterval(loadingInterval)
+              clearInterval(this._detectionIntervalId)
               if (this._connecting) {
                 this._connecting = false
                 const error = new WalletWindowClosedError()
@@ -712,6 +713,10 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
       )
     }, 1000)
+  }
+
+  stopIntervalsOnExit = () => {
+    clearInterval(this._detectionIntervalId)
   }
 
   disconnect = async () => {

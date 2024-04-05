@@ -153,8 +153,8 @@ importers:
         specifier: ^0.4.0
         version: link:../../packages/selector-base
       '@nightlylabs/wallet-selector-polkadot':
-        specifier: 0.2.3
-        version: 0.2.3(@polkadot/util@12.5.1)
+        specifier: 0.2.4
+        version: link:../../packages/selector-polkadot
       '@nightlylabs/wallet-selector-solana':
         specifier: 0.3.0
         version: link:../../packages/selector-solana
@@ -5351,21 +5351,6 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@nightlylabs/wallet-selector-base@0.4.0:
-    resolution: {integrity: sha512-NCreMsiNzd5Rvu76cNTwtrCrB5iCBV+NtPZbhyUWfagbxROS1AJsZuIt+Af+AVjHFDS/7MQS37SJi1EX6XCp8Q==}
-    dependencies:
-      '@nightlylabs/nightly-connect-base': 0.0.27
-      '@nightlylabs/wallet-selector-modal': 0.2.1
-      '@wallet-standard/core': 1.0.3
-      isomorphic-localstorage: 1.0.2
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - supports-color
-      - ts-node
-      - utf-8-validate
-    dev: false
-
   /@nightlylabs/wallet-selector-modal@0.1.2:
     resolution: {integrity: sha512-vxy9S2dEf3NARW6LDq2ZKpWMlk5JJFIuwUfSxkuJlgUg2OVSlnDS7vdho3h4DmluRU5GM9vVhaXUGHAVp5sDQg==}
     dependencies:
@@ -5378,38 +5363,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - ts-node
-    dev: false
-
-  /@nightlylabs/wallet-selector-modal@0.2.1:
-    resolution: {integrity: sha512-jJghrmUtKwHiSaH0c4Tc8befpqGP23AjTFsQ/Eucpa7uz90lFZ9FHmw+bZZKabqYgI0j+uyViiyfwaPcVPKjlQ==}
-    dependencies:
-      '@nightlylabs/qr-code': 2.0.4
-      autoprefixer: 10.4.14(postcss@8.4.24)
-      lit: 2.7.2
-      postcss: 8.4.24
-      postcss-lit: 1.1.0(postcss@8.4.24)
-      tailwindcss: 3.3.2
-    transitivePeerDependencies:
-      - supports-color
-      - ts-node
-    dev: false
-
-  /@nightlylabs/wallet-selector-polkadot@0.2.3(@polkadot/util@12.5.1):
-    resolution: {integrity: sha512-hlMHdd67ye4Ov7+5mSqlwJiSjAblH+ZJ9WRq2hHwDKnjJRvgxVDX/vG+Nn3Ir/bBHfNurrGmBFyzVixaiV6akw==}
-    dependencies:
-      '@nightlylabs/nightly-connect-polkadot': 0.0.15
-      '@nightlylabs/wallet-selector-base': 0.4.0
-      '@polkadot/api': 10.10.1
-      '@polkadot/extension-inject': 0.46.5(@polkadot/api@10.10.1)(@polkadot/util@12.5.1)
-      '@wallet-standard/core': 1.0.3
-      eventemitter3: 5.0.1
-    transitivePeerDependencies:
-      - '@polkadot/util'
-      - bufferutil
-      - encoding
-      - supports-color
-      - ts-node
-      - utf-8-validate
     dev: false
 
   /@nightlylabs/wallet-selector-solana@0.2.6(bs58@4.0.1)(react@18.2.0):
