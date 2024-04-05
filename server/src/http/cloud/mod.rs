@@ -1,4 +1,5 @@
 pub mod accept_team_invite;
+pub mod add_passkey_start;
 pub mod cancel_team_user_invite;
 pub mod cancel_user_team_invite;
 pub mod delete_passkey;
