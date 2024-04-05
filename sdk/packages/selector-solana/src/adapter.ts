@@ -612,7 +612,6 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
             this._connecting = true
             this._modal.onClose = () => {
               clearInterval(loadingInterval)
-              clearInterval(this._detectionIntervalId)
               if (this._connecting) {
                 this._connecting = false
                 const error = new WalletWindowClosedError()

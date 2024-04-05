@@ -583,7 +583,6 @@ export class NightlyConnectAdapter
             this._connecting = true
             this._modal.onClose = () => {
               clearInterval(loadingInterval)
-              clearInterval(this._detectionIntervalId)
               if (this._connecting) {
                 this._connecting = false
                 const error = new Error('Connection cancelled')
