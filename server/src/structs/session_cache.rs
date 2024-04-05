@@ -8,6 +8,7 @@ pub enum SessionCache {
     ResetPassword(ResetPasswordVerification),
     VerifyPasskeyRegister(PasskeyVerification),
     ResetPasskey(ResetPasskeyVerification),
+    Passkey2FA(webauthn_rs::prelude::PasskeyAuthentication),
 }
 
 pub enum SessionsCacheKey {
@@ -15,6 +16,7 @@ pub enum SessionsCacheKey {
     ResetPasswordVerification(String), // user email
     PasskeyVerification(String),       // user email
     ResetPasskeyVerification(String),  // user email
+    Passkey2FA(String),                // user id
 }
 
 impl SessionsCacheKey {
@@ -24,6 +26,7 @@ impl SessionsCacheKey {
             SessionsCacheKey::ResetPasswordVerification(email) => format!("pass_res_{}", email),
             SessionsCacheKey::PasskeyVerification(email) => format!("pass_reg_{}", email),
             SessionsCacheKey::ResetPasskeyVerification(email) => format!("pass_res_{}", email),
+            SessionsCacheKey::Passkey2FA(user_id) => format!("pass_chal_{}", user_id),
         }
     }
 }
