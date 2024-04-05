@@ -1,6 +1,6 @@
 import { getPolkadotWallets, NightlyConnectAdapter } from '@nightlylabs/wallet-selector-polkadot'
 import { ApiPromise, WsProvider } from '@polkadot/api'
-import { createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js'
+import { createEffect, createSignal, onMount, Show } from 'solid-js'
 import { Title } from 'solid-start'
 import toast from 'solid-toast'
 
@@ -86,10 +86,6 @@ export default function Polkadot() {
           }
         )
     }
-  })
-
-  onCleanup(() => {
-    adapter()?.stopIntervalsOnExit()
   })
 
   return (

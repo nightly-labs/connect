@@ -681,10 +681,6 @@ export class NightlyConnectAdapter
     }, 1000)
   }
 
-  stopIntervalsOnExit = () => {
-    clearInterval(this._detectionIntervalId)
-  }
-
   disconnect = async () => {
     try {
       // Some apps might use disconnect to reset state / recreate session
