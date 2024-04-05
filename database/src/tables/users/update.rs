@@ -63,6 +63,29 @@ impl Db {
             Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
+
+    pub async fn update_passkeys(
+        &self,
+        user_email: &String,
+        passkeys: &Vec<Passkey>,
+    ) -> Result<(), DbError> {
+        let serialized_passkey = serde_json::to_string(passkeys).map_err(|e| {
+            DbError::DatabaseError(format!("Failed to serialize passkey: {}", e.to_string()))
+        })?;
+
+        let query_body = format!("UPDATE {USERS_TABLE_NAME} SET passkeys = $1 WHERE email = $2");
+
+        let query_result = query(&query_body)
+            .bind(&serialized_passkey)
+            .bind(user_email)
+            .execute(&self.connection_pool)
+            .await;
+
+        match query_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e).map_err(|e| e.into()),
+        }
+    }
 }
 
 #[cfg(feature = "cloud_db_tests")]

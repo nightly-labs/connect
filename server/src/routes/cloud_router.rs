@@ -1,14 +1,18 @@
 use crate::{
     http::cloud::{
         accept_team_invite::accept_team_invite,
+        add_passkey_finish::add_passkey_finish,
+        add_passkey_start::add_passkey_start,
         cancel_team_user_invite::cancel_team_user_invite,
         cancel_user_team_invite::cancel_user_team_invite,
+        delete_passkey::delete_passkey,
         domains::{
             remove_whitelisted_domain::remove_whitelisted_domain,
             verify_domain_finish::verify_domain_finish, verify_domain_start::verify_domain_start,
         },
         events::events::events,
         get_events::get_events,
+        get_passkey_challenge::get_passkey_challenge,
         get_team_user_invites::get_team_user_invites,
         get_user_joined_teams::get_user_joined_teams,
         get_user_team_invites::get_user_team_invites,
@@ -24,6 +28,7 @@ use crate::{
         register_new_team::register_new_team,
         remove_user_from_team::remove_user_from_team,
         reset_credentials::{
+            reset_passkey_finish::reset_passkey_finish, reset_passkey_start::reset_passkey_start,
             reset_password_finish::reset_password_finish,
             reset_password_start::reset_password_start,
         },
@@ -85,6 +90,14 @@ pub fn public_router(state: ServerState) -> Router<ServerState> {
             &HttpCloudEndpoint::RegisterWithPasskeyFinish.to_string(),
             post(register_with_passkey_finish),
         )
+        .route(
+            &HttpCloudEndpoint::ResetPasskeyStart.to_string(),
+            post(reset_passkey_start),
+        )
+        .route(
+            &HttpCloudEndpoint::ResetPasskeyFinish.to_string(),
+            post(reset_passkey_finish),
+        )
         .route(&HttpCloudEndpoint::Events.to_string(), post(events))
         .with_state(state)
 }
@@ -143,6 +156,22 @@ pub fn private_router(state: ServerState) -> Router<ServerState> {
         .route(
             &HttpCloudEndpoint::RemoveWhitelistedDomain.to_string(),
             post(remove_whitelisted_domain),
+        )
+        .route(
+            &HttpCloudEndpoint::GetPasskeyChallenge.to_string(),
+            get(get_passkey_challenge),
+        )
+        .route(
+            &HttpCloudEndpoint::DeletePasskey.to_string(),
+            post(delete_passkey),
+        )
+        .route(
+            &HttpCloudEndpoint::AddPasskeyStart.to_string(),
+            post(add_passkey_start),
+        )
+        .route(
+            &HttpCloudEndpoint::AddPasskeyFinish.to_string(),
+            post(add_passkey_finish),
         )
         .with_state(state)
 }
