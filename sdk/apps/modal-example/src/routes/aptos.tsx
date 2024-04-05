@@ -1,7 +1,7 @@
 import { AccountAuthenticator, AccountAuthenticatorEd25519, Aptos } from '@aptos-labs/ts-sdk'
 import { AccountInfo, AptosSignMessageInput, UserResponseStatus } from '@aptos-labs/wallet-standard'
 import { NightlyConnectAptosAdapter } from '@nightlylabs/wallet-selector-aptos'
-import { createEffect, createSignal, onMount, Show } from 'solid-js'
+import { createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js'
 import { Title } from 'solid-start'
 import toast from 'solid-toast'
 
@@ -57,6 +57,10 @@ export default function AptosPage() {
           }
         )
     }
+  })
+
+  onCleanup(() => {
+    adapter()?.stopIntervalsOnExit()
   })
 
   return (
