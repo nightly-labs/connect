@@ -1,9 +1,13 @@
 pub mod accept_team_invite;
+pub mod add_passkey_finish;
+pub mod add_passkey_start;
 pub mod cancel_team_user_invite;
 pub mod cancel_user_team_invite;
+pub mod delete_passkey;
 pub mod domains;
 pub mod events;
 pub mod get_events;
+pub mod get_passkey_challenge;
 pub mod get_team_user_invites;
 pub mod get_user_joined_teams;
 pub mod get_user_team_invites;

@@ -42,4 +42,6 @@ pub enum CloudApiErrors {
     PasswordNotSet,
     UserDoesNotHavePasskey,
     PasskeyAlreadyExists,
+    InvalidPasskeyCredential,
+    PasskeyDoesNotExist,
 }
