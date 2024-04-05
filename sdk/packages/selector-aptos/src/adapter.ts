@@ -854,6 +854,6 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
         metadataWallets,
         getRecentWalletForNetwork(APTOS_NETWORK)?.walletName ?? undefined
       )
-    }, 1000)
+    }, 500)
   }
 }
