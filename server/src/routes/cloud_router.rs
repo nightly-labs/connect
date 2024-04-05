@@ -15,6 +15,7 @@ use crate::{
         get_passkey_challenge::get_passkey_challenge,
         get_team_user_invites::get_team_user_invites,
         get_user_joined_teams::get_user_joined_teams,
+        get_user_metadata::get_user_metadata,
         get_user_team_invites::get_user_team_invites,
         invite_user_to_team::invite_user_to_team,
         login::{login_with_google::login_with_google, login_with_password::login_with_password},
@@ -172,6 +173,10 @@ pub fn private_router(state: ServerState) -> Router<ServerState> {
         .route(
             &HttpCloudEndpoint::AddPasskeyFinish.to_string(),
             post(add_passkey_finish),
+        )
+        .route(
+            &HttpCloudEndpoint::GetUserMetadata.to_string(),
+            get(get_user_metadata),
         )
         .with_state(state)
 }
