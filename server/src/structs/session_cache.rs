@@ -18,7 +18,7 @@ pub enum SessionsCacheKey {
     PasskeyVerification(String),       // user email
     ResetPasskeyVerification(String),  // user email
     Passkey2FA(String),                // user id
-    AddPasskey(String),                // user email
+    AddPasskey(String),                // user id
 }
 
 impl SessionsCacheKey {
@@ -68,7 +68,7 @@ pub struct ResetPasskeyVerification {
 
 #[derive(Debug, Clone)]
 pub struct AddPasskeyVerification {
-    pub email: String,
+    pub user_id: String,
     pub passkey_registration_state: webauthn_rs::prelude::PasskeyRegistration,
     pub created_at: u64,
 }

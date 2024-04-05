@@ -8,22 +8,12 @@ use crate::{
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::db::Db;
-use garde::Validate;
 use log::error;
-use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use ts_rs::TS;
 use webauthn_rs::{
     prelude::{CreationChallengeResponse, Uuid},
     Webauthn,
 };
-
-#[derive(Validate, Clone, Debug, Deserialize, Serialize, TS)]
-#[ts(export)]
-pub struct HttpAddPasskeyStartRequest {
-    #[garde(email)]
-    pub email: String,
-}
 
 pub type HttpAddPasskeyStartResponse = CreationChallengeResponse;
 
@@ -32,7 +22,6 @@ pub async fn add_passkey_start(
     State(web_auth): State<Arc<Webauthn>>,
     State(sessions_cache): State<Arc<ApiSessionsCache>>,
     Extension(user_id): Extension<UserId>,
-    Json(request): Json<HttpAddPasskeyStartRequest>,
 ) -> Result<Json<HttpAddPasskeyStartResponse>, (StatusCode, String)> {
     // Get user data
     let user_data = match db.get_user_by_user_id(&user_id).await {
@@ -80,7 +69,7 @@ pub async fn add_passkey_start(
     sessions_cache.set(
         sessions_key,
         SessionCache::VerifyAddPasskey(AddPasskeyVerification {
-            email: request.email.clone(),
+            user_id,
             passkey_registration_state: reg_state,
             created_at: get_timestamp_in_milliseconds(),
         }),
