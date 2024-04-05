@@ -802,7 +802,7 @@ export class NightlyConnectSuiAdapter extends EventEmitter<SuiAdapterEvents> {
         metadataWallets,
         getRecentWalletForNetwork(SUI_NETWORK)?.walletName ?? undefined
       )
-    }, 1000)
+    }, 500)
   }
 }
 
