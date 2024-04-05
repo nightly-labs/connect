@@ -24,6 +24,7 @@ use crate::{
         register_new_team::register_new_team,
         remove_user_from_team::remove_user_from_team,
         reset_credentials::{
+            reset_passkey_finish::reset_passkey_finish, reset_passkey_start::reset_passkey_start,
             reset_password_finish::reset_password_finish,
             reset_password_start::reset_password_start,
         },
@@ -84,6 +85,14 @@ pub fn public_router(state: ServerState) -> Router<ServerState> {
         .route(
             &HttpCloudEndpoint::RegisterWithPasskeyFinish.to_string(),
             post(register_with_passkey_finish),
+        )
+        .route(
+            &HttpCloudEndpoint::ResetPasskeyStart.to_string(),
+            post(reset_passkey_start),
+        )
+        .route(
+            &HttpCloudEndpoint::ResetPasskeyFinish.to_string(),
+            post(reset_passkey_finish),
         )
         .route(&HttpCloudEndpoint::Events.to_string(), post(events))
         .with_state(state)

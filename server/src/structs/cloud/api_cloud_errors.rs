@@ -40,4 +40,6 @@ pub enum CloudApiErrors {
     DomainVerificationNotStarted,
     WebAuthnError,
     PasswordNotSet,
+    UserDoesNotHavePasskey,
+    PasskeyAlreadyExists,
 }

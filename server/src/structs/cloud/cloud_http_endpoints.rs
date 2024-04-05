@@ -50,6 +50,10 @@ pub enum HttpCloudEndpoint {
     RegisterWithPasskeyStart,
     #[serde(rename = "/register_with_passkey_finish")]
     RegisterWithPasskeyFinish,
+    #[serde(rename = "/reset_passkey_start")]
+    ResetPasskeyStart,
+    #[serde(rename = "/reset_passkey_finish")]
+    ResetPasskeyFinish,
 }
 
 impl HttpCloudEndpoint {
@@ -86,6 +90,8 @@ impl HttpCloudEndpoint {
             HttpCloudEndpoint::RegisterWithPasskeyFinish => {
                 "/register_with_passkey_finish".to_string()
             }
+            HttpCloudEndpoint::ResetPasskeyStart => "/reset_passkey_start".to_string(),
+            HttpCloudEndpoint::ResetPasskeyFinish => "/reset_passkey_finish".to_string(),
         }
     }
 }
