@@ -1,6 +1,8 @@
 use crate::{
     http::cloud::{
         accept_team_invite::accept_team_invite,
+        add_passkey_finish::add_passkey_finish,
+        add_passkey_start::add_passkey_start,
         cancel_team_user_invite::cancel_team_user_invite,
         cancel_user_team_invite::cancel_user_team_invite,
         delete_passkey::delete_passkey,
@@ -162,6 +164,14 @@ pub fn private_router(state: ServerState) -> Router<ServerState> {
         .route(
             &HttpCloudEndpoint::DeletePasskey.to_string(),
             post(delete_passkey),
+        )
+        .route(
+            &HttpCloudEndpoint::AddPasskeyStart.to_string(),
+            post(add_passkey_start),
+        )
+        .route(
+            &HttpCloudEndpoint::AddPasskeyFinish.to_string(),
+            post(add_passkey_finish),
         )
         .with_state(state)
 }
