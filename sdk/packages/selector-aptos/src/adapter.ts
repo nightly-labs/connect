@@ -850,15 +850,10 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
         clearInterval(this._detectionIntervalId)
       }
       checks++
-      console.log(checks)
       this.walletsList = getAptosWalletsList(
         metadataWallets,
         getRecentWalletForNetwork(APTOS_NETWORK)?.walletName ?? undefined
       )
     }, 1000)
-  }
-
-  stopIntervalsOnExit = () => {
-    clearInterval(this._detectionIntervalId)
   }
 }
