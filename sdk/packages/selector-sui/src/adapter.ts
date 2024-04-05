@@ -65,6 +65,10 @@ export class NightlyConnectSuiAdapter extends EventEmitter<SuiAdapterEvents> {
 
   private _connectionOptions: ConnectionOptions = defaultConnectionOptions
 
+  // interval used for checking for wallets with delayed detection
+  private _detectionIntervalId: NodeJS.Timeout | undefined
+  private _maxNumberOfChecks = 10
+
   get walletsList() {
     return this._walletsList
   }
@@ -161,6 +165,8 @@ export class NightlyConnectSuiAdapter extends EventEmitter<SuiAdapterEvents> {
       getRecentWalletForNetwork(SUI_NETWORK)?.walletName ?? undefined
     )
 
+    adapter.checkForArrivingWallets(metadataWallets)
+
     // Add event listener for userConnected
     app.on('userConnected', async (e) => {
       try {
@@ -239,6 +245,8 @@ export class NightlyConnectSuiAdapter extends EventEmitter<SuiAdapterEvents> {
             metadataWallets,
             getRecentWalletForNetwork(SUI_NETWORK)?.walletName ?? undefined
           )
+
+          adapter.checkForArrivingWallets(metadataWallets)
 
           app.on('userConnected', async (e) => {
             try {
@@ -336,6 +344,8 @@ export class NightlyConnectSuiAdapter extends EventEmitter<SuiAdapterEvents> {
                   metadataWallets,
                   getRecentWalletForNetwork(SUI_NETWORK)?.walletName ?? undefined
                 )
+
+                this.checkForArrivingWallets(metadataWallets)
 
                 // Add event listener for userConnected
                 app.on('userConnected', async (e) => {
@@ -777,6 +787,22 @@ export class NightlyConnectSuiAdapter extends EventEmitter<SuiAdapterEvents> {
       getRecentWalletForNetwork(SUI_NETWORK)?.walletName ?? undefined
     )
     return this.walletsList
+  }
+
+  checkForArrivingWallets = (metadataWallets: WalletMetadata[]) => {
+    clearInterval(this._detectionIntervalId)
+    let checks = 0
+
+    this._detectionIntervalId = setInterval(() => {
+      if (checks >= this._maxNumberOfChecks || this.connected) {
+        clearInterval(this._detectionIntervalId)
+      }
+      checks++
+      this.walletsList = getSuiWalletsList(
+        metadataWallets,
+        getRecentWalletForNetwork(SUI_NETWORK)?.walletName ?? undefined
+      )
+    }, 1000)
   }
 }
 
