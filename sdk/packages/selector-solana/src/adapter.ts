@@ -224,26 +224,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
     )
 
-    let checks = 0
-    adapter._detectionIntervalId = setInterval(() => {
-      console.log('eefef')
-      if (checks >= adapter._maxNumberOfChecks) {
-        clearInterval(adapter._detectionIntervalId)
-      }
-      checks++
-      adapter.walletsList = getSolanaWalletsList(
-        metadataWallets,
-        getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
-      )
-    }, 1000)
-
-    adapter.on('connect', () => {
-      clearInterval(adapter._detectionIntervalId)
-    })
-
-    adapter.on('disconnect', () => {
-      clearInterval(adapter._detectionIntervalId)
-    })
+    adapter.checkForArrivingWallets(metadataWallets)
 
     // Add event listener for userConnected
     app.on('userConnected', async () => {
@@ -329,25 +310,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
             getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
           )
 
-          let checks = 0
-          adapter._detectionIntervalId = setInterval(() => {
-            if (checks >= adapter._maxNumberOfChecks) {
-              clearInterval(adapter._detectionIntervalId)
-            }
-            checks++
-            adapter.walletsList = getSolanaWalletsList(
-              metadataWallets,
-              getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
-            )
-          }, 1000)
-
-          adapter.on('connect', () => {
-            clearInterval(adapter._detectionIntervalId)
-          })
-
-          adapter.on('disconnect', () => {
-            clearInterval(adapter._detectionIntervalId)
-          })
+          adapter.checkForArrivingWallets(metadataWallets)
 
           // Add event listener for userConnected
           app.on('userConnected', async () => {
@@ -611,25 +574,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
                   getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
                 )
 
-                let checks = 0
-                this._detectionIntervalId = setInterval(() => {
-                  if (checks >= this._maxNumberOfChecks) {
-                    clearInterval(this._detectionIntervalId)
-                  }
-                  checks++
-                  this.walletsList = getSolanaWalletsList(
-                    metadataWallets,
-                    getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
-                  )
-                }, 1000)
+                this.checkForArrivingWallets(metadataWallets)
 
-                this.on('connect', () => {
-                  clearInterval(this._detectionIntervalId)
-                })
-
-                this.on('disconnect', () => {
-                  clearInterval(this._detectionIntervalId)
-                })
                 // Add event listener for userConnected
                 app.on('userConnected', async () => {
                   try {
@@ -752,6 +698,22 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     return this.walletsList
   }
 
+  checkForArrivingWallets = (metadataWallets: WalletMetadata[]) => {
+    clearInterval(this._detectionIntervalId)
+    let checks = 0
+
+    this._detectionIntervalId = setInterval(() => {
+      if (checks >= this._maxNumberOfChecks || this.connected) {
+        clearInterval(this._detectionIntervalId)
+      }
+      checks++
+      this.walletsList = getSolanaWalletsList(
+        metadataWallets,
+        getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
+      )
+    }, 1000)
+  }
+
   disconnect = async () => {
     if (this.connected) {
       if (this._appSessionActive) {
@@ -800,6 +762,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       this._connected = false
 
       this.emit('disconnect')
+
+      clearInterval(this._detectionIntervalId)
     }
   }
 
