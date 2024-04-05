@@ -678,7 +678,7 @@ export class NightlyConnectAdapter
         metadataWallets,
         getRecentWalletForNetwork(this.network)?.walletName ?? undefined
       )
-    }, 1000)
+    }, 500)
   }
 
   disconnect = async () => {

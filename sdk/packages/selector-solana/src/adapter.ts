@@ -711,11 +711,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         metadataWallets,
         getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
       )
-    }, 1000)
-  }
-
-  stopIntervalsOnExit = () => {
-    clearInterval(this._detectionIntervalId)
+    }, 500)
   }
 
   disconnect = async () => {
