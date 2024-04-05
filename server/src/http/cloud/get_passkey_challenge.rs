@@ -1,3 +1,10 @@
+use crate::{
+    middlewares::auth_middleware::UserId,
+    structs::{
+        cloud::api_cloud_errors::CloudApiErrors,
+        session_cache::{ApiSessionsCache, SessionCache, SessionsCacheKey},
+    },
+};
 use axum::{extract::State, http::StatusCode};
 use axum::{Extension, Json};
 use database::db::Db;
@@ -6,18 +13,14 @@ use std::sync::Arc;
 use webauthn_rs::prelude::RequestChallengeResponse;
 use webauthn_rs::Webauthn;
 
-use crate::middlewares::auth_middleware::UserId;
-use crate::structs::cloud::api_cloud_errors::CloudApiErrors;
-use crate::structs::session_cache::{ApiSessionsCache, SessionCache, SessionsCacheKey};
-
-pub type TwoFactorWithPasskeyStartResponse = RequestChallengeResponse;
+pub type HttpTwoFactorWithPasskeyStartResponse = RequestChallengeResponse;
 
 pub async fn get_passkey_challenge(
     State(db): State<Arc<Db>>,
     State(web_auth): State<Arc<Webauthn>>,
     State(sessions_cache): State<Arc<ApiSessionsCache>>,
     Extension(user_id): Extension<UserId>,
-) -> Result<Json<TwoFactorWithPasskeyStartResponse>, (StatusCode, String)> {
+) -> Result<Json<HttpTwoFactorWithPasskeyStartResponse>, (StatusCode, String)> {
     // Get user data
     let user_data = match db.get_user_by_user_id(&user_id).await {
         Ok(Some(user_data)) => user_data,
