@@ -64,6 +64,12 @@ export default function SolanaExternalModal() {
   })
 
   createEffect(() => {
+    if (modal() && adapter()) {
+      modal()!.walletsList = adapter()!.walletsList
+    }
+  })
+
+  createEffect(() => {
     if (eager()) {
       adapter()
         ?.connect()
