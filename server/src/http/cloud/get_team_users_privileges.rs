@@ -1,9 +1,7 @@
 use super::utils::custom_validate_uuid;
 use crate::{
     middlewares::auth_middleware::UserId,
-    structs::cloud::{
-        api_cloud_errors::CloudApiErrors, app_info::AppInfo, team_metadata::TeamMetadata,
-    },
+    structs::cloud::{api_cloud_errors::CloudApiErrors, team_user_privilege::TeamUserPrivilege},
 };
 use axum::{
     extract::{Query, State},
@@ -20,7 +18,7 @@ use ts_rs::TS;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct HttpGetTeamMetadataRequest {
+pub struct HttpGetTeamUsersPrivilegesRequest {
     #[garde(custom(custom_validate_uuid))]
     pub team_id: String,
 }
@@ -28,21 +26,34 @@ pub struct HttpGetTeamMetadataRequest {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize, TS)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct HttpGetTeamMetadataResponse {
-    pub team_metadata: TeamMetadata,
-    pub team_apps: Vec<AppInfo>,
-    pub team_members: Vec<String>,
+pub struct HttpGetTeamUsersPrivilegesResponse {
+    pub users_privileges: Vec<TeamUserPrivilege>,
 }
 
-pub async fn get_team_metadata(
+pub async fn get_team_users_privileges(
     State(db): State<Arc<Db>>,
     Extension(user_id): Extension<UserId>,
-    Query(request): Query<HttpGetTeamMetadataRequest>,
-) -> Result<Json<HttpGetTeamMetadataResponse>, (StatusCode, String)> {
+    Query(request): Query<HttpGetTeamUsersPrivilegesRequest>,
+) -> Result<Json<HttpGetTeamUsersPrivilegesResponse>, (StatusCode, String)> {
     // Get user data
     match db.get_team_by_team_id(None, &request.team_id).await {
         Ok(Some(team)) => {
-            // Check if user has privileges to access this team
+            // Check if user is a admin of this team
+            if team.team_admin_id != user_id {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    CloudApiErrors::InsufficientPermissions.to_string(),
+                ));
+            }
+
+            // Check team type
+            if team.personal {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    CloudApiErrors::ActionForbiddenForPersonalTeam.to_string(),
+                ));
+            }
+
             let team_privileges = match db.get_privileges_by_team_id(&request.team_id).await {
                 Ok(privileges) => {
                     if !privileges
@@ -66,47 +77,7 @@ pub async fn get_team_metadata(
                 }
             };
 
-            // Get team admin email
-            let admin_email = match db.get_user_by_user_id(&team.team_admin_id).await {
-                Ok(Some(user)) => user.email,
-                Ok(None) => {
-                    return Err((
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        CloudApiErrors::DatabaseError.to_string(),
-                    ));
-                }
-                Err(err) => {
-                    error!("Failed to get user by user_id: {:?}", err);
-                    return Err((
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        CloudApiErrors::DatabaseError.to_string(),
-                    ));
-                }
-            };
-
-            // Get team data
-            let team_metadata = TeamMetadata {
-                creator_email: admin_email,
-                team_id: team.team_id.clone(),
-                team_name: team.team_name,
-                personal_team: team.personal,
-                created_at: team.registration_timestamp,
-            };
-
-            // Get team apps
-            let registered_apps: Vec<AppInfo> =
-                match db.get_registered_apps_by_team_id(&team.team_id).await {
-                    Ok(apps) => apps.into_iter().map(|app| app.into()).collect(),
-                    Err(err) => {
-                        error!("Failed to get registered apps by team_id: {:?}", err);
-                        return Err((
-                            StatusCode::INTERNAL_SERVER_ERROR,
-                            CloudApiErrors::DatabaseError.to_string(),
-                        ));
-                    }
-                };
-
-            // Get team users from team_privileges
+            // Get team users ids from team_privileges
             let team_members_ids: Vec<String> = team_privileges
                 .iter()
                 .map(|privilege| privilege.user_id.clone())
@@ -124,14 +95,26 @@ pub async fn get_team_metadata(
                 }
             };
 
-            let team_members: Vec<String> = users_ids_emails.values().cloned().collect();
+            let final_list = team_privileges
+                .iter()
+                .map(|privilege| {
+                    // Should not happen but just in case
+                    let email = match users_ids_emails.get(&privilege.user_id) {
+                        Some(email) => email.clone(),
+                        None => "".to_string(),
+                    };
 
-            // Return data to user
-            return Ok(Json(HttpGetTeamMetadataResponse {
-                team_metadata,
-                team_apps: registered_apps,
-                team_members,
-            }));
+                    TeamUserPrivilege {
+                        app_id: privilege.app_id.clone(),
+                        user_email: email.clone(),
+                        privilege: privilege.privilege_level.clone(),
+                    }
+                })
+                .collect();
+
+            Ok(Json(HttpGetTeamUsersPrivilegesResponse {
+                users_privileges: final_list,
+            }))
         }
         Ok(None) => {
             return Err((
@@ -167,6 +150,7 @@ mod tests {
         extract::ConnectInfo,
         http::{Method, Request},
     };
+    use database::structs::privilege_level::PrivilegeLevel;
     use std::net::SocketAddr;
     use tower::ServiceExt;
 
@@ -174,7 +158,7 @@ mod tests {
     async fn test_get_team_metadata() {
         let test_app = create_test_app(false).await;
 
-        let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
+        let (auth_token, admin_email, _password) = register_and_login_random_user(&test_app).await;
 
         // Register new team
         let team_name = generate_valid_name();
@@ -223,7 +207,7 @@ mod tests {
             .header("authorization", format!("Bearer {auth}"))
             .uri(format!(
                 "/cloud/private{}?teamId={team_id}",
-                HttpCloudEndpoint::GetTeamMetadata.to_string()
+                HttpCloudEndpoint::GetTeamUserPrivileges.to_string()
             ))
             .extension(ip.clone())
             .body(Body::empty())
@@ -232,19 +216,18 @@ mod tests {
         // Send request
         let response = test_app.clone().oneshot(req).await.unwrap();
         // Validate response
-        let res = convert_response::<HttpGetTeamMetadataResponse>(response)
+        let res = convert_response::<HttpGetTeamUsersPrivilegesResponse>(response)
             .await
             .unwrap();
 
-        assert_eq!(res.team_metadata.team_id, team_id);
-        assert_eq!(res.team_metadata.team_name, team_name);
-        assert_eq!(res.team_metadata.personal_team, false);
-        assert_eq!(res.team_members.len(), 11);
-        assert_eq!(res.team_apps.len(), 1);
-
-        // Check if all users are in the team
-        for email in users_email {
-            assert!(res.team_members.contains(&email));
+        assert_eq!(res.users_privileges.len(), 11);
+        // Check privileges
+        for privilege in res.users_privileges {
+            if privilege.user_email == admin_email {
+                assert_eq!(privilege.privilege, PrivilegeLevel::Admin);
+            } else {
+                assert_eq!(privilege.privilege, PrivilegeLevel::Read);
+            }
         }
     }
 }

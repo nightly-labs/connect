@@ -10,6 +10,7 @@ pub mod get_events;
 pub mod get_passkey_challenge;
 pub mod get_team_metadata;
 pub mod get_team_user_invites;
+pub mod get_team_users_privileges;
 pub mod get_user_joined_teams;
 pub mod get_user_metadata;
 pub mod get_user_team_invites;

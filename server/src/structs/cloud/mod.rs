@@ -7,4 +7,5 @@ pub mod device_metadata;
 pub mod joined_team;
 pub mod team_invite;
 pub mod team_metadata;
+pub mod team_user_privilege;
 pub mod user_privilege;
