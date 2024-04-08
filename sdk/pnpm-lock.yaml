@@ -159,7 +159,7 @@ importers:
         specifier: 0.3.0
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
-        specifier: 0.3.0
+        specifier: 0.3.1
         version: link:../../packages/selector-sui
       '@polkadot/api':
         specifier: ^10.10.1
