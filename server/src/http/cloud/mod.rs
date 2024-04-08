@@ -8,6 +8,7 @@ pub mod domains;
 pub mod events;
 pub mod get_events;
 pub mod get_passkey_challenge;
+pub mod get_team_metadata;
 pub mod get_team_user_invites;
 pub mod get_user_joined_teams;
 pub mod get_user_metadata;

@@ -34,3 +34,18 @@ impl FromRow<'_, PgRow> for User {
         })
     }
 }
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct UserIdEmail {
+    pub user_id: String,
+    pub email: String,
+}
+
+impl FromRow<'_, PgRow> for UserIdEmail {
+    fn from_row(row: &sqlx::postgres::PgRow) -> std::result::Result<Self, sqlx::Error> {
+        Ok(UserIdEmail {
+            user_id: row.get("user_id"),
+            email: row.get("email"),
+        })
+    }
+}

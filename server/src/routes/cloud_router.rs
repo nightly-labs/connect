@@ -13,6 +13,7 @@ use crate::{
         events::events::events,
         get_events::get_events,
         get_passkey_challenge::get_passkey_challenge,
+        get_team_metadata::get_team_metadata,
         get_team_user_invites::get_team_user_invites,
         get_user_joined_teams::get_user_joined_teams,
         get_user_metadata::get_user_metadata,
@@ -177,6 +178,10 @@ pub fn private_router(state: ServerState) -> Router<ServerState> {
         .route(
             &HttpCloudEndpoint::GetUserMetadata.to_string(),
             get(get_user_metadata),
+        )
+        .route(
+            &HttpCloudEndpoint::GetTeamMetadata.to_string(),
+            get(get_team_metadata),
         )
         .with_state(state)
 }
