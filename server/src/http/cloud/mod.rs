@@ -3,6 +3,7 @@ pub mod add_passkey_finish;
 pub mod add_passkey_start;
 pub mod cancel_team_user_invite;
 pub mod cancel_user_team_invite;
+pub mod change_user_privileges;
 pub mod delete_passkey;
 pub mod domains;
 pub mod events;

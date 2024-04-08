@@ -5,6 +5,7 @@ pub mod cloud_events;
 pub mod cloud_http_endpoints;
 pub mod device_metadata;
 pub mod joined_team;
+pub mod new_user_privilege_level;
 pub mod team_invite;
 pub mod team_metadata;
 pub mod team_user_privilege;

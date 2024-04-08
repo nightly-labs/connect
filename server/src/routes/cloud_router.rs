@@ -5,6 +5,7 @@ use crate::{
         add_passkey_start::add_passkey_start,
         cancel_team_user_invite::cancel_team_user_invite,
         cancel_user_team_invite::cancel_user_team_invite,
+        change_user_privileges::change_user_privileges,
         delete_passkey::delete_passkey,
         domains::{
             remove_whitelisted_domain::remove_whitelisted_domain,
@@ -187,6 +188,10 @@ pub fn private_router(state: ServerState) -> Router<ServerState> {
         .route(
             &HttpCloudEndpoint::GetTeamUserPrivileges.to_string(),
             get(get_team_users_privileges),
+        )
+        .route(
+            &HttpCloudEndpoint::ChangeUserPrivileges.to_string(),
+            post(change_user_privileges),
         )
         .with_state(state)
 }
