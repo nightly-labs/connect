@@ -68,8 +68,7 @@ impl Db {
         let query = format!(
             "SELECT uap.* FROM {USER_APP_PRIVILEGES_TABLE_NAME} uap 
              JOIN {REGISTERED_APPS_TABLE_NAME} ra ON uap.app_id = ra.app_id 
-             WHERE ra.team_id = $1 
-             GROUP BY uap.app_id, uap.user_id, uap.creation_timestamp, uap.privilege_level"
+             WHERE ra.team_id = $1"
         );
         let typed_query = sqlx::query_as::<_, UserAppPrivilege>(&query);
 

@@ -199,6 +199,52 @@ impl Db {
 
         Ok(())
     }
+
+    pub async fn update_user_privilege(
+        &self,
+        tx: &mut Transaction<'_, sqlx::Postgres>,
+        user_id: &String,
+        app_id: &String,
+        new_privilege_level: PrivilegeLevel,
+    ) -> Result<(), DbError> {
+        let query_body = format!(
+            "UPDATE {USER_APP_PRIVILEGES_TABLE_NAME} SET privilege_level = $1 WHERE user_id = $2 AND app_id = $3"
+        );
+
+        let query_result = query(&query_body)
+            .bind(&new_privilege_level)
+            .bind(user_id)
+            .bind(app_id)
+            .execute(&mut **tx)
+            .await;
+
+        match query_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e).map_err(|e| e.into()),
+        }
+    }
+
+    pub async fn remove_user_privilege(
+        &self,
+        tx: &mut Transaction<'_, sqlx::Postgres>,
+        user_id: &String,
+        app_id: &String,
+    ) -> Result<(), DbError> {
+        let query_body = format!(
+            "DELETE FROM {USER_APP_PRIVILEGES_TABLE_NAME} WHERE user_id = $1 AND app_id = $2"
+        );
+
+        let query_result = query(&query_body)
+            .bind(user_id)
+            .bind(app_id)
+            .execute(&mut **tx)
+            .await;
+
+        match query_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e).map_err(|e| e.into()),
+        }
+    }
 }
 
 #[cfg(feature = "cloud_db_tests")]

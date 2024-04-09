@@ -5,6 +5,7 @@ use crate::{
         add_passkey_start::add_passkey_start,
         cancel_team_user_invite::cancel_team_user_invite,
         cancel_user_team_invite::cancel_user_team_invite,
+        change_user_privileges::change_user_privileges,
         delete_passkey::delete_passkey,
         domains::{
             remove_whitelisted_domain::remove_whitelisted_domain,
@@ -13,8 +14,11 @@ use crate::{
         events::events::events,
         get_events::get_events,
         get_passkey_challenge::get_passkey_challenge,
+        get_team_metadata::get_team_metadata,
         get_team_user_invites::get_team_user_invites,
+        get_team_users_privileges::get_team_users_privileges,
         get_user_joined_teams::get_user_joined_teams,
+        get_user_metadata::get_user_metadata,
         get_user_team_invites::get_user_team_invites,
         invite_user_to_team::invite_user_to_team,
         login::{login_with_google::login_with_google, login_with_password::login_with_password},
@@ -172,6 +176,22 @@ pub fn private_router(state: ServerState) -> Router<ServerState> {
         .route(
             &HttpCloudEndpoint::AddPasskeyFinish.to_string(),
             post(add_passkey_finish),
+        )
+        .route(
+            &HttpCloudEndpoint::GetUserMetadata.to_string(),
+            get(get_user_metadata),
+        )
+        .route(
+            &HttpCloudEndpoint::GetTeamMetadata.to_string(),
+            get(get_team_metadata),
+        )
+        .route(
+            &HttpCloudEndpoint::GetTeamUserPrivileges.to_string(),
+            get(get_team_users_privileges),
+        )
+        .route(
+            &HttpCloudEndpoint::ChangeUserPrivileges.to_string(),
+            post(change_user_privileges),
         )
         .with_state(state)
 }
