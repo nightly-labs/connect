@@ -18,7 +18,7 @@ use uuid7::uuid7;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct HttpVerifyRegisterWithPasswordRequest {
+pub struct HttpRegisterWithPasswordFinishRequest {
     #[garde(email)]
     pub email: String,
     #[garde(custom(custom_validate_verification_code))]
@@ -27,13 +27,13 @@ pub struct HttpVerifyRegisterWithPasswordRequest {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct HttpVerifyRegisterWithPasswordResponse {}
+pub struct HttpRegisterWithPasswordFinishResponse {}
 
 pub async fn register_with_password_finish(
     State(db): State<Arc<Db>>,
     State(sessions_cache): State<Arc<ApiSessionsCache>>,
-    Json(request): Json<HttpVerifyRegisterWithPasswordRequest>,
-) -> Result<Json<HttpVerifyRegisterWithPasswordResponse>, (StatusCode, String)> {
+    Json(request): Json<HttpRegisterWithPasswordFinishRequest>,
+) -> Result<Json<HttpRegisterWithPasswordFinishResponse>, (StatusCode, String)> {
     // Validate request
     validate_request(&request, &())?;
 
@@ -83,7 +83,7 @@ pub async fn register_with_password_finish(
         ));
     }
 
-    return Ok(Json(HttpVerifyRegisterWithPasswordResponse {}));
+    return Ok(Json(HttpRegisterWithPasswordFinishResponse {}));
 }
 
 #[cfg(feature = "cloud_db_tests")]
@@ -92,7 +92,7 @@ mod tests {
     use super::*;
     use crate::{
         http::cloud::register::register_with_password_start::{
-            HttpRegisterWithPasswordRequest, HttpRegisterWithPasswordResponse,
+            HttpRegisterWithPasswordStartRequest, HttpRegisterWithPasswordStartResponse,
         },
         structs::cloud::cloud_http_endpoints::HttpCloudEndpoint,
         test_utils::test_utils::{
@@ -122,7 +122,7 @@ mod tests {
         let password = format!("Password123");
 
         // Register user
-        let register_payload = HttpRegisterWithPasswordRequest {
+        let register_payload = HttpRegisterWithPasswordStartRequest {
             email: email.to_string(),
             password: password.to_string(),
         };
@@ -144,12 +144,12 @@ mod tests {
         // Send request
         let register_response = test_app.clone().oneshot(req).await.unwrap();
         // Validate response
-        convert_response::<HttpRegisterWithPasswordResponse>(register_response)
+        convert_response::<HttpRegisterWithPasswordStartResponse>(register_response)
             .await
             .unwrap();
 
         // Validate register
-        let verify_register_payload = HttpVerifyRegisterWithPasswordRequest {
+        let verify_register_payload = HttpRegisterWithPasswordFinishRequest {
             email: email.to_string(),
             // Random valid code for testing
             code: "123456".to_string(),
@@ -182,7 +182,7 @@ mod tests {
         let password = format!("Password123");
 
         // Register user
-        let register_payload = HttpRegisterWithPasswordRequest {
+        let register_payload = HttpRegisterWithPasswordStartRequest {
             email: email.to_string(),
             password: password.to_string(),
         };
@@ -204,7 +204,7 @@ mod tests {
         // Send request
         let register_response = test_app.clone().oneshot(req).await.unwrap();
         // Validate response, should be an error
-        convert_response::<HttpRegisterWithPasswordResponse>(register_response)
+        convert_response::<HttpRegisterWithPasswordStartResponse>(register_response)
             .await
             .unwrap_err();
 
@@ -212,7 +212,7 @@ mod tests {
         let email = format!("@gmail.com");
 
         // Register user
-        let register_payload = HttpRegisterWithPasswordRequest {
+        let register_payload = HttpRegisterWithPasswordStartRequest {
             email: email.to_string(),
             password: password.to_string(),
         };
@@ -234,7 +234,7 @@ mod tests {
         // Send request
         let register_response = test_app.clone().oneshot(req).await.unwrap();
         // Validate response, should be an error
-        convert_response::<HttpRegisterWithPasswordResponse>(register_response)
+        convert_response::<HttpRegisterWithPasswordStartResponse>(register_response)
             .await
             .unwrap_err();
     }
@@ -251,7 +251,7 @@ mod tests {
 
         {
             let app = test_app.clone();
-            let payload = HttpRegisterWithPasswordRequest {
+            let payload = HttpRegisterWithPasswordStartRequest {
                 email: "test@test.com".to_string(),
                 password: "dfsdsfa2asdada".to_string(),
             };
@@ -274,7 +274,7 @@ mod tests {
         }
         {
             let app = test_app.clone();
-            let payload = HttpRegisterWithPasswordRequest {
+            let payload = HttpRegisterWithPasswordStartRequest {
                 email: "test@test.com".to_string(),
                 password: "dA4ds".to_string(),
             };
@@ -296,7 +296,7 @@ mod tests {
         }
         {
             let app = test_app.clone();
-            let payload = HttpRegisterWithPasswordRequest {
+            let payload = HttpRegisterWithPasswordStartRequest {
                 email: "test@test.com".to_string(),
                 password: "Ab1aaaaaa¡".to_string(),
             };

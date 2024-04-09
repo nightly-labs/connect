@@ -98,9 +98,9 @@ mod tests {
     use super::*;
     use crate::{
         http::cloud::register::{
-            register_with_password_finish::HttpVerifyRegisterWithPasswordRequest,
+            register_with_password_finish::HttpRegisterWithPasswordFinishRequest,
             register_with_password_start::{
-                HttpRegisterWithPasswordRequest, HttpRegisterWithPasswordResponse,
+                HttpRegisterWithPasswordStartRequest, HttpRegisterWithPasswordStartResponse,
             },
         },
         structs::cloud::cloud_http_endpoints::HttpCloudEndpoint,
@@ -129,7 +129,7 @@ mod tests {
         let password = format!("Password123");
 
         // Register user
-        let register_payload = HttpRegisterWithPasswordRequest {
+        let register_payload = HttpRegisterWithPasswordStartRequest {
             email: email.to_string(),
             password: password.to_string(),
         };
@@ -151,12 +151,12 @@ mod tests {
         // Send request
         let register_response = test_app.clone().oneshot(req).await.unwrap();
         // Validate response
-        convert_response::<HttpRegisterWithPasswordResponse>(register_response)
+        convert_response::<HttpRegisterWithPasswordStartResponse>(register_response)
             .await
             .unwrap();
 
         // Validate register
-        let verify_register_payload = HttpVerifyRegisterWithPasswordRequest {
+        let verify_register_payload = HttpRegisterWithPasswordFinishRequest {
             email: email.to_string(),
             // Random valid code for testing
             code: "123456".to_string(),
@@ -262,7 +262,7 @@ mod tests {
         let password = format!("Password123");
 
         // Register user
-        let register_payload = HttpRegisterWithPasswordRequest {
+        let register_payload = HttpRegisterWithPasswordStartRequest {
             email: email.to_string(),
             password: password.to_string(),
         };
@@ -284,12 +284,12 @@ mod tests {
         // Send request
         let register_response = test_app.clone().oneshot(req).await.unwrap();
         // Validate response
-        convert_response::<HttpRegisterWithPasswordResponse>(register_response)
+        convert_response::<HttpRegisterWithPasswordStartResponse>(register_response)
             .await
             .unwrap();
 
         // Validate register
-        let verify_register_payload = HttpVerifyRegisterWithPasswordRequest {
+        let verify_register_payload = HttpRegisterWithPasswordFinishRequest {
             email: email.to_string(),
             // Random valid code for testing
             code: "123456".to_string(),
