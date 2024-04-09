@@ -1,14 +1,16 @@
 import { assert, describe, expect, test } from 'vitest'
 import { NightlyCloud } from './app'
-import { HttpRegisterWithPasswordRequest } from '../../../bindings/HttpRegisterWithPasswordRequest'
 import { addUserToTeam, basicTeamSetup, createUser, randomEmail } from './testUtils'
-import { HttpLoginRequest } from '../../../bindings/HttpLoginRequest'
-import { HttpRegisterNewTeamRequest } from '../../../bindings/HttpRegisterNewTeamRequest'
-import { HttpRegisterNewAppRequest } from '../../../bindings/HttpRegisterNewAppRequest'
-import { HttpInviteUserToTeamRequest } from '../../../bindings/HttpInviteUserToTeamRequest'
-import { HttpRemoveUserFromTeamRequest } from '../../../bindings/HttpRemoveUserFromTeamRequest'
-import { HttpCancelUserTeamInviteRequest } from '../../../bindings/HttpCancelUserTeamInviteRequest'
-import { HttpGetAppEventsRequest } from '../../../bindings/HttpGetAppEventsRequest'
+import {
+  HttpCancelUserTeamInviteRequest,
+  HttpGetAppEventsRequest,
+  HttpInviteUserToTeamRequest,
+  HttpLoginRequest,
+  HttpRegisterNewAppRequest,
+  HttpRegisterNewTeamRequest,
+  HttpRegisterWithPasswordStartRequest,
+  HttpRemoveUserFromTeamRequest
+} from '../../../bindings'
 
 const TEST_ENDPOINT = 'http://127.0.0.1:6969/cloud'
 
@@ -23,9 +25,9 @@ describe('Base Client tests', () => {
     const registerPayload = {
       email,
       password: 'Password123'
-    } as HttpRegisterWithPasswordRequest
+    } as HttpRegisterWithPasswordStartRequest
 
-    await cloudClient.registerWithPassword(registerPayload)
+    await cloudClient.registerWithPasswordStart(registerPayload)
   })
 
   test('#loginWithPassword()', async () => {
@@ -35,10 +37,10 @@ describe('Base Client tests', () => {
     const registerPayload = {
       email,
       password
-    } as HttpRegisterWithPasswordRequest
+    } as HttpRegisterWithPasswordStartRequest
 
-    await cloudClient.registerWithPassword(registerPayload)
-    await cloudClient.verifyRegisterWithPassword({ code: '123456', email })
+    await cloudClient.registerWithPasswordStart(registerPayload)
+    await cloudClient.registerWithPasswordFinish({ code: '123456', email })
 
     const loginPayload = {
       email,

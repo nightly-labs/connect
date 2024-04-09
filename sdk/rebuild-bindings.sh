@@ -16,4 +16,17 @@ echo 'Copying bindings from server and database to sdk...'
 cp -r server/bindings/* sdk/bindings/
 cp -r database/bindings/* sdk/bindings/
 
+echo 'Generating index.ts for bindings...'
+cd sdk/bindings
+
+rm -f index.ts
+
+for file in *.ts; do
+    if [ "$file" != "index.ts" ]; then
+        echo "export * from './${file%.*}';" >> index.ts
+    fi
+done
+
+cd ../..
+
 echo 'Operation completed successfully.'

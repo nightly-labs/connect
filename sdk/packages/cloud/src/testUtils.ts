@@ -1,8 +1,10 @@
-import { HttpInviteUserToTeamRequest } from '../../../bindings/HttpInviteUserToTeamRequest'
-import { HttpLoginRequest } from '../../../bindings/HttpLoginRequest'
-import { HttpRegisterNewAppRequest } from '../../../bindings/HttpRegisterNewAppRequest'
-import { HttpRegisterNewTeamRequest } from '../../../bindings/HttpRegisterNewTeamRequest'
-import { HttpRegisterWithPasswordRequest } from '../../../bindings/HttpRegisterWithPasswordRequest'
+import {
+  HttpInviteUserToTeamRequest,
+  HttpLoginRequest,
+  HttpRegisterNewAppRequest,
+  HttpRegisterNewTeamRequest,
+  HttpRegisterWithPasswordStartRequest
+} from '../../../bindings'
 import { NightlyCloud } from './app'
 
 export async function createUser(
@@ -14,10 +16,10 @@ export async function createUser(
   const registerPayload = {
     email,
     password
-  } as HttpRegisterWithPasswordRequest
+  } as HttpRegisterWithPasswordStartRequest
 
-  await await cloudClient.registerWithPassword(registerPayload)
-  await cloudClient.verifyRegisterWithPassword({ code: '123456', email })
+  await cloudClient.registerWithPasswordStart(registerPayload)
+  await cloudClient.registerWithPasswordFinish({ code: '123456', email })
 
   const loginPayload = {
     email,
