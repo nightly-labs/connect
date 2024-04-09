@@ -2,8 +2,9 @@ use crate::{
     middlewares::auth_middleware::UserId,
     structs::{
         cloud::api_cloud_errors::CloudApiErrors,
-        session_cache::{ApiSessionsCache, SessionCache, SessionsCacheKey},
+        session_cache::{ApiSessionsCache, Passkey2FAVerification, SessionCache, SessionsCacheKey},
     },
+    utils::get_timestamp_in_milliseconds,
 };
 use axum::{extract::State, http::StatusCode};
 use axum::{Extension, Json};
@@ -53,14 +54,22 @@ pub async fn get_passkey_challenge(
     };
 
     // Save to cache passkey challenge request
-    let sessions_key = SessionsCacheKey::PasskeyVerification(user_id.clone()).to_string();
+    let sessions_key = SessionsCacheKey::Passkey2FA(user_id.clone()).to_string();
 
     // Remove leftover session data
     sessions_cache.remove(&sessions_key);
 
     match web_auth.start_passkey_authentication(&passkey) {
         Ok((rcr, auth_state)) => {
-            sessions_cache.set(sessions_key, SessionCache::Passkey2FA(auth_state), None);
+            sessions_cache.set(
+                sessions_key,
+                SessionCache::Passkey2FA(Passkey2FAVerification {
+                    email: user_data.email.clone(),
+                    passkey_verification_state: auth_state,
+                    created_at: get_timestamp_in_milliseconds(),
+                }),
+                None,
+            );
             return Ok(Json(rcr));
         }
         Err(_) => {

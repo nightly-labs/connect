@@ -30,6 +30,36 @@ pub async fn delete_passkey(
     Extension(user_id): Extension<UserId>,
     Json(payload): Json<HttpDeletePasskeyRequest>,
 ) -> Result<(), (StatusCode, String)> {
+    // Get cache data
+    let sessions_key = SessionsCacheKey::Passkey2FA(user_id.clone()).to_string();
+    let session_data = match sessions_cache.get(&sessions_key) {
+        Some(SessionCache::Passkey2FA(session)) => session,
+        _ => {
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::InternalServerError.to_string(),
+            ));
+        }
+    };
+
+    // Remove leftover session data
+    sessions_cache.remove(&sessions_key);
+
+    // Finish passkey authentication
+    if let Err(err) = web_auth.finish_passkey_authentication(
+        &payload.passkey_credential,
+        &session_data.passkey_verification_state,
+    ) {
+        warn!(
+            "Failed to finish passkey authentication: {:?}, user_id: {}",
+            err, user_id
+        );
+        return Err((
+            StatusCode::BAD_REQUEST,
+            CloudApiErrors::InvalidPasskeyCredential.to_string(),
+        ));
+    }
+
     // Get user data
     let user_data = match db.get_user_by_user_id(&user_id).await {
         Ok(Some(user_data)) => user_data,
@@ -61,35 +91,6 @@ pub async fn delete_passkey(
             ));
         }
     };
-
-    // Get cache data
-    let sessions_key = SessionsCacheKey::Passkey2FA(user_id.clone()).to_string();
-    let session_data = match sessions_cache.get(&sessions_key) {
-        Some(SessionCache::Passkey2FA(session)) => session,
-        _ => {
-            return Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                CloudApiErrors::InternalServerError.to_string(),
-            ));
-        }
-    };
-
-    // Remove leftover session data
-    sessions_cache.remove(&sessions_key);
-
-    // Finish passkey authentication
-    if let Err(err) =
-        web_auth.finish_passkey_authentication(&payload.passkey_credential, &session_data)
-    {
-        warn!(
-            "Failed to finish passkey authentication: {:?}, user_id: {}",
-            err, user_id
-        );
-        return Err((
-            StatusCode::BAD_REQUEST,
-            CloudApiErrors::InvalidPasskeyCredential.to_string(),
-        ));
-    }
 
     // Remove passkey
     match passkeys

@@ -8,8 +8,9 @@ pub enum SessionCache {
     ResetPassword(ResetPasswordVerification),
     VerifyPasskeyRegister(PasskeyVerification),
     ResetPasskey(ResetPasskeyVerification),
-    Passkey2FA(webauthn_rs::prelude::PasskeyAuthentication),
+    Passkey2FA(Passkey2FAVerification),
     VerifyAddPasskey(AddPasskeyVerification),
+    PasskeyLogin(PasskeyLoginVerification),
 }
 
 pub enum SessionsCacheKey {
@@ -19,6 +20,7 @@ pub enum SessionsCacheKey {
     ResetPasskeyVerification(String),  // user email
     Passkey2FA(String),                // user id
     AddPasskey(String),                // user id
+    PasskeyLogin(String),              // user email
 }
 
 impl SessionsCacheKey {
@@ -30,6 +32,7 @@ impl SessionsCacheKey {
             SessionsCacheKey::ResetPasskeyVerification(email) => format!("pass_res_{}", email),
             SessionsCacheKey::Passkey2FA(user_id) => format!("pass_chal_{}", user_id),
             SessionsCacheKey::AddPasskey(email) => format!("add_pass_{}", email),
+            SessionsCacheKey::PasskeyLogin(email) => format!("pass_login_{}", email),
         }
     }
 }
@@ -70,5 +73,19 @@ pub struct ResetPasskeyVerification {
 pub struct AddPasskeyVerification {
     pub user_id: String,
     pub passkey_registration_state: webauthn_rs::prelude::PasskeyRegistration,
+    pub created_at: u64,
+}
+
+#[derive(Debug, Clone)]
+pub struct Passkey2FAVerification {
+    pub email: String,
+    pub passkey_verification_state: webauthn_rs::prelude::PasskeyAuthentication,
+    pub created_at: u64,
+}
+
+#[derive(Debug, Clone)]
+pub struct PasskeyLoginVerification {
+    pub email: String,
+    pub passkey_verification_state: webauthn_rs::prelude::PasskeyAuthentication,
     pub created_at: u64,
 }
