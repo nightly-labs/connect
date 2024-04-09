@@ -6,11 +6,11 @@ use ts_rs::TS;
 pub enum HttpCloudEndpoint {
     #[serde(rename = "/register_new_app")]
     RegisterNewApp,
-    #[serde(rename = "/register_with_password")]
+    #[serde(rename = "/register_with_password_start")]
     RegisterWithPasswordStart,
-    #[serde(rename = "/login_with_password_start")]
+    #[serde(rename = "/register_with_password_finish")]
     RegisterWithPasswordFinish,
-    #[serde(rename = "/login_with_password_finish")]
+    #[serde(rename = "/login_with_password")]
     LoginWithPassword,
     #[serde(rename = "/login_with_google")]
     LoginWithGoogle,
@@ -80,7 +80,7 @@ impl HttpCloudEndpoint {
                 "/register_with_password_start".to_string()
             }
             HttpCloudEndpoint::RegisterWithPasswordFinish => {
-                "/login_with_password_finish".to_string()
+                "/register_with_password_finish".to_string()
             }
             HttpCloudEndpoint::LoginWithPassword => "/login_with_password".to_string(),
             HttpCloudEndpoint::LoginWithGoogle => "/login_with_google".to_string(),

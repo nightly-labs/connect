@@ -25,6 +25,8 @@ import { HttpRegisterWithPasswordRequest } from '../../../bindings/HttpRegisterW
 import { HttpRegisterWithPasswordResponse } from '../../../bindings/HttpRegisterWithPasswordResponse'
 import { HttpRemoveUserFromTeamRequest } from '../../../bindings/HttpRemoveUserFromTeamRequest'
 import { HttpRemoveUserFromTeamResponse } from '../../../bindings/HttpRemoveUserFromTeamResponse'
+import { HttpVerifyRegisterWithPasswordRequest } from '../../../bindings/HttpVerifyRegisterWithPasswordRequest'
+import { HttpVerifyRegisterWithPasswordResponse } from '../../../bindings/HttpVerifyRegisterWithPasswordResponse'
 import { DEFAULT_CLOUD_URL, EndpointType, Method } from './utils'
 import { fetch } from 'cross-fetch'
 
@@ -129,10 +131,22 @@ export class NightlyCloud {
     request: HttpRegisterWithPasswordRequest
   ): Promise<HttpRegisterWithPasswordResponse> => {
     const response = (await this.sendPostJson(
-      '/register_with_password',
+      '/register_with_password_start',
       EndpointType.Public,
       request
     )) as HttpRegisterWithPasswordResponse
+
+    return response
+  }
+
+  verifyRegisterWithPassword = async (
+    request: HttpVerifyRegisterWithPasswordRequest
+  ): Promise<HttpRegisterWithPasswordResponse> => {
+    const response = (await this.sendPostJson(
+      '/register_with_password_finish',
+      EndpointType.Public,
+      request
+    )) as HttpVerifyRegisterWithPasswordResponse
 
     return response
   }

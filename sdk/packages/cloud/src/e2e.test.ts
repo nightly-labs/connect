@@ -25,9 +25,7 @@ describe('Base Client tests', () => {
       password: 'Password123'
     } as HttpRegisterWithPasswordRequest
 
-    const response = await (await cloudClient.registerWithPassword(registerPayload)).userId
-
-    assert(response.length > 0)
+    await cloudClient.registerWithPassword(registerPayload)
   })
 
   test('#loginWithPassword()', async () => {
@@ -39,7 +37,8 @@ describe('Base Client tests', () => {
       password
     } as HttpRegisterWithPasswordRequest
 
-    const registerResponse = await await cloudClient.registerWithPassword(registerPayload)
+    await cloudClient.registerWithPassword(registerPayload)
+    await cloudClient.verifyRegisterWithPassword({ code: '123456', email })
 
     const loginPayload = {
       email,
@@ -49,7 +48,7 @@ describe('Base Client tests', () => {
 
     const loginResponse = await cloudClient.loginWithPassword(loginPayload)
 
-    assert(registerResponse.userId === loginResponse.userId)
+    assert(loginResponse.userId.length > 0)
   })
 
   test('#registerNewTeam()', async () => {
