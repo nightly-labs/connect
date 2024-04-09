@@ -19,8 +19,8 @@ pub mod test_utils {
             invite_user_to_team::{HttpInviteUserToTeamRequest, HttpInviteUserToTeamResponse},
             login::login_with_password::{HttpLoginRequest, HttpLoginResponse},
             register::{
-                register_with_password_finish::HttpVerifyRegisterWithPasswordRequest,
-                register_with_password_start::HttpRegisterWithPasswordRequest,
+                register_with_password_finish::HttpRegisterWithPasswordFinishRequest,
+                register_with_password_start::HttpRegisterWithPasswordStartRequest,
             },
             register_new_app::{HttpRegisterNewAppRequest, HttpRegisterNewAppResponse},
             register_new_team::{HttpRegisterNewTeamRequest, HttpRegisterNewTeamResponse},
@@ -119,7 +119,7 @@ pub mod test_utils {
         let password = format!("Password123");
 
         // Register user
-        let register_payload = HttpRegisterWithPasswordRequest {
+        let register_payload = HttpRegisterWithPasswordStartRequest {
             email: email.to_string(),
             password: password.to_string(),
         };
@@ -143,7 +143,7 @@ pub mod test_utils {
         assert_eq!(register_response.status(), StatusCode::OK);
 
         // Validate register
-        let verify_register_payload = HttpVerifyRegisterWithPasswordRequest {
+        let verify_register_payload = HttpRegisterWithPasswordFinishRequest {
             email: email.to_string(),
             // Random valid code for testing
             code: "123456".to_string(),

@@ -25,7 +25,7 @@ use ts_rs::TS;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct HttpRegisterWithPasswordRequest {
+pub struct HttpRegisterWithPasswordStartRequest {
     #[garde(email)]
     pub email: String,
     #[garde(custom(custom_validate_new_password))]
@@ -34,14 +34,14 @@ pub struct HttpRegisterWithPasswordRequest {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct HttpRegisterWithPasswordResponse {}
+pub struct HttpRegisterWithPasswordStartResponse {}
 
 pub async fn register_with_password_start(
     State(db): State<Arc<Db>>,
     State(sessions_cache): State<Arc<ApiSessionsCache>>,
     State(mailer): State<Arc<Mailer>>,
-    Json(request): Json<HttpRegisterWithPasswordRequest>,
-) -> Result<Json<HttpRegisterWithPasswordResponse>, (StatusCode, String)> {
+    Json(request): Json<HttpRegisterWithPasswordStartRequest>,
+) -> Result<Json<HttpRegisterWithPasswordStartResponse>, (StatusCode, String)> {
     // Validate request
     validate_request(&request, &())?;
 
@@ -109,10 +109,10 @@ pub async fn register_with_password_start(
                 ));
             }
             None => {
-                return Ok(Json(HttpRegisterWithPasswordResponse {}));
+                return Ok(Json(HttpRegisterWithPasswordStartResponse {}));
             }
         }
     }
 
-    Ok(Json(HttpRegisterWithPasswordResponse {}))
+    Ok(Json(HttpRegisterWithPasswordStartResponse {}))
 }
