@@ -1,9 +1,9 @@
 # connect base
-cd ./apps/base
+cd ./packages/base
 pnpm build
 
 # connect networks
-cd ../../packages/solana
+cd ../solana
 pnpm build
 cd ../sui
 pnpm build
