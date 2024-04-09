@@ -4,9 +4,12 @@ import { HttpCancelTeamUserInviteRequest } from '../../../bindings/HttpCancelTea
 import { HttpCancelTeamUserInviteResponse } from '../../../bindings/HttpCancelTeamUserInviteResponse'
 import { HttpCancelUserTeamInviteRequest } from '../../../bindings/HttpCancelUserTeamInviteRequest'
 import { HttpCancelUserTeamInviteResponse } from '../../../bindings/HttpCancelUserTeamInviteResponse'
+import { HttpChangeUsersPrivilegesRequest } from '../../../bindings/HttpChangeUsersPrivilegesRequest'
+import { HttpChangeUsersPrivilegesResponse } from '../../../bindings/HttpChangeUsersPrivilegesResponse'
 import { HttpCloudEndpoint } from '../../../bindings/HttpCloudEndpoint'
 import { HttpGetAppEventsRequest } from '../../../bindings/HttpGetAppEventsRequest'
 import { HttpGetAppEventsResponse } from '../../../bindings/HttpGetAppEventsResponse'
+import { HttpGetTeamMetadataResponse } from '../../../bindings/HttpGetTeamMetadataResponse'
 import { HttpGetTeamUserInvitesRequest } from '../../../bindings/HttpGetTeamUserInvitesRequest'
 import { HttpGetTeamUserInvitesResponse } from '../../../bindings/HttpGetTeamUserInvitesResponse'
 import { HttpGetUserJoinedTeamsResponse } from '../../../bindings/HttpGetUserJoinedTeamsResponse'
@@ -30,13 +33,22 @@ import { HttpRegisterWithPasswordStartRequest } from '../../../bindings/HttpRegi
 import { HttpRegisterWithPasswordStartResponse } from '../../../bindings/HttpRegisterWithPasswordStartResponse'
 import { HttpRemoveUserFromTeamRequest } from '../../../bindings/HttpRemoveUserFromTeamRequest'
 import { HttpRemoveUserFromTeamResponse } from '../../../bindings/HttpRemoveUserFromTeamResponse'
+import { HttpRemoveWhitelistedDomainRequest } from '../../../bindings/HttpRemoveWhitelistedDomainRequest'
+import { HttpRemoveWhitelistedDomainResponse } from '../../../bindings/HttpRemoveWhitelistedDomainResponse'
 import { HttpResetPasskeyFinishResponse } from '../../../bindings/HttpResetPasskeyFinishResponse'
 import { HttpResetPasskeyStartRequest } from '../../../bindings/HttpResetPasskeyStartRequest'
 import { HttpResetPasswordFinishRequest } from '../../../bindings/HttpResetPasswordFinishRequest'
 import { HttpResetPasswordFinishResponse } from '../../../bindings/HttpResetPasswordFinishResponse'
 import { HttpResetPasswordStartRequest } from '../../../bindings/HttpResetPasswordStartRequest'
 import { HttpResetPasswordStartResponse } from '../../../bindings/HttpResetPasswordStartResponse'
+import { HttpUserMetadataResponse } from '../../../bindings/HttpUserMetadataResponse'
+import { HttpVerifyDomainFinishRequest } from '../../../bindings/HttpVerifyDomainFinishRequest'
+import { HttpVerifyDomainFinishResponse } from '../../../bindings/HttpVerifyDomainFinishResponse'
+import { HttpVerifyDomainStartRequest } from '../../../bindings/HttpVerifyDomainStartRequest'
+import { HttpVerifyDomainStartResponse } from '../../../bindings/HttpVerifyDomainStartResponse'
 import {
+  HttpDeletePasskeyRequest,
+  HttpGetPasskeyChallengeResponse,
   HttpLoginWithPasskeyFinishRequest,
   HttpLoginWithPasskeyStartResponse,
   HttpRegisterWithPasskeyFinishRequest,
@@ -250,7 +262,7 @@ export class NightlyCloud {
     return response
   }
 
-  ///////////////////////////////////////////////////// Reset Credentials
+  ///////////////////////////////////////////////////// Credentials
 
   resetPasswordStart = async (
     request: HttpResetPasswordStartRequest
@@ -298,6 +310,10 @@ export class NightlyCloud {
     )) as HttpResetPasskeyFinishResponse
 
     return response
+  }
+
+  deletePasskey = async (request: HttpDeletePasskeyRequest): Promise<void> => {
+    await this.sendPostJson('/reset_passkey_finish', EndpointType.Public, request)
   }
 
   ///////////////////////////////////////////////////// Teams actions
@@ -386,6 +402,56 @@ export class NightlyCloud {
     return response
   }
 
+  changeUserPrivileges = async (
+    request: HttpChangeUsersPrivilegesRequest
+  ): Promise<HttpChangeUsersPrivilegesResponse> => {
+    const response = (await this.sendPostJson(
+      '/change_user_privileges',
+      EndpointType.Private,
+      request
+    )) as HttpChangeUsersPrivilegesResponse
+
+    return response
+  }
+
+  ///////////////////////////////////////////////////// App actions
+
+  verifyDomainStart = async (
+    request: HttpVerifyDomainStartRequest
+  ): Promise<HttpVerifyDomainStartResponse> => {
+    const response = (await this.sendPostJson(
+      '/verify_domain_start',
+      EndpointType.Private,
+      request
+    )) as HttpVerifyDomainStartResponse
+
+    return response
+  }
+
+  verifyDomainFinish = async (
+    request: HttpVerifyDomainFinishRequest
+  ): Promise<HttpVerifyDomainFinishResponse> => {
+    const response = (await this.sendPostJson(
+      '/verify_domain_finish',
+      EndpointType.Private,
+      request
+    )) as HttpVerifyDomainFinishResponse
+
+    return response
+  }
+
+  removeDomain = async (
+    request: HttpRemoveWhitelistedDomainRequest
+  ): Promise<HttpRemoveWhitelistedDomainResponse> => {
+    const response = (await this.sendPostJson(
+      '/remove_whitelisted_domain',
+      EndpointType.Private,
+      request
+    )) as HttpRemoveWhitelistedDomainResponse
+
+    return response
+  }
+
   ///////////////////////////////////////////////////// Getters
 
   getUserTeamInvites = async (): Promise<HttpGetUserTeamInvitesResponse> => {
@@ -424,6 +490,33 @@ export class NightlyCloud {
       EndpointType.Private,
       request
     )) as HttpGetAppEventsResponse
+
+    return response
+  }
+
+  getPasskeyChallenge = async (): Promise<HttpGetPasskeyChallengeResponse> => {
+    const response = (await this.sendGetJson(
+      '/get_passkey_challenge',
+      EndpointType.Private
+    )) as HttpGetPasskeyChallengeResponse
+
+    return response
+  }
+
+  getUserMetadata = async (): Promise<HttpUserMetadataResponse> => {
+    const response = (await this.sendGetJson(
+      '/get_user_metadata',
+      EndpointType.Private
+    )) as HttpUserMetadataResponse
+
+    return response
+  }
+
+  getTeamMetadata = async (): Promise<HttpGetTeamMetadataResponse> => {
+    const response = (await this.sendGetJson(
+      '/get_team_metadata',
+      EndpointType.Private
+    )) as HttpGetTeamMetadataResponse
 
     return response
   }
