@@ -17,7 +17,7 @@ use ts_rs::TS;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct HttpVerifyPasswordResetRequest {
+pub struct HttpResetPasswordFinishRequest {
     #[garde(email)]
     pub email: String,
     #[garde(custom(custom_validate_verification_code))]
@@ -26,13 +26,13 @@ pub struct HttpVerifyPasswordResetRequest {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct HttpVerifyPasswordResetResponse {}
+pub struct HttpResetPasswordFinishResponse {}
 
 pub async fn reset_password_finish(
     State(db): State<Arc<Db>>,
     State(sessions_cache): State<Arc<ApiSessionsCache>>,
-    Json(request): Json<HttpVerifyPasswordResetRequest>,
-) -> Result<Json<HttpVerifyPasswordResetResponse>, (StatusCode, String)> {
+    Json(request): Json<HttpResetPasswordFinishRequest>,
+) -> Result<Json<HttpResetPasswordFinishResponse>, (StatusCode, String)> {
     // Validate request
     validate_request(&request, &())?;
 
@@ -75,7 +75,7 @@ pub async fn reset_password_finish(
         ));
     }
 
-    return Ok(Json(HttpVerifyPasswordResetResponse {}));
+    return Ok(Json(HttpResetPasswordFinishResponse {}));
 }
 
 #[cfg(feature = "cloud_db_tests")]
@@ -86,7 +86,7 @@ mod tests {
         http::cloud::{
             login::login_with_password::{HttpLoginRequest, HttpLoginResponse},
             reset_credentials::reset_password_start::{
-                HttpResetPasswordRequest, HttpResetPasswordResponse,
+                HttpResetPasswordStartRequest, HttpResetPasswordStartResponse,
             },
         },
         structs::cloud::cloud_http_endpoints::HttpCloudEndpoint,
@@ -112,7 +112,7 @@ mod tests {
         // Start password reset
         let new_password = "NewValidPassword123".to_string();
 
-        let password_reset_start_payload = HttpResetPasswordRequest {
+        let password_reset_start_payload = HttpResetPasswordStartRequest {
             email: email.to_string(),
             new_password: new_password.to_string(),
         };
@@ -134,12 +134,12 @@ mod tests {
         // Send request
         let register_response = test_app.clone().oneshot(req).await.unwrap();
         // Validate response
-        convert_response::<HttpResetPasswordResponse>(register_response)
+        convert_response::<HttpResetPasswordStartResponse>(register_response)
             .await
             .unwrap();
 
         // Validate new password change
-        let verify_register_payload = HttpVerifyPasswordResetRequest {
+        let verify_register_payload = HttpResetPasswordFinishRequest {
             email: email.to_string(),
             // Random valid code for testing
             code: "123456".to_string(),

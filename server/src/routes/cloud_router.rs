@@ -21,7 +21,12 @@ use crate::{
         get_user_metadata::get_user_metadata,
         get_user_team_invites::get_user_team_invites,
         invite_user_to_team::invite_user_to_team,
-        login::{login_with_google::login_with_google, login_with_password::login_with_password},
+        login::{
+            login_with_google::login_with_google,
+            login_with_passkey_finish::login_with_passkey_finish,
+            login_with_passkey_start::login_with_passkey_start,
+            login_with_password::login_with_password,
+        },
         register::{
             register_with_passkey_finish::register_with_passkey_finish,
             register_with_passkey_start::register_with_passkey_start,
@@ -69,6 +74,14 @@ pub fn public_router(state: ServerState) -> Router<ServerState> {
         .route(
             &HttpCloudEndpoint::LoginWithGoogle.to_string(),
             post(login_with_google),
+        )
+        .route(
+            &HttpCloudEndpoint::LoginWithPasskeyStart.to_string(),
+            post(login_with_passkey_start),
+        )
+        .route(
+            &HttpCloudEndpoint::LoginWithPasskeyFinish.to_string(),
+            post(login_with_passkey_finish),
         )
         .route(
             &HttpCloudEndpoint::RegisterWithPasswordStart.to_string(),

@@ -70,6 +70,10 @@ pub enum HttpCloudEndpoint {
     GetTeamUserPrivileges,
     #[serde(rename = "/change_user_privileges")]
     ChangeUserPrivileges,
+    #[serde(rename = "/login_with_passkey_start")]
+    LoginWithPasskeyStart,
+    #[serde(rename = "/login_with_passkey_finish")]
+    LoginWithPasskeyFinish,
 }
 
 impl HttpCloudEndpoint {
@@ -116,6 +120,8 @@ impl HttpCloudEndpoint {
             HttpCloudEndpoint::GetTeamMetadata => "/get_team_metadata".to_string(),
             HttpCloudEndpoint::GetTeamUserPrivileges => "/get_team_user_privileges".to_string(),
             HttpCloudEndpoint::ChangeUserPrivileges => "/change_user_privileges".to_string(),
+            HttpCloudEndpoint::LoginWithPasskeyStart => "/login_with_passkey_start".to_string(),
+            HttpCloudEndpoint::LoginWithPasskeyFinish => "/login_with_passkey_finish".to_string(),
         }
     }
 }
