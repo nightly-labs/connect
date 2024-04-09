@@ -30,6 +30,8 @@ import { HttpRegisterWithPasswordStartRequest } from '../../../bindings/HttpRegi
 import { HttpRegisterWithPasswordStartResponse } from '../../../bindings/HttpRegisterWithPasswordStartResponse'
 import { HttpRemoveUserFromTeamRequest } from '../../../bindings/HttpRemoveUserFromTeamRequest'
 import { HttpRemoveUserFromTeamResponse } from '../../../bindings/HttpRemoveUserFromTeamResponse'
+import { HttpResetPasskeyFinishResponse } from '../../../bindings/HttpResetPasskeyFinishResponse'
+import { HttpResetPasskeyStartRequest } from '../../../bindings/HttpResetPasskeyStartRequest'
 import { HttpResetPasswordFinishRequest } from '../../../bindings/HttpResetPasswordFinishRequest'
 import { HttpResetPasswordFinishResponse } from '../../../bindings/HttpResetPasswordFinishResponse'
 import { HttpResetPasswordStartRequest } from '../../../bindings/HttpResetPasswordStartRequest'
@@ -37,7 +39,9 @@ import { HttpResetPasswordStartResponse } from '../../../bindings/HttpResetPassw
 import {
   HttpLoginWithPasskeyFinishRequest,
   HttpLoginWithPasskeyStartResponse,
-  HttpRegisterWithPasskeyFinishRequest
+  HttpRegisterWithPasskeyFinishRequest,
+  HttpResetPasskeyFinishRequest,
+  HttpResetPasskeyStartResponse
 } from './passkeyTypes'
 import { DEFAULT_CLOUD_URL, EndpointType, Method } from './utils'
 import { fetch } from 'cross-fetch'
@@ -268,6 +272,30 @@ export class NightlyCloud {
       EndpointType.Public,
       request
     )) as HttpResetPasswordFinishResponse
+
+    return response
+  }
+
+  resetPasskeyStart = async (
+    request: HttpResetPasskeyStartRequest
+  ): Promise<HttpResetPasskeyStartResponse> => {
+    const response = (await this.sendPostJson(
+      '/reset_passkey_start',
+      EndpointType.Public,
+      request
+    )) as HttpResetPasskeyStartResponse
+
+    return response
+  }
+
+  resetPasskeyFinish = async (
+    request: HttpResetPasskeyFinishRequest
+  ): Promise<HttpResetPasskeyFinishResponse> => {
+    const response = (await this.sendPostJson(
+      '/reset_passkey_finish',
+      EndpointType.Public,
+      request
+    )) as HttpResetPasskeyFinishResponse
 
     return response
   }
