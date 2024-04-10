@@ -10,9 +10,12 @@ import {
   HttpCloudEndpoint,
   HttpGetAppEventsRequest,
   HttpGetAppEventsResponse,
+  HttpGetTeamMetadataRequest,
   HttpGetTeamMetadataResponse,
   HttpGetTeamUserInvitesRequest,
   HttpGetTeamUserInvitesResponse,
+  HttpGetTeamUsersPrivilegesRequest,
+  HttpGetTeamUsersPrivilegesResponse,
   HttpGetUserJoinedTeamsResponse,
   HttpGetUserTeamInvitesResponse,
   HttpInviteUserToTeamRequest,
@@ -505,6 +508,18 @@ export class NightlyCloud {
     return response
   }
 
+  getTeamUsersPrivileges = async (
+    request: HttpGetTeamUsersPrivilegesRequest
+  ): Promise<HttpGetTeamUsersPrivilegesResponse> => {
+    const response = (await this.sendGetJson(
+      '/get_team_users_privileges',
+      EndpointType.Private,
+      request
+    )) as HttpGetTeamUsersPrivilegesResponse
+
+    return response
+  }
+
   getUserMetadata = async (): Promise<HttpUserMetadataResponse> => {
     const response = (await this.sendGetJson(
       '/get_user_metadata',
@@ -514,10 +529,13 @@ export class NightlyCloud {
     return response
   }
 
-  getTeamMetadata = async (): Promise<HttpGetTeamMetadataResponse> => {
+  getTeamMetadata = async (
+    request: HttpGetTeamMetadataRequest
+  ): Promise<HttpGetTeamMetadataResponse> => {
     const response = (await this.sendGetJson(
       '/get_team_metadata',
-      EndpointType.Private
+      EndpointType.Private,
+      request
     )) as HttpGetTeamMetadataResponse
 
     return response

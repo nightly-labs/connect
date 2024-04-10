@@ -7,7 +7,7 @@ use ts_rs::TS;
 #[serde(rename_all = "camelCase")]
 pub enum NewUserPrivilegeLevel {
     Read,
-    Write,
+    Edit,
     NoAccess,
 }
 
@@ -15,7 +15,7 @@ impl NewUserPrivilegeLevel {
     pub fn to_privilege_level(&self) -> Option<PrivilegeLevel> {
         match self {
             NewUserPrivilegeLevel::Read => Some(PrivilegeLevel::Read),
-            NewUserPrivilegeLevel::Write => Some(PrivilegeLevel::Edit),
+            NewUserPrivilegeLevel::Edit => Some(PrivilegeLevel::Edit),
             NewUserPrivilegeLevel::NoAccess => None,
         }
     }

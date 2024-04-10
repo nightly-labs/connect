@@ -53,6 +53,29 @@ describe('Base Client tests', () => {
     assert(loginResponse.userId.length > 0)
   })
 
+  test('#resetPassword()', async () => {
+    // create user
+    const { userId, email } = await createUser(cloudClient)
+
+    // Send reset password request
+    const newPassword = 'NewPassword123124123'
+    await cloudClient.resetPasswordStart({ email, newPassword })
+
+    // Finish reset password, the code doesn't matter
+    await cloudClient.resetPasswordFinish({ code: '123456', email })
+
+    // Login once again with new password
+    const loginPayload = {
+      email,
+      password: newPassword,
+      enforceIp: false
+    } as HttpLoginRequest
+
+    const loginResponse = await cloudClient.loginWithPassword(loginPayload)
+
+    assert(loginResponse.userId == userId)
+  })
+
   test('#registerNewTeam()', async () => {
     // create user
     await createUser(cloudClient)
@@ -379,5 +402,97 @@ describe('Base Client tests', () => {
     const response = await cloudClient.getAppEvents(payload)
 
     expect(response.events).toHaveLength(0)
+  })
+
+  test('#changeUserPrivileges()', async () => {
+    // create user
+    const { userId: adminUserId, email: adminEmail } = await createUser(cloudClient)
+
+    // create basic team setup
+    const { teamId, appId } = await basicTeamSetup(cloudClient)
+
+    // register new user
+    const newClient = new NightlyCloud({
+      url: TEST_ENDPOINT
+    })
+    const { userId, email } = await createUser(newClient)
+
+    // Add user to team
+    await addUserToTeam(cloudClient, newClient, teamId, email)
+
+    // Check user privileges
+    const firstResponse = await cloudClient.getTeamUsersPrivileges({ teamId })
+
+    assert(firstResponse.usersPrivileges.length === 2)
+    assert(firstResponse.usersPrivileges[0].userEmail === adminEmail)
+    assert(firstResponse.usersPrivileges[0].appId === appId)
+    assert(firstResponse.usersPrivileges[0].privilege === 'Admin')
+    assert(firstResponse.usersPrivileges[1].userEmail === email)
+    assert(firstResponse.usersPrivileges[1].appId === appId)
+    assert(firstResponse.usersPrivileges[1].privilege === 'Read')
+
+    await cloudClient.changeUserPrivileges({
+      teamId: teamId,
+      privilegesChanges: [{ appId, userEmail: email, newPrivilegeLevel: 'edit' }]
+    })
+
+    // Get privileges
+    const secondResponse = await cloudClient.getTeamUsersPrivileges({ teamId })
+
+    assert(secondResponse.usersPrivileges.length === 2)
+    assert(secondResponse.usersPrivileges[0].userEmail === adminEmail)
+    assert(secondResponse.usersPrivileges[0].appId === appId)
+    assert(secondResponse.usersPrivileges[0].privilege === 'Admin')
+    assert(secondResponse.usersPrivileges[1].userEmail === email)
+    assert(secondResponse.usersPrivileges[1].appId === appId)
+    assert(secondResponse.usersPrivileges[1].privilege === 'Edit')
+  })
+
+  test('#getUserMetadata()', async () => {
+    // create user
+    const { userId, email } = await createUser(cloudClient)
+
+    // Get user metadata
+    const response = await cloudClient.getUserMetadata()
+
+    assert(response.userId === userId)
+    assert(response.email === email)
+    assert(response.passwordSet === true)
+    assert(response.passkeyIds.length === 0)
+  })
+
+  test('#getTeamMetadata()', async () => {
+    // create user
+    const { userId: adminUserId, email: adminEmail } = await createUser(cloudClient)
+
+    // create basic team setup
+    const { teamId, appId } = await basicTeamSetup(cloudClient)
+
+    // register new user
+    const newClient = new NightlyCloud({
+      url: TEST_ENDPOINT
+    })
+    const { userId, email } = await createUser(newClient)
+
+    // Add user to team
+    await addUserToTeam(cloudClient, newClient, teamId, email)
+
+    // Get team metadata
+    const response = await cloudClient.getTeamMetadata({ teamId })
+
+    assert(response.teamMetadata.teamId === teamId)
+    assert(response.teamMetadata.teamName === 'Test_Team')
+    assert(response.teamMetadata.creatorEmail === adminEmail)
+    assert(response.teamMetadata.personalTeam === false)
+
+    assert(response.teamApps.length === 1)
+    assert(response.teamApps[0].appId === appId)
+    assert(response.teamApps[0].appName === 'Test_App')
+    assert(response.teamApps[0].ackPublicKeys.length === 0)
+    assert(response.teamApps[0].whitelistedDomains.length === 0)
+
+    assert(response.teamMembers.length === 2)
+    assert(response.teamMembers.find((member) => member === adminEmail))
+    assert(response.teamMembers.find((member) => member === email))
   })
 })
