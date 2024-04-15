@@ -35,7 +35,7 @@ jobs:
       - name: test base production
         run: |
           pnpm test:production
-        working-directory: ./sdk/apps/base
+        working-directory: ./sdk/packages/base
       - name: test solana production
         run: |
           pnpm test:production

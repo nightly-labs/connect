@@ -61,7 +61,7 @@ export default [
     ]
   },
   {
-    input: 'dist/types/apps/base/src/index.d.ts',
+    input: 'dist/types/packages/base/src/index.d.ts',
     output: [{ file: 'dist/index.d.ts', format: 'esm' }],
     plugins: [dts()]
   }
