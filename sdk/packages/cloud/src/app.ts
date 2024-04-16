@@ -1,30 +1,65 @@
-import { HttpAcceptTeamInviteRequest } from '../../../bindings/HttpAcceptTeamInviteRequest'
-import { HttpAcceptTeamInviteResponse } from '../../../bindings/HttpAcceptTeamInviteResponse'
-import { HttpCancelTeamUserInviteRequest } from '../../../bindings/HttpCancelTeamUserInviteRequest'
-import { HttpCancelTeamUserInviteResponse } from '../../../bindings/HttpCancelTeamUserInviteResponse'
-import { HttpCancelUserTeamInviteRequest } from '../../../bindings/HttpCancelUserTeamInviteRequest'
-import { HttpCancelUserTeamInviteResponse } from '../../../bindings/HttpCancelUserTeamInviteResponse'
-import { HttpCloudEndpoint } from '../../../bindings/HttpCloudEndpoint'
-import { HttpGetAppEventsRequest } from '../../../bindings/HttpGetAppEventsRequest'
-import { HttpGetAppEventsResponse } from '../../../bindings/HttpGetAppEventsResponse'
-import { HttpGetTeamUserInvitesRequest } from '../../../bindings/HttpGetTeamUserInvitesRequest'
-import { HttpGetTeamUserInvitesResponse } from '../../../bindings/HttpGetTeamUserInvitesResponse'
-import { HttpGetUserJoinedTeamsResponse } from '../../../bindings/HttpGetUserJoinedTeamsResponse'
-import { HttpGetUserTeamInvitesResponse } from '../../../bindings/HttpGetUserTeamInvitesResponse'
-import { HttpInviteUserToTeamRequest } from '../../../bindings/HttpInviteUserToTeamRequest'
-import { HttpInviteUserToTeamResponse } from '../../../bindings/HttpInviteUserToTeamResponse'
-import { HttpLoginRequest } from '../../../bindings/HttpLoginRequest'
-import { HttpLoginResponse } from '../../../bindings/HttpLoginResponse'
-import { HttpLoginWithGoogleRequest } from '../../../bindings/HttpLoginWithGoogleRequest'
-import { HttpLoginWithGoogleResponse } from '../../../bindings/HttpLoginWithGoogleResponse'
-import { HttpRegisterNewAppRequest } from '../../../bindings/HttpRegisterNewAppRequest'
-import { HttpRegisterNewAppResponse } from '../../../bindings/HttpRegisterNewAppResponse'
-import { HttpRegisterNewTeamRequest } from '../../../bindings/HttpRegisterNewTeamRequest'
-import { HttpRegisterNewTeamResponse } from '../../../bindings/HttpRegisterNewTeamResponse'
-import { HttpRegisterWithPasswordRequest } from '../../../bindings/HttpRegisterWithPasswordRequest'
-import { HttpRegisterWithPasswordResponse } from '../../../bindings/HttpRegisterWithPasswordResponse'
-import { HttpRemoveUserFromTeamRequest } from '../../../bindings/HttpRemoveUserFromTeamRequest'
-import { HttpRemoveUserFromTeamResponse } from '../../../bindings/HttpRemoveUserFromTeamResponse'
+import {
+  HttpAcceptTeamInviteRequest,
+  HttpAcceptTeamInviteResponse,
+  HttpCancelTeamUserInviteRequest,
+  HttpCancelTeamUserInviteResponse,
+  HttpCancelUserTeamInviteRequest,
+  HttpCancelUserTeamInviteResponse,
+  HttpChangeUsersPrivilegesRequest,
+  HttpChangeUsersPrivilegesResponse,
+  HttpCloudEndpoint,
+  HttpGetAppEventsRequest,
+  HttpGetAppEventsResponse,
+  HttpGetTeamMetadataRequest,
+  HttpGetTeamMetadataResponse,
+  HttpGetTeamUserInvitesRequest,
+  HttpGetTeamUserInvitesResponse,
+  HttpGetTeamUsersPrivilegesRequest,
+  HttpGetTeamUsersPrivilegesResponse,
+  HttpGetUserJoinedTeamsResponse,
+  HttpGetUserTeamInvitesResponse,
+  HttpInviteUserToTeamRequest,
+  HttpInviteUserToTeamResponse,
+  HttpLoginRequest,
+  HttpLoginResponse,
+  HttpLoginWithGoogleRequest,
+  HttpLoginWithGoogleResponse,
+  HttpLoginWithPasskeyFinishResponse,
+  HttpLoginWithPasskeyStartRequest,
+  HttpRegisterNewAppRequest,
+  HttpRegisterNewAppResponse,
+  HttpRegisterNewTeamRequest,
+  HttpRegisterNewTeamResponse,
+  HttpRegisterWithPasskeyStartRequest,
+  HttpRegisterWithPasswordFinishRequest,
+  HttpRegisterWithPasswordFinishResponse,
+  HttpRegisterWithPasswordStartRequest,
+  HttpRegisterWithPasswordStartResponse,
+  HttpRemoveUserFromTeamRequest,
+  HttpRemoveUserFromTeamResponse,
+  HttpRemoveWhitelistedDomainRequest,
+  HttpRemoveWhitelistedDomainResponse,
+  HttpResetPasskeyFinishResponse,
+  HttpResetPasskeyStartRequest,
+  HttpResetPasswordFinishRequest,
+  HttpResetPasswordFinishResponse,
+  HttpResetPasswordStartRequest,
+  HttpResetPasswordStartResponse,
+  HttpUserMetadataResponse,
+  HttpVerifyDomainFinishRequest,
+  HttpVerifyDomainFinishResponse,
+  HttpVerifyDomainStartRequest,
+  HttpVerifyDomainStartResponse
+} from '../../../bindings'
+import {
+  HttpDeletePasskeyRequest,
+  HttpGetPasskeyChallengeResponse,
+  HttpLoginWithPasskeyFinishRequest,
+  HttpLoginWithPasskeyStartResponse,
+  HttpRegisterWithPasskeyFinishRequest,
+  HttpResetPasskeyFinishRequest,
+  HttpResetPasskeyStartResponse
+} from './passkeyTypes'
 import { DEFAULT_CLOUD_URL, EndpointType, Method } from './utils'
 import { fetch } from 'cross-fetch'
 
@@ -125,17 +160,57 @@ export class NightlyCloud {
     }
   }
 
-  registerWithPassword = async (
-    request: HttpRegisterWithPasswordRequest
-  ): Promise<HttpRegisterWithPasswordResponse> => {
+  ///////////////////////////////////////////////////// Register
+
+  registerWithPasswordStart = async (
+    request: HttpRegisterWithPasswordStartRequest
+  ): Promise<HttpRegisterWithPasswordStartResponse> => {
     const response = (await this.sendPostJson(
-      '/register_with_password',
+      '/register_with_password_start',
       EndpointType.Public,
       request
-    )) as HttpRegisterWithPasswordResponse
+    )) as HttpRegisterWithPasswordStartResponse
 
     return response
   }
+
+  registerWithPasswordFinish = async (
+    request: HttpRegisterWithPasswordFinishRequest
+  ): Promise<HttpRegisterWithPasswordFinishResponse> => {
+    const response = (await this.sendPostJson(
+      '/register_with_password_finish',
+      EndpointType.Public,
+      request
+    )) as HttpRegisterWithPasswordFinishResponse
+
+    return response
+  }
+
+  registerWithPasskeyStart = async (
+    request: HttpRegisterWithPasskeyStartRequest
+  ): Promise<HttpRegisterWithPasswordStartResponse> => {
+    const response = (await this.sendPostJson(
+      '/register_with_passkey_start',
+      EndpointType.Public,
+      request
+    )) as HttpRegisterWithPasswordStartResponse
+
+    return response
+  }
+
+  registerWithPasskeyFinish = async (
+    request: HttpRegisterWithPasskeyFinishRequest
+  ): Promise<HttpRegisterWithPasswordFinishResponse> => {
+    const response = (await this.sendPostJson(
+      '/register_with_passkey_finish',
+      EndpointType.Public,
+      request
+    )) as HttpRegisterWithPasswordFinishResponse
+
+    return response
+  }
+
+  ///////////////////////////////////////////////////// Login
 
   loginWithPassword = async (request: HttpLoginRequest): Promise<HttpLoginResponse> => {
     const response = (await this.sendPostJson(
@@ -164,6 +239,89 @@ export class NightlyCloud {
 
     return response
   }
+
+  loginWithPasskeyStart = async (
+    request: HttpLoginWithPasskeyStartRequest
+  ): Promise<HttpLoginWithPasskeyStartResponse> => {
+    const response = (await this.sendPostJson(
+      '/login_with_passkey_start',
+      EndpointType.Public,
+      request
+    )) as HttpLoginWithPasskeyStartResponse
+
+    return response
+  }
+
+  loginWithPasskeyFinish = async (
+    request: HttpLoginWithPasskeyFinishRequest
+  ): Promise<HttpLoginWithPasskeyFinishResponse> => {
+    const response = (await this.sendPostJson(
+      '/login_with_passkey_finish',
+      EndpointType.Public,
+      request
+    )) as HttpLoginWithPasskeyFinishResponse
+
+    this.authToken = response.authToken
+    this.refreshToken = response.refreshToken
+
+    return response
+  }
+
+  ///////////////////////////////////////////////////// Credentials
+
+  resetPasswordStart = async (
+    request: HttpResetPasswordStartRequest
+  ): Promise<HttpResetPasswordStartResponse> => {
+    const response = (await this.sendPostJson(
+      '/reset_password_start',
+      EndpointType.Public,
+      request
+    )) as HttpResetPasswordStartResponse
+
+    return response
+  }
+
+  resetPasswordFinish = async (
+    request: HttpResetPasswordFinishRequest
+  ): Promise<HttpResetPasswordFinishResponse> => {
+    const response = (await this.sendPostJson(
+      '/reset_password_finish',
+      EndpointType.Public,
+      request
+    )) as HttpResetPasswordFinishResponse
+
+    return response
+  }
+
+  resetPasskeyStart = async (
+    request: HttpResetPasskeyStartRequest
+  ): Promise<HttpResetPasskeyStartResponse> => {
+    const response = (await this.sendPostJson(
+      '/reset_passkey_start',
+      EndpointType.Public,
+      request
+    )) as HttpResetPasskeyStartResponse
+
+    return response
+  }
+
+  resetPasskeyFinish = async (
+    request: HttpResetPasskeyFinishRequest
+  ): Promise<HttpResetPasskeyFinishResponse> => {
+    const response = (await this.sendPostJson(
+      '/reset_passkey_finish',
+      EndpointType.Public,
+      request
+    )) as HttpResetPasskeyFinishResponse
+
+    return response
+  }
+
+  deletePasskey = async (request: HttpDeletePasskeyRequest): Promise<void> => {
+    await this.sendPostJson('/reset_passkey_finish', EndpointType.Public, request)
+  }
+
+  ///////////////////////////////////////////////////// Teams actions
 
   registerNewTeam = async (
     request: HttpRegisterNewTeamRequest
@@ -249,7 +407,57 @@ export class NightlyCloud {
     return response
   }
 
-  ////////////////////////// GETTERS
+  changeUserPrivileges = async (
+    request: HttpChangeUsersPrivilegesRequest
+  ): Promise<HttpChangeUsersPrivilegesResponse> => {
+    const response = (await this.sendPostJson(
+      '/change_user_privileges',
+      EndpointType.Private,
+      request
+    )) as HttpChangeUsersPrivilegesResponse
+
+    return response
+  }
+
+  ///////////////////////////////////////////////////// App actions
+
+  verifyDomainStart = async (
+    request: HttpVerifyDomainStartRequest
+  ): Promise<HttpVerifyDomainStartResponse> => {
+    const response = (await this.sendPostJson(
+      '/verify_domain_start',
+      EndpointType.Private,
+      request
+    )) as HttpVerifyDomainStartResponse
+
+    return response
+  }
+
+  verifyDomainFinish = async (
+    request: HttpVerifyDomainFinishRequest
+  ): Promise<HttpVerifyDomainFinishResponse> => {
+    const response = (await this.sendPostJson(
+      '/verify_domain_finish',
+      EndpointType.Private,
+      request
+    )) as HttpVerifyDomainFinishResponse
+
+    return response
+  }
+
+  removeDomain = async (
+    request: HttpRemoveWhitelistedDomainRequest
+  ): Promise<HttpRemoveWhitelistedDomainResponse> => {
+    const response = (await this.sendPostJson(
+      '/remove_whitelisted_domain',
+      EndpointType.Private,
+      request
+    )) as HttpRemoveWhitelistedDomainResponse
+
+    return response
+  }
+
+  ///////////////////////////////////////////////////// Getters
 
   getUserTeamInvites = async (): Promise<HttpGetUserTeamInvitesResponse> => {
     const response = (await this.sendGetJson(
@@ -287,6 +495,48 @@ export class NightlyCloud {
       EndpointType.Private,
       request
     )) as HttpGetAppEventsResponse
+
+    return response
+  }
+
+  getPasskeyChallenge = async (): Promise<HttpGetPasskeyChallengeResponse> => {
+    const response = (await this.sendGetJson(
+      '/get_passkey_challenge',
+      EndpointType.Private
+    )) as HttpGetPasskeyChallengeResponse
+
+    return response
+  }
+
+  getTeamUsersPrivileges = async (
+    request: HttpGetTeamUsersPrivilegesRequest
+  ): Promise<HttpGetTeamUsersPrivilegesResponse> => {
+    const response = (await this.sendGetJson(
+      '/get_team_users_privileges',
+      EndpointType.Private,
+      request
+    )) as HttpGetTeamUsersPrivilegesResponse
+
+    return response
+  }
+
+  getUserMetadata = async (): Promise<HttpUserMetadataResponse> => {
+    const response = (await this.sendGetJson(
+      '/get_user_metadata',
+      EndpointType.Private
+    )) as HttpUserMetadataResponse
+
+    return response
+  }
+
+  getTeamMetadata = async (
+    request: HttpGetTeamMetadataRequest
+  ): Promise<HttpGetTeamMetadataResponse> => {
+    const response = (await this.sendGetJson(
+      '/get_team_metadata',
+      EndpointType.Private,
+      request
+    )) as HttpGetTeamMetadataResponse
 
     return response
   }

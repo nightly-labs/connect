@@ -193,7 +193,7 @@ pub async fn change_user_privileges(
                             }
                         };
                     }
-                    NewUserPrivilegeLevel::Write => {
+                    NewUserPrivilegeLevel::Edit => {
                         // check current privilege level
                         match current_privilege {
                             Some(privileges) => {
@@ -380,7 +380,7 @@ mod tests {
             let privilege = if i % 2 == 0 {
                 NewUserPrivilegeLevel::Read
             } else {
-                NewUserPrivilegeLevel::Write
+                NewUserPrivilegeLevel::Edit
             };
 
             let change = PrivilegeChange {

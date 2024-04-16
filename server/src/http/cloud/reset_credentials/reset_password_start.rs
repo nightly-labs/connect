@@ -27,7 +27,7 @@ use ts_rs::TS;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct HttpResetPasswordRequest {
+pub struct HttpResetPasswordStartRequest {
     #[garde(email)]
     pub email: String,
     #[garde(custom(custom_validate_new_password))]
@@ -36,14 +36,14 @@ pub struct HttpResetPasswordRequest {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct HttpResetPasswordResponse {}
+pub struct HttpResetPasswordStartResponse {}
 
 pub async fn reset_password_start(
     State(db): State<Arc<Db>>,
     State(sessions_cache): State<Arc<ApiSessionsCache>>,
     State(mailer): State<Arc<Mailer>>,
-    Json(request): Json<HttpResetPasswordRequest>,
-) -> Result<Json<HttpResetPasswordResponse>, (StatusCode, String)> {
+    Json(request): Json<HttpResetPasswordStartRequest>,
+) -> Result<Json<HttpResetPasswordStartResponse>, (StatusCode, String)> {
     // Validate request
     validate_request(&request, &())?;
 
@@ -111,10 +111,10 @@ pub async fn reset_password_start(
                 ));
             }
             None => {
-                return Ok(Json(HttpResetPasswordResponse {}));
+                return Ok(Json(HttpResetPasswordStartResponse {}));
             }
         }
     }
 
-    Ok(Json(HttpResetPasswordResponse {}))
+    Ok(Json(HttpResetPasswordStartResponse {}))
 }
