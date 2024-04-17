@@ -16,6 +16,7 @@ impl Db {
         session: &DbNcSession,
         geo_location: Option<Geolocation>,
         ip_address: &String,
+        current_time: &DateTime<Utc>,
     ) -> Result<(), DbError> {
         let mut tx = self.connection_pool.begin().await.unwrap();
 
@@ -36,6 +37,7 @@ impl Db {
                 &session.app_id,
                 &ip_address,
                 geo_location,
+                &current_time,
             )
             .await
         {
@@ -240,7 +242,7 @@ mod tests {
     use super::*;
     use crate::{
         structs::{request_status::RequestStatus, request_type::RequestType},
-        tables::utils::get_date_time,
+        tables::utils::{get_current_datetime, get_date_time},
     };
 
     #[tokio::test]
@@ -268,9 +270,14 @@ mod tests {
         };
 
         // Create a new session entry
-        db.handle_new_session(&session, None, &"127.0.0.1".to_string())
-            .await
-            .unwrap();
+        db.handle_new_session(
+            &session,
+            None,
+            &"127.0.0.1".to_string(),
+            &get_current_datetime(),
+        )
+        .await
+        .unwrap();
 
         // Get all sessions by app_id
         let sessions = db.get_sessions_by_app_id(&session.app_id).await.unwrap();

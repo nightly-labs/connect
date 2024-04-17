@@ -1,13 +1,42 @@
+----------------- Quarter connection stats per app -----------------
+--- View
+CREATE MATERIALIZED VIEW quarter_connection_stats_per_app WITH (timescaledb.continuous) AS
+SELECT
+    app_id,
+    time_bucket('15 minutes' :: interval, connected_at) AS quarter_bucket,
+    COUNT(*) FILTER (WHERE entity_type = 'App') :: BIGINT AS quarter_app_connection_count,
+    COUNT(*) FILTER (WHERE entity_type = 'Client') :: BIGINT AS quarter_clients_connection_count
+FROM
+    connection_events
+GROUP BY
+    app_id,
+    quarter_bucket WITH NO DATA;
+
+--- Refresh policy
+SELECT 
+    add_continuous_aggregate_policy('quarter_connection_stats_per_app',
+        start_offset => INTERVAL '1 day',
+        end_offset => INTERVAL '15 m',
+        schedule_interval => INTERVAL '30 m'
+    );
+
+--- Real time aggregation
+ALTER MATERIALIZED VIEW quarter_connection_stats_per_app
+set
+    (timescaledb.materialized_only = false);
+
+
+
 ----------------- Hourly connection stats per app -----------------
 --- View
 CREATE MATERIALIZED VIEW hourly_connection_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
-    time_bucket('1 hour', connected_at) AS hourly_bucket,
-    COUNT(*) FILTER (WHERE entity_type = 'App') :: BIGINT AS hourly_app_connection_count,
-    COUNT(*) FILTER (WHERE entity_type = 'Client') :: BIGINT AS hourly_clients_connection_count
+    time_bucket('1 hour'  :: interval, quarter_bucket) AS hourly_bucket,
+    SUM(quarter_app_connection_count) :: BIGINT AS hourly_app_connection_count,
+    SUM(quarter_clients_connection_count) :: BIGINT AS hourly_clients_connection_count
 FROM
-    connection_events
+    quarter_connection_stats_per_app
 GROUP BY
     app_id,
     hourly_bucket WITH NO DATA;
@@ -32,7 +61,7 @@ set
 CREATE MATERIALIZED VIEW daily_connection_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
-    time_bucket('1 day', hourly_bucket) AS daily_bucket,
+    time_bucket('1 day' :: interval, hourly_bucket) AS daily_bucket,
     SUM(hourly_app_connection_count) :: BIGINT AS daily_app_connection_count,
     SUM(hourly_clients_connection_count) :: BIGINT AS daily_clients_connection_count
 FROM
@@ -61,7 +90,7 @@ set
 CREATE MATERIALIZED VIEW monthly_connection_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
-    time_bucket('1 month', daily_bucket) AS monthly_bucket,
+    time_bucket('1 month' :: interval, daily_bucket) AS monthly_bucket,
     SUM(daily_app_connection_count) :: BIGINT AS monthly_app_connection_count,
     SUM(daily_clients_connection_count) :: BIGINT AS monthly_clients_connection_count
 FROM

@@ -69,11 +69,11 @@ mod test {
                 persistent: false,
                 network: "test_network".to_string(),
                 client_data: None,
-                session_open_timestamp: *start,
+                session_open_timestamp: start.clone(),
                 session_close_timestamp: None,
             };
 
-            db.handle_new_session(&session, None, &"127.0.0.1".to_string())
+            db.handle_new_session(&session, None, &"127.0.0.1".to_string(), &start)
                 .await
                 .unwrap();
             db.close_session(&session.session_id, *end).await.unwrap();

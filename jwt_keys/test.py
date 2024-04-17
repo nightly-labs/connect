@@ -5,7 +5,7 @@ import webbrowser
 private_key = open('./grafana.key', 'r').read()
 
 payload = {
-    "sub": "yolo2",
+    "sub": "test@gmail.com",
     "iat": int(time.time())
 }
 

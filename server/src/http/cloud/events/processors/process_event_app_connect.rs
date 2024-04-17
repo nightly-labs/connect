@@ -24,6 +24,8 @@ pub async fn process_event_app_connect(
     // Save event to Db
     save_event_app_connect(db, app_id, event).await;
 
+    let current_timestamp = get_current_datetime();
+
     if event.new_session {
         // New session, get the data from sessions and create a new session in the database
         let session_data = {
@@ -72,7 +74,12 @@ pub async fn process_event_app_connect(
 
         // Should not fail, but if it does then we will have a problem
         if let Err(err) = db
-            .handle_new_session(&session_data, geo_location_data, &ip.to_string())
+            .handle_new_session(
+                &session_data,
+                geo_location_data,
+                &ip.to_string(),
+                &current_timestamp,
+            )
             .await
         {
             error!(
@@ -94,6 +101,7 @@ pub async fn process_event_app_connect(
                 &app_id,
                 &ip.to_string(),
                 geo_location_data,
+                &current_timestamp,
             )
             .await
         {
