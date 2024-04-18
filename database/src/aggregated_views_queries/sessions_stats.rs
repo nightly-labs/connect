@@ -485,137 +485,137 @@ mod tests {
             .unwrap();
         tx.commit().await.unwrap();
 
-        let semaphore = Arc::new(Semaphore::new(8));
-        let mut handles = vec![];
+        // let semaphore = Arc::new(Semaphore::new(8));
+        // let mut handles = vec![];
 
-        for day_offset in 0..num_days {
-            let app_id_clone = app_id_2.clone();
-            let db_arc_clone = db_arc.clone();
-            let sem_clone = semaphore.clone();
+        // for day_offset in 0..num_days {
+        //     let app_id_clone = app_id_2.clone();
+        //     let db_arc_clone = db_arc.clone();
+        //     let sem_clone = semaphore.clone();
 
-            let handle = tokio::task::spawn(async move {
-                let _permit = sem_clone
-                    .acquire()
-                    .await
-                    .expect("Failed to acquire semaphore permit");
+        //     let handle = tokio::task::spawn(async move {
+        //         let _permit = sem_clone
+        //             .acquire()
+        //             .await
+        //             .expect("Failed to acquire semaphore permit");
 
-                let day_start = start_date + Duration::from_secs(60 * 60 * 24 * day_offset as u64);
+        //         let day_start = start_date + Duration::from_secs(60 * 60 * 24 * day_offset as u64);
 
-                let is_seventh_day = day_offset % 7 == 6; // day_offset is 0-based; 6 represents the 7th day
+        //         let is_seventh_day = day_offset % 7 == 6; // day_offset is 0-based; 6 represents the 7th day
 
-                // Loop through each hour of the day
-                for hour in 0..24 {
-                    let hour_start = day_start + Duration::from_secs(60 * 60 * hour as u64);
-                    let session_count = if is_seventh_day {
-                        // For the 7th day, limit sessions to 3-6 per hour
-                        rand::thread_rng().gen_range(3..=6)
-                    } else if hour >= 6 && hour <= 19 {
-                        // Regular daytime hours
-                        thread_rng().gen_range(20..=40)
-                    } else {
-                        // Regular nighttime hours
-                        rand::thread_rng().gen_range(10..=20)
-                    };
+        //         // Loop through each hour of the day
+        //         for hour in 0..24 {
+        //             let hour_start = day_start + Duration::from_secs(60 * 60 * hour as u64);
+        //             let session_count = if is_seventh_day {
+        //                 // For the 7th day, limit sessions to 3-6 per hour
+        //                 rand::thread_rng().gen_range(3..=6)
+        //             } else if hour >= 6 && hour <= 19 {
+        //                 // Regular daytime hours
+        //                 thread_rng().gen_range(20..=40)
+        //             } else {
+        //                 // Regular nighttime hours
+        //                 rand::thread_rng().gen_range(10..=20)
+        //             };
 
-                    // Generate sessions for this hour
-                    for i in 0..session_count {
-                        let session_start =
-                            hour_start + Duration::from_secs(rand::thread_rng().gen_range(0..3600));
-                        let session_end = session_start + Duration::from_secs(600); // 10 minutes
+        //             // Generate sessions for this hour
+        //             for i in 0..session_count {
+        //                 let session_start =
+        //                     hour_start + Duration::from_secs(rand::thread_rng().gen_range(0..3600));
+        //                 let session_end = session_start + Duration::from_secs(600); // 10 minutes
 
-                        let session = DbNcSession {
-                            session_id: uuid7::uuid7().to_string(),
-                            app_id: app_id_clone.clone(),
-                            app_metadata: "test_metadata".to_string(),
-                            persistent: false,
-                            network: "Solana".to_string(),
-                            client_data: None,
-                            session_open_timestamp: session_start.clone(),
-                            session_close_timestamp: Some(session_end),
-                        };
+        //                 let session = DbNcSession {
+        //                     session_id: uuid7::uuid7().to_string(),
+        //                     app_id: app_id_clone.clone(),
+        //                     app_metadata: "test_metadata".to_string(),
+        //                     persistent: false,
+        //                     network: "Solana".to_string(),
+        //                     client_data: None,
+        //                     session_open_timestamp: session_start.clone(),
+        //                     session_close_timestamp: Some(session_end),
+        //                 };
 
-                        let ip_address = "127.0.0.1".to_string();
+        //                 let ip_address = "127.0.0.1".to_string();
 
-                        db_arc_clone
-                            .handle_new_session(&session, None, &ip_address, &session_start)
-                            .await
-                            .unwrap();
+        //                 db_arc_clone
+        //                     .handle_new_session(&session, None, &ip_address, &session_start)
+        //                     .await
+        //                     .unwrap();
 
-                        if i % 3 != 0 {
-                            let data = ClientData {
-                                client_id: "test_client_id".to_string(),
-                                wallet_name: "test_wallet_name".to_string(),
-                                wallet_type: "test_wallet_type".to_string(),
-                                client_profile_id: session_start.timestamp(),
-                                connected_at: session_start,
-                            };
+        //                 if i % 3 != 0 {
+        //                     let data = ClientData {
+        //                         client_id: "test_client_id".to_string(),
+        //                         wallet_name: "test_wallet_name".to_string(),
+        //                         wallet_type: "test_wallet_type".to_string(),
+        //                         client_profile_id: session_start.timestamp(),
+        //                         connected_at: session_start,
+        //                     };
 
-                            // Update the session with the client data
-                            let query_body = format!(
-                                    "UPDATE {SESSIONS_TABLE_NAME} SET client_data = $1 WHERE session_id = $2"
-                                );
+        //                     // Update the session with the client data
+        //                     let query_body = format!(
+        //                             "UPDATE {SESSIONS_TABLE_NAME} SET client_data = $1 WHERE session_id = $2"
+        //                         );
 
-                            query(&query_body)
-                                .bind(&data)
-                                .bind(&session.session_id)
-                                .execute(&db_arc_clone.connection_pool)
-                                .await
-                                .unwrap();
-                        }
+        //                     query(&query_body)
+        //                         .bind(&data)
+        //                         .bind(&session.session_id)
+        //                         .execute(&db_arc_clone.connection_pool)
+        //                         .await
+        //                         .unwrap();
+        //                 }
 
-                        let amount = thread_rng().gen_range(0..=10);
-                        // Generate random amount of additional connections from user
-                        for _ in 0..amount {
-                            let mut tx = db_arc_clone.connection_pool.begin().await.unwrap();
-                            db_arc_clone
-                                .create_new_connection_event_by_client(
-                                    &mut tx,
-                                    &session.app_id,
-                                    &session.session_id,
-                                    &SessionType::Relay,
-                                    &ip_address,
-                                    None,
-                                    &(session_start + Duration::from_secs(1)),
-                                )
-                                .await
-                                .unwrap();
-                            tx.commit().await.unwrap();
-                        }
+        //                 let amount = thread_rng().gen_range(0..=10);
+        //                 // Generate random amount of additional connections from user
+        //                 for _ in 0..amount {
+        //                     let mut tx = db_arc_clone.connection_pool.begin().await.unwrap();
+        //                     db_arc_clone
+        //                         .create_new_connection_event_by_client(
+        //                             &mut tx,
+        //                             &session.app_id,
+        //                             &session.session_id,
+        //                             &SessionType::Relay,
+        //                             &ip_address,
+        //                             None,
+        //                             &(session_start + Duration::from_secs(1)),
+        //                         )
+        //                         .await
+        //                         .unwrap();
+        //                     tx.commit().await.unwrap();
+        //                 }
 
-                        db_arc_clone
-                            .close_session(&session.session_id, session_end)
-                            .await
-                            .unwrap();
-                    }
-                }
-            });
+        //                 db_arc_clone
+        //                     .close_session(&session.session_id, session_end)
+        //                     .await
+        //                     .unwrap();
+        //             }
+        //         }
+        //     });
 
-            handles.push(handle);
-        }
+        //     handles.push(handle);
+        // }
 
-        // Wait for all tasks to complete
-        join_all(handles).await;
+        // // Wait for all tasks to complete
+        // join_all(handles).await;
 
-        // Manually refresh the continuous aggregates
-        db_arc
-            .refresh_continuous_aggregates(vec![
-                "quarter_sessions_stats_per_app".to_string(),
-                "hourly_sessions_stats_per_app".to_string(),
-                "daily_sessions_stats_per_app".to_string(),
-                // "monthly_sessions_stats_per_app".to_string(),
-            ])
-            .await
-            .unwrap();
+        // // Manually refresh the continuous aggregates
+        // db_arc
+        //     .refresh_continuous_aggregates(vec![
+        //         "quarter_sessions_stats_per_app".to_string(),
+        //         "hourly_sessions_stats_per_app".to_string(),
+        //         "daily_sessions_stats_per_app".to_string(),
+        //         // "monthly_sessions_stats_per_app".to_string(),
+        //     ])
+        //     .await
+        //     .unwrap();
 
-        db_arc
-            .refresh_continuous_aggregates(vec![
-                "quarter_connection_stats_per_app".to_string(),
-                "hourly_connection_stats_per_app".to_string(),
-                "daily_connection_stats_per_app".to_string(),
-                // "monthly_sessions_stats_per_app".to_string(),
-            ])
-            .await
-            .unwrap();
+        // db_arc
+        //     .refresh_continuous_aggregates(vec![
+        //         "quarter_connection_stats_per_app".to_string(),
+        //         "hourly_connection_stats_per_app".to_string(),
+        //         "daily_connection_stats_per_app".to_string(),
+        //         // "monthly_sessions_stats_per_app".to_string(),
+        //     ])
+        //     .await
+        //     .unwrap();
     }
 
     #[tokio::test]

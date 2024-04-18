@@ -38,7 +38,7 @@ CREATE TYPE event_type_enum AS ENUM (
     'ClientConnectInit',
     'ClientConnectResolve'
     'ClientDisconnect',
-    'SingMessage',
+    'SignMessage',
     'SignTransaction',
     'SignAndSendTransaction',
     'ChangeWallet',

@@ -139,7 +139,12 @@ async fn save_event_app_connect(db: &Arc<Db>, app_id: &String, event: &AppConnec
 
     // Create a new event index
     let event_id = match db
-        .create_new_event_entry(&mut tx, &app_id, &EventType::AppConnect)
+        .create_new_event_entry(
+            &mut tx,
+            &app_id,
+            &EventType::AppConnect,
+            &get_current_datetime(),
+        )
         .await
     {
         Ok(event_id) => event_id,

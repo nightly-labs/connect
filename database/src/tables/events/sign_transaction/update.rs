@@ -18,7 +18,7 @@ impl Db {
         network_id: &String,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {EVENT_SIGN_TRANSACTION_TABLE_NAME} ({EVENT_SIGN_TRANSACTION_KEYS}) VALUES ($1, $2, $3, $4, $5)"
+            "INSERT INTO {EVENT_SIGN_TRANSACTION_TABLE_NAME} ({EVENT_SIGN_TRANSACTION_KEYS}) VALUES ($1, $2, $3, $4, $5, NULL)"
         );
 
         let query_result = query(&query_body)
@@ -27,7 +27,6 @@ impl Db {
             .bind(request_id)
             .bind(RequestStatus::Pending)
             .bind(network_id)
-            .bind(None::<String>)
             .execute(&mut **tx)
             .await;
 
