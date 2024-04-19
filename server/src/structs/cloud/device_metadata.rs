@@ -8,6 +8,7 @@ use ts_rs::TS;
 pub enum DeviceMetadata {
     Mobile(MobileMetadata),
     Web(WebMetadata),
+    Unknown,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
