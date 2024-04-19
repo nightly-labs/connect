@@ -11,8 +11,7 @@ SELECT
 FROM
     events e
 JOIN
-    event_sign_message esm
-ON e.event_id = esm.event_id
+    event_sign_message esm ON e.event_id = esm.event_id
 GROUP BY e.app_id, quarter_bucket, e.event_type WITH NO DATA;
 
 --- Refresh policy
