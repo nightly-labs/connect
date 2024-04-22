@@ -1,7 +1,8 @@
 CREATE TABLE event_app_connect(
     event_id BIGINT PRIMARY KEY,
     session_id TEXT NOT NULL,
-    device_metadata TEXT NOT NULL,
+    device_medium_type device_medium_type_enum,
+    device_metadata_uuid TEXT,
     lang TEXT NOT NULL,
     timezone TEXT NOT NULL,
     new_session BOOLEAN NOT NULL

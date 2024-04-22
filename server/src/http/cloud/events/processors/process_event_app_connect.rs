@@ -172,10 +172,7 @@ async fn save_event_app_connect(db: &Arc<Db>, app_id: &String, event: &AppConnec
             &mut tx,
             event_id,
             &event.session_id,
-            &event
-                .device_metadata
-                .to_string()
-                .unwrap_or("Failed to serialize device metadata".to_string()),
+            &event.device_metadata,
             &event.language,
             &event.timezone,
             event.new_session,

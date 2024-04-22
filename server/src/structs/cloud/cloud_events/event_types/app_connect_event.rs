@@ -1,4 +1,4 @@
-use crate::structs::cloud::device_metadata::DeviceMetadata;
+use database::structs::device_metadata::DeviceMetadata;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 

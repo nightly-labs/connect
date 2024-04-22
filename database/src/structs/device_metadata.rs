@@ -1,6 +1,14 @@
-use crate::structs::common::Device;
 use serde::{Deserialize, Serialize};
+use strum::Display;
 use ts_rs::TS;
+
+#[derive(Debug, Display, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub enum Device {
+    Apple,
+    Android,
+    Unknown,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
@@ -24,7 +32,7 @@ pub struct MobileMetadata {
 #[serde(rename_all = "camelCase")]
 pub struct WebMetadata {
     pub browser: String,
-    pub version: String,
+    pub browser_version: String,
     pub os: String,
     pub os_version: String,
 }

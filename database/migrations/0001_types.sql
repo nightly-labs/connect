@@ -44,3 +44,5 @@ CREATE TYPE event_type_enum AS ENUM (
     'ChangeWallet',
     'ChangeNetwork'
 );
+
+CREATE TYPE device_medium_type_enum AS ENUM ('Browser', 'Mobile', 'Unknown');
