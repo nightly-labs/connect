@@ -3,7 +3,7 @@ use sqlx::{postgres::PgRow, FromRow, Row};
 
 pub const EVENT_APP_CONNECT_TABLE_NAME: &str = "event_app_connect";
 pub const EVENT_APP_CONNECT_KEYS: &str =
-    "event_id, session_id, device_medium_type, device_metadata_uuid, lang, timezone, new_session";
+    "event_id, app_id, session_id, device_medium_type, device_metadata_uuid, lang, timezone, new_session, creation_timestamp";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct AppConnectEvent {

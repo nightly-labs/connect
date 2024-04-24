@@ -798,16 +798,44 @@ mod test {
                     };
 
                     let device_metadata = match j % 7 {
-                        0 | 1 | 2 => DeviceMetadata::Web(WebMetadata {
-                            browser: "test_browser".to_string(),
-                            os: "test_os".to_string(),
-                            os_version: "test_os_version".to_string(),
-                            browser_version: "test_version".to_string(),
-                        }),
-                        3 | 4 => DeviceMetadata::Mobile(MobileMetadata {
-                            system: Device::Android,
-                            version: "test_version".to_string(),
-                        }),
+                        0 | 1 | 2 => {
+                            let browser = if j % 2 == 0 {
+                                "Chrome".to_string()
+                            } else {
+                                "Firefox".to_string()
+                            };
+
+                            let os = if j % 3 == 0 {
+                                "Windows".to_string()
+                            } else {
+                                if rand::thread_rng().gen_range(0..=10) % 2 == 0 {
+                                    "Linux".to_string()
+                                } else {
+                                    "Mac".to_string()
+                                }
+                            };
+
+                            DeviceMetadata::Web(WebMetadata {
+                                browser: browser,
+                                os: os,
+                                os_version: "test_os_version".to_string(),
+                                browser_version: "test_version".to_string(),
+                            })
+                        }
+                        3 | 4 => {
+                            let rng = rand::thread_rng().gen::<i8>();
+
+                            let system = match rng % 3 {
+                                0 => Device::Android,
+                                1 => Device::Apple,
+                                _ => Device::Unknown,
+                            };
+
+                            DeviceMetadata::Mobile(MobileMetadata {
+                                system: system,
+                                version: "test_version".to_string(),
+                            })
+                        }
                         _ => DeviceMetadata::Unknown,
                     };
 
@@ -830,11 +858,13 @@ mod test {
                         .create_new_event_app_connect(
                             &mut tx,
                             event_id,
+                            &app_id,
                             &session_id,
                             &device_metadata,
                             &language,
                             &"test_timezone".to_string(),
                             true,
+                            &creation_time,
                         )
                         .await
                         .unwrap();
@@ -853,6 +883,26 @@ mod test {
                 "quarter_events_app_connect_language_stats_per_app".to_string(),
                 "hour_events_app_connect_language_stats_per_app".to_string(),
                 "daily_events_app_connect_language_stats_per_app".to_string(),
+                ////////////////////////////////////////////////////////////////
+                "quarter_events_app_connect_browser_stats_per_app".to_string(),
+                "hour_events_app_connect_browser_stats_per_app".to_string(),
+                "daily_events_app_connect_browser_stats_per_app".to_string(),
+                ////////////////////////////////////////////////////////////////
+                "quarter_events_app_connect_os_stats_per_app".to_string(),
+                "hour_events_app_connect_os_stats_per_app".to_string(),
+                "daily_events_app_connect_os_stats_per_app".to_string(),
+                ////////////////////////////////////////////////////////////////
+                "quarter_events_app_connect_system_stats_per_app".to_string(),
+                "hour_events_app_connect_system_stats_per_app".to_string(),
+                "daily_events_app_connect_system_stats_per_app".to_string(),
+                ////////////////////////////////////////////////////////////////
+                "quarter_events_app_connect_system_stats_per_app".to_string(),
+                "hour_events_app_connect_system_stats_per_app".to_string(),
+                "daily_events_app_connect_system_stats_per_app".to_string(),
+                ////////////////////////////////////////////////////////////////
+                "quarter_events_app_connect_session_type_stats_per_app".to_string(),
+                "hour_events_app_connect_session_type_stats_per_app".to_string(),
+                "daily_events_app_connect_session_type_stats_per_app".to_string(),
             ])
             .await
             .unwrap();

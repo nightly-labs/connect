@@ -53,6 +53,7 @@ impl Db {
 #[cfg(feature = "cloud_db_tests")]
 #[cfg(test)]
 mod tests {
+    use crate::structs::geo_location::Geolocation;
     use crate::structs::session_type::SessionType;
     use crate::tables::sessions::table_struct::SESSIONS_TABLE_NAME;
     use crate::{
@@ -73,6 +74,14 @@ mod tests {
     use sqlx::{types::chrono::Utc, Transaction};
     use std::{sync::Arc, time::Duration};
     use tokio::sync::Semaphore;
+
+    #[derive(Debug, Clone)]
+    struct BoundingBox {
+        min_lat: f64,
+        max_lat: f64,
+        min_lon: f64,
+        max_lon: f64,
+    }
 
     #[tokio::test]
     async fn test_sessions_count() {
@@ -461,7 +470,7 @@ mod tests {
         let team_id = "test_team_id".to_string();
 
         let now = get_current_datetime();
-        let start_date = now - Duration::from_secs(60 * 60 * 24 * 60); // Start of second period, 60 days ago
+        let start_date = now - Duration::from_secs(60 * 60 * 24 * 45); // Start of second period, 45 days ago
         let end_date = now;
         let num_days = (end_date - start_date).num_days();
 
@@ -485,13 +494,72 @@ mod tests {
             .unwrap();
         tx.commit().await.unwrap();
 
-        // let semaphore = Arc::new(Semaphore::new(8));
+        // let land_boxes = Arc::new(vec![
+        //     BoundingBox {
+        //         min_lat: 49.0,
+        //         max_lat: 70.0,
+        //         min_lon: -126.0,
+        //         max_lon: -60.0,
+        //     }, // Canada
+        //     BoundingBox {
+        //         min_lat: 24.0,
+        //         max_lat: 50.0,
+        //         min_lon: -125.0,
+        //         max_lon: -66.0,
+        //     }, // USA
+        //     BoundingBox {
+        //         min_lat: -55.0,
+        //         max_lat: -21.0,
+        //         min_lon: -74.0,
+        //         max_lon: -34.0,
+        //     }, // South America
+        //     BoundingBox {
+        //         min_lat: 34.0,
+        //         max_lat: 60.0,
+        //         min_lon: -10.0,
+        //         max_lon: 35.0,
+        //     }, // Europe
+        //     BoundingBox {
+        //         min_lat: -35.0,
+        //         max_lat: 10.0,
+        //         min_lon: 112.0,
+        //         max_lon: 154.0,
+        //     }, // Australia
+        //     BoundingBox {
+        //         min_lat: 8.0,
+        //         max_lat: 37.0,
+        //         min_lon: 68.0,
+        //         max_lon: 97.0,
+        //     }, // India
+        //     BoundingBox {
+        //         min_lat: 30.0,
+        //         max_lat: 45.0,
+        //         min_lon: 120.0,
+        //         max_lon: 150.0,
+        //     }, // Japan
+        // ]);
+
+        // let points_per_box = 10;
+        // let mut land_points = Vec::new();
+        // for box_ in land_boxes.iter() {
+        //     let mut box_points = Vec::with_capacity(points_per_box);
+        //     for _ in 0..points_per_box {
+        //         let lat = thread_rng().gen_range(box_.min_lat..box_.max_lat);
+        //         let lon = thread_rng().gen_range(box_.min_lon..box_.max_lon);
+        //         box_points.push((lat, lon));
+        //     }
+        //     land_points.push(box_points);
+        // }
+        // let land_points = Arc::new(land_points);
+
+        // let semaphore = Arc::new(Semaphore::new(16));
         // let mut handles = vec![];
 
         // for day_offset in 0..num_days {
         //     let app_id_clone = app_id_2.clone();
         //     let db_arc_clone = db_arc.clone();
         //     let sem_clone = semaphore.clone();
+        //     let land_points_clone = land_points.clone();
 
         //     let handle = tokio::task::spawn(async move {
         //         let _permit = sem_clone
@@ -566,6 +634,25 @@ mod tests {
         //                 let amount = thread_rng().gen_range(0..=10);
         //                 // Generate random amount of additional connections from user
         //                 for _ in 0..amount {
+        //                     let geolocation = match rand::thread_rng().gen_range(0..=10) > 3 {
+        //                         true => None,
+        //                         false => {
+        //                             // Randomly select a bounding box
+        //                             let box_index =
+        //                                 thread_rng().gen_range(0..land_points_clone.len());
+        //                             let point_index = thread_rng()
+        //                                 .gen_range(0..land_points_clone[box_index].len());
+        //                             let (lat, lon) = land_points_clone[box_index][point_index];
+
+        //                             Some(Geolocation {
+        //                                 country: None,
+        //                                 city: None,
+        //                                 lat: Some(lat),
+        //                                 lon: Some(lon),
+        //                             })
+        //                         }
+        //                     };
+
         //                     let mut tx = db_arc_clone.connection_pool.begin().await.unwrap();
         //                     db_arc_clone
         //                         .create_new_connection_event_by_client(
@@ -574,7 +661,7 @@ mod tests {
         //                             &session.session_id,
         //                             &SessionType::Relay,
         //                             &ip_address,
-        //                             None,
+        //                             geolocation,
         //                             &(session_start + Duration::from_secs(1)),
         //                         )
         //                         .await

@@ -2,6 +2,7 @@ use crate::{
     http::cloud::utils::get_geolocation_data, ip_geolocation::GeolocationRequester,
     state::Sessions, structs::cloud::cloud_events::event_types::app_connect_event::AppConnectEvent,
 };
+use chrono::{DateTime, Utc};
 use database::{
     db::Db,
     structs::event_type::EventType,
@@ -21,10 +22,10 @@ pub async fn process_event_app_connect(
     geo_loc_requester: &Arc<GeolocationRequester>,
     sessions: &Sessions,
 ) {
-    // Save event to Db
-    save_event_app_connect(db, app_id, event).await;
-
     let current_timestamp = get_current_datetime();
+
+    // Save event to Db
+    save_event_app_connect(db, app_id, event, &current_timestamp).await;
 
     if event.new_session {
         // New session, get the data from sessions and create a new session in the database
@@ -124,7 +125,12 @@ pub async fn process_event_app_connect(
     }
 }
 
-async fn save_event_app_connect(db: &Arc<Db>, app_id: &String, event: &AppConnectEvent) {
+async fn save_event_app_connect(
+    db: &Arc<Db>,
+    app_id: &String,
+    event: &AppConnectEvent,
+    creation_timestamp: &DateTime<Utc>,
+) {
     // Establish a new transaction
     let mut tx = match db.connection_pool.begin().await {
         Ok(tx) => tx,
@@ -143,7 +149,7 @@ async fn save_event_app_connect(db: &Arc<Db>, app_id: &String, event: &AppConnec
             &mut tx,
             &app_id,
             &EventType::AppConnect,
-            &get_current_datetime(),
+            &creation_timestamp,
         )
         .await
     {
@@ -171,11 +177,13 @@ async fn save_event_app_connect(db: &Arc<Db>, app_id: &String, event: &AppConnec
         .create_new_event_app_connect(
             &mut tx,
             event_id,
+            app_id,
             &event.session_id,
             &event.device_metadata,
             &event.language,
             &event.timezone,
             event.new_session,
+            &creation_timestamp,
         )
         .await
     {

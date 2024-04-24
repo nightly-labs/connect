@@ -1,11 +1,13 @@
 CREATE TABLE event_app_connect(
-    event_id BIGINT PRIMARY KEY,
+    event_id BIGINT NOT NULL,
+    app_id TEXT NOT NULL,
     session_id TEXT NOT NULL,
     device_medium_type device_medium_type_enum,
     device_metadata_uuid TEXT,
     lang TEXT NOT NULL,
     timezone TEXT NOT NULL,
-    new_session BOOLEAN NOT NULL
+    new_session BOOLEAN NOT NULL,
+    creation_timestamp TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE event_app_disconnect(

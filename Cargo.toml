@@ -47,3 +47,7 @@ sqlx = { version = "0.7.3", features = [
   "chrono",
 ] }
 chrono = { version = "0.4.22", features = ["serde"] }
+
+[profile.dev]
+debug = 0
+strip = "debuginfo"

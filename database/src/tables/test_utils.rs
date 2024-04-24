@@ -27,11 +27,18 @@ pub mod test_utils {
                 return Ok(());
             }
 
+            let filter_list = vec![
+                "_sqlx_migrations".to_string(),
+                "spatial_ref_sys".to_string(),
+                "geography_columns".to_string(),
+                "geometry_columns".to_string(),
+            ];
+
             // Join all names except _sqlx_migrations into a single string and run single truncate
             let tables_names = rows
                 .iter()
                 .map(|row| row.get::<String, &str>("table_name"))
-                .filter(|table_name| !table_name.starts_with("_sqlx_migrations"))
+                .filter(|table_name| !filter_list.contains(table_name))
                 .collect::<Vec<String>>()
                 .join(", ");
 
