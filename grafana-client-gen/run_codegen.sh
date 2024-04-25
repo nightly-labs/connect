@@ -29,6 +29,13 @@ docker run --rm -v ${PWD}/${OPENAPI_GENERATOR_DIR}:/local openapitools/openapi-g
 echo "Code generation complete."
 
 if [ -d "$OPENAPI_GENERATOR_DIR/grafana-rust-client/src" ]; then
+    echo "Removing unwanted files..."
+    rm -rf "$OPENAPI_GENERATOR_DIR/grafana-rust-client/.openapi-generator"
+    rm -rf "$OPENAPI_GENERATOR_DIR/grafana-rust-client/.openapi-generator-ignore"
+    rm -rf "$OPENAPI_GENERATOR_DIR/grafana-rust-client/.travis.yml"
+    rm -f "$OPENAPI_GENERATOR_DIR/grafana-rust-client/.gitignore"
+    rm -f "$OPENAPI_GENERATOR_DIR/grafana-rust-client/git_push.sh"
+
     echo "Copying generated package to the target directory..."
     rm -rf "$TARGET_DIR"
     cp -r "$OPENAPI_GENERATOR_DIR/grafana-rust-client" "$TARGET_DIR"
