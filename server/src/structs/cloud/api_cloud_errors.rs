@@ -45,4 +45,5 @@ pub enum CloudApiErrors {
     InvalidPasskeyCredential,
     PasskeyDoesNotExist,
     FailedToCreateTeam,
+    DashboardImportFail,
 }

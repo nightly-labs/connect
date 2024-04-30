@@ -177,16 +177,17 @@ mod tests {
     use openapi::{
         apis::{
             configuration::{ApiKey, Configuration},
-            dashboards_api::get_dashboard_by_uid,
+            dashboards_api::{get_dashboard_by_uid, import_dashboard},
             folder_permissions_api::update_folder_permissions,
             folders_api::create_folder,
             teams_api::create_team,
         },
         models::{
-            CreateFolderCommand, CreateTeamCommand, DashboardAclUpdateItem,
+            CreateFolderCommand, CreateTeamCommand, DashboardAclUpdateItem, ImportDashboardRequest,
             UpdateDashboardAclCommand,
         },
     };
+    use serde_json::json;
     use std::{net::SocketAddr, sync::Arc};
     use tower::ServiceExt;
 
@@ -256,7 +257,7 @@ mod tests {
     #[tokio::test]
     async fn test_grafana_create_team() {
         let team_name = "test_team_name".to_string();
-        let email = "test10@gmail.com".to_string();
+        let email = "test69@gmail.com".to_string();
 
         let grafana_team_name = format!("[{}][{}]", team_name, email);
         // Grafana, add new team
@@ -296,7 +297,7 @@ mod tests {
             description: None,
             parent_uid: None,
             title: Some(grafana_team_name),
-            uid: None,
+            uid: Some(grafana_team_id.to_string()),
         };
 
         let folder_uid = match create_folder(&grafana_client_conf, grafana_request).await {
@@ -315,8 +316,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_grafana_permissions() {
-        let grafana_team_id = 28;
-        let folder_uid = "cec5a890-d452-47ad-b288-bb8c93c0d6dd";
+        let grafana_team_id = 36;
 
         let mut conf = Configuration::new();
         conf.base_path = GRAFANA_BASE_PATH().to_string();
@@ -339,7 +339,7 @@ mod tests {
 
         match update_folder_permissions(
             &grafana_client_conf,
-            &folder_uid,
+            &grafana_team_id.to_string(),
             update_permissions_request,
         )
         .await
@@ -354,18 +354,10 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_grafana_create_folder() {
-        let team_name = "test_same_name".to_string();
-        let email = "test3@gmail.com".to_string();
-
-        let grafana_team_name = format!("[{}][{}]", team_name, email);
-        // Grafana, create folder
-        let grafana_request = CreateFolderCommand {
-            description: None,
-            parent_uid: None,
-            title: Some(grafana_team_name),
-            uid: None,
-        };
+    async fn test_grafana_import_dashboard() {
+        let grafana_team_id = 36;
+        let app_name = "test_app_name".to_string();
+        let app_id = "test_app_id".to_string();
 
         let mut conf = Configuration::new();
         conf.base_path = GRAFANA_BASE_PATH().to_string();
@@ -376,48 +368,51 @@ mod tests {
 
         let grafana_client_conf = Arc::new(conf);
 
-        // Send request and return team id
-        let folder_uid = match create_folder(&grafana_client_conf, grafana_request).await {
-            Ok(response) => {
-                println!("Folder created: {:?}", response);
-                response.uid.unwrap()
-            }
+        let mut dashboard =
+            match get_dashboard_by_uid(&grafana_client_conf, &DASHBOARD_TEMPLATE_UID).await {
+                Ok(response) => response.dashboard.unwrap(),
+                Err(err) => {
+                    panic!("Failed to create folder: {:?}", err);
+                }
+            };
+
+        println!("DASHBOARD: {:#?}", dashboard.get("uid"));
+        println!("DASHBOARD: {:#?}", dashboard.get("id"));
+        println!("DASHBOARD: {:#?}", dashboard.get("title"));
+
+        let dashboard_as_map = dashboard.as_object_mut().unwrap();
+
+        *dashboard_as_map.get_mut("uid").unwrap() = json!(app_id);
+        *dashboard_as_map.get_mut("id").unwrap() = json!("");
+        *dashboard_as_map.get_mut("title").unwrap() = json!(app_name);
+
+        println!(
+            "--------------------\nDASHBOARD: {:#?}",
+            dashboard.get("uid")
+        );
+        println!("DASHBOARD: {:#?}", dashboard.get("id"));
+        println!("DASHBOARD: {:#?}", dashboard.get("title"));
+
+        // Import dashboard
+        match import_dashboard(
+            &grafana_client_conf,
+            ImportDashboardRequest {
+                dashboard: Some(dashboard),
+                folder_id: None,
+                folder_uid: Some(grafana_team_id.to_string()),
+                inputs: None,
+                overwrite: Some(false),
+                path: None,
+                plugin_id: None,
+            },
+        )
+        .await
+        {
+            Ok(response) => println!("DASHBOARD import: {:#?}", response),
             Err(err) => {
                 panic!("Failed to create folder: {:?}", err);
             }
         };
-
-        // let mut dashboard =
-        //     match get_dashboard_by_uid(&grafana_client_conf, &DASHBOARD_TEMPLATE_UID).await {
-        //         Ok(response) => response.dashboard.unwrap(),
-        //         Err(err) => {
-        //             panic!("Failed to create folder: {:?}", err);
-        //         }
-        //     };
-
-        // println!("DASHBOARD: {:#?}", dashboard.get("uid"));
-        // println!("DASHBOARD: {:#?}", dashboard.get("title"));
-
-        // // Import dashboard
-        // match import_dashboard(
-        //     &grafana_client_conf,
-        //     ImportDashboardRequest {
-        //         dashboard: Some(dashboard),
-        //         folder_id: None,
-        //         folder_uid: Some(folder_uid),
-        //         inputs: None,
-        //         overwrite: None,
-        //         path: None,
-        //         plugin_id: None,
-        //     },
-        // )
-        // .await
-        // {
-        //     Ok(response) => println!("DASHBOARD import: {:?}", response),
-        //     Err(err) => {
-        //         panic!("Failed to create folder: {:?}", err);
-        //     }
-        // };
     }
 
     #[tokio::test]

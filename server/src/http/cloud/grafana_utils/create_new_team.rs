@@ -47,8 +47,8 @@ pub async fn handle_grafana_create_new_team(
     let folder_request = CreateFolderCommand {
         description: None,
         parent_uid: None,
-        title: Some(grafana_team_name),
-        uid: None,
+        title: Some(grafana_team_name.clone()),
+        uid: Some(grafana_team_id),
     };
 
     let folder_uid = match create_folder(&grafana_conf, folder_request).await {
