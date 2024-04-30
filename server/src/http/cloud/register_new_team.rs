@@ -1,3 +1,7 @@
+use super::{
+    grafana_utils::create_new_team::handle_grafana_create_new_team,
+    utils::{custom_validate_name, validate_request},
+};
 use crate::{
     middlewares::auth_middleware::UserId, statics::TEAMS_AMOUNT_LIMIT_PER_USER,
     structs::cloud::api_cloud_errors::CloudApiErrors,
@@ -9,12 +13,11 @@ use database::{
 };
 use garde::Validate;
 use log::error;
+use openapi::apis::configuration::Configuration;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
 use uuid7::uuid7;
-
-use super::utils::{custom_validate_name, validate_request};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
@@ -35,6 +38,7 @@ pub struct HttpRegisterNewTeamResponse {
 
 pub async fn register_new_team(
     State(db): State<Arc<Db>>,
+    State(grafana_conf): State<Arc<Configuration>>,
     Extension(user_id): Extension<UserId>,
     Json(request): Json<HttpRegisterNewTeamRequest>,
 ) -> Result<Json<HttpRegisterNewTeamResponse>, (StatusCode, String)> {
@@ -98,10 +102,32 @@ pub async fn register_new_team(
                 }
             }
 
+            // Get team admin email
+            let admin_email = match db.get_user_by_user_id(&user_id).await {
+                Ok(Some(user)) => user.email,
+                Ok(None) => {
+                    return Err((
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        CloudApiErrors::DatabaseError.to_string(),
+                    ));
+                }
+                Err(err) => {
+                    error!("Failed to get user by user_id: {:?}", err);
+                    return Err((
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        CloudApiErrors::DatabaseError.to_string(),
+                    ));
+                }
+            };
+
+            // Grafana, add new team
+            let grafana_team_id =
+                handle_grafana_create_new_team(&grafana_conf, &admin_email, &user_id).await?;
+
             // Create a new team
             let team_id = uuid7().to_string();
             let team = Team {
-                team_id: team_id.clone(),
+                team_id: grafana_team_id.to_string(),
                 team_name: request.team_name.clone(),
                 team_admin_id: user_id.clone(),
                 subscription: None,
@@ -133,8 +159,9 @@ pub async fn register_new_team(
 #[cfg(test)]
 mod tests {
     use crate::{
-        env::JWT_SECRET,
+        env::{GRAFANA_API_KEY, GRAFANA_BASE_PATH, JWT_SECRET},
         http::cloud::register_new_team::{HttpRegisterNewTeamRequest, HttpRegisterNewTeamResponse},
+        statics::DASHBOARD_TEMPLATE_UID,
         structs::cloud::{
             api_cloud_errors::CloudApiErrors, cloud_http_endpoints::HttpCloudEndpoint,
         },
@@ -147,7 +174,20 @@ mod tests {
         extract::ConnectInfo,
         http::{Method, Request},
     };
-    use std::net::SocketAddr;
+    use openapi::{
+        apis::{
+            configuration::{ApiKey, Configuration},
+            dashboards_api::get_dashboard_by_uid,
+            folder_permissions_api::update_folder_permissions,
+            folders_api::create_folder,
+            teams_api::create_team,
+        },
+        models::{
+            CreateFolderCommand, CreateTeamCommand, DashboardAclUpdateItem,
+            UpdateDashboardAclCommand,
+        },
+    };
+    use std::{net::SocketAddr, sync::Arc};
     use tower::ServiceExt;
 
     #[tokio::test]
@@ -211,6 +251,197 @@ mod tests {
             err.to_string(),
             CloudApiErrors::TeamAlreadyExists.to_string()
         );
+    }
+
+    #[tokio::test]
+    async fn test_grafana_create_team() {
+        let team_name = "test_team_name".to_string();
+        let email = "test10@gmail.com".to_string();
+
+        let grafana_team_name = format!("[{}][{}]", team_name, email);
+        // Grafana, add new team
+        let grafana_request = CreateTeamCommand {
+            email: Some(email.to_string()),
+            name: Some(grafana_team_name.to_string()),
+        };
+
+        let mut conf = Configuration::new();
+        conf.base_path = GRAFANA_BASE_PATH().to_string();
+        conf.api_key = Some(ApiKey {
+            prefix: Some("Bearer".to_string()),
+            key: GRAFANA_API_KEY().to_string(),
+        });
+
+        let grafana_client_conf = Arc::new(conf);
+
+        // Send request and return team id
+        let grafana_team_id = match create_team(&grafana_client_conf, grafana_request).await {
+            Ok(response) => match response.team_id {
+                Some(team_id) => {
+                    println!("Team id: {}", team_id);
+                    team_id
+                }
+                None => {
+                    panic!("Failed to create team: {:?}", response);
+                }
+            },
+            Err(err) => {
+                panic!("Failed to create team: {:?}", err);
+            }
+        };
+
+        // Send request and return team id
+        // Grafana, create folder
+        let grafana_request = CreateFolderCommand {
+            description: None,
+            parent_uid: None,
+            title: Some(grafana_team_name),
+            uid: None,
+        };
+
+        let folder_uid = match create_folder(&grafana_client_conf, grafana_request).await {
+            Ok(response) => {
+                println!("Folder created: {:?}", response);
+                response.uid.unwrap()
+            }
+            Err(err) => {
+                panic!("Failed to create folder: {:?}", err);
+            }
+        };
+
+        println!("Team id created: {}", grafana_team_id);
+        println!("Folder uid: {}", folder_uid);
+    }
+
+    #[tokio::test]
+    async fn test_grafana_permissions() {
+        let grafana_team_id = 28;
+        let folder_uid = "cec5a890-d452-47ad-b288-bb8c93c0d6dd";
+
+        let mut conf = Configuration::new();
+        conf.base_path = GRAFANA_BASE_PATH().to_string();
+        conf.api_key = Some(ApiKey {
+            prefix: Some("Bearer".to_string()),
+            key: GRAFANA_API_KEY().to_string(),
+        });
+
+        let grafana_client_conf = Arc::new(conf);
+
+        // set folder permissions for the whole team
+        let update_permissions_request = UpdateDashboardAclCommand {
+            items: Some(vec![DashboardAclUpdateItem {
+                permission: Some(1), // Grant View permission for the whole team
+                role: None,
+                team_id: Some(grafana_team_id),
+                user_id: None,
+            }]),
+        };
+
+        match update_folder_permissions(
+            &grafana_client_conf,
+            &folder_uid,
+            update_permissions_request,
+        )
+        .await
+        {
+            Ok(response) => {
+                println!("Permissions updated: {:?}", response);
+            }
+            Err(err) => {
+                panic!("Failed to update permissions: {:?}", err);
+            }
+        };
+    }
+
+    #[tokio::test]
+    async fn test_grafana_create_folder() {
+        let team_name = "test_same_name".to_string();
+        let email = "test3@gmail.com".to_string();
+
+        let grafana_team_name = format!("[{}][{}]", team_name, email);
+        // Grafana, create folder
+        let grafana_request = CreateFolderCommand {
+            description: None,
+            parent_uid: None,
+            title: Some(grafana_team_name),
+            uid: None,
+        };
+
+        let mut conf = Configuration::new();
+        conf.base_path = GRAFANA_BASE_PATH().to_string();
+        conf.api_key = Some(ApiKey {
+            prefix: Some("Bearer".to_string()),
+            key: GRAFANA_API_KEY().to_string(),
+        });
+
+        let grafana_client_conf = Arc::new(conf);
+
+        // Send request and return team id
+        let folder_uid = match create_folder(&grafana_client_conf, grafana_request).await {
+            Ok(response) => {
+                println!("Folder created: {:?}", response);
+                response.uid.unwrap()
+            }
+            Err(err) => {
+                panic!("Failed to create folder: {:?}", err);
+            }
+        };
+
+        // let mut dashboard =
+        //     match get_dashboard_by_uid(&grafana_client_conf, &DASHBOARD_TEMPLATE_UID).await {
+        //         Ok(response) => response.dashboard.unwrap(),
+        //         Err(err) => {
+        //             panic!("Failed to create folder: {:?}", err);
+        //         }
+        //     };
+
+        // println!("DASHBOARD: {:#?}", dashboard.get("uid"));
+        // println!("DASHBOARD: {:#?}", dashboard.get("title"));
+
+        // // Import dashboard
+        // match import_dashboard(
+        //     &grafana_client_conf,
+        //     ImportDashboardRequest {
+        //         dashboard: Some(dashboard),
+        //         folder_id: None,
+        //         folder_uid: Some(folder_uid),
+        //         inputs: None,
+        //         overwrite: None,
+        //         path: None,
+        //         plugin_id: None,
+        //     },
+        // )
+        // .await
+        // {
+        //     Ok(response) => println!("DASHBOARD import: {:?}", response),
+        //     Err(err) => {
+        //         panic!("Failed to create folder: {:?}", err);
+        //     }
+        // };
+    }
+
+    #[tokio::test]
+    async fn test_grafana_get_dashboard() {
+        let mut conf = Configuration::new();
+        conf.base_path = GRAFANA_BASE_PATH().to_string();
+        conf.api_key = Some(ApiKey {
+            prefix: Some("Bearer".to_string()),
+            key: GRAFANA_API_KEY().to_string(),
+        });
+
+        let grafana_client_conf = Arc::new(conf);
+
+        // Send request and return team id
+        let dashboard =
+            match get_dashboard_by_uid(&grafana_client_conf, &DASHBOARD_TEMPLATE_UID).await {
+                Ok(response) => response.dashboard.unwrap(),
+                Err(err) => {
+                    panic!("Failed to create folder: {:?}", err);
+                }
+            };
+
+        println!("DASHBOARD: {:#?}", dashboard.get("uid"));
+        println!("DASHBOARD: {:#?}", dashboard.get("title"));
     }
 
     #[tokio::test]

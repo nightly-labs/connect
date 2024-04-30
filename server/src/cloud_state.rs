@@ -1,5 +1,5 @@
 use crate::{
-    env::ENVIRONMENT,
+    env::{ENVIRONMENT, GRAFANA_API_KEY, GRAFANA_BASE_PATH},
     ip_geolocation::GeolocationRequester,
     mailer::{entry::run_mailer, mailer::Mailer},
     structs::session_cache::ApiSessionsCache,
@@ -10,6 +10,7 @@ use hickory_resolver::{
     name_server::{GenericConnector, TokioRuntimeProvider},
     AsyncResolver, TokioAsyncResolver,
 };
+use openapi::apis::configuration::{ApiKey, Configuration};
 use r_cache::cache::Cache;
 use reqwest::Url;
 use std::{sync::Arc, time::Duration};
@@ -26,6 +27,7 @@ pub struct CloudState {
     pub mailer: Arc<Mailer>,
     pub dns_resolver: Arc<TokioAsyncResolver>,
     pub webauthn: Arc<Webauthn>,
+    pub grafana_client_conf: Arc<Configuration>,
 }
 
 impl CloudState {
@@ -35,6 +37,15 @@ impl CloudState {
         let geo_loc_requester = Arc::new(GeolocationRequester::new().await);
         let mailer = Arc::new(run_mailer().await.unwrap());
         let dns_resolver = Arc::new(TokioAsyncResolver::tokio_from_system_conf().unwrap());
+
+        let mut conf = Configuration::new();
+        conf.base_path = GRAFANA_BASE_PATH().to_string();
+        conf.api_key = Some(ApiKey {
+            prefix: Some("Bearer".to_string()),
+            key: GRAFANA_API_KEY().to_string(),
+        });
+
+        let grafana_client_conf = Arc::new(conf);
 
         // Passkey
         let rp_id = match ENVIRONMENT() {
@@ -61,6 +72,7 @@ impl CloudState {
             mailer,
             dns_resolver,
             webauthn,
+            grafana_client_conf,
         }
     }
 }

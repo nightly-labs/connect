@@ -10,6 +10,8 @@ pub struct ENV {
     pub NONCE: String,
     pub MAILER_ADDRESS: String,
     pub MAILER_PASSWORD: String,
+    pub GRAFANA_BASE_PATH: String,
+    pub GRAFANA_API_KEY: String,
 }
 pub fn get_env() -> &'static ENV {
     static INSTANCE: OnceCell<ENV> = OnceCell::new();
@@ -31,6 +33,10 @@ pub fn get_env() -> &'static ENV {
                 .expect("Failed to get MAILER_ADDRESS env"),
             MAILER_PASSWORD: std::env::var("MAILER_PASSWORD")
                 .expect("Failed to get MAILER_PASSWORD env"),
+            GRAFANA_BASE_PATH: std::env::var("GRAFANA_BASE_PATH")
+                .expect("Failed to get GRAFANA_BASE_PATH env"),
+            GRAFANA_API_KEY: std::env::var("GRAFANA_API_KEY")
+                .expect("Failed to get GRAFANA_API_KEY env"),
         };
         return env;
     })
@@ -59,4 +65,10 @@ pub fn MAILER_ADDRESS() -> &'static str {
 }
 pub fn MAILER_PASSWORD() -> &'static str {
     get_env().MAILER_PASSWORD.as_str()
+}
+pub fn GRAFANA_BASE_PATH() -> &'static str {
+    get_env().GRAFANA_BASE_PATH.as_str()
+}
+pub fn GRAFANA_API_KEY() -> &'static str {
+    get_env().GRAFANA_API_KEY.as_str()
 }
