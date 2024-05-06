@@ -48,7 +48,7 @@ pub async fn handle_grafana_create_new_team(
         description: None,
         parent_uid: None,
         title: Some(grafana_team_name.clone()),
-        uid: Some(grafana_team_id),
+        uid: Some(grafana_team_id.to_string()),
     };
 
     let folder_uid = match create_folder(&grafana_conf, folder_request).await {
@@ -84,4 +84,34 @@ pub async fn handle_grafana_create_new_team(
     }
 
     Ok(grafana_team_id)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::env::{GRAFANA_API_KEY, GRAFANA_BASE_PATH};
+    use openapi::apis::configuration::{ApiKey, Configuration};
+    use std::sync::Arc;
+
+    #[tokio::test]
+    async fn test_handle_grafana_create_new_team() {
+        let team_name = "test_team_name".to_string();
+        let email = "test507@gmail.com".to_string();
+
+        let mut conf = Configuration::new();
+        conf.base_path = GRAFANA_BASE_PATH().to_string();
+        // conf.api_key = Some(ApiKey {
+        //     prefix: Some("Bearer".to_string()),
+        //     key: GRAFANA_API_KEY().to_string(),
+        // });
+        conf.basic_auth = Some(("admin".to_string(), Some("admin".to_string())));
+
+        let grafana_client_conf = Arc::new(conf);
+
+        let team_id = handle_grafana_create_new_team(&grafana_client_conf, &email, &team_name)
+            .await
+            .unwrap();
+
+        println!("Team ID: {}", team_id);
+    }
 }

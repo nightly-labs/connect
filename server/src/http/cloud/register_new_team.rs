@@ -255,16 +255,9 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_grafana_create_team() {
-        let team_name = "test_team_name".to_string();
-        let email = "test69@gmail.com".to_string();
-
-        let grafana_team_name = format!("[{}][{}]", team_name, email);
-        // Grafana, add new team
-        let grafana_request = CreateTeamCommand {
-            email: Some(email.to_string()),
-            name: Some(grafana_team_name.to_string()),
-        };
+    async fn test_grafana_permissions() {
+        let grafana_team_id = 28;
+        let folder_uid = "cec5a890-d452-47ad-b288-bb8c93c0d6dd";
 
         let mut conf = Configuration::new();
         conf.base_path = GRAFANA_BASE_PATH().to_string();
@@ -275,48 +268,36 @@ mod tests {
 
         let grafana_client_conf = Arc::new(conf);
 
-        // Send request and return team id
-        let grafana_team_id = match create_team(&grafana_client_conf, grafana_request).await {
-            Ok(response) => match response.team_id {
-                Some(team_id) => {
-                    println!("Team id: {}", team_id);
-                    team_id
-                }
-                None => {
-                    panic!("Failed to create team: {:?}", response);
-                }
-            },
-            Err(err) => {
-                panic!("Failed to create team: {:?}", err);
-            }
+        // set folder permissions for the whole team
+        let update_permissions_request = UpdateDashboardAclCommand {
+            items: Some(vec![DashboardAclUpdateItem {
+                permission: Some(1), // Grant View permission for the whole team
+                role: None,
+                team_id: Some(grafana_team_id),
+                user_id: None,
+            }]),
         };
 
-        // Send request and return team id
-        // Grafana, create folder
-        let grafana_request = CreateFolderCommand {
-            description: None,
-            parent_uid: None,
-            title: Some(grafana_team_name),
-            uid: Some(grafana_team_id.to_string()),
-        };
-
-        let folder_uid = match create_folder(&grafana_client_conf, grafana_request).await {
+        match update_folder_permissions(
+            &grafana_client_conf,
+            &folder_uid,
+            update_permissions_request,
+        )
+        .await
+        {
             Ok(response) => {
-                println!("Folder created: {:?}", response);
-                response.uid.unwrap()
+                println!("Permissions updated: {:?}", response);
             }
             Err(err) => {
-                panic!("Failed to create folder: {:?}", err);
+                panic!("Failed to update permissions: {:?}", err);
             }
         };
-
-        println!("Team id created: {}", grafana_team_id);
-        println!("Folder uid: {}", folder_uid);
     }
 
     #[tokio::test]
-    async fn test_grafana_permissions() {
-        let grafana_team_id = 36;
+    async fn test_add_user() {
+        let grafana_team_id = 28;
+        let folder_uid = "cec5a890-d452-47ad-b288-bb8c93c0d6dd";
 
         let mut conf = Configuration::new();
         conf.base_path = GRAFANA_BASE_PATH().to_string();
