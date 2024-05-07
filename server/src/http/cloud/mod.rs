@@ -15,6 +15,7 @@ pub mod get_team_users_privileges;
 pub mod get_user_joined_teams;
 pub mod get_user_metadata;
 pub mod get_user_team_invites;
+pub mod grafana_utils;
 pub mod invite_user_to_team;
 pub mod login;
 pub mod register;

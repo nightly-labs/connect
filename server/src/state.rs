@@ -16,6 +16,7 @@ use axum::extract::{
 use database::db::Db;
 use futures::{stream::SplitSink, SinkExt};
 use log::info;
+use openapi::apis::configuration::Configuration;
 use std::{
     collections::{HashMap, HashSet},
     sync::Arc,
@@ -73,6 +74,17 @@ impl FromRef<ServerState> for Arc<Webauthn> {
     fn from_ref(state: &ServerState) -> Self {
         // Safe as middleware will prevent this from being None
         state.cloud_state.as_ref().unwrap().webauthn.clone()
+    }
+}
+impl FromRef<ServerState> for Arc<Configuration> {
+    fn from_ref(state: &ServerState) -> Self {
+        // Safe as middleware will prevent this from being None
+        state
+            .cloud_state
+            .as_ref()
+            .unwrap()
+            .grafana_client_conf
+            .clone()
     }
 }
 
