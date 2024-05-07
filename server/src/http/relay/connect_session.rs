@@ -1,9 +1,10 @@
 use crate::{
     errors::NightlyError,
     state::{ClientToSessions, ModifySession, SessionToApp, SessionToAppMap, Sessions},
-    structs::common::{Device, Notification},
+    structs::common::Notification,
 };
 use axum::{extract::State, http::StatusCode, Json};
+use database::structs::device_metadata::Device;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 

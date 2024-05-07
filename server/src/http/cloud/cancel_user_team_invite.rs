@@ -1,3 +1,4 @@
+use super::utils::{custom_validate_team_id, validate_request};
 use crate::{
     middlewares::auth_middleware::UserId, structs::cloud::api_cloud_errors::CloudApiErrors,
 };
@@ -9,13 +10,11 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
 
-use super::utils::{custom_validate_uuid, validate_request};
-
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpCancelUserTeamInviteRequest {
-    #[garde(custom(custom_validate_uuid))]
+    #[garde(custom(custom_validate_team_id))]
     pub team_id: String,
 }
 

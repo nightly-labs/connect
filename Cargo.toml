@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["server", "database"]
+members = ["server", "database", "openapi"]
 
 [workspace.dependencies]
 ctrlc = "3.4.2"
@@ -47,3 +47,7 @@ sqlx = { version = "0.7.3", features = [
   "chrono",
 ] }
 chrono = { version = "0.4.22", features = ["serde"] }
+
+[profile.dev]
+debug = 0
+strip = "debuginfo"

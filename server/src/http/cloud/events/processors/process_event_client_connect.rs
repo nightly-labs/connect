@@ -2,7 +2,8 @@ use crate::{
     http::cloud::utils::get_geolocation_data, ip_geolocation::GeolocationRequester,
     structs::cloud::cloud_events::event_types::client_connect_event::ClientConnectEvent,
 };
-use database::{db::Db, structs::event_type::EventType};
+use chrono::{DateTime, Utc};
+use database::{db::Db, structs::event_type::EventType, tables::utils::get_current_datetime};
 use log::error;
 use std::{net::SocketAddr, sync::Arc};
 
@@ -13,8 +14,10 @@ pub async fn process_event_client_connect_init(
     db: &Arc<Db>,
     geo_loc_requester: &Arc<GeolocationRequester>,
 ) {
+    let current_time = get_current_datetime();
+
     // Save event to Db
-    save_event_client_connect(db, app_id, event).await;
+    save_event_client_connect(db, app_id, event, &current_time).await;
 
     // Save connection attempt by client
     let mut tx = db.connection_pool.begin().await.unwrap();
@@ -30,6 +33,7 @@ pub async fn process_event_client_connect_init(
             &event.session_type,
             &ip.to_string(),
             geo_location_data,
+            &current_time,
         )
         .await
     {
@@ -51,7 +55,12 @@ pub async fn process_event_client_connect_init(
     }
 }
 
-async fn save_event_client_connect(db: &Arc<Db>, app_id: &String, event: &ClientConnectEvent) {
+async fn save_event_client_connect(
+    db: &Arc<Db>,
+    app_id: &String,
+    event: &ClientConnectEvent,
+    current_time: &DateTime<Utc>,
+) {
     // Establish a new transaction
     let mut tx = match db.connection_pool.begin().await {
         Ok(tx) => tx,
@@ -66,7 +75,7 @@ async fn save_event_client_connect(db: &Arc<Db>, app_id: &String, event: &Client
 
     // Create a new event index
     let event_id = match db
-        .create_new_event_entry(&mut tx, &app_id, &EventType::ClientConnect)
+        .create_new_event_entry(&mut tx, &app_id, &EventType::ClientConnect, &current_time)
         .await
     {
         Ok(event_id) => event_id,

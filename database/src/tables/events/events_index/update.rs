@@ -3,6 +3,7 @@ use crate::{
     structs::{db_error::DbError, event_type::EventType},
     tables::events::events_index::table_struct::{EVENTS_KEYS, EVENTS_TABLE_NAME},
 };
+use chrono::{DateTime, Utc};
 use sqlx::{query, Postgres, Row, Transaction};
 
 impl Db {
@@ -11,14 +12,16 @@ impl Db {
         tx: &mut Transaction<'_, Postgres>,
         app_id: &String,
         event_type: &EventType,
+        current_timestamp: &DateTime<Utc>,
     ) -> Result<i64, DbError> {
         let query_body = format!(
-            "INSERT INTO {EVENTS_TABLE_NAME} ({EVENTS_KEYS}) VALUES (DEFAULT, $1, $2, DEFAULT) RETURNING event_id"
+            "INSERT INTO {EVENTS_TABLE_NAME} ({EVENTS_KEYS}) VALUES (DEFAULT, $1, $2, $3) RETURNING event_id"
         );
 
         let query_result = query(&query_body)
             .bind(app_id)
             .bind(event_type)
+            .bind(current_timestamp)
             .fetch_one(&mut **tx)
             .await;
 
@@ -32,6 +35,8 @@ impl Db {
 #[cfg(feature = "cloud_db_tests")]
 #[cfg(test)]
 mod tests {
+    use crate::tables::utils::get_current_datetime;
+
     use super::*;
 
     #[tokio::test]
@@ -51,7 +56,7 @@ mod tests {
 
         for _ in 0..2001 {
             let _ = db
-                .create_new_event_entry(&mut tx, &app_id, &event_type)
+                .create_new_event_entry(&mut tx, &app_id, &event_type, &get_current_datetime())
                 .await
                 .unwrap();
         }

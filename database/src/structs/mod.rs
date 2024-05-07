@@ -1,10 +1,12 @@
 pub mod client_data;
 pub mod consts;
 pub mod db_error;
+pub mod device_metadata;
 pub mod entity_type;
 pub mod event_type;
 pub mod filter_requests;
 pub mod geo_location;
+pub mod medium_type;
 pub mod pagination_cursor;
 pub mod privilege_level;
 pub mod request_status;

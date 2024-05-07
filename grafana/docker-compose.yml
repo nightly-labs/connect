@@ -7,6 +7,7 @@ services:
     # environment:
     #   - GF_SECURITY_ADMIN_PASSWORD=secret # Change 'secret' to a strong password
     #   - GF_USERS_ALLOW_SIGN_UP=false
+    user: "1000:1000"
     volumes:
       - ./grafana-data:/var/lib/grafana # Persists Grafana data
       - ./grafana.ini:/etc/grafana/grafana.ini # Optional: Custom Grafana configuration

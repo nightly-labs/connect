@@ -17,6 +17,11 @@ strum = { workspace = true }
 anyhow = { workspace = true }
 chrono = { workspace = true }
 webauthn-rs = { workspace = true }
+uuid7 = { workspace = true }
+
+[dev-dependencies]
+rand = { workspace = true }
+futures = { workspace = true }
 
 [features]
 cloud_db_tests = []

@@ -43,7 +43,7 @@ impl Db {
         request_status: RequestStatus,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "UPDATE {EVENT_SIGN_MESSAGE_TABLE_NAME} SET request_status = $1, WHERE request_id = $2"
+            "UPDATE {EVENT_SIGN_MESSAGE_TABLE_NAME} SET request_status = $1 WHERE request_id = $2"
         );
 
         let query_result = query(&query_body)

@@ -2,7 +2,10 @@
 pub mod test_utils {
     use crate::{
         auth::AuthToken,
-        env::{JWT_PUBLIC_KEY, JWT_SECRET},
+        env::{
+            GRAFANA_BASE_PATH, GRAFANA_CLIENT_LOGIN, GRAFANA_CLIENT_PASSWORD, JWT_PUBLIC_KEY,
+            JWT_SECRET,
+        },
         http::cloud::{
             accept_team_invite::{HttpAcceptTeamInviteRequest, HttpAcceptTeamInviteResponse},
             domains::{
@@ -40,12 +43,13 @@ pub mod test_utils {
         Router,
     };
     use database::db::Db;
+    use openapi::apis::configuration::Configuration;
     use rand::{
         distributions::{Alphanumeric, Uniform},
         thread_rng, Rng,
     };
     use sqlx::Row;
-    use std::net::SocketAddr;
+    use std::{net::SocketAddr, sync::Arc};
     use tower::ServiceExt;
 
     pub async fn create_test_app(only_relay: bool) -> Router {
@@ -607,5 +611,15 @@ pub mod test_utils {
         assert!(NAME_REGEX.is_match(&name));
 
         name
+    }
+
+    pub fn get_grafana_configuration() -> Arc<Configuration> {
+        let mut conf = Configuration::new();
+        conf.base_path = GRAFANA_BASE_PATH().to_string();
+        conf.basic_auth = Some((
+            GRAFANA_CLIENT_LOGIN().to_string(),
+            Some(GRAFANA_CLIENT_PASSWORD().to_string()),
+        ));
+        Arc::new(conf)
     }
 }

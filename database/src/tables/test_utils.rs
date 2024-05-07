@@ -27,11 +27,18 @@ pub mod test_utils {
                 return Ok(());
             }
 
+            let filter_list = vec![
+                "_sqlx_migrations".to_string(),
+                "spatial_ref_sys".to_string(),
+                "geography_columns".to_string(),
+                "geometry_columns".to_string(),
+            ];
+
             // Join all names except _sqlx_migrations into a single string and run single truncate
             let tables_names = rows
                 .iter()
                 .map(|row| row.get::<String, &str>("table_name"))
-                .filter(|table_name| !table_name.starts_with("_sqlx_migrations"))
+                .filter(|table_name| !filter_list.contains(table_name))
                 .collect::<Vec<String>>()
                 .join(", ");
 
@@ -82,7 +89,7 @@ pub mod test_utils {
             registration_timestamp: DateTime<Utc>,
         ) -> Result<(), DbError> {
             let user_id = "test_admin".to_string();
-            let email = "email".to_string();
+            let email = "admin".to_string();
             let password_hash = "pass_hash".to_string();
 
             self.add_new_user(&user_id, &email, Some(&password_hash), None)
@@ -100,7 +107,7 @@ pub mod test_utils {
             let registered_app = DbRegisteredApp {
                 team_id: team_id.clone(),
                 app_id: app_id.clone(),
-                app_name: "test_app".to_string(),
+                app_name: format!("{app_id}_APP_NAME").to_string(),
                 whitelisted_domains: vec!["localhost".to_string()],
                 ack_public_keys: vec!["key".to_string()],
                 registration_timestamp: registration_timestamp,

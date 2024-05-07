@@ -38,9 +38,11 @@ CREATE TYPE event_type_enum AS ENUM (
     'ClientConnectInit',
     'ClientConnectResolve'
     'ClientDisconnect',
-    'SingMessage',
+    'SignMessage',
     'SignTransaction',
     'SignAndSendTransaction',
     'ChangeWallet',
     'ChangeNetwork'
 );
+
+CREATE TYPE device_medium_type_enum AS ENUM ('Browser', 'Mobile', 'Unknown');

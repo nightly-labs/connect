@@ -1,4 +1,7 @@
-use super::utils::{custom_validate_name, custom_validate_uuid, validate_request};
+use super::{
+    grafana_utils::create_new_app::handle_grafana_create_new_app,
+    utils::{custom_validate_name, custom_validate_team_id, validate_request},
+};
 use crate::{
     middlewares::auth_middleware::UserId, statics::REGISTERED_APPS_LIMIT_PER_TEAM,
     structs::cloud::api_cloud_errors::CloudApiErrors,
@@ -9,6 +12,7 @@ use database::{
 };
 use garde::Validate;
 use log::error;
+use openapi::apis::configuration::Configuration;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
@@ -18,7 +22,7 @@ use uuid7::uuid7;
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpRegisterNewAppRequest {
-    #[garde(custom(custom_validate_uuid))]
+    #[garde(custom(custom_validate_team_id))]
     pub team_id: String,
     #[garde(custom(custom_validate_name))]
     pub app_name: String,
@@ -33,6 +37,7 @@ pub struct HttpRegisterNewAppResponse {
 
 pub async fn register_new_app(
     State(db): State<Arc<Db>>,
+    State(grafana_conf): State<Arc<Configuration>>,
     Extension(user_id): Extension<UserId>,
     Json(request): Json<HttpRegisterNewAppRequest>,
 ) -> Result<Json<HttpRegisterNewAppResponse>, (StatusCode, String)> {
@@ -94,12 +99,25 @@ pub async fn register_new_app(
                 }
             }
 
+            // Generate a new app id
+            let app_id = uuid7().to_string();
+
+            // Grafana, add new app
+            let resp = handle_grafana_create_new_app(
+                &grafana_conf,
+                &request.app_name,
+                &app_id,
+                &team.team_id,
+            )
+            .await;
+
+            println!("Grafana response: {:?}", resp);
+
             // Register a new app under this team
             // Start a transaction
             let mut tx = db.connection_pool.begin().await.unwrap();
 
             // Register a new app
-            let app_id = uuid7().to_string();
             let db_registered_app =
                 database::tables::registered_app::table_struct::DbRegisteredApp {
                     app_id: app_id.clone(),
@@ -182,6 +200,7 @@ pub async fn register_new_app(
         }
         Err(err) => {
             error!("Failed to get team by team id: {:?}", err);
+            println!("Failed to get team by team id: {:?}", err);
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 CloudApiErrors::DatabaseError.to_string(),

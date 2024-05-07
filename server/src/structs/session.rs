@@ -3,11 +3,12 @@ use super::{
         app_messages::ServerToApp, initialize::InitializeRequest,
         user_connected_event::UserConnectedEvent, user_disconnected_event::UserDisconnectedEvent,
     },
-    common::{AppMetadata, Device, Network, Notification, PendingRequest, SessionStatus, Version},
+    common::{AppMetadata, Network, Notification, PendingRequest, SessionStatus, Version},
 };
 use crate::{state::ClientId, utils::get_timestamp_in_milliseconds};
 use anyhow::{bail, Result};
 use axum::extract::ws::{Message, WebSocket};
+use database::structs::device_metadata::Device;
 use futures::{stream::SplitSink, SinkExt};
 use log::{info, warn};
 use std::collections::HashMap;

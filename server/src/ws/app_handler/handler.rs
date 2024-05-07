@@ -8,7 +8,7 @@ use crate::{
     structs::{
         app_messages::app_messages::AppToServer,
         client_messages::{client_messages::ServerToClient, new_payload_event::NewPayloadEvent},
-        common::{Device, PendingRequest},
+        common::PendingRequest,
         notification_msg::{trigger_notification, NotificationPayload},
     },
 };
@@ -19,6 +19,7 @@ use axum::{
     },
     response::Response,
 };
+use database::structs::device_metadata::Device;
 use futures::StreamExt;
 use log::{debug, warn};
 use std::net::SocketAddr;

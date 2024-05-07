@@ -95,7 +95,7 @@ impl Db {
         let query_body = format!(
             "SELECT * FROM {CONNECTION_EVENTS_TABLE_NAME} 
                 WHERE app_id = $1 AND session_id = $2 AND entity_type = $3 AND success = false
-                ORDER BY created_at DESC LIMIT 1"
+                ORDER BY connected_at DESC LIMIT 1"
         );
 
         let query_result = query_as::<_, ConnectionEvent>(&query_body)

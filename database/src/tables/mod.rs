@@ -7,6 +7,7 @@ pub mod registered_app;
 pub mod users;
 // pub mod requests;
 pub mod domain_verifications;
+pub mod metadata;
 pub mod session_public_keys;
 pub mod sessions;
 pub mod team;

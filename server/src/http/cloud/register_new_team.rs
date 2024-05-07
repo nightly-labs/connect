@@ -1,3 +1,7 @@
+use super::{
+    grafana_utils::create_new_team::handle_grafana_create_new_team,
+    utils::{custom_validate_name, validate_request},
+};
 use crate::{
     middlewares::auth_middleware::UserId, statics::TEAMS_AMOUNT_LIMIT_PER_USER,
     structs::cloud::api_cloud_errors::CloudApiErrors,
@@ -9,12 +13,10 @@ use database::{
 };
 use garde::Validate;
 use log::error;
+use openapi::apis::configuration::Configuration;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
-use uuid7::uuid7;
-
-use super::utils::{custom_validate_name, validate_request};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
@@ -35,6 +37,7 @@ pub struct HttpRegisterNewTeamResponse {
 
 pub async fn register_new_team(
     State(db): State<Arc<Db>>,
+    State(grafana_conf): State<Arc<Configuration>>,
     Extension(user_id): Extension<UserId>,
     Json(request): Json<HttpRegisterNewTeamRequest>,
 ) -> Result<Json<HttpRegisterNewTeamResponse>, (StatusCode, String)> {
@@ -98,10 +101,32 @@ pub async fn register_new_team(
                 }
             }
 
+            // Get team admin email
+            let admin_email = match db.get_user_by_user_id(&user_id).await {
+                Ok(Some(user)) => user.email,
+                Ok(None) => {
+                    return Err((
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        CloudApiErrors::DatabaseError.to_string(),
+                    ));
+                }
+                Err(err) => {
+                    error!("Failed to get user by user_id: {:?}", err);
+                    return Err((
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        CloudApiErrors::DatabaseError.to_string(),
+                    ));
+                }
+            };
+
+            // Grafana, add new team
+            let grafana_team_id =
+                handle_grafana_create_new_team(&grafana_conf, &admin_email, &request.team_name)
+                    .await?;
+
             // Create a new team
-            let team_id = uuid7().to_string();
             let team = Team {
-                team_id: team_id.clone(),
+                team_id: grafana_team_id.to_string(),
                 team_name: request.team_name.clone(),
                 team_admin_id: user_id.clone(),
                 subscription: None,
@@ -117,7 +142,9 @@ pub async fn register_new_team(
                 ));
             }
 
-            return Ok(Json(HttpRegisterNewTeamResponse { team_id }));
+            return Ok(Json(HttpRegisterNewTeamResponse {
+                team_id: grafana_team_id.to_string(),
+            }));
         }
         Err(err) => {
             error!("Failed to get team by team name and admin id: {:?}", err);

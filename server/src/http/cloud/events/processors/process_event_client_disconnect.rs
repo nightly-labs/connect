@@ -1,5 +1,6 @@
 use crate::structs::cloud::cloud_events::event_types::client_disconnect_event::ClientDisconnectEvent;
-use database::{db::Db, structs::event_type::EventType};
+use chrono::{DateTime, Utc};
+use database::{db::Db, structs::event_type::EventType, tables::utils::get_current_datetime};
 use log::error;
 use std::{net::SocketAddr, sync::Arc};
 
@@ -9,8 +10,10 @@ pub async fn process_event_client_disconnect(
     ip: SocketAddr,
     db: &Arc<Db>,
 ) {
+    let current_timestamp = get_current_datetime();
+
     // Save event to Db
-    save_event_client_disconnect(db, app_id, event).await;
+    save_event_client_disconnect(db, app_id, event, &current_timestamp).await;
 
     // Update connection status for user
     let mut tx = db.connection_pool.begin().await.unwrap();
@@ -41,6 +44,7 @@ async fn save_event_client_disconnect(
     db: &Arc<Db>,
     app_id: &String,
     event: &ClientDisconnectEvent,
+    current_timestamp: &DateTime<Utc>,
 ) {
     // Establish a new transaction
     let mut tx = match db.connection_pool.begin().await {
@@ -56,7 +60,12 @@ async fn save_event_client_disconnect(
 
     // Create a new event index
     let event_id = match db
-        .create_new_event_entry(&mut tx, &app_id, &EventType::ClientDisconnect)
+        .create_new_event_entry(
+            &mut tx,
+            &app_id,
+            &EventType::ClientDisconnect,
+            current_timestamp,
+        )
         .await
     {
         Ok(event_id) => event_id,

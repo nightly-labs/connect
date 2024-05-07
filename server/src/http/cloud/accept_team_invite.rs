@@ -1,3 +1,7 @@
+use super::{
+    grafana_utils::add_user_to_team::handle_grafana_add_user_to_team,
+    utils::{custom_validate_team_id, validate_request},
+};
 use crate::{
     middlewares::auth_middleware::UserId, structs::cloud::api_cloud_errors::CloudApiErrors,
 };
@@ -5,17 +9,16 @@ use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::db::Db;
 use garde::Validate;
 use log::error;
+use openapi::apis::configuration::Configuration;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
-
-use super::utils::{custom_validate_uuid, validate_request};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpAcceptTeamInviteRequest {
-    #[garde(custom(custom_validate_uuid))]
+    #[garde(custom(custom_validate_team_id))]
     pub team_id: String,
 }
 
@@ -25,6 +28,7 @@ pub struct HttpAcceptTeamInviteResponse {}
 
 pub async fn accept_team_invite(
     State(db): State<Arc<Db>>,
+    State(grafana_conf): State<Arc<Configuration>>,
     Extension(user_id): Extension<UserId>,
     Json(request): Json<HttpAcceptTeamInviteRequest>,
 ) -> Result<Json<HttpAcceptTeamInviteResponse>, (StatusCode, String)> {
@@ -95,6 +99,9 @@ pub async fn accept_team_invite(
             ));
         }
     }
+
+    // Grafana add user to the team
+    handle_grafana_add_user_to_team(&grafana_conf, &request.team_id, &user.email).await?;
 
     // Accept invite
     let mut tx = match db.connection_pool.begin().await {
