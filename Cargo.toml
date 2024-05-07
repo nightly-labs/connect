@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["server", "database"]
+members = ["server", "database", "openapi"]
 
 [workspace.dependencies]
 ctrlc = "3.4.2"

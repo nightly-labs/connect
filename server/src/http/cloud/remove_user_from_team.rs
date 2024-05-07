@@ -11,11 +11,15 @@ use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::db::Db;
 use garde::Validate;
 use log::error;
+use openapi::apis::configuration::Configuration;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
 
-use super::utils::{custom_validate_uuid, validate_request};
+use super::{
+    grafana_utils::remove_user_from_the_team::handle_grafana_remove_user_from_team,
+    utils::{custom_validate_uuid, validate_request},
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
@@ -33,6 +37,7 @@ pub struct HttpRemoveUserFromTeamResponse {}
 
 pub async fn remove_user_from_team(
     State(db): State<Arc<Db>>,
+    State(grafana_conf): State<Arc<Configuration>>,
     State(mailer): State<Arc<Mailer>>,
     Extension(user_id): Extension<UserId>,
     Json(request): Json<HttpRemoveUserFromTeamRequest>,
@@ -94,6 +99,14 @@ pub async fn remove_user_from_team(
                     ));
                 }
             }
+
+            // Grafana, remove user from the team
+            handle_grafana_remove_user_from_team(
+                &grafana_conf,
+                &request.team_id,
+                &request.user_email,
+            )
+            .await?;
 
             // Remove user from the team
             if let Err(err) = db
