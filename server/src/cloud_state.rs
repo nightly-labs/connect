@@ -1,5 +1,5 @@
 use crate::{
-    env::{ENVIRONMENT, GRAFANA_API_KEY, GRAFANA_BASE_PATH},
+    env::{ENVIRONMENT, GRAFANA_BASE_PATH, GRAFANA_CLIENT_LOGIN, GRAFANA_CLIENT_PASSWORD},
     ip_geolocation::GeolocationRequester,
     mailer::{entry::run_mailer, mailer::Mailer},
     structs::session_cache::ApiSessionsCache,
@@ -10,7 +10,7 @@ use hickory_resolver::{
     name_server::{GenericConnector, TokioRuntimeProvider},
     AsyncResolver, TokioAsyncResolver,
 };
-use openapi::apis::configuration::{ApiKey, Configuration};
+use openapi::apis::configuration::Configuration;
 use r_cache::cache::Cache;
 use reqwest::Url;
 use std::{sync::Arc, time::Duration};
@@ -40,10 +40,10 @@ impl CloudState {
 
         let mut conf = Configuration::new();
         conf.base_path = GRAFANA_BASE_PATH().to_string();
-        conf.api_key = Some(ApiKey {
-            prefix: Some("Bearer".to_string()),
-            key: GRAFANA_API_KEY().to_string(),
-        });
+        conf.basic_auth = Some((
+            GRAFANA_CLIENT_LOGIN().to_string(),
+            Some(GRAFANA_CLIENT_PASSWORD().to_string()),
+        ));
 
         let grafana_client_conf = Arc::new(conf);
 

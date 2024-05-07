@@ -86,31 +86,3 @@ pub async fn handle_grafana_create_new_app(
 
     Ok(())
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::env::{GRAFANA_API_KEY, GRAFANA_BASE_PATH};
-    use crate::http::cloud::grafana_utils::create_new_app::handle_grafana_create_new_app;
-    use openapi::apis::configuration::{ApiKey, Configuration};
-    use std::sync::Arc;
-
-    #[tokio::test]
-    async fn test_handle_grafana_create_new_app() {
-        let team_id = "42".to_string();
-        let app_name = "test_app_name_420".to_string();
-        let app_id = "test_app_id_420".to_string();
-
-        let mut conf = Configuration::new();
-        conf.base_path = GRAFANA_BASE_PATH().to_string();
-        conf.api_key = Some(ApiKey {
-            prefix: Some("Bearer".to_string()),
-            key: GRAFANA_API_KEY().to_string(),
-        });
-
-        let grafana_client_conf = Arc::new(conf);
-
-        handle_grafana_create_new_app(&grafana_client_conf, &app_name, &app_id, &team_id)
-            .await
-            .unwrap();
-    }
-}

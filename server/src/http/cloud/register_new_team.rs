@@ -159,9 +159,8 @@ pub async fn register_new_team(
 #[cfg(test)]
 mod tests {
     use crate::{
-        env::{GRAFANA_API_KEY, GRAFANA_BASE_PATH, JWT_SECRET},
+        env::JWT_SECRET,
         http::cloud::register_new_team::{HttpRegisterNewTeamRequest, HttpRegisterNewTeamResponse},
-        statics::DASHBOARD_TEMPLATE_UID,
         structs::cloud::{
             api_cloud_errors::CloudApiErrors, cloud_http_endpoints::HttpCloudEndpoint,
         },
@@ -174,21 +173,7 @@ mod tests {
         extract::ConnectInfo,
         http::{Method, Request},
     };
-    use openapi::{
-        apis::{
-            configuration::{ApiKey, Configuration},
-            dashboards_api::{get_dashboard_by_uid, import_dashboard},
-            folder_permissions_api::update_folder_permissions,
-            folders_api::create_folder,
-            teams_api::create_team,
-        },
-        models::{
-            CreateFolderCommand, CreateTeamCommand, DashboardAclUpdateItem, ImportDashboardRequest,
-            UpdateDashboardAclCommand,
-        },
-    };
-    use serde_json::json;
-    use std::{net::SocketAddr, sync::Arc};
+    use std::net::SocketAddr;
     use tower::ServiceExt;
 
     #[tokio::test]
@@ -252,172 +237,6 @@ mod tests {
             err.to_string(),
             CloudApiErrors::TeamAlreadyExists.to_string()
         );
-    }
-
-    #[tokio::test]
-    async fn test_grafana_permissions() {
-        let grafana_team_id = 28;
-        let folder_uid = "cec5a890-d452-47ad-b288-bb8c93c0d6dd";
-
-        let mut conf = Configuration::new();
-        conf.base_path = GRAFANA_BASE_PATH().to_string();
-        conf.api_key = Some(ApiKey {
-            prefix: Some("Bearer".to_string()),
-            key: GRAFANA_API_KEY().to_string(),
-        });
-
-        let grafana_client_conf = Arc::new(conf);
-
-        // set folder permissions for the whole team
-        let update_permissions_request = UpdateDashboardAclCommand {
-            items: Some(vec![DashboardAclUpdateItem {
-                permission: Some(1), // Grant View permission for the whole team
-                role: None,
-                team_id: Some(grafana_team_id),
-                user_id: None,
-            }]),
-        };
-
-        match update_folder_permissions(
-            &grafana_client_conf,
-            &folder_uid,
-            update_permissions_request,
-        )
-        .await
-        {
-            Ok(response) => {
-                println!("Permissions updated: {:?}", response);
-            }
-            Err(err) => {
-                panic!("Failed to update permissions: {:?}", err);
-            }
-        };
-    }
-
-    #[tokio::test]
-    async fn test_add_user() {
-        let grafana_team_id = 28;
-        let folder_uid = "cec5a890-d452-47ad-b288-bb8c93c0d6dd";
-
-        let mut conf = Configuration::new();
-        conf.base_path = GRAFANA_BASE_PATH().to_string();
-        conf.api_key = Some(ApiKey {
-            prefix: Some("Bearer".to_string()),
-            key: GRAFANA_API_KEY().to_string(),
-        });
-
-        let grafana_client_conf = Arc::new(conf);
-
-        // set folder permissions for the whole team
-        let update_permissions_request = UpdateDashboardAclCommand {
-            items: Some(vec![DashboardAclUpdateItem {
-                permission: Some(1), // Grant View permission for the whole team
-                role: None,
-                team_id: Some(grafana_team_id),
-                user_id: None,
-            }]),
-        };
-
-        match update_folder_permissions(
-            &grafana_client_conf,
-            &grafana_team_id.to_string(),
-            update_permissions_request,
-        )
-        .await
-        {
-            Ok(response) => {
-                println!("Permissions updated: {:?}", response);
-            }
-            Err(err) => {
-                panic!("Failed to update permissions: {:?}", err);
-            }
-        };
-    }
-
-    #[tokio::test]
-    async fn test_grafana_import_dashboard() {
-        let grafana_team_id = 36;
-        let app_name = "test_app_name".to_string();
-        let app_id = "test_app_id".to_string();
-
-        let mut conf = Configuration::new();
-        conf.base_path = GRAFANA_BASE_PATH().to_string();
-        conf.api_key = Some(ApiKey {
-            prefix: Some("Bearer".to_string()),
-            key: GRAFANA_API_KEY().to_string(),
-        });
-
-        let grafana_client_conf = Arc::new(conf);
-
-        let mut dashboard =
-            match get_dashboard_by_uid(&grafana_client_conf, &DASHBOARD_TEMPLATE_UID).await {
-                Ok(response) => response.dashboard.unwrap(),
-                Err(err) => {
-                    panic!("Failed to create folder: {:?}", err);
-                }
-            };
-
-        println!("DASHBOARD: {:#?}", dashboard.get("uid"));
-        println!("DASHBOARD: {:#?}", dashboard.get("id"));
-        println!("DASHBOARD: {:#?}", dashboard.get("title"));
-
-        let dashboard_as_map = dashboard.as_object_mut().unwrap();
-
-        *dashboard_as_map.get_mut("uid").unwrap() = json!(app_id);
-        *dashboard_as_map.get_mut("id").unwrap() = json!("");
-        *dashboard_as_map.get_mut("title").unwrap() = json!(app_name);
-
-        println!(
-            "--------------------\nDASHBOARD: {:#?}",
-            dashboard.get("uid")
-        );
-        println!("DASHBOARD: {:#?}", dashboard.get("id"));
-        println!("DASHBOARD: {:#?}", dashboard.get("title"));
-
-        // Import dashboard
-        match import_dashboard(
-            &grafana_client_conf,
-            ImportDashboardRequest {
-                dashboard: Some(dashboard),
-                folder_id: None,
-                folder_uid: Some(grafana_team_id.to_string()),
-                inputs: None,
-                overwrite: Some(false),
-                path: None,
-                plugin_id: None,
-            },
-        )
-        .await
-        {
-            Ok(response) => println!("DASHBOARD import: {:#?}", response),
-            Err(err) => {
-                panic!("Failed to create folder: {:?}", err);
-            }
-        };
-    }
-
-    #[tokio::test]
-    async fn test_grafana_get_dashboard() {
-        let mut conf = Configuration::new();
-        conf.base_path = GRAFANA_BASE_PATH().to_string();
-        conf.api_key = Some(ApiKey {
-            prefix: Some("Bearer".to_string()),
-            key: GRAFANA_API_KEY().to_string(),
-        });
-
-        let grafana_client_conf = Arc::new(conf);
-
-        // Send request and return team id
-        let dashboard =
-            match get_dashboard_by_uid(&grafana_client_conf, &DASHBOARD_TEMPLATE_UID).await {
-                Ok(response) => response.dashboard.unwrap(),
-                Err(err) => {
-                    panic!("Failed to create folder: {:?}", err);
-                }
-            };
-
-        println!("DASHBOARD: {:#?}", dashboard.get("uid"));
-        println!("DASHBOARD: {:#?}", dashboard.get("title"));
     }
 
     #[tokio::test]

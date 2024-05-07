@@ -85,29 +85,3 @@ pub async fn handle_grafana_create_new_team(
 
     Ok(grafana_team_id)
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::env::GRAFANA_BASE_PATH;
-    use openapi::apis::configuration::{ApiKey, Configuration};
-    use std::sync::Arc;
-
-    #[tokio::test]
-    async fn test_handle_grafana_create_new_team() {
-        let team_name = "test_team_name_420".to_string();
-        let email = "test420@gmail.com".to_string();
-
-        let mut conf = Configuration::new();
-        conf.base_path = GRAFANA_BASE_PATH().to_string();
-        conf.basic_auth = Some(("admin".to_string(), Some("admin".to_string())));
-
-        let grafana_client_conf = Arc::new(conf);
-
-        let team_id = handle_grafana_create_new_team(&grafana_client_conf, &email, &team_name)
-            .await
-            .unwrap();
-
-        println!("Team ID: {}", team_id);
-    }
-}

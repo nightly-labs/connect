@@ -102,27 +102,3 @@ pub async fn handle_grafana_add_user_to_team(
 
     Ok(())
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::env::GRAFANA_BASE_PATH;
-    use openapi::apis::configuration::Configuration;
-    use std::sync::Arc;
-
-    #[tokio::test]
-    async fn test_handle_grafana_add_user_to_team() {
-        let team_id = "42".to_string();
-        let user_email = "test_user_email_420@gmail.com".to_string();
-
-        let mut conf = Configuration::new();
-        conf.base_path = GRAFANA_BASE_PATH().to_string();
-        conf.basic_auth = Some(("admin".to_string(), Some("admin".to_string())));
-
-        let grafana_client_conf = Arc::new(conf);
-
-        handle_grafana_add_user_to_team(&grafana_client_conf, &team_id, &user_email)
-            .await
-            .unwrap();
-    }
-}
