@@ -1,3 +1,7 @@
+use super::{
+    grafana_utils::remove_user_from_the_team::handle_grafana_remove_user_from_team,
+    utils::{custom_validate_team_id, validate_request},
+};
 use crate::{
     env::is_env_production,
     mailer::{
@@ -16,16 +20,11 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
 
-use super::{
-    grafana_utils::remove_user_from_the_team::handle_grafana_remove_user_from_team,
-    utils::{custom_validate_uuid, validate_request},
-};
-
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpRemoveUserFromTeamRequest {
-    #[garde(custom(custom_validate_uuid))]
+    #[garde(custom(custom_validate_team_id))]
     pub team_id: String,
     #[garde(email)]
     pub user_email: String,
@@ -185,17 +184,20 @@ mod tests {
         let test_app = create_test_app(false).await;
 
         let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
-
         // Register new team
         let team_name = generate_valid_name();
+
         let team_id = add_test_team(&team_name, &auth_token, &test_app, false)
             .await
             .unwrap();
 
+        println!("team_name: {:?}", team_name);
+        println!("team_id: {:?}", team_id);
+
         // Register app under the team
         let app_name = generate_valid_name();
         let request = HttpRegisterNewAppRequest {
-            team_id: team_id.clone(),
+            team_id: team_id.to_string(),
             app_name: app_name.clone(),
         };
 
@@ -210,7 +212,7 @@ mod tests {
 
         // Add user to the team
         add_user_to_test_team(
-            &team_id,
+            &team_id.to_string(),
             &test_user_email,
             &auth_token,
             &test_user_auth_token,
@@ -221,7 +223,7 @@ mod tests {
 
         // Remove user from the team
         let request = HttpRemoveUserFromTeamRequest {
-            team_id: team_id.clone(),
+            team_id: team_id.to_string(),
             user_email: test_user_email.clone(),
         };
 
@@ -283,9 +285,9 @@ mod tests {
 
         let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
 
-        // Team does not exist, use random uuid
+        // Team does not exist
         let resp = remove_user_from_test_team(
-            &uuid7::uuid7().to_string(),
+            &i64::MAX.to_string(),
             &"test_user_email@gmail.com".to_string(),
             &auth_token,
             &test_app,

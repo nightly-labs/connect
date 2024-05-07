@@ -1,3 +1,4 @@
+use super::utils::{custom_validate_team_id, validate_request};
 use crate::{
     env::is_env_production,
     mailer::{
@@ -16,13 +17,11 @@ use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, sync::Arc};
 use ts_rs::TS;
 
-use super::utils::{custom_validate_uuid, validate_request};
-
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpInviteUserToTeamRequest {
-    #[garde(custom(custom_validate_uuid))]
+    #[garde(custom(custom_validate_team_id))]
     pub team_id: String,
     #[garde(email)]
     pub user_email: String,
@@ -350,9 +349,9 @@ mod tests {
 
         let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
 
-        // Team does not exist, use random uuid
+        // Team does not exist
         let resp = invite_user_to_test_team(
-            &uuid7::uuid7().to_string(),
+            &i64::MAX.to_string(),
             &"test_user_email@gmail.com".to_string(),
             &auth_token,
             &test_app,

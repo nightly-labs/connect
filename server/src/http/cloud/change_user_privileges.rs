@@ -1,4 +1,4 @@
-use super::utils::{custom_validate_uuid, validate_request};
+use super::utils::{custom_validate_team_id, custom_validate_uuid, validate_request};
 use crate::{
     middlewares::auth_middleware::UserId,
     structs::cloud::{
@@ -36,7 +36,7 @@ pub struct PrivilegeChange {
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpChangeUsersPrivilegesRequest {
-    #[garde(custom(custom_validate_uuid))]
+    #[garde(custom(custom_validate_team_id))]
     pub team_id: String,
     #[garde(dive)]
     pub privileges_changes: Vec<PrivilegeChange>,

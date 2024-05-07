@@ -17,7 +17,6 @@ use openapi::apis::configuration::Configuration;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
-use uuid7::uuid7;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
@@ -122,10 +121,10 @@ pub async fn register_new_team(
 
             // Grafana, add new team
             let grafana_team_id =
-                handle_grafana_create_new_team(&grafana_conf, &admin_email, &user_id).await?;
+                handle_grafana_create_new_team(&grafana_conf, &admin_email, &request.team_name)
+                    .await?;
 
             // Create a new team
-            let team_id = uuid7().to_string();
             let team = Team {
                 team_id: grafana_team_id.to_string(),
                 team_name: request.team_name.clone(),
@@ -143,7 +142,9 @@ pub async fn register_new_team(
                 ));
             }
 
-            return Ok(Json(HttpRegisterNewTeamResponse { team_id }));
+            return Ok(Json(HttpRegisterNewTeamResponse {
+                team_id: grafana_team_id.to_string(),
+            }));
         }
         Err(err) => {
             error!("Failed to get team by team name and admin id: {:?}", err);

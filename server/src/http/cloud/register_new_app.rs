@@ -1,6 +1,6 @@
 use super::{
     grafana_utils::create_new_app::handle_grafana_create_new_app,
-    utils::{custom_validate_name, custom_validate_uuid, validate_request},
+    utils::{custom_validate_name, custom_validate_team_id, validate_request},
 };
 use crate::{
     middlewares::auth_middleware::UserId, statics::REGISTERED_APPS_LIMIT_PER_TEAM,
@@ -22,7 +22,7 @@ use uuid7::uuid7;
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpRegisterNewAppRequest {
-    #[garde(custom(custom_validate_uuid))]
+    #[garde(custom(custom_validate_team_id))]
     pub team_id: String,
     #[garde(custom(custom_validate_name))]
     pub app_name: String,
@@ -103,8 +103,15 @@ pub async fn register_new_app(
             let app_id = uuid7().to_string();
 
             // Grafana, add new app
-            handle_grafana_create_new_app(&grafana_conf, &request.app_name, &app_id, &team.team_id)
-                .await?;
+            let resp = handle_grafana_create_new_app(
+                &grafana_conf,
+                &request.app_name,
+                &app_id,
+                &team.team_id,
+            )
+            .await;
+
+            println!("Grafana response: {:?}", resp);
 
             // Register a new app under this team
             // Start a transaction
@@ -193,6 +200,7 @@ pub async fn register_new_app(
         }
         Err(err) => {
             error!("Failed to get team by team id: {:?}", err);
+            println!("Failed to get team by team id: {:?}", err);
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 CloudApiErrors::DatabaseError.to_string(),

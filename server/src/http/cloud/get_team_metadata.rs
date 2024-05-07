@@ -1,4 +1,4 @@
-use super::utils::custom_validate_uuid;
+use super::utils::custom_validate_team_id;
 use crate::{
     middlewares::auth_middleware::UserId,
     structs::cloud::{
@@ -21,7 +21,7 @@ use ts_rs::TS;
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpGetTeamMetadataRequest {
-    #[garde(custom(custom_validate_uuid))]
+    #[garde(custom(custom_validate_team_id))]
     pub team_id: String,
 }
 
