@@ -89,21 +89,17 @@ pub async fn handle_grafana_create_new_team(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::env::{GRAFANA_API_KEY, GRAFANA_BASE_PATH};
+    use crate::env::GRAFANA_BASE_PATH;
     use openapi::apis::configuration::{ApiKey, Configuration};
     use std::sync::Arc;
 
     #[tokio::test]
     async fn test_handle_grafana_create_new_team() {
-        let team_name = "test_team_name".to_string();
-        let email = "test507@gmail.com".to_string();
+        let team_name = "test_team_name_420".to_string();
+        let email = "test420@gmail.com".to_string();
 
         let mut conf = Configuration::new();
         conf.base_path = GRAFANA_BASE_PATH().to_string();
-        // conf.api_key = Some(ApiKey {
-        //     prefix: Some("Bearer".to_string()),
-        //     key: GRAFANA_API_KEY().to_string(),
-        // });
         conf.basic_auth = Some(("admin".to_string(), Some("admin".to_string())));
 
         let grafana_client_conf = Arc::new(conf);

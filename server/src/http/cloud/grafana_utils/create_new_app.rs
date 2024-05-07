@@ -96,9 +96,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_handle_grafana_create_new_app() {
-        let team_id = "38".to_string();
-        let app_name = "test_app_name".to_string();
-        let app_id = "test_app_id".to_string();
+        let team_id = "42".to_string();
+        let app_name = "test_app_name_420".to_string();
+        let app_id = "test_app_id_420".to_string();
 
         let mut conf = Configuration::new();
         conf.base_path = GRAFANA_BASE_PATH().to_string();
@@ -112,7 +112,5 @@ mod tests {
         handle_grafana_create_new_app(&grafana_client_conf, &app_name, &app_id, &team_id)
             .await
             .unwrap();
-
-        println!("WTF");
     }
 }

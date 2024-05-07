@@ -35,10 +35,6 @@ where
                 "HTTP error with status {}: {}, entity: {:?}",
                 response_content.status, response_content.content, response_content.entity
             );
-            println!(
-                "HTTP error with status {}: {}, entity: {:?}",
-                response_content.status, response_content.content, response_content.entity
-            );
             let message = match &response_content.entity {
                 Some(entity) => {
                     let serialized =
