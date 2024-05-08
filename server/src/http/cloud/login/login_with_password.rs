@@ -92,7 +92,7 @@ pub async fn login_with_password(
     }));
 }
 
-#[cfg(feature = "cloud_db_tests")]
+#[cfg(feature = "cloud_integration_tests")]
 #[cfg(test)]
 mod tests {
     use super::*;

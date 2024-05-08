@@ -24,4 +24,4 @@ rand = { workspace = true }
 futures = { workspace = true }
 
 [features]
-cloud_db_tests = []
+cloud_integration_tests = []

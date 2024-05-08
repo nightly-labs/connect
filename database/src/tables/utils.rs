@@ -38,7 +38,7 @@ pub fn format_view_name(prefix: &str, view_name: &str) -> String {
     format!("{}_{}", prefix, view_name)
 }
 
-#[cfg(feature = "cloud_db_tests")]
+#[cfg(feature = "cloud_integration_tests")]
 #[cfg(test)]
 mod test {
     use super::*;

@@ -115,7 +115,7 @@ pub async fn remove_whitelisted_domain(
     return Ok(Json(HttpRemoveWhitelistedDomainResponse {}));
 }
 
-#[cfg(feature = "cloud_db_tests")]
+#[cfg(feature = "cloud_integration_tests")]
 #[cfg(test)]
 mod tests {
     use super::*;

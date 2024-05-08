@@ -224,7 +224,7 @@ pub fn custom_validate_domain_name(domain_name: &String) -> anyhow::Result<Strin
     }
 }
 
-#[cfg(feature = "cloud_db_tests")]
+#[cfg(feature = "cloud_integration_tests")]
 #[cfg(test)]
 mod tests {
     use super::*;

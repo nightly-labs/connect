@@ -159,7 +159,7 @@ pub async fn accept_team_invite(
     Ok(Json(HttpAcceptTeamInviteResponse {}))
 }
 
-#[cfg(feature = "cloud_db_tests")]
+#[cfg(feature = "cloud_integration_tests")]
 #[cfg(test)]
 mod tests {
     use super::*;
