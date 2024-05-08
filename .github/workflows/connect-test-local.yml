@@ -55,6 +55,12 @@ jobs:
         working-directory: ./infra
         run: |
           ( docker-compose logs --follow  &  ) | grep -q "database system is ready to accept connections"
+      - name: Wait for Grafana
+        continue-on-error: true
+        timeout-minutes: 2
+        working-directory: ./grafana
+        run: |
+          ( docker-compose logs --follow  &  ) | grep -q "Update check succeeded"
       - name: Prepare db tables
         run: |
           cargo run --bin tables_migration
