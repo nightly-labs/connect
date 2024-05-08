@@ -2,7 +2,6 @@ import { beforeEach, describe, test } from 'vitest'
 import { smartDelay } from '../../../commonTestUtils'
 import { NightlyAnalytics } from './app'
 import { NightlyCloud } from '@nightlylabs/nightly-cloud'
-import { setupTest } from './test_utils'
 import { HttpGetAppEventsRequest } from '../../../bindings'
 
 const TEST_ENDPOINT = 'http://127.0.0.1:6969/cloud/public/events'
