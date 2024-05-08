@@ -40,7 +40,7 @@ jobs:
           echo "GRAFANA_USER_ID=$(id -u):$(id -g)" >> $GITHUB_ENV
           rm -rf ./grafana-data
           mkdir -p ./grafana-data
-          sudo chown -R ${{ env.GRAFANA_USER_ID }} ./grafana-data
+          echo ${{secrets.TESTING_LAPTOP_PASSWORD}} | sudo -S chmod 777 -R ${{ env.GRAFANA_USER_ID }} ./grafana-data
           docker-compose down
           docker-compose up -d --no-deps --force-recreate --remove-orphans
         env:
