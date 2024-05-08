@@ -29,7 +29,17 @@ const adapter = await NightlyConnectAdapter.build(
   appInitData,
   { disableModal: true } // ensures that the default modal will be disabled
 )
+```
 
+Now you can define and instantiate your own modal and use the adapter to provide any necessary logic.
+
+:::info
+
+The example below shows the process using the `NightlyConnectSelectorModal`, but the code may look different, depending on the underlying code in your modal of choice.
+
+:::
+
+```js
 // creates a new modal
 const modal = new NightlyConnectSelectorModal(
   adapter.walletsList,
@@ -42,7 +52,7 @@ const modal = new NightlyConnectSelectorModal(
 )
 
 // we can also use events to determine,
-// what the current state of the app and react accordingly
+// what the current state of the app is, and react accordingly
 adapter.on('connect', (pk) => {
   modal.closeModal()
 })
@@ -50,7 +60,7 @@ adapter.on('connect', (pk) => {
 
 The code described above sets up the adapter and the modal for later use.
 
-To connect using custom modal, we can run:
+To connect, we can run:
 
 ```js
 if (modal)

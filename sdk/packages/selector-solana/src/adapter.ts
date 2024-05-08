@@ -70,6 +70,10 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   private _loading: boolean
 
+  // interval used for checking for wallets with delayed detection
+  private _detectionIntervalId: NodeJS.Timeout | undefined
+  private _maxNumberOfChecks = 10
+
   private _connectionOptions: ConnectionOptions = defaultConnectionOptions
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _eventHandlers: Map<string, (...args: any[]) => void> = new Map()
@@ -220,6 +224,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
     )
 
+    adapter.checkForArrivingWallets(metadataWallets)
+
     // Add event listener for userConnected
     app.on('userConnected', async () => {
       try {
@@ -303,6 +309,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
             metadataWallets,
             getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
           )
+
+          adapter.checkForArrivingWallets(metadataWallets)
 
           // Add event listener for userConnected
           app.on('userConnected', async () => {
@@ -560,10 +568,14 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
               .then(([app, metadataWallets]) => {
                 this._app = app
                 this._metadataWallets = metadataWallets
+
                 this.walletsList = getSolanaWalletsList(
                   metadataWallets,
                   getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
                 )
+
+                this.checkForArrivingWallets(metadataWallets)
+
                 // Add event listener for userConnected
                 app.on('userConnected', async () => {
                   try {
@@ -686,6 +698,22 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     return this.walletsList
   }
 
+  checkForArrivingWallets = (metadataWallets: WalletMetadata[]) => {
+    clearInterval(this._detectionIntervalId)
+    let checks = 0
+
+    this._detectionIntervalId = setInterval(() => {
+      if (checks >= this._maxNumberOfChecks || this.connected) {
+        clearInterval(this._detectionIntervalId)
+      }
+      checks++
+      this.walletsList = getSolanaWalletsList(
+        metadataWallets,
+        getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
+      )
+    }, 500)
+  }
+
   disconnect = async () => {
     if (this.connected) {
       if (this._appSessionActive) {
@@ -734,6 +762,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       this._connected = false
 
       this.emit('disconnect')
+
+      clearInterval(this._detectionIntervalId)
     }
   }
 

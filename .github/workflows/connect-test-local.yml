@@ -83,7 +83,7 @@ jobs:
       - name: test base local
         run: |
           pnpm test:ci
-        working-directory: ./sdk/apps/base
+        working-directory: ./sdk/packages/base
       - name: test solana local
         run: |
           pnpm test:ci

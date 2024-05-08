@@ -65,6 +65,10 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
   private _networkInfo: NetworkInfo | undefined
   private _accountInfo: AccountInfo | undefined
 
+  // interval used for checking for wallets with delayed detection
+  private _detectionIntervalId: NodeJS.Timeout | undefined
+  private _maxNumberOfChecks = 10
+
   get walletsList() {
     return this._walletsList
   }
@@ -160,6 +164,8 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
       getRecentWalletForNetwork(APTOS_NETWORK)?.walletName ?? undefined
     )
 
+    adapter.checkForArrivingWallets(metadataWallets)
+
     // Add event listener for userConnected
     app.on('userConnected', async (accountInfo, networkInfo) => {
       try {
@@ -239,6 +245,8 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
             metadataWallets,
             getRecentWalletForNetwork(APTOS_NETWORK)?.walletName ?? undefined
           )
+
+          adapter.checkForArrivingWallets(metadataWallets)
 
           app.on('userConnected', async (accountInfo, networkInfo) => {
             try {
@@ -380,6 +388,8 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
                   metadataWallets,
                   getRecentWalletForNetwork(APTOS_NETWORK)?.walletName ?? undefined
                 )
+
+                this.checkForArrivingWallets(metadataWallets)
 
                 // Add event listener for userConnected
                 app.on('userConnected', async (accountInfo, networkInfo) => {
@@ -829,5 +839,21 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
       getRecentWalletForNetwork(APTOS_NETWORK)?.walletName ?? undefined
     )
     return this.walletsList
+  }
+
+  checkForArrivingWallets = (metadataWallets: WalletMetadata[]) => {
+    clearInterval(this._detectionIntervalId)
+    let checks = 0
+
+    this._detectionIntervalId = setInterval(() => {
+      if (checks >= this._maxNumberOfChecks || this.connected) {
+        clearInterval(this._detectionIntervalId)
+      }
+      checks++
+      this.walletsList = getAptosWalletsList(
+        metadataWallets,
+        getRecentWalletForNetwork(APTOS_NETWORK)?.walletName ?? undefined
+      )
+    }, 500)
   }
 }
