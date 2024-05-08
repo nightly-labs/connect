@@ -61,6 +61,11 @@ jobs:
         working-directory: ./infra
         run: |
           ( docker-compose logs --follow  &  ) | grep -q "database system is ready to accept connections"
+
+          if [[ "$FAILURE" -eq 1 ]]; then
+            echo "Database init failed. Printing last 20 log entries:"
+            docker-compose logs | tail -n 20
+          fi
       - name: Wait for Grafana
         continue-on-error: true
         timeout-minutes: 2
