@@ -2,4 +2,4 @@
 import type { MobileMetadata } from "./MobileMetadata";
 import type { WebMetadata } from "./WebMetadata";
 
-export type DeviceMetadata = { mobile: MobileMetadata } | { web: WebMetadata };
+export type DeviceMetadata = { mobile: MobileMetadata } | { web: WebMetadata } | "unknown";

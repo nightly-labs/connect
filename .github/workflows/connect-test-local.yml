@@ -34,6 +34,11 @@ jobs:
           docker-compose down
           rm -rf .infra/target
           docker-compose up -d --no-deps --force-recreate --remove-orphans
+      - name: Setup Grafana
+        working-directory: ./grafana
+        run: |
+          docker-compose down
+          docker-compose up -d --no-deps --force-recreate --remove-orphans
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
