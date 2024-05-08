@@ -60,7 +60,7 @@ jobs:
           cargo run --bin tables_migration
       - name: run cargo test
         run: |
-          cargo tests-with-db
+          cargo test-integration
           cargo run --bin nightly-connect-server &
           sleep 5
       - name: test base local
