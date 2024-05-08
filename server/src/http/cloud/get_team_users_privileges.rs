@@ -132,7 +132,7 @@ pub async fn get_team_users_privileges(
     }
 }
 
-#[cfg(feature = "cloud_db_tests")]
+#[cfg(feature = "cloud_integration_tests")]
 #[cfg(test)]
 mod tests {
     use super::*;

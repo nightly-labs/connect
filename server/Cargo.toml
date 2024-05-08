@@ -40,4 +40,4 @@ hickory-resolver = { workspace = true }
 webauthn-rs = { workspace = true }
 
 [features]
-cloud_db_tests = []
+cloud_integration_tests = []

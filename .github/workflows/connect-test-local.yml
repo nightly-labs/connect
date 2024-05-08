@@ -34,6 +34,17 @@ jobs:
           docker-compose down
           rm -rf .infra/target
           docker-compose up -d --no-deps --force-recreate --remove-orphans
+      - name: Setup Grafana
+        working-directory: ./grafana
+        run: |
+          echo "GRAFANA_USER_ID=$(id -u):$(id -g)" >> $GITHUB_ENV
+          rm -rf ./grafana-data
+          mkdir -p ./grafana-data
+          echo ${{secrets.TESTING_LAPTOP_PASSWORD}} | sudo -S chmod 777 -R ${{ env.GRAFANA_USER_ID }} ./grafana-data
+          docker-compose down
+          docker-compose up -d --no-deps --force-recreate --remove-orphans
+        env:
+          GRAFANA_USER_ID: ${{ env.GRAFANA_USER_ID }}
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -50,12 +61,23 @@ jobs:
         working-directory: ./infra
         run: |
           ( docker-compose logs --follow  &  ) | grep -q "database system is ready to accept connections"
+
+          if [[ "$FAILURE" -eq 1 ]]; then
+            echo "Database init failed. Printing last 20 log entries:"
+            docker-compose logs | tail -n 20
+          fi
+      - name: Wait for Grafana
+        continue-on-error: true
+        timeout-minutes: 2
+        working-directory: ./grafana
+        run: |
+          ( docker-compose logs --follow  &  ) | grep -q "Update check succeeded"
       - name: Prepare db tables
         run: |
           cargo run --bin tables_migration
       - name: run cargo test
         run: |
-          cargo tests-with-db
+          cargo test-integration
           cargo run --bin nightly-connect-server &
           sleep 5
       - name: test base local

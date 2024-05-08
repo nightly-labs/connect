@@ -78,7 +78,7 @@ pub async fn reset_password_finish(
     return Ok(Json(HttpResetPasswordFinishResponse {}));
 }
 
-#[cfg(feature = "cloud_db_tests")]
+#[cfg(feature = "cloud_integration_tests")]
 #[cfg(test)]
 mod tests {
     use super::*;
