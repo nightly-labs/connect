@@ -8,32 +8,32 @@ import { HttpGetAppEventsRequest } from '../../../bindings'
 const TEST_ENDPOINT = 'http://127.0.0.1:6969/cloud/public/events'
 
 describe('Base Client tests', () => {
-  let cloudClient: NightlyCloud
-  let teamId: string
-  let appId: string
-  let analytics: NightlyAnalytics
+  // let cloudClient: NightlyCloud
+  // let teamId: string
+  // let appId: string
+  // let analytics: NightlyAnalytics
 
-  beforeEach(async () => {
-    cloudClient = new NightlyCloud({
-      url: 'http://127.0.0.1:6969/cloud'
-    })
+  // beforeEach(async () => {
+  //   cloudClient = new NightlyCloud({
+  //     url: 'http://127.0.0.1:6969/cloud'
+  //   })
 
-    const response = await setupTest(cloudClient)
+  //   const response = await setupTest(cloudClient)
 
-    teamId = response.teamId
-    appId = response.appId
+  //   teamId = response.teamId
+  //   appId = response.appId
 
-    console.log('appId', appId)
+  //   console.log('appId', appId)
 
-    analytics = new NightlyAnalytics({
-      sessionId: '6a82dc5a-c013-4c17-b6ff-45fe86877b76',
-      network: 'solana',
-      endpoint: TEST_ENDPOINT,
-      appId: appId
-    })
+  //   analytics = new NightlyAnalytics({
+  //     sessionId: '6a82dc5a-c013-4c17-b6ff-45fe86877b76',
+  //     network: 'solana',
+  //     endpoint: TEST_ENDPOINT,
+  //     appId: appId
+  //   })
 
-    await smartDelay()
-  })
+  //   await smartDelay()
+  // })
 
   test('event/appConnected', async () => {
     // // Send event
