@@ -5,6 +5,7 @@ pub mod common;
 pub mod http_endpoints;
 pub mod notification_msg;
 pub mod session;
+pub mod session_cache;
 pub mod wallet_metadata;
 pub mod wallet_type;
 pub mod wallets;

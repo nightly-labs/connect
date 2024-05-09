@@ -8,6 +8,11 @@ pub struct ENV {
     pub JWT_PUBLIC_KEY: String,
     pub ONLY_RELAY_SERVICE: bool,
     pub NONCE: String,
+    pub MAILER_ADDRESS: String,
+    pub MAILER_PASSWORD: String,
+    pub GRAFANA_BASE_PATH: String,
+    pub GRAFANA_CLIENT_LOGIN: String,
+    pub GRAFANA_CLIENT_PASSWORD: String,
 }
 pub fn get_env() -> &'static ENV {
     static INSTANCE: OnceCell<ENV> = OnceCell::new();
@@ -25,25 +30,51 @@ pub fn get_env() -> &'static ENV {
                 .expect("Failed to get ONLY_RELAY_SERVICE env")
                 .eq_ignore_ascii_case("true"),
             NONCE: std::env::var("NONCE").expect("Failed to get NONCE env"),
+            MAILER_ADDRESS: std::env::var("MAILER_ADDRESS")
+                .expect("Failed to get MAILER_ADDRESS env"),
+            MAILER_PASSWORD: std::env::var("MAILER_PASSWORD")
+                .expect("Failed to get MAILER_PASSWORD env"),
+            GRAFANA_BASE_PATH: std::env::var("GRAFANA_BASE_PATH")
+                .expect("Failed to get GRAFANA_BASE_PATH env"),
+            GRAFANA_CLIENT_LOGIN: std::env::var("GRAFANA_CLIENT_LOGIN")
+                .expect("Failed to get GRAFANA_CLIENT_LOGIN env"),
+            GRAFANA_CLIENT_PASSWORD: std::env::var("GRAFANA_CLIENT_PASSWORD")
+                .expect("Failed to get GRAFANA_CLIENT_PASSWORD env"),
         };
         return env;
     })
 }
 
+pub fn is_env_production() -> bool {
+    ENVIRONMENT() == "PROD"
+}
 pub fn ENVIRONMENT() -> &'static str {
     get_env().ENVIRONMENT.as_str()
 }
 pub fn JWT_SECRET() -> &'static str {
     get_env().JWT_SECRET.as_str()
 }
-
 pub fn JWT_PUBLIC_KEY() -> &'static str {
     get_env().JWT_PUBLIC_KEY.as_str()
 }
 pub fn ONLY_RELAY_SERVICE() -> bool {
     get_env().ONLY_RELAY_SERVICE
 }
-
 pub fn NONCE() -> &'static str {
     get_env().NONCE.as_str()
+}
+pub fn MAILER_ADDRESS() -> &'static str {
+    get_env().MAILER_ADDRESS.as_str()
+}
+pub fn MAILER_PASSWORD() -> &'static str {
+    get_env().MAILER_PASSWORD.as_str()
+}
+pub fn GRAFANA_BASE_PATH() -> &'static str {
+    get_env().GRAFANA_BASE_PATH.as_str()
+}
+pub fn GRAFANA_CLIENT_LOGIN() -> &'static str {
+    get_env().GRAFANA_CLIENT_LOGIN.as_str()
+}
+pub fn GRAFANA_CLIENT_PASSWORD() -> &'static str {
+    get_env().GRAFANA_CLIENT_PASSWORD.as_str()
 }

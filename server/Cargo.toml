@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 database = { path = "../database"}
+openapi = { path = "../openapi"}
 
 serde = { workspace = true }
 tokio = { workspace = true }
@@ -32,6 +33,11 @@ pwhash = { workspace = true }
 rand = { workspace = true }
 garde = { workspace = true }
 sqlx = { workspace = true }
+r-cache = { workspace = true }
+lettre = { workspace = true }
+addr = { workspace = true }
+hickory-resolver = { workspace = true }
+webauthn-rs = { workspace = true }
 
 [features]
-cloud_db_tests = []
+cloud_integration_tests = []

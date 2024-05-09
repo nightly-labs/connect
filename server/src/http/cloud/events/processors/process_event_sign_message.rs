@@ -1,5 +1,5 @@
 use crate::structs::cloud::cloud_events::event_types::sign_message_event::SignMessageEvent;
-use database::{db::Db, structs::event_type::EventType};
+use database::{db::Db, structs::event_type::EventType, tables::utils::get_current_datetime};
 use log::error;
 use std::sync::Arc;
 
@@ -18,7 +18,12 @@ pub async fn process_event_sign_message(event: &SignMessageEvent, app_id: &Strin
 
     // Create a new event index
     let event_id = match db
-        .create_new_event_entry(&mut tx, &app_id, &EventType::SignMessage)
+        .create_new_event_entry(
+            &mut tx,
+            &app_id,
+            &EventType::SignMessage,
+            &get_current_datetime(),
+        )
         .await
     {
         Ok(event_id) => event_id,

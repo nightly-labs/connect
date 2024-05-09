@@ -2,26 +2,38 @@
 pub mod test_utils {
     use crate::{
         auth::AuthToken,
-        env::{JWT_PUBLIC_KEY, JWT_SECRET},
+        env::{
+            GRAFANA_BASE_PATH, GRAFANA_CLIENT_LOGIN, GRAFANA_CLIENT_PASSWORD, JWT_PUBLIC_KEY,
+            JWT_SECRET,
+        },
         http::cloud::{
             accept_team_invite::{HttpAcceptTeamInviteRequest, HttpAcceptTeamInviteResponse},
-            get_team_user_invites::{
-                HttpGetTeamUserInvitesRequest, HttpGetTeamUserInvitesResponse,
+            domains::{
+                verify_domain_finish::{
+                    HttpVerifyDomainFinishRequest, HttpVerifyDomainFinishResponse,
+                },
+                verify_domain_start::{
+                    HttpVerifyDomainStartRequest, HttpVerifyDomainStartResponse,
+                },
             },
+            get_team_user_invites::HttpGetTeamUserInvitesResponse,
             get_user_joined_teams::HttpGetUserJoinedTeamsResponse,
             get_user_team_invites::HttpGetUserTeamInvitesResponse,
             invite_user_to_team::{HttpInviteUserToTeamRequest, HttpInviteUserToTeamResponse},
-            login_with_password::{HttpLoginRequest, HttpLoginResponse},
+            login::login_with_password::{HttpLoginRequest, HttpLoginResponse},
+            register::{
+                register_with_password_finish::HttpRegisterWithPasswordFinishRequest,
+                register_with_password_start::HttpRegisterWithPasswordStartRequest,
+            },
             register_new_app::{HttpRegisterNewAppRequest, HttpRegisterNewAppResponse},
             register_new_team::{HttpRegisterNewTeamRequest, HttpRegisterNewTeamResponse},
-            register_with_password::HttpRegisterWithPasswordRequest,
             remove_user_from_team::{
                 HttpRemoveUserFromTeamRequest, HttpRemoveUserFromTeamResponse,
             },
         },
         routes::router::get_router,
         statics::NAME_REGEX,
-        structs::cloud::{cloud_http_endpoints::HttpCloudEndpoint, team_invite::TeamInvite},
+        structs::cloud::{app_info::AppInfo, cloud_http_endpoints::HttpCloudEndpoint},
     };
     use anyhow::bail;
     use axum::{
@@ -31,12 +43,13 @@ pub mod test_utils {
         Router,
     };
     use database::db::Db;
+    use openapi::apis::configuration::Configuration;
     use rand::{
         distributions::{Alphanumeric, Uniform},
         thread_rng, Rng,
     };
     use sqlx::Row;
-    use std::net::SocketAddr;
+    use std::{net::SocketAddr, sync::Arc};
     use tower::ServiceExt;
 
     pub async fn create_test_app(only_relay: bool) -> Router {
@@ -110,7 +123,7 @@ pub mod test_utils {
         let password = format!("Password123");
 
         // Register user
-        let register_payload = HttpRegisterWithPasswordRequest {
+        let register_payload = HttpRegisterWithPasswordStartRequest {
             email: email.to_string(),
             password: password.to_string(),
         };
@@ -123,7 +136,7 @@ pub mod test_utils {
             .header("content-type", "application/json")
             .uri(format!(
                 "/cloud/public{}",
-                HttpCloudEndpoint::RegisterWithPassword.to_string()
+                HttpCloudEndpoint::RegisterWithPasswordStart.to_string()
             ))
             .extension(ip)
             .body(Body::from(json))
@@ -132,6 +145,31 @@ pub mod test_utils {
         // send request to app and get response
         let register_response = app.clone().oneshot(req).await.unwrap();
         assert_eq!(register_response.status(), StatusCode::OK);
+
+        // Validate register
+        let verify_register_payload = HttpRegisterWithPasswordFinishRequest {
+            email: email.to_string(),
+            // Random valid code for testing
+            code: "123456".to_string(),
+        };
+
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&verify_register_payload).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .uri(format!(
+                "/cloud/public{}",
+                HttpCloudEndpoint::RegisterWithPasswordFinish.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // send request to app and get response
+        let verify_register_response = app.clone().oneshot(req).await.unwrap();
+        assert_eq!(verify_register_response.status(), StatusCode::OK);
 
         // Login user
         let login_payload = HttpLoginRequest {
@@ -320,12 +358,7 @@ pub mod test_utils {
         app: &Router,
     ) -> anyhow::Result<HttpGetTeamUserInvitesResponse> {
         // Get team invites for users
-        let request = HttpGetTeamUserInvitesRequest {
-            team_id: team_id.clone(),
-        };
-
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
-        let json = serde_json::to_string(&request).unwrap();
         let auth = user_token.encode(JWT_SECRET()).unwrap();
 
         let req = Request::builder()
@@ -333,11 +366,11 @@ pub mod test_utils {
             .header("content-type", "application/json")
             .header("authorization", format!("Bearer {auth}"))
             .uri(format!(
-                "/cloud/private{}",
+                "/cloud/private{}?teamId={team_id}",
                 HttpCloudEndpoint::GetTeamUserInvites.to_string()
             ))
             .extension(ip)
-            .body(Body::from(json))
+            .body(Body::empty())
             .unwrap();
 
         // Send request
@@ -434,6 +467,85 @@ pub mod test_utils {
         convert_response::<HttpGetUserJoinedTeamsResponse>(response).await
     }
 
+    pub async fn verify_new_domain(
+        domain_name: &String,
+        app_id: &String,
+        admin_token: &AuthToken,
+        app: &Router,
+    ) -> anyhow::Result<()> {
+        // Start domain verification
+        let request = HttpVerifyDomainStartRequest {
+            domain_name: domain_name.clone(),
+            app_id: app_id.clone(),
+        };
+
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&request).unwrap();
+        let auth = admin_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::VerifyDomainStart.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // Send request
+        let response = app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        convert_response::<HttpVerifyDomainStartResponse>(response).await?;
+
+        // Finish domain verification
+        let request = HttpVerifyDomainFinishRequest {
+            domain_name: domain_name.clone(),
+            app_id: app_id.clone(),
+        };
+
+        let json = serde_json::to_string(&request).unwrap();
+        let auth = admin_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::VerifyDomainFinish.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // Send request
+        let response = app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        convert_response::<HttpVerifyDomainFinishResponse>(response)
+            .await
+            .map(|_| Ok(()))?
+    }
+
+    pub async fn get_test_app_data(
+        team_id: &String,
+        app_id: &String,
+        user_token: &AuthToken,
+        app: &Router,
+    ) -> anyhow::Result<AppInfo> {
+        let user_joined_teams = get_test_user_joined_teams(user_token, app).await?;
+
+        match user_joined_teams.teams_apps.get(team_id) {
+            Some(apps) => match apps.iter().find(|app| &app.app_id == app_id) {
+                Some(app) => Ok(app.clone()),
+                None => bail!("App not found"),
+            },
+            None => bail!("Team not found"),
+        }
+    }
+
     pub async fn body_to_vec(response: Response<Body>) -> anyhow::Result<Vec<u8>> {
         match to_bytes(response.into_body(), usize::MAX).await {
             Ok(body) => Ok(body.to_vec()),
@@ -499,5 +611,15 @@ pub mod test_utils {
         assert!(NAME_REGEX.is_match(&name));
 
         name
+    }
+
+    pub fn get_grafana_configuration() -> Arc<Configuration> {
+        let mut conf = Configuration::new();
+        conf.base_path = GRAFANA_BASE_PATH().to_string();
+        conf.basic_auth = Some((
+            GRAFANA_CLIENT_LOGIN().to_string(),
+            Some(GRAFANA_CLIENT_PASSWORD().to_string()),
+        ));
+        Arc::new(conf)
     }
 }

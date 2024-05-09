@@ -71,13 +71,10 @@ impl Db {
     }
 }
 
-#[cfg(feature = "cloud_db_tests")]
+#[cfg(feature = "cloud_integration_tests")]
 #[cfg(test)]
 mod tests {
-    use crate::tables::{
-        grafana_users::table_struct::GrafanaUser, team::table_struct::Team,
-        utils::to_microsecond_precision,
-    };
+    use crate::tables::{team::table_struct::Team, utils::to_microsecond_precision};
     use sqlx::types::chrono::Utc;
 
     #[tokio::test]
@@ -86,14 +83,13 @@ mod tests {
         db.truncate_all_tables().await.unwrap();
 
         // First create a user
-        let admin = GrafanaUser {
-            email: "test_email".to_string(),
-            password_hash: "test_password_hash".to_string(),
-            user_id: "test_user_id".to_string(),
-            creation_timestamp: to_microsecond_precision(&Utc::now()),
-        };
+        let user_id = "test_user_id".to_string();
+        let email = "test_user_email".to_string();
+        let password_hash = "test_password_hash".to_string();
 
-        db.add_new_user(&admin).await.unwrap();
+        db.add_new_user(&user_id, &email, Some(&password_hash), None)
+            .await
+            .unwrap();
 
         // Create team and register app
         let team = Team {

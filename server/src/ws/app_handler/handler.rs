@@ -2,13 +2,16 @@ use super::methods::{
     disconnect_session::disconnect_session, initialize_session::initialize_session_connection,
 };
 use crate::{
+    cloud_state::CloudState,
+    env::ONLY_RELAY_SERVICE,
+    middlewares::origin_middleware::Origin,
     state::{
         ClientSockets, ClientToSessions, SendToClient, SessionToApp, SessionToAppMap, Sessions,
     },
     structs::{
-        app_messages::app_messages::AppToServer,
+        app_messages::{app_messages::AppToServer, initialize::InitializeRequest},
         client_messages::{client_messages::ServerToClient, new_payload_event::NewPayloadEvent},
-        common::{Device, PendingRequest},
+        common::PendingRequest,
         notification_msg::{trigger_notification, NotificationPayload},
     },
 };
@@ -19,12 +22,15 @@ use axum::{
     },
     response::Response,
 };
+use database::structs::device_metadata::Device;
 use futures::StreamExt;
-use log::{debug, warn};
-use std::net::SocketAddr;
+use log::{debug, error, info, warn};
+use std::{net::SocketAddr, sync::Arc};
 
 pub async fn on_new_app_connection(
     ConnectInfo(ip): ConnectInfo<SocketAddr>,
+    State(cloud): State<Option<Arc<CloudState>>>,
+    Origin(origin): Origin,
     State(sessions): State<Sessions>,
     State(client_sockets): State<ClientSockets>,
     State(client_to_sessions): State<ClientToSessions>,
@@ -40,6 +46,8 @@ pub async fn on_new_app_connection(
             client_sockets,
             client_to_sessions,
             session_to_app_map,
+            cloud,
+            origin,
         )
         .await;
         debug!("CLOSE app connection  from {}", ip);
@@ -52,6 +60,8 @@ pub async fn app_handler(
     client_sockets: ClientSockets,
     client_to_sessions: ClientToSessions,
     session_to_app_map: SessionToAppMap,
+    cloud: Option<Arc<CloudState>>,
+    origin: Option<String>,
 ) {
     let (sender, mut receiver) = socket.split();
     let connection_id = uuid7::uuid7();
@@ -82,16 +92,21 @@ pub async fn app_handler(
         // We only accept initialize messages here
         match app_msg {
             AppToServer::InitializeRequest(init_data) => {
-                // TEMP FIX
-                let app_id = match &init_data.persistent_session_id {
-                    Some(session_id) => session_to_app_map
-                        .get_app_id(&session_id)
-                        .await
-                        .unwrap_or_else(|| {
-                            warn!("No app_id found for session: {}", session_id);
-                            uuid7::uuid7().to_string()
-                        }),
-                    None => uuid7::uuid7().to_string(),
+                // If cloud is enabled, we will try to get app_id from the verified origin
+                let app_id = match get_app_id(
+                    ONLY_RELAY_SERVICE(),
+                    &cloud,
+                    &origin,
+                    &init_data,
+                    &session_to_app_map,
+                )
+                .await
+                {
+                    Ok(app_id) => app_id,
+                    Err(_err) => {
+                        // TODO explicit reject of the connection
+                        return;
+                    }
                 };
 
                 let session_id = initialize_session_connection(
@@ -239,5 +254,130 @@ pub async fn app_handler(
                 continue;
             }
         }
+    }
+}
+
+async fn get_app_id(
+    cloud_disabled: bool,
+    cloud_state: &Option<Arc<CloudState>>,
+    origin: &Option<String>,
+    init_data: &InitializeRequest,
+    session_to_app_map: &SessionToAppMap,
+) -> Result<String, String> {
+    // By default cloud is disabled, normal relay flow
+    if cloud_disabled {
+        return Ok(
+            fetch_app_id_or_generate(&init_data.persistent_session_id, &session_to_app_map).await,
+        );
+    }
+
+    // If cloud is enabled, we will try to get app_id from the verified origin if it was provided
+    if let Some(cloud) = cloud_state {
+        match origin {
+            Some(origin) => {
+                // Origin was provided, check if it is verified
+                match cloud
+                    .db
+                    .get_domain_verification_by_domain_name(origin)
+                    .await
+                {
+                    // Domain verification has been found
+                    Ok(Some(domain_verification)) => {
+                        // Check if domain is verified
+                        if domain_verification.finished_at.is_some() {
+                            // Check if app_id has been provided in initial data
+                            match &init_data.app_id {
+                                Some(app_id) => {
+                                    // App id has been provided, check if it matches the verified app_id
+                                    if app_id == &domain_verification.app_id {
+                                        return Ok(app_id.clone());
+                                    } else {
+                                        info!(
+                                            "App id mismatch: {} != {}",
+                                            app_id, domain_verification.app_id
+                                        );
+                                        return Err("App id mismatch".to_string());
+                                    }
+                                }
+                                // App id has not been provided, return the verified app_id
+                                None => {
+                                    return Ok(domain_verification.app_id);
+                                }
+                            }
+                        } else {
+                            info!("Domain verification has not been finished: {}", origin);
+                            return Err("Domain verification has not been finished".to_string());
+                        }
+                    }
+                    // Unverified domain, normal relay flow
+                    Ok(None) | Err(_) => {
+                        info!(
+                            "Origin verification failed or error encountered: {}",
+                            origin
+                        );
+                        return Ok(fetch_app_id_or_generate(
+                            &init_data.persistent_session_id,
+                            &session_to_app_map,
+                        )
+                        .await);
+                    }
+                }
+            }
+            None => {
+                // If origin is missing, check if app id has been provided
+                match &init_data.app_id {
+                    Some(app_id) => {
+                        // Check if provided app_id has already been registered
+                        match cloud.db.get_registered_app_by_app_id(app_id).await {
+                            Ok(Some(_)) => {
+                                // app id is already used by a registered app, reject the connection by the origin
+                                info!("App id already registered, origin not provided: {}", app_id);
+                                return Err(
+                                    "App id already registered, origin not provided".to_string()
+                                );
+                            }
+                            // App id is not registered, or something has happened with the db, normal relay flow
+                            Ok(None) | Err(_) => {
+                                return Ok(fetch_app_id_or_generate(
+                                    &init_data.persistent_session_id,
+                                    &session_to_app_map,
+                                )
+                                .await);
+                            }
+                        }
+                    }
+                    None =>
+                    // If app_id is not provided, normal relay flow
+                    {
+                        return Ok(fetch_app_id_or_generate(
+                            &init_data.persistent_session_id,
+                            &session_to_app_map,
+                        )
+                        .await);
+                    }
+                }
+            }
+        }
+    } else {
+        error!("Cloud feature is enabled but cloud state is not initialized");
+        return Ok(
+            fetch_app_id_or_generate(&init_data.persistent_session_id, &session_to_app_map).await,
+        );
+    }
+}
+
+async fn fetch_app_id_or_generate(
+    session_id_option: &Option<String>,
+    session_to_app_map: &SessionToAppMap,
+) -> String {
+    match session_id_option {
+        Some(session_id) => session_to_app_map
+            .get_app_id(session_id)
+            .await
+            .unwrap_or_else(|| {
+                warn!("No app_id found for session: {}", session_id);
+                uuid7::uuid7().to_string()
+            }),
+        None => uuid7::uuid7().to_string(),
     }
 }

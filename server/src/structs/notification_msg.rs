@@ -1,5 +1,6 @@
-use super::common::{AppMetadata, Device, Network};
+use super::common::{AppMetadata, Network};
 use anyhow::Result;
+use database::structs::device_metadata::Device;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 

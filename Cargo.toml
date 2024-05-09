@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["server", "database"]
+members = ["server", "database", "openapi"]
 
 [workspace.dependencies]
 ctrlc = "3.4.2"
@@ -30,6 +30,13 @@ tower-http = { version = "0.5.2", features = ["cors", "trace"] }
 reqwest = {version = "0.11.24", features = ["json"]}
 tokio = { version = "1.35.1", features = ["full"] }
 async-trait = "0.1.77"
+r-cache = "0.5.0"
+lettre = "0.11.6"
+addr = "0.15.6"
+hickory-resolver = "0.24.0"
+webauthn-rs = { version = "0.4.8", features = [
+  "danger-allow-state-serialisation",
+] }
 
 # If you're updating sqlx, make sure that chrono version below is the same as the one in sqlx
 sqlx = { version = "0.7.3", features = [
@@ -40,3 +47,7 @@ sqlx = { version = "0.7.3", features = [
   "chrono",
 ] }
 chrono = { version = "0.4.22", features = ["serde"] }
+
+[profile.dev]
+debug = 0
+strip = "debuginfo"

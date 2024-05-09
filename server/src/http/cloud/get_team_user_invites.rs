@@ -1,9 +1,13 @@
+use super::utils::{custom_validate_team_id, validate_request};
 use crate::{
     middlewares::auth_middleware::UserId,
     structs::cloud::{api_cloud_errors::CloudApiErrors, team_invite::TeamInvite},
-    utils::{custom_validate_uuid, validate_request},
 };
-use axum::{extract::State, http::StatusCode, Extension, Json};
+use axum::{
+    extract::{Query, State},
+    http::StatusCode,
+    Extension, Json,
+};
 use database::db::Db;
 use garde::Validate;
 use log::error;
@@ -15,7 +19,7 @@ use ts_rs::TS;
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpGetTeamUserInvitesRequest {
-    #[garde(custom(custom_validate_uuid))]
+    #[garde(custom(custom_validate_team_id))]
     pub team_id: String,
 }
 
@@ -27,16 +31,10 @@ pub struct HttpGetTeamUserInvitesResponse {
 }
 
 pub async fn get_team_user_invites(
-    State(db): State<Option<Arc<Db>>>,
+    State(db): State<Arc<Db>>,
     Extension(user_id): Extension<UserId>,
-    Json(request): Json<HttpGetTeamUserInvitesRequest>,
+    Query(request): Query<HttpGetTeamUserInvitesRequest>,
 ) -> Result<Json<HttpGetTeamUserInvitesResponse>, (StatusCode, String)> {
-    // Db connection has already been checked in the middleware
-    let db = db.as_ref().ok_or((
-        StatusCode::INTERNAL_SERVER_ERROR,
-        CloudApiErrors::CloudFeatureDisabled.to_string(),
-    ))?;
-
     // Validate request
     validate_request(&request, &())?;
 
@@ -94,7 +92,7 @@ pub async fn get_team_user_invites(
     }
 }
 
-#[cfg(feature = "cloud_db_tests")]
+#[cfg(feature = "cloud_integration_tests")]
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -133,8 +131,6 @@ mod tests {
         let request = HttpRegisterNewAppRequest {
             team_id: team_id.clone(),
             app_name: app_name.clone(),
-            whitelisted_domains: vec![],
-            ack_public_keys: vec![],
         };
 
         // unwrap err as it should have failed
@@ -158,12 +154,7 @@ mod tests {
         }
 
         // Get team invites
-        let request = HttpGetTeamUserInvitesRequest {
-            team_id: team_id.clone(),
-        };
-
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
-        let json = serde_json::to_string(&request).unwrap();
         let auth = auth_token.encode(JWT_SECRET()).unwrap();
 
         let req = Request::builder()
@@ -171,11 +162,11 @@ mod tests {
             .header("content-type", "application/json")
             .header("authorization", format!("Bearer {auth}"))
             .uri(format!(
-                "/cloud/private{}",
+                "/cloud/private{}?teamId={team_id}",
                 HttpCloudEndpoint::GetTeamUserInvites.to_string()
             ))
             .extension(ip.clone())
-            .body(Body::from(json))
+            .body(Body::empty())
             .unwrap();
 
         // Send request
@@ -229,8 +220,6 @@ mod tests {
         let request = HttpRegisterNewAppRequest {
             team_id: team_id.clone(),
             app_name: app_name.clone(),
-            whitelisted_domains: vec![],
-            ack_public_keys: vec![],
         };
 
         // unwrap err as it should have failed

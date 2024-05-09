@@ -1,12 +1,21 @@
+use super::{
+    grafana_utils::remove_user_from_the_team::handle_grafana_remove_user_from_team,
+    utils::{custom_validate_team_id, validate_request},
+};
 use crate::{
+    env::is_env_production,
+    mailer::{
+        mail_requests::{SendEmailRequest, TeamRemovalNotification},
+        mailer::Mailer,
+    },
     middlewares::auth_middleware::UserId,
     structs::cloud::api_cloud_errors::CloudApiErrors,
-    utils::{custom_validate_uuid, validate_request},
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::db::Db;
 use garde::Validate;
 use log::error;
+use openapi::apis::configuration::Configuration;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
@@ -15,7 +24,7 @@ use ts_rs::TS;
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpRemoveUserFromTeamRequest {
-    #[garde(custom(custom_validate_uuid))]
+    #[garde(custom(custom_validate_team_id))]
     pub team_id: String,
     #[garde(email)]
     pub user_email: String,
@@ -26,16 +35,12 @@ pub struct HttpRemoveUserFromTeamRequest {
 pub struct HttpRemoveUserFromTeamResponse {}
 
 pub async fn remove_user_from_team(
-    State(db): State<Option<Arc<Db>>>,
+    State(db): State<Arc<Db>>,
+    State(grafana_conf): State<Arc<Configuration>>,
+    State(mailer): State<Arc<Mailer>>,
     Extension(user_id): Extension<UserId>,
     Json(request): Json<HttpRemoveUserFromTeamRequest>,
 ) -> Result<Json<HttpRemoveUserFromTeamResponse>, (StatusCode, String)> {
-    // Db connection has already been checked in the middleware
-    let db = db.as_ref().ok_or((
-        StatusCode::INTERNAL_SERVER_ERROR,
-        CloudApiErrors::CloudFeatureDisabled.to_string(),
-    ))?;
-
     // Validate request
     validate_request(&request, &())?;
 
@@ -94,22 +99,42 @@ pub async fn remove_user_from_team(
                 }
             }
 
+            // Grafana, remove user from the team
+            handle_grafana_remove_user_from_team(
+                &grafana_conf,
+                &request.team_id,
+                &request.user_email,
+            )
+            .await?;
+
             // Remove user from the team
-            match db
+            if let Err(err) = db
                 .remove_user_from_the_team(&user.user_id, &request.team_id)
                 .await
             {
-                Ok(_) => {
-                    return Ok(Json(HttpRemoveUserFromTeamResponse {}));
-                }
-                Err(err) => {
-                    error!("Failed to remove user from the team: {:?}", err);
-                    return Err((
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        CloudApiErrors::DatabaseError.to_string(),
-                    ));
+                error!("Failed to remove user from the team: {:?}", err);
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    CloudApiErrors::DatabaseError.to_string(),
+                ));
+            }
+
+            // Send email notification
+            if is_env_production() {
+                let request = SendEmailRequest::TeamRemoval(TeamRemovalNotification {
+                    email: user.email.clone(),
+                    team_name: team.team_name.clone(),
+                    remover_email: user_id,
+                });
+
+                // It doesn't matter if this fails
+                if let Some(err) = mailer.handle_email_request(&request).error_message {
+                    error!("Failed to send email: {:?}, request: {:?}", err, request);
                 }
             }
+
+            // Return response
+            Ok(Json(HttpRemoveUserFromTeamResponse {}))
         }
         Ok(None) => {
             return Err((
@@ -127,7 +152,7 @@ pub async fn remove_user_from_team(
     }
 }
 
-#[cfg(feature = "cloud_db_tests")]
+#[cfg(feature = "cloud_integration_tests")]
 #[cfg(test)]
 mod tests {
     use crate::{
@@ -159,20 +184,21 @@ mod tests {
         let test_app = create_test_app(false).await;
 
         let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
-
         // Register new team
         let team_name = generate_valid_name();
+
         let team_id = add_test_team(&team_name, &auth_token, &test_app, false)
             .await
             .unwrap();
 
+        println!("team_name: {:?}", team_name);
+        println!("team_id: {:?}", team_id);
+
         // Register app under the team
         let app_name = generate_valid_name();
         let request = HttpRegisterNewAppRequest {
-            team_id: team_id.clone(),
+            team_id: team_id.to_string(),
             app_name: app_name.clone(),
-            whitelisted_domains: vec![],
-            ack_public_keys: vec![],
         };
 
         // unwrap err as it should have failed
@@ -186,7 +212,7 @@ mod tests {
 
         // Add user to the team
         add_user_to_test_team(
-            &team_id,
+            &team_id.to_string(),
             &test_user_email,
             &auth_token,
             &test_user_auth_token,
@@ -197,7 +223,7 @@ mod tests {
 
         // Remove user from the team
         let request = HttpRemoveUserFromTeamRequest {
-            team_id: team_id.clone(),
+            team_id: team_id.to_string(),
             user_email: test_user_email.clone(),
         };
 
@@ -259,9 +285,9 @@ mod tests {
 
         let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
 
-        // Team does not exist, use random uuid
+        // Team does not exist
         let resp = remove_user_from_test_team(
-            &uuid7::uuid7().to_string(),
+            &i64::MAX.to_string(),
             &"test_user_email@gmail.com".to_string(),
             &auth_token,
             &test_app,

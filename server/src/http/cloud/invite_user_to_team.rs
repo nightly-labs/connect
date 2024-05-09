@@ -1,8 +1,13 @@
+use super::utils::{custom_validate_team_id, validate_request};
 use crate::{
+    env::is_env_production,
+    mailer::{
+        mail_requests::{SendEmailRequest, TeamInviteNotification},
+        mailer::Mailer,
+    },
     middlewares::auth_middleware::UserId,
     statics::USERS_AMOUNT_LIMIT_PER_TEAM,
     structs::cloud::api_cloud_errors::CloudApiErrors,
-    utils::{custom_validate_uuid, validate_request},
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::db::Db;
@@ -16,7 +21,7 @@ use ts_rs::TS;
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpInviteUserToTeamRequest {
-    #[garde(custom(custom_validate_uuid))]
+    #[garde(custom(custom_validate_team_id))]
     pub team_id: String,
     #[garde(email)]
     pub user_email: String,
@@ -27,16 +32,11 @@ pub struct HttpInviteUserToTeamRequest {
 pub struct HttpInviteUserToTeamResponse {}
 
 pub async fn invite_user_to_team(
-    State(db): State<Option<Arc<Db>>>,
+    State(db): State<Arc<Db>>,
+    State(mailer): State<Arc<Mailer>>,
     Extension(user_id): Extension<UserId>,
     Json(request): Json<HttpInviteUserToTeamRequest>,
 ) -> Result<Json<HttpInviteUserToTeamResponse>, (StatusCode, String)> {
-    // Db connection has already been checked in the middleware
-    let db = db.as_ref().ok_or((
-        StatusCode::INTERNAL_SERVER_ERROR,
-        CloudApiErrors::CloudFeatureDisabled.to_string(),
-    ))?;
-
     // Validate request
     validate_request(&request, &())?;
 
@@ -182,21 +182,33 @@ pub async fn invite_user_to_team(
             }
 
             // Add invite to the team
-            match db
+            if let Err(err) = db
                 .create_new_team_invite(&request.team_id, &request.user_email)
                 .await
             {
-                Ok(_) => {
-                    return Ok(Json(HttpInviteUserToTeamResponse {}));
-                }
-                Err(err) => {
-                    error!("Failed to invite user to the team: {:?}", err);
-                    return Err((
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        CloudApiErrors::DatabaseError.to_string(),
-                    ));
+                error!("Failed to invite user to the team: {:?}", err);
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    CloudApiErrors::DatabaseError.to_string(),
+                ));
+            }
+
+            // Send email notification
+            if is_env_production() {
+                let request = SendEmailRequest::TeamInvite(TeamInviteNotification {
+                    email: request.user_email.clone(),
+                    team_name: team.team_name.clone(),
+                    inviter_email: user.email.clone(),
+                });
+
+                // It doesn't matter if this fails
+                if let Some(err) = mailer.handle_email_request(&request).error_message {
+                    error!("Failed to send email: {:?}, request: {:?}", err, request);
                 }
             }
+
+            // Return response
+            Ok(Json(HttpInviteUserToTeamResponse {}))
         }
         Ok(None) => {
             return Err((
@@ -214,7 +226,7 @@ pub async fn invite_user_to_team(
     }
 }
 
-#[cfg(feature = "cloud_db_tests")]
+#[cfg(feature = "cloud_integration_tests")]
 #[cfg(test)]
 mod tests {
     use crate::{
@@ -257,8 +269,6 @@ mod tests {
         let request = HttpRegisterNewAppRequest {
             team_id: team_id.clone(),
             app_name: app_name.clone(),
-            whitelisted_domains: vec![],
-            ack_public_keys: vec![],
         };
 
         // unwrap err as it should have failed
@@ -339,9 +349,9 @@ mod tests {
 
         let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
 
-        // Team does not exist, use random uuid
+        // Team does not exist
         let resp = invite_user_to_test_team(
-            &uuid7::uuid7().to_string(),
+            &i64::MAX.to_string(),
             &"test_user_email@gmail.com".to_string(),
             &auth_token,
             &test_app,
@@ -400,8 +410,6 @@ mod tests {
         let request = HttpRegisterNewAppRequest {
             team_id: team_id.clone(),
             app_name: app_name.clone(),
-            whitelisted_domains: vec![],
-            ack_public_keys: vec![],
         };
 
         let _ = add_test_app(&request, &auth_token, &test_app)
@@ -459,8 +467,6 @@ mod tests {
         let request = HttpRegisterNewAppRequest {
             team_id: team_id.clone(),
             app_name: app_name.clone(),
-            whitelisted_domains: vec![],
-            ack_public_keys: vec![],
         };
 
         let _ = add_test_app(&request, &auth_token, &test_app)

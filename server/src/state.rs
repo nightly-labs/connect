@@ -1,8 +1,10 @@
 use crate::{
+    cloud_state::{CloudState, DnsResolver},
     ip_geolocation::GeolocationRequester,
+    mailer::mailer::Mailer,
     structs::{
         client_messages::client_messages::ServerToClient, session::Session,
-        wallet_metadata::WalletMetadata,
+        session_cache::ApiSessionsCache, wallet_metadata::WalletMetadata,
     },
 };
 use anyhow::Result;
@@ -14,11 +16,13 @@ use axum::extract::{
 use database::db::Db;
 use futures::{stream::SplitSink, SinkExt};
 use log::info;
+use openapi::apis::configuration::Configuration;
 use std::{
     collections::{HashMap, HashSet},
     sync::Arc,
 };
 use tokio::sync::RwLock;
+use webauthn_rs::Webauthn;
 
 pub type SessionId = String;
 pub type ClientId = String;
@@ -34,8 +38,54 @@ pub struct ServerState {
     pub client_to_sessions: ClientToSessions,
     pub wallets_metadata: Arc<Vec<WalletMetadata>>,
     pub session_to_app_map: SessionToAppMap,
-    pub db: Option<Arc<Db>>,
-    pub geo_location: Option<Arc<GeolocationRequester>>,
+    pub cloud_state: Option<Arc<CloudState>>,
+}
+
+impl FromRef<ServerState> for Arc<Db> {
+    fn from_ref(state: &ServerState) -> Self {
+        // Safe as middleware will prevent this from being None
+        state.cloud_state.as_ref().unwrap().db.clone()
+    }
+}
+impl FromRef<ServerState> for Arc<GeolocationRequester> {
+    fn from_ref(state: &ServerState) -> Self {
+        // Safe as middleware will prevent this from being None
+        state.cloud_state.as_ref().unwrap().geo_location.clone()
+    }
+}
+impl FromRef<ServerState> for Arc<ApiSessionsCache> {
+    fn from_ref(state: &ServerState) -> Self {
+        // Safe as middleware will prevent this from being None
+        state.cloud_state.as_ref().unwrap().sessions_cache.clone()
+    }
+}
+impl FromRef<ServerState> for Arc<Mailer> {
+    fn from_ref(state: &ServerState) -> Self {
+        // Safe as middleware will prevent this from being None
+        state.cloud_state.as_ref().unwrap().mailer.clone()
+    }
+}
+impl FromRef<ServerState> for Arc<DnsResolver> {
+    fn from_ref(state: &ServerState) -> Self {
+        state.cloud_state.as_ref().unwrap().dns_resolver.clone()
+    }
+}
+impl FromRef<ServerState> for Arc<Webauthn> {
+    fn from_ref(state: &ServerState) -> Self {
+        // Safe as middleware will prevent this from being None
+        state.cloud_state.as_ref().unwrap().webauthn.clone()
+    }
+}
+impl FromRef<ServerState> for Arc<Configuration> {
+    fn from_ref(state: &ServerState) -> Self {
+        // Safe as middleware will prevent this from being None
+        state
+            .cloud_state
+            .as_ref()
+            .unwrap()
+            .grafana_client_conf
+            .clone()
+    }
 }
 
 #[async_trait]

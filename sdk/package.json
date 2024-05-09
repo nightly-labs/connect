@@ -1,7 +1,8 @@
 {
   "name": "sdk",
   "scripts": {
-    "bindings": "rm -rf ./bindings && cp -r ../server/bindings ./bindings",
+    "copy-bindings": "rm -rf ./bindings && mkdir ./bindings && cp -r ../server/bindings/* ./bindings/ && cp -r ../database/bindings/* ./bindings/",
+    "bindings": "sh ./rebuild-bindings.sh",
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",

@@ -17,15 +17,9 @@ pub struct HttpGetUserTeamInvitesResponse {
 }
 
 pub async fn get_user_team_invites(
-    State(db): State<Option<Arc<Db>>>,
+    State(db): State<Arc<Db>>,
     Extension(user_id): Extension<UserId>,
 ) -> Result<Json<HttpGetUserTeamInvitesResponse>, (StatusCode, String)> {
-    // Db connection has already been checked in the middleware
-    let db = db.as_ref().ok_or((
-        StatusCode::INTERNAL_SERVER_ERROR,
-        CloudApiErrors::CloudFeatureDisabled.to_string(),
-    ))?;
-
     // Get user data and perform checks
     let user = match db.get_user_by_user_id(&user_id).await {
         Ok(Some(user)) => user,
@@ -64,7 +58,7 @@ pub async fn get_user_team_invites(
     }
 }
 
-#[cfg(feature = "cloud_db_tests")]
+#[cfg(feature = "cloud_integration_tests")]
 #[cfg(test)]
 mod tests {
     use crate::auth::AuthToken;
@@ -113,8 +107,6 @@ mod tests {
             let request = HttpRegisterNewAppRequest {
                 team_id: team_id.clone(),
                 app_name: app_name.clone(),
-                whitelisted_domains: vec![],
-                ack_public_keys: vec![],
             };
 
             let _ = add_test_app(&request, &auth_token, &test_app)
@@ -205,8 +197,6 @@ mod tests {
         let request = HttpRegisterNewAppRequest {
             team_id: team_id.clone(),
             app_name: app_name.clone(),
-            whitelisted_domains: vec![],
-            ack_public_keys: vec![],
         };
 
         // unwrap err as it should have failed

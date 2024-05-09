@@ -49,4 +49,47 @@ impl Db {
             Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
+
+    pub async fn add_new_whitelisted_domain(
+        &self,
+        tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+        app_id: &str,
+        domain: &str,
+    ) -> Result<(), DbError> {
+        let query_body = format!(
+            "UPDATE {REGISTERED_APPS_TABLE_NAME} SET whitelisted_domains = array_append(whitelisted_domains, $1) WHERE app_id = $2",
+        );
+
+        let query_result = query(&query_body)
+            .bind(domain)
+            .bind(app_id)
+            .execute(&mut **tx)
+            .await;
+
+        match query_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e).map_err(|e| e.into()),
+        }
+    }
+
+    pub async fn remove_whitelisted_domain(
+        &self,
+        app_id: &str,
+        domain: &str,
+    ) -> Result<(), DbError> {
+        let query_body = format!(
+            "UPDATE {REGISTERED_APPS_TABLE_NAME} SET whitelisted_domains = array_remove(whitelisted_domains, $1) WHERE app_id = $2",
+        );
+
+        let query_result = query(&query_body)
+            .bind(domain)
+            .bind(app_id)
+            .execute(&self.connection_pool)
+            .await;
+
+        match query_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e).map_err(|e| e.into()),
+        }
+    }
 }

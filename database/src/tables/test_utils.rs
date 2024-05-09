@@ -1,11 +1,10 @@
-#[cfg(feature = "cloud_db_tests")]
+#[cfg(feature = "cloud_integration_tests")]
 #[cfg(test)]
 pub mod test_utils {
     use crate::{
         db::Db,
         structs::{db_error::DbError, privilege_level::PrivilegeLevel},
         tables::{
-            grafana_users::table_struct::GrafanaUser,
             registered_app::table_struct::DbRegisteredApp, team::table_struct::Team,
             user_app_privileges::table_struct::UserAppPrivilege,
         },
@@ -28,11 +27,18 @@ pub mod test_utils {
                 return Ok(());
             }
 
+            let filter_list = vec![
+                "_sqlx_migrations".to_string(),
+                "spatial_ref_sys".to_string(),
+                "geography_columns".to_string(),
+                "geometry_columns".to_string(),
+            ];
+
             // Join all names except _sqlx_migrations into a single string and run single truncate
             let tables_names = rows
                 .iter()
                 .map(|row| row.get::<String, &str>("table_name"))
-                .filter(|table_name| !table_name.starts_with("_sqlx_migrations"))
+                .filter(|table_name| !filter_list.contains(table_name))
                 .collect::<Vec<String>>()
                 .join(", ");
 
@@ -82,28 +88,26 @@ pub mod test_utils {
             app_id: &String,
             registration_timestamp: DateTime<Utc>,
         ) -> Result<(), DbError> {
-            let admin = GrafanaUser {
-                creation_timestamp: registration_timestamp,
-                email: "email".to_string(),
-                password_hash: "pass_hash".to_string(),
-                user_id: "test_admin".to_string(),
-            };
+            let user_id = "test_admin".to_string();
+            let email = "admin".to_string();
+            let password_hash = "pass_hash".to_string();
 
-            self.add_new_user(&admin).await?;
+            self.add_new_user(&user_id, &email, Some(&password_hash), None)
+                .await?;
 
             let team = Team {
                 team_id: team_id.clone(),
                 team_name: "test_team_name".to_string(),
                 personal: false,
                 subscription: None,
-                team_admin_id: admin.user_id.clone(),
+                team_admin_id: user_id.clone(),
                 registration_timestamp: registration_timestamp,
             };
 
             let registered_app = DbRegisteredApp {
                 team_id: team_id.clone(),
                 app_id: app_id.clone(),
-                app_name: "test_app".to_string(),
+                app_name: format!("{app_id}_APP_NAME").to_string(),
                 whitelisted_domains: vec!["localhost".to_string()],
                 ack_public_keys: vec!["key".to_string()],
                 registration_timestamp: registration_timestamp,
@@ -113,7 +117,7 @@ pub mod test_utils {
                 app_id: app_id.clone(),
                 creation_timestamp: registration_timestamp,
                 privilege_level: PrivilegeLevel::Admin,
-                user_id: admin.user_id.clone(),
+                user_id: user_id.clone(),
             };
 
             // Start a transaction

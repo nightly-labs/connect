@@ -1,0 +1,12 @@
+# CreateQueryInQueryHistoryCommand
+
+## Properties
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**datasource_uid** | Option<**String**> | UID of the data source for which are queries stored. | [optional]
+**queries** | [**serde_json::Value**](.md) |  | 
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

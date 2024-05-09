@@ -3,10 +3,10 @@ use crate::{
     db::Db,
     structs::db_error::DbError,
     tables::{
-        grafana_users::table_struct::GRAFANA_USERS_TABLE_NAME,
         registered_app::table_struct::{DbRegisteredApp, REGISTERED_APPS_TABLE_NAME},
         team::table_struct::{Team, TEAM_TABLE_NAME},
         user_app_privileges::table_struct::USER_APP_PRIVILEGES_TABLE_NAME,
+        users::table_struct::USERS_TABLE_NAME,
     },
 };
 use sqlx::{query_as, types::chrono::DateTime};
@@ -68,8 +68,7 @@ impl Db {
         let query = format!(
             "SELECT uap.* FROM {USER_APP_PRIVILEGES_TABLE_NAME} uap 
              JOIN {REGISTERED_APPS_TABLE_NAME} ra ON uap.app_id = ra.app_id 
-             WHERE ra.team_id = $1 
-             GROUP BY uap.app_id, uap.user_id, uap.creation_timestamp, uap.privilege_level"
+             WHERE ra.team_id = $1"
         );
         let typed_query = sqlx::query_as::<_, UserAppPrivilege>(&query);
 
@@ -122,7 +121,7 @@ impl Db {
                 FROM {TEAM_TABLE_NAME} t
                 LEFT JOIN {REGISTERED_APPS_TABLE_NAME} ra ON t.team_id = ra.team_id
                 LEFT JOIN {USER_APP_PRIVILEGES_TABLE_NAME} uap ON ra.app_id = uap.app_id AND uap.user_id = $1
-                JOIN {GRAFANA_USERS_TABLE_NAME} gu ON t.team_admin_id = gu.user_id
+                JOIN {USERS_TABLE_NAME} gu ON t.team_admin_id = gu.user_id
                 WHERE t.team_admin_id = $1 OR uap.user_id = $1
             )
             SELECT rt.team_id, rt.team_name, rt.personal, rt.subscription, rt.registration_timestamp, 

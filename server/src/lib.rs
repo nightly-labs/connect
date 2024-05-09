@@ -1,9 +1,11 @@
 pub mod auth;
+pub mod cloud_state;
 pub mod env;
 pub mod errors;
 pub mod handle_error;
 pub mod http;
 pub mod ip_geolocation;
+pub mod mailer;
 pub mod middlewares;
 pub mod routes;
 mod sesssion_cleaner;

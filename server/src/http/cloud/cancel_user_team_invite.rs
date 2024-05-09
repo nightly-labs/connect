@@ -1,7 +1,6 @@
+use super::utils::{custom_validate_team_id, validate_request};
 use crate::{
-    middlewares::auth_middleware::UserId,
-    structs::cloud::api_cloud_errors::CloudApiErrors,
-    utils::{custom_validate_uuid, validate_request},
+    middlewares::auth_middleware::UserId, structs::cloud::api_cloud_errors::CloudApiErrors,
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::db::Db;
@@ -15,7 +14,7 @@ use ts_rs::TS;
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpCancelUserTeamInviteRequest {
-    #[garde(custom(custom_validate_uuid))]
+    #[garde(custom(custom_validate_team_id))]
     pub team_id: String,
 }
 
@@ -24,16 +23,10 @@ pub struct HttpCancelUserTeamInviteRequest {
 pub struct HttpCancelUserTeamInviteResponse {}
 
 pub async fn cancel_user_team_invite(
-    State(db): State<Option<Arc<Db>>>,
+    State(db): State<Arc<Db>>,
     Extension(user_id): Extension<UserId>,
     Json(request): Json<HttpCancelUserTeamInviteRequest>,
 ) -> Result<Json<HttpCancelUserTeamInviteResponse>, (StatusCode, String)> {
-    // Db connection has already been checked in the middleware
-    let db = db.as_ref().ok_or((
-        StatusCode::INTERNAL_SERVER_ERROR,
-        CloudApiErrors::CloudFeatureDisabled.to_string(),
-    ))?;
-
     // Validate request
     validate_request(&request, &())?;
 
@@ -93,7 +86,7 @@ pub async fn cancel_user_team_invite(
     }
 }
 
-#[cfg(feature = "cloud_db_tests")]
+#[cfg(feature = "cloud_integration_tests")]
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -141,8 +134,6 @@ mod tests {
                 let request = HttpRegisterNewAppRequest {
                     team_id: team_id.clone(),
                     app_name: app_name.clone(),
-                    whitelisted_domains: vec![],
-                    ack_public_keys: vec![],
                 };
                 let app_id = add_test_app(&request, &auth_token, &test_app)
                     .await

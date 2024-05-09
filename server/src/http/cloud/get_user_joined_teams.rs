@@ -25,15 +25,9 @@ pub struct HttpGetUserJoinedTeamsResponse {
 }
 
 pub async fn get_user_joined_teams(
-    State(db): State<Option<Arc<Db>>>,
+    State(db): State<Arc<Db>>,
     Extension(user_id): Extension<UserId>,
 ) -> Result<Json<HttpGetUserJoinedTeamsResponse>, (StatusCode, String)> {
-    // Db connection has already been checked in the middleware
-    let db = db.as_ref().ok_or((
-        StatusCode::INTERNAL_SERVER_ERROR,
-        CloudApiErrors::CloudFeatureDisabled.to_string(),
-    ))?;
-
     // Check if user already belongs to the team
     match db.get_joined_teams_by_user_id(&user_id).await {
         Ok(joined_teams) => {
@@ -95,7 +89,7 @@ pub async fn get_user_joined_teams(
     }
 }
 
-#[cfg(feature = "cloud_db_tests")]
+#[cfg(feature = "cloud_integration_tests")]
 #[cfg(test)]
 mod tests {
     use crate::structs::cloud::cloud_http_endpoints::HttpCloudEndpoint;
@@ -146,8 +140,6 @@ mod tests {
                 let request = HttpRegisterNewAppRequest {
                     team_id: team_id.clone(),
                     app_name: app_name.clone(),
-                    whitelisted_domains: vec![],
-                    ack_public_keys: vec![],
                 };
                 let app_id = add_test_app(&request, &auth_token, &test_app)
                     .await

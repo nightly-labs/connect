@@ -1,13 +1,46 @@
 use crate::{
     http::cloud::{
-        accept_team_invite::accept_team_invite, cancel_team_user_invite::cancel_team_user_invite,
-        cancel_user_team_invite::cancel_user_team_invite, get_events::events,
-        get_team_user_invites::get_team_user_invites, get_user_joined_teams::get_user_joined_teams,
-        get_user_team_invites::get_user_team_invites, invite_user_to_team::invite_user_to_team,
-        login_with_google::login_with_google, login_with_password::login_with_password,
-        register_new_app::register_new_app, register_new_team::register_new_team,
-        register_with_password::register_with_password,
+        accept_team_invite::accept_team_invite,
+        add_passkey_finish::add_passkey_finish,
+        add_passkey_start::add_passkey_start,
+        cancel_team_user_invite::cancel_team_user_invite,
+        cancel_user_team_invite::cancel_user_team_invite,
+        change_user_privileges::change_user_privileges,
+        delete_passkey::delete_passkey,
+        domains::{
+            remove_whitelisted_domain::remove_whitelisted_domain,
+            verify_domain_finish::verify_domain_finish, verify_domain_start::verify_domain_start,
+        },
+        events::events::events,
+        get_events::get_events,
+        get_passkey_challenge::get_passkey_challenge,
+        get_team_metadata::get_team_metadata,
+        get_team_user_invites::get_team_user_invites,
+        get_team_users_privileges::get_team_users_privileges,
+        get_user_joined_teams::get_user_joined_teams,
+        get_user_metadata::get_user_metadata,
+        get_user_team_invites::get_user_team_invites,
+        invite_user_to_team::invite_user_to_team,
+        login::{
+            login_with_google::login_with_google,
+            login_with_passkey_finish::login_with_passkey_finish,
+            login_with_passkey_start::login_with_passkey_start,
+            login_with_password::login_with_password,
+        },
+        register::{
+            register_with_passkey_finish::register_with_passkey_finish,
+            register_with_passkey_start::register_with_passkey_start,
+            register_with_password_finish::register_with_password_finish,
+            register_with_password_start::register_with_password_start,
+        },
+        register_new_app::register_new_app,
+        register_new_team::register_new_team,
         remove_user_from_team::remove_user_from_team,
+        reset_credentials::{
+            reset_passkey_finish::reset_passkey_finish, reset_passkey_start::reset_passkey_start,
+            reset_password_finish::reset_password_finish,
+            reset_password_start::reset_password_start,
+        },
     },
     middlewares::auth_middleware::access_auth_middleware,
     state::ServerState,
@@ -43,8 +76,44 @@ pub fn public_router(state: ServerState) -> Router<ServerState> {
             post(login_with_google),
         )
         .route(
-            &HttpCloudEndpoint::RegisterWithPassword.to_string(),
-            post(register_with_password),
+            &HttpCloudEndpoint::LoginWithPasskeyStart.to_string(),
+            post(login_with_passkey_start),
+        )
+        .route(
+            &HttpCloudEndpoint::LoginWithPasskeyFinish.to_string(),
+            post(login_with_passkey_finish),
+        )
+        .route(
+            &HttpCloudEndpoint::RegisterWithPasswordStart.to_string(),
+            post(register_with_password_start),
+        )
+        .route(
+            &HttpCloudEndpoint::RegisterWithPasswordFinish.to_string(),
+            post(register_with_password_finish),
+        )
+        .route(
+            &HttpCloudEndpoint::ResetPasswordStart.to_string(),
+            post(reset_password_start),
+        )
+        .route(
+            &HttpCloudEndpoint::ResetPasswordFinish.to_string(),
+            post(reset_password_finish),
+        )
+        .route(
+            &HttpCloudEndpoint::RegisterWithPasskeyStart.to_string(),
+            post(register_with_passkey_start),
+        )
+        .route(
+            &HttpCloudEndpoint::RegisterWithPasskeyFinish.to_string(),
+            post(register_with_passkey_finish),
+        )
+        .route(
+            &HttpCloudEndpoint::ResetPasskeyStart.to_string(),
+            post(reset_passkey_start),
+        )
+        .route(
+            &HttpCloudEndpoint::ResetPasskeyFinish.to_string(),
+            post(reset_passkey_finish),
         )
         .route(&HttpCloudEndpoint::Events.to_string(), post(events))
         .with_state(state)
@@ -91,6 +160,51 @@ pub fn private_router(state: ServerState) -> Router<ServerState> {
         .route(
             &HttpCloudEndpoint::CancelUserTeamInvite.to_string(),
             post(cancel_user_team_invite),
+        )
+        .route(&HttpCloudEndpoint::GetEvents.to_string(), get(get_events))
+        .route(
+            &HttpCloudEndpoint::VerifyDomainStart.to_string(),
+            post(verify_domain_start),
+        )
+        .route(
+            &HttpCloudEndpoint::VerifyDomainFinish.to_string(),
+            post(verify_domain_finish),
+        )
+        .route(
+            &HttpCloudEndpoint::RemoveWhitelistedDomain.to_string(),
+            post(remove_whitelisted_domain),
+        )
+        .route(
+            &HttpCloudEndpoint::GetPasskeyChallenge.to_string(),
+            get(get_passkey_challenge),
+        )
+        .route(
+            &HttpCloudEndpoint::DeletePasskey.to_string(),
+            post(delete_passkey),
+        )
+        .route(
+            &HttpCloudEndpoint::AddPasskeyStart.to_string(),
+            post(add_passkey_start),
+        )
+        .route(
+            &HttpCloudEndpoint::AddPasskeyFinish.to_string(),
+            post(add_passkey_finish),
+        )
+        .route(
+            &HttpCloudEndpoint::GetUserMetadata.to_string(),
+            get(get_user_metadata),
+        )
+        .route(
+            &HttpCloudEndpoint::GetTeamMetadata.to_string(),
+            get(get_team_metadata),
+        )
+        .route(
+            &HttpCloudEndpoint::GetTeamUserPrivileges.to_string(),
+            get(get_team_users_privileges),
+        )
+        .route(
+            &HttpCloudEndpoint::ChangeUserPrivileges.to_string(),
+            post(change_user_privileges),
         )
         .with_state(state)
 }

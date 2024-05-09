@@ -1,4 +1,5 @@
-use crate::structs::common::{Device, Notification};
+use crate::structs::common::Notification;
+use database::structs::device_metadata::Device;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 

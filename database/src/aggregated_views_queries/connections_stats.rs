@@ -50,13 +50,13 @@ impl Db {
     }
 }
 
-#[cfg(feature = "cloud_db_tests")]
+#[cfg(feature = "cloud_integration_tests")]
 #[cfg(test)]
 mod tests {
 
     use crate::{
         structs::{session_type::SessionType, time_filters::TimeFilter},
-        tables::sessions::table_struct::DbNcSession,
+        tables::{sessions::table_struct::DbNcSession, utils::get_current_datetime},
     };
     use sqlx::types::chrono::Utc;
 
@@ -84,6 +84,7 @@ mod tests {
         for (i, network) in networks.iter().enumerate() {
             let session_id = format!("session_{app_id}_{i}");
 
+            let session_start = get_current_datetime();
             let session = DbNcSession {
                 session_id: session_id.clone(),
                 app_id: app_id.clone(),
@@ -91,11 +92,11 @@ mod tests {
                 persistent: true,
                 network: network.to_string(),
                 client_data: None,
-                session_open_timestamp: Utc::now(),
+                session_open_timestamp: session_start.clone(),
                 session_close_timestamp: None,
             };
 
-            db.handle_new_session(&session, None, &"127.0.0.1".to_string())
+            db.handle_new_session(&session, None, &"127.0.0.1".to_string(), &session_start)
                 .await
                 .unwrap();
 
@@ -107,6 +108,7 @@ mod tests {
                 &app_id,
                 &network.to_string(),
                 None,
+                &session_start,
             )
             .await
             .unwrap();
@@ -117,6 +119,7 @@ mod tests {
                 &app_id,
                 &network.to_string(),
                 None,
+                &session_start,
             )
             .await
             .unwrap();
@@ -129,6 +132,7 @@ mod tests {
                     &SessionType::Relay,
                     &network.to_string(),
                     None,
+                    &get_current_datetime(),
                 )
                 .await
                 .unwrap();

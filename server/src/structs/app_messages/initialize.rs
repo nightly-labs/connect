@@ -14,6 +14,8 @@ pub struct InitializeRequest {
     pub persistent: bool,
     #[ts(optional)]
     pub persistent_session_id: Option<String>,
+    #[ts(optional)]
+    pub app_id: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
@@ -26,4 +28,5 @@ pub struct InitializeResponse {
     pub public_keys: Vec<String>, // if session was restored, this is the list of public keys that were restored
     #[ts(optional)]
     pub metadata: Option<String>, // if session was restored, this is the metadata that was restored
+    pub app_id: String,
 }

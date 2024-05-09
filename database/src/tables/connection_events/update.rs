@@ -18,9 +18,10 @@ impl Db {
         app_id: &String,
         ip: &String,
         geo_location: Option<Geolocation>,
+        current_time: &DateTime<Utc>,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, NOW(), NULL)"
+            "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, $9, NULL)"
         );
 
         let query_result = query(&query_body)
@@ -33,6 +34,7 @@ impl Db {
             .bind(geo_location)
             // initialize connect event with true success flag
             .bind(true)
+            .bind(&current_time)
             .execute(&mut **tx)
             .await;
 
@@ -50,9 +52,10 @@ impl Db {
         session_type: &SessionType,
         ip: &String,
         geo_location: Option<Geolocation>,
+        current_time: &DateTime<Utc>,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, NOW(), NULL)"
+            "INSERT INTO {CONNECTION_EVENTS_TABLE_NAME} ({CONNECTION_EVENTS_KEYS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, $9, NULL)"
         );
 
         // If user gets connected, the "client_id" will get replaced with proper client_profile_id derived from user's public key
@@ -68,6 +71,7 @@ impl Db {
             .bind(geo_location)
             // initialize connect event with false success flag, only update to true if we receive a successful connection event
             .bind(false)
+            .bind(&current_time)
             .execute(&mut **tx)
             .await;
 
@@ -176,7 +180,7 @@ impl Db {
 
 // TODO fix those tests
 
-// #[cfg(feature = "cloud_db_tests")]
+// #[cfg(feature = "cloud_integration_tests")]
 // #[cfg(test)]
 // mod tests {
 

@@ -1,8 +1,8 @@
 use crate::{
-    ip_geolocation::GeolocationRequester, state::Sessions,
-    structs::cloud::cloud_events::event_types::app_connect_event::AppConnectEvent,
-    utils::get_geolocation_data,
+    http::cloud::utils::get_geolocation_data, ip_geolocation::GeolocationRequester,
+    state::Sessions, structs::cloud::cloud_events::event_types::app_connect_event::AppConnectEvent,
 };
+use chrono::{DateTime, Utc};
 use database::{
     db::Db,
     structs::event_type::EventType,
@@ -22,8 +22,10 @@ pub async fn process_event_app_connect(
     geo_loc_requester: &Arc<GeolocationRequester>,
     sessions: &Sessions,
 ) {
+    let current_timestamp = get_current_datetime();
+
     // Save event to Db
-    save_event_app_connect(db, app_id, event).await;
+    save_event_app_connect(db, app_id, event, &current_timestamp).await;
 
     if event.new_session {
         // New session, get the data from sessions and create a new session in the database
@@ -73,7 +75,12 @@ pub async fn process_event_app_connect(
 
         // Should not fail, but if it does then we will have a problem
         if let Err(err) = db
-            .handle_new_session(&session_data, geo_location_data, &ip.to_string())
+            .handle_new_session(
+                &session_data,
+                geo_location_data,
+                &ip.to_string(),
+                &current_timestamp,
+            )
             .await
         {
             error!(
@@ -95,6 +102,7 @@ pub async fn process_event_app_connect(
                 &app_id,
                 &ip.to_string(),
                 geo_location_data,
+                &current_timestamp,
             )
             .await
         {
@@ -117,7 +125,12 @@ pub async fn process_event_app_connect(
     }
 }
 
-async fn save_event_app_connect(db: &Arc<Db>, app_id: &String, event: &AppConnectEvent) {
+async fn save_event_app_connect(
+    db: &Arc<Db>,
+    app_id: &String,
+    event: &AppConnectEvent,
+    creation_timestamp: &DateTime<Utc>,
+) {
     // Establish a new transaction
     let mut tx = match db.connection_pool.begin().await {
         Ok(tx) => tx,
@@ -132,7 +145,12 @@ async fn save_event_app_connect(db: &Arc<Db>, app_id: &String, event: &AppConnec
 
     // Create a new event index
     let event_id = match db
-        .create_new_event_entry(&mut tx, &app_id, &EventType::AppConnect)
+        .create_new_event_entry(
+            &mut tx,
+            &app_id,
+            &EventType::AppConnect,
+            &creation_timestamp,
+        )
         .await
     {
         Ok(event_id) => event_id,
@@ -159,14 +177,13 @@ async fn save_event_app_connect(db: &Arc<Db>, app_id: &String, event: &AppConnec
         .create_new_event_app_connect(
             &mut tx,
             event_id,
+            app_id,
             &event.session_id,
-            &event
-                .device_metadata
-                .to_string()
-                .unwrap_or("Failed to serialize device metadata".to_string()),
+            &event.device_metadata,
             &event.language,
             &event.timezone,
             event.new_session,
+            &creation_timestamp,
         )
         .await
     {

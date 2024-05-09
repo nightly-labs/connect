@@ -1,5 +1,5 @@
 use crate::structs::cloud::cloud_events::event_types::app_disconnect_event::AppDisconnectEvent;
-use database::{db::Db, structs::event_type::EventType};
+use database::{db::Db, structs::event_type::EventType, tables::utils::get_current_datetime};
 use log::error;
 use std::{net::SocketAddr, sync::Arc};
 
@@ -36,7 +36,12 @@ async fn save_event_app_disconnect(db: &Arc<Db>, app_id: &String, event: &AppDis
 
     // Create a new event index
     let event_id = match db
-        .create_new_event_entry(&mut tx, &app_id, &EventType::AppDisconnect)
+        .create_new_event_entry(
+            &mut tx,
+            &app_id,
+            &EventType::AppDisconnect,
+            &get_current_datetime(),
+        )
         .await
     {
         Ok(event_id) => event_id,
