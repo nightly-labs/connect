@@ -46,4 +46,5 @@ pub enum CloudApiErrors {
     PasskeyDoesNotExist,
     FailedToCreateTeam,
     DashboardImportFail,
+    OriginHeaderRequired,
 }

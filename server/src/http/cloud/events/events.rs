@@ -30,6 +30,12 @@ pub async fn events(
     Origin(origin): Origin,
     Json(request): Json<HttpNightlyConnectCloudEvent>,
 ) -> Result<Json<()>, (StatusCode, String)> {
+    // Check if origin was provided
+    let origin = origin.ok_or((
+        StatusCode::BAD_REQUEST,
+        CloudApiErrors::OriginHeaderRequired.to_string(),
+    ))?;
+
     // Check if origin and app_id match in the database
     match db.get_registered_app_by_app_id(&request.app_id).await {
         Ok(Some(app)) => {

@@ -3,9 +3,10 @@ use axum::{
     extract::FromRequestParts,
     http::{header::ORIGIN, request::Parts, StatusCode},
 };
+use log::warn;
 
 #[derive(Debug, Clone)]
-pub struct Origin(pub String);
+pub struct Origin(pub Option<String>);
 
 #[async_trait]
 impl<B> FromRequestParts<B> for Origin
@@ -15,19 +16,27 @@ where
     type Rejection = (StatusCode, String);
 
     async fn from_request_parts(req: &mut Parts, _state: &B) -> Result<Self, Self::Rejection> {
-        let origin = req
-            .headers
-            .get(ORIGIN)
-            .and_then(|value| value.to_str().ok())
-            .map(|s| s.to_owned())
-            .ok_or_else(|| {
-                (
-                    StatusCode::BAD_REQUEST,
-                    "Origin header is required".to_string(),
-                )
-            })?;
+        match req.headers.get(ORIGIN) {
+            Some(value) =>
+            // If anything goes wrong, return empty origin
+            {
+                match value.to_str() {
+                    Ok(origin) => {
+                        if origin.is_empty() {
+                            warn!("Empty Origin header");
+                            return Ok(Origin(None));
+                        }
 
-        Ok(Origin(origin))
+                        Ok(Origin(Some(origin.to_owned())))
+                    }
+                    Err(e) => {
+                        warn!("Failed to parse Origin header {:?}", e);
+                        Ok(Origin(None))
+                    }
+                }
+            }
+            None => Ok(Origin(None)),
+        }
     }
 }
 
@@ -43,7 +52,9 @@ mod tests {
     };
     use tower::ServiceExt;
 
-    async fn origin_as_body(Origin(origin): Origin) -> Result<Json<String>, (StatusCode, String)> {
+    async fn origin_as_body(
+        Origin(origin): Origin,
+    ) -> Result<Json<Option<String>>, (StatusCode, String)> {
         Ok(Json(origin))
     }
 
@@ -62,21 +73,24 @@ mod tests {
             .unwrap();
 
         let response = app.oneshot(request).await.unwrap();
-        let resp = convert_response::<String>(response).await.unwrap();
+        let resp = convert_response::<Option<String>>(response).await.unwrap();
 
-        assert_eq!(resp, "https://www.example.com");
+        assert_eq!(resp, Some("https://www.example.com".to_string()));
     }
 
     #[tokio::test]
-    async fn missing_origin_header() {
+    async fn origin_header_empty() {
         let app = app();
 
-        let request = Request::builder().uri("/").body(Body::empty()).unwrap();
+        let request = Request::builder()
+            .uri("/")
+            .header("Origin", "")
+            .body(Body::empty())
+            .unwrap();
 
         let response = app.oneshot(request).await.unwrap();
-        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+        let resp = convert_response::<Option<String>>(response).await.unwrap();
 
-        let err = convert_response::<String>(response).await.unwrap_err();
-        assert_eq!(err.to_string(), "Origin header is required");
+        assert_eq!(resp, None);
     }
 }
