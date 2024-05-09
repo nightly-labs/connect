@@ -8,6 +8,7 @@ export interface AppBaseInitialize {
   timeout?: number
   persistentSessionId?: string
   persistent?: boolean
+  appId?: string
 }
 
 export interface ClientBaseInitialize {
