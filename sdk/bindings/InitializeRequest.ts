@@ -3,4 +3,4 @@ import type { AppMetadata } from "./AppMetadata";
 import type { Network } from "./Network";
 import type { Version } from "./Version";
 
-export interface InitializeRequest { responseId: string, appMetadata: AppMetadata, network: Network, version: Version, persistent: boolean, persistentSessionId?: string, }
+export interface InitializeRequest { responseId: string, appMetadata: AppMetadata, network: Network, version: Version, persistent: boolean, persistentSessionId?: string, appId?: string, }

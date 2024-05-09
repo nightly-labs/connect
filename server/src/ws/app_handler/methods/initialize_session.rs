@@ -97,6 +97,7 @@ pub async fn initialize_session_connection(
         public_keys: session_read.client_state.connected_public_keys.clone(),
         response_id: init_data.response_id.clone(),
         metadata: session_read.client_state.metadata.clone(),
+        app_id: app_id.clone(),
     });
     // Drop session read lock
     drop(session_read);
