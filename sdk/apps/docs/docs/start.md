@@ -20,4 +20,8 @@ slug: /start
         <img src="https://aptosfoundation.org/brandbook/logomark/PNG/Aptos_mark_WHT.png"/>
     Aptos
     </a>
+     <a href="./movement/movement/start" class="card">
+        <img src="https://img.cryptorank.io/coins/movement_labs1694616517738.png"/>
+    Movement
+    </a>
 </div>

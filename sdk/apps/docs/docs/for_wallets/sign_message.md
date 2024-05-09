@@ -97,4 +97,8 @@ client.on('signMessage', async (e) => {
 ```
 
 </TabItem>
+
+<TabItem value="Movement" label="Movement">
+The process mirrors that of Aptos.
+</TabItem>
 </Tabs>

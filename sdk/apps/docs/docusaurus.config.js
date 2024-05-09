@@ -83,37 +83,14 @@ const config = {
                 to: 'docs/aptos/aptos/start',
                 label: 'Aptos',
                 className: 'network_navlink aptos_navlink'
+              },
+              {
+                to: 'docs/movement/movement/start',
+                label: 'Movement',
+                className: 'network_navlink movement_navlink'
               }
             ]
           },
-          // {
-          //   to: 'docs/solana/solana/start',
-          //   className: 'solana_navlink navlink',
-          //   activeBasePath: 'docs/solana/solana/start',
-          //   label: 'Solana',
-          //   position: 'left'
-          // },
-          // {
-          //   to: 'docs/sui/sui/start',
-          //   className: 'sui_navlink navlink',
-          //   activeBasePath: 'docs/sui/sui/start',
-          //   label: 'Sui',
-          //   position: 'left'
-          // },
-          // {
-          //   to: 'docs/substrate/substrate/start',
-          //   className: 'substrate_navlink navlink',
-          //   activeBasePath: 'docs/substrate/substrate/start',
-          //   label: 'Substrate',
-          //   position: 'left'
-          // },
-          // {
-          //   to: 'docs/aptos/aptos/start',
-          //   className: 'aptos_navlink navlink',
-          //   activeBasePath: 'docs/aptos/aptos/start',
-          //   label: 'Aptos',
-          //   position: 'left'
-          // },
           {
             to: 'docs/customization/customization/ui_overrides',
             activeBasePath: 'docs/customization/customization/ui_overrides',
@@ -134,7 +111,8 @@ const config = {
               { href: 'https://solana-web3-template.nightly.app', label: 'Solana template' },
               { href: 'https://sui-web3-template.nightly.app', label: 'Sui template' },
               { href: 'https://aleph-zero-web3-template.nightly.app', label: 'Substrate template' },
-              { href: 'https://aptos-web3-template.vercel.app', label: 'Aptos template' }
+              { href: 'https://aptos-web3-template.vercel.app', label: 'Aptos template' },
+              { href: 'https://movement-web3-template.vercel.app', label: 'Movement template' }
             ]
           },
           {
