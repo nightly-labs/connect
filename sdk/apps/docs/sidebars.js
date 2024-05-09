@@ -48,7 +48,7 @@ const sidebars = {
     {
       type: 'category',
       className: 'drop movement-dropdown',
-      label: 'Movement',
+      label: 'Movement M1',
       collapsed: true,
       items: ['movement/start', 'movement/connect', 'movement/sign_transaction', 'movement/events']
     },

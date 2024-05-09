@@ -5,6 +5,10 @@ slug: movement/start
 
 ### Web template
 
+:::info
+Movement M1 network relies heavily on the [Aptos](../../aptos/aptos/start) network, so many functionalities are shared.
+:::
+
 <div class='highlight-template'>
 
 **To get started with movement, use the source code of the template below, and follow the installation instructions.**

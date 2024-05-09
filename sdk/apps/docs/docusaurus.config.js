@@ -86,7 +86,7 @@ const config = {
               },
               {
                 to: 'docs/movement/movement/start',
-                label: 'Movement',
+                label: 'Movement M1',
                 className: 'network_navlink movement_navlink'
               }
             ]
@@ -112,7 +112,7 @@ const config = {
               { href: 'https://sui-web3-template.nightly.app', label: 'Sui template' },
               { href: 'https://aleph-zero-web3-template.nightly.app', label: 'Substrate template' },
               { href: 'https://aptos-web3-template.vercel.app', label: 'Aptos template' },
-              { href: 'https://movement-web3-template.vercel.app', label: 'Movement template' }
+              { href: 'https://movement-web3-template.vercel.app', label: 'Movement M1 template' }
             ]
           },
           {

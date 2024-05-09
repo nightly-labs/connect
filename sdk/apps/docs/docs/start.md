@@ -22,6 +22,6 @@ slug: /start
     </a>
      <a href="./movement/movement/start" class="card">
         <img src="https://img.cryptorank.io/coins/movement_labs1694616517738.png"/>
-    Movement
+    Movement M1
     </a>
 </div>
