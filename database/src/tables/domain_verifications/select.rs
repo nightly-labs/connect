@@ -36,4 +36,21 @@ impl Db {
             .await
             .map_err(|e| e.into());
     }
+
+    pub async fn get_domain_verification_by_domain_name_and_app_id(
+        &self,
+        domain_name: &String,
+        app_id: &String,
+    ) -> Result<Option<DomainVerification>, DbError> {
+        let query =
+            format!("SELECT * FROM {DOMAIN_VERIFICATIONS_TABLE_NAME} WHERE domain_name = $1 AND app_id = $2");
+        let typed_query = query_as::<_, DomainVerification>(&query);
+
+        return typed_query
+            .bind(&domain_name)
+            .bind(&app_id)
+            .fetch_optional(&self.connection_pool)
+            .await
+            .map_err(|e| e.into());
+    }
 }
