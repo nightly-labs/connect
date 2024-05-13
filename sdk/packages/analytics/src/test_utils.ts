@@ -1,69 +1,109 @@
-// import { NightlyCloud } from '@nightlylabs/nightly-cloud'
-// import {
-//   HttpLoginRequest,
-//   HttpRegisterNewTeamRequest,
-//   HttpRegisterNewAppRequest
-// } from '../../../bindings'
+import { NightlyCloud } from '@nightlylabs/nightly-cloud'
+import {
+  HttpLoginRequest,
+  HttpRegisterNewTeamRequest,
+  HttpRegisterNewAppRequest,
+  HttpRegisterWithPasswordStartRequest
+} from '../../../bindings'
+import { NightlyAnalytics } from './app'
+import { AppBaseInitialize, BaseApp } from '@nightlylabs/nightly-connect-base'
+import WebSocket from 'isomorphic-ws'
 
-// export async function createUser(
-//   cloudClient: NightlyCloud
-// ): Promise<{ userId: string; email: string }> {
-//   const email = randomEmail() + '@gmail.com'
-//   const password = 'Password123'
+export async function createUser(
+  cloudClient: NightlyCloud
+): Promise<{ userId: string; email: string }> {
+  const email = randomEmail() + '@gmail.com'
+  const password = 'Password123'
 
-//   const registerPayload = {
-//     email,
-//     password
-//   } as HttpRegisterWithPasswordRequest
+  const registerPayload = {
+    email,
+    password
+  } as HttpRegisterWithPasswordStartRequest
 
-//   await await cloudClient.registerWithPassword(registerPayload)
+  await cloudClient.registerWithPasswordStart(registerPayload)
+  await cloudClient.registerWithPasswordFinish({ code: '123456', email })
 
-//   const loginPayload = {
-//     email,
-//     password,
-//     enforceIp: false
-//   } as HttpLoginRequest
+  const loginPayload = {
+    email,
+    password,
+    enforceIp: false
+  } as HttpLoginRequest
 
-//   const userId = (await cloudClient.loginWithPassword(loginPayload)).userId.toString()
+  const userId = (await cloudClient.loginWithPassword(loginPayload)).userId.toString()
 
-//   return { userId, email }
-// }
+  return { userId, email }
+}
 
-// export async function setupTest(
-//   cloudClient: NightlyCloud
-// ): Promise<{ teamId: string; appId: string }> {
-//   // create user
-//   await createUser(cloudClient)
+export async function setupTestTeam(
+  cloudClient: NightlyCloud
+): Promise<{ teamId: string; appId: string }> {
+  // create user
+  await createUser(cloudClient)
 
-//   // create basic team setup
-//   return await basicTeamSetup(cloudClient)
-// }
+  // create basic team setup
+  return await basicTeamSetup(cloudClient)
+}
 
-// export async function basicTeamSetup(
-//   cloudClient: NightlyCloud
-// ): Promise<{ teamId: string; appId: string }> {
-//   // create team
-//   const registerTeamPayload = {
-//     personal: false,
-//     teamName: 'Test_Team'
-//   } as HttpRegisterNewTeamRequest
+export async function basicTeamSetup(
+  cloudClient: NightlyCloud
+): Promise<{ teamId: string; appId: string }> {
+  // create team
+  const registerTeamPayload = {
+    personal: false,
+    teamName: 'Test_Team'
+  } as HttpRegisterNewTeamRequest
 
-//   const teamId = (await cloudClient.registerNewTeam(registerTeamPayload)).teamId
+  const teamId = (await cloudClient.registerNewTeam(registerTeamPayload)).teamId
 
-//   // create app
-//   const registerAppPayload = {
-//     teamId: teamId,
-//     appName: 'Test_App',
-//     ackPublicKeys: [],
-//     whitelistedDomains: ['localhost']
-//   } as HttpRegisterNewAppRequest
+  // create app
+  const registerAppPayload = {
+    teamId: teamId,
+    appName: 'Test_App',
+    ackPublicKeys: [],
+    whitelistedDomains: ['localhost']
+  } as HttpRegisterNewAppRequest
 
-//   const appId = (await cloudClient.registerNewApp(registerAppPayload)).appId
+  const appId = (await cloudClient.registerNewApp(registerAppPayload)).appId
 
-//   // Return both teamId and appId in an object
-//   return { teamId, appId }
-// }
+  // Return both teamId and appId in an object
+  return { teamId, appId }
+}
 
-// export function randomEmail(): string {
-//   return Math.random().toString(36).substring(7)
-// }
+export function randomEmail(): string {
+  return Math.random().toString(36).substring(7)
+}
+
+export function setupAnalytics(
+  origin: string,
+  network: string,
+  endpoint: string,
+  appId: string,
+  sessionId: string
+): NightlyAnalytics {
+  const analytics = new NightlyAnalytics({
+    sessionId: sessionId,
+    network: network,
+    endpoint: endpoint,
+    appId: appId
+  })
+
+  // Override sendEvent within the setup
+  analytics.sendEvent = async function (request, method = 'POST') {
+    return await fetch(this.endpoint, {
+      body: JSON.stringify(request),
+      method: method,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Origin: origin
+      }
+    })
+  }
+
+  return analytics
+}
+
+export async function verifyDomain(cloudClient: NightlyCloud, appId: string, domainName: string) {
+  await cloudClient.verifyDomainStart({ appId, domainName })
+  await cloudClient.verifyDomainFinish({ appId, domainName })
+}

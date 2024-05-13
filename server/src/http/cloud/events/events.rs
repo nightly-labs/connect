@@ -32,7 +32,7 @@ pub async fn events(
 ) -> Result<Json<()>, (StatusCode, String)> {
     // Check if origin was provided
     let origin = origin.ok_or((
-        StatusCode::BAD_REQUEST,
+        StatusCode::FORBIDDEN,
         CloudApiErrors::OriginHeaderRequired.to_string(),
     ))?;
 

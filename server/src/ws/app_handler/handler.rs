@@ -37,7 +37,7 @@ pub async fn on_new_app_connection(
     State(session_to_app_map): State<SessionToAppMap>,
     ws: WebSocketUpgrade,
 ) -> Response {
-    let ip = ip.clone().to_string().clone();
+    let ip = ip.to_string();
     ws.on_upgrade(move |socket| async move {
         debug!("OPEN app connection  from {}", ip);
         app_handler(
