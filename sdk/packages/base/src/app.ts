@@ -122,7 +122,8 @@ export class BaseApp extends EventEmitter<BaseEvents> {
           persistent: persistent,
           responseId: responseId,
           version: '#TODO version 0.0.0',
-          type: 'InitializeRequest'
+          type: 'InitializeRequest',
+          appId: baseInitialize.appId
         }
         // Set up the timeout
         const timer = setTimeout(() => {
