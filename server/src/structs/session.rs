@@ -31,7 +31,10 @@ impl Session {
     pub async fn send_to_app(&mut self, msg: ServerToApp) -> Result<()> {
         // Send to all apps
         for (_, socket) in &mut self.app_state.app_socket {
-            info!("Send to app {}, msg: {:?}", self.session_id, msg);
+            info!(
+                "Send to app from session: {}, msg: {:?}",
+                self.session_id, msg
+            );
             socket
                 .send(Message::Text(
                     serde_json::to_string(&msg).expect("Serialization should work"),
