@@ -3,11 +3,10 @@ import {
   HttpLoginRequest,
   HttpRegisterNewTeamRequest,
   HttpRegisterNewAppRequest,
-  HttpRegisterWithPasswordStartRequest
+  HttpRegisterWithPasswordStartRequest,
+  HttpVerifyDomainStartRequest
 } from '../../../bindings'
 import { NightlyAnalytics } from './app'
-import { AppBaseInitialize, BaseApp } from '@nightlylabs/nightly-connect-base'
-import WebSocket from 'isomorphic-ws'
 
 export async function createUser(
   cloudClient: NightlyCloud
@@ -104,6 +103,15 @@ export function setupAnalytics(
 }
 
 export async function verifyDomain(cloudClient: NightlyCloud, appId: string, domainName: string) {
-  await cloudClient.verifyDomainStart({ appId, domainName })
+  await cloudClient.verifyDomainStart({ appId, domainName } as HttpVerifyDomainStartRequest)
   await cloudClient.verifyDomainFinish({ appId, domainName })
+}
+
+export function randomDomainName(): string {
+  return randomEmail() + '.com'
+}
+
+export function randomOrigin(): { origin: string; domainName: string } {
+  const domainName = randomDomainName()
+  return { origin: 'https://' + domainName, domainName }
 }

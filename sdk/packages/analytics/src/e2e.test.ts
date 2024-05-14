@@ -2,9 +2,34 @@ import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { TEST_RELAY_ENDPOINT, smartDelay } from '../../../commonTestUtils'
 import { NightlyAnalytics } from './app'
 import { NightlyCloud } from '@nightlylabs/nightly-cloud'
-import { BaseApp } from '@nightlylabs/nightly-connect-base'
-import { createUser, randomEmail, setupAnalytics, setupTestTeam, verifyDomain } from './test_utils'
-import { AppConnectEvent, AppDisconnectEvent, ClientConnectResolveEvent } from '../../../bindings'
+import { BaseApp, Reject } from '@nightlylabs/nightly-connect-base'
+import {
+  createUser,
+  randomDomainName,
+  randomEmail,
+  randomOrigin,
+  setupAnalytics,
+  setupTestTeam,
+  verifyDomain
+} from './test_utils'
+import {
+  AppConnectEvent,
+  AppDisconnectEvent,
+  ChangeNetworkEvent,
+  ChangeNetworkResolveEvent,
+  ChangeWalletEvent,
+  ChangeWalletResolveEvent,
+  ClientConnectEvent,
+  ClientConnectResolveEvent,
+  ClientDisconnectEvent,
+  RequestFail,
+  SignAndSendTransactionEvent,
+  SignAndSendTransactionResolveEvent,
+  SignMessageEvent,
+  SignMessageResolveEvent,
+  SignTransactionEvent,
+  SignTransactionResolveEvent
+} from '../../../bindings'
 
 const TEST_CLOUD_ENDPOINT = 'http://127.0.0.1:6969/cloud'
 const TEST_ENDPOINT = 'http://127.0.0.1:6969/cloud/public/events'
@@ -21,24 +46,31 @@ describe('Analytics client tests', () => {
       url: TEST_CLOUD_ENDPOINT
     })
 
+    const { origin, domainName } = randomOrigin()
+
     // Create a test team and register one app under it
     const response = await setupTestTeam(cloudClient)
-
+    await verifyDomain(cloudClient, response.appId, domainName)
     // Create a new sessions under new app id
-    baseApp = await BaseApp.build({
-      appMetadata: {
-        additionalInfo: 'test-additional-info',
-        description: 'test-app-description',
-        icon: 'test-app-icon',
-        name: 'test-app-name'
+    baseApp = await BaseApp.build(
+      {
+        appMetadata: {
+          additionalInfo: 'test-additional-info',
+          description: 'test-app-description',
+          icon: 'test-app-icon',
+          name: 'test-app-name'
+        },
+        network: 'Solana',
+        persistent: false,
+        persistentSessionId: undefined,
+        timeout: undefined,
+        url: TEST_RELAY_ENDPOINT,
+        appId: response.appId
       },
-      network: 'Solana',
-      persistent: false,
-      persistentSessionId: undefined,
-      timeout: undefined,
-      url: TEST_RELAY_ENDPOINT,
-      appId: response.appId
-    })
+      {
+        origin
+      }
+    )
 
     sessionId = baseApp.sessionId
     teamId = response.teamId
@@ -47,7 +79,7 @@ describe('Analytics client tests', () => {
     await smartDelay()
   })
 
-  test('Create mock test with app', async () => {
+  test('Create mock test team with app', async () => {
     const tempCloudClient = new NightlyCloud({
       url: TEST_CLOUD_ENDPOINT
     })
@@ -85,8 +117,8 @@ describe('Analytics client tests', () => {
   })
 
   test('Reject send event without domain verification', async () => {
-    const domain = randomEmail()
-    const analytics = setupAnalytics(domain, 'Solana', TEST_ENDPOINT, appId, sessionId)
+    const { origin } = randomOrigin()
+    const analytics = setupAnalytics(origin, 'Solana', TEST_ENDPOINT, appId, sessionId)
     const request = {
       sessionId: analytics.sessionId,
       deviceMetadata: {
@@ -106,7 +138,7 @@ describe('Analytics client tests', () => {
   })
 
   test('Test domain verification', async () => {
-    const domain = randomEmail()
+    const domain = randomDomainName()
     // Try to verify domain with invalid domain name
     await expect(cloudClient.verifyDomainStart({ appId, domainName: '' })).rejects.toThrow(
       'InvalidDomainName'
@@ -170,13 +202,14 @@ describe('Analytics client tests', () => {
     const appData = await cloudClient.getUserJoinedTeams()
 
     const appWhitelistedDomains = appData.teamsApps[teamId][0].whitelistedDomains
-    assert(appWhitelistedDomains.length === 2)
+    // 2 from this test and one which was verified in the beforeAll hook
+    assert(appWhitelistedDomains.length === 3)
     assert(appWhitelistedDomains.includes(domain))
     assert(appWhitelistedDomains.includes(newDomain))
   })
 
   test('Test verified domain removal', async () => {
-    const domain = randomEmail()
+    const domain = randomDomainName()
 
     // Verify the domain
     await verifyDomain(cloudClient, appId, domain)
@@ -191,11 +224,11 @@ describe('Analytics client tests', () => {
   })
 
   test('Send event during unfinished domain registration process', async () => {
-    const domain = randomEmail()
-    const verifyResponse = await cloudClient.verifyDomainStart({ appId, domainName: domain })
+    const { origin, domainName } = randomOrigin()
+    const verifyResponse = await cloudClient.verifyDomainStart({ appId, domainName })
     expect(verifyResponse.code.length >= 36)
 
-    const analytics = setupAnalytics(domain, 'Solana', TEST_ENDPOINT, appId, sessionId)
+    const analytics = setupAnalytics(origin, 'Solana', TEST_ENDPOINT, appId, sessionId)
     const request = {
       sessionId: analytics.sessionId,
       deviceMetadata: {
@@ -215,10 +248,10 @@ describe('Analytics client tests', () => {
   })
 
   test('Send event success', async () => {
-    const domain = randomEmail()
-    await verifyDomain(cloudClient, appId, domain)
+    const { origin, domainName } = randomOrigin()
+    await verifyDomain(cloudClient, appId, domainName)
 
-    const analytics = setupAnalytics(domain, 'Solana', TEST_ENDPOINT, appId, sessionId)
+    const analytics = setupAnalytics(origin, 'Solana', TEST_ENDPOINT, appId, sessionId)
     const request = {
       sessionId: analytics.sessionId,
       deviceMetadata: {
@@ -238,13 +271,13 @@ describe('Analytics client tests', () => {
   })
 
   test('Reject event from different origin', async () => {
-    const domain = randomEmail()
-    await verifyDomain(cloudClient, appId, domain)
+    const { domainName } = randomOrigin()
+    await verifyDomain(cloudClient, appId, domainName)
 
     // Send event from origin unverified for this app id
-    const differentDomain = 'different-origin' + randomEmail()
+    const differentOrigin = 'http://different-origin' + randomEmail() + '.com'
     const analyticsDifferentOrigin = setupAnalytics(
-      differentDomain,
+      differentOrigin,
       'Solana',
       TEST_ENDPOINT,
       appId,
@@ -269,14 +302,15 @@ describe('Analytics client tests', () => {
     expect(response.status).toBe(403)
   })
 
-  describe.only('Test events', () => {
-    let domain
-    let analytics
+  describe('Test events', () => {
+    let analytics: NightlyAnalytics
+    const clientId: string = 'test-client-id' + randomEmail()
+    const addresses: string[] = ['test-address' + randomEmail()]
 
     beforeAll(async () => {
-      domain = randomEmail()
-      await verifyDomain(cloudClient, appId, domain)
-      analytics = setupAnalytics(domain, 'Solana', TEST_ENDPOINT, appId, sessionId)
+      const { origin, domainName } = randomOrigin()
+      await verifyDomain(cloudClient, appId, domainName)
+      analytics = setupAnalytics(origin, 'Solana', TEST_ENDPOINT, appId, sessionId)
     })
 
     test('Event appConnected', async () => {
@@ -317,20 +351,190 @@ describe('Analytics client tests', () => {
       // Send event clientConnect with success set to false
       const request = {
         sessionId: analytics.sessionId,
-        clientId: 'test-client-id',
-        addresses: ['test-address'],
         walletName: 'test-wallet-name',
         walletType: 'test-wallet-type',
-        success: false
+        clientId: clientId,
+        sessionType: 'Extension'
+      } as ClientConnectEvent
+
+      const response = await analytics.clientConnect(request)
+      expect(response.status).toBe(200)
+    })
+
+    test('Event clientConnectResolve', async () => {
+      const request = {
+        addresses: addresses,
+        sessionId: analytics.sessionId,
+        success: true,
+        walletName: 'test-wallet-name',
+        walletType: 'test-wallet-type',
+        clientId: clientId
       } as ClientConnectResolveEvent
 
-      const response = await analytics.appDisconnected(request)
+      const response = await analytics.clientConnectResolve(request)
+      expect(response.status).toBe(200)
+    })
+
+    test('Event clientDisconnect', async () => {
+      const request = {
+        disconnectedSessionId: analytics.sessionId,
+        clientId: clientId
+      } as ClientDisconnectEvent
+
+      const response = await analytics.clientDisconnect(request)
+      expect(response.status).toBe(200)
+    })
+
+    test('Event signMessage', async () => {
+      const request = {
+        network: 'Solana',
+        requestId: 'test-request-id',
+        sessionId: analytics.sessionId
+      } as SignMessageEvent
+
+      const response = await analytics.signMessage(request)
+      expect(response.status).toBe(200)
+    })
+
+    test('Event signMessageResolve', async () => {
+      // First send signMessageResolve event with failureReason
+      const request = {
+        requestId: 'test-request-id',
+        sessionId: analytics.sessionId,
+        failureReason: 'Rejected' as RequestFail
+      } as SignMessageResolveEvent
+
+      const response = await analytics.signMessageResolve(request)
       expect(response.status).toBe(200)
 
-      // Send event clientConnect with success set to true
-      request.success = true
-      const response2 = await analytics.appDisconnected(request)
-      expect(response2.status).toBe(200)
+      // Then send signMessageResolve event with success
+      request.failureReason = undefined
+
+      const responseSuccess = await analytics.signMessageResolve(request)
+      expect(responseSuccess.status).toBe(200)
+    })
+
+    test('Event signTransaction', async () => {
+      const request = {
+        network: 'Solana',
+        requestId: 'test-request-id',
+        sessionId: analytics.sessionId
+      } as SignTransactionEvent
+
+      const response = await analytics.signTransaction(request)
+      expect(response.status).toBe(200)
+    })
+
+    test('Event signTransactionResolve', async () => {
+      // First send signTransactionResolve event with failureReason
+      const request = {
+        requestId: 'test-request-id',
+        sessionId: analytics.sessionId,
+        failureReason: 'Rejected' as RequestFail
+      } as SignTransactionResolveEvent
+
+      const response = await analytics.signTransactionResolve(request)
+      expect(response.status).toBe(200)
+
+      // Then send signTransactionResolve event with success
+      request.failureReason = undefined
+      request.txHash = 'test-tx-hash'
+
+      const responseSuccess = await analytics.signTransactionResolve(request)
+      expect(responseSuccess.status).toBe(200)
+    })
+
+    test('Event signAndSendTransaction', async () => {
+      const request = {
+        network: 'Solana',
+        requestId: 'test-request-id',
+        sessionId: analytics.sessionId
+      } as SignAndSendTransactionEvent
+
+      const response = await analytics.signAndSendTransaction(request)
+      expect(response.status).toBe(200)
+    })
+
+    test('Event signAndSendTransactionResolve', async () => {
+      // First send signAndSendTransactionResolve event with failureReason
+      const request = {
+        requestId: 'test-request-id',
+        sessionId: analytics.sessionId,
+        failureReason: 'Rejected' as RequestFail
+      } as SignAndSendTransactionResolveEvent
+
+      const response = await analytics.signAndSendTransactionResolve(request)
+      expect(response.status).toBe(200)
+
+      // Then send signAndSendTransactionResolve event with success
+      request.failureReason = undefined
+      request.txHash = 'test-tx-hash'
+
+      const responseSuccess = await analytics.signAndSendTransactionResolve(request)
+      expect(responseSuccess.status).toBe(200)
+    })
+
+    test('Event changeWallet', async () => {
+      const request = {
+        network: 'Solana',
+        requestId: 'test-request-id',
+        sessionId: analytics.sessionId,
+        walletName: 'test-wallet-name',
+        walletType: 'test-wallet-type',
+        oldWalletAddress: 'test-old-wallet-address'
+      } as ChangeWalletEvent
+
+      const response = await analytics.changeWallet(request)
+      expect(response.status).toBe(200)
+    })
+
+    test('Event changeWalletResolve', async () => {
+      // First send changeWalletResolve event with failureReason
+      const request = {
+        requestId: 'test-request-id',
+        sessionId: analytics.sessionId,
+        failureReason: 'TimedOut' as RequestFail
+      } as ChangeWalletResolveEvent
+
+      const response = await analytics.changeWalletResolve(request)
+      expect(response.status).toBe(200)
+
+      // Then send changeWalletResolve event with success
+      request.failureReason = undefined
+      request.newWalletAddress = 'new-wallet-address'
+
+      const responseSuccess = await analytics.changeWalletResolve(request)
+      expect(responseSuccess.status).toBe(200)
+    })
+
+    test('Event changeNetwork', async () => {
+      const request = {
+        oldNetwork: 'Solana',
+        requestId: 'test-request-id',
+        sessionId: analytics.sessionId
+      } as ChangeNetworkEvent
+
+      const response = await analytics.changeNetwork(request)
+      expect(response.status).toBe(200)
+    })
+
+    test('Event changeNetworkResolve', async () => {
+      // First send changeNetworkResolve event with failureReason
+      const request = {
+        requestId: 'test-request-id',
+        sessionId: analytics.sessionId,
+        failureReason: 'TimedOut' as RequestFail
+      } as ChangeNetworkResolveEvent
+
+      const response = await analytics.changeNetworkResolve(request)
+      expect(response.status).toBe(200)
+
+      // Then send changeWalletResolve event with success
+      request.failureReason = undefined
+      request.newNetwork = 'Aptos'
+
+      const responseSuccess = await analytics.changeNetworkResolve(request)
+      expect(responseSuccess.status).toBe(200)
     })
   })
 })
