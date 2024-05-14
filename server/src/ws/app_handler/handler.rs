@@ -4,6 +4,7 @@ use super::methods::{
 use crate::{
     cloud_state::CloudState,
     env::ONLY_RELAY_SERVICE,
+    http::cloud::utils::extract_domain_name,
     middlewares::origin_middleware::Origin,
     state::{
         ClientSockets, ClientToSessions, SendToClient, SessionToApp, SessionToAppMap, Sessions,
@@ -275,10 +276,13 @@ async fn get_app_id(
     if let Some(cloud) = cloud_state {
         match origin {
             Some(origin) => {
-                // Origin was provided, check if it is verified
+                // Origin was provided, extract domain name and check if it is verified
+
+                let domain_name = extract_domain_name(&origin)?;
+
                 match cloud
                     .db
-                    .get_domain_verification_by_domain_name(origin)
+                    .get_domain_verification_by_domain_name(&domain_name)
                     .await
                 {
                     // Domain verification has been found
