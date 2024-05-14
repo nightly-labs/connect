@@ -9,7 +9,7 @@ use database::{
     tables::{ip_addresses::table_struct::IpAddressEntry, utils::get_current_datetime},
 };
 use garde::Validate;
-use log::{error, warn};
+use log::{error, info, warn};
 use rand::{distributions::Uniform, Rng};
 use reqwest::Url;
 use std::{net::SocketAddr, str::FromStr, sync::Arc, time::Duration};
@@ -134,6 +134,12 @@ pub async fn get_geolocation_data(
             warn!("Failed to get geolocation, ip: [{}], err: [{}]", ip, err);
             return None;
         }
+    }
+
+    // Skip requesting geolocation data if the ip is localhost
+    if ip.ip().is_loopback() {
+        info!("Skipping geolocation request for localhost ip: [{}]", ip);
+        return None;
     }
 
     // Fetch data from the geolocation service and update the database
