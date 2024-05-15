@@ -29,6 +29,9 @@ export interface IWalletListItem
   standardWallet?: Wallet
 }
 
+export interface ISelectedWallet
+  extends Pick<IWalletListItem, 'name' | 'slug' | 'walletType' | 'image' | 'homepage'> {}
+
 export interface NetworkData {
   name: string
   icon: string

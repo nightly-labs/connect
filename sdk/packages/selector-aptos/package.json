@@ -27,7 +27,7 @@
     "@aptos-labs/ts-sdk": "^1.9.1",
     "@aptos-labs/wallet-standard": "^0.0.11",
     "@nightlylabs/nightly-connect-aptos": "0.0.2",
-    "@nightlylabs/wallet-selector-base": "0.4.0",
+    "@nightlylabs/wallet-selector-base": "0.4.1",
     "@wallet-standard/core": "^1.0.3",
     "eventemitter3": "^5.0.1"
   },
