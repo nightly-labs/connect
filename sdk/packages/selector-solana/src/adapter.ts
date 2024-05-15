@@ -1,27 +1,27 @@
 import { AppSolana, SOLANA_NETWORK } from '@nightlylabs/nightly-connect-solana'
 import {
   AppInitData,
+  ConnectionOptions,
+  ConnectionType,
+  ISelectedWallet,
+  IWalletListItem,
+  NightlyConnectSelectorModal,
+  WalletMetadata,
+  XMLOptions,
   clearRecentWalletForNetwork,
   clearSessionIdForNetwork,
+  defaultConnectionOptions,
   getRecentWalletForNetwork,
   isMobileBrowser,
   logoBase64,
-  NightlyConnectSelectorModal,
   persistRecentWalletForNetwork,
-  triggerConnect,
   sleep,
-  XMLOptions,
-  ConnectionType,
-  ConnectionOptions,
-  defaultConnectionOptions,
-  WalletMetadata,
-  IWalletListItem
+  triggerConnect
 } from '@nightlylabs/wallet-selector-base'
 import {
   BaseMessageSignerWalletAdapter,
   WalletAdapterCompatibleStandardWallet,
   WalletAdapterEvents,
-  WalletError,
   WalletName,
   WalletNotConnectedError,
   WalletNotReadyError,
@@ -33,8 +33,8 @@ import {
 } from '@solana/wallet-adapter-base'
 import { StandardWalletAdapter } from '@solana/wallet-standard'
 import { PublicKey, Transaction, TransactionVersion, VersionedTransaction } from '@solana/web3.js'
-import { getSolanaWalletsList } from './detection'
 import { StandardEventsChangeProperties } from '@wallet-standard/core'
+import { getSolanaWalletsList } from './detection'
 
 type NightlyConnectAdapterEvents = WalletAdapterEvents & {
   change(properties: StandardEventsChangeProperties): void
@@ -74,6 +74,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
   private _detectionIntervalId: NodeJS.Timeout | undefined
   private _maxNumberOfChecks = 10
 
+  private _selectedWallet: ISelectedWallet | undefined = undefined
+
   private _connectionOptions: ConnectionOptions = defaultConnectionOptions
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _eventHandlers: Map<string, (...args: any[]) => void> = new Map()
@@ -112,6 +114,10 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   get walletsList() {
     return this._walletsList
+  }
+
+  get selectedWallet() {
+    return this._selectedWallet
   }
 
   set walletsList(list: IWalletListItem[]) {
@@ -240,6 +246,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
           adapter.disconnect()
           return
         }
+        adapter.setSelectedWallet({ isRemote: true })
         adapter._publicKey = adapter._app.connectedPublicKeys[0]
         adapter._connected = true
         adapter.emit('connect', adapter._publicKey)
@@ -326,6 +333,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
                 adapter.disconnect()
                 return
               }
+              adapter.setSelectedWallet({ isRemote: true })
               adapter._publicKey = adapter._app.connectedPublicKeys[0]
               adapter._connected = true
               adapter.emit('connect', adapter._publicKey)
@@ -399,6 +407,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       }
 
       const wallet = this.walletsList.find((w) => w.name === walletName)
+      this.setSelectedWallet({ walletName })
 
       if (!this._app) {
         throw new Error('Wallet not ready')
@@ -450,6 +459,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       if (this._modal) {
         this._modal.setStandardWalletConnectProgress(false)
       }
+      this._selectedWallet = undefined
+
       throw err
     }
   }
@@ -461,8 +472,11 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         this._modal.setStandardWalletConnectProgress(true)
       }
 
-      const wallet = this.walletsList.find((w) => w.name === walletName)?.standardWallet
-      if (typeof wallet === 'undefined') {
+      const wallet = this.walletsList.find((w) => w.name === walletName)
+      this.setSelectedWallet({ walletName })
+      const standardWallet = wallet?.standardWallet
+
+      if (typeof standardWallet === 'undefined') {
         if (this._modal) {
           this._modal.setStandardWalletConnectProgress(false)
         }
@@ -470,7 +484,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       }
 
       const adapter = new StandardWalletAdapter({
-        wallet: wallet as WalletAdapterCompatibleStandardWallet
+        wallet: standardWallet as WalletAdapterCompatibleStandardWallet
       })
 
       await adapter.connect()
@@ -497,6 +511,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       if (this._modal) {
         this._modal.setStandardWalletConnectProgress(false)
       }
+      this._selectedWallet = undefined
 
       throw err
     }
@@ -544,6 +559,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
                   this._connected = true
                   this._connecting = false
                   this._appSessionActive = true
+                  this.setSelectedWallet({ isRemote: true })
                   this.emit('connect', this._publicKey)
                   resolve()
                   return
@@ -590,6 +606,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
                       this.disconnect()
                       return
                     }
+                    this.setSelectedWallet({ isRemote: true })
                     this._publicKey = this._app.connectedPublicKeys[0]
                     this._connected = true
                     this.emit('connect', this._publicKey)
@@ -720,6 +737,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         clearSessionIdForNetwork(SOLANA_NETWORK)
         this._appSessionActive = false
         this._loading = true
+        this._selectedWallet = undefined
         try {
           this._app = await AppSolana.build(this._appInitData)
           // Add event listener for userConnected
@@ -736,6 +754,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
                 this.disconnect()
                 return
               }
+              this.setSelectedWallet({ isRemote: true })
               this._publicKey = this._app.connectedPublicKeys[0]
               this._connected = true
               this.emit('connect', this._publicKey)
@@ -835,6 +854,19 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     } catch (error: any) {
       this.emit('error', error)
       throw error
+    }
+  }
+
+  setSelectedWallet = ({ walletName = 'Nightly', isRemote = false }) => {
+    const wallet = this.walletsList.find((wallet) => wallet.name === walletName)
+    if (wallet) {
+      this._selectedWallet = {
+        name: wallet.name,
+        image: wallet.image,
+        homepage: wallet.homepage,
+        slug: wallet.slug,
+        walletType: isRemote ? 'mobile' : wallet.walletType
+      }
     }
   }
 }
