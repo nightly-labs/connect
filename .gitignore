@@ -2,3 +2,4 @@
 /Cargo.lock
 /.vscode
 /grafana-client-gen/build
+/infra/target
