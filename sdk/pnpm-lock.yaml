@@ -101,7 +101,7 @@ importers:
         specifier: ^0.4.1
         version: link:../../packages/selector-base
       '@nightlylabs/wallet-selector-polkadot':
-        specifier: 0.2.5
+        specifier: 0.2.6
         version: link:../../packages/selector-polkadot
       '@nightlylabs/wallet-selector-solana':
         specifier: 0.3.2

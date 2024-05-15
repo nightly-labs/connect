@@ -3,6 +3,7 @@ import { AppPolkadot, AppPolkadotInitialize } from '@nightlylabs/nightly-connect
 import {
   ConnectionOptions,
   ConnectionType,
+  ISelectedWallet,
   IWalletListItem,
   NightlyConnectSelectorModal,
   WalletMetadata,
@@ -20,9 +21,9 @@ import {
 
 import { type Signer as InjectedSigner } from '@polkadot/api/types'
 import { InjectedAccount, type Injected } from '@polkadot/extension-inject/types'
-import { IPolkadotWalletListItem, getPolkadotWalletsList } from './detection'
-import { networkToData, SupportedNetworks } from './utils'
 import EventEmitter from 'eventemitter3'
+import { IPolkadotWalletListItem, getPolkadotWalletsList } from './detection'
+import { SupportedNetworks, networkToData } from './utils'
 
 export type AppSelectorInitialize = Omit<AppPolkadotInitialize, 'network'> & {
   network: SupportedNetworks
@@ -57,6 +58,8 @@ export class NightlyConnectAdapter
   private _chosenMobileWalletName: string | undefined
 
   private _loading: boolean
+
+  private _selectedWallet: ISelectedWallet | undefined = undefined
 
   // interval used for checking for wallets with delayed detection
   private _detectionIntervalId: NodeJS.Timeout | undefined
@@ -122,6 +125,10 @@ export class NightlyConnectAdapter
   }
   get walletsList() {
     return this._walletsList
+  }
+
+  get selectedWallet() {
+    return this._selectedWallet
   }
 
   set walletsList(list: IPolkadotWalletListItem[]) {
@@ -212,6 +219,7 @@ export class NightlyConnectAdapter
           adapter.disconnect()
           return
         }
+        adapter.setSelectedWallet({ isRemote: true })
         adapter._connected = true
         adapter.emit('connect', await adapter.accounts.get())
       } catch {
@@ -287,6 +295,7 @@ export class NightlyConnectAdapter
                 adapter.disconnect()
                 return
               }
+              adapter.setSelectedWallet({ isRemote: true })
               adapter._connected = true
               adapter.emit('connect', await adapter.accounts.get())
             } catch {
@@ -358,6 +367,7 @@ export class NightlyConnectAdapter
       }
 
       const wallet = this.walletsList.find((w) => w.name === walletName)
+      this.setSelectedWallet({ wallet })
 
       if (!this._app) {
         throw new Error('Wallet not ready')
@@ -434,7 +444,9 @@ export class NightlyConnectAdapter
       if (this._modal) {
         this._modal.setStandardWalletConnectProgress(true)
       }
-      const adapter = this.walletsList.find((w) => w.name === walletName)?.injectedWallet
+      const wallet = this.walletsList.find((w) => w.name === walletName)
+      const adapter = wallet?.injectedWallet
+      this.setSelectedWallet({ wallet })
       if (typeof adapter === 'undefined') {
         if (this._modal) {
           this._modal.setStandardWalletConnectProgress(false)
@@ -515,6 +527,7 @@ export class NightlyConnectAdapter
               if (this._app?.hasBeenRestored() && this._app.accounts.activeAccounts.length > 0) {
                 // Try to eager connect if session is restored
                 try {
+                  this.setSelectedWallet({ isRemote: true })
                   this._connected = true
                   this._connecting = false
                   this.emit('connect', await this.accounts.get())
@@ -561,6 +574,7 @@ export class NightlyConnectAdapter
                       this.disconnect()
                       return
                     }
+                    this.setSelectedWallet({ isRemote: true })
                     this._connected = true
                     this.emit('connect', await this.accounts.get())
                   } catch {
@@ -688,6 +702,28 @@ export class NightlyConnectAdapter
       clearRecentWalletForNetwork(this.network)
       this._innerStandardAdapter = undefined
       this._app = await AppPolkadot.build(this._appInitData)
+      this._selectedWallet = undefined
+
+      this._app.on('userConnected', async () => {
+        try {
+          persistRecentWalletForNetwork(this.network, {
+            walletName: this._chosenMobileWalletName || '',
+            walletType: ConnectionType.Nightly
+          })
+
+          if (!this._app || this._app.accounts.activeAccounts.length <= 0) {
+            this._connected = false
+            // If user does not pass any accounts, we should disconnect
+            this.disconnect()
+            return
+          }
+          this.setSelectedWallet({ isRemote: true })
+          this._connected = true
+          this.emit('connect', await this.accounts.get())
+        } catch {
+          this.disconnect()
+        }
+      })
 
       // Update recent wallet
       this.walletsList = getPolkadotWalletsList(
@@ -703,6 +739,28 @@ export class NightlyConnectAdapter
       this.emit('disconnect')
 
       clearInterval(this._detectionIntervalId)
+    }
+  }
+
+  setSelectedWallet = ({
+    wallet,
+    isRemote = false
+  }: {
+    wallet?: IWalletListItem
+    isRemote?: boolean
+  }) => {
+    if (!wallet) {
+      // Connecting to the nightly mobile app
+      wallet = this.walletsList.find((wallet) => wallet.name === 'Nightly')
+    }
+
+    if (wallet) {
+      this._selectedWallet = {
+        name: wallet.name,
+        image: wallet.image,
+        homepage: wallet.homepage,
+        walletType: isRemote ? 'mobile' : wallet.walletType
+      }
     }
   }
 }
