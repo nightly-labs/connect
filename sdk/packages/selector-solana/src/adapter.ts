@@ -407,7 +407,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       }
 
       const wallet = this.walletsList.find((w) => w.name === walletName)
-      this.setSelectedWallet({ walletName })
+      this.setSelectedWallet({ wallet })
 
       if (!this._app) {
         throw new Error('Wallet not ready')
@@ -473,7 +473,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       }
 
       const wallet = this.walletsList.find((w) => w.name === walletName)
-      this.setSelectedWallet({ walletName })
+      this.setSelectedWallet({ wallet })
       const standardWallet = wallet?.standardWallet
 
       if (typeof standardWallet === 'undefined') {
@@ -857,14 +857,23 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     }
   }
 
-  setSelectedWallet = ({ walletName = 'Nightly', isRemote = false }) => {
-    const wallet = this.walletsList.find((wallet) => wallet.name === walletName)
+  setSelectedWallet = ({
+    wallet,
+    isRemote = false
+  }: {
+    wallet?: IWalletListItem
+    isRemote?: boolean
+  }) => {
+    if (!wallet) {
+      // Connecting to the nightly mobile app
+      wallet = this.walletsList.find((wallet) => wallet.name === 'Nightly')
+    }
+
     if (wallet) {
       this._selectedWallet = {
         name: wallet.name,
         image: wallet.image,
         homepage: wallet.homepage,
-        slug: wallet.slug,
         walletType: isRemote ? 'mobile' : wallet.walletType
       }
     }

@@ -1,6 +1,7 @@
 import { type AppBaseInitialize } from '@nightlylabs/nightly-connect-base'
 import { type Deeplink } from '@nightlylabs/nightly-connect-base/dist/types/bindings/Deeplink'
 import { type Wallet } from '@wallet-standard/core'
+import { type Images } from '../../../bindings/Images'
 import { WalletMetadata } from '../../../bindings/WalletMetadata'
 import { type WalletType } from '../../../bindings/WalletType'
 export { type WalletMetadata } from '../../../bindings/WalletMetadata'
@@ -29,8 +30,12 @@ export interface IWalletListItem
   standardWallet?: Wallet
 }
 
-export interface ISelectedWallet
-  extends Pick<IWalletListItem, 'name' | 'slug' | 'walletType' | 'image' | 'homepage'> {}
+export interface ISelectedWallet {
+  name: string
+  homepage: string
+  walletType: WalletType
+  image: Images
+}
 
 export interface NetworkData {
   name: string
