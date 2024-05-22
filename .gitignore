@@ -3,3 +3,6 @@
 /.vscode
 /grafana-client-gen/build
 /infra/target
+/infra/config
+/infra/logs
+/infra/backups
