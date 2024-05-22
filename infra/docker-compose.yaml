@@ -23,13 +23,6 @@ volumes:
       type: 'none'
       o: 'bind'
       device: ./config
-  custom_entrypoint:
-    driver: local
-    driver_opts:
-      type: 'none'
-      o: 'bind'
-      device: ./scripts/custom_entrypoint.sh
-  
 
 services:
   timescaledb:
@@ -41,8 +34,9 @@ services:
       - timescaledb_backups:/var/lib/pgbackrest
       - timescaledb_pgbackrest_config:/home/postgres/pgdata/backup
       - timescaledb_logs:/var/log
-      - custom_entrypoint:/docker-entrypoint-initdb.d/custom_entrypoint.sh
-    entrypoint: ["/docker-entrypoint-initdb.d/custom_entrypoint.sh"]
+      - ./scripts/custom_entrypoint.sh:/usr/local/bin/custom_entrypoint.sh
+    entrypoint: ["/usr/local/bin/custom_entrypoint.sh"]
+    command: ["postgres"]
     restart: no
     environment:
       ENV: DEV
