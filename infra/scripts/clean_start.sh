@@ -166,8 +166,9 @@ if wait_for_db_ready; then
     chmod -R 770 /var/log/pgbackrest
     chown -R postgres:postgres /tmp/pgbackrest
     chmod -R 770 /tmp/pgbackrest
-    # chown -R postgres:postgres /var/lib/pgbackrest/backup/$BACKUP_MARKER
-    # chmod -R 770 /var/lib/pgbackrest/backup/$BACKUP_MARKER
+    mkdir -p /var/log/pgbackrest
+    chown -R postgres:postgres /var/lib/pgbackrest
+    chmod -R 770 /var/lib/pgbackrest
   "
   echo "Permissions fixed for pgBackRest backup and log directories."
 

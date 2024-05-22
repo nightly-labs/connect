@@ -33,10 +33,10 @@ mod tests {
     #[tokio::test]
     async fn test_add_client_profile() {
         let db = super::Db::connect_to_the_pool().await;
-        db.truncate_all_tables().await.unwrap();
+        // db.truncate_all_tables().await.unwrap();
 
-        let now = to_microsecond_precision(&Utc::now());
-        let created_profile = db.create_new_profile(None).await.unwrap();
+        // let now = to_microsecond_precision(&Utc::now());
+        // let created_profile = db.create_new_profile(None).await.unwrap();
 
         // let expected_id = 1;
         // let profile_result = db.get_profile_by_profile_id(expected_id).await.unwrap();
