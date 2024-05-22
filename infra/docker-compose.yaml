@@ -41,7 +41,7 @@ services:
       - timescaledb_backups:/var/lib/pgbackrest
       - timescaledb_pgbackrest_config:/home/postgres/pgdata/backup
       - timescaledb_logs:/var/log
-      - .custom_entrypoint:/docker-entrypoint-initdb.d/custom_entrypoint.sh
+      - custom_entrypoint:/docker-entrypoint-initdb.d/custom_entrypoint.sh
     entrypoint: ["/docker-entrypoint-initdb.d/custom_entrypoint.sh"]
     restart: no
     environment:
