@@ -178,11 +178,6 @@ if wait_for_db_ready; then
   "
   echo "pgBackRest check executed successfully."
 
-#   sudo docker exec -u root $CONTAINER_ID bash -c "
-#     cd /var/lib/pgbackrest/backup
-#     ls -la
-#   "
-
 else
   echo "Failed to confirm TimescaleDB readiness after restart. Check logs for more details."
   exit 1

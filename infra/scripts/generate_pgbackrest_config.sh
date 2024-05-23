@@ -13,13 +13,15 @@ fi
 echo "Creating pgbackrest configuration at $config_path"
 
 # Use 'cat' to write the contents to the configuration file
-cat > "$config_path" <<EOF
+cat >"$config_path" <<EOF
 [db]
 pg1-path=/home/postgres/pgdata/data
 pg1-socket-path=/var/run/postgresql
 [global]
-repo1-retention-full=2
+repo1-retention-full=3
 repo1-path=/var/lib/pgbackrest
+[global:archive-push]
+compress-level=3 
 EOF
 
 echo "pgbackrest configuration has been created."

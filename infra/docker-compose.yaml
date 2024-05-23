@@ -45,9 +45,5 @@ services:
       POSTGRES_DB: connect_db
       PG_DATA: /home/postgres/pgdata
       PGUSER: admin1234
-      # PGBACKREST_REPO_PATH: /home/postgres/pgdata/backup
-      # PGBACKREST_STANZA: db
-      # PGBACKREST_LOG_PATH: /home/postgres/pgdata/backup/log
-    # command: ["/bin/bash", "-c", "postgres -D $PG_DATA >logfile 2>&1 & sleep infinity"]
 
 
