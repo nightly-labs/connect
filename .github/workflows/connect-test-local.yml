@@ -32,12 +32,12 @@ jobs:
         working-directory: ./infra
         run: |
           docker-compose down
-          rm -rf .infra/target
-          rm -rf .infra/backups
-          rm -rf .infra/config
-          rm -rf .infra/logs
-          rm -rf .infra/ofelia_logs
-          sudo ./scripts/clean_start.sh
+          # rm -rf .infra/target
+          # rm -rf .infra/backups
+          # rm -rf .infra/config
+          # rm -rf .infra/logs
+          # rm -rf .infra/ofelia_logs
+          # sudo ./scripts/clean_start.sh
       - name: Setup Grafana
         working-directory: ./grafana
         run: |
