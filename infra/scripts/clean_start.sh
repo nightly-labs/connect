@@ -4,8 +4,8 @@
 # Step [2]: Run the script
 # Step [3]: Run the binary located in ./database/src/bin/tables_migration.rs
 
-# Define the TimescaleDB image name as a variable
-TIMESCALEDB_IMAGE="timescale/timescaledb-ha:pg15-ts2.10"
+# Source the .env
+source .env
 
 # Just in case stop the docker-compose
 CONTAINER_ID=$(docker ps --filter "ancestor=$TIMESCALEDB_IMAGE" --format "{{.ID}}")
@@ -45,10 +45,11 @@ fi
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." &>/dev/null && pwd)"
 
 directories=(
-  "$BASE_DIR/target"
-  "$BASE_DIR/backups"
-  "$BASE_DIR/logs"
-  "$BASE_DIR/config"
+  "${BASE_DIR}/${TIMESCALEDB_DATA}"
+  "${BASE_DIR}/${TIMESCALEDB_BACKUPS}"
+  "${BASE_DIR}/${TIMESCALEDB_LOGS}"
+  "${BASE_DIR}/${TIMESCALEDB_PGBACKREST_CONFIG}"
+  "${BASE_DIR}/${OFELIA_LOGS}"
 )
 
 printf "\n------------- Tyding up the directories -------------\n"
@@ -73,7 +74,7 @@ echo "Generating pgbackrest_config..."
 cd "$BASE_DIR"
 
 # Define PostgreSQL data directory
-POSTGRESQL_DATA_DIR="/home/postgres/pgdata/data"
+POSTGRESQL_DATA_DIR="${PG_DATA}/data"  # Source this path from .env
 # PostgreSQL configuration file
 POSTGRESQL_CONF="$POSTGRESQL_DATA_DIR/postgresql.conf"
 BACKUP_MARKER="db"
@@ -177,7 +178,6 @@ if wait_for_db_ready; then
     pgbackrest --stanza=$BACKUP_MARKER --log-level-console=info check
   "
   echo "pgBackRest check executed successfully."
-
 else
   echo "Failed to confirm TimescaleDB readiness after restart. Check logs for more details."
   exit 1

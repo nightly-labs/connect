@@ -1,49 +1,66 @@
-volumes:
-  timescaledb_data:
-    driver: local
-    driver_opts:
-      type: 'none'
-      o: 'bind'
-      device: ./target
-  timescaledb_backups:
-    driver: local
-    driver_opts:
-      type: 'none'
-      o: 'bind'
-      device: ./backups
-  timescaledb_logs:
-    driver: local
-    driver_opts:
-      type: 'none'
-      o: 'bind'
-      device: ./logs
-  timescaledb_pgbackrest_config:
-    driver: local
-    driver_opts:
-      type: 'none'
-      o: 'bind'
-      device: ./config
-
 services:
   timescaledb:
-    image: timescale/timescaledb-ha:pg15-ts2.10
+    image: ${TIMESCALEDB_IMAGE}
     ports:
       - 5432:5432
     volumes:
-      - timescaledb_data:/home/postgres/pgdata
-      - timescaledb_backups:/var/lib/pgbackrest
-      - timescaledb_pgbackrest_config:/home/postgres/pgdata/backup
-      - timescaledb_logs:/var/log
-      - ./scripts/custom_entrypoint.sh:/usr/local/bin/custom_entrypoint.sh
+      - ${TIMESCALEDB_DATA}:/home/postgres/pgdata
+      - ${TIMESCALEDB_BACKUPS}:/var/lib/pgbackrest
+      - ${TIMESCALEDB_PGBACKREST_CONFIG}:/home/postgres/pgdata/backup
+      - ${TIMESCALEDB_LOGS}:/var/log
+      - ${CUSTOM_ENTRYPOINT}:/usr/local/bin/custom_entrypoint.sh
     entrypoint: ["/usr/local/bin/custom_entrypoint.sh"]
     command: ["postgres"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     restart: no
+    env_file:
+      - path: .env
     environment:
-      ENV: DEV
-      POSTGRES_USER: admin1234
-      POSTGRES_PASSWORD: password12345
-      POSTGRES_DB: connect_db
-      PG_DATA: /home/postgres/pgdata
-      PGUSER: admin1234
+      ENV: ${ENV}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PG_DATA: ${PG_DATA}
+      PGUSER: ${PGUSER}
+    labels:
+      ofelia.enabled: "true"
+      # Schedule job to backup timescaledb, commands can be changed to instead run scripts in order to log more data
+      # Perform full backup every day at 00:00
+      ofelia.job-exec.full-backup.user: "postgres"
+      ofelia.job-exec.full-backup.schedule: "0 0 * * *"
+      ofelia.job-exec.full-backup.command: "pgbackrest --stanza=db --type=full --log-level-stderr=info backup"
+      # Perform diff backup every 15 minutes (900 seconds)
+      ofelia.job-exec.diff-backup.schedule: "@every 60s"
+      ofelia.job-exec.diff-backup.user: "postgres"
+      ofelia.job-exec.diff-backup.command: "pgbackrest --stanza=db --type=diff --log-level-stderr=info backup"
+
+  # Service for running shedule job to backup timescaledb
+  # https://github.com/mcuadros/ofelia
+  ofelia:
+    image: ${OFELIA_IMAGE}
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${OFELIA_LOGS}:/tmp/logs:rw
+    command: daemon --docker
+    env_file:
+      - path: .env
+    labels:
+      # Save logs locally and via email reports
+      ofelia.save-folder: "./tmp/logs"
+      ofelia.smtp-host: "${OFELIA_SMTP_HOST}"
+      ofelia.smtp-port: "${OFELIA_SMTP_PORT}"
+      ofelia.smtp-user: "${OFELIA_SMTP_USER}"
+      ofelia.smtp-password: "${OFELIA_SMTP_PASSWORD}"
+      ofelia.email-to: "${OFELIA_EMAIL_TO}"
+      ofelia.email-from: "${OFELIA_EMAIL_FROM}"
+
+  
 
 
