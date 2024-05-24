@@ -41,7 +41,7 @@ services:
       retries: 3
     restart: no
     env_file:
-      - path: .env
+      - .env
     environment:
       ENV: ${ENV}
       POSTGRES_USER: ${POSTGRES_USER}
