@@ -5,7 +5,9 @@
 # Step [3]: Run the binary located in ./database/src/bin/tables_migration.rs
 
 # Source the .env
-source .env
+# Assuming env_loader.sh is in the same directory as this script
+source "$(dirname "$0")/env_loader.sh"
+read_env
 
 # Just in case stop the docker-compose
 CONTAINER_ID=$(docker ps --filter "ancestor=$TIMESCALEDB_IMAGE" --format "{{.ID}}")

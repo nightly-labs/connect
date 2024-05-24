@@ -10,7 +10,9 @@ if [ -z "$config_path" ]; then
 fi
 
 # Source the .env
-source .env
+# Assuming env_loader.sh is in the same directory as this script
+source "$(dirname "$0")/env_loader.sh"
+read_env
 
 # Creating the pgbackrest configuration file
 echo "Creating pgbackrest configuration at $config_path"
