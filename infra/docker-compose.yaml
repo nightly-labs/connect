@@ -1,26 +1,26 @@
 services:
   # Service for running shedule job to backup timescaledb
   # https://github.com/mcuadros/ofelia
-  ofelia:
-    image: ${OFELIA_IMAGE}
-    depends_on:
-      timescaledb:
-        condition: service_healthy
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ${OFELIA_LOGS}:/tmp/logs:rw
-    command: daemon --docker
-    env_file:
-      - path: .env
-    labels:
-      # Save logs locally and via email reports
-      ofelia.save-folder: "./tmp/logs"
-      ofelia.smtp-host: "${OFELIA_SMTP_HOST}"
-      ofelia.smtp-port: "${OFELIA_SMTP_PORT}"
-      ofelia.smtp-user: "${OFELIA_SMTP_USER}"
-      ofelia.smtp-password: "${OFELIA_SMTP_PASSWORD}"
-      ofelia.email-to: "${OFELIA_EMAIL_TO}"
-      ofelia.email-from: "${OFELIA_EMAIL_FROM}"
+  # ofelia:
+  #   image: ${OFELIA_IMAGE}
+  #   depends_on:
+  #     timescaledb:
+  #       condition: service_healthy
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #     - ${OFELIA_LOGS}:/tmp/logs:rw
+  #   command: daemon --docker
+  #   env_file:
+  #     - path: .env
+  #   labels:
+  #     # Save logs locally and via email reports
+  #     ofelia.save-folder: "./tmp/logs"
+  #     ofelia.smtp-host: "${OFELIA_SMTP_HOST}"
+  #     ofelia.smtp-port: "${OFELIA_SMTP_PORT}"
+  #     ofelia.smtp-user: "${OFELIA_SMTP_USER}"
+  #     ofelia.smtp-password: "${OFELIA_SMTP_PASSWORD}"
+  #     ofelia.email-to: "${OFELIA_EMAIL_TO}"
+  #     ofelia.email-from: "${OFELIA_EMAIL_FROM}"
   
   timescaledb:
     image: ${TIMESCALEDB_IMAGE}
