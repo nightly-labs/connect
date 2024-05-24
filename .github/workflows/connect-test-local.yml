@@ -37,7 +37,7 @@ jobs:
           rm -rf .infra/config
           rm -rf .infra/logs
           rm -rf .infra/ofelia_logs
-          sudo ./scripts/clean_start.sh
+          echo ${{secrets.TESTING_LAPTOP_PASSWORD}} | sudo -S ./scripts/clean_start.sh
       - name: Setup Grafana
         working-directory: ./grafana
         run: |
