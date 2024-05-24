@@ -23,7 +23,7 @@ services:
   #     ofelia.email-from: "${OFELIA_EMAIL_FROM}"
   
   timescaledb:
-    image: ${TIMESCALEDB_IMAGE}
+    image: timescale/timescaledb-ha:pg15-ts2.10
     ports:
       - 5432:5432
     volumes:
