@@ -160,7 +160,10 @@ pub async fn verify_domain_finish(
     }
 
     // Update domain verification entry
-    if let Err(err) = db.finish_domain_verification(&mut tx, &domain_name).await {
+    if let Err(err) = db
+        .finish_domain_verification(&mut tx, &domain_name, &request.app_id)
+        .await
+    {
         let _ = tx
             .rollback()
             .await

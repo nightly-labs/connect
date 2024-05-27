@@ -238,6 +238,9 @@ importers:
       '@nightlylabs/nightly-cloud':
         specifier: workspace:*
         version: link:../cloud
+      '@nightlylabs/nightly-connect-base':
+        specifier: workspace:*
+        version: link:../base
       '@rollup/plugin-commonjs':
         specifier: ^25.0.0
         version: 25.0.0(rollup@3.23.1)
@@ -259,6 +262,9 @@ importers:
       bs58:
         specifier: ^5.0.0
         version: 5.0.0
+      isomorphic-ws:
+        specifier: ^5.0.0
+        version: 5.0.0(ws@8.14.2)
       rollup:
         specifier: ^3.23.1
         version: 3.23.1
@@ -13022,7 +13028,6 @@ packages:
       ws: '*'
     dependencies:
       ws: 8.14.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
-    dev: false
 
   /istanbul-lib-coverage@3.2.0:
     resolution: {integrity: sha512-eOeJ5BHCmHYvQK7xt9GkdHuzuCGS1Y6g9Gvnx3Ym33fz/HpLRYxiS0wHNr+m/MBC8B647Xt608vCDEvhl9c6Mw==}

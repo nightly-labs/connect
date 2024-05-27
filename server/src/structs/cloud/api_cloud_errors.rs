@@ -47,4 +47,5 @@ pub enum CloudApiErrors {
     FailedToCreateTeam,
     DashboardImportFail,
     OriginHeaderRequired,
+    InvalidOrigin,
 }

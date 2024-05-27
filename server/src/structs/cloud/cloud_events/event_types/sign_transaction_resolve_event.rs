@@ -8,6 +8,7 @@ use ts_rs::TS;
 pub struct SignTransactionResolveEvent {
     pub session_id: String,
     pub request_id: String,
+    #[ts(optional)]
     pub tx_hash: Option<String>,
     #[ts(optional)]
     pub failure_reason: Option<RequestFail>,

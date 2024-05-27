@@ -9,8 +9,9 @@ use database::{
     tables::{ip_addresses::table_struct::IpAddressEntry, utils::get_current_datetime},
 };
 use garde::Validate;
-use log::{error, warn};
+use log::{error, info, warn};
 use rand::{distributions::Uniform, Rng};
+use reqwest::Url;
 use std::{net::SocketAddr, str::FromStr, sync::Arc, time::Duration};
 use uuid7::Uuid;
 
@@ -135,6 +136,12 @@ pub async fn get_geolocation_data(
         }
     }
 
+    // Skip requesting geolocation data if the ip is localhost
+    if ip.ip().is_loopback() {
+        info!("Skipping geolocation request for localhost ip: [{}]", ip);
+        return None;
+    }
+
     // Fetch data from the geolocation service and update the database
     match geo_loc_requester.get_geolocation(&ip.to_string()).await {
         Ok(geo_location) => match (geo_location.lat, geo_location.lon) {
@@ -211,17 +218,34 @@ pub fn generate_tokens(
 pub fn custom_validate_domain_name(domain_name: &String) -> anyhow::Result<String> {
     // Check if the domain name is empty
     if domain_name.trim().is_empty() {
-        error!("Domain name is empty: {:?}", domain_name);
+        warn!("Domain name is empty: {:?}", domain_name);
         bail!(CloudApiErrors::InvalidDomainName);
     }
 
     match parse_domain_name(domain_name) {
         Ok(name) => Ok(name.to_string()),
         Err(err) => {
-            error!("Failed to convert domain name to ascii: {:?}", err);
+            warn!("Failed to convert domain name to ascii: {:?}", err);
             bail!(CloudApiErrors::InvalidDomainName);
         }
     }
+}
+
+pub fn extract_domain_name(origin: &String) -> Result<String, String> {
+    let parsed_url = Url::parse(origin).map_err(|err| {
+        format!("Failed to parse origin: {:?}, err: {:?}", origin, err).to_string()
+    })?;
+
+    // Extract the domain name
+    let domain_name = parsed_url.domain().ok_or_else(|| {
+        format!(
+            "Failed to extract domain from parsed_url: {:?}, origin: {:?}",
+            parsed_url, origin
+        )
+        .to_string()
+    })?;
+
+    Ok(domain_name.to_string())
 }
 
 #[cfg(feature = "cloud_integration_tests")]

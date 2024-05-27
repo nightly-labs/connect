@@ -49,12 +49,12 @@ export class BaseApp extends EventEmitter<BaseEvents> {
   clientMetadata: string | undefined
   initializeData: AppBaseInitialize
   // TODO add info about the app
-  private constructor(initializeData: AppBaseInitialize) {
+  private constructor(initializeData: AppBaseInitialize, wsOptions?: WebSocket.ClientOptions) {
     super()
     const url = initializeData.url ?? 'https://nc2.nightly.app'
     // get domain from url
     const path = url.replace('https://', 'wss://').replace('http://', 'ws://')
-    const ws = new WebSocket(path + '/app')
+    const ws = new WebSocket(path + '/app', wsOptions)
     this.initializeData = initializeData
     this.url = url
     this.ws = ws
@@ -66,7 +66,10 @@ export class BaseApp extends EventEmitter<BaseEvents> {
   ): Promise<WalletMetadata[]> => {
     return getWalletsMetadata(url, network)
   }
-  public static build = async (baseInitialize: AppBaseInitialize): Promise<BaseApp> => {
+  public static build = async (
+    baseInitialize: AppBaseInitialize,
+    wsOptions?: WebSocket.ClientOptions
+  ): Promise<BaseApp> => {
     return new Promise((resolve, reject) => {
       const localStorage = getLocalStorage()
       const persistent = baseInitialize.persistent ?? true
@@ -74,7 +77,8 @@ export class BaseApp extends EventEmitter<BaseEvents> {
         ? localStorage.getItem(getSessionIdLocalStorageKey(baseInitialize.network)) ?? undefined
         : undefined
 
-      const baseApp = new BaseApp(baseInitialize)
+      const baseApp = new BaseApp(baseInitialize, wsOptions)
+
       baseApp.ws.onclose = () => {
         baseApp.emit('serverDisconnected')
       }
@@ -122,7 +126,8 @@ export class BaseApp extends EventEmitter<BaseEvents> {
           persistent: persistent,
           responseId: responseId,
           version: '#TODO version 0.0.0',
-          type: 'InitializeRequest'
+          type: 'InitializeRequest',
+          appId: baseInitialize.appId
         }
         // Set up the timeout
         const timer = setTimeout(() => {

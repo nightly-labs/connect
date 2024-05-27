@@ -42,7 +42,9 @@
     "tslib": "^2.5.3",
     "tweetnacl": "^1.0.3",
     "typescript": "^5.1.3",
-    "@nightlylabs/nightly-cloud": "workspace:*"
+    "@nightlylabs/nightly-cloud": "workspace:*",
+    "@nightlylabs/nightly-connect-base": "workspace:*",
+    "isomorphic-ws": "^5.0.0"
   },
   "dependencies": {
     "cross-fetch": "^3.1.6",

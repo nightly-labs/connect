@@ -149,10 +149,7 @@ export class NightlyAnalytics {
     })
   }
 
-  signAndSendTransactionResolve = async (
-    event: SignAndSendTransactionResolveEvent,
-    originHeader: string
-  ) => {
+  signAndSendTransactionResolve = async (event: SignAndSendTransactionResolveEvent) => {
     return await this.sendEvent({
       appId: this.appId,
       event: {

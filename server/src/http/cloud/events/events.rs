@@ -1,4 +1,5 @@
 use super::events_handler::process_event;
+use crate::http::cloud::utils::extract_domain_name;
 use crate::ip_geolocation::GeolocationRequester;
 use crate::state::Sessions;
 use crate::structs::cloud::cloud_events::events::EventData;
@@ -8,7 +9,7 @@ use crate::{
 use axum::extract::ConnectInfo;
 use axum::{extract::State, http::StatusCode, Json};
 use database::db::Db;
-use log::error;
+use log::{error, warn};
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 use std::sync::Arc;
@@ -32,16 +33,24 @@ pub async fn events(
 ) -> Result<Json<()>, (StatusCode, String)> {
     // Check if origin was provided
     let origin = origin.ok_or((
-        StatusCode::BAD_REQUEST,
+        StatusCode::FORBIDDEN,
         CloudApiErrors::OriginHeaderRequired.to_string(),
     ))?;
+
+    let domain_name = extract_domain_name(&origin).map_err(|err| {
+        warn!("{}", err);
+        (
+            StatusCode::BAD_REQUEST,
+            CloudApiErrors::InvalidDomainName.to_string(),
+        )
+    })?;
 
     // Check if origin and app_id match in the database
     match db.get_registered_app_by_app_id(&request.app_id).await {
         Ok(Some(app)) => {
             app.whitelisted_domains
                 .iter()
-                .find(|&d| d == &origin)
+                .find(|&d| d == &domain_name)
                 .ok_or((
                     StatusCode::FORBIDDEN,
                     CloudApiErrors::UnauthorizedOriginError.to_string(),

@@ -33,7 +33,11 @@ jobs:
         run: |
           docker-compose down
           rm -rf .infra/target
-          docker-compose up -d --no-deps --force-recreate --remove-orphans
+          rm -rf .infra/backups
+          rm -rf .infra/config
+          rm -rf .infra/logs
+          rm -rf .infra/ofelia_logs
+          echo ${{secrets.TESTING_LAPTOP_PASSWORD}} | sudo -S ./scripts/clean_start.sh
       - name: Setup Grafana
         working-directory: ./grafana
         run: |
@@ -114,3 +118,7 @@ jobs:
         run: |
           docker-compose down
           rm -rf .infra/target
+          rm -rf .infra/backups
+          rm -rf .infra/config
+          rm -rf .infra/logs
+          rm -rf .infra/ofelia_logs

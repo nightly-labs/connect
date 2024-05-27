@@ -35,8 +35,7 @@ CREATE TYPE geo_location AS (
 CREATE TYPE event_type_enum AS ENUM (
     'AppConnect',
     'AppDisconnect',
-    'ClientConnectInit',
-    'ClientConnectResolve'
+    'ClientConnect',
     'ClientDisconnect',
     'SignMessage',
     'SignTransaction',

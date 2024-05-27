@@ -1,8 +1,7 @@
 use sqlx::{postgres::PgRow, FromRow, Row};
 
 pub const EVENT_APP_DISCONNECT_TABLE_NAME: &str = "event_app_disconnect";
-pub const EVENT_APP_DISCONNECT_KEYS: &str =
-    "event_id, session_id, device_metadata, lang, timezone, new_session";
+pub const EVENT_APP_DISCONNECT_KEYS: &str = "event_id, session_id";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct AppDisconnectEvent {
