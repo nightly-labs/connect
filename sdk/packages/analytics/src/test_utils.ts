@@ -7,6 +7,7 @@ import {
   HttpVerifyDomainStartRequest
 } from '../../../bindings'
 import { NightlyAnalytics } from './app'
+import { fetch } from 'cross-fetch'
 
 export async function createUser(
   cloudClient: NightlyCloud

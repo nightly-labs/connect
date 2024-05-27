@@ -2,3 +2,8 @@
 /Cargo.lock
 /.vscode
 /grafana-client-gen/build
+/infra/target
+/infra/config
+/infra/logs
+/infra/backups
+/infra/ofelia_logs
