@@ -175,14 +175,8 @@ rustup update
 
         When it comes to the e-mails, the service is using the SMTP protocol to send them out, make sure that the email address you are using is configured to allow sending emails via SMTP.
 
-        > [!NOTE]  
-        > Highlights information that users should take into account, even when skimming.
-
-        <!-- With env ```ENV``` set to ```DEV``` the service will skip any usage of the mailer. -->
-
-
-| :exclamation:  You have to read about this   |
-|----------------------------------------------|
+        > [!NOTE] 
+        > With env ```ENV``` set to ```DEV``` the service will skip any usage of the mailer.
 
       
 
