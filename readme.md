@@ -152,16 +152,18 @@ rustup update
       - ```GRAFANA_CLIENT_PASSWORD``` - admin password to the Grafana instance.
 
       Grafana JWT tokens setup:
-      1. Generate a new rsa key pair:
+      1. Navigate to ```./connect/jwt_tokens``` catalog.
+
+      2. Generate a new rsa key pair:
           ```bash
           ssh-keygen -t rsa -b 4096 -m PEM -f grafana.key -N ""
           ```
-      2. Extract public key from the private key:
+      3. Extract public key from the private key:
           ```bash
           openssl rsa -in grafana.key -pubout -outform PEM -out grafana.key.pub
           ```
 
-      3. Run the following command to get the keys in one line version:
+      4. Run the following command to get the keys in one line version:
           ```bash
           cat grafana.key | awk '{printf "%s", $0}' && echo "" && cat grafana.key.pub | awk '{printf "\n%s", $0}' && echo ""
           ```
@@ -175,8 +177,59 @@ rustup update
 
         When it comes to the e-mails, the service is using the SMTP protocol to send them out, make sure that the email address you are using is configured to allow sending emails via SMTP.
 
-        > [!NOTE] 
-        > With env ```ENV``` set to ```DEV``` the service will skip any usage of the mailer.
+
+
+> [!NOTE] 
+> With env ```ENV``` set to ```DEV``` the service will skip any usage of the mailer.
+
+  4. Build and run:
+
+      Just like when running Nightly Connect, you can build the project with the following command:
+
+      ```bash
+      cargo build --release --bin nightly-connect-server
+      ```
+
+      After building the project, you can run it with:
+
+      ```bash
+      cargo run --release --bin nightly-connect-server
+      ```
+
+      By default all Rust rests utilizing the database are disabled by feature flag, to run all tests you can use custom command from ```./connect/.cargo/config.toml```:
+
+      ```bash
+      cargo test-integration
+      ```
+
+5. (Optional) In order to interact with Nightly Cloud you might want to use our TS Sdk, if so navigate to ```./connect/sdk``` and then:
+
+    First verify if the bindings are up to date:
+
+    ```bash
+    pnpm bindings
+    ```
+
+    Then install the dependencies:
+
+    ```bash
+    pnpm install
+    ```
+
+    After installing the dependencies navigate to the ```./connect/sdk/packages/``` catalog. In order to fully utilize Nightly Cloud functionalities, you need to make use of those two packages:
+
+    - ### Analytics 
+
+      Used to send events to the Nightly Cloud service. They are then used to show the statistics of the users' interactions with the service for apps.
+
+    - ### Cloud
+
+      Used to interact with the Nightly Cloud endpoints related to the team and apps management.
+
+    
+
+
+
 
       
 
