@@ -71,12 +71,24 @@ If this is your first start of the project, you might want to start docker using
     docker compose --profile full up
     ```
 
+After the data in container is all setup, the next step is to run the migrations. You can do this by running the following command:
+
+```bash
+cargo run --bin tables_migration
+```
+
+This command executes sql commands from ```./connect/database/migrations``` folder. You can check if the tables were created by connecting to the database using psql or any other tool of your choice.
+
+> [!IMPORTANT]  
+> You can add more migrations but you can't modify old ones once they are executed. If you want to modify the migration, you have to create a new one.
+
+
 # Database backup and restoration
 
 > [!WARNING] 
 > Each of the provided methods differ in usage and purpose. While this short guide will provide you with basic information, it is recommended to read the official documentation of the tools used. Wrong usage of the tools may result in permanent data loss. 
 
-## \#(Option 1) Scheduled Backups (Ofelia with pgBackRest)
+## \#(Option 1 | Recommended) Scheduled Backups (Ofelia with pgBackRest)
 
 ### Backup
 
@@ -181,3 +193,58 @@ docker exec -it $(docker ps --filter "ancestor=timescale/timescaledb-ha:pg15-ts2
 ```
 
 ## \#(Option 3) Manual backup using pg_basebackup
+
+In order to backup the whole cluster you can use ```pg_basebackup``` command. This command can be run on live database.
+
+```bash
+docker exec -it $(docker ps --filter "ancestor=timescale/timescaledb-ha:pg15-ts2.10" --format "{{.ID}}") sh -c 'pg_basebackup -h localhost -p 5432 -U admin1234  -D /var/lib/pgbackrest/manual_backup/pg_basebackup_$(date "+%Y%m%d_%H%M%S") -P -F t -Z 9 -X stream'
+```
+
+For the restoration part:
+
+ 1. Stop the database inside the container:
+    ```bash
+    docker exec -it $(docker ps --filter "ancestor=timescale/timescaledb-ha:pg15-ts2.10" --format "{{.ID}}  ")  pg_ctl -D /home/postgres/pgdata/data stop
+    ```
+
+ 2. Check if database was stopped and container is still running:
+    ```bash
+    docker exec -it $(docker ps --filter "ancestor=timescale/timescaledb-ha:pg15-ts2.10" --format "{{.ID}}")  pg_ctl -D /home/postgres/pgdata/data status
+    ```
+
+    You should see:
+    ```bash
+    pg_ctl: no server running
+    ```
+
+> [!WARNING]  
+> Backup Integrity: Ensure that the backup files are complete and not corrupted. If you used compression (e.g., gzip), verify that the archive can be successfully decompressed.
+
+The database restoration will include replacement of the main data folder with the backup data. You may want to backup the data folder before proceeding with the restoration.
+
+ 3. Delete old data folder:
+    ```bash
+    docker exec -it $(docker ps --filter "ancestor=timescale/timescaledb-ha:pg15-ts2.10" --format "{{.ID}}") rm -rI /home/postgres/pgdata/data
+    ```
+
+4. Create a new data folder and set permissions:
+
+    ```bash
+    docker exec -it $(docker ps --filter "ancestor=timescale/timescaledb-ha:pg15-ts2.10" --format "{{.ID}}") mkdir /home/postgres/pgdata/data
+    ```
+
+    ```bash
+    docker exec -it $(docker ps --filter "ancestor=timescale/timescaledb-ha:pg15-ts2.10" --format "{{.ID}}") chown -R postgres:postgres /home/postgres/pgdata/data
+    ```
+
+5. Navigate to directory with backup files and copy the backup to the data folder:
+
+    ```bash
+    docker exec -it $(docker ps --filter "ancestor=timescale/timescaledb-ha:pg15-ts2.10" --format "{{.ID}}") sh -c 'cd /var/lib/pgbackrest/manual_backup/your_pg_basebackup && tar -zxvf base.tar.gz -C /home/postgres/pgdata/data && tar -zxvf pg_wal.tar.gz -C /home/postgres/pgdata/data/pg_wal'
+    ```
+
+6. Restart docker container:
+
+    ```bash
+    docker restart $(docker ps --filter "ancestor=timescale/timescaledb-ha:pg15-ts2.10" --format "{{.ID}}")
+    ```
