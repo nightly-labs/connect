@@ -136,9 +136,9 @@ rustup update
 
   As Nightly Cloud is an extended version of the service, it requires additional setup. The service is designed to be run in a Docker container, which is why you need to have Docker Compose installed on your machine. 
 
-  1. Setup and start Database, you may refer to the [Database](./connect/infra/readme.md) documentation for more information.
+  1. Setup and start Database, you may refer to the [Database](./infra/readme.md) documentation for more information.
 
-  2. Setup and start Grafana, you may refer to the [Grafana](./connect/grafana/readme.md) documentation for more information.
+  2. Setup and start Grafana, you may refer to the [Grafana](./grafana/readme.md) documentation for more information.
 
   3. Setup ```ENV``` variables in ```./connect/.env``` file.
       - ```ENV``` - set to ```DEV``` for development environment. 
