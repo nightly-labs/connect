@@ -35,6 +35,9 @@ From now on those two names will be used to distinguish between the two versions
 
 If you only want to implement Nightly Connect in your dApp instead, you may refer to the documentation [here](https://connect.nightly.app/docs/).
 
+> [!IMPORTANT] 
+> While the Nightly Connect was built and tested on Mac/Linux, the Nightly Cloud is impossible to run on Mac due to used docker images.
+
 ## Requirements
 
 As a prerequisite, you need to have the following installed on your machine:

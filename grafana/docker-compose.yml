@@ -1,22 +1,11 @@
-version: '3.1'
-
 services:
   grafana:
-    image: grafana/grafana:latest
-    # container_name: grafana
-    # environment:
-    #   - GF_SECURITY_ADMIN_PASSWORD=secret # Change 'secret' to a strong password
-    #   - GF_USERS_ALLOW_SIGN_UP=false
-    env_file:
-      - ../.env
+    image: grafana/grafana:10.3.3
     user: "${GRAFANA_USER_ID:-1000:1000}"
     volumes:
       - ./grafana-data:/var/lib/grafana # Persists Grafana data
       - ./grafana.ini:/etc/grafana/grafana.ini # Optional: Custom Grafana configuration
-      - ../jwt_keys/grafana.key.pub:/etc/grafana/public-key.pem # Optional: Custom Grafana configuration
+      - ../jwt_keys/grafana.key.pub:/etc/grafana/public-key.pem # Optional: Public key for JWT
     ports:
-      - '3000:3000'
+      - '3005:3000'
     restart: unless-stopped
-
-volumes:
-  grafana-data:
