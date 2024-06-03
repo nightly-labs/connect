@@ -88,6 +88,9 @@ We will start the process by adding a data source.
 
     As the last step choose the data source you have created in the previous steps.
 
+8. (Optional) Change permissions
+
+    After importing dashboard enter `Settings` and navigate to the `Permissions` tab. Here you can set the permissions for the dashboard. You can set the permissions for the `Admin` role to `View` and `Edit` the dashboard. We propose to remove all permissions apart from the `Admin` role which can't be removed anyway.
 
 ## Stopping the service
 
