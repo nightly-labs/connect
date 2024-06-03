@@ -26,7 +26,7 @@ mod test {
 
         // Create test team instance
         // let team_id = "test_team_id".to_string();
-        let app_id = "test_app_id_2".to_string();
+        let app_id = "018fde27-ebf1-7397-a81f-640f6b9bcead".to_string();
 
         let db_arc = Arc::new(db);
         let mut tasks: Vec<task::JoinHandle<()>> = Vec::new();
@@ -179,7 +179,7 @@ mod test {
 
         // Create test team instance
         // let team_id = "test_team_id".to_string();
-        let app_id = "test_app_id_2".to_string();
+        let app_id = "018fde27-ebf1-7397-a81f-640f6b9bcead".to_string();
 
         let db_arc = Arc::new(db);
         let mut tasks: Vec<task::JoinHandle<()>> = Vec::new();
@@ -285,7 +285,7 @@ mod test {
 
         // Create test team instance
         // let team_id = "test_team_id".to_string();
-        let app_id = "test_app_id_2".to_string();
+        let app_id = "018fde27-ebf1-7397-a81f-640f6b9bcead".to_string();
 
         let db_arc = Arc::new(db);
         let mut tasks: Vec<task::JoinHandle<()>> = Vec::new();
@@ -393,7 +393,7 @@ mod test {
 
         // Create test team instance
         // let team_id = "test_team_id".to_string();
-        let app_id = "test_app_id_2".to_string();
+        let app_id = "018fde27-ebf1-7397-a81f-640f6b9bcead".to_string();
 
         let db_arc = Arc::new(db);
         let mut tasks: Vec<task::JoinHandle<()>> = Vec::new();
@@ -512,7 +512,7 @@ mod test {
 
         // Create test team instance
         // let team_id = "test_team_id".to_string();
-        let app_id = "test_app_id_2".to_string();
+        let app_id = "018fde27-ebf1-7397-a81f-640f6b9bcead".to_string();
 
         let db_arc = Arc::new(db);
         let mut tasks: Vec<task::JoinHandle<()>> = Vec::new();
