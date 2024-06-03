@@ -9,7 +9,8 @@ import {
   AptosWallet,
   NetworkInfo,
   UserResponse,
-  UserResponseStatus
+  UserResponseStatus,
+  AptosChangeNetworkMethod
 } from '@aptos-labs/wallet-standard'
 
 import { AnyRawTransaction } from '@aptos-labs/ts-sdk'
@@ -299,6 +300,22 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
     }
     if (this._connectionType === ConnectionType.WalletStandard) {
       return await this._innerStandardAdapter!.features['aptos:network'].network()
+    }
+    throw new Error('Should not reach here')
+  }
+
+  changeNetwork: AptosChangeNetworkMethod = async (networkInfo: NetworkInfo) => {
+    if (!this) {
+      throw new Error('Not connected')
+    }
+    // TODO: add support for Nightly Connect
+    if (this._connectionType === ConnectionType.Nightly) {
+      throw new Error('Not supported for Nightly Connect')
+    }
+    if (this._connectionType === ConnectionType.WalletStandard) {
+      return await this._innerStandardAdapter!.features['aptos:changeNetwork']!.changeNetwork(
+        networkInfo
+      )
     }
     throw new Error('Should not reach here')
   }
