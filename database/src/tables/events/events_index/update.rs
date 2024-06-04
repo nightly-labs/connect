@@ -11,15 +11,17 @@ impl Db {
         &self,
         tx: &mut Transaction<'_, Postgres>,
         app_id: &String,
+        network: &String,
         event_type: &EventType,
         current_timestamp: &DateTime<Utc>,
     ) -> Result<i64, DbError> {
         let query_body = format!(
-            "INSERT INTO {EVENTS_TABLE_NAME} ({EVENTS_KEYS}) VALUES (DEFAULT, $1, $2, $3) RETURNING event_id"
+            "INSERT INTO {EVENTS_TABLE_NAME} ({EVENTS_KEYS}) VALUES (DEFAULT, $1, $2, $3, $4) RETURNING event_id"
         );
 
         let query_result = query(&query_body)
             .bind(app_id)
+            .bind(network)
             .bind(event_type)
             .bind(current_timestamp)
             .fetch_one(&mut **tx)
@@ -46,6 +48,7 @@ mod tests {
 
         let app_id = "test_app".to_string();
         let event_type = EventType::AppConnect;
+        let network = "Solana".to_string();
 
         // Create 1001 entries
         let mut tx = db
@@ -56,7 +59,13 @@ mod tests {
 
         for _ in 0..2001 {
             let _ = db
-                .create_new_event_entry(&mut tx, &app_id, &event_type, &get_current_datetime())
+                .create_new_event_entry(
+                    &mut tx,
+                    &app_id,
+                    &network,
+                    &event_type,
+                    &get_current_datetime(),
+                )
                 .await
                 .unwrap();
         }

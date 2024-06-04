@@ -225,6 +225,7 @@ mod tests {
                                 .create_new_connection_event_by_client(
                                     &mut tx,
                                     &session.app_id,
+                                    &"Solana".to_string(),
                                     &session.session_id,
                                     &SessionType::Relay,
                                     &ip_address,
