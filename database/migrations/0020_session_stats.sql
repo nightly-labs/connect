@@ -3,6 +3,7 @@
 CREATE MATERIALIZED VIEW quarter_sessions_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
+    network,
     time_bucket('15 minutes' :: interval, session_open_timestamp) AS quarter_bucket,
     COUNT(*) :: BIGINT AS quarter_sessions_opened,
     approx_count_distinct((client_data).client_profile_id) AS quarter_active_users
@@ -10,6 +11,7 @@ FROM
     sessions
 GROUP BY
     app_id,
+    network,
     quarter_bucket WITH NO DATA;
 
 -- Refresh policy
@@ -31,6 +33,7 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW hourly_sessions_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
+    network,
     time_bucket('1 hour' :: interval, quarter_bucket) AS hourly_bucket,
     SUM(quarter_sessions_opened) AS hourly_sessions_opened,
     rollup(quarter_active_users) AS hourly_active_users
@@ -38,6 +41,7 @@ FROM
     quarter_sessions_stats_per_app
 GROUP BY
     app_id,
+    network,
     hourly_bucket WITH NO DATA;
 
 -- Refresh policy
@@ -59,6 +63,7 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW daily_sessions_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
+    network,
     time_bucket('1 day' :: interval, hourly_bucket) AS daily_bucket,
     SUM(hourly_sessions_opened) AS daily_sessions_opened,
     -- SUM(hourly_distinct_users) AS daily_active_users
@@ -67,6 +72,7 @@ FROM
     hourly_sessions_stats_per_app
 GROUP BY
     app_id,
+    network,
     daily_bucket WITH NO DATA;
 
 -- Refresh policy

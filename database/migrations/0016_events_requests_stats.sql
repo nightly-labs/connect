@@ -4,6 +4,7 @@
 CREATE MATERIALIZED VIEW quarter_events_sign_message_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     e.app_id,
+    e.network,
     time_bucket('15 minutes'::interval, e.creation_timestamp) AS quarter_bucket,
     e.event_type,
     COUNT(*) FILTER (WHERE esm.request_status = 'Completed') AS quarter_successful_requests,
@@ -12,7 +13,7 @@ FROM
     events e
 JOIN
     event_sign_message esm ON e.event_id = esm.event_id
-GROUP BY e.app_id, quarter_bucket, e.event_type WITH NO DATA;
+GROUP BY e.app_id, e.network, quarter_bucket, e.event_type WITH NO DATA;
 
 --- Refresh policy
 SELECT add_continuous_aggregate_policy(
@@ -32,13 +33,14 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW hour_events_sign_message_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
+    network,
     time_bucket('1 hour'::interval, quarter_bucket) AS hour_bucket,
     event_type,
     SUM(quarter_successful_requests) AS hour_successful_requests,
     SUM(quarter_unsuccessful_requests) AS hour_unsuccessful_requests
 FROM
     quarter_events_sign_message_stats_per_app
-GROUP BY app_id, hour_bucket, event_type WITH NO DATA;
+GROUP BY app_id, network, hour_bucket, event_type WITH NO DATA;
 
 --- Refresh policy
 SELECT add_continuous_aggregate_policy(
@@ -58,13 +60,14 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW daily_events_sign_message_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
+    network,
     time_bucket('1 day'::interval, hour_bucket) AS daily_bucket,
     event_type,
     SUM(hour_successful_requests) AS daily_successful_requests,
     SUM(hour_unsuccessful_requests) AS daily_unsuccessful_requests
 FROM
     hour_events_sign_message_stats_per_app
-GROUP BY app_id, daily_bucket, event_type WITH NO DATA;
+GROUP BY app_id, network, daily_bucket, event_type WITH NO DATA;
 
 -- Refresh policy
 SELECT add_continuous_aggregate_policy(
@@ -86,6 +89,7 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW quarter_events_sign_transaction_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     e.app_id,
+    e.network,
     time_bucket('15 minutes'::interval, e.creation_timestamp) AS quarter_bucket,
     e.event_type,
     COUNT(*) FILTER (WHERE esm.request_status = 'Completed') AS quarter_successful_requests,
@@ -95,7 +99,7 @@ FROM
 JOIN
     event_sign_transaction esm
 ON e.event_id = esm.event_id
-GROUP BY e.app_id, quarter_bucket, e.event_type WITH NO DATA;
+GROUP BY e.app_id, e.network, quarter_bucket, e.event_type WITH NO DATA;
 
 --- Refresh policy
 SELECT add_continuous_aggregate_policy(
@@ -115,13 +119,14 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW hour_events_sign_transaction_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
+    network,
     time_bucket('1 hour'::interval, quarter_bucket) AS hour_bucket,
     event_type,
     SUM(quarter_successful_requests) AS hour_successful_requests,
     SUM(quarter_unsuccessful_requests) AS hour_unsuccessful_requests
 FROM
     quarter_events_sign_transaction_stats_per_app
-GROUP BY app_id, hour_bucket, event_type WITH NO DATA;
+GROUP BY app_id, network, hour_bucket, event_type WITH NO DATA;
 
 --- Refresh policy
 SELECT add_continuous_aggregate_policy(
@@ -141,13 +146,14 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW daily_events_sign_transaction_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
+    network,
     time_bucket('1 day'::interval, hour_bucket) AS daily_bucket,
     event_type,
     SUM(hour_successful_requests) AS daily_successful_requests,
     SUM(hour_unsuccessful_requests) AS daily_unsuccessful_requests
 FROM
     hour_events_sign_transaction_stats_per_app
-GROUP BY app_id, daily_bucket, event_type WITH NO DATA;
+GROUP BY app_id, network, daily_bucket, event_type WITH NO DATA;
 
 -- Refresh policy
 SELECT add_continuous_aggregate_policy(
@@ -169,6 +175,7 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW quarter_events_sign_and_send_transaction_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     e.app_id,
+    e.network,
     time_bucket('15 minutes'::interval, e.creation_timestamp) AS quarter_bucket,
     e.event_type,
     COUNT(*) FILTER (WHERE esm.request_status = 'Completed') AS quarter_successful_requests,
@@ -178,7 +185,7 @@ FROM
 JOIN
     event_sign_and_send_transaction esm
 ON e.event_id = esm.event_id
-GROUP BY e.app_id, quarter_bucket, e.event_type WITH NO DATA;
+GROUP BY e.app_id, e.network, quarter_bucket, e.event_type WITH NO DATA;
 
 --- Refresh policy
 SELECT add_continuous_aggregate_policy(
@@ -198,13 +205,14 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW hour_events_sign_and_send_transaction_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
+    network,
     time_bucket('1 hour'::interval, quarter_bucket) AS hour_bucket,
     event_type,
     SUM(quarter_successful_requests) AS hour_successful_requests,
     SUM(quarter_unsuccessful_requests) AS hour_unsuccessful_requests
 FROM
     quarter_events_sign_and_send_transaction_stats_per_app
-GROUP BY app_id, hour_bucket, event_type WITH NO DATA;
+GROUP BY app_id, network, hour_bucket, event_type WITH NO DATA;
 
 --- Refresh policy
 SELECT add_continuous_aggregate_policy(
@@ -224,13 +232,14 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW daily_events_sign_and_send_transaction_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
+    network,
     time_bucket('1 day'::interval, hour_bucket) AS daily_bucket,
     event_type,
     SUM(hour_successful_requests) AS daily_successful_requests,
     SUM(hour_unsuccessful_requests) AS daily_unsuccessful_requests
 FROM
     hour_events_sign_and_send_transaction_stats_per_app
-GROUP BY app_id, daily_bucket, event_type WITH NO DATA;
+GROUP BY app_id, network, daily_bucket, event_type WITH NO DATA;
 
 -- Refresh policy
 SELECT add_continuous_aggregate_policy(
