@@ -6,11 +6,12 @@ use std::{net::SocketAddr, sync::Arc};
 pub async fn process_event_app_disconnect(
     event: &AppDisconnectEvent,
     app_id: &String,
+    network: &String,
     ip: SocketAddr,
     db: &Arc<Db>,
 ) {
     // Save event to Db
-    save_event_app_disconnect(db, app_id, event).await;
+    save_event_app_disconnect(db, app_id, network, event).await;
 
     // Close app disconnect in the database
     if let Err(err) = db.close_app_connection(&event.session_id, &app_id).await {
@@ -21,7 +22,12 @@ pub async fn process_event_app_disconnect(
     }
 }
 
-async fn save_event_app_disconnect(db: &Arc<Db>, app_id: &String, event: &AppDisconnectEvent) {
+async fn save_event_app_disconnect(
+    db: &Arc<Db>,
+    app_id: &String,
+    network: &String,
+    event: &AppDisconnectEvent,
+) {
     // Establish a new transaction
     let mut tx = match db.connection_pool.begin().await {
         Ok(tx) => tx,
@@ -39,6 +45,7 @@ async fn save_event_app_disconnect(db: &Arc<Db>, app_id: &String, event: &AppDis
         .create_new_event_entry(
             &mut tx,
             &app_id,
+            &network,
             &EventType::AppDisconnect,
             &get_current_datetime(),
         )

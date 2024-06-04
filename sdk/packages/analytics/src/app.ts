@@ -52,6 +52,7 @@ export class NightlyAnalytics {
   appConnected = async (event: AppConnectEvent) => {
     return await this.sendEvent({
       appId: this.appId,
+      network: this.network,
       event: {
         type: 'AppConnect',
         ...event
@@ -62,6 +63,7 @@ export class NightlyAnalytics {
   appDisconnected = async (event: AppDisconnectEvent) => {
     return await this.sendEvent({
       appId: this.appId,
+      network: this.network,
       event: {
         type: 'AppDisconnect',
         ...event
@@ -72,6 +74,7 @@ export class NightlyAnalytics {
   clientConnect = async (event: ClientConnectEvent) => {
     return await this.sendEvent({
       appId: this.appId,
+      network: this.network,
       event: {
         type: 'ClientConnect',
         ...event
@@ -82,6 +85,7 @@ export class NightlyAnalytics {
   clientConnectResolve = async (event: ClientConnectResolveEvent) => {
     return await this.sendEvent({
       appId: this.appId,
+      network: this.network,
       event: {
         type: 'ClientConnectResolve',
         ...event
@@ -92,6 +96,7 @@ export class NightlyAnalytics {
   clientDisconnect = async (event: ClientDisconnectEvent) => {
     return await this.sendEvent({
       appId: this.appId,
+      network: this.network,
       event: {
         type: 'ClientDisconnect',
         ...event
@@ -102,6 +107,7 @@ export class NightlyAnalytics {
   signMessage = async (event: SignMessageEvent) => {
     return await this.sendEvent({
       appId: this.appId,
+      network: this.network,
       event: {
         type: 'SignMessage',
         ...event
@@ -112,6 +118,7 @@ export class NightlyAnalytics {
   signMessageResolve = async (event: SignMessageResolveEvent) => {
     return await this.sendEvent({
       appId: this.appId,
+      network: this.network,
       event: {
         type: 'SignMessageResolve',
         ...event
@@ -122,6 +129,7 @@ export class NightlyAnalytics {
   signTransaction = async (event: SignTransactionEvent) => {
     return await this.sendEvent({
       appId: this.appId,
+      network: this.network,
       event: {
         type: 'SignTransaction',
         ...event
@@ -132,6 +140,7 @@ export class NightlyAnalytics {
   signTransactionResolve = async (event: SignTransactionResolveEvent) => {
     return await this.sendEvent({
       appId: this.appId,
+      network: this.network,
       event: {
         type: 'SignTransactionResolve',
         ...event
@@ -142,6 +151,7 @@ export class NightlyAnalytics {
   signAndSendTransaction = async (event: SignAndSendTransactionEvent) => {
     return await this.sendEvent({
       appId: this.appId,
+      network: this.network,
       event: {
         type: 'SignAndSendTransaction',
         ...event
@@ -152,6 +162,7 @@ export class NightlyAnalytics {
   signAndSendTransactionResolve = async (event: SignAndSendTransactionResolveEvent) => {
     return await this.sendEvent({
       appId: this.appId,
+      network: this.network,
       event: {
         type: 'SignAndSendTransactionResolve',
         ...event
@@ -162,6 +173,7 @@ export class NightlyAnalytics {
   changeNetwork = async (event: ChangeNetworkEvent) => {
     return await this.sendEvent({
       appId: this.appId,
+      network: this.network,
       event: {
         type: 'ChangeNetwork',
         ...event
@@ -172,6 +184,7 @@ export class NightlyAnalytics {
   changeNetworkResolve = async (event: ChangeNetworkResolveEvent) => {
     return await this.sendEvent({
       appId: this.appId,
+      network: this.network,
       event: {
         type: 'ChangeNetworkResolve',
         ...event
@@ -182,6 +195,7 @@ export class NightlyAnalytics {
   changeWallet = async (event: ChangeWalletEvent) => {
     return await this.sendEvent({
       appId: this.appId,
+      network: this.network,
       event: {
         type: 'ChangeWallet',
         ...event
@@ -192,6 +206,7 @@ export class NightlyAnalytics {
   changeWalletResolve = async (event: ChangeWalletResolveEvent) => {
     return await this.sendEvent({
       appId: this.appId,
+      network: this.network,
       event: {
         type: 'ChangeWalletResolve',
         ...event

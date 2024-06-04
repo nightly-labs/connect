@@ -91,7 +91,7 @@ describe('Base Client tests', () => {
     assert(response.teamId.length > 0)
   })
 
-  test.only('#registerNewApp()', async () => {
+  test('#registerNewApp()', async () => {
     // create user
     await createUser(cloudClient)
 

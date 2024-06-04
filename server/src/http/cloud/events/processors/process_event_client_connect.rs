@@ -10,6 +10,7 @@ use std::{net::SocketAddr, sync::Arc};
 pub async fn process_event_client_connect_init(
     event: &ClientConnectEvent,
     app_id: &String,
+    network: &String,
     ip: SocketAddr,
     db: &Arc<Db>,
     geo_loc_requester: &Arc<GeolocationRequester>,
@@ -17,7 +18,7 @@ pub async fn process_event_client_connect_init(
     let current_time = get_current_datetime();
 
     // Save event to Db
-    save_event_client_connect(db, app_id, event, &current_time).await;
+    save_event_client_connect(db, app_id, network, event, &current_time).await;
 
     // Save connection attempt by client
     let mut tx = db.connection_pool.begin().await.unwrap();
@@ -29,6 +30,7 @@ pub async fn process_event_client_connect_init(
         .create_new_connection_event_by_client(
             &mut tx,
             &app_id,
+            &network,
             &event.session_id,
             &event.session_type,
             &ip.to_string(),
@@ -58,6 +60,7 @@ pub async fn process_event_client_connect_init(
 async fn save_event_client_connect(
     db: &Arc<Db>,
     app_id: &String,
+    network: &String,
     event: &ClientConnectEvent,
     current_time: &DateTime<Utc>,
 ) {
@@ -75,7 +78,13 @@ async fn save_event_client_connect(
 
     // Create a new event index
     let event_id = match db
-        .create_new_event_entry(&mut tx, &app_id, &EventType::ClientConnect, &current_time)
+        .create_new_event_entry(
+            &mut tx,
+            &app_id,
+            network,
+            &EventType::ClientConnect,
+            &current_time,
+        )
         .await
     {
         Ok(event_id) => event_id,
