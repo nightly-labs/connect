@@ -1,5 +1,5 @@
 use crate::{
-    env::{ENVIRONMENT, GRAFANA_BASE_PATH, GRAFANA_CLIENT_LOGIN, GRAFANA_CLIENT_PASSWORD},
+    env::{ENVIRONMENT, GF_SECURITY_ADMIN_PASSWORD, GF_SECURITY_ADMIN_USER, GRAFANA_BASE_PATH},
     ip_geolocation::GeolocationRequester,
     mailer::{entry::run_mailer, mailer::Mailer},
     structs::session_cache::ApiSessionsCache,
@@ -41,8 +41,8 @@ impl CloudState {
         let mut conf = Configuration::new();
         conf.base_path = GRAFANA_BASE_PATH().to_string();
         conf.basic_auth = Some((
-            GRAFANA_CLIENT_LOGIN().to_string(),
-            Some(GRAFANA_CLIENT_PASSWORD().to_string()),
+            GF_SECURITY_ADMIN_USER().to_string(),
+            Some(GF_SECURITY_ADMIN_PASSWORD().to_string()),
         ));
 
         let grafana_client_conf = Arc::new(conf);

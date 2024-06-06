@@ -7,6 +7,10 @@ pub struct Db {
 impl Db {
     pub async fn connect_to_the_pool() -> Db {
         dotenvy::from_filename("infra/.env").unwrap();
+
+        let db_address = std::env::var("DATABASE_ADDRESS").expect("POSTGRES_ADDRESS must be set");
+        let db_port = std::env::var("DATABASE_PORT").expect("POSTGRES_PORT must be set");
+
         let db_name = std::env::var("POSTGRES_DB").expect("POSTGRES_DB must be set");
         let db_user = std::env::var("POSTGRES_USER").expect("POSTGRES_USER must be set");
         let db_password =
@@ -16,8 +20,8 @@ impl Db {
             .max_connections(50)
             .connect(
                 format!(
-                    "postgres://{}:{}@localhost:5432/{}",
-                    db_user, db_password, db_name
+                    "postgres://{}:{}@{}:{}/{}",
+                    db_user, db_password, db_address, db_port, db_name
                 )
                 .as_str(),
             )

@@ -3,7 +3,7 @@ pub mod test_utils {
     use crate::{
         auth::AuthToken,
         env::{
-            GRAFANA_BASE_PATH, GRAFANA_CLIENT_LOGIN, GRAFANA_CLIENT_PASSWORD, JWT_PUBLIC_KEY,
+            GF_SECURITY_ADMIN_PASSWORD, GF_SECURITY_ADMIN_USER, GRAFANA_BASE_PATH, JWT_PUBLIC_KEY,
             JWT_SECRET,
         },
         http::cloud::{
@@ -617,8 +617,8 @@ pub mod test_utils {
         let mut conf = Configuration::new();
         conf.base_path = GRAFANA_BASE_PATH().to_string();
         conf.basic_auth = Some((
-            GRAFANA_CLIENT_LOGIN().to_string(),
-            Some(GRAFANA_CLIENT_PASSWORD().to_string()),
+            GF_SECURITY_ADMIN_USER().to_string(),
+            Some(GF_SECURITY_ADMIN_PASSWORD().to_string()),
         ));
         Arc::new(conf)
     }

@@ -21,7 +21,7 @@ if [[ -n "$CONTAINER_ID" ]]; then
   echo "Container found for $TIMESCALEDB_IMAGE, initiating shutdown..."
 
   # Attempt to gracefully stop the container
-  sudo docker compose down
+  docker compose down
 
   WAIT_TIME=0
 
@@ -61,7 +61,7 @@ for dir in "${directories[@]}"; do
     mkdir -p "$dir"
   fi
 
-  sudo chown -R $USER:$USER "$dir"
+  chown -R $USER:$USER "$dir"
   chmod -R 777 "$dir"
 done
 
@@ -86,7 +86,14 @@ cd "$BASE_DIR"
 
 # Start Docker Compose in detached mode
 echo "Starting Docker Compose..."
-sudo docker compose up -d --no-deps --force-recreate --remove-orphans
+
+if [ "$ONLY_DATABASE" = "TRUE" ]; then
+  echo "Starting only the TimescaleDB service..."
+  docker compose up -d
+else
+  echo "Starting all services including Ofelia..."
+  docker compose --profile full up -d
+fi
 
 # Function to check database readiness
 wait_for_db_ready() {
@@ -104,7 +111,7 @@ wait_for_db_ready() {
     fi
 
     # Check the Docker logs for the readiness message
-    if sudo docker logs $CONTAINER_ID 2>&1 | grep -q "database system is ready to accept connections"; then
+    if docker logs $CONTAINER_ID 2>&1 | grep -q "database system is ready to accept connections"; then
       echo "TimescaleDB is now ready."
       return 0
     fi
@@ -128,18 +135,18 @@ if wait_for_db_ready; then
     exit 1
   fi
 
-  sudo docker exec -u root $CONTAINER_ID bash -c "
+  docker exec -u root $CONTAINER_ID bash -c "
     echo -e '\n# Custom PostgreSQL Configurations' >> $POSTGRESQL_CONF
     echo 'archive_mode = on' >> $POSTGRESQL_CONF
     echo 'archive_command = '\"'pgbackrest --stanza=$BACKUP_MARKER archive-push %p'\"'' >> $POSTGRESQL_CONF
-    echo 'max_wal_senders = 3' >> $POSTGRESQL_CONF
+    echo 'max_wal_senders = 10' >> $POSTGRESQL_CONF
     echo 'wal_level = logical' >> $POSTGRESQL_CONF
   "
   echo "PostgreSQL configuration updated."
 
   # Restart docker to apply the changes
   echo "Restarting the container..."
-  sudo docker restart $CONTAINER_ID
+  docker restart $CONTAINER_ID
 else
   echo "Failed to confirm TimescaleDB readiness. Check logs for more details."
 fi
@@ -155,13 +162,13 @@ if wait_for_db_ready; then
 
   sleep 2
   # Execute pgBackRest stanza-create
-  sudo docker exec -u root $CONTAINER_ID bash -c "
+  docker exec -u root $CONTAINER_ID bash -c "
     pgbackrest --stanza=$BACKUP_MARKER --log-level-console=info --pg1-path=/home/postgres/pgdata/data --repo1-path=/var/lib/pgbackrest stanza-create
   "
   echo "pgBackRest stanza-create executed."
 
   # Fix permissions for the pgBackRest backup directory
-  sudo docker exec -u root $CONTAINER_ID bash -c "
+  docker exec -u root $CONTAINER_ID bash -c "
     chown -R postgres:postgres /var/lib/pgbackrest
     chmod -R 700 /var/lib/pgbackrest
     mkdir -p /var/log/pgbackrest
@@ -172,15 +179,22 @@ if wait_for_db_ready; then
     mkdir -p /var/log/pgbackrest
     chown -R postgres:postgres /var/lib/pgbackrest
     chmod -R 770 /var/lib/pgbackrest
+    mkdir -p /var/lib/pgbackrest/manual_backup
+    chown -R postgres:postgres /var/lib/pgbackrest/manual_backup
   "
   echo "Permissions fixed for pgBackRest backup and log directories."
 
   # Execute pgBackRest check
-  sudo docker exec -u postgres $CONTAINER_ID bash -c "
+  docker exec -u postgres $CONTAINER_ID bash -c "
     pgbackrest --stanza=$BACKUP_MARKER --log-level-console=info check
   "
   echo "pgBackRest check executed successfully."
+
+  # Get real time logs
+  docker logs -f $CONTAINER_ID
 else
   echo "Failed to confirm TimescaleDB readiness after restart. Check logs for more details."
   exit 1
 fi
+
+
