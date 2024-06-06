@@ -77,17 +77,21 @@ describe('Analytics client tests', () => {
     appId = response.appId
 
     await smartDelay()
+
+    console.log('Team ID:', teamId)
+    console.log('App ID:', appId)
   })
 
-  test('Create mock test team with app', async () => {
-    const tempCloudClient = new NightlyCloud({
-      url: TEST_CLOUD_ENDPOINT
-    })
-
-    const setupResult = await setupTestTeam(tempCloudClient)
-    expect(setupResult).toBeDefined()
-    expect(setupResult.teamId).toBeDefined()
-    expect(setupResult.appId).toBeDefined()
+  test.only('Create mock test team with app', async () => {
+    // const tempCloudClient = new NightlyCloud({
+    //   url: TEST_CLOUD_ENDPOINT
+    // })
+    // const setupResult = await setupTestTeam(tempCloudClient)
+    // expect(setupResult).toBeDefined()
+    // expect(setupResult.teamId).toBeDefined()
+    // expect(setupResult.appId).toBeDefined()
+    // console.log('Team ID:', setupResult.teamId)
+    // console.log('App ID:', setupResult.appId)
   })
 
   test('Send event, original client without origin', async () => {

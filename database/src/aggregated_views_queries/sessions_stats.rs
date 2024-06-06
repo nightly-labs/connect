@@ -44,7 +44,7 @@ mod tests {
         let db_arc = Arc::new(db);
 
         // // Add second app
-        let app_id_2 = "018fde27-ebf1-7397-a81f-640f6b9bcead".to_string();
+        let app_id_2 = "018fe846-3b7d-7af8-a14f-96d97820bccf".to_string();
         // let registered_app = DbRegisteredApp {
         //     team_id: team_id.clone(),
         //     app_id: app_id_2.clone(),

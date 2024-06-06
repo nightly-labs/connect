@@ -182,6 +182,7 @@ async fn save_event_app_connect(
             &mut tx,
             event_id,
             app_id,
+            network,
             &event.session_id,
             &event.device_metadata,
             &event.language,

@@ -19,6 +19,7 @@ impl Db {
         tx: &mut Transaction<'_, Postgres>,
         event_id: i64,
         app_id: &String,
+        network: &String,
         session_id: &String,
         device_metadata: &DeviceMetadata,
         lang: &String,
@@ -59,12 +60,13 @@ impl Db {
 
         // Save the app connect event to the database
         let query_body = format!(
-            "INSERT INTO {EVENT_APP_CONNECT_TABLE_NAME} ({EVENT_APP_CONNECT_KEYS}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
+            "INSERT INTO {EVENT_APP_CONNECT_TABLE_NAME} ({EVENT_APP_CONNECT_KEYS}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)"
         );
 
         let query_result = query(&query_body)
             .bind(event_id)
             .bind(app_id)
+            .bind(network)
             .bind(session_id)
             .bind(device_metadata_type)
             .bind(device_metadata_uuid)

@@ -26,15 +26,17 @@ mod test {
 
         // Create test team instance
         // let team_id = "test_team_id".to_string();
-        let app_id = "018fde27-ebf1-7397-a81f-640f6b9bcead".to_string();
+        let app_id = "TEMPLATE_UID".to_string();
 
         let db_arc = Arc::new(db);
         let mut tasks: Vec<task::JoinHandle<()>> = Vec::new();
+        let network = "Solana".to_string();
 
         let db_arc_clone = db_arc.clone();
         for i in 0..33 {
             let db_clone_clone = db_arc_clone.clone();
             let app_id = app_id.clone();
+            let network = network.clone();
             tasks.push(task::spawn(async move {
                 let mut tx = db_clone_clone
                     .connection_pool
@@ -63,7 +65,13 @@ mod test {
                         - Duration::from_secs(base_time_offset + quarter_offset)
                         - Duration::from_millis(additional_millis);
 
-                    let status = if j % n_th_value == 0 {
+                    // let status = if j % n_th_value == 0 {
+                    //     RequestStatus::Completed
+                    // } else {
+                    //     RequestStatus::Pending
+                    // };
+
+                    let status = if rand::thread_rng().gen_range(0..=10) % 3 == 0 {
                         RequestStatus::Completed
                     } else {
                         RequestStatus::Pending
@@ -74,6 +82,7 @@ mod test {
                         .create_new_event_entry(
                             &mut tx,
                             &app_id,
+                            &network,
                             &EventType::SignMessage,
                             &creation_time,
                         )
@@ -102,6 +111,7 @@ mod test {
                         .create_new_event_entry(
                             &mut tx,
                             &app_id,
+                            &network,
                             &EventType::SignTransaction,
                             &creation_time,
                         )
@@ -130,6 +140,7 @@ mod test {
                         .create_new_event_entry(
                             &mut tx,
                             &app_id,
+                            &network,
                             &EventType::SignAndSendTransaction,
                             &creation_time,
                         )
@@ -179,15 +190,18 @@ mod test {
 
         // Create test team instance
         // let team_id = "test_team_id".to_string();
-        let app_id = "018fde27-ebf1-7397-a81f-640f6b9bcead".to_string();
+        let app_id = "TEMPLATE_UID".to_string();
 
         let db_arc = Arc::new(db);
         let mut tasks: Vec<task::JoinHandle<()>> = Vec::new();
+        let network = "Solana".to_string();
 
         let db_arc_clone = db_arc.clone();
         for i in 0..33 {
             let db_clone_clone = db_arc_clone.clone();
             let app_id = app_id.clone();
+            let network = network.clone();
+
             tasks.push(task::spawn(async move {
                 let mut tx = db_clone_clone
                     .connection_pool
@@ -222,7 +236,13 @@ mod test {
                         - Duration::from_secs(base_time_offset + quarter_offset)
                         - Duration::from_millis(additional_millis);
 
-                    let status = if j % n_th_value == 0 {
+                    // let status = if j % n_th_value == 0 {
+                    //     RequestStatus::Completed
+                    // } else {
+                    //     RequestStatus::Pending
+                    // };
+
+                    let status = if rand::thread_rng().gen_range(0..=10) % 3 == 0 {
                         RequestStatus::Completed
                     } else {
                         RequestStatus::Pending
@@ -233,6 +253,7 @@ mod test {
                         .create_new_event_entry(
                             &mut tx,
                             &app_id,
+                            &network,
                             &EventType::SignMessage,
                             &creation_time,
                         )
@@ -285,15 +306,18 @@ mod test {
 
         // Create test team instance
         // let team_id = "test_team_id".to_string();
-        let app_id = "018fde27-ebf1-7397-a81f-640f6b9bcead".to_string();
+        let app_id = "TEMPLATE_UID".to_string();
 
         let db_arc = Arc::new(db);
         let mut tasks: Vec<task::JoinHandle<()>> = Vec::new();
+        let network = "Solana".to_string();
 
         let db_arc_clone = db_arc.clone();
         for i in 0..33 {
             let db_clone_clone = db_arc_clone.clone();
             let app_id = app_id.clone();
+            let network = network.clone();
+
             tasks.push(task::spawn(async move {
                 let mut tx = db_clone_clone
                     .connection_pool
@@ -328,7 +352,13 @@ mod test {
                         - Duration::from_secs(base_time_offset + quarter_offset)
                         - Duration::from_millis(additional_millis);
 
-                    let status = if j % n_th_value == 0 {
+                    // let status = if j % n_th_value == 0 {
+                    //     RequestStatus::Completed
+                    // } else {
+                    //     RequestStatus::Pending
+                    // };
+
+                    let status = if rand::thread_rng().gen_range(0..=10) % 3 == 0 {
                         RequestStatus::Completed
                     } else {
                         RequestStatus::Pending
@@ -339,6 +369,7 @@ mod test {
                         .create_new_event_entry(
                             &mut tx,
                             &app_id,
+                            &network,
                             &EventType::ChangeNetwork,
                             &creation_time,
                         )
@@ -393,15 +424,18 @@ mod test {
 
         // Create test team instance
         // let team_id = "test_team_id".to_string();
-        let app_id = "018fde27-ebf1-7397-a81f-640f6b9bcead".to_string();
+        let app_id = "TEMPLATE_UID".to_string();
 
         let db_arc = Arc::new(db);
         let mut tasks: Vec<task::JoinHandle<()>> = Vec::new();
+        let network = "Solana".to_string();
 
         let db_arc_clone = db_arc.clone();
         for i in 0..33 {
             let db_clone_clone = db_arc_clone.clone();
             let app_id = app_id.clone();
+            let network = network.clone();
+
             tasks.push(task::spawn(async move {
                 let mut tx = db_clone_clone
                     .connection_pool
@@ -446,6 +480,7 @@ mod test {
                         .create_new_event_entry(
                             &mut tx,
                             &app_id,
+                            &network,
                             &EventType::ChangeNetwork,
                             &creation_time,
                         )
@@ -469,7 +504,8 @@ mod test {
                         .await
                         .unwrap();
 
-                    let success = j % 4 == 0;
+                    // let success = j % 4 == 0;
+                    let success = rand::thread_rng().gen_range(0..=10) % 3 == 0;
 
                     db_clone_clone
                         .update_event_client_connect(
@@ -512,15 +548,18 @@ mod test {
 
         // Create test team instance
         // let team_id = "test_team_id".to_string();
-        let app_id = "018fde27-ebf1-7397-a81f-640f6b9bcead".to_string();
+        let app_id = "TEMPLATE_UID".to_string();
 
         let db_arc = Arc::new(db);
         let mut tasks: Vec<task::JoinHandle<()>> = Vec::new();
+        let network = "Solana".to_string();
 
         let db_arc_clone = db_arc.clone();
         for i in 0..33 {
             let db_clone_clone = db_arc_clone.clone();
             let app_id = app_id.clone();
+            let network = network.clone();
+
             tasks.push(task::spawn(async move {
                 let mut tx = db_clone_clone
                     .connection_pool
@@ -556,7 +595,7 @@ mod test {
                     };
 
                     let device_metadata = match j % 7 {
-                        0 | 1 | 2 => {
+                        0 => {
                             let browser = if j % 2 == 0 {
                                 "Chrome".to_string()
                             } else {
@@ -580,7 +619,7 @@ mod test {
                                 browser_version: "test_version".to_string(),
                             })
                         }
-                        3 | 4 => {
+                        1 | 2 | 3 | 4 | 5 => {
                             let rng = rand::thread_rng().gen::<i8>();
 
                             let system = match rng % 3 {
@@ -602,6 +641,7 @@ mod test {
                         .create_new_event_entry(
                             &mut tx,
                             &app_id,
+                            &network,
                             &EventType::ChangeNetwork,
                             &creation_time,
                         )
@@ -617,6 +657,7 @@ mod test {
                             &mut tx,
                             event_id,
                             &app_id,
+                            &network,
                             &session_id,
                             &device_metadata,
                             &language,

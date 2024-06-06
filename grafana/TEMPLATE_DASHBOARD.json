@@ -13,6 +13,12 @@
   "__requires": [
     {
       "type": "panel",
+      "id": "barchart",
+      "name": "Bar chart",
+      "version": ""
+    },
+    {
+      "type": "panel",
       "id": "geomap",
       "name": "Geomap",
       "version": ""
@@ -21,7 +27,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "10.3.3"
+      "version": "11.0.0"
     },
     {
       "type": "datasource",
@@ -62,21 +68,7 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [
-    {
-      "asDropdown": false,
-      "icon": "external link",
-      "includeVars": false,
-      "keepTime": false,
-      "tags": [],
-      "targetBlank": false,
-      "title": "New link",
-      "tooltip": "",
-      "type": "dashboards",
-      "url": ""
-    }
-  ],
-  "liveNow": false,
+  "links": [],
   "panels": [
     {
       "datasource": {
@@ -108,14 +100,13 @@
                 "value": 80
               }
             ]
-          },
-          "unitScale": true
+          }
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 21,
-        "w": 19,
+        "h": 19,
+        "w": 24,
         "x": 0,
         "y": 0
       },
@@ -202,7 +193,7 @@
           "zoom": 4
         }
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -310,16 +301,28 @@
                 "value": 80
               }
             ]
-          },
-          "unitScale": true
+          }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "connections"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "connections"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 21
+        "y": 19
       },
       "id": 6,
       "options": {
@@ -327,13 +330,15 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -422,8 +427,7 @@
                 "value": 80
               }
             ]
-          },
-          "unitScale": true
+          }
         },
         "overrides": [
           {
@@ -434,7 +438,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "${__field.labels.metric}"
+                "value": "connections"
               }
             ]
           }
@@ -444,7 +448,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 21
+        "y": 19
       },
       "id": 14,
       "options": {
@@ -452,13 +456,15 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -539,23 +545,36 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
                 "value": 80
               }
             ]
-          },
-          "unitScale": true
+          }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "active_users"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "active users"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 29
+        "y": 27
       },
       "id": 11,
       "options": {
@@ -563,13 +582,15 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -651,15 +672,15 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
                 "value": 80
               }
             ]
-          },
-          "unitScale": true
+          }
         },
         "overrides": [
           {
@@ -670,7 +691,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "${__field.labels.app_name}"
+                "value": "opened"
               }
             ]
           }
@@ -680,23 +701,23 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 29
+        "y": 27
       },
       "id": 13,
       "options": {
         "legend": {
-          "calcs": [
-            "mean"
-          ],
+          "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -778,7 +799,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -786,34 +808,57 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": false
+          "unit": "none"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "failed_requests"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "failed requests"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "success_requests"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "successfull requests"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 37
+        "y": 35
       },
       "id": 5,
       "options": {
         "legend": {
-          "calcs": [
-            "diffperc",
-            "delta"
-          ],
-          "displayMode": "table",
+          "calcs": [],
+          "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": true,
+          "width": 300
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -845,7 +890,6 @@
         }
       ],
       "title": "Sign Message",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -896,7 +940,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -904,16 +949,40 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": false
+          "unit": "none"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "failed_requests"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "failed requests"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "success_requests"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "successfull requests"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 37
+        "y": 35
       },
       "id": 16,
       "options": {
@@ -922,16 +991,17 @@
             "diffperc",
             "delta"
           ],
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -963,7 +1033,6 @@
         }
       ],
       "title": "Sign And Send Transaction",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -992,7 +1061,7 @@
               "viz": false
             },
             "insertNulls": false,
-            "lineInterpolation": "linear",
+            "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -1014,7 +1083,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1022,16 +1092,40 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": false
+          "unit": "none"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "failed_requests"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "failed requests"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "success_requests"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "successfull requests"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 45
+        "y": 43
       },
       "id": 15,
       "options": {
@@ -1042,11 +1136,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -1078,7 +1173,6 @@
         }
       ],
       "title": "Sign Transaction",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -1129,7 +1223,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1137,31 +1232,30 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": false
+          "unit": "none"
         },
         "overrides": [
           {
-            "__systemRef": "hideSeriesFrom",
             "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "failed_requests {app_id=\"test_app_id_2\", metric=\"daily\", wallet_name=\"test_wallet_name_1\"}"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
+              "id": "byName",
+              "options": "failed_requests"
             },
             "properties": [
               {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": true
-                }
+                "id": "displayName",
+                "value": "failed requests"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "success_requests"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "successfull requests"
               }
             ]
           }
@@ -1171,122 +1265,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 45
-      },
-      "id": 17,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "10.3.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
-          },
-          "editorMode": "code",
-          "format": "time_series",
-          "rawQuery": true,
-          "rawSql": "SELECT \n    app_id, \n    wallet_name,\n    time, \n    SUM(success_requests) AS success_requests, \n    SUM(failed_requests) AS failed_requests, \n    metric\nFROM (\n    SELECT \n        app_id, \n        wallet_name, \n        daily_bucket AS time, \n        daily_successful_requests AS success_requests, \n        daily_unsuccessful_requests AS failed_requests, \n        'daily' AS metric\n    FROM \n        daily_events_change_wallet_stats_per_app\n    WHERE \n        app_id = '${__dashboard.uid}' AND \n        $__timeTo()::timestamp - $__timeFrom()::timestamp > '14 days'::interval AND \n        $__timeFilter(daily_bucket)\n    \n    UNION ALL\n\n    SELECT \n        app_id, \n        wallet_name, \n        hour_bucket AS time, \n        hour_successful_requests AS success_requests, \n        hour_unsuccessful_requests AS failed_requests, \n        'hourly' AS metric\n    FROM \n        hour_events_change_wallet_stats_per_app\n    WHERE \n        app_id = '${__dashboard.uid}' AND \n        $__timeTo()::timestamp - $__timeFrom()::timestamp BETWEEN '3 days'::interval AND '14 days'::interval AND \n        $__timeFilter(hour_bucket)\n    \n    UNION ALL\n\n    SELECT \n        app_id, \n        wallet_name, \n        quarter_bucket AS time, \n        quarter_successful_requests AS success_requests, \n        quarter_unsuccessful_requests AS failed_requests, \n        '15min' AS metric\n    FROM \n        quarter_events_change_wallet_stats_per_app\n    WHERE \n        app_id = '${__dashboard.uid}' AND \n        $__timeTo()::timestamp - $__timeFrom()::timestamp < '3 days'::interval AND \n        $__timeFilter(quarter_bucket)\n) aggregated\nGROUP BY \n    app_id, \n    wallet_name,\n    time, \n    metric\nORDER BY \n    time;\n",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Change Wallet Account",
-      "transformations": [],
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "always",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "fieldMinMax": false,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none",
-          "unitScale": false
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 53
+        "y": 43
       },
       "id": 18,
       "options": {
@@ -1297,11 +1276,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -1333,7 +1313,6 @@
         }
       ],
       "title": "Change Network",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -1384,7 +1363,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1392,18 +1372,42 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": false
+          "unit": "none"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "failed_requests"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "failed requests"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "success_requests"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "successfull requests"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 12,
-        "y": 53
+        "x": 0,
+        "y": 51
       },
-      "id": 28,
+      "id": 17,
       "options": {
         "legend": {
           "calcs": [],
@@ -1412,11 +1416,12 @@
           "showLegend": true
         },
         "tooltip": {
-          "mode": "multi",
+          "maxHeight": 600,
+          "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -1425,7 +1430,175 @@
           },
           "editorMode": "code",
           "format": "time_series",
-          "hide": false,
+          "rawQuery": true,
+          "rawSql": "SELECT \n    app_id, \n    wallet_name,\n    time, \n    SUM(success_requests) AS success_requests, \n    SUM(failed_requests) AS failed_requests, \n    metric\nFROM (\n    SELECT \n        app_id, \n        wallet_name, \n        daily_bucket AS time, \n        daily_successful_requests AS success_requests, \n        daily_unsuccessful_requests AS failed_requests, \n        'daily' AS metric\n    FROM \n        daily_events_change_wallet_stats_per_app\n    WHERE \n        app_id = '${__dashboard.uid}' AND \n        $__timeTo()::timestamp - $__timeFrom()::timestamp > '14 days'::interval AND \n        $__timeFilter(daily_bucket)\n    \n    UNION ALL\n\n    SELECT \n        app_id, \n        wallet_name, \n        hour_bucket AS time, \n        hour_successful_requests AS success_requests, \n        hour_unsuccessful_requests AS failed_requests, \n        'hourly' AS metric\n    FROM \n        hour_events_change_wallet_stats_per_app\n    WHERE \n        app_id = '${__dashboard.uid}' AND \n        $__timeTo()::timestamp - $__timeFrom()::timestamp BETWEEN '3 days'::interval AND '14 days'::interval AND \n        $__timeFilter(hour_bucket)\n    \n    UNION ALL\n\n    SELECT \n        app_id, \n        wallet_name, \n        quarter_bucket AS time, \n        quarter_successful_requests AS success_requests, \n        quarter_unsuccessful_requests AS failed_requests, \n        '15min' AS metric\n    FROM \n        quarter_events_change_wallet_stats_per_app\n    WHERE \n        app_id = '${__dashboard.uid}' AND \n        $__timeTo()::timestamp - $__timeFrom()::timestamp < '3 days'::interval AND \n        $__timeFilter(quarter_bucket)\n) aggregated\nGROUP BY \n    app_id, \n    wallet_name,\n    time, \n    metric\nORDER BY \n    time;\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Change Wallet Account",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisGridShow": true,
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "fieldMinMax": false,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "success_requests"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "${__field.labels.request_type}"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total"
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                }
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.stacking",
+                "value": {
+                  "group": "B",
+                  "mode": "none"
+                }
+              },
+              {
+                "id": "custom.showPoints",
+                "value": "always"
+              },
+              {
+                "id": "custom.lineInterpolation",
+                "value": "smooth"
+              },
+              {
+                "id": "custom.fillBelowTo",
+                "value": "Total"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 59
+      },
+      "id": 30,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
+          },
+          "editorMode": "code",
+          "format": "time_series",
           "rawQuery": true,
           "rawSql": "SELECT\n  'sign_message' as request_type,\n  app_id,\n  daily_bucket as time,\n  daily_successful_requests as success_requests,\n  daily_unsuccessful_requests as failed_requests,\n  'daily' AS metric\nFROM\n  daily_events_sign_message_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp > '14 days' :: interval\n  AND $__timeFilter(daily_bucket)\nUNION\nALL -- Use hourly aggregate for intervals between 3 and 14 days\nSELECT\n  'sign_message' as request_type,\n  app_id,\n  hour_bucket as time,\n  hour_successful_requests as success_requests,\n  hour_unsuccessful_requests as failed_requests,\n  'hourly' AS metric\nFROM\n  hour_events_sign_message_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp BETWEEN '3 days' :: interval\n  AND '14 days' :: interval\n  AND $__timeFilter(hour_bucket)\nUNION\nALL -- Use 15 minutes interval 0 and 3 days\nSELECT\n  'sign_message' as request_type,\n  app_id,\n  quarter_bucket as time,\n  quarter_successful_requests as quarter_requests,\n  quarter_unsuccessful_requests as failed_requests,\n  '15min' AS metric\nFROM\n  quarter_events_sign_message_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp < '3 days' :: interval\n  AND $__timeFilter(quarter_bucket)\nUNION\nALL -------------------------------------------------------------------\nSELECT\n  'sign_transaction' as request_type,\n  app_id,\n  daily_bucket as time,\n  daily_successful_requests as success_requests,\n  daily_unsuccessful_requests as failed_requests,\n  'daily' AS metric\nFROM\n  daily_events_sign_transaction_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp > '14 days' :: interval\n  AND $__timeFilter(daily_bucket)\nUNION\nALL -- Use hourly aggregate for intervals between 3 and 14 days\nSELECT\n  'sign_transaction' as request_type,\n  app_id,\n  hour_bucket as time,\n  hour_successful_requests as success_requests,\n  hour_unsuccessful_requests as failed_requests,\n  'hourly' AS metric\nFROM\n  hour_events_sign_transaction_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp BETWEEN '3 days' :: interval\n  AND '14 days' :: interval\n  AND $__timeFilter(hour_bucket)\nUNION\nALL -- Use 15 minutes interval 0 and 3 days\nSELECT\n  'sign_transaction' as request_type,\n  app_id,\n  quarter_bucket as time,\n  quarter_successful_requests as quarter_requests,\n  quarter_unsuccessful_requests as failed_requests,\n  '15min' AS metric\nFROM\n  quarter_events_sign_transaction_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp < '3 days' :: interval\n  AND $__timeFilter(quarter_bucket)\nUNION\nALL ------------------------------------------------------------------\nSELECT\n  'sign_and_send_transaction' as request_type,\n  app_id,\n  daily_bucket as time,\n  daily_successful_requests as success_requests,\n  daily_unsuccessful_requests as failed_requests,\n  'daily' AS metric\nFROM\n  daily_events_sign_and_send_transaction_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp > '14 days' :: interval\n  AND $__timeFilter(daily_bucket)\nUNION\nALL -- Use hourly aggregate for intervals between 3 and 14 days\nSELECT\n  'sign_and_send_transaction' as request_type,\n  app_id,\n  hour_bucket as time,\n  hour_successful_requests as success_requests,\n  hour_unsuccessful_requests as failed_requests,\n  'hourly' AS metric\nFROM\n  hour_events_sign_and_send_transaction_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp BETWEEN '3 days' :: interval\n  AND '14 days' :: interval\n  AND $__timeFilter(hour_bucket)\nUNION\nALL -- Use 15 minutes interval 0 and 3 days\nSELECT\n  'sign_and_send_transaction' as request_type,\n  app_id,\n  quarter_bucket as time,\n  quarter_successful_requests as quarter_requests,\n  quarter_unsuccessful_requests as failed_requests,\n  '15min' AS metric\nFROM\n  quarter_events_sign_and_send_transaction_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp < '3 days' :: interval\n  AND $__timeFilter(quarter_bucket)\nUNION\nALL ---------------------------------------------------------------------\nSELECT\n  'change_network' as request_type,\n  app_id,\n  daily_bucket as time,\n  daily_successful_requests as success_requests,\n  daily_unsuccessful_requests as failed_requests,\n  'daily' AS metric\nFROM\n  daily_events_change_network_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp > '14 days' :: interval\n  AND $__timeFilter(daily_bucket)\nUNION\nALL -- Use hourly aggregate for intervals between 3 and 14 days\nSELECT\n  'change_network' as request_type,\n  app_id,\n  hour_bucket as time,\n  hour_successful_requests as success_requests,\n  hour_unsuccessful_requests as failed_requests,\n  'hourly' AS metric\nFROM\n  hour_events_change_network_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp BETWEEN '3 days' :: interval\n  AND '14 days' :: interval\n  AND $__timeFilter(hour_bucket)\nUNION\nALL -- Use 15 minutes interval 0 and 3 days\nSELECT\n  'change_network' as request_type,\n  app_id,\n  quarter_bucket as time,\n  quarter_successful_requests as quarter_requests,\n  quarter_unsuccessful_requests as failed_requests,\n  '15min' AS metric\nFROM\n  quarter_events_change_network_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp < '3 days' :: interval\n  AND $__timeFilter(quarter_bucket)\nUNION\nALL ---------------------------------------------------------------------\nSELECT\n  'change_wallet' as request_type,\n  app_id,\n  time,\n  SUM(success_requests) AS success_requests,\n  SUM(failed_requests) AS failed_requests,\n  metric\nFROM\n  (\n    SELECT\n      app_id,\n      wallet_name,\n      daily_bucket AS time,\n      daily_successful_requests AS success_requests,\n      daily_unsuccessful_requests AS failed_requests,\n      'daily' AS metric\n    FROM\n      daily_events_change_wallet_stats_per_app\n    WHERE\n      app_id = '${__dashboard.uid}'\n      AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp > '14 days' :: interval\n      AND $__timeFilter(daily_bucket)\n    UNION\n    ALL\n    SELECT\n      app_id,\n      wallet_name,\n      hour_bucket AS time,\n      hour_successful_requests AS success_requests,\n      hour_unsuccessful_requests AS failed_requests,\n      'hourly' AS metric\n    FROM\n      hour_events_change_wallet_stats_per_app\n    WHERE\n      app_id = '${__dashboard.uid}'\n      AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp BETWEEN '3 days' :: interval\n      AND '14 days' :: interval\n      AND $__timeFilter(hour_bucket)\n    UNION\n    ALL\n    SELECT\n      app_id,\n      wallet_name,\n      quarter_bucket AS time,\n      quarter_successful_requests AS success_requests,\n      quarter_unsuccessful_requests AS failed_requests,\n      '15min' AS metric\n    FROM\n      quarter_events_change_wallet_stats_per_app\n    WHERE\n      app_id = '${__dashboard.uid}'\n      AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp < '3 days' :: interval\n      AND $__timeFilter(quarter_bucket)\n  ) aggregated\nGROUP BY\n  app_id,\n  wallet_name,\n  time,\n  metric\nORDER BY\n  time;",
           "refId": "A",
@@ -1448,17 +1621,354 @@
           }
         }
       ],
-      "title": "Requests Status | Total",
+      "title": "Successful requests summarization",
       "transformations": [
         {
-          "id": "joinByField",
+          "id": "filterFieldsByName",
           "options": {
-            "byField": "failed_requests",
-            "mode": "outer"
+            "byVariable": false,
+            "include": {
+              "names": [
+                "success_requests {app_id=\"018fe846-3b7d-7af8-a14f-96d97820bccf\", metric=\"daily\", request_type=\"change_network\"}",
+                "success_requests {app_id=\"018fe846-3b7d-7af8-a14f-96d97820bccf\", metric=\"daily\", request_type=\"change_wallet\"}",
+                "success_requests {app_id=\"018fe846-3b7d-7af8-a14f-96d97820bccf\", metric=\"daily\", request_type=\"sign_and_send_transaction\"}",
+                "success_requests {app_id=\"018fe846-3b7d-7af8-a14f-96d97820bccf\", metric=\"daily\", request_type=\"sign_message\"}",
+                "success_requests {app_id=\"018fe846-3b7d-7af8-a14f-96d97820bccf\", metric=\"daily\", request_type=\"sign_transaction\"}",
+                "Time"
+              ],
+              "pattern": "^success_requests\\s*\\{[^}]*\\}"
+            }
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {}
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisGridShow": true,
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "fieldMinMax": false,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "failed_requests"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "${__field.labels.request_type}"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total"
+            },
+            "properties": [
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.stacking",
+                "value": {
+                  "group": "B",
+                  "mode": "none"
+                }
+              },
+              {
+                "id": "custom.showPoints",
+                "value": "always"
+              },
+              {
+                "id": "custom.lineInterpolation",
+                "value": "smooth"
+              },
+              {
+                "id": "custom.fillBelowTo",
+                "value": "Total"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 69
+      },
+      "id": 31,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  'sign_message' as request_type,\n  app_id,\n  daily_bucket as time,\n  daily_successful_requests as success_requests,\n  daily_unsuccessful_requests as failed_requests,\n  'daily' AS metric\nFROM\n  daily_events_sign_message_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp > '14 days' :: interval\n  AND $__timeFilter(daily_bucket)\nUNION\nALL -- Use hourly aggregate for intervals between 3 and 14 days\nSELECT\n  'sign_message' as request_type,\n  app_id,\n  hour_bucket as time,\n  hour_successful_requests as success_requests,\n  hour_unsuccessful_requests as failed_requests,\n  'hourly' AS metric\nFROM\n  hour_events_sign_message_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp BETWEEN '3 days' :: interval\n  AND '14 days' :: interval\n  AND $__timeFilter(hour_bucket)\nUNION\nALL -- Use 15 minutes interval 0 and 3 days\nSELECT\n  'sign_message' as request_type,\n  app_id,\n  quarter_bucket as time,\n  quarter_successful_requests as quarter_requests,\n  quarter_unsuccessful_requests as failed_requests,\n  '15min' AS metric\nFROM\n  quarter_events_sign_message_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp < '3 days' :: interval\n  AND $__timeFilter(quarter_bucket)\nUNION\nALL -------------------------------------------------------------------\nSELECT\n  'sign_transaction' as request_type,\n  app_id,\n  daily_bucket as time,\n  daily_successful_requests as success_requests,\n  daily_unsuccessful_requests as failed_requests,\n  'daily' AS metric\nFROM\n  daily_events_sign_transaction_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp > '14 days' :: interval\n  AND $__timeFilter(daily_bucket)\nUNION\nALL -- Use hourly aggregate for intervals between 3 and 14 days\nSELECT\n  'sign_transaction' as request_type,\n  app_id,\n  hour_bucket as time,\n  hour_successful_requests as success_requests,\n  hour_unsuccessful_requests as failed_requests,\n  'hourly' AS metric\nFROM\n  hour_events_sign_transaction_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp BETWEEN '3 days' :: interval\n  AND '14 days' :: interval\n  AND $__timeFilter(hour_bucket)\nUNION\nALL -- Use 15 minutes interval 0 and 3 days\nSELECT\n  'sign_transaction' as request_type,\n  app_id,\n  quarter_bucket as time,\n  quarter_successful_requests as quarter_requests,\n  quarter_unsuccessful_requests as failed_requests,\n  '15min' AS metric\nFROM\n  quarter_events_sign_transaction_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp < '3 days' :: interval\n  AND $__timeFilter(quarter_bucket)\nUNION\nALL ------------------------------------------------------------------\nSELECT\n  'sign_and_send_transaction' as request_type,\n  app_id,\n  daily_bucket as time,\n  daily_successful_requests as success_requests,\n  daily_unsuccessful_requests as failed_requests,\n  'daily' AS metric\nFROM\n  daily_events_sign_and_send_transaction_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp > '14 days' :: interval\n  AND $__timeFilter(daily_bucket)\nUNION\nALL -- Use hourly aggregate for intervals between 3 and 14 days\nSELECT\n  'sign_and_send_transaction' as request_type,\n  app_id,\n  hour_bucket as time,\n  hour_successful_requests as success_requests,\n  hour_unsuccessful_requests as failed_requests,\n  'hourly' AS metric\nFROM\n  hour_events_sign_and_send_transaction_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp BETWEEN '3 days' :: interval\n  AND '14 days' :: interval\n  AND $__timeFilter(hour_bucket)\nUNION\nALL -- Use 15 minutes interval 0 and 3 days\nSELECT\n  'sign_and_send_transaction' as request_type,\n  app_id,\n  quarter_bucket as time,\n  quarter_successful_requests as quarter_requests,\n  quarter_unsuccessful_requests as failed_requests,\n  '15min' AS metric\nFROM\n  quarter_events_sign_and_send_transaction_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp < '3 days' :: interval\n  AND $__timeFilter(quarter_bucket)\nUNION\nALL ---------------------------------------------------------------------\nSELECT\n  'change_network' as request_type,\n  app_id,\n  daily_bucket as time,\n  daily_successful_requests as success_requests,\n  daily_unsuccessful_requests as failed_requests,\n  'daily' AS metric\nFROM\n  daily_events_change_network_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp > '14 days' :: interval\n  AND $__timeFilter(daily_bucket)\nUNION\nALL -- Use hourly aggregate for intervals between 3 and 14 days\nSELECT\n  'change_network' as request_type,\n  app_id,\n  hour_bucket as time,\n  hour_successful_requests as success_requests,\n  hour_unsuccessful_requests as failed_requests,\n  'hourly' AS metric\nFROM\n  hour_events_change_network_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp BETWEEN '3 days' :: interval\n  AND '14 days' :: interval\n  AND $__timeFilter(hour_bucket)\nUNION\nALL -- Use 15 minutes interval 0 and 3 days\nSELECT\n  'change_network' as request_type,\n  app_id,\n  quarter_bucket as time,\n  quarter_successful_requests as quarter_requests,\n  quarter_unsuccessful_requests as failed_requests,\n  '15min' AS metric\nFROM\n  quarter_events_change_network_stats_per_app\nWHERE\n  app_id = '${__dashboard.uid}'\n  AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp < '3 days' :: interval\n  AND $__timeFilter(quarter_bucket)\nUNION\nALL ---------------------------------------------------------------------\nSELECT\n  'change_wallet' as request_type,\n  app_id,\n  time,\n  SUM(success_requests) AS success_requests,\n  SUM(failed_requests) AS failed_requests,\n  metric\nFROM\n  (\n    SELECT\n      app_id,\n      wallet_name,\n      daily_bucket AS time,\n      daily_successful_requests AS success_requests,\n      daily_unsuccessful_requests AS failed_requests,\n      'daily' AS metric\n    FROM\n      daily_events_change_wallet_stats_per_app\n    WHERE\n      app_id = '${__dashboard.uid}'\n      AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp > '14 days' :: interval\n      AND $__timeFilter(daily_bucket)\n    UNION\n    ALL\n    SELECT\n      app_id,\n      wallet_name,\n      hour_bucket AS time,\n      hour_successful_requests AS success_requests,\n      hour_unsuccessful_requests AS failed_requests,\n      'hourly' AS metric\n    FROM\n      hour_events_change_wallet_stats_per_app\n    WHERE\n      app_id = '${__dashboard.uid}'\n      AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp BETWEEN '3 days' :: interval\n      AND '14 days' :: interval\n      AND $__timeFilter(hour_bucket)\n    UNION\n    ALL\n    SELECT\n      app_id,\n      wallet_name,\n      quarter_bucket AS time,\n      quarter_successful_requests AS success_requests,\n      quarter_unsuccessful_requests AS failed_requests,\n      '15min' AS metric\n    FROM\n      quarter_events_change_wallet_stats_per_app\n    WHERE\n      app_id = '${__dashboard.uid}'\n      AND $__timeTo() :: timestamp - $__timeFrom() :: timestamp < '3 days' :: interval\n      AND $__timeFilter(quarter_bucket)\n  ) aggregated\nGROUP BY\n  app_id,\n  wallet_name,\n  time,\n  metric\nORDER BY\n  time;",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Failed requests summarization",
+      "transformations": [
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "byVariable": false,
+            "include": {
+              "names": [
+                "failed_requests {app_id=\"TEMPLATE_UID\", metric=\"daily\", request_type=\"change_network\"}",
+                "failed_requests {app_id=\"TEMPLATE_UID\", metric=\"daily\", request_type=\"change_wallet\"}",
+                "failed_requests {app_id=\"TEMPLATE_UID\", metric=\"daily\", request_type=\"sign_and_send_transaction\"}",
+                "failed_requests {app_id=\"TEMPLATE_UID\", metric=\"daily\", request_type=\"sign_message\"}",
+                "failed_requests {app_id=\"TEMPLATE_UID\", metric=\"daily\", request_type=\"sign_transaction\"}",
+                "Time"
+              ],
+              "pattern": "^failed_requests\\s*\\{[^}]*\\}"
+            }
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "mode": "reduceRow",
+            "reduce": {
+              "include": [],
+              "reducer": "sum"
+            },
+            "replaceFields": false
           }
         }
       ],
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "fieldMinMax": false,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 80
+      },
+      "id": 32,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "always",
+        "stacking": "none",
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  time,\n  SUM(success_requests) AS success_requests,\n  SUM(failed_requests) AS failed_requests,\n  metric\nFROM (\n  SELECT\n    'sign_message' AS request_type,\n    app_id,\n    daily_bucket AS time,\n    daily_successful_requests AS success_requests,\n    daily_unsuccessful_requests AS failed_requests,\n    'daily' AS metric\n  FROM\n    daily_events_sign_message_stats_per_app\n  WHERE\n    app_id = '${__dashboard.uid}'\n    AND $__timeTo()::timestamp - $__timeFrom()::timestamp > '14 days'::interval\n    AND $__timeFilter(daily_bucket)\n  UNION ALL\n  SELECT\n    'sign_message' AS request_type,\n    app_id,\n    hour_bucket AS time,\n    hour_successful_requests AS success_requests,\n    hour_unsuccessful_requests AS failed_requests,\n    'hourly' AS metric\n  FROM\n    hour_events_sign_message_stats_per_app\n  WHERE\n    app_id = '${__dashboard.uid}'\n    AND $__timeTo()::timestamp - $__timeFrom()::timestamp BETWEEN '3 days'::interval AND '14 days'::interval\n    AND $__timeFilter(hour_bucket)\n  UNION ALL\n  SELECT\n    'sign_message' AS request_type,\n    app_id,\n    quarter_bucket AS time,\n    quarter_successful_requests AS success_requests,\n    quarter_unsuccessful_requests AS failed_requests,\n    '15min' AS metric\n  FROM\n    quarter_events_sign_message_stats_per_app\n  WHERE\n    app_id = '${__dashboard.uid}'\n    AND $__timeTo()::timestamp - $__timeFrom()::timestamp < '3 days'::interval\n    AND $__timeFilter(quarter_bucket)\n  UNION ALL\n  SELECT\n    'sign_transaction' AS request_type,\n    app_id,\n    daily_bucket AS time,\n    daily_successful_requests AS success_requests,\n    daily_unsuccessful_requests AS failed_requests,\n    'daily' AS metric\n  FROM\n    daily_events_sign_transaction_stats_per_app\n  WHERE\n    app_id = '${__dashboard.uid}'\n    AND $__timeTo()::timestamp - $__timeFrom()::timestamp > '14 days'::interval\n    AND $__timeFilter(daily_bucket)\n  UNION ALL\n  SELECT\n    'sign_transaction' AS request_type,\n    app_id,\n    hour_bucket AS time,\n    hour_successful_requests AS success_requests,\n    hour_unsuccessful_requests AS failed_requests,\n    'hourly' AS metric\n  FROM\n    hour_events_sign_transaction_stats_per_app\n  WHERE\n    app_id = '${__dashboard.uid}'\n    AND $__timeTo()::timestamp - $__timeFrom()::timestamp BETWEEN '3 days'::interval AND '14 days'::interval\n    AND $__timeFilter(hour_bucket)\n  UNION ALL\n  SELECT\n    'sign_transaction' AS request_type,\n    app_id,\n    quarter_bucket AS time,\n    quarter_successful_requests AS success_requests,\n    quarter_unsuccessful_requests AS failed_requests,\n    '15min' AS metric\n  FROM\n    quarter_events_sign_transaction_stats_per_app\n  WHERE\n    app_id = '${__dashboard.uid}'\n    AND $__timeTo()::timestamp - $__timeFrom()::timestamp < '3 days'::interval\n    AND $__timeFilter(quarter_bucket)\n  UNION ALL\n  SELECT\n    'sign_and_send_transaction' AS request_type,\n    app_id,\n    daily_bucket AS time,\n    daily_successful_requests AS success_requests,\n    daily_unsuccessful_requests AS failed_requests,\n    'daily' AS metric\n  FROM\n    daily_events_sign_and_send_transaction_stats_per_app\n  WHERE\n    app_id = '${__dashboard.uid}'\n    AND $__timeTo()::timestamp - $__timeFrom()::timestamp > '14 days'::interval\n    AND $__timeFilter(daily_bucket)\n  UNION ALL\n  SELECT\n    'sign_and_send_transaction' AS request_type,\n    app_id,\n    hour_bucket AS time,\n    hour_successful_requests AS success_requests,\n    hour_unsuccessful_requests AS failed_requests,\n    'hourly' AS metric\n  FROM\n    hour_events_sign_and_send_transaction_stats_per_app\n  WHERE\n    app_id = '${__dashboard.uid}'\n    AND $__timeTo()::timestamp - $__timeFrom()::timestamp BETWEEN '3 days'::interval AND '14 days'::interval\n    AND $__timeFilter(hour_bucket)\n  UNION ALL\n  SELECT\n    'sign_and_send_transaction' AS request_type,\n    app_id,\n    quarter_bucket AS time,\n    quarter_successful_requests AS success_requests,\n    quarter_unsuccessful_requests AS failed_requests,\n    '15min' AS metric\n  FROM\n    quarter_events_sign_and_send_transaction_stats_per_app\n  WHERE\n    app_id = '${__dashboard.uid}'\n    AND $__timeTo()::timestamp - $__timeFrom()::timestamp < '3 days'::interval\n    AND $__timeFilter(quarter_bucket)\n  UNION ALL\n  SELECT\n    'change_network' AS request_type,\n    app_id,\n    daily_bucket AS time,\n    daily_successful_requests AS success_requests,\n    daily_unsuccessful_requests AS failed_requests,\n    'daily' AS metric\n  FROM\n    daily_events_change_network_stats_per_app\n  WHERE\n    app_id = '${__dashboard.uid}'\n    AND $__timeTo()::timestamp - $__timeFrom()::timestamp > '14 days'::interval\n    AND $__timeFilter(daily_bucket)\n  UNION ALL\n  SELECT\n    'change_network' AS request_type,\n    app_id,\n    hour_bucket AS time,\n    hour_successful_requests AS success_requests,\n    hour_unsuccessful_requests AS failed_requests,\n    'hourly' AS metric\n  FROM\n    hour_events_change_network_stats_per_app\n  WHERE\n    app_id = '${__dashboard.uid}'\n    AND $__timeTo()::timestamp - $__timeFrom()::timestamp BETWEEN '3 days'::interval AND '14 days'::interval\n    AND $__timeFilter(hour_bucket)\n  UNION ALL\n  SELECT\n    'change_network' AS request_type,\n    app_id,\n    quarter_bucket AS time,\n    quarter_successful_requests AS success_requests,\n    quarter_unsuccessful_requests AS failed_requests,\n    '15min' AS metric\n  FROM\n    quarter_events_change_network_stats_per_app\n  WHERE\n    app_id = '${__dashboard.uid}'\n    AND $__timeTo()::timestamp - $__timeFrom()::timestamp < '3 days'::interval\n    AND $__timeFilter(quarter_bucket)\n  UNION ALL\n  SELECT\n    'change_wallet' AS request_type,\n    app_id,\n    time,\n    SUM(success_requests) AS success_requests,\n    SUM(failed_requests) AS failed_requests,\n    metric\n  FROM (\n    SELECT\n      app_id,\n      wallet_name,\n      daily_bucket AS time,\n      daily_successful_requests AS success_requests,\n      daily_unsuccessful_requests AS failed_requests,\n      'daily' AS metric\n    FROM\n      daily_events_change_wallet_stats_per_app\n    WHERE\n      app_id = '${__dashboard.uid}'\n      AND $__timeTo()::timestamp - $__timeFrom()::timestamp > '14 days'::interval\n      AND $__timeFilter(daily_bucket)\n    UNION ALL\n    SELECT\n      app_id,\n      wallet_name,\n      hour_bucket AS time,\n      hour_successful_requests AS success_requests,\n      hour_unsuccessful_requests AS failed_requests,\n      'hourly' AS metric\n    FROM\n      hour_events_change_wallet_stats_per_app\n    WHERE\n      app_id = '${__dashboard.uid}'\n      AND $__timeTo()::timestamp - $__timeFrom()::timestamp BETWEEN '3 days'::interval AND '14 days'::interval\n      AND $__timeFilter(hour_bucket)\n    UNION ALL\n    SELECT\n      app_id,\n      wallet_name,\n      quarter_bucket AS time,\n      quarter_successful_requests AS success_requests,\n      quarter_unsuccessful_requests AS failed_requests,\n      '15min' AS metric\n    FROM\n      quarter_events_change_wallet_stats_per_app\n    WHERE\n      app_id = '${__dashboard.uid}'\n      AND $__timeTo()::timestamp - $__timeFrom()::timestamp < '3 days'::interval\n      AND $__timeFilter(quarter_bucket)\n  ) aggregated\n  GROUP BY\n    app_id,\n    wallet_name,\n    time,\n    metric\n) combined\nGROUP BY\n  time,\n  metric\nORDER BY\n  time;\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Requests sumarization",
+      "transformations": [
+        {
+          "id": "calculateField",
+          "options": {}
+        },
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "names": [
+                "time",
+                "success_requests",
+                "failed_requests",
+                "Total"
+              ]
+            }
+          }
+        }
+      ],
+      "type": "barchart"
     },
     {
       "datasource": {
@@ -1508,7 +2018,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1516,8 +2027,7 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": false
+          "unit": "none"
         },
         "overrides": [
           {
@@ -1559,10 +2069,10 @@
         ]
       },
       "gridPos": {
-        "h": 16,
+        "h": 8,
         "w": 12,
         "x": 0,
-        "y": 61
+        "y": 91
       },
       "id": 25,
       "options": {
@@ -1573,11 +2083,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -1609,197 +2120,6 @@
         }
       ],
       "title": "Sessions | Connection Type",
-      "transformations": [],
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "datasource",
-        "uid": "-- Dashboard --"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "bars",
-            "fillOpacity": 100,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "normal"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "fieldMinMax": false,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none",
-          "unitScale": false
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 61
-      },
-      "id": 29,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "10.3.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "datasource",
-            "uid": "-- Dashboard --"
-          },
-          "panelId": 28,
-          "refId": "A"
-        }
-      ],
-      "title": "Requests",
-      "transformations": [],
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "datasource",
-        "uid": "-- Dashboard --"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "bars",
-            "fillOpacity": 100,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "normal"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "fieldMinMax": false,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none",
-          "unitScale": false
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 69
-      },
-      "id": 30,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "10.3.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "datasource",
-            "uid": "-- Dashboard --"
-          },
-          "panelId": 28,
-          "refId": "A"
-        }
-      ],
-      "title": "Requests",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -1821,8 +2141,7 @@
           },
           "fieldMinMax": false,
           "mappings": [],
-          "unit": "none",
-          "unitScale": false
+          "unit": "none"
         },
         "overrides": [
           {
@@ -1842,8 +2161,8 @@
       "gridPos": {
         "h": 8,
         "w": 6,
-        "x": 0,
-        "y": 77
+        "x": 12,
+        "y": 91
       },
       "id": 24,
       "options": {
@@ -1871,11 +2190,12 @@
           "values": false
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -1907,7 +2227,6 @@
         }
       ],
       "title": "Mobile Sessions | System type",
-      "transformations": [],
       "type": "piechart"
     },
     {
@@ -1929,8 +2248,227 @@
           },
           "fieldMinMax": false,
           "mappings": [],
-          "unit": "none",
-          "unitScale": false
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "browser_count"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "${__field.labels.browser}"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 91
+      },
+      "id": 22,
+      "options": {
+        "displayLabels": [
+          "name",
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "percent",
+            "value"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT browser, daily_bucket as time, daily_browser as browser_count, 'daily' AS metric\nFROM daily_events_app_connect_browser_stats_per_app\nWHERE app_id = '${__dashboard.uid}'\nAND $__timeTo()::timestamp - $__timeFrom()::timestamp > '14 days'::interval AND $__timeFilter(daily_bucket)\n    UNION ALL\nSELECT browser, hour_bucket as time, hour_browser as browser_count,  'hourly' AS metric\nFROM hour_events_app_connect_browser_stats_per_app\nWHERE app_id = '${__dashboard.uid}'  \nAND $__timeTo()::timestamp - $__timeFrom()::timestamp BETWEEN '3 days'::interval AND '14 days'::interval AND $__timeFilter(hour_bucket)\n    UNION ALL\nSELECT browser, quarter_bucket as time, quarter_browser as browser_count,  '15min' AS metric\nFROM quarter_events_app_connect_browser_stats_per_app\nWHERE app_id = '${__dashboard.uid}'  \nAND $__timeTo()::timestamp - $__timeFrom()::timestamp < '3 days'::interval AND  $__timeFilter(quarter_bucket)\nORDER BY time\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Web Sessions | Browser",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "always",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "fieldMinMax": false,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 99
+      },
+      "id": 19,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT wallet_name, daily_bucket as time, daily_successful_requests as success_requests, daily_unsuccessful_requests as failed_requests, 'daily' AS metric\nFROM daily_events_client_connect_wallet_stats_per_app\nWHERE app_id = '${__dashboard.uid}'\nAND $__timeTo()::timestamp - $__timeFrom()::timestamp > '14 days'::interval AND $__timeFilter(daily_bucket)\nUNION ALL\n-- Use hourly aggregate for intervals between 3 and 14 days\nSELECT wallet_name, hour_bucket as time, hour_successful_requests as success_requests, hour_unsuccessful_requests as failed_requests,  'hourly' AS metric\nFROM hour_events_client_connect_wallet_stats_per_app\nWHERE app_id = '${__dashboard.uid}'  \nAND $__timeTo()::timestamp - $__timeFrom()::timestamp BETWEEN '3 days'::interval AND '14 days'::interval AND $__timeFilter(hour_bucket)\nUNION ALL\n-- Use 15 minutes interval 0 and 3 days\nSELECT wallet_name, quarter_bucket as time, quarter_successful_requests as quarter_requests, quarter_unsuccessful_requests as failed_requests,  '15min' AS metric\nFROM quarter_events_client_connect_wallet_stats_per_app\nWHERE app_id = '${__dashboard.uid}'  \nAND $__timeTo()::timestamp - $__timeFrom()::timestamp < '3 days'::interval AND  $__timeFilter(quarter_bucket)\nORDER BY time;",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Client Connections | Wallets",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "fieldMinMax": false,
+          "mappings": [],
+          "unit": "none"
         },
         "overrides": [
           {
@@ -1974,8 +2512,8 @@
       "gridPos": {
         "h": 8,
         "w": 6,
-        "x": 6,
-        "y": 77
+        "x": 12,
+        "y": 99
       },
       "id": 21,
       "options": {
@@ -2001,11 +2539,12 @@
           "values": false
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -2038,7 +2577,6 @@
         }
       ],
       "title": "Sessions | Connection Type Total",
-      "transformations": [],
       "type": "piechart"
     },
     {
@@ -2052,236 +2590,6 @@
             "mode": "palette-classic"
           },
           "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "always",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "fieldMinMax": false,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none",
-          "unitScale": false
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 77
-      },
-      "id": 20,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "10.3.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
-          },
-          "editorMode": "code",
-          "format": "time_series",
-          "rawQuery": true,
-          "rawSql": "SELECT session_type, daily_bucket as time, daily_successful_requests as success_requests, daily_unsuccessful_requests as failed_requests, 'daily' AS metric\nFROM daily_events_client_connect_session_type_stats_per_app\nWHERE app_id = '${__dashboard.uid}'\nAND $__timeTo()::timestamp - $__timeFrom()::timestamp > '14 days'::interval AND $__timeFilter(daily_bucket)\nUNION ALL\n-- Use hourly aggregate for intervals between 3 and 14 days\nSELECT session_type, hour_bucket as time, hour_successful_requests as success_requests, hour_unsuccessful_requests as failed_requests,  'hourly' AS metric\nFROM hour_events_client_connect_session_type_stats_per_app\nWHERE app_id = '${__dashboard.uid}'  \nAND $__timeTo()::timestamp - $__timeFrom()::timestamp BETWEEN '3 days'::interval AND '14 days'::interval AND $__timeFilter(hour_bucket)\nUNION ALL\n-- Use 15 minutes interval 0 and 3 days\nSELECT session_type, quarter_bucket as time, quarter_successful_requests as quarter_requests, quarter_unsuccessful_requests as failed_requests,  '15min' AS metric\nFROM quarter_events_client_connect_session_type_stats_per_app\nWHERE app_id = '${__dashboard.uid}'  \nAND $__timeTo()::timestamp - $__timeFrom()::timestamp < '3 days'::interval AND  $__timeFilter(quarter_bucket)\nORDER BY time;",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Client Connections | Session Type",
-      "transformations": [],
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "always",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "fieldMinMax": false,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none",
-          "unitScale": false
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 85
-      },
-      "id": 19,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "10.3.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
-          },
-          "editorMode": "code",
-          "format": "time_series",
-          "rawQuery": true,
-          "rawSql": "SELECT wallet_name, daily_bucket as time, daily_successful_requests as success_requests, daily_unsuccessful_requests as failed_requests, 'daily' AS metric\nFROM daily_events_client_connect_wallet_stats_per_app\nWHERE app_id = '${__dashboard.uid}'\nAND $__timeTo()::timestamp - $__timeFrom()::timestamp > '14 days'::interval AND $__timeFilter(daily_bucket)\nUNION ALL\n-- Use hourly aggregate for intervals between 3 and 14 days\nSELECT wallet_name, hour_bucket as time, hour_successful_requests as success_requests, hour_unsuccessful_requests as failed_requests,  'hourly' AS metric\nFROM hour_events_client_connect_wallet_stats_per_app\nWHERE app_id = '${__dashboard.uid}'  \nAND $__timeTo()::timestamp - $__timeFrom()::timestamp BETWEEN '3 days'::interval AND '14 days'::interval AND $__timeFilter(hour_bucket)\nUNION ALL\n-- Use 15 minutes interval 0 and 3 days\nSELECT wallet_name, quarter_bucket as time, quarter_successful_requests as quarter_requests, quarter_unsuccessful_requests as failed_requests,  '15min' AS metric\nFROM quarter_events_client_connect_wallet_stats_per_app\nWHERE app_id = '${__dashboard.uid}'  \nAND $__timeTo()::timestamp - $__timeFrom()::timestamp < '3 days'::interval AND  $__timeFilter(quarter_bucket)\nORDER BY time;",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Client Connections | Wallets",
-      "transformations": [],
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
             "hideFrom": {
               "legend": false,
               "tooltip": false,
@@ -2290,8 +2598,7 @@
           },
           "fieldMinMax": false,
           "mappings": [],
-          "unit": "none",
-          "unitScale": false
+          "unit": "none"
         },
         "overrides": [
           {
@@ -2326,8 +2633,8 @@
       "gridPos": {
         "h": 8,
         "w": 6,
-        "x": 12,
-        "y": 85
+        "x": 18,
+        "y": 99
       },
       "id": 23,
       "options": {
@@ -2353,11 +2660,12 @@
           "values": false
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -2389,7 +2697,6 @@
         }
       ],
       "title": "Web Sessions | Os type",
-      "transformations": [],
       "type": "piechart"
     },
     {
@@ -2403,27 +2710,64 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "always",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
             }
           },
           "fieldMinMax": false,
           "mappings": [],
-          "unit": "none",
-          "unitScale": false
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "browser_count"
+              "options": "failed_requests {metric=\"daily\", session_type=\"Extension\"}"
             },
             "properties": [
               {
                 "id": "displayName",
-                "value": "${__field.labels.browser}"
+                "value": "Failed"
               }
             ]
           }
@@ -2431,39 +2775,25 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 6,
-        "x": 18,
-        "y": 85
+        "w": 12,
+        "x": 0,
+        "y": 107
       },
-      "id": 22,
+      "id": 20,
       "options": {
-        "displayLabels": [
-          "name",
-          "percent"
-        ],
         "legend": {
+          "calcs": [],
           "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "values": [
-            "percent",
-            "value"
-          ]
-        },
-        "pieType": "pie",
-        "reduceOptions": {
-          "calcs": [
-            "sum"
-          ],
-          "fields": "",
-          "values": false
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -2473,7 +2803,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT browser, daily_bucket as time, daily_browser as browser_count, 'daily' AS metric\nFROM daily_events_app_connect_browser_stats_per_app\nWHERE app_id = '${__dashboard.uid}'\nAND $__timeTo()::timestamp - $__timeFrom()::timestamp > '14 days'::interval AND $__timeFilter(daily_bucket)\n    UNION ALL\nSELECT browser, hour_bucket as time, hour_browser as browser_count,  'hourly' AS metric\nFROM hour_events_app_connect_browser_stats_per_app\nWHERE app_id = '${__dashboard.uid}'  \nAND $__timeTo()::timestamp - $__timeFrom()::timestamp BETWEEN '3 days'::interval AND '14 days'::interval AND $__timeFilter(hour_bucket)\n    UNION ALL\nSELECT browser, quarter_bucket as time, quarter_browser as browser_count,  '15min' AS metric\nFROM quarter_events_app_connect_browser_stats_per_app\nWHERE app_id = '${__dashboard.uid}'  \nAND $__timeTo()::timestamp - $__timeFrom()::timestamp < '3 days'::interval AND  $__timeFilter(quarter_bucket)\nORDER BY time\n",
+          "rawSql": "SELECT session_type, daily_bucket as time, daily_successful_requests as success_requests, daily_unsuccessful_requests as failed_requests, 'daily' AS metric\nFROM daily_events_client_connect_session_type_stats_per_app\nWHERE app_id = '${__dashboard.uid}'\nAND $__timeTo()::timestamp - $__timeFrom()::timestamp > '14 days'::interval AND $__timeFilter(daily_bucket)\nUNION ALL\n-- Use hourly aggregate for intervals between 3 and 14 days\nSELECT session_type, hour_bucket as time, hour_successful_requests as success_requests, hour_unsuccessful_requests as failed_requests,  'hourly' AS metric\nFROM hour_events_client_connect_session_type_stats_per_app\nWHERE app_id = '${__dashboard.uid}'  \nAND $__timeTo()::timestamp - $__timeFrom()::timestamp BETWEEN '3 days'::interval AND '14 days'::interval AND $__timeFilter(hour_bucket)\nUNION ALL\n-- Use 15 minutes interval 0 and 3 days\nSELECT session_type, quarter_bucket as time, quarter_successful_requests as quarter_requests, quarter_unsuccessful_requests as failed_requests,  '15min' AS metric\nFROM quarter_events_client_connect_session_type_stats_per_app\nWHERE app_id = '${__dashboard.uid}'  \nAND $__timeTo()::timestamp - $__timeFrom()::timestamp < '3 days'::interval AND  $__timeFilter(quarter_bucket)\nORDER BY time;",
           "refId": "A",
           "sql": {
             "columns": [
@@ -2494,9 +2824,8 @@
           }
         }
       ],
-      "title": "Web Sessions | Browser",
-      "transformations": [],
-      "type": "piechart"
+      "title": "Client Connections | Session Type",
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -2517,19 +2846,18 @@
           },
           "fieldMinMax": false,
           "mappings": [],
-          "unit": "none",
-          "unitScale": false
+          "unit": "none"
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "system_type_count"
+              "options": "lang_count"
             },
             "properties": [
               {
                 "id": "displayName",
-                "value": "${__field.labels.system_type}"
+                "value": "${__field.labels.lang}"
               }
             ]
           }
@@ -2538,8 +2866,8 @@
       "gridPos": {
         "h": 8,
         "w": 6,
-        "x": 9,
-        "y": 93
+        "x": 12,
+        "y": 107
       },
       "id": 26,
       "options": {
@@ -2565,11 +2893,12 @@
           "values": false
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -2579,7 +2908,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT system_type, daily_bucket as time, daily_system as system_type_count, 'daily' AS metric\nFROM daily_events_app_connect_system_stats_per_app\nWHERE app_id = '${__dashboard.uid}'\nAND $__timeTo()::timestamp - $__timeFrom()::timestamp > '14 days'::interval AND $__timeFilter(daily_bucket)\n    UNION ALL\nSELECT system_type, hour_bucket as time, hour_system as system_type_count,  'hourly' AS metric\nFROM hour_events_app_connect_system_stats_per_app\nWHERE app_id = '${__dashboard.uid}'  \nAND $__timeTo()::timestamp - $__timeFrom()::timestamp BETWEEN '3 days'::interval AND '14 days'::interval AND $__timeFilter(hour_bucket)\n    UNION ALL\nSELECT system_type, quarter_bucket as time, quarter_system as system_type_count,  '15min' AS metric\nFROM quarter_events_app_connect_system_stats_per_app\nWHERE app_id = '${__dashboard.uid}'  \nAND $__timeTo()::timestamp - $__timeFrom()::timestamp < '3 days'::interval AND  $__timeFilter(quarter_bucket)\nORDER BY time\n",
+          "rawSql": "SELECT lang, daily_bucket as time, daily_language as lang_count, 'daily' AS metric\nFROM daily_events_app_connect_language_stats_per_app\nWHERE app_id = '${__dashboard.uid}'\nAND $__timeTo()::timestamp - $__timeFrom()::timestamp > '14 days'::interval AND $__timeFilter(daily_bucket)\n    UNION ALL\nSELECT lang, hour_bucket as time, hour_language as lang_count,  'hourly' AS metric\nFROM hour_events_app_connect_language_stats_per_app\nWHERE app_id = '${__dashboard.uid}'  \nAND $__timeTo()::timestamp - $__timeFrom()::timestamp BETWEEN '3 days'::interval AND '14 days'::interval AND $__timeFilter(hour_bucket)\n    UNION ALL\nSELECT lang, quarter_bucket as time, quarter_language as lang_count,  '15min' AS metric\nFROM quarter_events_app_connect_language_stats_per_app\nWHERE app_id = '${__dashboard.uid}'  \nAND $__timeTo()::timestamp - $__timeFrom()::timestamp < '3 days'::interval AND  $__timeFilter(quarter_bucket)\nORDER BY time\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -2600,8 +2929,7 @@
           }
         }
       ],
-      "title": "Mobile Sessions | System type",
-      "transformations": [],
+      "title": "Language",
       "type": "piechart"
     }
   ],
@@ -2615,10 +2943,11 @@
     "from": "now-30d",
     "to": "now"
   },
+  "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
   "timezone": "utc",
   "title": "Test_App",
   "uid": "TEMPLATE_UID",
-  "version": 1,
+  "version": 24,
   "weekStart": "monday"
 }
