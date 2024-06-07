@@ -14,7 +14,7 @@ CONTAINER_ID=$(docker ps --filter "ancestor=$TIMESCALEDB_IMAGE" --format "{{.ID}
 
 # Define maximum wait time in seconds (20 seconds)
 MAX_WAIT=20
-# Define sleep SLEEP_INTERVAL in seconds
+# Define sleep interval in seconds
 SLEEP_INTERVAL=2
 
 if [[ -n "$CONTAINER_ID" ]]; then
@@ -54,7 +54,7 @@ directories=(
   "${BASE_DIR}/${OFELIA_LOGS}"
 )
 
-printf "\n------------- Tyding up the directories -------------\n"
+printf "\n------------- Tidying up the directories -------------\n"
 for dir in "${directories[@]}"; do
   if [ ! -d "$dir" ]; then
     echo "Creating directory $dir"
@@ -80,9 +80,6 @@ POSTGRESQL_DATA_DIR="${PG_DATA}/data"  # Source this path from .env
 # PostgreSQL configuration file
 POSTGRESQL_CONF="$POSTGRESQL_DATA_DIR/postgresql.conf"
 BACKUP_MARKER="db"
-
-# Change to the infra directory where the docker-compose.yaml file is located
-cd "$BASE_DIR"
 
 # Start Docker Compose in detached mode
 echo "Starting Docker Compose..."
@@ -134,6 +131,41 @@ if wait_for_db_ready; then
     echo "Failed to find a running container for $TIMESCALEDB_IMAGE. Exiting."
     exit 1
   fi
+
+  docker exec -u postgres $CONTAINER_ID bash -c "
+    echo 'Using configuration file at: $POSTGRESQL_CONF'
+
+    # Create a temporary file for the new configuration and check its validity
+    TEMP_CONF=\$(mktemp)
+    if [[ -z \$TEMP_CONF ]]; then
+      echo 'Failed to create a temporary file. Exiting.'
+      exit 1
+    else
+      echo 'Temporary file created at: '\$TEMP_CONF''
+    fi
+
+    # Read the config file and make changes line by line
+    while IFS= read -r line || [[ -n \$line ]]; do
+      if echo \"\$line\" | grep -q 'timescaledb.telemetry_level='; then
+        echo 'timescaledb.telemetry_level=off'
+      elif echo \"\$line\" | grep -q 'timescaledb.max_background_workers ='; then
+        echo 'timescaledb.max_background_workers = 32'
+      else
+        echo \"\$line\"
+      fi
+    done < \"$POSTGRESQL_CONF\" > \"\$TEMP_CONF\"
+
+    if [ -s \"\$TEMP_CONF\" ]; then
+      echo 'Configuration file has been successfully updated.'
+      mv \"\$TEMP_CONF\" \"$POSTGRESQL_CONF\"
+    else
+      echo 'Failed to update configuration file. Temporary file is empty.'
+      rm -f \"\$TEMP_CONF\"
+      exit 1
+    fi
+  "
+
+
 
   docker exec -u root $CONTAINER_ID bash -c "
     echo -e '\n# Custom PostgreSQL Configurations' >> $POSTGRESQL_CONF
@@ -196,5 +228,3 @@ else
   echo "Failed to confirm TimescaleDB readiness after restart. Check logs for more details."
   exit 1
 fi
-
-
