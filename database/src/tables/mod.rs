@@ -8,6 +8,7 @@ pub mod users;
 // pub mod requests;
 pub mod domain_verifications;
 pub mod metadata;
+pub mod networks;
 pub mod session_public_keys;
 pub mod sessions;
 pub mod team;
