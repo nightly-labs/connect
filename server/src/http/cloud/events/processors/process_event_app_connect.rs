@@ -176,6 +176,23 @@ async fn save_event_app_connect(
         }
     };
 
+    if let Err(err) = db.add_new_network(&mut tx, network).await {
+        error!(
+            "Failed to add new network, app_id: [{}], event: [{:?}], err: [{}]",
+            app_id, event, err
+        );
+
+        // Rollback the transaction
+        if let Err(err) = tx.rollback().await {
+            error!(
+                "Failed to rollback transaction for new app connection event, app_id: [{}], event: [{:?}], err: [{}]",
+                app_id, event, err
+            );
+        }
+
+        return;
+    }
+
     // Now create a new event app connect corresponding to the event
     match db
         .create_new_event_app_connect(
