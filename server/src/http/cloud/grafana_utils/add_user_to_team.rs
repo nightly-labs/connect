@@ -24,6 +24,8 @@ pub async fn handle_grafana_add_user_to_team(
     let user_id = match get_user_by_login_or_email(&grafana_conf, user_email).await {
         Ok(user) => user.id,
         Err(_) => {
+            println!("\nUser not found, creating new user\n");
+
             // Create user with the same email as the user, password can be anything, it won't be used
             let random_password: String = thread_rng()
                 .sample_iter(&Alphanumeric)
@@ -43,6 +45,7 @@ pub async fn handle_grafana_add_user_to_team(
                 Ok(user) => user.id,
                 Err(err) => {
                     warn!("Failed to create user: {:?}", err);
+                    println!("Failed to create user: {:?}", err);
                     return Err((
                         StatusCode::INTERNAL_SERVER_ERROR,
                         CloudApiErrors::InternalServerError.to_string(),

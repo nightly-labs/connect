@@ -25,6 +25,7 @@ export * from './ConnectResponse';
 export * from './Deeplink';
 export * from './Device';
 export * from './DeviceMetadata';
+export * from './DomainVerificationStatus';
 export * from './DropSessionsRequest';
 export * from './DropSessionsResponse';
 export * from './ErrorMessage';

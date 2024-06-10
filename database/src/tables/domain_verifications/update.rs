@@ -12,7 +12,7 @@ impl Db {
         code: &String,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {DOMAIN_VERIFICATIONS_TABLE_NAME} ({DOMAIN_VERIFICATIONS_KEYS}) VALUES ($1, $2, $3, $4, NULL)"
+            "INSERT INTO {DOMAIN_VERIFICATIONS_TABLE_NAME} ({DOMAIN_VERIFICATIONS_KEYS}) VALUES ($1, $2, $3, $4, NULL, NULL)"
         );
 
         let query_result = query(&query_body)
@@ -96,5 +96,55 @@ mod tests {
             .await
             .unwrap_err();
         tx.rollback().await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_domain_verifications() {
+        let db = super::Db::connect_to_the_pool().await;
+        db.truncate_all_tables().await.unwrap();
+
+        let first_app_id = "first_app_id".to_string();
+        let second_app_id = "second_app_id".to_string();
+
+        let code = "code".to_string();
+
+        // Start verification by first app for random domain
+        db.create_new_domain_verification_entry(
+            &"valid_domain_name_1".to_string(),
+            &first_app_id,
+            &code,
+        )
+        .await
+        .unwrap();
+
+        // Start verification by the second app for random domain
+        db.create_new_domain_verification_entry(
+            &"valid_domain_name_2".to_string(),
+            &second_app_id,
+            &code,
+        )
+        .await
+        .unwrap();
+
+        // Start verification by the second app for random domain
+        db.create_new_domain_verification_entry(
+            &"valid_domain_name_3".to_string(),
+            &second_app_id,
+            &code,
+        )
+        .await
+        .unwrap();
+
+        let test = db
+            .get_pending_domain_verifications_by_app_ids(&vec![
+                first_app_id.clone(),
+                second_app_id.clone(),
+            ])
+            .await
+            .unwrap();
+
+        assert_eq!(test.len(), 2);
+        assert_eq!(test.get(&first_app_id).unwrap().len(), 1);
+        assert_eq!(test.get(&second_app_id).unwrap().len(), 2);
     }
 }

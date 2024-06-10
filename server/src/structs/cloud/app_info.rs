@@ -1,7 +1,10 @@
 use super::joined_team::TeamId;
 use crate::state::AppId;
 use chrono::{DateTime, Utc};
-use database::tables::registered_app::table_struct::DbRegisteredApp;
+use database::{
+    structs::domain_verification_status::DomainVerificationStatus,
+    tables::registered_app::table_struct::DbRegisteredApp,
+};
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
@@ -13,18 +16,24 @@ pub struct AppInfo {
     pub app_id: AppId,
     pub app_name: String,
     pub registered_at: DateTime<Utc>,
-    pub whitelisted_domains: Vec<String>,
+    pub whitelisted_domains: Vec<(String, DomainVerificationStatus)>,
     pub ack_public_keys: Vec<String>,
 }
 
 impl From<DbRegisteredApp> for AppInfo {
     fn from(app_info: DbRegisteredApp) -> Self {
+        let whitelisted_domains = app_info
+            .whitelisted_domains
+            .into_iter()
+            .map(|domain| (domain, DomainVerificationStatus::Verified))
+            .collect();
+
         AppInfo {
             team_id: app_info.team_id,
             app_id: app_info.app_id,
             app_name: app_info.app_name,
             registered_at: app_info.registration_timestamp,
-            whitelisted_domains: app_info.whitelisted_domains,
+            whitelisted_domains: whitelisted_domains,
             ack_public_keys: app_info.ack_public_keys,
         }
     }

@@ -347,7 +347,10 @@ pub mod test_utils {
     ) -> anyhow::Result<()> {
         // Add user to test team
         match invite_user_to_test_team(team_id, user_email, admin_token, app).await {
-            Ok(_) => accept_invite_to_test_team(team_id, user_token, app).await,
+            Ok(_) => {
+                println!("\n\nHEREEEEEEE\n\n");
+                accept_invite_to_test_team(team_id, user_token, app).await
+            }
             Err(e) => bail!("Failed to invite user to the team: {}", e),
         }
     }

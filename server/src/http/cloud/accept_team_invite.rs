@@ -53,6 +53,8 @@ pub async fn accept_team_invite(
         }
     };
 
+    println!("User: {:?}", user);
+
     // Just in case check if user already belongs to the team
     match db
         .get_teams_and_apps_membership_by_user_id(&user.user_id)
@@ -78,6 +80,8 @@ pub async fn accept_team_invite(
         }
     }
 
+    println!("\nHERE 1");
+
     // Check if user was invited to the team
     match db.get_invites_by_user_email(&user.email, true).await {
         Ok(invites) => {
@@ -100,8 +104,14 @@ pub async fn accept_team_invite(
         }
     }
 
+    println!("\nHERE 3");
+
     // Grafana add user to the team
+    println!("request.team_id: {:?}", &request.team_id);
+    println!("user.email: {:?}", &user.email);
     handle_grafana_add_user_to_team(&grafana_conf, &request.team_id, &user.email).await?;
+
+    println!("\nHERE 4");
 
     // Accept invite
     let mut tx = match db.connection_pool.begin().await {
@@ -131,6 +141,8 @@ pub async fn accept_team_invite(
         ));
     }
 
+    println!("\nHERE 5");
+
     // Add user to the team
     if let Err(err) = db
         .add_user_to_the_team(&mut tx, &user_id, &request.team_id)
@@ -146,6 +158,8 @@ pub async fn accept_team_invite(
             CloudApiErrors::DatabaseError.to_string(),
         ));
     }
+
+    println!("\nHERE 6");
 
     // Commit transaction
     if let Err(err) = tx.commit().await {
