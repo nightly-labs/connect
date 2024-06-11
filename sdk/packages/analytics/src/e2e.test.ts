@@ -77,21 +77,16 @@ describe('Analytics client tests', () => {
     appId = response.appId
 
     await smartDelay()
-
-    console.log('Team ID:', teamId)
-    console.log('App ID:', appId)
   })
 
-  test.only('Create mock test team with app', async () => {
-    // const tempCloudClient = new NightlyCloud({
-    //   url: TEST_CLOUD_ENDPOINT
-    // })
-    // const setupResult = await setupTestTeam(tempCloudClient)
-    // expect(setupResult).toBeDefined()
-    // expect(setupResult.teamId).toBeDefined()
-    // expect(setupResult.appId).toBeDefined()
-    // console.log('Team ID:', setupResult.teamId)
-    // console.log('App ID:', setupResult.appId)
+  test('Create mock test team with app', async () => {
+    const tempCloudClient = new NightlyCloud({
+      url: TEST_CLOUD_ENDPOINT
+    })
+    const setupResult = await setupTestTeam(tempCloudClient)
+    expect(setupResult).toBeDefined()
+    expect(setupResult.teamId).toBeDefined()
+    expect(setupResult.appId).toBeDefined()
   })
 
   test('Send event, original client without origin', async () => {
@@ -208,8 +203,8 @@ describe('Analytics client tests', () => {
     const appWhitelistedDomains = appData.teamsApps[teamId][0].whitelistedDomains
     // 2 from this test and one which was verified in the beforeAll hook
     assert(appWhitelistedDomains.length === 3)
-    assert(appWhitelistedDomains.includes(domain))
-    assert(appWhitelistedDomains.includes(newDomain))
+    assert(appWhitelistedDomains.some((d) => d.domain === domain && d.status === 'Verified'))
+    assert(appWhitelistedDomains.some((d) => d.domain === newDomain && d.status === 'Verified'))
   })
 
   test('Test verified domain removal', async () => {
@@ -224,7 +219,7 @@ describe('Analytics client tests', () => {
     // Verify that the domain has been removed
     const appData = await cloudClient.getUserJoinedTeams()
     const appWhitelistedDomains = appData.teamsApps[teamId][0].whitelistedDomains
-    assert(appWhitelistedDomains.find((d) => d === domain) === undefined)
+    assert(appWhitelistedDomains.find((d) => d.domain === domain) === undefined)
   })
 
   test('Send event during unfinished domain registration process', async () => {

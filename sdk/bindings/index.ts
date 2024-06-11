@@ -148,3 +148,4 @@ export * from './Version';
 export * from './WalletMetadata';
 export * from './WalletType';
 export * from './WebMetadata';
+export * from './WhitelistedDomain';

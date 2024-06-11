@@ -15,3 +15,4 @@ pub mod request_type;
 pub mod session_type;
 pub mod subscription;
 pub mod time_filters;
+pub mod whitelisted_domain;

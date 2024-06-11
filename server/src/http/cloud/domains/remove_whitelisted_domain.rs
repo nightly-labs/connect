@@ -133,7 +133,9 @@ mod tests {
         extract::{ConnectInfo, Request},
         http::Method,
     };
-    use database::structs::domain_verification_status::DomainVerificationStatus;
+    use database::structs::{
+        domain_verification_status::DomainVerificationStatus, whitelisted_domain::WhitelistedDomain,
+    };
     use std::net::SocketAddr;
     use tower::ServiceExt;
 
@@ -172,9 +174,12 @@ mod tests {
             .await
             .unwrap();
 
-        assert!(app_data
-            .whitelisted_domains
-            .contains(&(domain_name.clone(), DomainVerificationStatus::Verified)));
+        let expected = WhitelistedDomain {
+            domain: domain_name.clone(),
+            status: DomainVerificationStatus::Verified,
+        };
+
+        assert!(app_data.whitelisted_domains.contains(&expected));
 
         // Remove domain
         let request = HttpRemoveWhitelistedDomainRequest {
@@ -210,8 +215,6 @@ mod tests {
             .await
             .unwrap();
 
-        assert!(!app_data
-            .whitelisted_domains
-            .contains(&(domain_name, DomainVerificationStatus::Verified)));
+        assert!(!app_data.whitelisted_domains.contains(&expected));
     }
 }

@@ -1,6 +1,9 @@
 use crate::{
     db::Db,
-    structs::{db_error::DbError, domain_verification_status::DomainVerificationStatus},
+    structs::{
+        db_error::DbError, domain_verification_status::DomainVerificationStatus,
+        whitelisted_domain::WhitelistedDomain,
+    },
     tables::domain_verifications::table_struct::{
         DomainVerification, DOMAIN_VERIFICATIONS_TABLE_NAME,
     },
@@ -58,18 +61,13 @@ impl Db {
     pub async fn get_pending_domain_verifications_by_app_ids(
         &self,
         app_ids: &Vec<String>,
-    ) -> Result<HashMap<String, Vec<(String, DomainVerificationStatus)>>, DbError> {
+    ) -> Result<HashMap<String, Vec<WhitelistedDomain>>, DbError> {
         let query = format!(
             "SELECT app_id, domain_name FROM {DOMAIN_VERIFICATIONS_TABLE_NAME} WHERE app_id = ANY($1) AND finished_at IS NULL AND cancelled_at IS NULL"
         );
-        let typed_query: sqlx::query::QueryAs<
-            sqlx::Postgres,
-            (String, String),
-            sqlx::postgres::PgArguments,
-        > = query_as::<_, (String, String)>(&query);
+        let typed_query = query_as::<_, (String, String)>(&query);
 
-        let mut app_id_to_domain_names: HashMap<String, Vec<(String, DomainVerificationStatus)>> =
-            HashMap::new();
+        let mut app_id_to_domain_names: HashMap<String, Vec<WhitelistedDomain>> = HashMap::new();
 
         let rows = typed_query
             .bind(app_ids)
@@ -83,7 +81,10 @@ impl Db {
             app_id_to_domain_names
                 .entry(app_id)
                 .or_insert_with(Vec::new)
-                .push((domain_name, DomainVerificationStatus::Pending));
+                .push(WhitelistedDomain {
+                    domain: domain_name,
+                    status: DomainVerificationStatus::Pending,
+                });
         }
 
         return Ok(app_id_to_domain_names);
