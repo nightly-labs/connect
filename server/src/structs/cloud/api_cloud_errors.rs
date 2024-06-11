@@ -38,6 +38,7 @@ pub enum CloudApiErrors {
     DomainVerificationFailure,
     DomainNotFound,
     DomainVerificationNotStarted,
+    NoPendingDomainVerification,
     WebAuthnError,
     PasswordNotSet,
     UserDoesNotHavePasskey,

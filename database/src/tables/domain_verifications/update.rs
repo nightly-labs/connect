@@ -51,6 +51,28 @@ impl Db {
             Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
+
+    pub async fn cancel_domain_verification(
+        &self,
+        domain_name: &String,
+        app_id: &String,
+    ) -> Result<(), DbError> {
+        let query_body = format!(
+            "UPDATE {DOMAIN_VERIFICATIONS_TABLE_NAME} SET cancelled_at = $1 WHERE domain_name = $2 AND app_id = $3 AND finished_at IS NULL AND cancelled_at IS NULL"
+        );
+
+        let query_result = query(&query_body)
+            .bind(&get_current_datetime())
+            .bind(&domain_name)
+            .bind(&app_id)
+            .execute(&self.connection_pool)
+            .await;
+
+        match query_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e).map_err(|e| e.into()),
+        }
+    }
 }
 
 #[cfg(feature = "cloud_integration_tests")]
@@ -146,5 +168,22 @@ mod tests {
         assert_eq!(test.len(), 2);
         assert_eq!(test.get(&first_app_id).unwrap().len(), 1);
         assert_eq!(test.get(&second_app_id).unwrap().len(), 2);
+
+        // Cancel verification by the second app
+        db.cancel_domain_verification(&"valid_domain_name_2".to_string(), &second_app_id)
+            .await
+            .unwrap();
+
+        // Check
+        let data = db
+            .get_domain_verification_by_domain_name_and_app_id(
+                &"valid_domain_name_2".to_string(),
+                &second_app_id,
+            )
+            .await
+            .unwrap();
+
+        assert!(data.len() == 1);
+        assert!(data.get(0).unwrap().cancelled_at.is_some());
     }
 }
