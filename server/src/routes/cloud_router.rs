@@ -8,6 +8,7 @@ use crate::{
         change_user_privileges::change_user_privileges,
         delete_passkey::delete_passkey,
         domains::{
+            cancel_pending_domain_request::cancel_pending_domain_request,
             remove_whitelisted_domain::remove_whitelisted_domain,
             verify_domain_finish::verify_domain_finish, verify_domain_start::verify_domain_start,
         },
@@ -173,6 +174,10 @@ pub fn private_router(state: ServerState) -> Router<ServerState> {
         .route(
             &HttpCloudEndpoint::RemoveWhitelistedDomain.to_string(),
             post(remove_whitelisted_domain),
+        )
+        .route(
+            &HttpCloudEndpoint::CancelPendingDomainVerification.to_string(),
+            post(cancel_pending_domain_request),
         )
         .route(
             &HttpCloudEndpoint::GetPasskeyChallenge.to_string(),

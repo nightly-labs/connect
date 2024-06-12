@@ -1,6 +1,7 @@
 import {
   HttpAcceptTeamInviteRequest,
   HttpAcceptTeamInviteResponse,
+  HttpCancelPendingDomainVerificationRequest,
   HttpCancelTeamUserInviteRequest,
   HttpCancelTeamUserInviteResponse,
   HttpCancelUserTeamInviteRequest,
@@ -450,6 +451,18 @@ export class NightlyCloud {
   ): Promise<HttpRemoveWhitelistedDomainResponse> => {
     const response = (await this.sendPostJson(
       '/remove_whitelisted_domain',
+      EndpointType.Private,
+      request
+    )) as HttpRemoveWhitelistedDomainResponse
+
+    return response
+  }
+
+  cancelDomainVerification = async (
+    request: HttpCancelPendingDomainVerificationRequest
+  ): Promise<HttpRemoveWhitelistedDomainResponse> => {
+    const response = (await this.sendPostJson(
+      '/cancel_pending_domain_verification',
       EndpointType.Private,
       request
     )) as HttpRemoveWhitelistedDomainResponse

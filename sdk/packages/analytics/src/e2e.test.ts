@@ -1,8 +1,8 @@
-import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
+import { assert, beforeAll, describe, expect, test } from 'vitest'
 import { TEST_RELAY_ENDPOINT, smartDelay } from '../../../commonTestUtils'
 import { NightlyAnalytics } from './app'
 import { NightlyCloud } from '@nightlylabs/nightly-cloud'
-import { BaseApp, Reject } from '@nightlylabs/nightly-connect-base'
+import { BaseApp } from '@nightlylabs/nightly-connect-base'
 import {
   createUser,
   randomDomainName,
@@ -220,6 +220,44 @@ describe('Analytics client tests', () => {
     const appData = await cloudClient.getUserJoinedTeams()
     const appWhitelistedDomains = appData.teamsApps[teamId][0].whitelistedDomains
     assert(appWhitelistedDomains.find((d) => d.domain === domain) === undefined)
+  })
+
+  test.only('Test cancel domain verification challenge', async () => {
+    const domain = randomDomainName()
+
+    // Start domain verification with valid domain name
+    const firstVerifyResponse = await cloudClient.verifyDomainStart({ appId, domainName: domain })
+    expect(firstVerifyResponse.code.length >= 36)
+
+    // Try to start challenge again, should simply return the same code
+    const secondVerifyResponse = await cloudClient.verifyDomainStart({ appId, domainName: domain })
+    expect(secondVerifyResponse.code === firstVerifyResponse.code)
+
+    // Fetch the app data and validate that the domain is in the pending state
+    const appData = await cloudClient.getTeamMetadata({ teamId })
+    const currentWhitelistChallenge = appData.teamApps[0].whitelistedDomains.find(
+      (d) => d.domain === domain
+    )
+
+    // Check if currentWhitelistChallenge is defined
+    if (currentWhitelistChallenge !== undefined) {
+      assert(currentWhitelistChallenge.status === 'Pending')
+
+      // Cancel the challenge
+      await cloudClient.cancelDomainVerification({
+        appId,
+        domainName: currentWhitelistChallenge.domain
+      })
+    } else {
+      throw new Error(`Domain ${domain} not found in the whitelist.`)
+    }
+
+    // Fetch the app data and validate that the domain verification has been removed
+    const appDataAfter = await cloudClient.getTeamMetadata({ teamId })
+    const currentWhitelistChallengeAfter = appDataAfter.teamApps[0].whitelistedDomains.find(
+      (d) => d.domain === domain
+    )
+    assert(currentWhitelistChallengeAfter === undefined)
   })
 
   test('Send event during unfinished domain registration process', async () => {

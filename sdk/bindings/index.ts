@@ -40,6 +40,8 @@ export * from './GetSessionsResponse';
 export * from './HttpAcceptTeamInviteRequest';
 export * from './HttpAcceptTeamInviteResponse';
 export * from './HttpAddPasskeyFinishResponse';
+export * from './HttpCancelPendingDomainVerificationRequest';
+export * from './HttpCancelPendingDomainVerificationResponse';
 export * from './HttpCancelTeamUserInviteRequest';
 export * from './HttpCancelTeamUserInviteResponse';
 export * from './HttpCancelUserTeamInviteRequest';
