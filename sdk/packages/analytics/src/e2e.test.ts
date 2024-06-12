@@ -222,7 +222,7 @@ describe('Analytics client tests', () => {
     assert(appWhitelistedDomains.find((d) => d.domain === domain) === undefined)
   })
 
-  test.only('Test cancel domain verification challenge', async () => {
+  test('Test cancel domain verification challenge', async () => {
     const domain = randomDomainName()
 
     // Start domain verification with valid domain name
