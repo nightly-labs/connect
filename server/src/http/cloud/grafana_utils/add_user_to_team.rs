@@ -33,7 +33,7 @@ pub async fn handle_grafana_add_user_to_team(
 
             let request = AdminCreateUserForm {
                 password: Some(random_password),
-                email: Some(user_email.clone()),
+                email: Some(user_email.to_lowercase().clone()),
                 login: None,
                 name: None,
                 org_id: None,

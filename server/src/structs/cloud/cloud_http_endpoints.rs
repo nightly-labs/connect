@@ -46,6 +46,8 @@ pub enum HttpCloudEndpoint {
     VerifyDomainFinish,
     #[serde(rename = "/remove_whitelisted_domain")]
     RemoveWhitelistedDomain,
+    #[serde(rename = "/cancel_pending_domain_verification")]
+    CancelPendingDomainVerification,
     #[serde(rename = "/register_with_passkey_start")]
     RegisterWithPasskeyStart,
     #[serde(rename = "/register_with_passkey_finish")]
@@ -104,6 +106,9 @@ impl HttpCloudEndpoint {
             HttpCloudEndpoint::VerifyDomainStart => "/verify_domain_start".to_string(),
             HttpCloudEndpoint::VerifyDomainFinish => "/verify_domain_finish".to_string(),
             HttpCloudEndpoint::RemoveWhitelistedDomain => "/remove_whitelisted_domain".to_string(),
+            HttpCloudEndpoint::CancelPendingDomainVerification => {
+                "/cancel_pending_domain_verification".to_string()
+            }
             HttpCloudEndpoint::RegisterWithPasskeyStart => {
                 "/register_with_passkey_start".to_string()
             }

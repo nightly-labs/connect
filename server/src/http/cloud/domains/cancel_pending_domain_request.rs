@@ -14,7 +14,7 @@ use ts_rs::TS;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct HttpVerifyDomainStartRequest {
+pub struct HttpCancelPendingDomainVerificationRequest {
     #[garde(custom(custom_validate_uuid))]
     pub app_id: String,
     #[garde(skip)]
@@ -23,15 +23,13 @@ pub struct HttpVerifyDomainStartRequest {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct HttpVerifyDomainStartResponse {
-    pub code: String,
-}
+pub struct HttpCancelPendingDomainVerificationResponse {}
 
-pub async fn verify_domain_start(
+pub async fn cancel_pending_domain_request(
     State(db): State<Arc<Db>>,
     Extension(user_id): Extension<UserId>,
-    Json(request): Json<HttpVerifyDomainStartRequest>,
-) -> Result<Json<HttpVerifyDomainStartResponse>, (StatusCode, String)> {
+    Json(request): Json<HttpCancelPendingDomainVerificationRequest>,
+) -> Result<Json<HttpCancelPendingDomainVerificationResponse>, (StatusCode, String)> {
     // Validate domain name
     let domain_name = custom_validate_domain_name(&request.domain_name).map_err(|e| {
         error!("Failed to validate domain name: {:?}", e);
@@ -91,7 +89,7 @@ pub async fn verify_domain_start(
         }
     }
 
-    // Check if domain is already verified
+    // Check if domain is whitelisted
     if app.whitelisted_domains.contains(&domain_name) {
         return Err((
             StatusCode::BAD_REQUEST,
@@ -99,41 +97,38 @@ pub async fn verify_domain_start(
         ));
     }
 
-    // Check if challenge already exists
-    let verification_code = match db
+    // Check if there is a pending domain verification
+    match db
         .get_pending_domain_verification_by_domain_name_and_app_id(&domain_name, &request.app_id)
         .await
     {
-        Ok(Some(challenge)) => challenge.code,
-        Ok(None) => {
-            // Challenge does not exist, generate new code
-            let code =
-                format!("TXT NCC verification code {}", uuid7::uuid7().to_string()).to_string();
-
-            // Save challenge to the database
+        Ok(Some(_)) => {
+            // Cancel domain verification
             if let Err(err) = db
-                .create_new_domain_verification_entry(&domain_name, &request.app_id, &code)
+                .cancel_domain_verification(&domain_name, &request.app_id)
                 .await
             {
-                error!("Failed to save challenge to the database: {:?}", err);
+                error!("Failed to cancel domain verification: {:?}", err);
                 return Err((
                     StatusCode::INTERNAL_SERVER_ERROR,
                     CloudApiErrors::DatabaseError.to_string(),
                 ));
             }
-
-            code
+        }
+        Ok(None) => {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                CloudApiErrors::NoPendingDomainVerification.to_string(),
+            ));
         }
         Err(err) => {
-            error!("Failed to check if challenge exists: {:?}", err);
+            error!("Failed to check if domain verification exists: {:?}", err);
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 CloudApiErrors::DatabaseError.to_string(),
             ));
         }
-    };
+    }
 
-    Ok(Json(HttpVerifyDomainStartResponse {
-        code: verification_code,
-    }))
+    return Ok(Json(HttpCancelPendingDomainVerificationResponse {}));
 }
