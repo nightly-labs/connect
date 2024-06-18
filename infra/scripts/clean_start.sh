@@ -223,7 +223,7 @@ if wait_for_db_ready; then
   echo "pgBackRest check executed successfully."
 
   # Get real time logs
-  docker logs -f $CONTAINER_ID
+  # docker logs -f $CONTAINER_ID
 else
   echo "Failed to confirm TimescaleDB readiness after restart. Check logs for more details."
   exit 1

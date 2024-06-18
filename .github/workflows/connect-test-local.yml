@@ -116,7 +116,7 @@ jobs:
       - name: Clean target
         working-directory: ./infra
         run: |
-          docker-compose down
+          docker-compose --profile down
           rm -rf .infra/target
           rm -rf .infra/backups
           rm -rf .infra/config
