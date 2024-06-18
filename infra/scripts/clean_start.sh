@@ -21,7 +21,7 @@ if [[ -n "$CONTAINER_ID" ]]; then
   echo "Container found for $TIMESCALEDB_IMAGE, initiating shutdown..."
 
   # Attempt to gracefully stop the container
-  docker compose down
+  docker compose --profile full down
 
   WAIT_TIME=0
 
