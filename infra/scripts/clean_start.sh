@@ -222,8 +222,11 @@ if wait_for_db_ready; then
   "
   echo "pgBackRest check executed successfully."
 
-  # Get real time logs
-  # docker logs -f $CONTAINER_ID
+  # Run docker logs if the env is not github CI
+  if [[ -z "$CI_ENVIRONMENT" ]]; then
+    echo "Not a CI, displaying the container logs..."
+    docker logs -f $CONTAINER_ID
+  fi
 else
   echo "Failed to confirm TimescaleDB readiness after restart. Check logs for more details."
   exit 1
