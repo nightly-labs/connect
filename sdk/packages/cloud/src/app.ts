@@ -282,6 +282,7 @@ export class NightlyCloud {
       request
     )) as HttpRefreshResponse
 
+    // Replace the old token with the refreshed one
     this.authToken = response.authToken
 
     return response
