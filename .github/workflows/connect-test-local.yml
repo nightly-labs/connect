@@ -31,7 +31,7 @@ jobs:
       - name: Setup Infra
         working-directory: ./infra
         run: |
-          docker-compose down
+          docker-compose --profile full down
           rm -rf .infra/target
           rm -rf .infra/backups
           rm -rf .infra/config
