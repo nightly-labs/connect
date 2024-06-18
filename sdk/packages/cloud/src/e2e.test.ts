@@ -53,6 +53,44 @@ describe('Base Client tests', () => {
     assert(loginResponse.userId.length > 0)
   })
 
+  test('#refreshToken()', async () => {
+    const email = randomEmail() + '@gmail.com'
+    const password = 'Password123'
+
+    const registerPayload = {
+      email,
+      password
+    } as HttpRegisterWithPasswordStartRequest
+
+    await cloudClient.registerWithPasswordStart(registerPayload)
+    await cloudClient.registerWithPasswordFinish({ code: '123456', email })
+
+    const loginPayload = {
+      email,
+      password,
+      enforceIp: false
+    } as HttpLoginRequest
+
+    const loginResponse = await cloudClient.loginWithPassword(loginPayload)
+
+    assert(loginResponse.userId.length > 0)
+
+    // Save current token
+    const currentToken = cloudClient.authToken
+
+    // Refresh token
+    const refreshToken = await cloudClient.refreshAuthToken()
+    assert(refreshToken.authToken.length > 0)
+
+    // Check if token is different
+    assert(currentToken !== refreshToken.authToken)
+
+    // Check if token is valid
+    const response = await cloudClient.getUserMetadata()
+    assert(response.userId.length > 0)
+    assert(response.email === email)
+  })
+
   test('#resetPassword()', async () => {
     // create user
     const { userId, email } = await createUser(cloudClient)

@@ -13,6 +13,8 @@ jobs:
     timeout-minutes: 10
     runs-on: [testing]
     steps:
+      - name: Set CI Environment Variable
+        run: echo "CI_ENVIRONMENT=true" >> $GITHUB_ENV
       - name: Fix permissions
         continue-on-error: true
         run: |
@@ -31,7 +33,7 @@ jobs:
       - name: Setup Infra
         working-directory: ./infra
         run: |
-          docker-compose down
+          docker-compose --profile full down
           rm -rf .infra/target
           rm -rf .infra/backups
           rm -rf .infra/config
@@ -116,7 +118,7 @@ jobs:
       - name: Clean target
         working-directory: ./infra
         run: |
-          docker-compose down
+          docker-compose --profile down
           rm -rf .infra/target
           rm -rf .infra/backups
           rm -rf .infra/config

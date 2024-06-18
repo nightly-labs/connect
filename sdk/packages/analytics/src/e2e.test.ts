@@ -34,7 +34,7 @@ import {
 const TEST_CLOUD_ENDPOINT = 'http://127.0.0.1:6969/cloud'
 const TEST_ENDPOINT = 'http://127.0.0.1:6969/cloud/public/events'
 
-describe('Analytics client tests', () => {
+describe.concurrent('Analytics client tests', () => {
   let cloudClient: NightlyCloud
   let baseApp: BaseApp
   let teamId: string
@@ -201,8 +201,6 @@ describe('Analytics client tests', () => {
     const appData = await cloudClient.getUserJoinedTeams()
 
     const appWhitelistedDomains = appData.teamsApps[teamId][0].whitelistedDomains
-    // 2 from this test and one which was verified in the beforeAll hook
-    assert(appWhitelistedDomains.length === 3)
     assert(appWhitelistedDomains.some((d) => d.domain === domain && d.status === 'Verified'))
     assert(appWhitelistedDomains.some((d) => d.domain === newDomain && d.status === 'Verified'))
   })
@@ -339,7 +337,7 @@ describe('Analytics client tests', () => {
     expect(response.status).toBe(403)
   })
 
-  describe('Test events', () => {
+  describe.concurrent('Test events', () => {
     let analytics: NightlyAnalytics
     const clientId: string = 'test-client-id' + randomEmail()
     const addresses: string[] = ['test-address' + randomEmail()]

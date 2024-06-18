@@ -215,6 +215,22 @@ pub fn generate_tokens(
     Ok((token, refresh_token))
 }
 
+pub fn refresh_auth_token(
+    refresh_token: AuthToken,
+    ip: Option<SocketAddr>,
+) -> Result<String, (StatusCode, String)> {
+    match AuthToken::new_access(&refresh_token.user_id, ip).encode(JWT_SECRET()) {
+        Ok(token) => return Ok(token),
+        Err(err) => {
+            error!("Failed to create access token: {:?}", err);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::AccessTokenFailure.to_string(),
+            ));
+        }
+    };
+}
+
 pub fn custom_validate_domain_name(domain_name: &String) -> anyhow::Result<String> {
     // Check if the domain name is empty
     if domain_name.trim().is_empty() {

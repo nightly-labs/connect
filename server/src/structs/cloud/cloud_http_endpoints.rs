@@ -14,6 +14,8 @@ pub enum HttpCloudEndpoint {
     LoginWithPassword,
     #[serde(rename = "/login_with_google")]
     LoginWithGoogle,
+    #[serde(rename = "/refresh_token")]
+    RefreshToken,
     #[serde(rename = "/register_new_team")]
     RegisterNewTeam,
     #[serde(rename = "/remove_user_from_team")]
@@ -127,6 +129,7 @@ impl HttpCloudEndpoint {
             HttpCloudEndpoint::ChangeUserPrivileges => "/change_user_privileges".to_string(),
             HttpCloudEndpoint::LoginWithPasskeyStart => "/login_with_passkey_start".to_string(),
             HttpCloudEndpoint::LoginWithPasskeyFinish => "/login_with_passkey_finish".to_string(),
+            HttpCloudEndpoint::RefreshToken => "/refresh_token".to_string(),
         }
     }
 }
