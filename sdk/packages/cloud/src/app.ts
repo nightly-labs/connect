@@ -27,6 +27,8 @@ import {
   HttpLoginWithGoogleResponse,
   HttpLoginWithPasskeyFinishResponse,
   HttpLoginWithPasskeyStartRequest,
+  HttpRefreshRequest,
+  HttpRefreshResponse,
   HttpRegisterNewAppRequest,
   HttpRegisterNewAppResponse,
   HttpRegisterNewTeamRequest,
@@ -264,6 +266,23 @@ export class NightlyCloud {
 
     this.authToken = response.authToken
     this.refreshToken = response.refreshToken
+
+    return response
+  }
+
+  refreshAuthToken = async (enforceIp?: boolean): Promise<HttpRefreshResponse> => {
+    const request = {
+      refreshToken: this.refreshToken ?? '',
+      enforceIp: enforceIp ?? true
+    } as HttpRefreshRequest
+
+    const response = (await this.sendPostJson(
+      '/refresh_token',
+      EndpointType.Public,
+      request
+    )) as HttpRefreshResponse
+
+    this.authToken = response.authToken
 
     return response
   }

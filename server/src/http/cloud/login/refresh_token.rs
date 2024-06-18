@@ -1,23 +1,17 @@
 use crate::{
-    auth::AuthToken,
-    env::JWT_PUBLIC_KEY,
-    http::cloud::utils::{refresh_auth_token, validate_request},
+    auth::AuthToken, env::JWT_PUBLIC_KEY, http::cloud::utils::refresh_auth_token,
     structs::cloud::api_cloud_errors::CloudApiErrors,
 };
 use axum::{extract::ConnectInfo, http::StatusCode, Json};
-use garde::Validate;
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 use ts_rs::TS;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpRefreshRequest {
-    // #[garde(ascii, length(min = 6, max = 300))]
-    #[garde(skip)]
     pub refresh_token: String,
-    #[garde(skip)]
     pub enforce_ip: bool,
 }
 
@@ -32,9 +26,6 @@ pub async fn refresh_token(
     ConnectInfo(ip): ConnectInfo<SocketAddr>,
     Json(request): Json<HttpRefreshRequest>,
 ) -> Result<Json<HttpRefreshResponse>, (StatusCode, String)> {
-    // Validate request
-    validate_request(&request, &())?;
-
     let refresh_token = match AuthToken::decode(&request.refresh_token, &JWT_PUBLIC_KEY(), ip) {
         Ok(token) => token,
         Err(err) => {
@@ -61,7 +52,6 @@ pub async fn refresh_token(
 mod tests {
     use super::*;
     use crate::{
-        env::JWT_SECRET,
         http::cloud::{
             get_user_metadata::HttpUserMetadataResponse,
             login::login_with_password::{HttpLoginRequest, HttpLoginResponse},
