@@ -26,7 +26,7 @@ use crate::{
             login_with_google::login_with_google,
             login_with_passkey_finish::login_with_passkey_finish,
             login_with_passkey_start::login_with_passkey_start,
-            login_with_password::login_with_password,
+            login_with_password::login_with_password, refresh_token::refresh_token,
         },
         register::{
             register_with_passkey_finish::register_with_passkey_finish,
@@ -83,6 +83,10 @@ pub fn public_router(state: ServerState) -> Router<ServerState> {
         .route(
             &HttpCloudEndpoint::LoginWithPasskeyFinish.to_string(),
             post(login_with_passkey_finish),
+        )
+        .route(
+            &HttpCloudEndpoint::RefreshToken.to_string(),
+            post(refresh_token),
         )
         .route(
             &HttpCloudEndpoint::RegisterWithPasswordStart.to_string(),

@@ -81,6 +81,8 @@ export * from './HttpLoginWithGoogleResponse';
 export * from './HttpLoginWithPasskeyFinishResponse';
 export * from './HttpLoginWithPasskeyStartRequest';
 export * from './HttpNightlyConnectCloudEvent';
+export * from './HttpRefreshRequest';
+export * from './HttpRefreshResponse';
 export * from './HttpRegisterNewAppRequest';
 export * from './HttpRegisterNewAppResponse';
 export * from './HttpRegisterNewTeamRequest';
