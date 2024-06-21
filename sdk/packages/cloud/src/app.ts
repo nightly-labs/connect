@@ -55,11 +55,14 @@ import {
   HttpVerifyDomainStartResponse
 } from '../../../bindings'
 import {
+  HttpAddNewPasskeyFinishRequest,
+  HttpAddNewPasskeyStartResponse,
   HttpDeletePasskeyRequest,
   HttpGetPasskeyChallengeResponse,
   HttpLoginWithPasskeyFinishRequest,
   HttpLoginWithPasskeyStartResponse,
   HttpRegisterWithPasskeyFinishRequest,
+  HttpRegisterWithPasskeyStartResponse,
   HttpResetPasskeyFinishRequest,
   HttpResetPasskeyStartResponse
 } from './passkeyTypes'
@@ -191,12 +194,12 @@ export class NightlyCloud {
 
   registerWithPasskeyStart = async (
     request: HttpRegisterWithPasskeyStartRequest
-  ): Promise<HttpRegisterWithPasswordStartResponse> => {
+  ): Promise<HttpRegisterWithPasskeyStartResponse> => {
     const response = (await this.sendPostJson(
       '/register_with_passkey_start',
       EndpointType.Public,
       request
-    )) as HttpRegisterWithPasswordStartResponse
+    )) as HttpRegisterWithPasskeyStartResponse
 
     return response
   }
@@ -340,6 +343,20 @@ export class NightlyCloud {
 
   deletePasskey = async (request: HttpDeletePasskeyRequest): Promise<void> => {
     await this.sendPostJson('/reset_passkey_finish', EndpointType.Public, request)
+  }
+
+  addNewPasskeyStart = async (): Promise<HttpAddNewPasskeyStartResponse> => {
+    const response = (await this.sendPostJson(
+      '/add_passkey_start',
+      EndpointType.Private,
+      {}
+    )) as HttpAddNewPasskeyStartResponse
+
+    return response
+  }
+
+  addNewPasskeyFinish = async (request: HttpAddNewPasskeyFinishRequest): Promise<void> => {
+    await this.sendPostJson('/add_passkey_finish', EndpointType.Private, request)
   }
 
   ///////////////////////////////////////////////////// Teams actions
