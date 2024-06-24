@@ -555,6 +555,12 @@ export class NightlyCloud {
       EndpointType.Private
     )) as HttpGetPasskeyChallengeResponse
 
+    // @ts-expect-error
+    response.publicKey.challenge = Buffer.from(response.publicKey.challenge, 'base64')
+    response.publicKey.allowCredentials?.forEach((c) => {
+      // @ts-expect-error
+      c.id = Buffer.from(c.id, 'base64')
+    })
     return response
   }
 
