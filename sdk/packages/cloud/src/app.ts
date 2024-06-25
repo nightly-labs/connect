@@ -49,6 +49,8 @@ import {
   HttpResetPasswordStartRequest,
   HttpResetPasswordStartResponse,
   HttpUserMetadataResponse,
+  HttpVerifyCodeRequest,
+  HttpVerifyCodeResponse,
   HttpVerifyDomainFinishRequest,
   HttpVerifyDomainFinishResponse,
   HttpVerifyDomainStartRequest,
@@ -212,6 +214,16 @@ export class NightlyCloud {
       EndpointType.Public,
       request
     )) as HttpRegisterWithPasswordFinishResponse
+
+    return response
+  }
+
+  verifyCode = async (request: HttpVerifyCodeRequest): Promise<HttpVerifyCodeResponse> => {
+    const response = (await this.sendPostJson(
+      '/verify_code',
+      EndpointType.Public,
+      request
+    )) as HttpVerifyCodeResponse
 
     return response
   }
