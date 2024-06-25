@@ -1,5 +1,5 @@
 use crate::{
-    env::{is_env_production, NONCE},
+    env::NONCE,
     http::cloud::utils::{check_auth_code, custom_validate_new_password, validate_request},
     structs::{
         cloud::api_cloud_errors::CloudApiErrors,
@@ -40,6 +40,8 @@ pub async fn register_with_password_finish(
     // Validate request
     validate_request(&request, &())?;
 
+    println!("HERE");
+
     // Get session data
     let sessions_key = SessionsCacheKey::RegisterVerification(request.email.clone()).to_string();
     let session_data = match sessions_cache.get(&sessions_key) {
@@ -52,19 +54,16 @@ pub async fn register_with_password_finish(
         }
     };
 
-    // validate code only on production
-    if is_env_production() {
-        // Validate auth code
-        if !check_auth_code(
-            &request.auth_code,
-            &session_data.authentication_code,
-            session_data.created_at,
-        ) {
-            return Err((
-                StatusCode::BAD_REQUEST,
-                CloudApiErrors::InvalidOrExpiredAuthCode.to_string(),
-            ));
-        }
+    // Validate auth code
+    if !check_auth_code(
+        &request.auth_code,
+        &session_data.authentication_code,
+        session_data.created_at,
+    ) {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            CloudApiErrors::InvalidOrExpiredAuthCode.to_string(),
+        ));
     }
 
     let hashed_password = bcrypt::hash(format!("{}_{}", NONCE(), request.new_password.clone()))
@@ -140,7 +139,6 @@ mod tests {
         // Register user
         let register_payload = HttpRegisterWithPasswordStartRequest {
             email: email.to_string(),
-            password: password.to_string(),
         };
 
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
@@ -167,8 +165,9 @@ mod tests {
         // Validate register
         let verify_register_payload = HttpRegisterWithPasswordFinishRequest {
             email: email.to_string(),
-            // Random valid code for testing
-            code: "123456".to_string(),
+            new_password: password.to_string(),
+            // Random code for testing
+            auth_code: "123456".to_string(),
         };
 
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
@@ -195,12 +194,10 @@ mod tests {
         let test_app = create_test_app(false).await;
 
         let email = format!("@gmail.com");
-        let password = format!("Password123");
 
         // Register user
         let register_payload = HttpRegisterWithPasswordStartRequest {
             email: email.to_string(),
-            password: password.to_string(),
         };
 
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
@@ -230,7 +227,6 @@ mod tests {
         // Register user
         let register_payload = HttpRegisterWithPasswordStartRequest {
             email: email.to_string(),
-            password: password.to_string(),
         };
 
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
@@ -262,14 +258,15 @@ mod tests {
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
         let uri = format!(
             "/cloud/public{}",
-            HttpCloudEndpoint::RegisterWithPasswordStart.to_string()
+            HttpCloudEndpoint::RegisterWithPasswordFinish.to_string()
         );
 
         {
             let app = test_app.clone();
-            let payload = HttpRegisterWithPasswordStartRequest {
+            let payload = HttpRegisterWithPasswordFinishRequest {
                 email: "test@test.com".to_string(),
-                password: "dfsdsfa2asdada".to_string(),
+                new_password: "dfsdsfa2asdada".to_string(),
+                auth_code: "123456".to_string(),
             };
 
             let json = serde_json::to_string(&payload).unwrap();
@@ -290,9 +287,10 @@ mod tests {
         }
         {
             let app = test_app.clone();
-            let payload = HttpRegisterWithPasswordStartRequest {
+            let payload = HttpRegisterWithPasswordFinishRequest {
                 email: "test@test.com".to_string(),
-                password: "dA4ds".to_string(),
+                auth_code: "123456".to_string(),
+                new_password: "dA4ds".to_string(),
             };
             let json = serde_json::to_string(&payload).unwrap();
 
@@ -312,9 +310,10 @@ mod tests {
         }
         {
             let app = test_app.clone();
-            let payload = HttpRegisterWithPasswordStartRequest {
+            let payload = HttpRegisterWithPasswordFinishRequest {
                 email: "test@test.com".to_string(),
-                password: "Ab1aaaaaa¡".to_string(),
+                auth_code: "123456".to_string(),
+                new_password: "Ab1aaaaaa¡".to_string(),
             };
             let json = serde_json::to_string(&payload).unwrap();
 

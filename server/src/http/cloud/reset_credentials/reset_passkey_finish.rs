@@ -1,5 +1,4 @@
 use crate::{
-    env::is_env_production,
     http::cloud::utils::{check_auth_code, validate_request},
     structs::{
         cloud::api_cloud_errors::CloudApiErrors,
@@ -53,19 +52,16 @@ pub async fn reset_passkey_finish(
         }
     };
 
-    // validate code only on production
-    if is_env_production() {
-        // Validate auth code
-        if !check_auth_code(
-            &request.auth_code,
-            &session_data.authentication_code,
-            session_data.created_at,
-        ) {
-            return Err((
-                StatusCode::BAD_REQUEST,
-                CloudApiErrors::InvalidOrExpiredAuthCode.to_string(),
-            ));
-        }
+    // Validate auth code
+    if !check_auth_code(
+        &request.auth_code,
+        &session_data.authentication_code,
+        session_data.created_at,
+    ) {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            CloudApiErrors::InvalidOrExpiredAuthCode.to_string(),
+        ));
     }
 
     // Validate passkey reset

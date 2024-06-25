@@ -21,7 +21,7 @@ use uuid7::Uuid;
 
 use crate::{
     auth::AuthToken,
-    env::{JWT_SECRET, NONCE},
+    env::{is_env_production, JWT_SECRET, NONCE},
     ip_geolocation::GeolocationRequester,
     statics::{CODE_REGEX, NAME_REGEX, REGISTER_PASSWORD_VALIDATOR},
     structs::cloud::api_cloud_errors::CloudApiErrors,
@@ -124,19 +124,24 @@ pub fn generate_authentication_code() -> (String, String) {
 }
 
 pub fn check_verification_code(code: &String, verification_code: &String, created_at: u64) -> bool {
-    if code != verification_code {
-        return false;
+    if is_env_production() {
+        if code != verification_code {
+            return false;
+        }
+
+        let current_time = get_timestamp_in_milliseconds();
+        let time_diff = current_time - created_at;
+
+        // Code expires after 5 minutes (5 * 60 * 1000 = 300_000 ms)
+        if time_diff > 300_000 {
+            return false;
+        }
+
+        true
+    } else {
+        // Skip code verification check in development
+        true
     }
-
-    let current_time = get_timestamp_in_milliseconds();
-    let time_diff = current_time - created_at;
-
-    // Code expires after 5 minutes (5 * 60 * 1000 = 300_000 ms)
-    if time_diff > 300_000 {
-        return false;
-    }
-
-    true
 }
 
 pub fn check_auth_code(
@@ -144,24 +149,29 @@ pub fn check_auth_code(
     encrypted_auth_code: &Option<String>,
     created_at: u64,
 ) -> bool {
-    let encrypted_auth_code = match encrypted_auth_code {
-        Some(auth_code) => auth_code,
-        None => return false,
-    };
+    if is_env_production() {
+        let encrypted_auth_code = match encrypted_auth_code {
+            Some(auth_code) => auth_code,
+            None => return false,
+        };
 
-    if encrypted_auth_code != &digest(format!("{}{}", NONCE(), auth_code)) {
-        return false;
+        if encrypted_auth_code != &digest(format!("{}{}", NONCE(), auth_code)) {
+            return false;
+        }
+
+        let current_time = get_timestamp_in_milliseconds();
+        let time_diff = current_time - created_at;
+
+        // Code expires after 5 minutes (5 * 60 * 1000 = 300_000 ms)
+        if time_diff > 300_000 {
+            return false;
+        }
+
+        true
+    } else {
+        // Skip code verification check in development
+        true
     }
-
-    let current_time = get_timestamp_in_milliseconds();
-    let time_diff = current_time - created_at;
-
-    // Code expires after 5 minutes (5 * 60 * 1000 = 300_000 ms)
-    if time_diff > 300_000 {
-        return false;
-    }
-
-    true
 }
 
 pub async fn get_geolocation_data(

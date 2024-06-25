@@ -1,8 +1,6 @@
 use crate::{
-    env::{is_env_production, NONCE},
-    http::cloud::utils::{
-        custom_validate_new_password, generate_verification_code, validate_request,
-    },
+    env::is_env_production,
+    http::cloud::utils::{generate_verification_code, validate_request},
     mailer::{
         mail_requests::{ResetPasswordRequest, SendEmailRequest},
         mailer::Mailer,
@@ -19,7 +17,6 @@ use axum::{extract::State, http::StatusCode, Json};
 use database::db::Db;
 use garde::Validate;
 use log::error;
-use pwhash::bcrypt;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;

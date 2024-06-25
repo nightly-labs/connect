@@ -1,5 +1,5 @@
 use crate::{
-    env::{is_env_production, NONCE},
+    env::NONCE,
     http::cloud::utils::{check_auth_code, custom_validate_new_password, validate_request},
     structs::{
         cloud::api_cloud_errors::CloudApiErrors,
@@ -52,19 +52,16 @@ pub async fn reset_password_finish(
         }
     };
 
-    // validate code only on production
-    if is_env_production() {
-        // Validate auth code
-        if !check_auth_code(
-            &request.auth_code,
-            &session_data.authentication_code,
-            session_data.created_at,
-        ) {
-            return Err((
-                StatusCode::BAD_REQUEST,
-                CloudApiErrors::InvalidOrExpiredAuthCode.to_string(),
-            ));
-        }
+    // Validate auth code
+    if !check_auth_code(
+        &request.auth_code,
+        &session_data.authentication_code,
+        session_data.created_at,
+    ) {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            CloudApiErrors::InvalidOrExpiredAuthCode.to_string(),
+        ));
     }
 
     let hashed_password = bcrypt::hash(format!("{}_{}", NONCE(), request.new_password.clone()))
@@ -130,7 +127,6 @@ mod tests {
 
         let password_reset_start_payload = HttpResetPasswordStartRequest {
             email: email.to_string(),
-            new_password: new_password.to_string(),
         };
 
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
@@ -157,8 +153,9 @@ mod tests {
         // Validate new password change
         let verify_register_payload = HttpResetPasswordFinishRequest {
             email: email.to_string(),
-            // Random valid code for testing
-            code: "123456".to_string(),
+            new_password: new_password.to_string(),
+            // Random code for testing
+            auth_code: "123456789".to_string(),
         };
 
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
