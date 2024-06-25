@@ -113,7 +113,8 @@ pub async fn reset_passkey_start(
         SessionCache::VerifyPasskeyRegister(PasskeyVerification {
             email: request.email.clone(),
             passkey_registration_state: reg_state,
-            code,
+            verification_code: code,
+            authentication_code: None,
             created_at: get_timestamp_in_milliseconds(),
         }),
         None,

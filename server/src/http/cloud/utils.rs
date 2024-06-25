@@ -99,10 +99,9 @@ pub fn custom_validate_optional_pagination_cursor(
 }
 
 pub fn custom_validate_verification_code(name: &String, _context: &()) -> garde::Result {
-    CODE_REGEX
-        .is_match(name)
-        .then(|| ())
-        .ok_or_else(|| garde::Error::new(CloudApiErrors::InvalidVerificationCode.to_string()))
+    CODE_REGEX.is_match(name).then(|| ()).ok_or_else(|| {
+        garde::Error::new(CloudApiErrors::InvalidOrExpiredVerificationCode.to_string())
+    })
 }
 
 pub fn generate_verification_code() -> String {

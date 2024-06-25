@@ -77,7 +77,6 @@ pub struct RegisterVerification {
 #[derive(Debug, Clone)]
 pub struct ResetPasswordVerification {
     pub email: String,
-    pub hashed_new_password: String,
     pub verification_code: String,
     pub authentication_code: Option<String>,
     pub created_at: u64,
