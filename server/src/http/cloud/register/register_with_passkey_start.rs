@@ -105,9 +105,10 @@ pub async fn register_with_passkey_start(
     sessions_cache.set(
         sessions_key,
         SessionCache::VerifyPasskeyRegister(PasskeyVerification {
-            email: request.email.clone(),
+            email: request.email,
             passkey_registration_state: reg_state,
-            code,
+            verification_code: code,
+            authentication_code: None,
             created_at: get_timestamp_in_milliseconds(),
         }),
         None,

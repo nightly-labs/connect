@@ -6,6 +6,7 @@ use std::sync::Arc;
 pub async fn process_event_change_network(
     event: &ChangeNetworkEvent,
     app_id: &String,
+    network: &String,
     db: &Arc<Db>,
 ) {
     // Establish a new transaction
@@ -25,6 +26,7 @@ pub async fn process_event_change_network(
         .create_new_event_entry(
             &mut tx,
             &app_id,
+            &network,
             &EventType::ChangeNetwork,
             &get_current_datetime(),
         )

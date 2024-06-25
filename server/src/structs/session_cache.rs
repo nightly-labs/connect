@@ -1,4 +1,6 @@
 use r_cache::cache::Cache;
+use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
 pub type ApiSessionsCache = Cache<String, SessionCache>;
 
@@ -37,26 +39,54 @@ impl SessionsCacheKey {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[ts(export)]
+#[serde(rename_all = "camelCase")]
+pub enum VerificationAction {
+    RegisterPassword,
+    RegisterPasskey,
+    ResetPassword,
+    ResetPasskey,
+}
+
+impl VerificationAction {
+    pub fn to_session_key(&self, user_data: String) -> SessionsCacheKey {
+        match self {
+            VerificationAction::RegisterPassword => {
+                SessionsCacheKey::RegisterVerification(user_data)
+            }
+            VerificationAction::RegisterPasskey => SessionsCacheKey::PasskeyVerification(user_data),
+            VerificationAction::ResetPassword => {
+                SessionsCacheKey::ResetPasswordVerification(user_data)
+            }
+            VerificationAction::ResetPasskey => {
+                SessionsCacheKey::ResetPasskeyVerification(user_data)
+            }
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct RegisterVerification {
     pub email: String,
-    pub hashed_password: String,
-    pub code: String,
+    pub verification_code: String,
+    pub authentication_code: Option<String>,
     pub created_at: u64,
 }
 
 #[derive(Debug, Clone)]
 pub struct ResetPasswordVerification {
     pub email: String,
-    pub hashed_new_password: String,
-    pub code: String,
+    pub verification_code: String,
+    pub authentication_code: Option<String>,
     pub created_at: u64,
 }
 
 #[derive(Debug, Clone)]
 pub struct PasskeyVerification {
     pub email: String,
-    pub code: String,
+    pub verification_code: String,
+    pub authentication_code: Option<String>,
     pub passkey_registration_state: webauthn_rs::prelude::PasskeyRegistration,
     pub created_at: u64,
 }
@@ -64,7 +94,8 @@ pub struct PasskeyVerification {
 #[derive(Debug, Clone)]
 pub struct ResetPasskeyVerification {
     pub email: String,
-    pub code: String,
+    pub verification_code: String,
+    pub authentication_code: Option<String>,
     pub passkey_registration_state: webauthn_rs::prelude::PasskeyRegistration,
     pub created_at: u64,
 }

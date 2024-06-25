@@ -1,6 +1,6 @@
 use crate::{
-    env::is_env_production,
-    http::cloud::utils::{custom_validate_verification_code, validate_request},
+    env::NONCE,
+    http::cloud::utils::{check_auth_code, custom_validate_new_password, validate_request},
     structs::{
         cloud::api_cloud_errors::CloudApiErrors,
         session_cache::{ApiSessionsCache, SessionCache, SessionsCacheKey},
@@ -10,6 +10,7 @@ use axum::{extract::State, http::StatusCode, Json};
 use database::db::Db;
 use garde::Validate;
 use log::error;
+use pwhash::bcrypt;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
@@ -21,8 +22,10 @@ use uuid7::uuid7;
 pub struct HttpRegisterWithPasswordFinishRequest {
     #[garde(email)]
     pub email: String,
-    #[garde(custom(custom_validate_verification_code))]
-    pub code: String,
+    #[garde(custom(custom_validate_new_password))]
+    pub new_password: String,
+    #[garde(skip)]
+    pub auth_code: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
@@ -49,19 +52,29 @@ pub async fn register_with_password_finish(
         }
     };
 
+    // Validate auth code
+    if !check_auth_code(
+        &request.auth_code,
+        &session_data.authentication_code,
+        session_data.created_at,
+    ) {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            CloudApiErrors::InvalidOrExpiredAuthCode.to_string(),
+        ));
+    }
+
+    let hashed_password = bcrypt::hash(format!("{}_{}", NONCE(), request.new_password.clone()))
+        .map_err(|e| {
+            error!("Failed to hash password: {:?}", e);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::InternalServerError.to_string(),
+            )
+        })?;
+
     // Remove leftover session data
     sessions_cache.remove(&sessions_key);
-
-    // validate code only on production
-    if is_env_production() {
-        // Validate the code
-        if session_data.code != request.code {
-            return Err((
-                StatusCode::BAD_REQUEST,
-                CloudApiErrors::InvalidVerificationCode.to_string(),
-            ));
-        }
-    }
 
     // Save the user to the database
     let user_id = uuid7().to_string();
@@ -70,7 +83,7 @@ pub async fn register_with_password_finish(
         .add_new_user(
             &user_id,
             &request.email,
-            Some(&session_data.hashed_password),
+            Some(&hashed_password),
             // None for passkeys
             None,
         )
@@ -124,7 +137,6 @@ mod tests {
         // Register user
         let register_payload = HttpRegisterWithPasswordStartRequest {
             email: email.to_string(),
-            password: password.to_string(),
         };
 
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
@@ -151,8 +163,9 @@ mod tests {
         // Validate register
         let verify_register_payload = HttpRegisterWithPasswordFinishRequest {
             email: email.to_string(),
-            // Random valid code for testing
-            code: "123456".to_string(),
+            new_password: password.to_string(),
+            // Random code for testing
+            auth_code: "123456".to_string(),
         };
 
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
@@ -179,12 +192,10 @@ mod tests {
         let test_app = create_test_app(false).await;
 
         let email = format!("@gmail.com");
-        let password = format!("Password123");
 
         // Register user
         let register_payload = HttpRegisterWithPasswordStartRequest {
             email: email.to_string(),
-            password: password.to_string(),
         };
 
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
@@ -214,7 +225,6 @@ mod tests {
         // Register user
         let register_payload = HttpRegisterWithPasswordStartRequest {
             email: email.to_string(),
-            password: password.to_string(),
         };
 
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
@@ -246,14 +256,15 @@ mod tests {
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
         let uri = format!(
             "/cloud/public{}",
-            HttpCloudEndpoint::RegisterWithPasswordStart.to_string()
+            HttpCloudEndpoint::RegisterWithPasswordFinish.to_string()
         );
 
         {
             let app = test_app.clone();
-            let payload = HttpRegisterWithPasswordStartRequest {
+            let payload = HttpRegisterWithPasswordFinishRequest {
                 email: "test@test.com".to_string(),
-                password: "dfsdsfa2asdada".to_string(),
+                new_password: "dfsdsfa2asdada".to_string(),
+                auth_code: "123456".to_string(),
             };
 
             let json = serde_json::to_string(&payload).unwrap();
@@ -274,9 +285,10 @@ mod tests {
         }
         {
             let app = test_app.clone();
-            let payload = HttpRegisterWithPasswordStartRequest {
+            let payload = HttpRegisterWithPasswordFinishRequest {
                 email: "test@test.com".to_string(),
-                password: "dA4ds".to_string(),
+                auth_code: "123456".to_string(),
+                new_password: "dA4ds".to_string(),
             };
             let json = serde_json::to_string(&payload).unwrap();
 
@@ -296,9 +308,10 @@ mod tests {
         }
         {
             let app = test_app.clone();
-            let payload = HttpRegisterWithPasswordStartRequest {
+            let payload = HttpRegisterWithPasswordFinishRequest {
                 email: "test@test.com".to_string(),
-                password: "Ab1aaaaaa¡".to_string(),
+                auth_code: "123456".to_string(),
+                new_password: "Ab1aaaaaa¡".to_string(),
             };
             let json = serde_json::to_string(&payload).unwrap();
 

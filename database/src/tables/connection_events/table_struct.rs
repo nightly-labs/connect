@@ -9,12 +9,13 @@ use sqlx::{
 
 pub const CONNECTION_EVENTS_TABLE_NAME: &str = "connection_events";
 pub const CONNECTION_EVENTS_KEYS_KEYS: &str =
-    "event_id, app_id, session_id, entity_id, entity_type, ip_address, session_type, geo_location, success, connected_at, disconnected_at";
+    "event_id, app_id, network, session_id, entity_id, entity_type, ip_address, session_type, geo_location, success, connected_at, disconnected_at";
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct ConnectionEvent {
     pub event_id: i64,
     pub app_id: String,
+    pub network: String,
     pub session_id: String,
     pub entity_id: String,
     pub entity_type: EntityType,
@@ -31,6 +32,7 @@ impl FromRow<'_, PgRow> for ConnectionEvent {
         Ok(ConnectionEvent {
             event_id: row.get("event_id"),
             app_id: row.get("app_id"),
+            network: row.get("network"),
             session_id: row.get("session_id"),
             entity_id: row.get("entity_id"),
             entity_type: row.get("entity_type"),

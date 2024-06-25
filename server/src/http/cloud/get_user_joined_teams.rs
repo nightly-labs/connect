@@ -62,6 +62,25 @@ pub async fn get_user_joined_teams(
                 }
 
                 if !apps_info.is_empty() {
+                    // Get pending domain verifications
+                    let app_ids = apps_info
+                        .iter()
+                        .map(|app| app.app_id.clone())
+                        .collect::<Vec<String>>();
+
+                    if let Ok(mut pending_domain_verifications) = db
+                        .get_pending_domain_verifications_by_app_ids(&app_ids)
+                        .await
+                    {
+                        for app in apps_info.iter_mut() {
+                            if let Some(pending_domains) =
+                                pending_domain_verifications.get_mut(&app.app_id)
+                            {
+                                app.whitelisted_domains.append(pending_domains);
+                            }
+                        }
+                    }
+
                     teams_apps.insert(team_id.clone(), apps_info);
                 }
 

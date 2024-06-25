@@ -1,3 +1,7 @@
+CREATE TABLE networks (
+    network TEXT PRIMARY KEY
+);
+
 CREATE TABLE sessions (
     session_id TEXT NOT NULL,
     app_id TEXT NOT NULL,

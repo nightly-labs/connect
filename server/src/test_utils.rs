@@ -125,7 +125,6 @@ pub mod test_utils {
         // Register user
         let register_payload = HttpRegisterWithPasswordStartRequest {
             email: email.to_string(),
-            password: password.to_string(),
         };
 
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
@@ -149,8 +148,9 @@ pub mod test_utils {
         // Validate register
         let verify_register_payload = HttpRegisterWithPasswordFinishRequest {
             email: email.to_string(),
-            // Random valid code for testing
-            code: "123456".to_string(),
+            // Random code
+            auth_code: "123456789".to_string(),
+            new_password: password.to_string(),
         };
 
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));

@@ -1,6 +1,5 @@
 use crate::{
-    env::is_env_production,
-    http::cloud::utils::{custom_validate_verification_code, validate_request},
+    http::cloud::utils::{check_auth_code, validate_request},
     structs::{
         cloud::api_cloud_errors::CloudApiErrors,
         session_cache::{ApiSessionsCache, SessionCache, SessionsCacheKey},
@@ -23,8 +22,8 @@ pub struct HttpResetPasskeyFinishRequest {
     pub email: String,
     #[garde(skip)]
     pub credential: RegisterPublicKeyCredential,
-    #[garde(custom(custom_validate_verification_code))]
-    pub code: String,
+    #[garde(skip)]
+    pub auth_code: String,
 }
 
 #[derive(Validate, Clone, Debug, Deserialize, Serialize, TS)]
@@ -53,18 +52,16 @@ pub async fn reset_passkey_finish(
         }
     };
 
-    // Remove leftover session data
-    sessions_cache.remove(&sessions_key);
-
-    // validate code only on production
-    if is_env_production() {
-        // Validate the code
-        if session_data.code != request.code {
-            return Err((
-                StatusCode::BAD_REQUEST,
-                CloudApiErrors::InvalidVerificationCode.to_string(),
-            ));
-        }
+    // Validate auth code
+    if !check_auth_code(
+        &request.auth_code,
+        &session_data.authentication_code,
+        session_data.created_at,
+    ) {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            CloudApiErrors::InvalidOrExpiredAuthCode.to_string(),
+        ));
     }
 
     // Validate passkey reset
@@ -128,6 +125,9 @@ pub async fn reset_passkey_finish(
             ));
         }
     };
+
+    // Remove leftover session data
+    sessions_cache.remove(&sessions_key);
 
     // Add new passkey
     passkeys.push(passkey);

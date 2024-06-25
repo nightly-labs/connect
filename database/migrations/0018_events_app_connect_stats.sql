@@ -4,12 +4,13 @@
 CREATE MATERIALIZED VIEW quarter_events_app_connect_language_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
+    network,
     time_bucket('15 minutes'::interval, creation_timestamp) AS quarter_bucket,
     lang,
     COUNT(*) AS quarter_language
 FROM
     event_app_connect
-GROUP BY app_id, quarter_bucket, lang
+GROUP BY app_id, network, quarter_bucket, lang
 WITH NO DATA;
 
 --- Refresh policy
@@ -30,12 +31,13 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW hour_events_app_connect_language_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
+    network,
     time_bucket('1 hour'::interval, quarter_bucket) AS hour_bucket,
     lang,
     SUM(quarter_language) AS hour_language
 FROM
     quarter_events_app_connect_language_stats_per_app
-GROUP BY app_id, hour_bucket, lang
+GROUP BY app_id, network, hour_bucket, lang
 WITH NO DATA;
 
 --- Refresh policy
@@ -57,12 +59,13 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW daily_events_app_connect_language_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
+    network,
     time_bucket('1 day'::interval, hour_bucket) AS daily_bucket,
     lang,
     SUM(hour_language) AS daily_language
 FROM
     hour_events_app_connect_language_stats_per_app
-GROUP BY app_id, daily_bucket, lang
+GROUP BY app_id, network, daily_bucket, lang
 WITH NO DATA;
 
 --- Refresh policy
@@ -85,6 +88,7 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW quarter_events_app_connect_browser_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     eac.app_id,
+    eac.network,
     time_bucket('15 minutes'::interval, eac.creation_timestamp) AS quarter_bucket,
     wm.browser,
     COUNT(*) AS quarter_browser
@@ -92,7 +96,7 @@ FROM
     event_app_connect eac
 JOIN
     web_metadata wm ON eac.device_metadata_uuid = wm.uuid
-GROUP BY eac.app_id, quarter_bucket, wm.browser
+GROUP BY eac.app_id, eac.network, quarter_bucket, wm.browser
 WITH NO DATA;
 
 --- Refresh policy
@@ -113,12 +117,13 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW hour_events_app_connect_browser_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
+    network,
     time_bucket('1 hour'::interval, quarter_bucket) AS hour_bucket,
     browser,
     SUM(quarter_browser) AS hour_browser
 FROM
     quarter_events_app_connect_browser_stats_per_app
-GROUP BY app_id, hour_bucket, browser
+GROUP BY app_id, network, hour_bucket, browser
 WITH NO DATA;
 
 --- Refresh policy
@@ -140,12 +145,13 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW daily_events_app_connect_browser_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
+    network,
     time_bucket('1 day'::interval, hour_bucket) AS daily_bucket,
     browser,
     SUM(hour_browser) AS daily_browser
 FROM
     hour_events_app_connect_browser_stats_per_app
-GROUP BY app_id, daily_bucket, browser
+GROUP BY app_id, network, daily_bucket, browser
 WITH NO DATA;
 
 --- Refresh policy
@@ -168,6 +174,7 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW quarter_events_app_connect_os_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     eac.app_id,
+    eac.network,
     time_bucket('15 minutes'::interval, eac.creation_timestamp) AS quarter_bucket,
     wm.os,
     COUNT(*) AS quarter_os
@@ -175,7 +182,7 @@ FROM
     event_app_connect eac
 JOIN
     web_metadata wm ON eac.device_metadata_uuid = wm.uuid
-GROUP BY eac.app_id, quarter_bucket, wm.os
+GROUP BY eac.app_id, eac.network, quarter_bucket, wm.os
 WITH NO DATA;
 
 --- Refresh policy
@@ -196,12 +203,13 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW hour_events_app_connect_os_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
+    network,
     time_bucket('1 hour'::interval, quarter_bucket) AS hour_bucket,
     os,
     SUM(quarter_os) AS hour_os
 FROM
     quarter_events_app_connect_os_stats_per_app
-GROUP BY app_id, hour_bucket, os
+GROUP BY app_id, network, hour_bucket, os
 WITH NO DATA;
 
 --- Refresh policy
@@ -223,12 +231,13 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW daily_events_app_connect_os_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
+    network,
     time_bucket('1 day'::interval, hour_bucket) AS daily_bucket,
     os,
     SUM(hour_os) AS daily_os
 FROM
     hour_events_app_connect_os_stats_per_app
-GROUP BY app_id, daily_bucket, os
+GROUP BY app_id, network, daily_bucket, os
 WITH NO DATA;
 
 --- Refresh policy
@@ -251,6 +260,7 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW quarter_events_app_connect_system_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     eac.app_id,
+    eac.network,
     time_bucket('15 minutes'::interval, eac.creation_timestamp) AS quarter_bucket,
     mm.system_type,
     COUNT(*) AS quarter_system
@@ -258,7 +268,7 @@ FROM
     event_app_connect eac
 JOIN
     mobile_metadata mm ON eac.device_metadata_uuid = mm.uuid
-GROUP BY eac.app_id, quarter_bucket, mm.system_type
+GROUP BY eac.app_id, eac.network, quarter_bucket, mm.system_type
 WITH NO DATA;
 
 --- Refresh policy
@@ -279,12 +289,13 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW hour_events_app_connect_system_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
+    network,
     time_bucket('1 hour'::interval, quarter_bucket) AS hour_bucket,
     system_type,
     SUM(quarter_system) AS hour_system
 FROM
     quarter_events_app_connect_system_stats_per_app
-GROUP BY app_id, hour_bucket, system_type
+GROUP BY app_id, network, hour_bucket, system_type
 WITH NO DATA;
 
 --- Refresh policy
@@ -306,12 +317,13 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW daily_events_app_connect_system_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
+    network,
     time_bucket('1 day'::interval, hour_bucket) AS daily_bucket,
     system_type,
     SUM(hour_system) AS daily_system
 FROM
     hour_events_app_connect_system_stats_per_app
-GROUP BY app_id, daily_bucket, system_type
+GROUP BY app_id, network, daily_bucket, system_type
 WITH NO DATA;
 
 --- Refresh policy
@@ -334,13 +346,14 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW quarter_events_app_connect_session_type_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
+    network,
     time_bucket('15 minutes'::interval, creation_timestamp) AS quarter_bucket,
     COUNT(*) FILTER (WHERE device_medium_type = 'Browser') AS quarter_mobile_sessions,
     COUNT(*) FILTER (WHERE device_medium_type = 'Mobile') AS quarter_web_sessions,
     COUNT(*) FILTER (WHERE device_medium_type = 'Unknown') AS quarter_unknown_sessions
 FROM
     event_app_connect
-GROUP BY app_id, quarter_bucket
+GROUP BY app_id, network, quarter_bucket
 WITH NO DATA;
 
 --- Refresh policy
@@ -361,13 +374,14 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW hour_events_app_connect_session_type_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
+    network,
     time_bucket('1 hour'::interval, quarter_bucket) AS hour_bucket,
     SUM(quarter_web_sessions) AS hour_web_sessions,
     SUM(quarter_mobile_sessions) AS hour_mobile_sessions,
     SUM(quarter_unknown_sessions) AS hour_unknown_sessions
 FROM
     quarter_events_app_connect_session_type_stats_per_app
-GROUP BY app_id, hour_bucket
+GROUP BY app_id, network, hour_bucket
 WITH NO DATA;
 
 --- Refresh policy
@@ -389,13 +403,14 @@ SET (timescaledb.materialized_only = false);
 CREATE MATERIALIZED VIEW daily_events_app_connect_session_type_stats_per_app WITH (timescaledb.continuous) AS
 SELECT
     app_id,
+    network,
     time_bucket('1 day'::interval, hour_bucket) AS daily_bucket,
     SUM(hour_web_sessions) AS daily_web_sessions,
     SUM(hour_mobile_sessions) AS daily_mobile_sessions,
     SUM(hour_unknown_sessions) AS daily_unknown_sessions
 FROM
     hour_events_app_connect_session_type_stats_per_app
-GROUP BY app_id, daily_bucket
+GROUP BY app_id, network, daily_bucket
 WITH NO DATA;
 
 --- Refresh policy

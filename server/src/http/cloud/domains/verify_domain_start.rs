@@ -101,7 +101,7 @@ pub async fn verify_domain_start(
 
     // Check if challenge already exists
     let verification_code = match db
-        .get_domain_verification_by_domain_name_and_app_id(&domain_name, &request.app_id)
+        .get_pending_domain_verification_by_domain_name_and_app_id(&domain_name, &request.app_id)
         .await
     {
         Ok(Some(challenge)) => challenge.code,

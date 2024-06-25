@@ -60,7 +60,7 @@ pub async fn login_with_passkey_start(
         None => {
             return Err((
                 StatusCode::BAD_REQUEST,
-                CloudApiErrors::PasswordNotSet.to_string(),
+                CloudApiErrors::PasskeyDoesNotExist.to_string(),
             ));
         }
     };

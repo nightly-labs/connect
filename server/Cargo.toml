@@ -38,6 +38,7 @@ lettre = { workspace = true }
 addr = { workspace = true }
 hickory-resolver = { workspace = true }
 webauthn-rs = { workspace = true }
+sha256 = { workspace = true }
 
 [features]
 cloud_integration_tests = []

@@ -34,7 +34,7 @@ mod tests {
     async fn generate_session_stats_2() {
         let db = Db::connect_to_the_pool().await;
 
-        let team_id = "test_team_id".to_string();
+        // let team_id = "test_team_id".to_string();
 
         let now = get_current_datetime();
         let start_date = now - Duration::from_secs(60 * 60 * 24 * 45); // Start of second period, 45 days ago
@@ -43,23 +43,23 @@ mod tests {
 
         let db_arc = Arc::new(db);
 
-        // Add second app
-        let app_id_2 = "test_app_id_2".to_string();
-        let registered_app = DbRegisteredApp {
-            team_id: team_id.clone(),
-            app_id: app_id_2.clone(),
-            app_name: format!("{app_id_2}_APP_NAME").to_string(),
-            whitelisted_domains: vec!["localhost".to_string()],
-            ack_public_keys: vec!["key".to_string()],
-            registration_timestamp: get_current_datetime(),
-        };
+        // // Add second app
+        let app_id_2 = "018fe846-3b7d-7af8-a14f-96d97820bccf".to_string();
+        // let registered_app = DbRegisteredApp {
+        //     team_id: team_id.clone(),
+        //     app_id: app_id_2.clone(),
+        //     app_name: format!("{app_id_2}_APP_NAME").to_string(),
+        //     whitelisted_domains: vec!["localhost".to_string()],
+        //     ack_public_keys: vec!["key".to_string()],
+        //     registration_timestamp: get_current_datetime(),
+        // };
 
-        let mut tx = db_arc.connection_pool.begin().await.unwrap();
-        db_arc
-            .register_new_app_within_tx(&mut tx, &registered_app)
-            .await
-            .unwrap();
-        tx.commit().await.unwrap();
+        // let mut tx = db_arc.connection_pool.begin().await.unwrap();
+        // db_arc
+        //     .register_new_app_within_tx(&mut tx, &registered_app)
+        //     .await
+        //     .unwrap();
+        // tx.commit().await.unwrap();
 
         let land_boxes = Arc::new(vec![
             BoundingBox {
@@ -187,8 +187,8 @@ mod tests {
 
                             // Update the session with the client data
                             let query_body = format!(
-                                    "UPDATE {SESSIONS_TABLE_NAME} SET client_data = $1 WHERE session_id = $2"
-                                );
+                                "UPDATE {SESSIONS_TABLE_NAME} SET client_data = $1 WHERE session_id = $2"
+                            );
 
                             query(&query_body)
                                 .bind(&data)
@@ -225,6 +225,7 @@ mod tests {
                                 .create_new_connection_event_by_client(
                                     &mut tx,
                                     &session.app_id,
+                                    &"Solana".to_string(),
                                     &session.session_id,
                                     &SessionType::Relay,
                                     &ip_address,

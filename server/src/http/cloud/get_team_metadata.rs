@@ -94,7 +94,7 @@ pub async fn get_team_metadata(
             };
 
             // Get team apps
-            let registered_apps: Vec<AppInfo> =
+            let mut registered_apps: Vec<AppInfo> =
                 match db.get_registered_apps_by_team_id(&team.team_id).await {
                     Ok(apps) => apps.into_iter().map(|app| app.into()).collect(),
                     Err(err) => {
@@ -105,6 +105,24 @@ pub async fn get_team_metadata(
                         ));
                     }
                 };
+
+            // Get pending domain verifications
+            let app_ids = registered_apps
+                .iter()
+                .map(|app| app.app_id.clone())
+                .collect::<Vec<String>>();
+
+            if let Ok(mut pending_domain_verifications) = db
+                .get_pending_domain_verifications_by_app_ids(&app_ids)
+                .await
+            {
+                for app in registered_apps.iter_mut() {
+                    if let Some(pending_domains) = pending_domain_verifications.get_mut(&app.app_id)
+                    {
+                        app.whitelisted_domains.append(pending_domains);
+                    }
+                }
+            }
 
             // Get team users from team_privileges
             let team_members_ids: Vec<String> = team_privileges
