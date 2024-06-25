@@ -37,6 +37,7 @@ hickory-resolver = "0.24.0"
 webauthn-rs = { version = "0.4.8", features = [
   "danger-allow-state-serialisation",
 ] }
+sha256 = "1.5.0"
 
 # If you're updating sqlx, make sure that chrono version below is the same as the one in sqlx
 sqlx = { version = "0.7.3", features = [

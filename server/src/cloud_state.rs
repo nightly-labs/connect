@@ -78,7 +78,8 @@ impl CloudState {
 }
 
 pub fn get_new_session() -> Arc<ApiSessionsCache> {
-    let add_new_passkey_sessions = Arc::new(Cache::new(Some(Duration::from_secs(300))));
+    // Default 15 min expiration
+    let add_new_passkey_sessions = Arc::new(Cache::new(Some(Duration::from_secs(15 * 60))));
     task::spawn({
         let cache = Arc::clone(&add_new_passkey_sessions);
         async move {

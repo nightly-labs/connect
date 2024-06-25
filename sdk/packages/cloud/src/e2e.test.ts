@@ -40,7 +40,11 @@ describe('Base Client tests', () => {
     } as HttpRegisterWithPasswordStartRequest
 
     await cloudClient.registerWithPasswordStart(registerPayload)
-    await cloudClient.registerWithPasswordFinish({ code: '123456', email })
+    await cloudClient.registerWithPasswordFinish({
+      authCode: '123456',
+      email,
+      newPassword: password
+    })
 
     const loginPayload = {
       email,
@@ -63,7 +67,11 @@ describe('Base Client tests', () => {
     } as HttpRegisterWithPasswordStartRequest
 
     await cloudClient.registerWithPasswordStart(registerPayload)
-    await cloudClient.registerWithPasswordFinish({ code: '123456', email })
+    await cloudClient.registerWithPasswordFinish({
+      authCode: '123456',
+      email,
+      newPassword: password
+    })
 
     const loginPayload = {
       email,
@@ -97,10 +105,10 @@ describe('Base Client tests', () => {
 
     // Send reset password request
     const newPassword = 'NewPassword123124123'
-    await cloudClient.resetPasswordStart({ email, newPassword })
+    await cloudClient.resetPasswordStart({ email })
 
-    // Finish reset password, the code doesn't matter
-    await cloudClient.resetPasswordFinish({ code: '123456', email })
+    // Finish reset password, the authCode doesn't matter
+    await cloudClient.resetPasswordFinish({ authCode: '123456', email, newPassword: newPassword })
 
     // Login once again with new password
     const loginPayload = {

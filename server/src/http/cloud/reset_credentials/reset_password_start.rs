@@ -1,8 +1,6 @@
 use crate::{
-    env::{is_env_production, NONCE},
-    http::cloud::utils::{
-        custom_validate_new_password, generate_verification_code, validate_request,
-    },
+    env::is_env_production,
+    http::cloud::utils::{generate_verification_code, validate_request},
     mailer::{
         mail_requests::{ResetPasswordRequest, SendEmailRequest},
         mailer::Mailer,
@@ -19,7 +17,6 @@ use axum::{extract::State, http::StatusCode, Json};
 use database::db::Db;
 use garde::Validate;
 use log::error;
-use pwhash::bcrypt;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
@@ -30,8 +27,6 @@ use ts_rs::TS;
 pub struct HttpResetPasswordStartRequest {
     #[garde(email)]
     pub email: String,
-    #[garde(custom(custom_validate_new_password))]
-    pub new_password: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
@@ -67,15 +62,6 @@ pub async fn reset_password_start(
         }
     }
 
-    let hashed_password = bcrypt::hash(format!("{}_{}", NONCE(), request.new_password.clone()))
-        .map_err(|e| {
-            error!("Failed to hash password: {:?}", e);
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                CloudApiErrors::InternalServerError.to_string(),
-            )
-        })?;
-
     // Save to cache password reset request
     let sessions_key =
         SessionsCacheKey::ResetPasswordVerification(request.email.clone()).to_string();
@@ -88,8 +74,8 @@ pub async fn reset_password_start(
         sessions_key,
         SessionCache::ResetPassword(ResetPasswordVerification {
             email: request.email.clone(),
-            hashed_new_password: hashed_password,
-            code: code.clone(),
+            verification_code: code.clone(),
+            authentication_code: None,
             created_at: get_timestamp_in_milliseconds(),
         }),
         None,

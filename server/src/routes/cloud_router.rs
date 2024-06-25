@@ -42,6 +42,7 @@ use crate::{
             reset_password_finish::reset_password_finish,
             reset_password_start::reset_password_start,
         },
+        verify_code::verify_code,
     },
     middlewares::auth_middleware::access_auth_middleware,
     state::ServerState,
@@ -120,6 +121,7 @@ pub fn public_router(state: ServerState) -> Router<ServerState> {
             &HttpCloudEndpoint::ResetPasskeyFinish.to_string(),
             post(reset_passkey_finish),
         )
+        .route(&HttpCloudEndpoint::VerifyCode.to_string(), get(verify_code))
         .route(&HttpCloudEndpoint::Events.to_string(), post(events))
         .with_state(state)
 }

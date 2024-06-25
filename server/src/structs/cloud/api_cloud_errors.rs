@@ -32,7 +32,8 @@ pub enum CloudApiErrors {
     ActionForbiddenForPersonalTeam,
     InviteDoesNotExist,
     InvalidPaginationCursor,
-    InvalidVerificationCode,
+    InvalidOrExpiredVerificationCode,
+    InvalidOrExpiredAuthCode,
     InvalidDomainName,
     DomainAlreadyVerified,
     DomainVerificationFailure,
@@ -49,4 +50,5 @@ pub enum CloudApiErrors {
     DashboardImportFail,
     OriginHeaderRequired,
     InvalidOrigin,
+    InvalidAction,
 }
