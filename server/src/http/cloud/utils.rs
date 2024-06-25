@@ -10,17 +10,22 @@ use database::{
 };
 use garde::Validate;
 use log::{error, info, warn};
-use rand::{distributions::Uniform, Rng};
+use rand::{
+    distributions::{Alphanumeric, Uniform},
+    Rng,
+};
 use reqwest::Url;
+use sha256::digest;
 use std::{net::SocketAddr, str::FromStr, sync::Arc, time::Duration};
 use uuid7::Uuid;
 
 use crate::{
     auth::AuthToken,
-    env::JWT_SECRET,
+    env::{JWT_SECRET, NONCE},
     ip_geolocation::GeolocationRequester,
     statics::{CODE_REGEX, NAME_REGEX, REGISTER_PASSWORD_VALIDATOR},
     structs::cloud::api_cloud_errors::CloudApiErrors,
+    utils::get_timestamp_in_milliseconds,
 };
 
 pub fn validate_request<T>(payload: T, ctx: &T::Context) -> Result<(), (StatusCode, String)>
@@ -105,6 +110,59 @@ pub fn generate_verification_code() -> String {
     let range = Uniform::new(0, 10);
     let code = (0..6).map(|_| rng.sample(&range).to_string()).collect();
     code
+}
+
+pub fn generate_authentication_code() -> (String, String) {
+    let auth_code: String = rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(30)
+        .map(char::from)
+        .collect();
+
+    let encrypted_auth_code = digest(format!("{}{}", NONCE(), auth_code));
+
+    (auth_code, encrypted_auth_code)
+}
+
+pub fn check_verification_code(code: &String, verification_code: &String, created_at: u64) -> bool {
+    if code != verification_code {
+        return false;
+    }
+
+    let current_time = get_timestamp_in_milliseconds();
+    let time_diff = current_time - created_at;
+
+    // Code expires after 5 minutes (5 * 60 * 1000 = 300_000 ms)
+    if time_diff > 300_000 {
+        return false;
+    }
+
+    true
+}
+
+pub fn check_auth_code(
+    auth_code: &String,
+    encrypted_auth_code: &Option<String>,
+    created_at: u64,
+) -> bool {
+    let encrypted_auth_code = match encrypted_auth_code {
+        Some(auth_code) => auth_code,
+        None => return false,
+    };
+
+    if encrypted_auth_code != &digest(format!("{}{}", NONCE(), auth_code)) {
+        return false;
+    }
+
+    let current_time = get_timestamp_in_milliseconds();
+    let time_diff = current_time - created_at;
+
+    // Code expires after 5 minutes (5 * 60 * 1000 = 300_000 ms)
+    if time_diff > 300_000 {
+        return false;
+    }
+
+    true
 }
 
 pub async fn get_geolocation_data(
