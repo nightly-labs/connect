@@ -1,3 +1,4 @@
+use super::utils::{check_verification_code, generate_authentication_code};
 use crate::{
     http::cloud::utils::{custom_validate_verification_code, validate_request},
     structs::{
@@ -6,14 +7,10 @@ use crate::{
     },
 };
 use axum::{extract::State, http::StatusCode, Json};
-use database::db::Db;
 use garde::Validate;
-use log::error;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
-
-use super::utils::{check_verification_code, generate_authentication_code};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
@@ -35,32 +32,11 @@ pub struct HttpVerifyCodeResponse {
 }
 
 pub async fn verify_code(
-    State(db): State<Arc<Db>>,
     State(sessions_cache): State<Arc<ApiSessionsCache>>,
     Json(request): Json<HttpVerifyCodeRequest>,
 ) -> Result<Json<HttpVerifyCodeResponse>, (StatusCode, String)> {
     // Validate request
     validate_request(&request, &())?;
-
-    // Check if user exists
-    match db.get_user_by_email(&request.email).await {
-        Ok(Some(_)) => {
-            // Continue
-        }
-        Ok(None) => {
-            return Err((
-                StatusCode::BAD_REQUEST,
-                CloudApiErrors::UserDoesNotExist.to_string(),
-            ))
-        }
-        Err(err) => {
-            error!("Failed to check if user exists: {:?}", err);
-            return Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                CloudApiErrors::DatabaseError.to_string(),
-            ));
-        }
-    }
 
     // Read session data
     let sessions_key = request

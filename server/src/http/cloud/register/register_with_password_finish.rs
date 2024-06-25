@@ -40,8 +40,6 @@ pub async fn register_with_password_finish(
     // Validate request
     validate_request(&request, &())?;
 
-    println!("HERE");
-
     // Get session data
     let sessions_key = SessionsCacheKey::RegisterVerification(request.email.clone()).to_string();
     let session_data = match sessions_cache.get(&sessions_key) {
