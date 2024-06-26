@@ -1,5 +1,4 @@
 use crate::{
-    env::is_env_production,
     http::cloud::utils::{generate_verification_code, validate_request},
     mailer::{
         mail_requests::{EmailConfirmationRequest, SendEmailRequest},
@@ -84,7 +83,7 @@ pub async fn register_with_passkey_start(
     };
 
     // Generate verification code, if not in production use a static code
-    let code = if !is_env_production() {
+    let code = if !is_test_env() {
         "123456".to_string()
     } else {
         generate_verification_code()

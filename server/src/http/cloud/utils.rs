@@ -1,9 +1,10 @@
 use crate::{
     auth::AuthToken,
-    env::{is_env_production, JWT_SECRET, NONCE},
+    env::{JWT_SECRET, NONCE},
     ip_geolocation::GeolocationRequester,
     statics::{CODE_REGEX, NAME_REGEX, REGISTER_PASSWORD_VALIDATOR},
     structs::cloud::api_cloud_errors::CloudApiErrors,
+    test_env::is_test_env,
     utils::get_timestamp_in_milliseconds,
 };
 use addr::parse_domain_name;
@@ -143,7 +144,7 @@ pub fn check_auth_code(
     encrypted_auth_code: &Option<String>,
     created_at: u64,
 ) -> bool {
-    if !is_env_production() {
+    if !is_test_env() {
         if encrypted_auth_code.is_none() {
             println!("Encrypted auth code is missing");
         }
