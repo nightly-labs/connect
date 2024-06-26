@@ -144,7 +144,7 @@ pub fn check_auth_code(
     encrypted_auth_code: &Option<String>,
     created_at: u64,
 ) -> bool {
-    if !is_test_env() {
+    if is_test_env() {
         if encrypted_auth_code.is_none() {
             println!("Encrypted auth code is missing");
         }
