@@ -3,7 +3,6 @@ use super::{
     utils::{custom_validate_team_id, validate_request},
 };
 use crate::{
-    env::is_env_production,
     mailer::{
         mail_requests::{SendEmailRequest, TeamRemovalNotification},
         mailer::Mailer,
@@ -120,17 +119,15 @@ pub async fn remove_user_from_team(
             }
 
             // Send email notification
-            if is_env_production() {
-                let request = SendEmailRequest::TeamRemoval(TeamRemovalNotification {
-                    email: user.email.clone(),
-                    team_name: team.team_name.clone(),
-                    remover_email: user_id,
-                });
+            let request = SendEmailRequest::TeamRemoval(TeamRemovalNotification {
+                email: user.email.clone(),
+                team_name: team.team_name.clone(),
+                remover_email: user_id,
+            });
 
-                // It doesn't matter if this fails
-                if let Some(err) = mailer.handle_email_request(&request).error_message {
-                    error!("Failed to send email: {:?}, request: {:?}", err, request);
-                }
+            // It doesn't matter if this fails
+            if let Some(err) = mailer.handle_email_request(&request).error_message {
+                error!("Failed to send email: {:?}, request: {:?}", err, request);
             }
 
             // Return response

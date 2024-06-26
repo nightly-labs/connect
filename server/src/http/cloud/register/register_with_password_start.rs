@@ -9,6 +9,7 @@ use crate::{
         cloud::api_cloud_errors::CloudApiErrors,
         session_cache::{ApiSessionsCache, RegisterVerification, SessionCache, SessionsCacheKey},
     },
+    test_env::is_test_env,
     utils::get_timestamp_in_milliseconds,
 };
 use axum::{extract::State, http::StatusCode, Json};
@@ -66,7 +67,12 @@ pub async fn register_with_password_start(
     // Remove leftover session data
     sessions_cache.remove(&sessions_key);
 
-    let code = generate_verification_code();
+    // Generate verification code, if not in production use a static code
+    let code = if !is_env_production() {
+        "123456".to_string()
+    } else {
+        generate_verification_code()
+    };
 
     sessions_cache.set(
         sessions_key,
@@ -79,26 +85,22 @@ pub async fn register_with_password_start(
         None,
     );
 
-    // Send code via email, only on PROD
-    if is_env_production() {
-        let request = SendEmailRequest::EmailConfirmation(EmailConfirmationRequest {
-            email: request.email,
-            code: code,
-        });
+    // Send code via email
+    let request = SendEmailRequest::EmailConfirmation(EmailConfirmationRequest {
+        email: request.email,
+        code: code,
+    });
 
-        match mailer.handle_email_request(&request).error_message {
-            Some(err) => {
-                error!("Failed to send email: {:?}, request: {:?}", err, request);
-                return Err((
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    CloudApiErrors::InternalServerError.to_string(),
-                ));
-            }
-            None => {
-                return Ok(Json(HttpRegisterWithPasswordStartResponse {}));
-            }
+    if !is_test_env() {
+        println!("SENDING MAIL");
+        if let Some(err) = mailer.handle_email_request(&request).error_message {
+            error!("Failed to send email: {:?}, request: {:?}", err, request);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::InternalServerError.to_string(),
+            ));
         }
     }
 
-    Ok(Json(HttpRegisterWithPasswordStartResponse {}))
+    return Ok(Json(HttpRegisterWithPasswordStartResponse {}));
 }
