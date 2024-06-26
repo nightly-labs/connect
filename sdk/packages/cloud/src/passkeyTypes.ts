@@ -51,7 +51,7 @@ export type HttpResetPasskeyFinishRequest = {
     type: string
     response: { clientDataJSON: string; attestationObject: string }
   }
-  code: string
+  authCode: string
 }
 
 // Passkey 2FA
