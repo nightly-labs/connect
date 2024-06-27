@@ -188,9 +188,6 @@ mod tests {
             .await
             .unwrap();
 
-        println!("team_name: {:?}", team_name);
-        println!("team_id: {:?}", team_id);
-
         // Register app under the team
         let app_name = generate_valid_name();
         let request = HttpRegisterNewAppRequest {
