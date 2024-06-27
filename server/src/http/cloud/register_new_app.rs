@@ -3,8 +3,9 @@ use super::{
     utils::{custom_validate_name, custom_validate_team_id, validate_request},
 };
 use crate::{
-    middlewares::auth_middleware::UserId, statics::REGISTERED_APPS_LIMIT_PER_TEAM,
-    structs::cloud::api_cloud_errors::CloudApiErrors, test_env::is_test_env,
+    env::is_env_production, middlewares::auth_middleware::UserId,
+    statics::REGISTERED_APPS_LIMIT_PER_TEAM, structs::cloud::api_cloud_errors::CloudApiErrors,
+    test_env::is_test_env,
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::{
@@ -104,7 +105,7 @@ pub async fn register_new_app(
 
             // Grafana, add new app
             // TODO, fix this by fixing methods for setting up grafana datasource
-            if !is_test_env() {
+            if !is_test_env() || !is_env_production() {
                 handle_grafana_create_new_app(
                     &grafana_conf,
                     &request.app_name,
