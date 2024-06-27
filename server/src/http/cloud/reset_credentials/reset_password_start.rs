@@ -69,11 +69,7 @@ pub async fn reset_password_start(
     sessions_cache.remove(&sessions_key);
 
     // Generate verification code, if not in production use a static code
-    let code = if is_test_env() {
-        "123456".to_string()
-    } else {
-        generate_verification_code()
-    };
+    let code = generate_verification_code();
 
     sessions_cache.set(
         sessions_key,

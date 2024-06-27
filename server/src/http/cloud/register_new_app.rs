@@ -103,15 +103,8 @@ pub async fn register_new_app(
             let app_id = uuid7().to_string();
 
             // Grafana, add new app
-            let resp = handle_grafana_create_new_app(
-                &grafana_conf,
-                &request.app_name,
-                &app_id,
-                &team.team_id,
-            )
-            .await;
-
-            println!("Grafana response: {:?}", resp);
+            handle_grafana_create_new_app(&grafana_conf, &request.app_name, &app_id, &team.team_id)
+                .await?;
 
             // Register a new app under this team
             // Start a transaction

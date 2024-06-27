@@ -13,6 +13,7 @@ pub struct ENV {
     pub GRAFANA_BASE_PATH: String,
     pub GF_SECURITY_ADMIN_USER: String,
     pub GF_SECURITY_ADMIN_PASSWORD: String,
+    pub MAILER_ACTIVE: bool,
 }
 pub fn get_env() -> &'static ENV {
     static INSTANCE: OnceCell<ENV> = OnceCell::new();
@@ -40,6 +41,9 @@ pub fn get_env() -> &'static ENV {
                 .expect("Failed to get GF_SECURITY_ADMIN_USER env"),
             GF_SECURITY_ADMIN_PASSWORD: std::env::var("GF_SECURITY_ADMIN_PASSWORD")
                 .expect("Failed to get GF_SECURITY_ADMIN_PASSWORD env"),
+            MAILER_ACTIVE: std::env::var("MAILER_ACTIVE")
+                .expect("Failed to get MAILER_ACTIVE env")
+                .eq_ignore_ascii_case("true"),
         };
         return env;
     })
@@ -77,4 +81,7 @@ pub fn GF_SECURITY_ADMIN_USER() -> &'static str {
 }
 pub fn GF_SECURITY_ADMIN_PASSWORD() -> &'static str {
     get_env().GF_SECURITY_ADMIN_PASSWORD.as_str()
+}
+pub fn MAILER_ACTIVE() -> bool {
+    get_env().MAILER_ACTIVE
 }

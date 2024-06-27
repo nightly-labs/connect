@@ -1,6 +1,6 @@
 use crate::{
     auth::AuthToken,
-    env::{JWT_SECRET, NONCE},
+    env::{is_env_production, JWT_SECRET, NONCE},
     ip_geolocation::GeolocationRequester,
     statics::{CODE_REGEX, NAME_REGEX, REGISTER_PASSWORD_VALIDATOR},
     structs::cloud::api_cloud_errors::CloudApiErrors,
@@ -105,6 +105,10 @@ pub fn custom_validate_verification_code(name: &String, _context: &()) -> garde:
 }
 
 pub fn generate_verification_code() -> String {
+    if !is_env_production() || is_test_env() {
+        return "123456".to_string();
+    }
+
     let mut rng = rand::thread_rng();
     let range = Uniform::new(0, 10);
     let code = (0..6).map(|_| rng.sample(&range).to_string()).collect();
