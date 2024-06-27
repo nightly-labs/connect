@@ -1,5 +1,4 @@
 use crate::{
-    env::is_env_production,
     http::cloud::utils::{generate_verification_code, validate_request},
     mailer::{
         mail_requests::{EmailConfirmationRequest, SendEmailRequest},
@@ -9,6 +8,7 @@ use crate::{
         cloud::api_cloud_errors::CloudApiErrors,
         session_cache::{ApiSessionsCache, PasskeyVerification, SessionCache, SessionsCacheKey},
     },
+    test_env::is_test_env,
     utils::get_timestamp_in_milliseconds,
 };
 use axum::{extract::State, http::StatusCode, Json};
@@ -88,18 +88,21 @@ pub async fn reset_passkey_start(
         }
     };
 
-    // Generate email verification code
+    // Generate verification code, if not in production use a static code
     let code = generate_verification_code();
 
-    // Send email with code, only for PROD
-    if is_env_production() {
-        let request = SendEmailRequest::EmailConfirmation(EmailConfirmationRequest {
-            email: request.email.clone(),
-            code: code.clone(),
-        });
+    // Send email with code
+    let email_request = SendEmailRequest::EmailConfirmation(EmailConfirmationRequest {
+        email: request.email.clone(),
+        code: code.clone(),
+    });
 
-        if let Some(err) = mailer.handle_email_request(&request).error_message {
-            error!("Failed to send email: {:?}, request: {:?}", err, request);
+    if !is_test_env() {
+        if let Some(err) = mailer.handle_email_request(&email_request).error_message {
+            error!(
+                "Failed to send email: {:?}, email_request: {:?}",
+                err, email_request
+            );
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 CloudApiErrors::InternalServerError.to_string(),

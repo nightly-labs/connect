@@ -1,6 +1,5 @@
 use super::utils::{custom_validate_team_id, validate_request};
 use crate::{
-    env::is_env_production,
     mailer::{
         mail_requests::{SendEmailRequest, TeamInviteNotification},
         mailer::Mailer,
@@ -8,6 +7,7 @@ use crate::{
     middlewares::auth_middleware::UserId,
     statics::USERS_AMOUNT_LIMIT_PER_TEAM,
     structs::cloud::api_cloud_errors::CloudApiErrors,
+    test_env::is_test_env,
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::db::Db;
@@ -194,7 +194,7 @@ pub async fn invite_user_to_team(
             }
 
             // Send email notification
-            if is_env_production() {
+            if !is_test_env() {
                 let request = SendEmailRequest::TeamInvite(TeamInviteNotification {
                     email: request.user_email.clone(),
                     team_name: team.team_name.clone(),

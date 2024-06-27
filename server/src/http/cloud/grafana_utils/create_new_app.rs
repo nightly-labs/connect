@@ -34,6 +34,7 @@ pub async fn handle_grafana_create_new_app(
                 }
             },
             Err(err) => {
+                println!("Failed to get template dashboard: {:?}", err);
                 return Err(handle_grafana_error(err));
             }
         };

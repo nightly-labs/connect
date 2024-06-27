@@ -1,6 +1,7 @@
 use super::cloud_router::cloud_router;
 use crate::{
     cloud_state::CloudState,
+    env::{is_env_production, MAILER_ACTIVE},
     handle_error::handle_error,
     http::relay::{
         connect_session::connect_session, drop_sessions::drop_sessions,
@@ -32,6 +33,11 @@ pub async fn get_router(only_relay_service: bool) -> Router {
     let cloud_state = if only_relay_service {
         None
     } else {
+        // Check mailer flag
+        if !MAILER_ACTIVE() && is_env_production() {
+            panic!("Mailer is not active in production");
+        }
+
         Some(Arc::new(CloudState::new().await))
     };
 
