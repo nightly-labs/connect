@@ -105,7 +105,7 @@ pub async fn register_new_app(
 
             // Grafana, add new app
             // TODO, fix this by fixing methods for setting up grafana datasource
-            if !is_test_env() || !is_env_production() {
+            if is_env_production() {
                 handle_grafana_create_new_app(
                     &grafana_conf,
                     &request.app_name,
