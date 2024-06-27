@@ -3,6 +3,7 @@ use crate::{
     ip_geolocation::GeolocationRequester,
     mailer::{entry::run_mailer, mailer::Mailer},
     structs::session_cache::ApiSessionsCache,
+    utils::import_template_dashboards,
 };
 use axum::extract::FromRef;
 use database::db::Db;
@@ -46,6 +47,9 @@ impl CloudState {
         ));
 
         let grafana_client_conf = Arc::new(conf);
+
+        // Setup template dashboards
+        import_template_dashboards(&grafana_client_conf).await;
 
         // Passkey
         let rp_id = match ENVIRONMENT() {
