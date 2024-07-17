@@ -45,9 +45,10 @@ pub async fn get_team_metadata(
             // Check if user has privileges to access this team
             let team_privileges = match db.get_privileges_by_team_id(&request.team_id).await {
                 Ok(privileges) => {
-                    if !privileges
-                        .iter()
-                        .any(|privilege| privilege.user_id == user_id)
+                    if team.team_admin_id != user_id
+                        && !privileges
+                            .iter()
+                            .any(|privilege| privilege.user_id == user_id)
                     {
                         return Err((
                             StatusCode::UNAUTHORIZED,

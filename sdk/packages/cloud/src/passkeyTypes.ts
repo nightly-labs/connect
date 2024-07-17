@@ -10,6 +10,7 @@ export type HttpRegisterWithPasskeyFinishRequest = {
     type: string
     response: { clientDataJSON: string; attestationObject: string }
   }
+  authCode: string
 }
 
 // Login
