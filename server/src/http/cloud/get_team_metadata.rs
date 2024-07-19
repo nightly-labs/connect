@@ -10,7 +10,10 @@ use axum::{
     http::StatusCode,
     Extension, Json,
 };
-use database::db::Db;
+use database::{
+    db::Db, structs::privilege_level::PrivilegeLevel,
+    tables::user_app_privileges::table_struct::UserAppPrivilege,
+};
 use garde::Validate;
 use log::error;
 use serde::{Deserialize, Serialize};
@@ -43,12 +46,11 @@ pub async fn get_team_metadata(
     match db.get_team_by_team_id(None, &request.team_id).await {
         Ok(Some(team)) => {
             // Check if user has privileges to access this team
-            let team_privileges = match db.get_privileges_by_team_id(&request.team_id).await {
+            let mut team_privileges = match db.get_privileges_by_team_id(&request.team_id).await {
                 Ok(privileges) => {
-                    if team.team_admin_id != user_id
-                        && !privileges
-                            .iter()
-                            .any(|privilege| privilege.user_id == user_id)
+                    if !privileges
+                        .iter()
+                        .any(|privilege| privilege.user_id == user_id)
                     {
                         return Err((
                             StatusCode::UNAUTHORIZED,
@@ -67,6 +69,14 @@ pub async fn get_team_metadata(
                 }
             };
 
+            if team_privileges.is_empty() && team.team_admin_id == user_id {
+                team_privileges.push(UserAppPrivilege {
+                    user_id: user_id.clone(),
+                    app_id: "".to_string(),
+                    privilege_level: PrivilegeLevel::Admin,
+                    creation_timestamp: team.registration_timestamp,
+                })
+            }
             // Get team admin email
             let admin_email = match db.get_user_by_user_id(&team.team_admin_id).await {
                 Ok(Some(user)) => user.email,
