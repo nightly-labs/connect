@@ -356,11 +356,12 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
           if (!this._connectionOptions.disableEagerConnect && recentWallet !== null) {
             // Eager connect standard if possible
             if (recentWallet.walletType === ConnectionType.WalletStandard) {
-              return await this.connectToStandardWallet(
+              const response = await this.connectToStandardWallet(
                 recentWallet.walletName,
                 silent,
                 networkInfo
               )
+              resolve(Promise.resolve(response))
             }
 
             // Eager connect remote if possible
