@@ -8,12 +8,12 @@
     "version": "vinxi version"
   },
   "devDependencies": {
-    "@types/node": "^20.14.11",
-    "esbuild": "^0.23.0",
-    "postcss": "^8.4.39",
-    "solid-start-node": "^0.3.11",
-    "typescript": "^5.5.4",
-    "vite": "^5.3.4"
+    "@types/node": "^18.11.18",
+    "esbuild": "^0.14.54",
+    "postcss": "^8.4.21",
+    "solid-start-node": "^0.2.19",
+    "typescript": "^4.9.4",
+    "vite": "^4.1.4"
   },
   "dependencies": {
     "@aptos-labs/ts-sdk": "^1.9.1",
