@@ -362,6 +362,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
                 networkInfo
               )
               resolve(Promise.resolve(response))
+              return
             }
 
             // Eager connect remote if possible
