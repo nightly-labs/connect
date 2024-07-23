@@ -1,5 +1,4 @@
-import { mount, StartClient } from 'solid-start/entry-client'
-import { Buffer } from 'buffer'
-window.Buffer = Buffer
+// @refresh reload
+import { mount, StartClient } from '@solidjs/start/client'
 
-mount(() => <StartClient />, document)
+mount(() => <StartClient />, document.getElementById('app'))

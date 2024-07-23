@@ -1,25 +1,26 @@
 {
-  "name": "modal-example",
-  "scripts": {
-    "dev": "solid-start dev",
-    "build": "solid-start build",
-    "start": "solid-start start"
-  },
+  "name": "example-basic",
   "type": "module",
+  "scripts": {
+    "dev": "vinxi dev",
+    "build": "vinxi build",
+    "start": "vinxi start",
+    "version": "vinxi version"
+  },
   "devDependencies": {
-    "@types/node": "^18.11.18",
-    "esbuild": "^0.14.54",
-    "postcss": "^8.4.21",
-    "solid-start-node": "^0.2.19",
-    "typescript": "^4.9.4",
-    "vite": "^4.1.4"
+    "@types/node": "^20.14.11",
+    "esbuild": "^0.23.0",
+    "postcss": "^8.4.39",
+    "solid-start-node": "^0.3.11",
+    "typescript": "^5.5.4",
+    "vite": "^5.3.4"
   },
   "dependencies": {
     "@aptos-labs/ts-sdk": "^1.9.1",
     "@aptos-labs/wallet-standard": "^0.0.11",
     "@mysten/sui.js": "^0.42.0",
     "@mysten/wallet-adapter-wallet-standard": "^0.8.0",
-    "@nightlylabs/nightly-connect-polkadot": "0.0.15",
+    "@nightlylabs/nightly-connect-polkadot": "0.0.16",
     "@nightlylabs/nightly-connect-solana": "0.0.29",
     "@nightlylabs/nightly-connect-sui": "0.0.29",
     "@nightlylabs/wallet-selector-aptos": "0.1.2",
@@ -30,16 +31,17 @@
     "@polkadot/api": "^10.10.1",
     "@polkadot/extension-inject": "^0.46.5",
     "@solana/web3.js": "^1.77.2",
-    "@solidjs/meta": "^0.28.2",
-    "@solidjs/router": "^0.8.2",
     "buffer": "^6.0.3",
-    "solid-js": "^1.7.2",
-    "solid-start": "^0.2.26",
-    "solid-start-vercel": "^0.2.26",
+    "@solidjs/meta": "^0.29.4",
+    "@solidjs/router": "^0.14.1",
+    "@solidjs/start": "^1.0.6",
+    "solid-js": "^1.8.18",
+    "vinxi": "^0.4.1",
+    "solid-start-vercel": "^0.3.11",
     "solid-toast": "^0.5.0",
-    "undici": "^5.15.1"
+    "undici": "^6.19.4"
   },
   "engines": {
-    "node": ">=16.8"
+    "node": ">=18"
   }
 }

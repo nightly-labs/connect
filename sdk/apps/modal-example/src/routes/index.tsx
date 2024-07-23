@@ -1,4 +1,5 @@
-import { Title, A } from 'solid-start'
+import { Title } from '@solidjs/meta'
+import { A } from '@solidjs/router'
 
 export default function Home() {
   return (

@@ -1,5 +1,5 @@
 import { createSignal, onMount, Show } from 'solid-js'
-import { Title } from 'solid-start'
+import { Title } from '@solidjs/meta'
 import { NightlyConnectSuiAdapter } from '@nightlylabs/wallet-selector-sui'
 import { TransactionBlock } from '@mysten/sui.js/transactions'
 import toast from 'solid-toast'
