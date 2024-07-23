@@ -1,62 +1,62 @@
-import { createEffect, createSignal, onMount, Show } from 'solid-js'
-import { Title } from 'solid-start'
-import { NightlyConnectSuiAdapter } from '@nightlylabs/wallet-selector-sui'
-import { TransactionBlock } from '@mysten/sui.js/transactions'
-import toast from 'solid-toast'
+import { createEffect, createSignal, onMount, Show } from "solid-js";
+import { Title } from "@solidjs/meta";
+import { NightlyConnectSuiAdapter } from "@nightlylabs/wallet-selector-sui";
+import { TransactionBlock } from "@mysten/sui.js/transactions";
+import toast from "solid-toast";
 
 export default function Sui() {
-  const [adapter, setAdapter] = createSignal<NightlyConnectSuiAdapter>()
-  const [eager, setEager] = createSignal(false)
-  const [publicKey, setPublicKey] = createSignal<string>()
+  const [adapter, setAdapter] = createSignal<NightlyConnectSuiAdapter>();
+  const [eager, setEager] = createSignal(false);
+  const [publicKey, setPublicKey] = createSignal<string>();
   onMount(async () => {
     NightlyConnectSuiAdapter.build(
       {
         appMetadata: {
-          name: 'NCTestSui',
-          description: 'Nightly Connect Test',
-          icon: 'https://docs.nightly.app/img/logo.png',
-          additionalInfo: 'Courtesy of Nightly Connect team'
-        }
+          name: "NCTestSui",
+          description: "Nightly Connect Test",
+          icon: "https://docs.nightly.app/img/logo.png",
+          additionalInfo: "Courtesy of Nightly Connect team",
+        },
       },
       {},
-      document.getElementById('modalAnchor')
+      document.getElementById("modalAnchor")
     ).then(async (adapter) => {
       adapter.canEagerConnect().then((canEagerConnect) => {
-        setEager(canEagerConnect)
-      })
+        setEager(canEagerConnect);
+      });
 
-      adapter.on('connect', (accounts) => {
-        setPublicKey(accounts[0].address)
-      })
+      adapter.on("connect", (accounts) => {
+        setPublicKey(accounts[0].address);
+      });
 
-      adapter.on('disconnect', () => {
-        setPublicKey(undefined)
-        console.log('adapter disconnected')
-      })
+      adapter.on("disconnect", () => {
+        setPublicKey(undefined);
+        console.log("adapter disconnected");
+      });
 
-      adapter.on('change', (a) => {
+      adapter.on("change", (a) => {
         if (!!a.accounts?.length && a.accounts[0].address) {
-          setPublicKey(a.accounts[0].address)
+          setPublicKey(a.accounts[0].address);
         }
-      })
+      });
 
-      setAdapter(adapter)
-    })
-  })
+      setAdapter(adapter);
+    });
+  });
   createEffect(() => {
     if (eager()) {
       adapter()
         ?.connect()
         .then(
           () => {
-            console.log('connect resolved successfully')
+            console.log("connect resolved successfully");
           },
           () => {
-            console.log('connect rejected')
+            console.log("connect rejected");
           }
-        )
+        );
     }
-  })
+  });
 
   return (
     <main>
@@ -71,70 +71,75 @@ export default function Sui() {
                 ?.connect()
                 .then(
                   () => {
-                    console.log('connect resolved successfully')
+                    console.log("connect resolved successfully");
                   },
                   () => {
-                    console.log('connect rejected')
+                    console.log("connect rejected");
                   }
-                )
-            }}>
+                );
+            }}
+          >
             Connect
           </button>
-        }>
+        }
+      >
         <h1>Current address: {publicKey()}</h1>
         <button
           onClick={async () => {
             try {
-              const transactionBlock = new TransactionBlock()
+              const transactionBlock = new TransactionBlock();
               const coin = transactionBlock.splitCoins(transactionBlock.gas, [
-                transactionBlock.pure(50000000)
-              ])
+                transactionBlock.pure(50000000),
+              ]);
               transactionBlock.transferObjects(
                 [coin],
                 transactionBlock.pure(
-                  '0xd85c7ad90905e0bd49b72420deb5f4077cab62840fb3917ca2945e41d8854013'
+                  "0xd85c7ad90905e0bd49b72420deb5f4077cab62840fb3917ca2945e41d8854013"
                 )
-              )
-              const accounts = await adapter()!.getAccounts()
+              );
+              const accounts = await adapter()!.getAccounts();
               await adapter()!.signAndExecuteTransactionBlock({
                 transactionBlock,
-                chain: 'sui:testnet',
-                account: accounts[0]
-              })
+                chain: "sui:testnet",
+                account: accounts[0],
+              });
 
-              toast.success('Transaction was signed and sent!')
+              toast.success("Transaction was signed and sent!");
             } catch (e) {
-              toast.error("Error: couldn't sign and send transaction!")
-              console.log(e)
+              toast.error("Error: couldn't sign and send transaction!");
+              console.log(e);
             }
-          }}>
+          }}
+        >
           Send 0.05 SUI
         </button>
         <button
           onClick={async () => {
             try {
-              const accounts = await adapter()!.getAccounts()
+              const accounts = await adapter()!.getAccounts();
               await adapter()!.signPersonalMessage!({
-                message: new TextEncoder().encode('I love Nightly'),
-                account: accounts[0]
-              })
+                message: new TextEncoder().encode("I love Nightly"),
+                account: accounts[0],
+              });
 
-              toast.success('Message was signed!')
+              toast.success("Message was signed!");
             } catch (e) {
-              toast.error("Error: couldn't sign message!")
-              console.log(e)
+              toast.error("Error: couldn't sign message!");
+              console.log(e);
             }
-          }}>
+          }}
+        >
           Sign message
         </button>
         <button
           onClick={() => {
-            adapter()?.disconnect()
-            setPublicKey(undefined)
-          }}>
+            adapter()?.disconnect();
+            setPublicKey(undefined);
+          }}
+        >
           Disconnect
         </button>
       </Show>
     </main>
-  )
+  );
 }

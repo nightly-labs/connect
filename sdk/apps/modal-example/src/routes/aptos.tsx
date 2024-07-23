@@ -2,7 +2,7 @@ import { AccountAuthenticator, AccountAuthenticatorEd25519, Aptos } from '@aptos
 import { AccountInfo, AptosSignMessageInput, UserResponseStatus } from '@aptos-labs/wallet-standard'
 import { NightlyConnectAptosAdapter } from '@nightlylabs/wallet-selector-aptos'
 import { createEffect, createSignal, onMount, Show } from 'solid-js'
-import { Title } from 'solid-start'
+import { Title } from '@solidjs/meta'
 import toast from 'solid-toast'
 
 const aptos = new Aptos() // default to devnet
