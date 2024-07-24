@@ -54,7 +54,7 @@ importers:
       '@nightlylabs/nightly-connect-polkadot': 'link:../../packages/polkadot'
       '@nightlylabs/nightly-connect-solana': 'link:../../packages/solana'
       '@nightlylabs/nightly-connect-sui': 'link:../../packages/sui'
-      '@nightlylabs/wallet-selector-aptos': 0.1.4
+      '@nightlylabs/wallet-selector-aptos': 'link:../../packages/selector-aptos'
       '@nightlylabs/wallet-selector-base': 'link:../../packages/selector-base'
       '@nightlylabs/wallet-selector-polkadot': 'link:../../packages/selector-polkadot'
       '@nightlylabs/wallet-selector-solana': 'link:../../packages/selector-solana'
@@ -86,9 +86,9 @@ importers:
       '@nightlylabs/nightly-connect-polkadot': 0.0.16
       '@nightlylabs/nightly-connect-solana': 0.0.29
       '@nightlylabs/nightly-connect-sui': 0.0.29
-      '@nightlylabs/wallet-selector-aptos': 0.1.4
+      '@nightlylabs/wallet-selector-aptos': 0.1.6
       '@nightlylabs/wallet-selector-base': ^0.4.1
-      '@nightlylabs/wallet-selector-polkadot': 0.2.6
+      '@nightlylabs/wallet-selector-polkadot': 0.2.7
       '@nightlylabs/wallet-selector-solana': 0.3.2
       '@nightlylabs/wallet-selector-sui': 0.3.2
       '@polkadot/api': ^10.10.1
@@ -4494,15 +4494,6 @@ packages:
     requiresBuild: true
     resolution:
       integrity: sha512-g2+tU63yTWmcVQKDGY0MV1PjjqgZtwM4rB1oVVi/v0brdZAcrcTV+04agKzWtvWroyFz6IqtT0MoZJA7PNyLVw==
-  /@nightlylabs/nightly-connect-aptos/0.0.2:
-    dependencies:
-      '@aptos-labs/ts-sdk': 1.24.0
-      '@aptos-labs/wallet-standard': 0.0.11
-      '@nightlylabs/nightly-connect-base': 0.0.27
-      eventemitter3: 5.0.1
-    dev: false
-    resolution:
-      integrity: sha512-AxeflVVAz420tgxer92Ahc/8FKB30JQkkx8WL8vtjMYbwtdGqCgIEeVGMp+ZygMFkIJcMKrEWfclOwjNSn5k9Q==
   /@nightlylabs/nightly-connect-base/0.0.27:
     dependencies:
       cross-fetch: 3.1.8
@@ -4514,17 +4505,6 @@ packages:
     dev: false
     resolution:
       integrity: sha512-aDpQJicIjL7S+EzwBgUzMEY/L/HtFalfhf4APE3GaDqK9JqtLJDO9d2RmUQDinTtb1mG9MsHpWBtU6fjYo+PHw==
-  /@nightlylabs/nightly-connect-base/0.0.28:
-    dependencies:
-      cross-fetch: 3.1.8
-      eventemitter3: 5.0.1
-      isomorphic-localstorage: 1.0.2
-      isomorphic-ws: 5.0.0_ws@8.18.0
-      uuid: 9.0.1
-      ws: 8.18.0
-    dev: false
-    resolution:
-      integrity: sha512-lu8K4FITek/rTR9UsIMnejIvXiIWBiw75S/ije+ZFapJJ+P/7Yuqj1UTKXPzR+cN5uVOeszUWXzwjIk+vNp6Bw==
   /@nightlylabs/nightly-connect-solana/0.0.28:
     dependencies:
       '@nightlylabs/nightly-connect-base': 0.0.27
@@ -4551,17 +4531,6 @@ packages:
     dev: false
     resolution:
       integrity: sha512-GU8u8Cm1Q5YnoB/kikM4whFQhJ7ZWKaazBm4wiZK9Qi64Ht9tyRVzASBbZRpeOZVzxwi7Mml5sz0hUKPEFMpdA==
-  /@nightlylabs/wallet-selector-aptos/0.1.4:
-    dependencies:
-      '@aptos-labs/ts-sdk': 1.24.0
-      '@aptos-labs/wallet-standard': 0.0.11
-      '@nightlylabs/nightly-connect-aptos': 0.0.2
-      '@nightlylabs/wallet-selector-base': 0.4.1
-      '@wallet-standard/core': 1.0.3
-      eventemitter3: 5.0.1
-    dev: false
-    resolution:
-      integrity: sha512-wcKiYtVqYRY6f7szkPWWulYbfzQk1u1w6pOcP4zrTumW1AI/2Evnl49qgJOTD7FF6l8wgfi3+DZ4Nhr+4bsUnQ==
   /@nightlylabs/wallet-selector-base/0.2.4:
     dependencies:
       '@nightlylabs/nightly-connect-base': 0.0.27
@@ -4571,15 +4540,6 @@ packages:
     dev: false
     resolution:
       integrity: sha512-r5WktkwgsNz6SFgEXnWYKdxmQMU2+0emckxyJqGgi9bnV5TnohWmXMaRHukB202ptYUI++37tbZa7P3DXm+BqQ==
-  /@nightlylabs/wallet-selector-base/0.4.1:
-    dependencies:
-      '@nightlylabs/nightly-connect-base': 0.0.28
-      '@nightlylabs/wallet-selector-modal': 0.2.1
-      '@wallet-standard/core': 1.0.3
-      isomorphic-localstorage: 1.0.2
-    dev: false
-    resolution:
-      integrity: sha512-FOS87SbHkifyf7/r/eR92SR/DH15QCsAIgP7mTeQ3m//ga54D3vRaiCU3YXhpsjZZd6D4QB/InJXnnX6wj7ElA==
   /@nightlylabs/wallet-selector-modal/0.1.2:
     dependencies:
       '@nightlylabs/qr-code': 2.0.4
@@ -4591,17 +4551,6 @@ packages:
     dev: false
     resolution:
       integrity: sha512-vxy9S2dEf3NARW6LDq2ZKpWMlk5JJFIuwUfSxkuJlgUg2OVSlnDS7vdho3h4DmluRU5GM9vVhaXUGHAVp5sDQg==
-  /@nightlylabs/wallet-selector-modal/0.2.1:
-    dependencies:
-      '@nightlylabs/qr-code': 2.0.4
-      autoprefixer: 10.4.19_postcss@8.4.39
-      lit: 2.8.0
-      postcss: 8.4.39
-      postcss-lit: 1.1.1_postcss@8.4.39
-      tailwindcss: 3.4.5
-    dev: false
-    resolution:
-      integrity: sha512-jJghrmUtKwHiSaH0c4Tc8befpqGP23AjTFsQ/Eucpa7uz90lFZ9FHmw+bZZKabqYgI0j+uyViiyfwaPcVPKjlQ==
   /@nightlylabs/wallet-selector-solana/0.2.6_react@18.2.0:
     dependencies:
       '@nightlylabs/nightly-connect-solana': 0.0.28
