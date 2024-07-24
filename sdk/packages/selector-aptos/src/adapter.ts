@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import {
   AccountInfo,
+  AptosChangeNetworkMethod,
   AptosConnectMethod,
   AptosGetAccountMethod,
   AptosGetNetworkMethod,
@@ -9,8 +10,7 @@ import {
   AptosWallet,
   NetworkInfo,
   UserResponse,
-  UserResponseStatus,
-  AptosChangeNetworkMethod
+  UserResponseStatus
 } from '@aptos-labs/wallet-standard'
 
 import { AnyRawTransaction } from '@aptos-labs/ts-sdk'
@@ -28,6 +28,7 @@ import {
   isMobileBrowser,
   IWalletListItem,
   logoBase64,
+  NetworkData,
   NightlyConnectSelectorModal,
   persistRecentWalletForNetwork,
   sleep,
@@ -139,6 +140,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
       variablesOverride?: object
       stylesOverride?: string
       qrConfigOverride?: Partial<XMLOptions>
+      networkDataOverride?: Partial<NetworkData>
     }
   ) => {
     const adapter = new NightlyConnectAptosAdapter(appInitData, connectionOptions)
@@ -153,8 +155,10 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
         adapter.walletsList,
         appInitData.url ?? 'https://nc2.nightly.app',
         {
-          name: APTOS_NETWORK,
-          icon: 'https://registry.nightly.app/networks/aptos.png'
+          name: uiOverrides?.networkDataOverride?.name ?? APTOS_NETWORK,
+          icon:
+            uiOverrides?.networkDataOverride?.icon ??
+            'https://registry.nightly.app/networks/aptos.png'
         },
         anchorRef,
         uiOverrides?.variablesOverride,
@@ -209,6 +213,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
       variablesOverride?: object
       stylesOverride?: string
       qrConfigOverride?: Partial<XMLOptions>
+      networkDataOverride?: Partial<NetworkData>
     }
   ) => {
     const adapter = new NightlyConnectAptosAdapter(appInitData, connectionOptions)
@@ -233,8 +238,10 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
         adapter.walletsList,
         appInitData.url ?? 'https://nc2.nightly.app',
         {
-          name: APTOS_NETWORK,
-          icon: 'https://registry.nightly.app/networks/aptos.png'
+          name: uiOverrides?.networkDataOverride?.name ?? APTOS_NETWORK,
+          icon:
+            uiOverrides?.networkDataOverride?.icon ??
+            'https://registry.nightly.app/networks/aptos.png'
         },
         anchorRef,
         uiOverrides?.variablesOverride,

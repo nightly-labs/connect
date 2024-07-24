@@ -36,6 +36,9 @@ export default function Home() {
       <A href="/aptos">
         <button>Aptos</button>
       </A>
+      <A href="/aptosCustom">
+        <button>Aptos custom</button>
+      </A>
     </main>
   )
 }

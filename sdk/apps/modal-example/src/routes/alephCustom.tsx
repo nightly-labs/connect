@@ -54,6 +54,10 @@ export default function Polkadot() {
           dotsOptions: {
             color: 'gold'
           }
+        },
+        networkDataOverride: {
+          name: 'Custom name',
+          icon: 'https://cdn.pixabay.com/photo/2016/04/01/00/28/face-1298202_640.png'
         }
       }
     )

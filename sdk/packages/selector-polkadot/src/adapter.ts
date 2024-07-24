@@ -5,6 +5,7 @@ import {
   ConnectionType,
   ISelectedWallet,
   IWalletListItem,
+  NetworkData,
   NightlyConnectSelectorModal,
   WalletMetadata,
   XMLOptions,
@@ -175,6 +176,7 @@ export class NightlyConnectAdapter
       variablesOverride?: object
       stylesOverride?: string
       qrConfigOverride?: Partial<XMLOptions>
+      networkDataOverride?: Partial<NetworkData>
     }
   ) => {
     const adapter = new NightlyConnectAdapter(appInitData, connectionOptions)
@@ -187,7 +189,10 @@ export class NightlyConnectAdapter
       adapter._modal = new NightlyConnectSelectorModal(
         adapter.walletsList,
         appInitData.url ?? 'https://nc2.nightly.app',
-        networkToData(adapter.network),
+        {
+          name: uiOverrides?.networkDataOverride?.name ?? networkToData(adapter.network).name,
+          icon: uiOverrides?.networkDataOverride?.icon ?? networkToData(adapter.network).icon
+        },
         anchorRef,
         uiOverrides?.variablesOverride,
         uiOverrides?.stylesOverride,
@@ -237,6 +242,7 @@ export class NightlyConnectAdapter
       variablesOverride?: object
       stylesOverride?: string
       qrConfigOverride?: Partial<XMLOptions>
+      networkDataOverride?: Partial<NetworkData>
     }
   ) => {
     const adapter = new NightlyConnectAdapter(appInitData, connectionOptions)
@@ -258,7 +264,10 @@ export class NightlyConnectAdapter
       adapter._modal = new NightlyConnectSelectorModal(
         adapter.walletsList as IWalletListItem[],
         appInitData.url ?? 'https://nc2.nightly.app',
-        networkToData(adapter.network),
+        {
+          name: uiOverrides?.networkDataOverride?.name ?? networkToData(adapter.network).name,
+          icon: uiOverrides?.networkDataOverride?.icon ?? networkToData(adapter.network).icon
+        },
         anchorRef,
         uiOverrides?.variablesOverride,
         uiOverrides?.stylesOverride,
