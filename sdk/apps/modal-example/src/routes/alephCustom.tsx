@@ -54,6 +54,9 @@ export default function Polkadot() {
           dotsOptions: {
             color: 'gold'
           }
+        },
+        networkDataOverride: {
+          name: 'Custom name'
         }
       }
     )
