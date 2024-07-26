@@ -75,8 +75,8 @@ describe('SUI client tests', () => {
         responseId: e.requestId,
         signedTransactions: [
           {
-            rawTransaction: toB64(transactionBlockBytes),
-            digest: signature
+            transactionBlockBytes: toB64(transactionBlockBytes),
+            signature: signature
           }
         ]
       })
@@ -110,8 +110,7 @@ describe('SUI client tests', () => {
           signature: fromB64(signature),
           signatureScheme: 'ED25519',
           publicKey: alice_keypair.getPublicKey()
-        }),
-        message: msgToSign
+        })
       }
       // resolve
       await client.resolveSignMessage({
