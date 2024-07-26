@@ -82,8 +82,8 @@ describe('SUI http-client tests', () => {
       sessionId: app.sessionId,
       signedTransactions: [
         {
-          transaction: toB64(transactionBlockBytes),
-          metadata: signature
+          transactionBlockBytes: toB64(transactionBlockBytes),
+          signature: signature
         }
       ]
     })

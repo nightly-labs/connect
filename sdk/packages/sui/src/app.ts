@@ -1,5 +1,3 @@
-import { UserConnectedEvent } from '../../../bindings/UserConnectedEvent'
-// import type { SignedMessage, SignedTransaction } from '@mysten/sui/transactions'
 import {
   SuiSignAndExecuteTransactionBlockInput,
   SuiSignAndExecuteTransactionBlockOutput,
@@ -14,6 +12,7 @@ import {
   getWalletsMetadata
 } from '@nightlylabs/nightly-connect-base'
 import { EventEmitter } from 'eventemitter3'
+import { UserConnectedEvent } from '../../../bindings/UserConnectedEvent'
 import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
 import { WalletMetadata } from '../../../bindings/WalletMetadata'
 import { AppSuiInitialize, SUI_NETWORK, SignedMessage, SignedTransaction } from './utils'
