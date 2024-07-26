@@ -1,34 +1,46 @@
-import { type TransactionBlock } from '@mysten/sui.js/transactions'
-import { type Ed25519Keypair } from '@mysten/sui.js/keypairs/ed25519'
-import { IntentScope, messageWithIntent, toSerializedSignature } from '@mysten/sui.js/cryptography'
-import { blake2b } from '@noble/hashes/blake2b'
+import { SuiClient } from '@mysten/sui/client'
+import { messageWithIntent, toSerializedSignature } from '@mysten/sui/cryptography'
+import { type Ed25519Keypair } from '@mysten/sui/keypairs/ed25519'
+import { type Transaction } from '@mysten/sui/transactions'
 import { AppBaseInitialize, ContentType, RequestContent } from '@nightlylabs/nightly-connect-base'
+import { blake2b } from '@noble/hashes/blake2b'
 import {
   CustomSuiRequest,
   SignMessagesSuiRequest,
   SignTransactionsSuiRequest,
   SuiRequest
 } from './requestTypes'
-import { SuiClient } from '@mysten/sui.js/client'
 
 export type AppSuiInitialize = Omit<AppBaseInitialize, 'network'>
 
 export const SUI_NETWORK = 'Sui'
 
+type SerializedSignature = string
+
+export type SignedTransaction = {
+  transactionBlockBytes: string
+  signature: SerializedSignature
+}
+
+export type SignedMessage = {
+  messageBytes: string
+  signature: SerializedSignature
+}
+
 const suiConnection = new SuiClient({ url: 'https://fullnode.testnet.sui.io/' })
-export const signTransactionBlock = async (tx: TransactionBlock, account: Ed25519Keypair) => {
+export const signTransactionBlock = async (tx: Transaction, account: Ed25519Keypair) => {
   const transactionBlockBytes = await tx.build({
-    provider: suiConnection,
+    client: suiConnection,
     onlyTransactionKind: true
   })
 
-  const intentMessage = messageWithIntent(IntentScope.TransactionData, transactionBlockBytes)
+  const intentMessage = messageWithIntent('TransactionData', transactionBlockBytes)
   const digest = blake2b(intentMessage, { dkLen: 32 })
-  const signatureArray = account.signData(digest)
+  const signatureArray = await account.sign(digest)
   const signature = toSerializedSignature({
     signature: signatureArray,
     signatureScheme: 'ED25519',
-    pubKey: account.getPublicKey()
+    publicKey: account.getPublicKey()
   })
   return { transactionBlockBytes, signature }
 }

@@ -1,16 +1,16 @@
-import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
-import { AppSui } from './app'
-import { signTransactionBlock, SUI_NETWORK } from './utils'
-import { TEST_APP_INITIALIZE } from './testUtils'
-import { Connect, getRandomId, ContentType } from '@nightlylabs/nightly-connect-base'
-import { HttpClientSui } from './http-client'
-import { fromB64, toB64 } from '@mysten/sui.js/utils'
-import { TransactionBlock } from '@mysten/sui.js/transactions'
-import { Ed25519Keypair } from '@mysten/sui.js/keypairs/ed25519'
-import { verifyTransactionBlock } from '@mysten/sui.js/verify'
-import { hexToBytes } from '@noble/hashes/utils'
+import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519'
+import { Transaction } from '@mysten/sui/transactions'
+import { fromB64, toB64 } from '@mysten/sui/utils'
+import { verifyTransactionSignature } from '@mysten/sui/verify'
 import { WalletAccount } from '@mysten/wallet-standard'
-import { smartDelay, TEST_RELAY_ENDPOINT } from '../../../commonTestUtils'
+import { Connect, ContentType, getRandomId } from '@nightlylabs/nightly-connect-base'
+import { hexToBytes } from '@noble/hashes/utils'
+import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
+import { TEST_RELAY_ENDPOINT, smartDelay } from '../../../commonTestUtils'
+import { AppSui } from './app'
+import { HttpClientSui } from './http-client'
+import { TEST_APP_INITIALIZE } from './testUtils'
+import { SUI_NETWORK, signTransactionBlock } from './utils'
 
 // Edit an assertion and save to see HMR in action
 const ALICE_PRIVE_KEY = '4aa55c99d633c646b8dc423eed56e0fc39bdbca6ac6d8c53cc6e4decda27d970'
@@ -19,7 +19,7 @@ const alice_keypair = Ed25519Keypair.fromSecretKey(hexToBytes(ALICE_PRIVE_KEY))
 const RECEIVER_SUI_ADDRESS = '0x19b78fbdf0f8fdb942abd67b8628ca80079aeb786cec0235d65af9b65019b59f'
 const aliceWalletAccount: WalletAccount = {
   address: alice_keypair.getPublicKey().toSuiAddress(),
-  publicKey: alice_keypair.getPublicKey().toBytes(),
+  publicKey: alice_keypair.getPublicKey().toRawBytes(),
   chains: ['sui:testnet'],
   features: ['sui:signAndExecuteTransactionBlock'],
   label: ''
@@ -55,9 +55,9 @@ describe('SUI http-client tests', () => {
     await client.connect(msg)
   })
   test('#resolveSignTransaction()', async () => {
-    const tx = new TransactionBlock()
-    const coin = tx.splitCoins(tx.gas, [tx.pure(100)])
-    tx.transferObjects([coin], tx.pure(RECEIVER_SUI_ADDRESS))
+    const tx = new Transaction()
+    const coin = tx.splitCoins(tx.gas, [tx.pure.u64(100)])
+    tx.transferObjects([coin], tx.pure.address(RECEIVER_SUI_ADDRESS))
     tx.setSenderIfNotSet(RECEIVER_SUI_ADDRESS)
 
     const promiseSignTransaction = app.signTransactionBlock({
@@ -73,7 +73,7 @@ describe('SUI http-client tests', () => {
     }
     const pendingTx = pendingRequest.transactions[0].transaction
     const { signature, transactionBlockBytes } = await signTransactionBlock(
-      TransactionBlock.from(pendingTx),
+      Transaction.from(pendingTx),
       alice_keypair
     )
 
@@ -82,8 +82,8 @@ describe('SUI http-client tests', () => {
       sessionId: app.sessionId,
       signedTransactions: [
         {
-          transactionBlockBytes: toB64(transactionBlockBytes),
-          signature: signature
+          transaction: toB64(transactionBlockBytes),
+          metadata: signature
         }
       ]
     })
@@ -93,7 +93,7 @@ describe('SUI http-client tests', () => {
 
     try {
       // Will throw if invalid
-      await verifyTransactionBlock(fromB64(signedTx.transactionBlockBytes), signedTx.signature)
+      await verifyTransactionSignature(fromB64(signedTx.transactionBlockBytes), signedTx.signature)
     } catch (error) {
       assert(false, 'Transaction block is invalid')
     }

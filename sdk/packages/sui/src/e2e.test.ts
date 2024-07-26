@@ -1,19 +1,19 @@
+import { parseSerializedSignature, toSerializedSignature } from '@mysten/sui/cryptography'
+import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519'
+import { Transaction } from '@mysten/sui/transactions'
+import { fromB64, toB64 } from '@mysten/sui/utils'
+import { verifyPersonalMessageSignature, verifyTransactionSignature } from '@mysten/sui/verify'
+import { WalletAccount } from '@mysten/wallet-standard'
 import { Connect, ContentType } from '@nightlylabs/nightly-connect-base'
+import { hexToBytes } from '@noble/hashes/utils'
+import { fetch } from 'cross-fetch'
 import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
+import { TEST_RELAY_ENDPOINT, smartDelay } from '../../../commonTestUtils'
 import { AppSui } from './app'
 import { ClientSui } from './client'
-import { signTransactionBlock, SUI_NETWORK } from './utils'
-import { TEST_APP_INITIALIZE } from './testUtils'
-import { fromB64, toB64 } from '@mysten/sui.js/utils'
-import { TransactionBlock } from '@mysten/sui.js/transactions'
-import { Ed25519Keypair } from '@mysten/sui.js/keypairs/ed25519'
-import { verifyPersonalMessage, verifyTransactionBlock } from '@mysten/sui.js/verify'
-import { parseSerializedSignature, toSerializedSignature } from '@mysten/sui.js/cryptography'
-import { fetch } from 'cross-fetch'
-import { WalletAccount } from '@mysten/wallet-standard'
-import { hexToBytes } from '@noble/hashes/utils'
 import { SignTransactionsSuiRequest } from './requestTypes'
-import { smartDelay, TEST_RELAY_ENDPOINT } from '../../../commonTestUtils'
+import { TEST_APP_INITIALIZE } from './testUtils'
+import { SUI_NETWORK, signTransactionBlock } from './utils'
 
 global.fetch = fetch
 
@@ -21,7 +21,7 @@ const ALICE_PRIVE_KEY = '4aa55c99d633c646b8dc423eed56e0fc39bdbca6ac6d8c53cc6e4de
 const alice_keypair = Ed25519Keypair.fromSecretKey(hexToBytes(ALICE_PRIVE_KEY))
 const aliceWalletAccount: WalletAccount = {
   address: alice_keypair.getPublicKey().toSuiAddress(),
-  publicKey: alice_keypair.getPublicKey().toBytes(),
+  publicKey: alice_keypair.getPublicKey().toRawBytes(),
   chains: ['sui:testnet'],
   features: ['sui:signAndExecuteTransactionBlock'],
   label: ''
@@ -60,14 +60,14 @@ describe('SUI client tests', () => {
     await client.connect(msg)
   })
   test('#on("signTransactions")', async () => {
-    const tx = new TransactionBlock()
-    const coin = tx.splitCoins(tx.gas, [tx.pure(100)])
-    tx.transferObjects([coin], tx.pure(RECEIVER_SUI_ADDRESS))
+    const tx = new Transaction()
+    const coin = tx.splitCoins(tx.gas, [tx.pure.u64(100)])
+    tx.transferObjects([coin], tx.pure.address(RECEIVER_SUI_ADDRESS))
     tx.setSenderIfNotSet(RECEIVER_SUI_ADDRESS)
     client.on('signTransactions', async (e) => {
       const tx = e.transactions[0].transaction
       const { signature, transactionBlockBytes } = await signTransactionBlock(
-        TransactionBlock.from(tx),
+        Transaction.from(tx),
         alice_keypair
       )
       // resolve
@@ -75,8 +75,8 @@ describe('SUI client tests', () => {
         responseId: e.requestId,
         signedTransactions: [
           {
-            transactionBlockBytes: toB64(transactionBlockBytes),
-            signature: signature
+            rawTransaction: toB64(transactionBlockBytes),
+            digest: signature
           }
         ]
       })
@@ -92,7 +92,7 @@ describe('SUI client tests', () => {
 
     try {
       // Will throw if invalid
-      await verifyTransactionBlock(fromB64(signedTx.transactionBlockBytes), signedTx.signature)
+      await verifyTransactionSignature(fromB64(signedTx.transactionBlockBytes), signedTx.signature)
     } catch (error) {
       assert(false, 'Transaction block is invalid')
     }
@@ -103,14 +103,15 @@ describe('SUI client tests', () => {
       const msg = e.messages[0].message
       const msgTo64 = new TextEncoder().encode(msg)
       const { signature } = await alice_keypair.signPersonalMessage(msgTo64)
-      await verifyPersonalMessage(msgTo64, signature)
+      await verifyPersonalMessageSignature(msgTo64, signature)
       const signedMessage = {
         messageBytes: msg,
         signature: toSerializedSignature({
           signature: fromB64(signature),
           signatureScheme: 'ED25519',
-          pubKey: alice_keypair.getPublicKey()
-        })
+          publicKey: alice_keypair.getPublicKey()
+        }),
+        message: msgToSign
       }
       // resolve
       await client.resolveSignMessage({
@@ -125,9 +126,9 @@ describe('SUI client tests', () => {
     })
     try {
       // We need to deserialize the signature
-      const parsedSignature = parseSerializedSignature(signedMessage.signature)
+      const parsedSignature = parseSerializedSignature(signedMessage.messageBytes)
       // Will throw if invalid
-      await verifyPersonalMessage(
+      await verifyPersonalMessageSignature(
         new TextEncoder().encode(msgToSign),
         toB64(parsedSignature.signature!)
       )
@@ -137,9 +138,9 @@ describe('SUI client tests', () => {
   })
   test('#on("signAndExecuteSignTransaction")', async () => {
     client.removeListener('signTransactions')
-    const tx = new TransactionBlock()
-    const coin = tx.splitCoins(tx.gas, [tx.pure(100)])
-    tx.transferObjects([coin], tx.pure(RECEIVER_SUI_ADDRESS))
+    const tx = new Transaction()
+    const coin = tx.splitCoins(tx.gas, [tx.pure.u64(100)])
+    tx.transferObjects([coin], tx.pure.address(RECEIVER_SUI_ADDRESS))
     tx.setSenderIfNotSet(RECEIVER_SUI_ADDRESS)
     const exampleDigest = "I'm a digest"
     client.on('signTransactions', async (e) => {
@@ -164,9 +165,9 @@ describe('SUI client tests', () => {
   })
   test('#getPendingRequests()', async () => {
     client.removeListener('signTransactions')
-    const tx = new TransactionBlock()
-    const coin = tx.splitCoins(tx.gas, [tx.pure(100)])
-    tx.transferObjects([coin], tx.pure(RECEIVER_SUI_ADDRESS))
+    const tx = new Transaction()
+    const coin = tx.splitCoins(tx.gas, [tx.pure.u64(100)])
+    tx.transferObjects([coin], tx.pure.address(RECEIVER_SUI_ADDRESS))
     tx.setSenderIfNotSet(RECEIVER_SUI_ADDRESS)
     app.signTransactionBlock({
       transactionBlock: tx,

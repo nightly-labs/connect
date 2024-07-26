@@ -1,5 +1,5 @@
 import { UserConnectedEvent } from '../../../bindings/UserConnectedEvent'
-import type { SignedMessage, SignedTransaction } from '@mysten/sui.js/src/signers/types'
+// import type { SignedMessage, SignedTransaction } from '@mysten/sui/transactions'
 import {
   SuiSignAndExecuteTransactionBlockInput,
   SuiSignAndExecuteTransactionBlockOutput,
@@ -9,14 +9,14 @@ import {
 import {
   BaseApp,
   DeeplinkConnect,
-  getWalletsMetadata,
   MessageToSign,
-  TransactionToSign
+  TransactionToSign,
+  getWalletsMetadata
 } from '@nightlylabs/nightly-connect-base'
 import { EventEmitter } from 'eventemitter3'
-import { AppSuiInitialize, SUI_NETWORK } from './utils'
 import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
 import { WalletMetadata } from '../../../bindings/WalletMetadata'
+import { AppSuiInitialize, SUI_NETWORK, SignedMessage, SignedTransaction } from './utils'
 
 interface SuiAppEvents {
   userConnected: (e: UserConnectedEvent) => void

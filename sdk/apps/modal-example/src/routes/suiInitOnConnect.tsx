@@ -1,7 +1,7 @@
 import { createSignal, onMount, Show } from 'solid-js'
 import { Title } from '@solidjs/meta'
 import { NightlyConnectSuiAdapter } from '@nightlylabs/wallet-selector-sui'
-import { TransactionBlock } from '@mysten/sui.js/transactions'
+import { Transaction } from '@mysten/sui/transactions'
 import toast from 'solid-toast'
 
 export default function Sui() {
@@ -66,13 +66,13 @@ export default function Sui() {
         <button
           onClick={async () => {
             try {
-              const transactionBlock = new TransactionBlock()
+              const transactionBlock = new Transaction()
               const coin = transactionBlock.splitCoins(transactionBlock.gas, [
-                transactionBlock.pure(50000000)
+                transactionBlock.pure.u64(50000000)
               ])
               transactionBlock.transferObjects(
                 [coin],
-                transactionBlock.pure(
+                transactionBlock.pure.address(
                   '0xd85c7ad90905e0bd49b72420deb5f4077cab62840fb3917ca2945e41d8854013'
                 )
               )
