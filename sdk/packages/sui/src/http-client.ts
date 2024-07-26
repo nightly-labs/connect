@@ -1,10 +1,9 @@
 import { HttpBaseClient, HttpBaseClientInitialize } from '@nightlylabs/nightly-connect-base'
-import { SUI_NETWORK, parseRequest } from './utils'
 import { HttpConnectSessionRequest } from '../../../bindings/HttpConnectSessionRequest'
-import { HttpGetPendingRequestsRequest } from '../../../bindings/HttpGetPendingRequestsRequest'
 import { HttpGetPendingRequestRequest } from '../../../bindings/HttpGetPendingRequestRequest'
-import { type SignedTransaction } from '@mysten/sui.js/src/signers/types'
+import { HttpGetPendingRequestsRequest } from '../../../bindings/HttpGetPendingRequestsRequest'
 import { HttpGetSessionInfoResponse } from '../../../bindings/HttpGetSessionInfoResponse'
+import { SUI_NETWORK, SignedTransaction, parseRequest } from './utils'
 
 export class HttpClientSui {
   baseClient: HttpBaseClient

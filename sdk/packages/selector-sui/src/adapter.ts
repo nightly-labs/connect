@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { publicKeyFromRawBytes } from '@mysten/sui.js/verify'
+import { publicKeyFromRawBytes } from '@mysten/sui/verify'
 import { StandardWalletAdapter } from '@mysten/wallet-adapter-wallet-standard'
 import type {
   SuiSignAndExecuteTransactionBlockMethod,
@@ -846,7 +846,7 @@ export const createSuiWalletAccountFromString = (publicKey: string): WalletAccou
   const suiPk = publicKeyFromRawBytes('ED25519', bs58.decode(publicKey))
   return {
     address: suiPk.toSuiAddress(),
-    publicKey: suiPk.toBytes(),
+    publicKey: suiPk.toRawBytes(),
     chains: SUI_CHAINS,
     features: [
       'standard:connect',

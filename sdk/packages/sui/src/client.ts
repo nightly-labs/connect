@@ -1,6 +1,4 @@
-import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
-import type { SuiTransactionBlockResponse } from '@mysten/sui.js/client'
-import type { SignedMessage, SignedTransaction } from '@mysten/sui.js/src/signers/types'
+import type { SuiTransactionBlockResponse } from '@mysten/sui/client'
 import {
   BaseClient,
   ClientBaseInitialize,
@@ -9,9 +7,10 @@ import {
   TransactionToSign
 } from '@nightlylabs/nightly-connect-base'
 import { EventEmitter } from 'eventemitter3'
+import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
 import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
 import { SuiRequest } from './requestTypes'
-import { parseRequest } from './utils'
+import { SignedMessage, SignedTransaction, parseRequest } from './utils'
 export interface SignSuiTransactionEvent {
   sessionId: string
   requestId: string
