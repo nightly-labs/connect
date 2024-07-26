@@ -46,7 +46,7 @@ client.on('signMessages', async (e) => {
     signature: toSerializedSignature({
       signature,
       signatureScheme: 'ED25519',
-      pubKey: alice_keypair.getPublicKey()
+      publicKey: alice_keypair.getPublicKey()
     })
   }
   // resolve
