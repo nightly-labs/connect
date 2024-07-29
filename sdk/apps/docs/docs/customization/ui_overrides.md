@@ -120,5 +120,5 @@ const adapter = NightlyConnectAdapter.buildLazy(
 ```
 
 :::info
-The example is built using [Substrate](../../substrate/substrate/start), but can be implemented using [Solana](../../solana/solana/start), [Aptos](../../aptos/aptos/start) and [Sui](../../sui/sui/start) as well.
+The example is built using [Substrate](../../substrate/substrate/start), but can be implemented using [Solana](../../solana/solana/start), [Aptos](../../aptos/aptos/start), [Movement](../../movement/movement/start) and [Sui](../../sui/sui/start) as well.
 :::

@@ -47,6 +47,13 @@ const sidebars = {
     },
     {
       type: 'category',
+      className: 'drop movement-dropdown',
+      label: 'Movement M1',
+      collapsed: true,
+      items: ['movement/start', 'movement/connect', 'movement/sign_transaction', 'movement/events']
+    },
+    {
+      type: 'category',
       label: 'Customization',
       collapsed: true,
       items: ['customization/ui_overrides', 'customization/external_modal']

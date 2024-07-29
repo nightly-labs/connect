@@ -102,6 +102,7 @@ img[src*='#connectImage'] {
   transition: background-position 250ms;
 }
 .card > img {
+  border-radius: 50%;
   width: 80px;
 }
 .card:hover {
@@ -158,6 +159,10 @@ img[src*='#connectImage'] {
   background-image: url('https://registry.nightly.app/networks/aptos.png');
 }
 
+.movement-dropdown > div::before {
+  background-image: url('https://registry.nightly.app/networks/movement.svg');
+}
+
 .highlight-template {
   padding: 30px;
   border-radius: 10px;
@@ -200,37 +205,10 @@ img[src*='#connectImage'] {
 .aptos_navlink::before {
   background-image: url('https://registry.nightly.app/networks/aptos.png');
 }
-/* 
-.navbar__items > .navlink {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 5px;
-}
 
-.navbar__items > .navlink::before {
-  content: '';
-  background-size: cover;
-  height: 20px;
-  aspect-ratio: 1/1;
-  border-radius: 50%;
+.movement_navlink::before {
+  background-image: url('https://registry.nightly.app/networks/movement.svg');
 }
-
-.navbar__items > .solana_navlink::before {
-  background-image: url('https://upload.wikimedia.org/wikipedia/en/b/b9/Solana_logo.png');
-}
-
-.navbar__items > .sui_navlink::before {
-  background-image: url('https://registry.nightly.app/networks/sui.png');
-}
-
-.navbar__items > .substrate_navlink::before {
-  background-image: url('https://registry.nightly.app/networks/polkadot.png');
-}
-
-.navbar__items > .aptos_navlink::before {
-  background-image: url('https://registry.nightly.app/networks/aptos.png');
-} */
 
 @media screen and (max-width: 996px) {
   .navlink {

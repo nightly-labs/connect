@@ -17,7 +17,11 @@ slug: /start
     Substrate
     </a>
     <a href="/docs/aptos/aptos/start" class="card">
-        <img src="https://aptosfoundation.org/brandbook/logomark/PNG/Aptos_mark_WHT.png"/>
+        <img src="https://registry.nightly.app/networks/aptos.png"/>
     Aptos
+    </a>
+     <a href="./movement/movement/start" class="card">
+        <img src="https://registry.nightly.app/networks/movement.svg"/>
+    Movement M1
     </a>
 </div>
