@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import {
   AccountInfo,
+  AptosChangeNetworkMethod,
   AptosConnectMethod,
   AptosGetAccountMethod,
   AptosGetNetworkMethod,
@@ -23,9 +24,11 @@ import {
   ConnectionType,
   defaultConnectionOptions,
   getRecentWalletForNetwork,
+  ISelectedWallet,
   isMobileBrowser,
   IWalletListItem,
   logoBase64,
+  NetworkData,
   NightlyConnectSelectorModal,
   persistRecentWalletForNetwork,
   sleep,
@@ -69,6 +72,8 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
   private _detectionIntervalId: NodeJS.Timeout | undefined
   private _maxNumberOfChecks = 10
 
+  private _selectedWallet: ISelectedWallet | undefined = undefined
+
   get walletsList() {
     return this._walletsList
   }
@@ -78,6 +83,10 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
     if (this._modal) {
       this._modal.walletsList = list
     }
+  }
+
+  get selectedWallet() {
+    return this._selectedWallet
   }
 
   get sessionId() {
@@ -131,6 +140,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
       variablesOverride?: object
       stylesOverride?: string
       qrConfigOverride?: Partial<XMLOptions>
+      networkDataOverride?: Partial<NetworkData>
     }
   ) => {
     const adapter = new NightlyConnectAptosAdapter(appInitData, connectionOptions)
@@ -145,8 +155,10 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
         adapter.walletsList,
         appInitData.url ?? 'https://nc2.nightly.app',
         {
-          name: APTOS_NETWORK,
-          icon: 'https://registry.nightly.app/networks/aptos.png'
+          name: uiOverrides?.networkDataOverride?.name ?? APTOS_NETWORK,
+          icon:
+            uiOverrides?.networkDataOverride?.icon ??
+            'https://registry.nightly.app/networks/aptos.png'
         },
         anchorRef,
         uiOverrides?.variablesOverride,
@@ -180,6 +192,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
           adapter.disconnect()
           return
         }
+        adapter.setSelectedWallet({ isRemote: true })
         adapter._accountInfo = accountInfo
         adapter._networkInfo = networkInfo
         adapter.connected = true
@@ -200,6 +213,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
       variablesOverride?: object
       stylesOverride?: string
       qrConfigOverride?: Partial<XMLOptions>
+      networkDataOverride?: Partial<NetworkData>
     }
   ) => {
     const adapter = new NightlyConnectAptosAdapter(appInitData, connectionOptions)
@@ -224,8 +238,10 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
         adapter.walletsList,
         appInitData.url ?? 'https://nc2.nightly.app',
         {
-          name: APTOS_NETWORK,
-          icon: 'https://registry.nightly.app/networks/aptos.png'
+          name: uiOverrides?.networkDataOverride?.name ?? APTOS_NETWORK,
+          icon:
+            uiOverrides?.networkDataOverride?.icon ??
+            'https://registry.nightly.app/networks/aptos.png'
         },
         anchorRef,
         uiOverrides?.variablesOverride,
@@ -261,6 +277,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
                 adapter.disconnect()
                 return
               }
+              adapter.setSelectedWallet({ isRemote: true })
               adapter._accountInfo = accountInfo
               adapter._networkInfo = networkInfo
               adapter.connected = true
@@ -290,6 +307,22 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
     }
     if (this._connectionType === ConnectionType.WalletStandard) {
       return await this._innerStandardAdapter!.features['aptos:network'].network()
+    }
+    throw new Error('Should not reach here')
+  }
+
+  changeNetwork: AptosChangeNetworkMethod = async (networkInfo: NetworkInfo) => {
+    if (!this) {
+      throw new Error('Not connected')
+    }
+    // TODO: add support for Nightly Connect
+    if (this._connectionType === ConnectionType.Nightly) {
+      throw new Error('Not supported for Nightly Connect')
+    }
+    if (this._connectionType === ConnectionType.WalletStandard) {
+      return await this._innerStandardAdapter!.features['aptos:changeNetwork']!.changeNetwork(
+        networkInfo
+      )
     }
     throw new Error('Should not reach here')
   }
@@ -330,11 +363,13 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
           if (!this._connectionOptions.disableEagerConnect && recentWallet !== null) {
             // Eager connect standard if possible
             if (recentWallet.walletType === ConnectionType.WalletStandard) {
-              return await this.connectToStandardWallet(
+              const response = await this.connectToStandardWallet(
                 recentWallet.walletName,
                 silent,
                 networkInfo
               )
+              resolve(Promise.resolve(response))
+              return
             }
 
             // Eager connect remote if possible
@@ -350,6 +385,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
                   const { accountInfo, networkInfo } = deserializeConnectData(
                     this._app.base.clientMetadata
                   )
+                  this.setSelectedWallet({ isRemote: true })
                   this._accountInfo = accountInfo
                   this._networkInfo = networkInfo
                   this.connected = true
@@ -405,7 +441,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
                       this.disconnect()
                       return
                     }
-
+                    this.setSelectedWallet({ isRemote: true })
                     this._accountInfo = accountInfo
                     this._networkInfo = networkInfo
                     this.connected = true
@@ -529,6 +565,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
           clearSessionIdForNetwork(APTOS_NETWORK)
           // Refresh app session
           this._app = await AppAptos.build(this._appInitData)
+          this._selectedWallet = undefined
 
           // Add event listener for userConnected
           this._app.on('userConnected', async (accountInfo, networkInfo) => {
@@ -545,6 +582,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
                 this.disconnect()
                 return
               }
+              this.setSelectedWallet({ isRemote: true })
               this._accountInfo = accountInfo
               this._networkInfo = networkInfo
               this.connected = true
@@ -703,6 +741,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
       }
 
       const wallet = this.walletsList.find((w) => w.name === walletName)
+      this.setSelectedWallet({ wallet })
 
       if (!this._app) {
         throw new Error('Wallet not ready')
@@ -769,6 +808,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
       }
 
       const wallet = this.walletsList.find((w) => w.name === walletName)
+      this.setSelectedWallet({ wallet })
 
       if (typeof wallet?.standardWallet === 'undefined') {
         if (this._modal) {
@@ -855,5 +895,27 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
         getRecentWalletForNetwork(APTOS_NETWORK)?.walletName ?? undefined
       )
     }, 500)
+  }
+
+  setSelectedWallet = ({
+    wallet,
+    isRemote = false
+  }: {
+    wallet?: IWalletListItem
+    isRemote?: boolean
+  }) => {
+    if (!wallet) {
+      // Connecting to the nightly mobile app
+      wallet = this.walletsList.find((wallet) => wallet.name === 'Nightly')
+    }
+
+    if (wallet) {
+      this._selectedWallet = {
+        name: wallet.name,
+        image: wallet.image,
+        homepage: wallet.homepage,
+        walletType: isRemote ? 'mobile' : wallet.walletType
+      }
+    }
   }
 }

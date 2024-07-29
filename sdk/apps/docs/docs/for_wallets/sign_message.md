@@ -32,19 +32,13 @@ client.on('signMessages', async (e) => {
 <TabItem value="SUI" label="SUI">
 
 ```js
-import {
-  fromB64,
-  IntentScope,
-  messageWithIntent,
-  toB64,
-  toSerializedSignature
-} from '@mysten/sui.js'
+import { fromB64, messageWithIntent, toB64, toSerializedSignature } from '@mysten/sui'
 import { blake2b } from '@noble/hashes/blake2b'
 
 client.on('signMessages', async (e) => {
   const msg = e.messages[0].message
   const msgTo64 = toB64(new TextEncoder().encode(msg))
-  const intentMessage = messageWithIntent(IntentScope.PersonalMessage, fromB64(msgTo64))
+  const intentMessage = messageWithIntent('PersonalMessage', fromB64(msgTo64))
   const digest = blake2b(intentMessage, { dkLen: 32 })
   const signature = alice_keypair.signData(digest)
   const signedMessage = {
@@ -52,7 +46,7 @@ client.on('signMessages', async (e) => {
     signature: toSerializedSignature({
       signature,
       signatureScheme: 'ED25519',
-      pubKey: alice_keypair.getPublicKey()
+      publicKey: alice_keypair.getPublicKey()
     })
   }
   // resolve

@@ -23,7 +23,36 @@ export default function AptosPage() {
       },
       {},
 
-      document.getElementById('modalAnchor')
+      document.getElementById('modalAnchor'),
+      {
+        variablesOverride: {
+          '--nc-color-primary': 'white',
+          '--nc-img-logo': 'url(https://alephzero.org/aleph-design/brand-elements/logo-day.svg)'
+        },
+        stylesOverride: `
+          .nc_headerWrapper {
+            background-color: blue;
+          }
+  
+          .nc_headerLogo {
+            width: 200px;
+          }
+  
+          .nc_modalContent {
+            border-radius: 0;
+            border: 3px dashed var(--nc-color-primary);
+          }
+          `,
+        qrConfigOverride: {
+          dotsOptions: {
+            color: 'purple'
+          }
+        },
+        networkDataOverride: {
+          name: 'Custom name',
+          icon: 'https://cdn.pixabay.com/photo/2016/04/01/00/28/face-1298202_640.png'
+        }
+      }
     ).then(async (adapter) => {
       adapter.canEagerConnect().then((canEagerConnect) => {
         setEager(canEagerConnect)

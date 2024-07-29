@@ -1,19 +1,19 @@
-import { Meta, StoryObj } from '@storybook/web-components'
 import { useArgs } from '@storybook/client-api'
+import { Meta, StoryObj } from '@storybook/web-components'
 import { html } from 'lit'
-import { NightlySelector } from './nightly-selector'
-import './nightly-selector'
-import Phantom from '../../static/svg/PhantomIcon.svg'
-import MetaMask from '../../static/svg/MetaMaskIcon.svg'
+import Binance from '../../static/svg/BinanceIcon.svg'
+import ChainIcon from '../../static/svg/ChainIcon.svg'
 import Coinbase from '../../static/svg/CoinbaseIcon.svg'
 import Glow from '../../static/svg/GlowIcon.svg'
-import ZenGO from '../../static/svg/ZenGOIcon.svg'
-import Trust from '../../static/svg/TrustIcon.svg'
-import Binance from '../../static/svg/BinanceIcon.svg'
-import Sollet from '../../static/svg/SolletIcon.svg'
+import MetaMask from '../../static/svg/MetaMaskIcon.svg'
 import NightlyIcon from '../../static/svg/NightlyIcon.svg'
-import ChainIcon from '../../static/svg/ChainIcon.svg'
+import Phantom from '../../static/svg/PhantomIcon.svg'
+import Sollet from '../../static/svg/SolletIcon.svg'
+import Trust from '../../static/svg/TrustIcon.svg'
+import ZenGO from '../../static/svg/ZenGOIcon.svg'
 import { WalletSelectorItem } from '../../utils/types'
+import './nightly-selector'
+import { NightlySelector } from './nightly-selector'
 
 const meta = {
   title: 'nightly-selector',
@@ -179,3 +179,33 @@ export const Error: Story = (args: NightlyModalArgs) => {
 }
 
 Error.args = { ...rest }
+
+export const CustomBlockchain: Story = (args: NightlyModalArgs) => {
+  const [{ open }, updateArgs] = useArgs()
+
+  const handleClose = () => {
+    updateArgs({ open: false })
+    args.onClose()
+  }
+
+  return open
+    ? html`
+        <nightly-selector
+          .onClose=${handleClose}
+          .selectorItems=${args.selectorItems}
+          .onWalletClick=${args.onWalletClick}
+          .chainIcon=${args.chainIcon}
+          .chainName=${args.chainName}
+          .sessionId=${args.sessionId}
+          ?connecting=${args.connecting}
+          .relay=${args.relay}
+        ></nightly-selector>
+      `
+    : html``
+}
+
+CustomBlockchain.args = {
+  ...rest,
+  chainIcon: 'https://cdn.pixabay.com/photo/2016/04/01/00/28/face-1298202_640.png',
+  chainName: 'Custom name'
+}

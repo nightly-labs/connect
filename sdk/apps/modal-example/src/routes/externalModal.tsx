@@ -1,73 +1,81 @@
-import { createEffect, createSignal, onMount, Show } from 'solid-js'
-import { Title } from 'solid-start'
-import { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-solana'
-import { Connection, PublicKey, SystemProgram, Transaction as SolanaTx } from '@solana/web3.js'
-import toast from 'solid-toast'
-import { AppInitData, NightlyConnectSelectorModal } from '@nightlylabs/wallet-selector-base'
-import { SOLANA_NETWORK } from '@nightlylabs/nightly-connect-solana'
+import { createEffect, createSignal, onMount, Show } from "solid-js";
+import { Title } from "@solidjs/meta";
+import { NightlyConnectAdapter } from "@nightlylabs/wallet-selector-solana";
+import {
+  Connection,
+  PublicKey,
+  SystemProgram,
+  Transaction as SolanaTx,
+} from "@solana/web3.js";
+import toast from "solid-toast";
+import {
+  AppInitData,
+  NightlyConnectSelectorModal,
+} from "@nightlylabs/wallet-selector-base";
+import { SOLANA_NETWORK } from "@nightlylabs/nightly-connect-solana";
 
-const connection = new Connection('https://api.devnet.solana.com')
+const connection = new Connection("https://api.devnet.solana.com");
 
 export default function SolanaExternalModal() {
-  const [adapter, setAdapter] = createSignal<NightlyConnectAdapter>()
-  const [modal, setModal] = createSignal<NightlyConnectSelectorModal>()
-  const [eager, setEager] = createSignal(false)
-  const [publicKey, setPublicKey] = createSignal<PublicKey>()
+  const [adapter, setAdapter] = createSignal<NightlyConnectAdapter>();
+  const [modal, setModal] = createSignal<NightlyConnectSelectorModal>();
+  const [eager, setEager] = createSignal(false);
+  const [publicKey, setPublicKey] = createSignal<PublicKey>();
   onMount(async () => {
     const appInitData: AppInitData = {
       appMetadata: {
-        name: 'NCTestSolana',
-        description: 'Nightly Connect Test',
-        icon: 'https://docs.nightly.app/img/logo.png',
-        additionalInfo: 'Courtesy of Nightly Connect team'
+        name: "NCTestSolana",
+        description: "Nightly Connect Test",
+        icon: "https://docs.nightly.app/img/logo.png",
+        additionalInfo: "Courtesy of Nightly Connect team",
       },
-      persistent: true
-    }
+      persistent: true,
+    };
 
     const adapter = await NightlyConnectAdapter.build(
       appInitData,
       { disableModal: true },
-      document.getElementById('modalAnchor')
-    )
+      document.getElementById("modalAnchor")
+    );
 
     const modal = new NightlyConnectSelectorModal(
       adapter.walletsList,
-      appInitData.url ?? 'https://nc2.nightly.app',
+      appInitData.url ?? "https://nc2.nightly.app",
       {
         name: SOLANA_NETWORK,
-        icon: 'https://assets.coingecko.com/coins/images/4128/small/solana.png'
+        icon: "https://assets.coingecko.com/coins/images/4128/small/solana.png",
       },
-      document.getElementById('modalAnchor')
-    )
+      document.getElementById("modalAnchor")
+    );
 
-    setModal(modal)
+    setModal(modal);
 
-    adapter.on('connect', (pk) => {
-      modal.closeModal()
-      setPublicKey(pk)
-    })
-    adapter.on('change', (a) => {
+    adapter.on("connect", (pk) => {
+      modal.closeModal();
+      setPublicKey(pk);
+    });
+    adapter.on("change", (a) => {
       if (!!a.accounts?.length && a.accounts[0].publicKey) {
-        setPublicKey(new PublicKey(a.accounts[0].publicKey))
+        setPublicKey(new PublicKey(a.accounts[0].publicKey));
       }
-    })
-    adapter.on('disconnect', () => {
-      modal.walletsList = adapter.walletsList
-      setPublicKey(undefined)
-    })
+    });
+    adapter.on("disconnect", () => {
+      modal.walletsList = adapter.walletsList;
+      setPublicKey(undefined);
+    });
 
     adapter.canEagerConnect().then((canEagerConnect) => {
-      setEager(canEagerConnect)
-    })
+      setEager(canEagerConnect);
+    });
 
-    setAdapter(adapter)
-  })
+    setAdapter(adapter);
+  });
 
   createEffect(() => {
     if (modal() && adapter()) {
-      modal()!.walletsList = adapter()!.walletsList
+      modal()!.walletsList = adapter()!.walletsList;
     }
-  })
+  });
 
   createEffect(() => {
     if (eager()) {
@@ -75,14 +83,14 @@ export default function SolanaExternalModal() {
         ?.connect()
         .then(
           () => {
-            console.log('connect resolved successfully')
+            console.log("connect resolved successfully");
           },
           () => {
-            console.log('connect rejected')
+            console.log("connect rejected");
           }
-        )
+        );
     }
-  })
+  });
 
   return (
     <main>
@@ -94,28 +102,33 @@ export default function SolanaExternalModal() {
           <button
             onClick={() => {
               if (adapter()?.connecting) {
-                console.log('Cannot connect while connecting')
-                return
+                console.log("Cannot connect while connecting");
+                return;
               }
 
               if (adapter()?.connected) {
-                return
+                return;
               }
 
-              modal()?.openModal(adapter()?.sessionId ?? undefined, async (walletName) => {
-                try {
-                  modal()?.setStandardWalletConnectProgress(true)
-                  await adapter()?.connectToWallet(walletName)
-                } catch (err) {
-                  modal()?.setStandardWalletConnectProgress(false)
-                  console.log('error')
-                  modal()?.closeModal()
+              modal()?.openModal(
+                adapter()?.sessionId ?? undefined,
+                async (walletName) => {
+                  try {
+                    modal()?.setStandardWalletConnectProgress(true);
+                    await adapter()?.connectToWallet(walletName);
+                  } catch (err) {
+                    modal()?.setStandardWalletConnectProgress(false);
+                    console.log("error");
+                    modal()?.closeModal();
+                  }
                 }
-              })
-            }}>
+              );
+            }}
+          >
             Connect
           </button>
-        }>
+        }
+      >
         <h1>Current public key: {publicKey()!.toString()}</h1>
         <button
           onClick={async () => {
@@ -123,43 +136,50 @@ export default function SolanaExternalModal() {
               const ix = SystemProgram.transfer({
                 fromPubkey: adapter()!.publicKey!,
                 lamports: 1e6,
-                toPubkey: new PublicKey('147oKbjwGDHEthw7sRKNrzYiRiGqYksk1ravTMFkpAnv')
-              })
-              const tx = new SolanaTx().add(ix).add(ix).add(ix).add(ix).add(ix)
-              const a = await connection.getRecentBlockhash()
-              tx.recentBlockhash = a.blockhash
-              tx.feePayer = adapter()!.publicKey!
-              const signedTx = await adapter()!.signTransaction!(tx)
-              await connection.sendRawTransaction(signedTx!.serialize())
+                toPubkey: new PublicKey(
+                  "147oKbjwGDHEthw7sRKNrzYiRiGqYksk1ravTMFkpAnv"
+                ),
+              });
+              const tx = new SolanaTx().add(ix).add(ix).add(ix).add(ix).add(ix);
+              const a = await connection.getRecentBlockhash();
+              tx.recentBlockhash = a.blockhash;
+              tx.feePayer = adapter()!.publicKey!;
+              const signedTx = await adapter()!.signTransaction!(tx);
+              await connection.sendRawTransaction(signedTx!.serialize());
 
-              toast.success('Transaction was signed and sent!')
+              toast.success("Transaction was signed and sent!");
             } catch (e) {
-              toast.error("Error: couldn't sign and send transaction!")
-              console.log(e)
+              toast.error("Error: couldn't sign and send transaction!");
+              console.log(e);
             }
-          }}>
+          }}
+        >
           Send 0.005 SOL
         </button>
         <button
           onClick={async () => {
             try {
-              await adapter()!.signMessage!(new TextEncoder().encode('I love Nightly'))
+              await adapter()!.signMessage!(
+                new TextEncoder().encode("I love Nightly")
+              );
 
-              toast.success('Message was signed!')
+              toast.success("Message was signed!");
             } catch (e) {
-              toast.error("Error: couldn't sign message!")
-              console.log(e)
+              toast.error("Error: couldn't sign message!");
+              console.log(e);
             }
-          }}>
+          }}
+        >
           Sign message
         </button>
         <button
           onClick={() => {
-            adapter()?.disconnect()
-          }}>
+            adapter()?.disconnect();
+          }}
+        >
           Disconnect
         </button>
       </Show>
     </main>
-  )
+  );
 }

@@ -1,4 +1,5 @@
-import { Title, A } from 'solid-start'
+import { Title } from '@solidjs/meta'
+import { A } from '@solidjs/router'
 
 export default function Home() {
   return (
@@ -34,6 +35,9 @@ export default function Home() {
       </A>
       <A href="/aptos">
         <button>Aptos</button>
+      </A>
+      <A href="/aptosCustom">
+        <button>Aptos custom</button>
       </A>
     </main>
   )

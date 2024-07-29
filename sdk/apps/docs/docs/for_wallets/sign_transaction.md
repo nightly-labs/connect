@@ -48,8 +48,8 @@ import {
   messageWithIntent,
   toB64,
   toSerializedSignature,
-  TransactionBlock,
-} from '@mysten/sui.js'
+  Transaction,
+} from '@mysten/sui'
 import { blake2b } from '@noble/hashes/blake2b'
 
 interface SignSuiTransactionEvent {
@@ -62,8 +62,8 @@ const alice_keypair: Ed25519Keypair  = Ed25519Keypair.fromSecretKey(hexToBytes(A
 
 client.on('signTransactions', async (e) => {
   const tx = e.transactions[0].transaction
-  const transactionBlockBytes = await TransactionBlock.from(tx).build({
-    provider: suiConnection,
+  const transactionBlockBytes = await Transaction.from(tx).build({
+    client: suiConnection,
     onlyTransactionKind: true
   })
 

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { publicKeyFromRawBytes } from '@mysten/sui.js/verify'
+import { publicKeyFromRawBytes } from '@mysten/sui/verify'
 import { StandardWalletAdapter } from '@mysten/wallet-adapter-wallet-standard'
 import type {
   SuiSignAndExecuteTransactionBlockMethod,
@@ -14,6 +14,7 @@ import {
   AppInitData,
   ConnectionOptions,
   ConnectionType,
+  ISelectedWallet,
   IWalletListItem,
   NightlyConnectSelectorModal,
   WalletMetadata,
@@ -30,8 +31,8 @@ import {
 } from '@nightlylabs/wallet-selector-base'
 import type { StandardEventsChangeProperties, WalletAccount } from '@wallet-standard/core'
 import bs58 from 'bs58'
-import { getSuiWalletsList } from './detection'
 import EventEmitter from 'eventemitter3'
+import { getSuiWalletsList } from './detection'
 
 export const convertBase58toBase64 = (base58: string) => {
   const buffer = bs58.decode(base58)
@@ -62,6 +63,7 @@ export class NightlyConnectSuiAdapter extends EventEmitter<SuiAdapterEvents> {
   private _accounts: WalletAccount[] = []
   private _connectionType: ConnectionType | undefined
   private _metadataWallets: WalletMetadata[] = []
+  private _selectedWallet: ISelectedWallet | undefined = undefined
 
   private _connectionOptions: ConnectionOptions = defaultConnectionOptions
 
@@ -86,6 +88,10 @@ export class NightlyConnectSuiAdapter extends EventEmitter<SuiAdapterEvents> {
 
   get qrCode() {
     return this._modal?.qrCode
+  }
+
+  get selectedWallet() {
+    return this._selectedWallet
   }
 
   // We need internal _connecting since sui messes with connecting state
@@ -181,6 +187,7 @@ export class NightlyConnectSuiAdapter extends EventEmitter<SuiAdapterEvents> {
           adapter.disconnect()
           return
         }
+        adapter.setSelectedWallet({ isRemote: true })
         adapter._accounts = e.publicKeys.map((pk) => createSuiWalletAccountFromString(pk))
         adapter.connected = true
         adapter.emit('connect', adapter._accounts)
@@ -261,6 +268,7 @@ export class NightlyConnectSuiAdapter extends EventEmitter<SuiAdapterEvents> {
                 adapter.disconnect()
                 return
               }
+              adapter.setSelectedWallet({ isRemote: true })
               adapter._accounts = e.publicKeys.map((pk) => createSuiWalletAccountFromString(pk))
               adapter.connected = true
               adapter.emit('connect', adapter._accounts)
@@ -316,6 +324,7 @@ export class NightlyConnectSuiAdapter extends EventEmitter<SuiAdapterEvents> {
                   this._connecting = false
                   this.connecting = false
                   this._connectionType = ConnectionType.Nightly
+                  this.setSelectedWallet({ isRemote: true })
                   this.emit('connect', this._accounts)
                   resolve()
                   return
@@ -361,6 +370,7 @@ export class NightlyConnectSuiAdapter extends EventEmitter<SuiAdapterEvents> {
                       this.disconnect()
                       return
                     }
+                    this.setSelectedWallet({ isRemote: true })
                     this._accounts = e.publicKeys.map((pk) => createSuiWalletAccountFromString(pk))
                     this.connected = true
                     this.emit('connect', this._accounts)
@@ -486,6 +496,7 @@ export class NightlyConnectSuiAdapter extends EventEmitter<SuiAdapterEvents> {
           clearSessionIdForNetwork(SUI_NETWORK)
           // Refresh app session
           this._app = await AppSui.build(this._appInitData)
+          this._selectedWallet = undefined
 
           // Add event listener for userConnected
           this._app.on('userConnected', async (e) => {
@@ -502,6 +513,7 @@ export class NightlyConnectSuiAdapter extends EventEmitter<SuiAdapterEvents> {
                 this.disconnect()
                 return
               }
+              this.setSelectedWallet({ isRemote: true })
               this._accounts = e.publicKeys.map((pk) => createSuiWalletAccountFromString(pk))
               this.connected = true
               this.emit('connect', this._accounts)
@@ -659,6 +671,7 @@ export class NightlyConnectSuiAdapter extends EventEmitter<SuiAdapterEvents> {
       }
 
       const wallet = this.walletsList.find((w) => w.name === walletName)
+      this.setSelectedWallet({ wallet })
 
       if (!this._app) {
         throw new Error('Wallet not ready')
@@ -721,6 +734,7 @@ export class NightlyConnectSuiAdapter extends EventEmitter<SuiAdapterEvents> {
       }
 
       const wallet = this.walletsList.find((w) => w.name === walletName)
+      this.setSelectedWallet({ wallet })
 
       if (typeof wallet?.standardWallet === 'undefined') {
         if (this._modal) {
@@ -804,13 +818,35 @@ export class NightlyConnectSuiAdapter extends EventEmitter<SuiAdapterEvents> {
       )
     }, 500)
   }
+
+  setSelectedWallet = ({
+    wallet,
+    isRemote = false
+  }: {
+    wallet?: IWalletListItem
+    isRemote?: boolean
+  }) => {
+    if (!wallet) {
+      // Connecting to the nightly mobile app
+      wallet = this.walletsList.find((wallet) => wallet.name === 'Nightly')
+    }
+
+    if (wallet) {
+      this._selectedWallet = {
+        name: wallet.name,
+        image: wallet.image,
+        homepage: wallet.homepage,
+        walletType: isRemote ? 'mobile' : wallet.walletType
+      }
+    }
+  }
 }
 
 export const createSuiWalletAccountFromString = (publicKey: string): WalletAccount => {
   const suiPk = publicKeyFromRawBytes('ED25519', bs58.decode(publicKey))
   return {
     address: suiPk.toSuiAddress(),
-    publicKey: suiPk.toBytes(),
+    publicKey: suiPk.toRawBytes(),
     chains: SUI_CHAINS,
     features: [
       'standard:connect',
