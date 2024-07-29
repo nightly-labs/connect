@@ -127,9 +127,7 @@ export default function AptosPage() {
                   ]
                 }
               })
-              const signedTx = await adapter()!.signAndSubmitTransaction({
-                rawTransaction: transaction.rawTransaction
-              })
+              const signedTx = await adapter()!.signAndSubmitTransaction(transaction)
               // Verify the transaction was signed
               if (signedTx.status !== UserResponseStatus.APPROVED) {
                 toast.error('Transaction was not approved')

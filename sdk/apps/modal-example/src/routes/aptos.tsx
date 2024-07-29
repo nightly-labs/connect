@@ -1,4 +1,9 @@
-import { AccountAuthenticator, AccountAuthenticatorEd25519, Aptos } from '@aptos-labs/ts-sdk'
+import {
+  AccountAuthenticator,
+  AccountAuthenticatorEd25519,
+  AnyRawTransaction,
+  Aptos
+} from '@aptos-labs/ts-sdk'
 import { AccountInfo, AptosSignMessageInput, UserResponseStatus } from '@aptos-labs/wallet-standard'
 import { NightlyConnectAptosAdapter } from '@nightlylabs/wallet-selector-aptos'
 import { createEffect, createSignal, onMount, Show } from 'solid-js'
@@ -98,9 +103,7 @@ export default function AptosPage() {
                   ]
                 }
               })
-              const signedTx = await adapter()!.signAndSubmitTransaction({
-                rawTransaction: transaction.rawTransaction
-              })
+              const signedTx = await adapter()!.signAndSubmitTransaction(transaction)
               // Verify the transaction was signed
               if (signedTx.status !== UserResponseStatus.APPROVED) {
                 toast.error('Transaction was not approved')
