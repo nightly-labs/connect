@@ -102,6 +102,7 @@ img[src*='#connectImage'] {
   transition: background-position 250ms;
 }
 .card > img {
+  border-radius: 50%;
   width: 80px;
 }
 .card:hover {
@@ -159,7 +160,7 @@ img[src*='#connectImage'] {
 }
 
 .movement-dropdown > div::before {
-  background-image: url('https://img.cryptorank.io/coins/movement_labs1694616517738.png');
+  background-image: url('https://registry.nightly.app/networks/movement.svg');
 }
 
 .highlight-template {
@@ -206,7 +207,7 @@ img[src*='#connectImage'] {
 }
 
 .movement_navlink::before {
-  background-image: url('https://img.cryptorank.io/coins/movement_labs1694616517738.png');
+  background-image: url('https://registry.nightly.app/networks/movement.svg');
 }
 
 @media screen and (max-width: 996px) {

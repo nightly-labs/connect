@@ -63,7 +63,14 @@ const adapter = await NightlyConnectAptosAdapter.build(
     //   persistent: false  -  Add this if you want to make the session non-persistent
   }
   // { initOnConnect: true, disableModal: true, disableEagerConnect: true }  -  You may specify the connection options object here
-  // document.getElementById("modalAnchor")  -  You can pass an optional anchor element for the modal here
+  // document.getElementById("modalAnchor") , -  You can pass an optional anchor element for the modal here
+   {
+      networkDataOverride: { // it is used to change the metadata of the NC Modal's network tab
+        name: 'Movement',
+        icon: 'https://registry.nightly.app/networks/movement.svg'
+      }
+
+  }
 )
 
 // Trigger connection
