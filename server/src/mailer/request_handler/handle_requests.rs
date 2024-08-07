@@ -3,13 +3,24 @@ use super::processors::{
     team_invite_notification::send_team_invite_notification,
     team_removal_notification::send_team_removal_notification,
 };
-use crate::mailer::{
-    mail_requests::{SendEmailRequest, SendEmailResponse},
-    mailer::Mailer,
+use crate::{
+    env::MAILER_ACTIVE,
+    mailer::{
+        mail_requests::{SendEmailRequest, SendEmailResponse},
+        mailer::Mailer,
+    },
 };
 
 impl Mailer {
     pub fn handle_email_request(&self, request: &SendEmailRequest) -> SendEmailResponse {
+        // Check if mailer is active, safe usage of flag, validation performed during state initialization
+        if !MAILER_ACTIVE() {
+            // Simulate success
+            return SendEmailResponse {
+                error_message: None,
+            };
+        }
+
         let templates = self.templates.clone();
         let mail_sender = self.transport.clone();
         let mailbox = self.mailbox.clone();

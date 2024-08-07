@@ -1,6 +1,20 @@
-use crate::structs::{wallet_metadata::WalletMetadata, wallets::*};
+use crate::{
+    http::cloud::grafana_utils::{
+        import_template_dashboard::setup_templates_dashboard,
+        setup_template_folder::setup_templates_folder,
+    },
+    structs::{wallet_metadata::WalletMetadata, wallets::*},
+};
 use axum::http::{header, Method};
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use openapi::{
+    apis::{configuration::Configuration, dashboards_api::import_dashboard},
+    models::ImportDashboardRequest,
+};
+use std::{
+    env,
+    sync::Arc,
+    time::{Duration, SystemTime, UNIX_EPOCH},
+};
 use tower_http::cors::{Any, CorsLayer};
 
 pub fn get_timestamp_in_milliseconds() -> u64 {
@@ -33,4 +47,13 @@ pub fn get_wallets_metadata_vec() -> Vec<WalletMetadata> {
         aleph_zero_signer_metadata(),
         subwallet_metadata(),
     ]
+}
+
+pub async fn import_template_dashboards(grafana_client: &Arc<Configuration>) {
+    // Check if folder exists if not create it
+    setup_templates_folder(&grafana_client).await.unwrap();
+
+    // Check if dashboard exists if not create it
+    // TODO fix, aka setup dynamically datasource before importing
+    // setup_templates_dashboard(&grafana_client).await.unwrap();
 }
