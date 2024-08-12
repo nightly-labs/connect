@@ -1,6 +1,6 @@
 use crate::{
     env::DATABASE_ADDRESS,
-    infra_env::{POSTGRES_DB, POSTGRES_USER},
+    infra_env::{GRAFANA_DB_USERNAME, POSTGRES_DB},
     statics::POSTGRES_DATASOURCE_UID,
     structs::cloud::grafana_error::handle_grafana_error,
 };
@@ -26,7 +26,7 @@ pub async fn setup_database_datasource(
             // DATABASE ADDRESS from main env file
             url: Some(DATABASE_ADDRESS().to_string()),
             database: Some(POSTGRES_DB().to_string()),
-            user: Some(POSTGRES_USER().to_string()),
+            user: Some(GRAFANA_DB_USERNAME().to_string()),
             basic_auth: None,
             with_credentials: Some(false),
             is_default: Some(true),

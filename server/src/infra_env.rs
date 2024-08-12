@@ -11,6 +11,8 @@ pub struct INFRA_ENV {
     pub POSTGRES_PASSWORD: String,
     pub POSTGRES_DB: String,
     pub PG_DATA: String,
+    pub GRAFANA_DB_USERNAME: String,
+    pub GRAFANA_DB_PASSWORD: String,
     pub TIMESCALEDB_IMAGE: String,
     pub OFELIA_IMAGE: String,
     pub TIMESCALEDB_DATA: String,
@@ -47,6 +49,10 @@ pub fn get_env() -> &'static INFRA_ENV {
                 .expect("Failed to get POSTGRES_PASSWORD env"),
             POSTGRES_DB: std::env::var("POSTGRES_DB").expect("Failed to get POSTGRES_DB env"),
             PG_DATA: std::env::var("PG_DATA").expect("Failed to get PG_DATA env"),
+            GRAFANA_DB_USERNAME: std::env::var("GRAFANA_DB_USERNAME")
+                .expect("Failed to get GRAFANA_DB_USERNAME env"),
+            GRAFANA_DB_PASSWORD: std::env::var("GRAFANA_DB_PASSWORD")
+                .expect("Failed to get GRAFANA_DB_PASSWORD env"),
             TIMESCALEDB_IMAGE: std::env::var("TIMESCALEDB_IMAGE")
                 .expect("Failed to get TIMESCALEDB_IMAGE env"),
             OFELIA_IMAGE: std::env::var("OFELIA_IMAGE").expect("Failed to get OFELIA_IMAGE env"),
@@ -165,4 +171,12 @@ pub fn OFELIA_EMAIL_FROM() -> &'static str {
 
 pub fn OFELIA_EMAIL_TO() -> &'static str {
     get_env().OFELIA_EMAIL_TO.as_str()
+}
+
+pub fn GRAFANA_DB_USERNAME() -> &'static str {
+    get_env().GRAFANA_DB_USERNAME.as_str()
+}
+
+pub fn GRAFANA_DB_PASSWORD() -> &'static str {
+    get_env().GRAFANA_DB_PASSWORD.as_str()
 }
