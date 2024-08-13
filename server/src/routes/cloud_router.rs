@@ -121,7 +121,10 @@ pub fn public_router(state: ServerState) -> Router<ServerState> {
             &HttpCloudEndpoint::ResetPasskeyFinish.to_string(),
             post(reset_passkey_finish),
         )
-        .route(&HttpCloudEndpoint::VerifyCode.to_string(), get(verify_code))
+        .route(
+            &HttpCloudEndpoint::VerifyCode.to_string(),
+            post(verify_code),
+        )
         .route(&HttpCloudEndpoint::Events.to_string(), post(events))
         .with_state(state)
 }

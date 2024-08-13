@@ -1,5 +1,4 @@
 use crate::{
-    env::is_env_production,
     http::cloud::utils::{generate_verification_code, validate_request},
     mailer::{
         mail_requests::{ResetPasswordRequest, SendEmailRequest},
@@ -11,6 +10,7 @@ use crate::{
             ApiSessionsCache, ResetPasswordVerification, SessionCache, SessionsCacheKey,
         },
     },
+    test_env::is_test_env,
     utils::get_timestamp_in_milliseconds,
 };
 use axum::{extract::State, http::StatusCode, Json};
@@ -68,6 +68,7 @@ pub async fn reset_password_start(
     // Remove leftover session data
     sessions_cache.remove(&sessions_key);
 
+    // Generate verification code, if not in production use a static code
     let code = generate_verification_code();
 
     sessions_cache.set(
@@ -82,25 +83,23 @@ pub async fn reset_password_start(
     );
 
     // Send code via email, only on PROD
-    if is_env_production() {
-        let request = SendEmailRequest::ResetPassword(ResetPasswordRequest {
-            email: request.email,
-            code: code,
-        });
+    let email_request = SendEmailRequest::ResetPassword(ResetPasswordRequest {
+        email: request.email,
+        code: code,
+    });
 
-        match mailer.handle_email_request(&request).error_message {
-            Some(err) => {
-                error!("Failed to send email: {:?}, request: {:?}", err, request);
-                return Err((
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    CloudApiErrors::InternalServerError.to_string(),
-                ));
-            }
-            None => {
-                return Ok(Json(HttpResetPasswordStartResponse {}));
-            }
+    if !is_test_env() {
+        if let Some(err) = mailer.handle_email_request(&email_request).error_message {
+            error!(
+                "Failed to send email: {:?}, email_request: {:?}",
+                err, email_request
+            );
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::InternalServerError.to_string(),
+            ));
         }
     }
 
-    Ok(Json(HttpResetPasswordStartResponse {}))
+    return Ok(Json(HttpResetPasswordStartResponse {}));
 }

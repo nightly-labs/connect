@@ -2,7 +2,7 @@ services:
   timescaledb:
     image: ${TIMESCALEDB_IMAGE}
     ports:
-      - 5432:5432
+      - ${DATABASE_PORT}:5432
     volumes:
       - ${TIMESCALEDB_DATA}:/home/postgres/pgdata
       - ${TIMESCALEDB_BACKUPS}:/var/lib/pgbackrest

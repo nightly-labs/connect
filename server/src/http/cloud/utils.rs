@@ -1,3 +1,12 @@
+use crate::{
+    auth::AuthToken,
+    env::{is_env_production, JWT_SECRET, NONCE},
+    ip_geolocation::GeolocationRequester,
+    statics::{CODE_REGEX, NAME_REGEX, REGISTER_PASSWORD_VALIDATOR},
+    structs::cloud::api_cloud_errors::CloudApiErrors,
+    test_env::is_test_env,
+    utils::get_timestamp_in_milliseconds,
+};
 use addr::parse_domain_name;
 use anyhow::bail;
 use axum::http::StatusCode;
@@ -18,15 +27,6 @@ use reqwest::Url;
 use sha256::digest;
 use std::{net::SocketAddr, str::FromStr, sync::Arc, time::Duration};
 use uuid7::Uuid;
-
-use crate::{
-    auth::AuthToken,
-    env::{is_env_production, JWT_SECRET, NONCE},
-    ip_geolocation::GeolocationRequester,
-    statics::{CODE_REGEX, NAME_REGEX, REGISTER_PASSWORD_VALIDATOR},
-    structs::cloud::api_cloud_errors::CloudApiErrors,
-    utils::get_timestamp_in_milliseconds,
-};
 
 pub fn validate_request<T>(payload: T, ctx: &T::Context) -> Result<(), (StatusCode, String)>
 where
@@ -105,6 +105,10 @@ pub fn custom_validate_verification_code(name: &String, _context: &()) -> garde:
 }
 
 pub fn generate_verification_code() -> String {
+    if !is_env_production() || is_test_env() {
+        return "123456".to_string();
+    }
+
     let mut rng = rand::thread_rng();
     let range = Uniform::new(0, 10);
     let code = (0..6).map(|_| rng.sample(&range).to_string()).collect();
@@ -124,24 +128,19 @@ pub fn generate_authentication_code() -> (String, String) {
 }
 
 pub fn check_verification_code(code: &String, verification_code: &String, created_at: u64) -> bool {
-    if is_env_production() {
-        if code != verification_code {
-            return false;
-        }
-
-        let current_time = get_timestamp_in_milliseconds();
-        let time_diff = current_time - created_at;
-
-        // Code expires after 5 minutes (5 * 60 * 1000 = 300_000 ms)
-        if time_diff > 300_000 {
-            return false;
-        }
-
-        true
-    } else {
-        // Skip code verification check in development
-        true
+    if code != verification_code {
+        return false;
     }
+
+    let current_time = get_timestamp_in_milliseconds();
+    let time_diff = current_time - created_at;
+
+    // Code expires after 5 minutes (5 * 60 * 1000 = 300_000 ms)
+    if time_diff > 300_000 {
+        return false;
+    }
+
+    true
 }
 
 pub fn check_auth_code(
@@ -149,29 +148,32 @@ pub fn check_auth_code(
     encrypted_auth_code: &Option<String>,
     created_at: u64,
 ) -> bool {
-    if is_env_production() {
-        let encrypted_auth_code = match encrypted_auth_code {
-            Some(auth_code) => auth_code,
-            None => return false,
-        };
-
-        if encrypted_auth_code != &digest(format!("{}{}", NONCE(), auth_code)) {
-            return false;
+    if is_test_env() {
+        if encrypted_auth_code.is_none() {
+            println!("Encrypted auth code is missing");
         }
 
-        let current_time = get_timestamp_in_milliseconds();
-        let time_diff = current_time - created_at;
-
-        // Code expires after 5 minutes (5 * 60 * 1000 = 300_000 ms)
-        if time_diff > 300_000 {
-            return false;
-        }
-
-        true
-    } else {
-        // Skip code verification check in development
-        true
+        return true;
     }
+
+    let encrypted_auth_code = match encrypted_auth_code {
+        Some(auth_code) => auth_code,
+        None => return false,
+    };
+
+    if encrypted_auth_code != &digest(format!("{}{}", NONCE(), auth_code)) {
+        return false;
+    }
+
+    let current_time = get_timestamp_in_milliseconds();
+    let time_diff = current_time - created_at;
+
+    // Code expires after 5 minutes (5 * 60 * 1000 = 300_000 ms)
+    if time_diff > 300_000 {
+        return false;
+    }
+
+    true
 }
 
 pub async fn get_geolocation_data(
