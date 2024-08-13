@@ -7,6 +7,7 @@ pub const USERS_AMOUNT_LIMIT_PER_TEAM: usize = 50;
 
 pub const DASHBOARD_TEMPLATE_UID: &str = "TEMPLATE_UID";
 pub const TEMPLATES_FOLDER_UID: &str = "TEMPLATE_FOLDER_UID";
+pub const POSTGRES_DATASOURCE_UID: &str = "POSTGRES_DATASOURCE_UID";
 
 // Name must be 3-30 characters long and include only alphanumeric characters, underscores, or slashes.
 pub static NAME_REGEX: Lazy<Regex> =

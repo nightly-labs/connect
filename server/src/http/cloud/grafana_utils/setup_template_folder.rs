@@ -1,5 +1,6 @@
 use crate::{statics::TEMPLATES_FOLDER_UID, structs::cloud::grafana_error::handle_grafana_error};
 use axum::http::StatusCode;
+use log::info;
 use openapi::{
     apis::{
         configuration::Configuration,
@@ -34,8 +35,8 @@ pub async fn setup_templates_folder(
                 }
             }
         },
-        Err(err) => {
-            println!("Failed to get templates folder: {:?}", err);
+        Err(_) => {
+            info!("Templates folder does not exist, creating it");
 
             // Try to create the folder anyway
             let folder_request = CreateFolderCommand {

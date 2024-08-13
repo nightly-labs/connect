@@ -1,6 +1,7 @@
 use crate::{
     http::cloud::grafana_utils::{
         import_template_dashboard::setup_templates_dashboard,
+        setup_database_datasource::setup_database_datasource,
         setup_template_folder::setup_templates_folder,
     },
     structs::{wallet_metadata::WalletMetadata, wallets::*},
@@ -53,7 +54,12 @@ pub async fn import_template_dashboards(grafana_client: &Arc<Configuration>) {
     // Check if folder exists if not create it
     setup_templates_folder(&grafana_client).await.unwrap();
 
-    // Check if dashboard exists if not create it
-    // TODO fix, aka setup dynamically datasource before importing
-    // setup_templates_dashboard(&grafana_client).await.unwrap();
+    // Check if database datasource was set up in grafana
+    setup_database_datasource(&grafana_client).await.unwrap();
+
+    // Check if template dashboard exists if not create it
+    setup_templates_dashboard(&grafana_client).await.unwrap();
+
+    // Setup global dashboard
+    // TODO
 }

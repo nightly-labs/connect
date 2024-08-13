@@ -227,6 +227,47 @@ if wait_for_db_ready; then
   #   echo "Not a CI, displaying the container logs..."
   #   docker logs -f $CONTAINER_ID
   # fi
+
+  echo "Creating a restricted user for Grafana in the database..."
+
+  # Verify the variables are set
+  if [ -z "$GRAFANA_DB_USERNAME" ] || [ -z "$GRAFANA_DB_PASSWORD" ]; then
+    echo "Error: GRAFANA_DB_USERNAME or GRAFANA_DB_PASSWORD is not set. Please set these variables."
+    exit 1
+  fi
+  printf "DATABASE NAME: $POSTGRES_DB\n"
+
+  docker exec -u postgres $CONTAINER_ID psql -d "$POSTGRES_DB" -c "CREATE USER $GRAFANA_DB_USERNAME WITH PASSWORD '$GRAFANA_DB_PASSWORD';"
+  docker exec -u postgres $CONTAINER_ID psql -d "$POSTGRES_DB" -c "GRANT CONNECT ON DATABASE $POSTGRES_DB TO $GRAFANA_DB_USERNAME;"
+  docker exec -u postgres $CONTAINER_ID psql -d "$POSTGRES_DB" -c "GRANT USAGE ON SCHEMA public TO $GRAFANA_DB_USERNAME;"
+  docker exec -u postgres $CONTAINER_ID psql -d "$POSTGRES_DB" -c "GRANT SELECT ON ALL TABLES IN SCHEMA public TO $GRAFANA_DB_USERNAME;"
+  docker exec -u postgres $CONTAINER_ID psql -d "$POSTGRES_DB" -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO $GRAFANA_DB_USERNAME;"
+  docker exec -u postgres $CONTAINER_ID psql -d "$POSTGRES_DB" -c "REVOKE DELETE ON ALL TABLES IN SCHEMA public FROM $GRAFANA_DB_USERNAME;"
+  docker exec -u postgres $CONTAINER_ID psql -d "$POSTGRES_DB" -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE DELETE ON TABLES FROM $GRAFANA_DB_USERNAME;"
+
+  echo "Restricted user for Grafana has been created with SELECT privileges only."
+
+  # Check if the user was created successfully
+  echo "Verifying the user creation and connection..."
+  # This query will return a row if the user exists
+  user_exists=$(docker exec -u postgres $CONTAINER_ID psql -d "$POSTGRES_DB" -tAc "SELECT 1 FROM pg_roles WHERE rolname = '$GRAFANA_DB_USERNAME';")
+
+  if [[ "$user_exists" == "1" ]]; then
+    echo "User $GRAFANA_DB_USERNAME exists in the database."
+  else
+    echo "User $GRAFANA_DB_USERNAME does not exist. Please check the creation process."
+    exit 1
+  fi
+
+  # Check if the new user can connect and run a query
+  docker exec -u postgres $CONTAINER_ID psql -U "$GRAFANA_DB_USERNAME" -d "$POSTGRES_DB" -c "SELECT 1;" &>/dev/null
+
+  if [ $? -eq 0 ]; then
+    echo "User $GRAFANA_DB_USERNAME created and verified successfully."
+  else
+    echo "Failed to verify user $GRAFANA_DB_USERNAME. Please check the PostgreSQL logs."
+    exit 1
+  fi
 else
   echo "Failed to confirm TimescaleDB readiness after restart. Check logs for more details."
   exit 1

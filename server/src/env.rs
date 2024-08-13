@@ -10,6 +10,7 @@ pub struct ENV {
     pub NONCE: String,
     pub MAILER_ADDRESS: String,
     pub MAILER_PASSWORD: String,
+    pub DATABASE_ADDRESS: String,
     pub GRAFANA_BASE_PATH: String,
     pub GF_SECURITY_ADMIN_USER: String,
     pub GF_SECURITY_ADMIN_PASSWORD: String,
@@ -35,6 +36,8 @@ pub fn get_env() -> &'static ENV {
                 .expect("Failed to get MAILER_ADDRESS env"),
             MAILER_PASSWORD: std::env::var("MAILER_PASSWORD")
                 .expect("Failed to get MAILER_PASSWORD env"),
+            DATABASE_ADDRESS: std::env::var("DATABASE_ADDRESS")
+                .expect("Failed to get DATABASE_ADDRESS env"),
             GRAFANA_BASE_PATH: std::env::var("GRAFANA_BASE_PATH")
                 .expect("Failed to get GRAFANA_BASE_PATH env"),
             GF_SECURITY_ADMIN_USER: std::env::var("GF_SECURITY_ADMIN_USER")
@@ -84,4 +87,7 @@ pub fn GF_SECURITY_ADMIN_PASSWORD() -> &'static str {
 }
 pub fn MAILER_ACTIVE() -> bool {
     get_env().MAILER_ACTIVE
+}
+pub fn DATABASE_ADDRESS() -> &'static str {
+    get_env().DATABASE_ADDRESS.as_str()
 }
