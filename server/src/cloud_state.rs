@@ -3,6 +3,7 @@ use crate::{
     ip_geolocation::GeolocationRequester,
     mailer::{entry::run_mailer, mailer::Mailer},
     structs::session_cache::ApiSessionsCache,
+    utils::import_template_dashboards,
 };
 use axum::extract::FromRef;
 use database::db::Db;
@@ -47,6 +48,9 @@ impl CloudState {
 
         let grafana_client_conf = Arc::new(conf);
 
+        // Setup template dashboards
+        import_template_dashboards(&grafana_client_conf).await;
+
         // Passkey
         let rp_id = match ENVIRONMENT() {
             "DEV" => "localhost",
@@ -78,7 +82,8 @@ impl CloudState {
 }
 
 pub fn get_new_session() -> Arc<ApiSessionsCache> {
-    let add_new_passkey_sessions = Arc::new(Cache::new(Some(Duration::from_secs(300))));
+    // Default 15 min expiration
+    let add_new_passkey_sessions = Arc::new(Cache::new(Some(Duration::from_secs(15 * 60))));
     task::spawn({
         let cache = Arc::clone(&add_new_passkey_sessions);
         async move {

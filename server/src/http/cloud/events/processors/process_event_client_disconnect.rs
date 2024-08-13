@@ -7,13 +7,14 @@ use std::{net::SocketAddr, sync::Arc};
 pub async fn process_event_client_disconnect(
     event: &ClientDisconnectEvent,
     app_id: &String,
+    network: &String,
     ip: SocketAddr,
     db: &Arc<Db>,
 ) {
     let current_timestamp = get_current_datetime();
 
     // Save event to Db
-    save_event_client_disconnect(db, app_id, event, &current_timestamp).await;
+    save_event_client_disconnect(db, app_id, network, event, &current_timestamp).await;
 
     // Update connection status for user
     let mut tx = db.connection_pool.begin().await.unwrap();
@@ -43,6 +44,7 @@ pub async fn process_event_client_disconnect(
 async fn save_event_client_disconnect(
     db: &Arc<Db>,
     app_id: &String,
+    network: &String,
     event: &ClientDisconnectEvent,
     current_timestamp: &DateTime<Utc>,
 ) {
@@ -63,6 +65,7 @@ async fn save_event_client_disconnect(
         .create_new_event_entry(
             &mut tx,
             &app_id,
+            &network,
             &EventType::ClientDisconnect,
             current_timestamp,
         )

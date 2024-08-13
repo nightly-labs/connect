@@ -1,6 +1,7 @@
 CREATE TABLE event_app_connect(
     event_id BIGINT NOT NULL,
     app_id TEXT NOT NULL,
+    network TEXT NOT NULL,
     session_id TEXT NOT NULL,
     device_medium_type device_medium_type_enum,
     device_metadata_uuid TEXT,

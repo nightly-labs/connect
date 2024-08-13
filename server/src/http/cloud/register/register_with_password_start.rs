@@ -1,8 +1,5 @@
 use crate::{
-    env::{is_env_production, NONCE},
-    http::cloud::utils::{
-        custom_validate_new_password, generate_verification_code, validate_request,
-    },
+    http::cloud::utils::{generate_verification_code, validate_request},
     mailer::{
         mail_requests::{EmailConfirmationRequest, SendEmailRequest},
         mailer::Mailer,
@@ -11,13 +8,13 @@ use crate::{
         cloud::api_cloud_errors::CloudApiErrors,
         session_cache::{ApiSessionsCache, RegisterVerification, SessionCache, SessionsCacheKey},
     },
+    test_env::is_test_env,
     utils::get_timestamp_in_milliseconds,
 };
 use axum::{extract::State, http::StatusCode, Json};
 use database::db::Db;
 use garde::Validate;
 use log::error;
-use pwhash::bcrypt;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
@@ -28,8 +25,6 @@ use ts_rs::TS;
 pub struct HttpRegisterWithPasswordStartRequest {
     #[garde(email)]
     pub email: String,
-    #[garde(custom(custom_validate_new_password))]
-    pub password: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
@@ -65,54 +60,41 @@ pub async fn register_with_password_start(
         }
     }
 
-    let hashed_password = bcrypt::hash(format!("{}_{}", NONCE(), request.password.clone()))
-        .map_err(|e| {
-            error!("Failed to hash password: {:?}", e);
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                CloudApiErrors::InternalServerError.to_string(),
-            )
-        })?;
-
     // Save to cache register request
     let sessions_key = SessionsCacheKey::RegisterVerification(request.email.clone()).to_string();
 
     // Remove leftover session data
     sessions_cache.remove(&sessions_key);
 
+    // Generate verification code, if not in production use a static code
     let code = generate_verification_code();
 
     sessions_cache.set(
         sessions_key,
         SessionCache::VerifyRegister(RegisterVerification {
             email: request.email.clone(),
-            hashed_password,
-            code: code.clone(),
+            verification_code: code.clone(),
+            authentication_code: None,
             created_at: get_timestamp_in_milliseconds(),
         }),
         None,
     );
 
-    // Send code via email, only on PROD
-    if is_env_production() {
+    if !is_test_env() {
+        // Send code via email
         let request = SendEmailRequest::EmailConfirmation(EmailConfirmationRequest {
             email: request.email,
             code: code,
         });
 
-        match mailer.handle_email_request(&request).error_message {
-            Some(err) => {
-                error!("Failed to send email: {:?}, request: {:?}", err, request);
-                return Err((
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    CloudApiErrors::InternalServerError.to_string(),
-                ));
-            }
-            None => {
-                return Ok(Json(HttpRegisterWithPasswordStartResponse {}));
-            }
+        if let Some(err) = mailer.handle_email_request(&request).error_message {
+            error!("Failed to send email: {:?}, request: {:?}", err, request);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::InternalServerError.to_string(),
+            ));
         }
     }
 
-    Ok(Json(HttpRegisterWithPasswordStartResponse {}))
+    return Ok(Json(HttpRegisterWithPasswordStartResponse {}));
 }

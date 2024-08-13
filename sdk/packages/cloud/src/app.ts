@@ -1,6 +1,7 @@
 import {
   HttpAcceptTeamInviteRequest,
   HttpAcceptTeamInviteResponse,
+  HttpCancelPendingDomainVerificationRequest,
   HttpCancelTeamUserInviteRequest,
   HttpCancelTeamUserInviteResponse,
   HttpCancelUserTeamInviteRequest,
@@ -26,6 +27,8 @@ import {
   HttpLoginWithGoogleResponse,
   HttpLoginWithPasskeyFinishResponse,
   HttpLoginWithPasskeyStartRequest,
+  HttpRefreshRequest,
+  HttpRefreshResponse,
   HttpRegisterNewAppRequest,
   HttpRegisterNewAppResponse,
   HttpRegisterNewTeamRequest,
@@ -46,17 +49,22 @@ import {
   HttpResetPasswordStartRequest,
   HttpResetPasswordStartResponse,
   HttpUserMetadataResponse,
+  HttpVerifyCodeRequest,
+  HttpVerifyCodeResponse,
   HttpVerifyDomainFinishRequest,
   HttpVerifyDomainFinishResponse,
   HttpVerifyDomainStartRequest,
   HttpVerifyDomainStartResponse
 } from '../../../bindings'
 import {
+  HttpAddNewPasskeyFinishRequest,
+  HttpAddNewPasskeyStartResponse,
   HttpDeletePasskeyRequest,
   HttpGetPasskeyChallengeResponse,
   HttpLoginWithPasskeyFinishRequest,
   HttpLoginWithPasskeyStartResponse,
   HttpRegisterWithPasskeyFinishRequest,
+  HttpRegisterWithPasskeyStartResponse,
   HttpResetPasskeyFinishRequest,
   HttpResetPasskeyStartResponse
 } from './passkeyTypes'
@@ -188,12 +196,12 @@ export class NightlyCloud {
 
   registerWithPasskeyStart = async (
     request: HttpRegisterWithPasskeyStartRequest
-  ): Promise<HttpRegisterWithPasswordStartResponse> => {
+  ): Promise<HttpRegisterWithPasskeyStartResponse> => {
     const response = (await this.sendPostJson(
       '/register_with_passkey_start',
       EndpointType.Public,
       request
-    )) as HttpRegisterWithPasswordStartResponse
+    )) as HttpRegisterWithPasskeyStartResponse
 
     return response
   }
@@ -206,6 +214,16 @@ export class NightlyCloud {
       EndpointType.Public,
       request
     )) as HttpRegisterWithPasswordFinishResponse
+
+    return response
+  }
+
+  verifyCode = async (request: HttpVerifyCodeRequest): Promise<HttpVerifyCodeResponse> => {
+    const response = (await this.sendPostJson(
+      '/verify_code',
+      EndpointType.Public,
+      request
+    )) as HttpVerifyCodeResponse
 
     return response
   }
@@ -267,6 +285,24 @@ export class NightlyCloud {
     return response
   }
 
+  refreshAuthToken = async (enforceIp?: boolean): Promise<HttpRefreshResponse> => {
+    const request = {
+      refreshToken: this.refreshToken ?? '',
+      enforceIp: enforceIp ?? true
+    } as HttpRefreshRequest
+
+    const response = (await this.sendPostJson(
+      '/refresh_token',
+      EndpointType.Public,
+      request
+    )) as HttpRefreshResponse
+
+    // Replace the old token with the refreshed one
+    this.authToken = response.authToken
+
+    return response
+  }
+
   ///////////////////////////////////////////////////// Credentials
 
   resetPasswordStart = async (
@@ -319,6 +355,20 @@ export class NightlyCloud {
 
   deletePasskey = async (request: HttpDeletePasskeyRequest): Promise<void> => {
     await this.sendPostJson('/reset_passkey_finish', EndpointType.Public, request)
+  }
+
+  addNewPasskeyStart = async (): Promise<HttpAddNewPasskeyStartResponse> => {
+    const response = (await this.sendPostJson(
+      '/add_passkey_start',
+      EndpointType.Private,
+      {}
+    )) as HttpAddNewPasskeyStartResponse
+
+    return response
+  }
+
+  addNewPasskeyFinish = async (request: HttpAddNewPasskeyFinishRequest): Promise<void> => {
+    await this.sendPostJson('/add_passkey_finish', EndpointType.Private, request)
   }
 
   ///////////////////////////////////////////////////// Teams actions
@@ -457,6 +507,18 @@ export class NightlyCloud {
     return response
   }
 
+  cancelDomainVerification = async (
+    request: HttpCancelPendingDomainVerificationRequest
+  ): Promise<HttpRemoveWhitelistedDomainResponse> => {
+    const response = (await this.sendPostJson(
+      '/cancel_pending_domain_verification',
+      EndpointType.Private,
+      request
+    )) as HttpRemoveWhitelistedDomainResponse
+
+    return response
+  }
+
   ///////////////////////////////////////////////////// Getters
 
   getUserTeamInvites = async (): Promise<HttpGetUserTeamInvitesResponse> => {
@@ -505,6 +567,12 @@ export class NightlyCloud {
       EndpointType.Private
     )) as HttpGetPasskeyChallengeResponse
 
+    // @ts-expect-error
+    response.publicKey.challenge = Buffer.from(response.publicKey.challenge, 'base64')
+    response.publicKey.allowCredentials?.forEach((c) => {
+      // @ts-expect-error
+      c.id = Buffer.from(c.id, 'base64')
+    })
     return response
   }
 

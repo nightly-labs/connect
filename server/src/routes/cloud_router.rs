@@ -8,6 +8,7 @@ use crate::{
         change_user_privileges::change_user_privileges,
         delete_passkey::delete_passkey,
         domains::{
+            cancel_pending_domain_request::cancel_pending_domain_request,
             remove_whitelisted_domain::remove_whitelisted_domain,
             verify_domain_finish::verify_domain_finish, verify_domain_start::verify_domain_start,
         },
@@ -25,7 +26,7 @@ use crate::{
             login_with_google::login_with_google,
             login_with_passkey_finish::login_with_passkey_finish,
             login_with_passkey_start::login_with_passkey_start,
-            login_with_password::login_with_password,
+            login_with_password::login_with_password, refresh_token::refresh_token,
         },
         register::{
             register_with_passkey_finish::register_with_passkey_finish,
@@ -41,6 +42,7 @@ use crate::{
             reset_password_finish::reset_password_finish,
             reset_password_start::reset_password_start,
         },
+        verify_code::verify_code,
     },
     middlewares::auth_middleware::access_auth_middleware,
     state::ServerState,
@@ -84,6 +86,10 @@ pub fn public_router(state: ServerState) -> Router<ServerState> {
             post(login_with_passkey_finish),
         )
         .route(
+            &HttpCloudEndpoint::RefreshToken.to_string(),
+            post(refresh_token),
+        )
+        .route(
             &HttpCloudEndpoint::RegisterWithPasswordStart.to_string(),
             post(register_with_password_start),
         )
@@ -114,6 +120,10 @@ pub fn public_router(state: ServerState) -> Router<ServerState> {
         .route(
             &HttpCloudEndpoint::ResetPasskeyFinish.to_string(),
             post(reset_passkey_finish),
+        )
+        .route(
+            &HttpCloudEndpoint::VerifyCode.to_string(),
+            post(verify_code),
         )
         .route(&HttpCloudEndpoint::Events.to_string(), post(events))
         .with_state(state)
@@ -173,6 +183,10 @@ pub fn private_router(state: ServerState) -> Router<ServerState> {
         .route(
             &HttpCloudEndpoint::RemoveWhitelistedDomain.to_string(),
             post(remove_whitelisted_domain),
+        )
+        .route(
+            &HttpCloudEndpoint::CancelPendingDomainVerification.to_string(),
+            post(cancel_pending_domain_request),
         )
         .route(
             &HttpCloudEndpoint::GetPasskeyChallenge.to_string(),

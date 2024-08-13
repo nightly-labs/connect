@@ -10,6 +10,7 @@ export type HttpRegisterWithPasskeyFinishRequest = {
     type: string
     response: { clientDataJSON: string; attestationObject: string }
   }
+  authCode: string
 }
 
 // Login
@@ -51,7 +52,7 @@ export type HttpResetPasskeyFinishRequest = {
     type: string
     response: { clientDataJSON: string; attestationObject: string }
   }
-  code: string
+  authCode: string
 }
 
 // Passkey 2FA
@@ -60,10 +61,5 @@ export type HttpGetPasskeyChallengeResponse = { publicKey: PublicKeyCredentialRe
 // 2FA actions
 export type HttpDeletePasskeyRequest = {
   passkeyId: string
-  credential: {
-    id: string
-    rawId: string
-    type: string
-    response: { clientDataJSON: string; attestationObject: string }
-  }
+  credential: PublicKeyCredential
 }

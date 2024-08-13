@@ -10,7 +10,10 @@ use axum::{
     http::StatusCode,
     Extension, Json,
 };
-use database::db::Db;
+use database::{
+    db::Db, structs::privilege_level::PrivilegeLevel,
+    tables::user_app_privileges::table_struct::UserAppPrivilege,
+};
 use garde::Validate;
 use log::error;
 use serde::{Deserialize, Serialize};
@@ -43,11 +46,12 @@ pub async fn get_team_metadata(
     match db.get_team_by_team_id(None, &request.team_id).await {
         Ok(Some(team)) => {
             // Check if user has privileges to access this team
-            let team_privileges = match db.get_privileges_by_team_id(&request.team_id).await {
+            let mut team_privileges = match db.get_privileges_by_team_id(&request.team_id).await {
                 Ok(privileges) => {
-                    if !privileges
-                        .iter()
-                        .any(|privilege| privilege.user_id == user_id)
+                    if team.team_admin_id != user_id
+                        && !privileges
+                            .iter()
+                            .any(|privilege| privilege.user_id == user_id)
                     {
                         return Err((
                             StatusCode::UNAUTHORIZED,
@@ -66,6 +70,14 @@ pub async fn get_team_metadata(
                 }
             };
 
+            if team_privileges.is_empty() && team.team_admin_id == user_id {
+                team_privileges.push(UserAppPrivilege {
+                    user_id: user_id.clone(),
+                    app_id: "".to_string(),
+                    privilege_level: PrivilegeLevel::Admin,
+                    creation_timestamp: team.registration_timestamp,
+                })
+            }
             // Get team admin email
             let admin_email = match db.get_user_by_user_id(&team.team_admin_id).await {
                 Ok(Some(user)) => user.email,
@@ -94,7 +106,7 @@ pub async fn get_team_metadata(
             };
 
             // Get team apps
-            let registered_apps: Vec<AppInfo> =
+            let mut registered_apps: Vec<AppInfo> =
                 match db.get_registered_apps_by_team_id(&team.team_id).await {
                     Ok(apps) => apps.into_iter().map(|app| app.into()).collect(),
                     Err(err) => {
@@ -105,6 +117,24 @@ pub async fn get_team_metadata(
                         ));
                     }
                 };
+
+            // Get pending domain verifications
+            let app_ids = registered_apps
+                .iter()
+                .map(|app| app.app_id.clone())
+                .collect::<Vec<String>>();
+
+            if let Ok(mut pending_domain_verifications) = db
+                .get_pending_domain_verifications_by_app_ids(&app_ids)
+                .await
+            {
+                for app in registered_apps.iter_mut() {
+                    if let Some(pending_domains) = pending_domain_verifications.get_mut(&app.app_id)
+                    {
+                        app.whitelisted_domains.append(pending_domains);
+                    }
+                }
+            }
 
             // Get team users from team_privileges
             let team_members_ids: Vec<String> = team_privileges

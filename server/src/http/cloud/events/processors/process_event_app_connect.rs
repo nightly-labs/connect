@@ -17,6 +17,7 @@ use std::{net::SocketAddr, sync::Arc};
 pub async fn process_event_app_connect(
     event: &AppConnectEvent,
     app_id: &String,
+    network: &String,
     ip: SocketAddr,
     db: &Arc<Db>,
     geo_loc_requester: &Arc<GeolocationRequester>,
@@ -25,7 +26,7 @@ pub async fn process_event_app_connect(
     let current_timestamp = get_current_datetime();
 
     // Save event to Db
-    save_event_app_connect(db, app_id, event, &current_timestamp).await;
+    save_event_app_connect(db, app_id, network, event, &current_timestamp).await;
 
     if event.new_session {
         // New session, get the data from sessions and create a new session in the database
@@ -100,6 +101,7 @@ pub async fn process_event_app_connect(
                 &mut tx,
                 &event.session_id,
                 &app_id,
+                &network,
                 &ip.to_string(),
                 geo_location_data,
                 &current_timestamp,
@@ -128,6 +130,7 @@ pub async fn process_event_app_connect(
 async fn save_event_app_connect(
     db: &Arc<Db>,
     app_id: &String,
+    network: &String,
     event: &AppConnectEvent,
     creation_timestamp: &DateTime<Utc>,
 ) {
@@ -148,6 +151,7 @@ async fn save_event_app_connect(
         .create_new_event_entry(
             &mut tx,
             &app_id,
+            &network,
             &EventType::AppConnect,
             &creation_timestamp,
         )
@@ -172,12 +176,30 @@ async fn save_event_app_connect(
         }
     };
 
+    if let Err(err) = db.add_new_network(&mut tx, network).await {
+        error!(
+            "Failed to add new network, app_id: [{}], event: [{:?}], err: [{}]",
+            app_id, event, err
+        );
+
+        // Rollback the transaction
+        if let Err(err) = tx.rollback().await {
+            error!(
+                "Failed to rollback transaction for new app connection event, app_id: [{}], event: [{:?}], err: [{}]",
+                app_id, event, err
+            );
+        }
+
+        return;
+    }
+
     // Now create a new event app connect corresponding to the event
     match db
         .create_new_event_app_connect(
             &mut tx,
             event_id,
             app_id,
+            network,
             &event.session_id,
             &event.device_metadata,
             &event.language,

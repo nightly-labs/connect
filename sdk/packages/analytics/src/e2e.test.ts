@@ -1,8 +1,8 @@
-import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
+import { assert, beforeAll, describe, expect, test } from 'vitest'
 import { TEST_RELAY_ENDPOINT, smartDelay } from '../../../commonTestUtils'
 import { NightlyAnalytics } from './app'
 import { NightlyCloud } from '@nightlylabs/nightly-cloud'
-import { BaseApp, Reject } from '@nightlylabs/nightly-connect-base'
+import { BaseApp } from '@nightlylabs/nightly-connect-base'
 import {
   createUser,
   randomDomainName,
@@ -34,7 +34,7 @@ import {
 const TEST_CLOUD_ENDPOINT = 'http://127.0.0.1:6969/cloud'
 const TEST_ENDPOINT = 'http://127.0.0.1:6969/cloud/public/events'
 
-describe('Analytics client tests', () => {
+describe.concurrent('Analytics client tests', () => {
   let cloudClient: NightlyCloud
   let baseApp: BaseApp
   let teamId: string
@@ -83,7 +83,6 @@ describe('Analytics client tests', () => {
     const tempCloudClient = new NightlyCloud({
       url: TEST_CLOUD_ENDPOINT
     })
-
     const setupResult = await setupTestTeam(tempCloudClient)
     expect(setupResult).toBeDefined()
     expect(setupResult.teamId).toBeDefined()
@@ -202,10 +201,8 @@ describe('Analytics client tests', () => {
     const appData = await cloudClient.getUserJoinedTeams()
 
     const appWhitelistedDomains = appData.teamsApps[teamId][0].whitelistedDomains
-    // 2 from this test and one which was verified in the beforeAll hook
-    assert(appWhitelistedDomains.length === 3)
-    assert(appWhitelistedDomains.includes(domain))
-    assert(appWhitelistedDomains.includes(newDomain))
+    assert(appWhitelistedDomains.some((d) => d.domain === domain && d.status === 'Verified'))
+    assert(appWhitelistedDomains.some((d) => d.domain === newDomain && d.status === 'Verified'))
   })
 
   test('Test verified domain removal', async () => {
@@ -220,7 +217,45 @@ describe('Analytics client tests', () => {
     // Verify that the domain has been removed
     const appData = await cloudClient.getUserJoinedTeams()
     const appWhitelistedDomains = appData.teamsApps[teamId][0].whitelistedDomains
-    assert(appWhitelistedDomains.find((d) => d === domain) === undefined)
+    assert(appWhitelistedDomains.find((d) => d.domain === domain) === undefined)
+  })
+
+  test('Test cancel domain verification challenge', async () => {
+    const domain = randomDomainName()
+
+    // Start domain verification with valid domain name
+    const firstVerifyResponse = await cloudClient.verifyDomainStart({ appId, domainName: domain })
+    expect(firstVerifyResponse.code.length >= 36)
+
+    // Try to start challenge again, should simply return the same code
+    const secondVerifyResponse = await cloudClient.verifyDomainStart({ appId, domainName: domain })
+    expect(secondVerifyResponse.code === firstVerifyResponse.code)
+
+    // Fetch the app data and validate that the domain is in the pending state
+    const appData = await cloudClient.getTeamMetadata({ teamId })
+    const currentWhitelistChallenge = appData.teamApps[0].whitelistedDomains.find(
+      (d) => d.domain === domain
+    )
+
+    // Check if currentWhitelistChallenge is defined
+    if (currentWhitelistChallenge !== undefined) {
+      assert(currentWhitelistChallenge.status === 'Pending')
+
+      // Cancel the challenge
+      await cloudClient.cancelDomainVerification({
+        appId,
+        domainName: currentWhitelistChallenge.domain
+      })
+    } else {
+      throw new Error(`Domain ${domain} not found in the whitelist.`)
+    }
+
+    // Fetch the app data and validate that the domain verification has been removed
+    const appDataAfter = await cloudClient.getTeamMetadata({ teamId })
+    const currentWhitelistChallengeAfter = appDataAfter.teamApps[0].whitelistedDomains.find(
+      (d) => d.domain === domain
+    )
+    assert(currentWhitelistChallengeAfter === undefined)
   })
 
   test('Send event during unfinished domain registration process', async () => {
@@ -302,7 +337,7 @@ describe('Analytics client tests', () => {
     expect(response.status).toBe(403)
   })
 
-  describe('Test events', () => {
+  describe.concurrent('Test events', () => {
     let analytics: NightlyAnalytics
     const clientId: string = 'test-client-id' + randomEmail()
     const addresses: string[] = ['test-address' + randomEmail()]

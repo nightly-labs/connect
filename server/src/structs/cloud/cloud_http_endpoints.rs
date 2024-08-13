@@ -14,6 +14,8 @@ pub enum HttpCloudEndpoint {
     LoginWithPassword,
     #[serde(rename = "/login_with_google")]
     LoginWithGoogle,
+    #[serde(rename = "/refresh_token")]
+    RefreshToken,
     #[serde(rename = "/register_new_team")]
     RegisterNewTeam,
     #[serde(rename = "/remove_user_from_team")]
@@ -46,6 +48,8 @@ pub enum HttpCloudEndpoint {
     VerifyDomainFinish,
     #[serde(rename = "/remove_whitelisted_domain")]
     RemoveWhitelistedDomain,
+    #[serde(rename = "/cancel_pending_domain_verification")]
+    CancelPendingDomainVerification,
     #[serde(rename = "/register_with_passkey_start")]
     RegisterWithPasskeyStart,
     #[serde(rename = "/register_with_passkey_finish")]
@@ -74,6 +78,8 @@ pub enum HttpCloudEndpoint {
     LoginWithPasskeyStart,
     #[serde(rename = "/login_with_passkey_finish")]
     LoginWithPasskeyFinish,
+    #[serde(rename = "/verify_code")]
+    VerifyCode,
 }
 
 impl HttpCloudEndpoint {
@@ -104,6 +110,9 @@ impl HttpCloudEndpoint {
             HttpCloudEndpoint::VerifyDomainStart => "/verify_domain_start".to_string(),
             HttpCloudEndpoint::VerifyDomainFinish => "/verify_domain_finish".to_string(),
             HttpCloudEndpoint::RemoveWhitelistedDomain => "/remove_whitelisted_domain".to_string(),
+            HttpCloudEndpoint::CancelPendingDomainVerification => {
+                "/cancel_pending_domain_verification".to_string()
+            }
             HttpCloudEndpoint::RegisterWithPasskeyStart => {
                 "/register_with_passkey_start".to_string()
             }
@@ -122,6 +131,8 @@ impl HttpCloudEndpoint {
             HttpCloudEndpoint::ChangeUserPrivileges => "/change_user_privileges".to_string(),
             HttpCloudEndpoint::LoginWithPasskeyStart => "/login_with_passkey_start".to_string(),
             HttpCloudEndpoint::LoginWithPasskeyFinish => "/login_with_passkey_finish".to_string(),
+            HttpCloudEndpoint::RefreshToken => "/refresh_token".to_string(),
+            HttpCloudEndpoint::VerifyCode => "/verify_code".to_string(),
         }
     }
 }

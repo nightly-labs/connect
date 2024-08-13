@@ -20,6 +20,7 @@ use ts_rs::TS;
 #[serde(rename_all = "camelCase")]
 pub struct HttpNightlyConnectCloudEvent {
     pub app_id: String,
+    pub network: String,
     pub event: EventData,
 }
 
@@ -31,6 +32,8 @@ pub async fn events(
     Origin(origin): Origin,
     Json(request): Json<HttpNightlyConnectCloudEvent>,
 ) -> Result<Json<()>, (StatusCode, String)> {
+    println!("Received event: {:?}", request);
+    println!("Origin: {:?}", origin);
     // Check if origin was provided
     let origin = origin.ok_or((
         StatusCode::FORBIDDEN,
@@ -44,6 +47,8 @@ pub async fn events(
             CloudApiErrors::InvalidDomainName.to_string(),
         )
     })?;
+
+    println!("Domain name: {:?}", domain_name);
 
     // Check if origin and app_id match in the database
     match db.get_registered_app_by_app_id(&request.app_id).await {

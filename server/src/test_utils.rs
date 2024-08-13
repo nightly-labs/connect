@@ -34,6 +34,7 @@ pub mod test_utils {
         routes::router::get_router,
         statics::NAME_REGEX,
         structs::cloud::{app_info::AppInfo, cloud_http_endpoints::HttpCloudEndpoint},
+        test_env::test_detection::setup,
     };
     use anyhow::bail;
     use axum::{
@@ -53,6 +54,7 @@ pub mod test_utils {
     use tower::ServiceExt;
 
     pub async fn create_test_app(only_relay: bool) -> Router {
+        setup();
         let app = get_router(only_relay).await;
 
         let listener = tokio::net::TcpListener::bind(&"127.0.0.1:6969")
@@ -125,7 +127,6 @@ pub mod test_utils {
         // Register user
         let register_payload = HttpRegisterWithPasswordStartRequest {
             email: email.to_string(),
-            password: password.to_string(),
         };
 
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
@@ -149,8 +150,9 @@ pub mod test_utils {
         // Validate register
         let verify_register_payload = HttpRegisterWithPasswordFinishRequest {
             email: email.to_string(),
-            // Random valid code for testing
-            code: "123456".to_string(),
+            // Random code
+            auth_code: "123456789".to_string(),
+            new_password: password.to_string(),
         };
 
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));

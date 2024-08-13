@@ -35,6 +35,7 @@ impl Db {
                 &mut tx,
                 &session.session_id,
                 &session.app_id,
+                &session.network,
                 &ip_address,
                 geo_location,
                 &current_time,

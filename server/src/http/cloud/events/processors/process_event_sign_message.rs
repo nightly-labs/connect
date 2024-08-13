@@ -3,7 +3,12 @@ use database::{db::Db, structs::event_type::EventType, tables::utils::get_curren
 use log::error;
 use std::sync::Arc;
 
-pub async fn process_event_sign_message(event: &SignMessageEvent, app_id: &String, db: &Arc<Db>) {
+pub async fn process_event_sign_message(
+    event: &SignMessageEvent,
+    app_id: &String,
+    network: &String,
+    db: &Arc<Db>,
+) {
     // Establish a new transaction
     let mut tx = match db.connection_pool.begin().await {
         Ok(tx) => tx,
@@ -21,6 +26,7 @@ pub async fn process_event_sign_message(event: &SignMessageEvent, app_id: &Strin
         .create_new_event_entry(
             &mut tx,
             &app_id,
+            &network,
             &EventType::SignMessage,
             &get_current_datetime(),
         )

@@ -1,8 +1,5 @@
 use crate::{
-    env::{is_env_production, NONCE},
-    http::cloud::utils::{
-        custom_validate_new_password, generate_verification_code, validate_request,
-    },
+    http::cloud::utils::{generate_verification_code, validate_request},
     mailer::{
         mail_requests::{ResetPasswordRequest, SendEmailRequest},
         mailer::Mailer,
@@ -13,13 +10,13 @@ use crate::{
             ApiSessionsCache, ResetPasswordVerification, SessionCache, SessionsCacheKey,
         },
     },
+    test_env::is_test_env,
     utils::get_timestamp_in_milliseconds,
 };
 use axum::{extract::State, http::StatusCode, Json};
 use database::db::Db;
 use garde::Validate;
 use log::error;
-use pwhash::bcrypt;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
@@ -30,8 +27,6 @@ use ts_rs::TS;
 pub struct HttpResetPasswordStartRequest {
     #[garde(email)]
     pub email: String,
-    #[garde(custom(custom_validate_new_password))]
-    pub new_password: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
@@ -67,54 +62,44 @@ pub async fn reset_password_start(
         }
     }
 
-    let hashed_password = bcrypt::hash(format!("{}_{}", NONCE(), request.new_password.clone()))
-        .map_err(|e| {
-            error!("Failed to hash password: {:?}", e);
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                CloudApiErrors::InternalServerError.to_string(),
-            )
-        })?;
-
     // Save to cache password reset request
     let sessions_key =
         SessionsCacheKey::ResetPasswordVerification(request.email.clone()).to_string();
     // Remove leftover session data
     sessions_cache.remove(&sessions_key);
 
+    // Generate verification code, if not in production use a static code
     let code = generate_verification_code();
 
     sessions_cache.set(
         sessions_key,
         SessionCache::ResetPassword(ResetPasswordVerification {
             email: request.email.clone(),
-            hashed_new_password: hashed_password,
-            code: code.clone(),
+            verification_code: code.clone(),
+            authentication_code: None,
             created_at: get_timestamp_in_milliseconds(),
         }),
         None,
     );
 
     // Send code via email, only on PROD
-    if is_env_production() {
-        let request = SendEmailRequest::ResetPassword(ResetPasswordRequest {
-            email: request.email,
-            code: code,
-        });
+    let email_request = SendEmailRequest::ResetPassword(ResetPasswordRequest {
+        email: request.email,
+        code: code,
+    });
 
-        match mailer.handle_email_request(&request).error_message {
-            Some(err) => {
-                error!("Failed to send email: {:?}, request: {:?}", err, request);
-                return Err((
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    CloudApiErrors::InternalServerError.to_string(),
-                ));
-            }
-            None => {
-                return Ok(Json(HttpResetPasswordStartResponse {}));
-            }
+    if !is_test_env() {
+        if let Some(err) = mailer.handle_email_request(&email_request).error_message {
+            error!(
+                "Failed to send email: {:?}, email_request: {:?}",
+                err, email_request
+            );
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::InternalServerError.to_string(),
+            ));
         }
     }
 
-    Ok(Json(HttpResetPasswordStartResponse {}))
+    return Ok(Json(HttpResetPasswordStartResponse {}));
 }

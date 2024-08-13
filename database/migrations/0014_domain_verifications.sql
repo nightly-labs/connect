@@ -4,6 +4,7 @@ CREATE TABLE domain_verifications(
     code TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     finished_at TIMESTAMPTZ,
+    cancelled_at TIMESTAMPTZ,
     PRIMARY KEY (domain_name, app_id) -- One app can only verify particular domain once 
 );
 

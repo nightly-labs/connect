@@ -19,7 +19,18 @@ export async function createUser(
   } as HttpRegisterWithPasswordStartRequest
 
   await cloudClient.registerWithPasswordStart(registerPayload)
-  await cloudClient.registerWithPasswordFinish({ code: '123456', email })
+
+  const verifyResponse = await cloudClient.verifyCode({
+    email,
+    code: '123456',
+    action: 'registerPassword'
+  })
+
+  await cloudClient.registerWithPasswordFinish({
+    authCode: verifyResponse.verificationCode,
+    email,
+    newPassword: password
+  })
 
   const loginPayload = {
     email,
