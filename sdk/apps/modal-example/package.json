@@ -25,7 +25,7 @@
     "@nightlylabs/wallet-selector-aptos": "0.1.6",
     "@nightlylabs/wallet-selector-base": "^0.4.1",
     "@nightlylabs/wallet-selector-polkadot": "0.2.7",
-    "@nightlylabs/wallet-selector-solana": "0.3.5",
+    "@nightlylabs/wallet-selector-solana": "0.3.6",
     "@nightlylabs/wallet-selector-sui": "0.4.0",
     "@polkadot/api": "^10.10.1",
     "@polkadot/extension-inject": "^0.46.5",

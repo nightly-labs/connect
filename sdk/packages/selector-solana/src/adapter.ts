@@ -57,7 +57,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
   // Remote app instance
   private _app: AppSolana | undefined
   // Remote app might be loading
-  private _loading: boolean
+  private _appLoading: boolean
   // What type of connection is used
   private _connectionType: ConnectionType | undefined
   // Inner standard adapter
@@ -75,6 +75,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
   // interval used for checking for wallets with delayed detection
   private _detectionIntervalId: NodeJS.Timeout | undefined
+  // max number of tries to get delayed wallets
   private _maxNumberOfChecks = 10
   // Selected wallet
   private _selectedWallet: ISelectedWallet | undefined = undefined
@@ -90,7 +91,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     this._appInitData = appInitData
     if (appInitData.persistent !== false) this._appInitData.persistent = true
 
-    this._loading = false
+    this._appLoading = false
     this._connectionOptions = { ...this._connectionOptions, ...connectionOptions }
     // If not persistent, clear session id
     if (!this._appInitData.persistent) {
@@ -310,13 +311,13 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
     // If init on connect is not enabled, we should initialize app
     if (!adapter._connectionOptions.initOnConnect) {
-      adapter._loading = true
+      adapter._appLoading = true
 
       NightlyConnectAdapter.initApp(appInitData)
         .then(([app, metadataWallets]) => {
           adapter._app = app
           adapter._metadataWallets = metadataWallets
-          adapter._loading = false
+          adapter._appLoading = false
           adapter.walletsList = getSolanaWalletsList(
             metadataWallets,
             getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
@@ -380,16 +381,16 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         return false
       }
       // Wait for app to be restored
-      if (this._loading) {
+      if (this._appLoading) {
         for (let i = 0; i < 200; i++) {
           await sleep(10)
-          if (!this._loading) {
+          if (!this._appLoading) {
             break
           }
         }
       }
 
-      if (this._loading) {
+      if (this._appLoading) {
         return false
       }
 
@@ -582,11 +583,11 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
           }
 
           if (this._connectionOptions.initOnConnect) {
-            this._loading = true
+            this._appLoading = true
             NightlyConnectAdapter.initApp(this._appInitData)
               .then(([app, metadataWallets]) => {
                 this._app = app
-                this._loading = false
+                this._appLoading = false
                 this._metadataWallets = metadataWallets
 
                 this.walletsList = getSolanaWalletsList(
@@ -619,10 +620,9 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
                     this.disconnect()
                   }
                 })
-                this._loading = false
               })
               .catch(() => {
-                this._loading = false
+                this._appLoading = false
                 throw new Error('Failed to initialize adapter')
               })
           }
@@ -670,6 +670,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
                 this._app.on('userConnected', async () => {
                   try {
                     if (!this._app || this._app.connectedPublicKeys.length <= 0) {
+                      this._connected = false
                       reject(new Error('No accounts found'))
                     }
                     this._connected = true
@@ -691,8 +692,6 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
               }
             }, 10)
           }
-
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
           this._connecting = false
 
@@ -740,7 +739,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     // Disconnect remote app and clear session
     if (this._connectionType === ConnectionType.Nightly) {
       clearSessionIdForNetwork(SOLANA_NETWORK)
-      this._loading = true
+      this._appLoading = true
       try {
         this._app = await AppSolana.build(this._appInitData)
         // Add event listener for userConnected
@@ -769,7 +768,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       } catch (err) {
         console.log(err)
       } finally {
-        this._loading = false
+        this._appLoading = false
       }
     }
     // Disconnect standard wallet
