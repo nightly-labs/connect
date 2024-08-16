@@ -51,17 +51,27 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
   // TODO: add later "implements WalletAdapter"
   name = 'Nightly Connect' as const
   icon = logoBase64
-  connected = false
-  connecting = false
-  // Nightly connect fields
+  // Remote app instance
   private _app: AppAptos | undefined
+  // Adapter for standard wallets
   private _innerStandardAdapter: AptosWallet | undefined
-  private _loading = false
+  // Remote app might be loading
+  private _appLoading: boolean
+  // Is wallet currently connecting
+  private _connecting: boolean
+  // Is wallet currently connected
+  private _connected: boolean
+  // Modal instance
   private _modal: NightlyConnectSelectorModal | undefined
+  // Init data for remote app
   private _appInitData: AppInitData
+  // List of wallets to display
   private _walletsList: IWalletListItem[] = []
+  // Name of the wallet to be displayed on mobile
   private _chosenMobileWalletName: string | undefined
+  // What type of connection is used
   private _connectionType: ConnectionType | undefined
+  // Wallets metadata
   private _metadataWallets: WalletMetadata[] = []
   private _connectionOptions: ConnectionOptions = defaultConnectionOptions
   // Data from NC connection
@@ -70,6 +80,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
 
   // interval used for checking for wallets with delayed detection
   private _detectionIntervalId: NodeJS.Timeout | undefined
+  // max number of tries to get delayed wallets
   private _maxNumberOfChecks = 10
 
   private _selectedWallet: ISelectedWallet | undefined = undefined
@@ -99,13 +110,14 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
 
   constructor(appInitData: AppInitData, connectionOptions?: ConnectionOptions) {
     super()
-    this.connecting = false
-    this.connected = false
+    this._connecting = false
+    this._connected = false
     this._appInitData = appInitData
     if (appInitData.persistent !== false) this._appInitData.persistent = true
-    this._loading = false
+    this._appLoading = false
     this._connectionOptions = { ...this._connectionOptions, ...connectionOptions }
 
+    // If not persistent, clear session id
     if (!this._appInitData.persistent) {
       clearSessionIdForNetwork(APTOS_NETWORK)
     }
@@ -187,7 +199,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
         })
 
         if (!adapter._app || adapter._app.connectedPublicKeys.length <= 0) {
-          adapter.connected = false
+          adapter._connected = false
           // If user does not pass any accounts, we should disconnect
           adapter.disconnect()
           return
@@ -195,7 +207,8 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
         adapter.setSelectedWallet({ isRemote: true })
         adapter._accountInfo = accountInfo
         adapter._networkInfo = networkInfo
-        adapter.connected = true
+        adapter._connected = true
+        adapter._connectionType = ConnectionType.Nightly
         adapter.emit('connect', accountInfo)
       } catch {
         adapter.disconnect()
@@ -250,12 +263,13 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
       )
 
     if (!adapter._connectionOptions.initOnConnect) {
-      adapter._loading = true
+      adapter._appLoading = true
 
       NightlyConnectAptosAdapter.initApp(appInitData)
         .then(([app, metadataWallets]) => {
           adapter._app = app
           adapter._metadataWallets = metadataWallets
+          adapter._appLoading = false
 
           adapter.walletsList = getAptosWalletsList(
             metadataWallets,
@@ -272,7 +286,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
               })
 
               if (!adapter._app || adapter._app.connectedPublicKeys.length <= 0) {
-                adapter.connected = false
+                adapter._connected = false
                 // If user does not pass any accounts, we should disconnect
                 adapter.disconnect()
                 return
@@ -280,17 +294,15 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
               adapter.setSelectedWallet({ isRemote: true })
               adapter._accountInfo = accountInfo
               adapter._networkInfo = networkInfo
-              adapter.connected = true
+              adapter._connected = true
+              adapter._connectionType = ConnectionType.Nightly
               adapter.emit('connect', accountInfo)
             } catch {
               adapter.disconnect()
             }
           })
-
-          adapter._loading = false
         })
         .catch(() => {
-          adapter._loading = false
           throw new Error('Failed to initialize adapter')
         })
     }
@@ -308,7 +320,8 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
     if (this._connectionType === ConnectionType.WalletStandard) {
       return await this._innerStandardAdapter!.features['aptos:network'].network()
     }
-    throw new Error('Should not reach here')
+    // Should not reach this point
+    throw new Error('Invalid connection type')
   }
 
   changeNetwork: AptosChangeNetworkMethod = async (networkInfo: NetworkInfo) => {
@@ -344,12 +357,12 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
     return new Promise<ReturnType<AptosConnectMethod>>((resolve, reject) => {
       const innerConnect = async () => {
         try {
-          if (this.connecting) {
+          if (this._connecting) {
             reject('Cannot connect while connecting')
             return
           }
 
-          if (this.connected) {
+          if (this._connected) {
             // If we are connected, return the account
             const userInfo = {
               status: UserResponseStatus.APPROVED,
@@ -388,8 +401,8 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
                   this.setSelectedWallet({ isRemote: true })
                   this._accountInfo = accountInfo
                   this._networkInfo = networkInfo
-                  this.connected = true
-                  this.connecting = false
+                  this._connected = true
+                  this._connecting = false
                   this._connectionType = ConnectionType.Nightly
                   this.emit('connect', this._accountInfo)
                   resolve(
@@ -415,11 +428,12 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
           }
 
           if (this._connectionOptions.initOnConnect) {
-            this._loading = true
+            this._appLoading = true
             NightlyConnectAptosAdapter.initApp(this._appInitData)
               .then(([app, metadataWallets]) => {
                 this._app = app
                 this._metadataWallets = metadataWallets
+                this._appLoading = false
                 this.walletsList = getAptosWalletsList(
                   metadataWallets,
                   getRecentWalletForNetwork(APTOS_NETWORK)?.walletName ?? undefined
@@ -436,7 +450,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
                     })
 
                     if (!this._app || this._app.connectedPublicKeys.length <= 0) {
-                      this.connected = false
+                      this._connected = false
                       // If user does not pass any accounts, we should disconnect
                       this.disconnect()
                       return
@@ -444,22 +458,22 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
                     this.setSelectedWallet({ isRemote: true })
                     this._accountInfo = accountInfo
                     this._networkInfo = networkInfo
-                    this.connected = true
+                    this._connected = true
+                    this._connectionType = ConnectionType.Nightly
                     this.emit('connect', accountInfo)
                   } catch {
                     this.disconnect()
                   }
                 })
-                this._loading = false
               })
               .catch(() => {
-                this._loading = false
+                this._appLoading = false
                 throw new Error('Failed to initialize adapter')
               })
           }
 
           if (!this._modal) {
-            this.connecting = false
+            this._connecting = false
             const error = new Error('Wallet not ready')
             this.emit('error', error)
             reject(error)
@@ -467,10 +481,10 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
           }
 
           // modal is defined here
-          this.connecting = true
+          this._connecting = true
           this._modal.onClose = () => {
-            if (this.connecting) {
-              this.connecting = false
+            if (this._connecting) {
+              this._connecting = false
               const error = new Error('Connection cancelled')
               this.emit('error', error)
               reject(error)
@@ -502,7 +516,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
           // If modal is not opened, reject
           // This might be caused by SSR
           if (!opened) {
-            this.connecting = false
+            this._connecting = false
             const error = new Error('Failed to open modal')
             this.emit('error', error)
             reject(error)
@@ -521,10 +535,11 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
               this._app.on('userConnected', async (accountInfo, networkInfo) => {
                 try {
                   if (!this._app || this._app.connectedPublicKeys.length <= 0) {
+                    this._connected = false
                     reject(new Error('No accounts found'))
                   }
-                  this.connected = true
-                  this.connecting = false
+                  this._connected = true
+                  this._connecting = false
                   this._connectionType = ConnectionType.Nightly
                   this._modal?.closeModal()
                   this._accountInfo = accountInfo
@@ -536,7 +551,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
                 } catch (error) {
                   reject(error)
                 } finally {
-                  this.connecting = false
+                  this._connecting = false
                 }
               })
               return
@@ -549,7 +564,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
             }
           }, 10)
         } catch (error: unknown) {
-          this.connecting = false
+          this._connecting = false
           this.emit('error', error)
           reject(error)
         }
@@ -559,80 +574,83 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
     })
   }
   disconnect = async () => {
-    if (this.connected) {
-      switch (this._connectionType) {
-        case ConnectionType.Nightly: {
-          clearSessionIdForNetwork(APTOS_NETWORK)
-          // Refresh app session
-          this._app = await AppAptos.build(this._appInitData)
-          this._selectedWallet = undefined
+    switch (this._connectionType) {
+      case ConnectionType.Nightly: {
+        clearSessionIdForNetwork(APTOS_NETWORK)
+        // Refresh app session
+        this._app = await AppAptos.build(this._appInitData)
+        this._selectedWallet = undefined
 
-          // Add event listener for userConnected
-          this._app.on('userConnected', async (accountInfo, networkInfo) => {
-            try {
-              persistRecentWalletForNetwork(APTOS_NETWORK, {
-                walletName: this._chosenMobileWalletName || '',
-                walletType: ConnectionType.Nightly
-              })
+        // Add event listener for userConnected
+        this._app.on('userConnected', async (accountInfo, networkInfo) => {
+          try {
+            persistRecentWalletForNetwork(APTOS_NETWORK, {
+              walletName: this._chosenMobileWalletName || '',
+              walletType: ConnectionType.Nightly
+            })
 
-              if (!this._app || this._app.connectedPublicKeys.length <= 0) {
-                this.connected = false
-
-                // If user does not pass any accounts, we should disconnect
-                this.disconnect()
-                return
-              }
-              this.setSelectedWallet({ isRemote: true })
-              this._accountInfo = accountInfo
-              this._networkInfo = networkInfo
-              this.connected = true
-              this.connecting = false
-              this.emit('connect', this._accountInfo)
-            } catch {
+            if (!this._app || this._app.connectedPublicKeys.length <= 0) {
+              this._connected = false
+              // If user does not pass any accounts, we should disconnect
               this.disconnect()
+              return
             }
-          })
-
-          break
-        }
-        case ConnectionType.WalletStandard: {
-          if (this._innerStandardAdapter) {
-            await this._innerStandardAdapter.features['aptos:disconnect'].disconnect()
-            clearRecentWalletForNetwork(APTOS_NETWORK)
-            this.walletsList = getAptosWalletsList(
-              this._metadataWallets,
-              getRecentWalletForNetwork(APTOS_NETWORK)?.walletName ?? undefined
-            )
+            this.setSelectedWallet({ isRemote: true })
+            this._accountInfo = accountInfo
+            this._networkInfo = networkInfo
+            this._connected = true
+            this._connecting = false
+            this._connectionType = ConnectionType.Nightly
+            this.emit('connect', this._accountInfo)
+          } catch {
+            this.disconnect()
           }
-          break
-        }
+        })
+
+        break
       }
-      this._innerStandardAdapter = undefined
-      this._connectionType = undefined
-      this.connected = false
-      this.connecting = false
-      this.emit('disconnect')
+      case ConnectionType.WalletStandard: {
+        if (this._innerStandardAdapter) {
+          await this._innerStandardAdapter.features['aptos:disconnect'].disconnect()
+          clearRecentWalletForNetwork(APTOS_NETWORK)
+          this.walletsList = getAptosWalletsList(
+            this._metadataWallets,
+            getRecentWalletForNetwork(APTOS_NETWORK)?.walletName ?? undefined
+          )
+        }
+        break
+      }
     }
+    this._innerStandardAdapter = undefined
+    this._connectionType = undefined
+    this._connected = false
+    this._connecting = false
+    this.emit('disconnect')
+    clearInterval(this._detectionIntervalId)
   }
 
   signMessage: AptosSignMessageMethod = async (messageInput) => {
-    if (!this._app || !this._connectionType) {
-      const error = new Error('Wallet not ready')
+    try {
+      if (!this._connectionType) {
+        throw new Error('Wallet not ready')
+      }
+      switch (this._connectionType) {
+        case ConnectionType.Nightly: {
+          // App needs to be ready here
+          return await this._app!.signMessage(messageInput)
+        }
+        case ConnectionType.WalletStandard: {
+          if (!this._innerStandardAdapter) {
+            throw new Error('Wallet not ready')
+          }
+          return await this._innerStandardAdapter.features['aptos:signMessage'].signMessage(
+            messageInput
+          )
+        }
+      }
+    } catch (error) {
       this.emit('error', error)
       throw error
-    }
-    switch (this._connectionType) {
-      case ConnectionType.Nightly: {
-        return await this._app.signMessage(messageInput)
-      }
-      case ConnectionType.WalletStandard: {
-        if (!this._innerStandardAdapter) {
-          throw new Error('Wallet not ready')
-        }
-        return await this._innerStandardAdapter.features['aptos:signMessage'].signMessage(
-          messageInput
-        )
-      }
     }
   }
 
@@ -640,48 +658,56 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
     transaction: AnyRawTransaction,
     asFeePayer?: boolean
   ) => {
-    if (!this._app || !this._connectionType) {
-      const error = new Error('Wallet not ready')
+    try {
+      if (!this._connectionType) {
+        throw new Error('Wallet not ready')
+      }
+      switch (this._connectionType) {
+        case ConnectionType.Nightly: {
+          // App needs to be ready here
+          return await this._app!.signTransaction(transaction, asFeePayer)
+        }
+        case ConnectionType.WalletStandard: {
+          if (!this._innerStandardAdapter) {
+            throw new Error('Wallet not ready')
+          }
+          return await this._innerStandardAdapter.features['aptos:signTransaction'].signTransaction(
+            transaction,
+            asFeePayer
+          )
+        }
+      }
+    } catch (error) {
       this.emit('error', error)
       throw error
-    }
-    switch (this._connectionType) {
-      case ConnectionType.Nightly: {
-        return await this._app.signTransaction(transaction, asFeePayer)
-      }
-      case ConnectionType.WalletStandard: {
-        if (!this._innerStandardAdapter) {
-          throw new Error('Wallet not ready')
-        }
-        return await this._innerStandardAdapter.features['aptos:signTransaction'].signTransaction(
-          transaction,
-          asFeePayer
-        )
-      }
     }
   }
 
   signAndSubmitTransaction: AptosSignAndSubmitTransactionMethod = async (transactionInput) => {
-    if (!this._app || !this._connectionType) {
-      const error = new Error('Wallet not ready')
+    try {
+      if (!this._connectionType) {
+        throw new Error('Wallet not ready')
+      }
+      switch (this._connectionType) {
+        case ConnectionType.Nightly: {
+          // App needs to be ready here
+          return await this._app!.signAndSubmitTransaction(transactionInput)
+        }
+        case ConnectionType.WalletStandard: {
+          if (!this._innerStandardAdapter) {
+            throw new Error('Wallet not ready')
+          }
+          if (!this._innerStandardAdapter.features['aptos:signAndSubmitTransaction']) {
+            throw new Error('Wallet does not support signAndSubmitTransaction')
+          }
+          return await this._innerStandardAdapter.features[
+            'aptos:signAndSubmitTransaction'
+          ].signAndSubmitTransaction(transactionInput)
+        }
+      }
+    } catch (error) {
       this.emit('error', error)
       throw error
-    }
-    switch (this._connectionType) {
-      case ConnectionType.Nightly: {
-        return await this._app.signAndSubmitTransaction(transactionInput)
-      }
-      case ConnectionType.WalletStandard: {
-        if (!this._innerStandardAdapter) {
-          throw new Error('Wallet not ready')
-        }
-        if (!this._innerStandardAdapter.features['aptos:signAndSubmitTransaction']) {
-          throw new Error('Wallet does not support signAndSubmitTransaction')
-        }
-        return await this._innerStandardAdapter.features[
-          'aptos:signAndSubmitTransaction'
-        ].signAndSubmitTransaction(transactionInput)
-      }
     }
   }
 
@@ -710,18 +736,18 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
       }
 
       // Wait for app to be restored
-      if (this._loading) {
+      if (this._appLoading) {
         for (let i = 0; i < 200; i++) {
           await sleep(10)
 
-          if (!this._loading) {
+          if (!this._appLoading) {
             break
           }
         }
       }
 
-      if (this._loading) {
-        false
+      if (this._appLoading) {
+        return false
       }
 
       // If app is restored and has connected public keys, we can eager connect
@@ -822,8 +848,8 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
       const response = await adapter.features['aptos:connect'].connect(silent, networkInfo)
       if (response.status === UserResponseStatus.APPROVED) {
         this._innerStandardAdapter = adapter
-        this.connected = true
-        this.connecting = false
+        this._connected = true
+        this._connecting = false
         this._connectionType = ConnectionType.WalletStandard
         this.emit('connect', response.args)
         adapter.features['aptos:onAccountChange'].onAccountChange((a) => {
@@ -833,12 +859,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
           this.emit('networkChange', a)
         })
       } else {
-        if (this._modal) {
-          this._modal.setStandardWalletConnectProgress(false)
-        }
-        clearRecentWalletForNetwork(APTOS_NETWORK)
-        this.connecting = false
-        this.emit('error', new Error('User rejected connection'))
+        throw new Error('User rejected connection')
       }
       persistRecentWalletForNetwork(APTOS_NETWORK, {
         walletName,
@@ -847,12 +868,13 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
 
       this._modal?.closeModal()
       return response
-    } catch (err) {
+    } catch (err: any) {
       if (this._modal) {
         this._modal.setStandardWalletConnectProgress(false)
       }
       clearRecentWalletForNetwork(APTOS_NETWORK)
-      this.connecting = false
+      this._connecting = false
+      this.emit('error', err)
       throw err
     }
   }
@@ -886,7 +908,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
     let checks = 0
 
     this._detectionIntervalId = setInterval(() => {
-      if (checks >= this._maxNumberOfChecks || this.connected) {
+      if (checks >= this._maxNumberOfChecks || this._connected) {
         clearInterval(this._detectionIntervalId)
       }
       checks++
