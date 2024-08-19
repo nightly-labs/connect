@@ -2,7 +2,9 @@ import {
   AccountAuthenticator,
   AccountAuthenticatorEd25519,
   AnyRawTransaction,
-  Aptos
+  Aptos,
+  AccountPublicKey,
+  Network
 } from '@aptos-labs/ts-sdk'
 import { AccountInfo, AptosSignMessageInput, UserResponseStatus } from '@aptos-labs/wallet-standard'
 import { NightlyConnectAptosAdapter } from '@nightlylabs/wallet-selector-aptos'
@@ -92,6 +94,17 @@ export default function AptosPage() {
         <button
           onClick={async () => {
             try {
+              try {
+                await aptos.getAccountInfo({
+                  accountAddress: accountInfo()!.address.toString()
+                })
+              } catch (error) {
+                await aptos.fundAccount({
+                  accountAddress: accountInfo()!.address.toString(),
+                  amount: 100_000_000
+                })
+              }
+
               const transaction = await aptos.transaction.build.simple({
                 sender: accountInfo()!.address.toString(),
                 data: {
@@ -103,6 +116,8 @@ export default function AptosPage() {
                   ]
                 }
               })
+
+              console.log(transaction)
               const signedTx = await adapter()!.signAndSubmitTransaction(transaction)
               // Verify the transaction was signed
               if (signedTx.status !== UserResponseStatus.APPROVED) {
@@ -121,6 +136,17 @@ export default function AptosPage() {
         <button
           onClick={async () => {
             try {
+              try {
+                await aptos.getAccountInfo({
+                  accountAddress: accountInfo()!.address.toString()
+                })
+              } catch (error) {
+                await aptos.fundAccount({
+                  accountAddress: accountInfo()!.address.toString(),
+                  amount: 100_000_000
+                })
+              }
+
               const transaction = await aptos.transaction.build.simple({
                 sender: accountInfo()!.address.toString(),
                 data: {
