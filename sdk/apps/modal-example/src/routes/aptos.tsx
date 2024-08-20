@@ -4,7 +4,8 @@ import {
   AnyRawTransaction,
   Aptos,
   AccountPublicKey,
-  Network
+  Network,
+  AptosConfig
 } from '@aptos-labs/ts-sdk'
 import {
   AccountInfo,
@@ -17,7 +18,10 @@ import { createEffect, createSignal, onMount, Show } from 'solid-js'
 import { Title } from '@solidjs/meta'
 import toast from 'solid-toast'
 
-const aptos = new Aptos() // default to devnet
+const aptosConfig = new AptosConfig({
+  network: Network.MAINNET
+})
+const aptos = new Aptos(aptosConfig)
 
 export default function AptosPage() {
   const [adapter, setAdapter] = createSignal<NightlyConnectAptosAdapter>()
@@ -76,21 +80,6 @@ export default function AptosPage() {
     }
   })
 
-  const handleCreateAccountDevnet = async (address: string) => {
-    try {
-      // if account exists it doesnt throw an error
-      await aptos.getAccountInfo({
-        accountAddress: address
-      })
-    } catch {
-      // if account doesnt exist fund it on devnet (since we are using Aptos on devnet)
-      await aptos.fundAccount({
-        accountAddress: address,
-        amount: 100_000_000
-      })
-    }
-  }
-
   return (
     <main>
       <Title>Aptos Example</Title>
@@ -118,36 +107,18 @@ export default function AptosPage() {
         <button
           onClick={async () => {
             try {
-              const address = accountInfo()!.address?.toString()
-              await handleCreateAccountDevnet(address)
-              let signedTx
-              if (
-                adapter()!.selectedWallet?.name === 'Nightly' &&
-                adapter()!.selectedWallet?.walletType !== 'mobile'
-              ) {
-                // is nightly extension (uses newer version of @aptos-labs/wallet-standard)
-                const nightlyTransaction = {
-                  payload: {
-                    function: '0x1::coin::transfer',
-                    typeArguments: ['0x1::aptos_coin::AptosCoin'],
-                    functionArguments: [address, 100]
-                  }
+              const transaction = await aptos.transaction.build.simple({
+                sender: accountInfo()!.address?.toString(),
+                data: {
+                  function: '0x1::coin::transfer',
+                  typeArguments: ['0x1::aptos_coin::AptosCoin'],
+                  functionArguments: [
+                    '0x960dbc655b847cad38b6dd056913086e5e0475abc27152b81570fd302cb10c38',
+                    100
+                  ]
                 }
-                signedTx = await adapter()!.signAndSubmitTransaction(nightlyTransaction as any)
-              } else {
-                const transaction = await aptos.transaction.build.simple({
-                  sender: address,
-                  data: {
-                    function: '0x1::coin::transfer',
-                    typeArguments: ['0x1::aptos_coin::AptosCoin'],
-                    functionArguments: [
-                      '0x960dbc655b847cad38b6dd056913086e5e0475abc27152b81570fd302cb10c38',
-                      100
-                    ]
-                  }
-                })
-                signedTx = await adapter()!.signAndSubmitTransaction(transaction)
-              }
+              })
+              const signedTx = await adapter()!.signAndSubmitTransaction(transaction)
 
               // Verify the transaction was signed
               if (signedTx.status !== UserResponseStatus.APPROVED) {
@@ -166,10 +137,8 @@ export default function AptosPage() {
         <button
           onClick={async () => {
             try {
-              const address = accountInfo()!.address?.toString()
-              await handleCreateAccountDevnet(address)
               const transaction = await aptos.transaction.build.simple({
-                sender: address,
+                sender: accountInfo()!.address?.toString(),
                 data: {
                   function: '0x1::coin::transfer',
                   typeArguments: ['0x1::aptos_coin::AptosCoin'],
@@ -220,8 +189,11 @@ export default function AptosPage() {
                 nonce: 'YOLO'
               }
               const signed = await adapter()!.signMessage(msgToSign)
-              if (signed.status !== UserResponseStatus.APPROVED) {
-                throw new Error('Message was not approved')
+              if ('signature' in signed) {
+                if (!signed.signature) throw new Error('Message was not approved')
+              } else {
+                if (signed.status !== UserResponseStatus.APPROVED)
+                  throw new Error('Message was not approved')
               }
               toast.success('Message was signed!')
             } catch (e) {
