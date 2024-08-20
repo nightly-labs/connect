@@ -75,9 +75,6 @@ export default function AptosPage() {
         )
     }
   })
-  createEffect(() => {
-    console.log(accountInfo())
-  })
 
   return (
     <main>
