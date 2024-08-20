@@ -76,6 +76,21 @@ export default function AptosPage() {
     }
   })
 
+  const handleCreateAccountDevnet = async (address: string) => {
+    try {
+      // if account exists it doesnt throw an error
+      await aptos.getAccountInfo({
+        accountAddress: address
+      })
+    } catch {
+      // if account doesnt exist fund it on devnet (since we are using Aptos on devnet)
+      await aptos.fundAccount({
+        accountAddress: address,
+        amount: 100_000_000
+      })
+    }
+  }
+
   return (
     <main>
       <Title>Aptos Example</Title>
@@ -104,30 +119,20 @@ export default function AptosPage() {
           onClick={async () => {
             try {
               const address = accountInfo()!.address?.toString()
-              try {
-                await aptos.getAccountInfo({
-                  accountAddress: address
-                })
-              } catch {
-                await aptos.fundAccount({
-                  accountAddress: address,
-                  amount: 100_000_000
-                })
-              }
-
+              await handleCreateAccountDevnet(address)
               let signedTx
               if (
                 adapter()!.selectedWallet?.name === 'Nightly' &&
                 adapter()!.selectedWallet?.walletType !== 'mobile'
               ) {
+                // is nightly extension (uses newer version of @aptos-labs/wallet-standard)
                 const nightlyTransaction = {
                   payload: {
                     function: '0x1::coin::transfer',
                     typeArguments: ['0x1::aptos_coin::AptosCoin'],
-                    functionArguments: [address, 1]
+                    functionArguments: [address, 100]
                   }
                 }
-
                 signedTx = await adapter()!.signAndSubmitTransaction(nightlyTransaction as any)
               } else {
                 const transaction = await aptos.transaction.build.simple({
@@ -161,19 +166,10 @@ export default function AptosPage() {
         <button
           onClick={async () => {
             try {
-              try {
-                await aptos.getAccountInfo({
-                  accountAddress: accountInfo()!.address.toString()
-                })
-              } catch (error) {
-                await aptos.fundAccount({
-                  accountAddress: accountInfo()!.address.toString(),
-                  amount: 100_000_000
-                })
-              }
-
+              const address = accountInfo()!.address?.toString()
+              await handleCreateAccountDevnet(address)
               const transaction = await aptos.transaction.build.simple({
-                sender: accountInfo()!.address.toString(),
+                sender: address,
                 data: {
                   function: '0x1::coin::transfer',
                   typeArguments: ['0x1::aptos_coin::AptosCoin'],

@@ -1,5 +1,17 @@
-import { AccountAuthenticator, AccountAuthenticatorEd25519, Aptos } from '@aptos-labs/ts-sdk'
-import { AccountInfo, AptosSignMessageInput, UserResponseStatus } from '@aptos-labs/wallet-standard'
+import {
+  AccountAuthenticator,
+  AccountAuthenticatorEd25519,
+  AnyRawTransaction,
+  Aptos,
+  AccountPublicKey,
+  Network
+} from '@aptos-labs/ts-sdk'
+import {
+  AccountInfo,
+  AptosSignAndSubmitTransactionInput,
+  AptosSignMessageInput,
+  UserResponseStatus
+} from '@aptos-labs/wallet-standard'
 import { NightlyConnectAptosAdapter } from '@nightlylabs/wallet-selector-aptos'
 import { createEffect, createSignal, onMount, Show } from 'solid-js'
 import { Title } from '@solidjs/meta'
@@ -30,19 +42,19 @@ export default function AptosPage() {
           '--nc-img-logo': 'url(https://alephzero.org/aleph-design/brand-elements/logo-day.svg)'
         },
         stylesOverride: `
-          .nc_headerWrapper {
-            background-color: blue;
-          }
-  
-          .nc_headerLogo {
-            width: 200px;
-          }
-  
-          .nc_modalContent {
-            border-radius: 0;
-            border: 3px dashed var(--nc-color-primary);
-          }
-          `,
+      .nc_headerWrapper {
+        background-color: blue;
+      }
+
+      .nc_headerLogo {
+        width: 200px;
+      }
+
+      .nc_modalContent {
+        border-radius: 0;
+        border: 3px dashed var(--nc-color-primary);
+      }
+      `,
         qrConfigOverride: {
           dotsOptions: {
             color: 'purple'
@@ -59,7 +71,9 @@ export default function AptosPage() {
       })
 
       adapter.on('connect', (accInfo) => {
-        setAccountInfo(accInfo)
+        if (accInfo && 'address' in accInfo) {
+          setAccountInfo(accInfo)
+        }
       })
 
       adapter.on('disconnect', () => {
@@ -68,7 +82,9 @@ export default function AptosPage() {
       })
 
       adapter.on('accountChange', (accInfo) => {
-        setAccountInfo(accInfo)
+        if (accInfo && 'address' in accInfo) {
+          setAccountInfo(accInfo)
+        }
       })
 
       setAdapter(adapter)
@@ -89,12 +105,27 @@ export default function AptosPage() {
     }
   })
 
+  const handleCreateAccountDevnet = async (address: string) => {
+    try {
+      // if account exists it doesnt throw an error
+      await aptos.getAccountInfo({
+        accountAddress: address
+      })
+    } catch {
+      // if account doesnt exist fund it on devnet (since we are using Aptos on devnet)
+      await aptos.fundAccount({
+        accountAddress: address,
+        amount: 100_000_000
+      })
+    }
+  }
+
   return (
     <main>
       <Title>Aptos Example</Title>
       <div id="modalAnchor" />
       <Show
-        when={!!accountInfo()}
+        when={!!accountInfo()?.address}
         fallback={
           <button
             onClick={() => {
@@ -112,22 +143,41 @@ export default function AptosPage() {
             Connect
           </button>
         }>
-        <h1>Current address: {accountInfo()?.address.toString()}</h1>
+        <h1>Current address: {accountInfo()?.address?.toString()}</h1>
         <button
           onClick={async () => {
             try {
-              const transaction = await aptos.transaction.build.simple({
-                sender: accountInfo()!.address.toString(),
-                data: {
-                  function: '0x1::coin::transfer',
-                  typeArguments: ['0x1::aptos_coin::AptosCoin'],
-                  functionArguments: [
-                    '0x960dbc655b847cad38b6dd056913086e5e0475abc27152b81570fd302cb10c38',
-                    100
-                  ]
+              const address = accountInfo()!.address?.toString()
+              await handleCreateAccountDevnet(address)
+              let signedTx
+              if (
+                adapter()!.selectedWallet?.name === 'Nightly' &&
+                adapter()!.selectedWallet?.walletType !== 'mobile'
+              ) {
+                // is nightly extension (uses newer version of @aptos-labs/wallet-standard)
+                const nightlyTransaction = {
+                  payload: {
+                    function: '0x1::coin::transfer',
+                    typeArguments: ['0x1::aptos_coin::AptosCoin'],
+                    functionArguments: [address, 100]
+                  }
                 }
-              })
-              const signedTx = await adapter()!.signAndSubmitTransaction(transaction)
+                signedTx = await adapter()!.signAndSubmitTransaction(nightlyTransaction as any)
+              } else {
+                const transaction = await aptos.transaction.build.simple({
+                  sender: address,
+                  data: {
+                    function: '0x1::coin::transfer',
+                    typeArguments: ['0x1::aptos_coin::AptosCoin'],
+                    functionArguments: [
+                      '0x960dbc655b847cad38b6dd056913086e5e0475abc27152b81570fd302cb10c38',
+                      100
+                    ]
+                  }
+                })
+                signedTx = await adapter()!.signAndSubmitTransaction(transaction)
+              }
+
               // Verify the transaction was signed
               if (signedTx.status !== UserResponseStatus.APPROVED) {
                 toast.error('Transaction was not approved')
@@ -145,8 +195,10 @@ export default function AptosPage() {
         <button
           onClick={async () => {
             try {
+              const address = accountInfo()!.address?.toString()
+              await handleCreateAccountDevnet(address)
               const transaction = await aptos.transaction.build.simple({
-                sender: accountInfo()!.address.toString(),
+                sender: address,
                 data: {
                   function: '0x1::coin::transfer',
                   typeArguments: ['0x1::aptos_coin::AptosCoin'],
