@@ -15,6 +15,8 @@ import {
   TransactionToSign
 } from '@nightlylabs/nightly-connect-base'
 import { EventEmitter } from 'eventemitter3'
+import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
+import { WalletMetadata } from '../../../bindings/WalletMetadata'
 import {
   AppAptosInitialize,
   APTOS_NETWORK,
@@ -25,8 +27,6 @@ import {
   serializeAptosTx,
   serializeObject
 } from './utils'
-import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
-import { WalletMetadata } from '../../../bindings/WalletMetadata'
 
 interface AptosAppEvents {
   userConnected: (e: AccountInfo, networkInfo: NetworkInfo) => void

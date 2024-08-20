@@ -1,11 +1,27 @@
-import { AccountAuthenticator, AccountAuthenticatorEd25519, Aptos } from '@aptos-labs/ts-sdk'
-import { AccountInfo, AptosSignMessageInput, UserResponseStatus } from '@aptos-labs/wallet-standard'
+import {
+  AccountAuthenticator,
+  AccountAuthenticatorEd25519,
+  AnyRawTransaction,
+  Aptos,
+  AccountPublicKey,
+  Network,
+  AptosConfig
+} from '@aptos-labs/ts-sdk'
+import {
+  AccountInfo,
+  AptosSignAndSubmitTransactionInput,
+  AptosSignMessageInput,
+  UserResponseStatus
+} from '@aptos-labs/wallet-standard'
 import { NightlyConnectAptosAdapter } from '@nightlylabs/wallet-selector-aptos'
 import { createEffect, createSignal, onMount, Show } from 'solid-js'
 import { Title } from '@solidjs/meta'
 import toast from 'solid-toast'
 
-const aptos = new Aptos() // default to devnet
+const aptosConfig = new AptosConfig({
+  network: Network.MAINNET
+})
+const aptos = new Aptos(aptosConfig)
 
 export default function AptosPage() {
   const [adapter, setAdapter] = createSignal<NightlyConnectAptosAdapter>()
@@ -30,19 +46,19 @@ export default function AptosPage() {
           '--nc-img-logo': 'url(https://alephzero.org/aleph-design/brand-elements/logo-day.svg)'
         },
         stylesOverride: `
-          .nc_headerWrapper {
-            background-color: blue;
-          }
-  
-          .nc_headerLogo {
-            width: 200px;
-          }
-  
-          .nc_modalContent {
-            border-radius: 0;
-            border: 3px dashed var(--nc-color-primary);
-          }
-          `,
+  .nc_headerWrapper {
+    background-color: blue;
+  }
+
+  .nc_headerLogo {
+    width: 200px;
+  }
+
+  .nc_modalContent {
+    border-radius: 0;
+    border: 3px dashed var(--nc-color-primary);
+  }
+  `,
         qrConfigOverride: {
           dotsOptions: {
             color: 'purple'
@@ -59,7 +75,9 @@ export default function AptosPage() {
       })
 
       adapter.on('connect', (accInfo) => {
-        setAccountInfo(accInfo)
+        if (accInfo && 'address' in accInfo) {
+          setAccountInfo(accInfo)
+        }
       })
 
       adapter.on('disconnect', () => {
@@ -68,7 +86,9 @@ export default function AptosPage() {
       })
 
       adapter.on('accountChange', (accInfo) => {
-        setAccountInfo(accInfo)
+        if (accInfo && 'address' in accInfo) {
+          setAccountInfo(accInfo)
+        }
       })
 
       setAdapter(adapter)
@@ -94,7 +114,7 @@ export default function AptosPage() {
       <Title>Aptos Example</Title>
       <div id="modalAnchor" />
       <Show
-        when={!!accountInfo()}
+        when={!!accountInfo()?.address}
         fallback={
           <button
             onClick={() => {
@@ -112,12 +132,12 @@ export default function AptosPage() {
             Connect
           </button>
         }>
-        <h1>Current address: {accountInfo()?.address.toString()}</h1>
+        <h1>Current address: {accountInfo()?.address?.toString()}</h1>
         <button
           onClick={async () => {
             try {
               const transaction = await aptos.transaction.build.simple({
-                sender: accountInfo()!.address.toString(),
+                sender: accountInfo()!.address?.toString(),
                 data: {
                   function: '0x1::coin::transfer',
                   typeArguments: ['0x1::aptos_coin::AptosCoin'],
@@ -128,6 +148,7 @@ export default function AptosPage() {
                 }
               })
               const signedTx = await adapter()!.signAndSubmitTransaction(transaction)
+
               // Verify the transaction was signed
               if (signedTx.status !== UserResponseStatus.APPROVED) {
                 toast.error('Transaction was not approved')
@@ -146,7 +167,7 @@ export default function AptosPage() {
           onClick={async () => {
             try {
               const transaction = await aptos.transaction.build.simple({
-                sender: accountInfo()!.address.toString(),
+                sender: accountInfo()!.address?.toString(),
                 data: {
                   function: '0x1::coin::transfer',
                   typeArguments: ['0x1::aptos_coin::AptosCoin'],
@@ -197,8 +218,12 @@ export default function AptosPage() {
                 nonce: 'YOLO'
               }
               const signed = await adapter()!.signMessage(msgToSign)
-              if (signed.status !== UserResponseStatus.APPROVED) {
-                throw new Error('Message was not approved')
+
+              if ('signature' in signed) {
+                if (!signed.signature) throw new Error('Message was not approved')
+              } else {
+                if (signed.status !== UserResponseStatus.APPROVED)
+                  throw new Error('Message was not approved')
               }
               toast.success('Message was signed!')
             } catch (e) {
