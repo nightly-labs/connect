@@ -53,11 +53,13 @@ impl CloudState {
 
         // Passkey
         let rp_id = match ENVIRONMENT() {
+            "PROD" => "cloud.nightly.app",
             "DEV" => "localhost",
             _ => panic!("Invalid ENVIRONMENT env"),
         };
         // Url containing the effective domain name
         let rp_origin = Url::parse(match ENVIRONMENT() {
+            "PROD" => "https://cloud.nightly.app",
             "DEV" => "http://localhost:3000",
             _ => panic!("Invalid ENVIRONMENT env"),
         })
