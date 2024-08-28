@@ -18,12 +18,13 @@ impl Db {
 
         let passkey = match passkey {
             Some(passkey) => {
-                let serialized_passkey = serde_json::to_string(passkey).map_err(|e| {
-                    DbError::DatabaseError(format!(
-                        "Failed to serialize passkey: {}",
-                        e.to_string()
-                    ))
-                })?;
+                let serialized_passkey =
+                    serde_json::to_string(&vec![passkey.clone()]).map_err(|e| {
+                        DbError::DatabaseError(format!(
+                            "Failed to serialize passkey: {}",
+                            e.to_string()
+                        ))
+                    })?;
 
                 Some(serialized_passkey)
             }
