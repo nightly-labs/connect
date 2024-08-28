@@ -20,7 +20,7 @@ pub struct HttpDeletePasskeyRequest {
     #[garde(skip)]
     pub passkey_id: String,
     #[garde(skip)]
-    pub passkey_credential: PublicKeyCredential,
+    pub credential: PublicKeyCredential,
 }
 
 pub async fn delete_passkey(
@@ -47,7 +47,7 @@ pub async fn delete_passkey(
 
     // Finish passkey authentication
     if let Err(err) = web_auth.finish_passkey_authentication(
-        &payload.passkey_credential,
+        &payload.credential,
         &session_data.passkey_verification_state,
     ) {
         warn!(

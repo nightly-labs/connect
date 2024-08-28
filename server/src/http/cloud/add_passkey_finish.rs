@@ -95,10 +95,7 @@ pub async fn add_passkey_finish(
             passkeys
         }
         None => {
-            return Err((
-                StatusCode::BAD_REQUEST,
-                CloudApiErrors::UserDoesNotHavePasskey.to_string(),
-            ));
+            vec![]
         }
     };
 

@@ -19,11 +19,12 @@ use ts_rs::TS;
 use webauthn_rs::{prelude::PublicKeyCredential, Webauthn};
 
 #[derive(Validate, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct HttpLoginWithPasskeyFinishRequest {
     #[garde(email)]
     pub email: String,
     #[garde(skip)]
-    pub passkey_credential: PublicKeyCredential,
+    pub credential: PublicKeyCredential,
     #[garde(skip)]
     pub enforce_ip: bool,
 }
@@ -64,7 +65,7 @@ pub async fn login_with_passkey_finish(
 
     // Finish passkey authentication
     if let Err(err) = web_auth.finish_passkey_authentication(
-        &request.passkey_credential,
+        &request.credential,
         &session_data.passkey_verification_state,
     ) {
         warn!(
