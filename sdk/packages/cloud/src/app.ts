@@ -202,7 +202,10 @@ export class NightlyCloud {
       EndpointType.Public,
       request
     )) as HttpRegisterWithPasskeyStartResponse
-
+    // @ts-expect-error Fixes in direct parsing of the response
+    response.publicKey.challenge = Buffer.from(response.publicKey.challenge, 'base64')
+    // @ts-expect-error Fixes in direct parsing of the response
+    response.publicKey.user.id = Buffer.from(response.publicKey.user.id, 'base64')
     return response
   }
 
@@ -266,7 +269,14 @@ export class NightlyCloud {
       EndpointType.Public,
       request
     )) as HttpLoginWithPasskeyStartResponse
-
+    // @ts-expect-error Fixes in direct parsing of the response
+    response.publicKey.challenge = Buffer.from(response.publicKey.challenge, 'base64')
+    if (response.publicKey.allowCredentials) {
+      response.publicKey.allowCredentials.forEach((c) => {
+        // @ts-expect-error  Fixes in direct parsing of the response
+        c.id = Buffer.from(c.id, 'base64')
+      })
+    }
     return response
   }
 
@@ -337,6 +347,10 @@ export class NightlyCloud {
       EndpointType.Public,
       request
     )) as HttpResetPasskeyStartResponse
+    // @ts-expect-error Fixes in direct parsing of the response
+    response.publicKey.challenge = Buffer.from(response.publicKey.challenge, 'base64')
+    // @ts-expect-error Fixes in direct parsing of the response
+    response.publicKey.user.id = Buffer.from(response.publicKey.user.id, 'base64')
 
     return response
   }
@@ -363,6 +377,10 @@ export class NightlyCloud {
       EndpointType.Private,
       {}
     )) as HttpAddNewPasskeyStartResponse
+    // @ts-expect-error Fixes in direct parsing of the response
+    response.publicKey.challenge = Buffer.from(response.publicKey.challenge, 'base64')
+    // @ts-expect-error Fixes in direct parsing of the response
+    response.publicKey.user.id = Buffer.from(response.publicKey.user.id, 'base64')
 
     return response
   }
@@ -567,10 +585,10 @@ export class NightlyCloud {
       EndpointType.Private
     )) as HttpGetPasskeyChallengeResponse
 
-    // @ts-expect-error
+    // @ts-expect-error Fixes in direct parsing of the response
     response.publicKey.challenge = Buffer.from(response.publicKey.challenge, 'base64')
     response.publicKey.allowCredentials?.forEach((c) => {
-      // @ts-expect-error
+      // @ts-expect-error Fixes in direct parsing of the response
       c.id = Buffer.from(c.id, 'base64')
     })
     return response
