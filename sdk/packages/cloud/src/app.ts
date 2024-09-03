@@ -33,6 +33,7 @@ import {
   HttpRegisterNewAppResponse,
   HttpRegisterNewTeamRequest,
   HttpRegisterNewTeamResponse,
+  HttpRegisterWithPasskeyFinishResponse,
   HttpRegisterWithPasskeyStartRequest,
   HttpRegisterWithPasswordFinishRequest,
   HttpRegisterWithPasswordFinishResponse,
@@ -211,12 +212,12 @@ export class NightlyCloud {
 
   registerWithPasskeyFinish = async (
     request: HttpRegisterWithPasskeyFinishRequest
-  ): Promise<HttpRegisterWithPasswordFinishResponse> => {
+  ): Promise<HttpRegisterWithPasskeyFinishResponse> => {
     const response = (await this.sendPostJson(
       '/register_with_passkey_finish',
       EndpointType.Public,
       request
-    )) as HttpRegisterWithPasswordFinishResponse
+    )) as HttpRegisterWithPasskeyFinishResponse
 
     return response
   }
