@@ -1,16 +1,21 @@
 use crate::{
-    http::cloud::utils::{check_auth_code, validate_request},
+    http::cloud::utils::{check_auth_code, generate_tokens, validate_request},
     structs::{
         cloud::api_cloud_errors::CloudApiErrors,
         session_cache::{ApiSessionsCache, SessionCache, SessionsCacheKey},
     },
 };
-use axum::{extract::State, http::StatusCode, Json};
+use axum::{
+    extract::{ConnectInfo, State},
+    http::StatusCode,
+    Json,
+};
 use database::db::Db;
 use garde::Validate;
 use log::error;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
+use std::{net::SocketAddr, sync::Arc};
+
 use ts_rs::TS;
 use uuid7::uuid7;
 use webauthn_rs::prelude::RegisterPublicKeyCredential;
@@ -25,13 +30,21 @@ pub struct HttpRegisterWithPasskeyFinishRequest {
     pub credential: RegisterPublicKeyCredential,
     #[garde(skip)]
     pub auth_code: String,
+    #[garde(skip)]
+    pub enforce_ip: bool,
 }
 
-#[derive(Validate, Clone, Debug, Deserialize, Serialize, TS)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct HttpRegisterWithPasskeyFinishResponse {}
+#[serde(rename_all = "camelCase")]
+pub struct HttpRegisterWithPasskeyFinishResponse {
+    pub user_id: String,
+    pub auth_token: String,
+    pub refresh_token: String,
+}
 
 pub async fn register_with_passkey_finish(
+    ConnectInfo(ip): ConnectInfo<SocketAddr>,
     State(db): State<Arc<Db>>,
     State(web_auth): State<Arc<Webauthn>>,
     State(sessions_cache): State<Arc<ApiSessionsCache>>,
@@ -96,7 +109,13 @@ pub async fn register_with_passkey_finish(
         .await
     {
         Ok(_) => {
-            return Ok(Json(HttpRegisterWithPasskeyFinishResponse {}));
+            // Generate tokens
+            let (auth_token, refresh_token) = generate_tokens(request.enforce_ip, ip, &user_id)?;
+            return Ok(Json(HttpRegisterWithPasskeyFinishResponse {
+                auth_token,
+                refresh_token,
+                user_id,
+            }));
         }
         Err(err) => {
             error!("Failed to create user: {:?}", err);

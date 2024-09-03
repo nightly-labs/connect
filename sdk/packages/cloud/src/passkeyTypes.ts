@@ -11,6 +11,7 @@ export type HttpRegisterWithPasskeyFinishRequest = {
     response: { clientDataJSON: string; attestationObject: string }
   }
   authCode: string
+  enforceIp: boolean
 }
 
 // Login
