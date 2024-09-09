@@ -6,6 +6,7 @@ use ts_rs::TS;
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct TeamInvite {
+    pub team_id: String,
     pub creator_email: String,
     pub team_name: String,
     pub user_email: String,
@@ -15,6 +16,7 @@ pub struct TeamInvite {
 impl From<DbTeamInvite> for TeamInvite {
     fn from(db_team_invite: DbTeamInvite) -> Self {
         Self {
+            team_id: db_team_invite.team_id,
             creator_email: db_team_invite.admin_email,
             team_name: db_team_invite.team_name,
             user_email: db_team_invite.user_email,
