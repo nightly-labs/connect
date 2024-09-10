@@ -3,4 +3,4 @@ import type { AppInfo } from "./AppInfo";
 import type { JoinedTeam } from "./JoinedTeam";
 import type { UserPrivilege } from "./UserPrivilege";
 
-export interface HttpGetUserJoinedTeamsResponse { teams: Record<string, JoinedTeam>, teamsApps: Record<string, Array<AppInfo>>, userPrivileges: Record<string, Record<string, UserPrivilege>>, }
+export interface HttpGetUserJoinedTeamsResponse { teams: Record<string, JoinedTeam>, teamsApps: Record<string, Array<AppInfo>>, userPrivileges: Record<string, Record<string, UserPrivilege>>, teamMembers: Record<string, Array<string>>, }
