@@ -22,6 +22,7 @@ pub struct HttpGetUserJoinedTeamsResponse {
     pub teams: HashMap<TeamId, JoinedTeam>,
     pub teams_apps: HashMap<TeamId, Vec<AppInfo>>,
     pub user_privileges: HashMap<TeamId, HashMap<AppId, UserPrivilege>>,
+    pub team_members: HashMap<TeamId, Vec<String>>,
 }
 
 pub async fn get_user_joined_teams(
@@ -34,9 +35,44 @@ pub async fn get_user_joined_teams(
             let mut teams = HashMap::new();
             let mut teams_apps = HashMap::new();
             let mut user_privileges = HashMap::new();
+            let mut team_members = HashMap::new();
 
             for (team, admin_email, joined_timestamp, registered_apps) in joined_teams {
                 let team_id = team.team_id.clone();
+
+                ///// TEMP FIX: Get team members
+                let mut team_privileges = match db.get_privileges_by_team_id(&team_id).await {
+                    Ok(privileges) => privileges,
+                    Err(err) => {
+                        error!("Failed to get team privileges: {:?}", err);
+                        return Err((
+                            StatusCode::INTERNAL_SERVER_ERROR,
+                            CloudApiErrors::DatabaseError.to_string(),
+                        ));
+                    }
+                };
+
+                // Get team users from team_privileges
+                let team_members_ids: Vec<String> = team_privileges
+                    .iter()
+                    .map(|privilege| privilege.user_id.clone())
+                    .collect();
+
+                // Get users emails
+                let users_ids_emails = match db.get_users_emails_by_ids(&team_members_ids).await {
+                    Ok(users_ids_emails) => users_ids_emails,
+                    Err(err) => {
+                        error!("Failed to get users ids: {:?}", err);
+                        return Err((
+                            StatusCode::INTERNAL_SERVER_ERROR,
+                            CloudApiErrors::DatabaseError.to_string(),
+                        ));
+                    }
+                };
+
+                let team_members_emails: Vec<String> = users_ids_emails.values().cloned().collect();
+                team_members.insert(team_id.clone(), team_members_emails);
+                /////
 
                 // Parse joined team
                 let joined_team = JoinedTeam {
@@ -93,6 +129,7 @@ pub async fn get_user_joined_teams(
                 teams,
                 teams_apps,
                 user_privileges,
+                team_members,
             }))
         }
         Err(err) => {
