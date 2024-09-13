@@ -62,7 +62,7 @@ pub async fn leave_team(
                     ));
                 }
                 Err(err) => {
-                    error!("Failed to get user by email: {:?}", err);
+                    error!("Failed to get user by id: {:?}", err);
                     return Err((
                         StatusCode::INTERNAL_SERVER_ERROR,
                         CloudApiErrors::DatabaseError.to_string(),
