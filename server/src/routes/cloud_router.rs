@@ -22,6 +22,7 @@ use crate::{
         get_user_metadata::get_user_metadata,
         get_user_team_invites::get_user_team_invites,
         invite_user_to_team::invite_user_to_team,
+        leave_team::leave_team,
         login::{
             login_with_google::login_with_google,
             login_with_passkey_finish::login_with_passkey_finish,
@@ -220,5 +221,6 @@ pub fn private_router(state: ServerState) -> Router<ServerState> {
             &HttpCloudEndpoint::ChangeUserPrivileges.to_string(),
             post(change_user_privileges),
         )
+        .route(&HttpCloudEndpoint::LeaveTeam.to_string(), post(leave_team))
         .with_state(state)
 }

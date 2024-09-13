@@ -51,4 +51,5 @@ pub enum CloudApiErrors {
     OriginHeaderRequired,
     InvalidOrigin,
     InvalidAction,
+    AdminCannotLeaveTeam,
 }

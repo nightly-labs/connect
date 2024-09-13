@@ -80,6 +80,8 @@ pub enum HttpCloudEndpoint {
     LoginWithPasskeyFinish,
     #[serde(rename = "/verify_code")]
     VerifyCode,
+    #[serde(rename = "/leave_team")]
+    LeaveTeam,
 }
 
 impl HttpCloudEndpoint {
@@ -133,6 +135,7 @@ impl HttpCloudEndpoint {
             HttpCloudEndpoint::LoginWithPasskeyFinish => "/login_with_passkey_finish".to_string(),
             HttpCloudEndpoint::RefreshToken => "/refresh_token".to_string(),
             HttpCloudEndpoint::VerifyCode => "/verify_code".to_string(),
+            HttpCloudEndpoint::LeaveTeam => "/leave_team".to_string(),
         }
     }
 }

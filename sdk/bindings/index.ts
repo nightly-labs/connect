@@ -74,6 +74,8 @@ export * from './HttpGetUserJoinedTeamsResponse';
 export * from './HttpGetUserTeamInvitesResponse';
 export * from './HttpInviteUserToTeamRequest';
 export * from './HttpInviteUserToTeamResponse';
+export * from './HttpLeaveTeamRequest';
+export * from './HttpLeaveTeamResponse';
 export * from './HttpLoginRequest';
 export * from './HttpLoginResponse';
 export * from './HttpLoginWithGoogleRequest';

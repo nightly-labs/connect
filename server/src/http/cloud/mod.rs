@@ -17,6 +17,7 @@ pub mod get_user_metadata;
 pub mod get_user_team_invites;
 pub mod grafana_utils;
 pub mod invite_user_to_team;
+pub mod leave_team;
 pub mod login;
 pub mod register;
 pub mod register_new_app;

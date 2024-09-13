@@ -21,6 +21,8 @@ import {
   HttpGetUserTeamInvitesResponse,
   HttpInviteUserToTeamRequest,
   HttpInviteUserToTeamResponse,
+  HttpLeaveTeamRequest,
+  HttpLeaveTeamResponse,
   HttpLoginRequest,
   HttpLoginResponse,
   HttpLoginWithGoogleRequest,
@@ -446,7 +448,17 @@ export class NightlyCloud {
       '/remove_user_from_team',
       EndpointType.Private,
       request
-    )) as HttpAcceptTeamInviteResponse
+    )) as HttpRemoveUserFromTeamResponse
+
+    return response
+  }
+
+  leaveTeam = async (request: HttpLeaveTeamRequest): Promise<HttpLeaveTeamResponse> => {
+    const response = (await this.sendPostJson(
+      '/leave_team',
+      EndpointType.Private,
+      request
+    )) as HttpLeaveTeamResponse
 
     return response
   }
