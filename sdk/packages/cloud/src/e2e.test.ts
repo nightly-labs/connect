@@ -5,6 +5,7 @@ import {
   HttpCancelUserTeamInviteRequest,
   HttpGetAppEventsRequest,
   HttpInviteUserToTeamRequest,
+  HttpLeaveTeamRequest,
   HttpLoginRequest,
   HttpRegisterNewAppRequest,
   HttpRegisterNewTeamRequest,
@@ -393,6 +394,54 @@ describe.concurrent(
 
       // Remove user from team
       await cloudClient.removeUserFromTeam(removePayload)
+
+      // Get user joined team
+      const thirdResponse = await newClient.getUserJoinedTeams()
+
+      expect(Object.keys(thirdResponse.teams)).toHaveLength(0)
+      expect(Object.keys(thirdResponse.teamsApps)).toHaveLength(0)
+      expect(Object.keys(thirdResponse.userPrivileges)).toHaveLength(0)
+    })
+
+    test('#leaveTheTeam()', async () => {
+      const cloudClient: NightlyCloud = new NightlyCloud({
+        url: TEST_ENDPOINT
+      })
+      // create user
+      await createUser(cloudClient)
+
+      // create basic team setup
+      const { teamId, appId } = await basicTeamSetup(cloudClient)
+
+      // register new user
+      const newClient = new NightlyCloud({
+        url: TEST_ENDPOINT
+      })
+      const { userId, email } = await createUser(newClient)
+
+      // Get user joined team
+      const response = await newClient.getUserJoinedTeams()
+
+      expect(Object.keys(response.teams)).toHaveLength(0)
+      expect(Object.keys(response.teamsApps)).toHaveLength(0)
+      expect(Object.keys(response.userPrivileges)).toHaveLength(0)
+
+      // Add user to team
+      await addUserToTeam(cloudClient, newClient, teamId, email)
+
+      // Get user joined team
+      const secondResponse = await newClient.getUserJoinedTeams()
+
+      expect(Object.keys(secondResponse.teams)).toHaveLength(1)
+      expect(Object.keys(secondResponse.teamsApps)).toHaveLength(1)
+      expect(Object.keys(secondResponse.userPrivileges)).toHaveLength(1)
+
+      const leavePayload = {
+        teamId: teamId
+      } as HttpLeaveTeamRequest
+
+      // Remove user from team
+      await newClient.leaveTeam(leavePayload)
 
       // Get user joined team
       const thirdResponse = await newClient.getUserJoinedTeams()
