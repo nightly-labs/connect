@@ -62,5 +62,15 @@ export type HttpGetPasskeyChallengeResponse = { publicKey: PublicKeyCredentialRe
 // 2FA actions
 export type HttpDeletePasskeyRequest = {
   passkeyId: string
-  credential: PublicKeyCredential
+  credential: {
+    id: string
+    rawId: string
+    type: string
+    response: {
+      clientDataJSON: string
+      authenticatorData: string
+      signature: string
+      userHandle: string
+    }
+  }
 }
