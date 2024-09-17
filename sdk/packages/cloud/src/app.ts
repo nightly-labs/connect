@@ -221,6 +221,9 @@ export class NightlyCloud {
       request
     )) as HttpRegisterWithPasskeyFinishResponse
 
+    this.authToken = response.authToken
+    this.refreshToken = response.refreshToken
+
     return response
   }
 
