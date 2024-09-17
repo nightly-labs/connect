@@ -27,7 +27,6 @@ export default function AptosPage() {
   const [adapter, setAdapter] = createSignal<NightlyConnectAptosAdapter>()
   const [eager, setEager] = createSignal(false)
   const [accountInfo, setAccountInfo] = createSignal<AccountInfo>()
-  const [currentNetwork, setCurrentNetwork] = createSignal<string>()
 
   onMount(async () => {
     NightlyConnectAptosAdapter.build(
@@ -232,15 +231,14 @@ export default function AptosPage() {
                 changeNetworkResponse.status === UserResponseStatus.APPROVED
               ) {
                 const changedNetwork = await adapter()!.network()
-                toast.success(`Changed network to ${currentNetwork}!`)
-                setCurrentNetwork(changedNetwork.chainId === 27 ? 'Aptos' : 'Movement')
+                toast.success(`Changed network!`)
               }
             } catch (error) {
               toast.error("Couldn't change network")
               console.log(error)
             }
           }}>
-          Change to {currentNetwork()}
+          Change network
         </button>
         <button
           onClick={() => {
