@@ -1,4 +1,5 @@
 import {
+  AptosChangeNetworkInput,
   AptosSignAndSubmitTransactionOutput,
   AptosSignMessageOutput,
   AptosSignTransactionOutput
@@ -69,6 +70,17 @@ export class HttpClientAptos {
       sessionId: sessionId
     })
   }
+  public resolveChangeNetwork = async ({
+    requestId,
+    newNetwork,
+    sessionId
+  }: ResolveChangeNetwork) => {
+    await this.baseClient.resolveChangeNetwork({
+      requestId,
+      newNetwork,
+      sessionId: sessionId ?? ''
+    })
+  }
   public resolveSignMessage = async ({
     requestId,
     signedMessages,
@@ -109,4 +121,9 @@ export interface ResolveSignAndSubmitTransactions {
   requestId: string
   signedTransactions: Array<AptosSignAndSubmitTransactionOutput>
   sessionId: string
+}
+export interface ResolveChangeNetwork {
+  requestId: string
+  newNetwork: AptosChangeNetworkInput
+  sessionId?: string
 }

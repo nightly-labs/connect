@@ -1,12 +1,14 @@
+import { Network } from '@aptos-labs/ts-sdk'
+import { AptosChangeNetworkInput } from '@aptos-labs/wallet-standard'
 import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
-import { BaseApp } from './app'
-import { getRandomId } from './utils'
-import { testAppBaseInitialize } from './testUtils'
 import { smartDelay, TEST_RELAY_ENDPOINT } from '../../../commonTestUtils'
+import { BaseApp } from './app'
 import { Connect } from './client'
 import { MessageToSign, TransactionToSign } from './content'
-import { SignedMessage, SignedTransaction } from './responseContent'
 import { HttpBaseClient } from './http-client'
+import { SignedMessage, SignedTransaction } from './responseContent'
+import { testAppBaseInitialize } from './testUtils'
+import { getRandomId } from './utils'
 
 // Edit an assertion and save to see HMR in action
 
@@ -90,6 +92,26 @@ describe('Http Base Client tests', () => {
     await smartDelay()
     const signed = await promiseSigned
     assert(signed.length === 2)
+  })
+  test('#resolveChangeNetwork()', async () => {
+    const randomNewNetwork: AptosChangeNetworkInput = {
+      name: Network.MAINNET,
+      chainId: 27
+    }
+    // send change network
+    const newNetworkResponse = baseApp.changeNetwork(randomNewNetwork)
+    await smartDelay()
+    // Query for changed network
+    const pendingRequest = (await client.getPendingRequests({ sessionId: baseApp.sessionId }))[0]
+    await client.resolveChangeNetwork({
+      requestId: pendingRequest.requestId,
+      sessionId: baseApp.sessionId,
+      newNetwork: randomNewNetwork
+    })
+
+    await smartDelay()
+    const newNetwork = await newNetworkResponse
+    assert(newNetwork.newNetwork.chainId === 27)
   })
   test('#reject()', async () => {
     try {

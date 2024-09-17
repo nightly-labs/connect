@@ -1,3 +1,5 @@
+import { AptosChangeNetworkInput } from '@aptos-labs/wallet-standard'
+
 export enum ContentType {
   SignMessages = 'SignMessages',
   SignTransactions = 'SignTransactions',
@@ -17,14 +19,10 @@ export interface TransactionToSign {
   transaction: string
   metadata?: string
 }
-export interface ChangeNetworkTo {
-  name: string
-  chainId: number
-  url?: string
-}
+
 export interface ChangeNetworkContent {
   type: ContentType.ChangeNetwork
-  newNetwork: ChangeNetworkTo
+  newNetwork: AptosChangeNetworkInput
 }
 export interface SignTransactionsContent {
   type: ContentType.SignTransactions

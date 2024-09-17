@@ -203,7 +203,7 @@ export const parseRequest = (request: RequestContent, sessionId: string): AptosR
     case ContentType.ChangeNetwork: {
       const changeNetworkRequest: CustomAptosRequest = {
         type: ContentType.Custom,
-        content: request.content.newNetwork.chainId.toString(),
+        content: JSON.stringify(request.content),
         requestId: request.requestId,
         sessionId: sessionId
       }

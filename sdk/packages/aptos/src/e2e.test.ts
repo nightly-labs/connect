@@ -8,6 +8,7 @@ import { APTOS_NETWORK } from './utils'
 import { Account, Aptos, Ed25519PrivateKey, Network } from '@aptos-labs/ts-sdk'
 import {
   AccountInfo,
+  AptosChangeNetworkInput,
   AptosSignMessageInput,
   NetworkInfo,
   UserResponseStatus
@@ -99,9 +100,7 @@ describe('Aptos client tests', () => {
       }
     })
 
-    const signedTx = await app.signTransaction({
-      rawTransaction: transaction.rawTransaction
-    })
+    const signedTx = await app.signTransaction(transaction)
     // Verify the transaction was signed
     if (signedTx.status !== UserResponseStatus.APPROVED) {
       throw new Error('Transaction was not approved')
@@ -140,6 +139,22 @@ describe('Aptos client tests', () => {
     await smartDelay()
     const _signedMessage = await app.signMessage(msgToSign)
   })
+  test('#on("changeNetwork")', async () => {
+    client.on('changeNetwork', async (e) => {
+      const payload = e.newNetwork
+      await client.resolveChangeNetwork({
+        requestId: e.requestId,
+        newNetwork: payload
+      })
+    })
+
+    await smartDelay()
+    const newNetwork: AptosChangeNetworkInput = {
+      name: Network.MAINNET,
+      chainId: 27
+    }
+    const _changedNetwork = await app.changeNetwork(newNetwork)
+  })
   test('#on("signAndSubmitTransaction")', async () => {
     const bobAddress = '0xb0b'
 
@@ -172,9 +187,7 @@ describe('Aptos client tests', () => {
       }
     })
 
-    const submittedTx = await app.signAndSubmitTransaction({
-      rawTransaction: transaction.rawTransaction
-    })
+    const submittedTx = await app.signAndSubmitTransaction(transaction)
     // Verify the transaction was signed
     if (submittedTx.status !== UserResponseStatus.APPROVED) {
       throw new Error('Transaction was not approved')
@@ -193,12 +206,8 @@ describe('Aptos client tests', () => {
         functionArguments: [bobAddress, 100]
       }
     })
-    app.signAndSubmitTransaction({
-      rawTransaction: transaction.rawTransaction
-    })
-    app.signAndSubmitTransaction({
-      rawTransaction: transaction.rawTransaction
-    })
+    app.signAndSubmitTransaction(transaction)
+    app.signAndSubmitTransaction(transaction)
     await smartDelay(500)
     const requests = await client.getPendingRequests()
     expect(requests.length).toBe(2)

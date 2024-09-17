@@ -1,21 +1,22 @@
 // import LocalStorage from 'isomorphic-localstorage'
-import { HttpEndpoint } from '../../../bindings/HttpEndpoint'
-import { HttpGetSessionInfoRequest } from '../../../bindings/HttpGetSessionInfoRequest'
-import { HttpGetSessionInfoResponse } from '../../../bindings/HttpGetSessionInfoResponse'
+import { AptosChangeNetworkInput } from '@aptos-labs/wallet-standard'
+import { fetch } from 'cross-fetch'
 import { HttpConnectSessionRequest } from '../../../bindings/HttpConnectSessionRequest'
 import { HttpConnectSessionResponse } from '../../../bindings/HttpConnectSessionResponse'
 import { HttpDropSessionsRequest } from '../../../bindings/HttpDropSessionsRequest'
 import { HttpDropSessionsResponse } from '../../../bindings/HttpDropSessionsResponse'
+import { HttpEndpoint } from '../../../bindings/HttpEndpoint'
+import { HttpGetPendingRequestRequest } from '../../../bindings/HttpGetPendingRequestRequest'
+import { HttpGetPendingRequestResponse } from '../../../bindings/HttpGetPendingRequestResponse'
+import { HttpGetPendingRequestsRequest } from '../../../bindings/HttpGetPendingRequestsRequest'
+import { HttpGetPendingRequestsResponse } from '../../../bindings/HttpGetPendingRequestsResponse'
+import { HttpGetSessionInfoRequest } from '../../../bindings/HttpGetSessionInfoRequest'
+import { HttpGetSessionInfoResponse } from '../../../bindings/HttpGetSessionInfoResponse'
 import { HttpGetSessionsRequest } from '../../../bindings/HttpGetSessionsRequest'
 import { HttpGetSessionsResponse } from '../../../bindings/HttpGetSessionsResponse'
 import { HttpResolveRequestRequest } from '../../../bindings/HttpResolveRequestRequest'
 import { HttpResolveRequestResponse } from '../../../bindings/HttpResolveRequestResponse'
-import { HttpGetPendingRequestsRequest } from '../../../bindings/HttpGetPendingRequestsRequest'
-import { HttpGetPendingRequestsResponse } from '../../../bindings/HttpGetPendingRequestsResponse'
-import { HttpGetPendingRequestRequest } from '../../../bindings/HttpGetPendingRequestRequest'
-import { HttpGetPendingRequestResponse } from '../../../bindings/HttpGetPendingRequestResponse'
-import { fetch } from 'cross-fetch'
-import { getRandomId } from './utils'
+import { RequestContent } from './content'
 import {
   CustomResponseContent,
   RejectResponseContent,
@@ -25,7 +26,7 @@ import {
   SignedMessage,
   SignedTransaction
 } from './responseContent'
-import { RequestContent } from './content'
+import { getRandomId } from './utils'
 
 export interface HttpBaseClientInitialize {
   clientId?: string
@@ -150,6 +151,25 @@ export class HttpBaseClient {
       content: JSON.stringify(content)
     })
   }
+  resolveChangeNetwork = async ({
+    requestId,
+    sessionId,
+    newNetwork,
+    clientId
+  }: HttpResolveChangeNetwork) => {
+    const client = clientId || this.clientId
+    const content = {
+      type: ResponseContentType.ChangedNetwork,
+      newNetwork: newNetwork
+    }
+
+    await this.resolveRequest({
+      requestId,
+      content: JSON.stringify(content),
+      sessionId,
+      clientId: client
+    })
+  }
   resolveSignMessages = async ({
     requestId,
     sessionId,
@@ -209,6 +229,12 @@ export interface HttpResolveSignMessages {
   requestId: string
   sessionId: string
   signedMessages: SignedMessage[]
+  clientId?: string
+}
+export interface HttpResolveChangeNetwork {
+  requestId: string
+  newNetwork: AptosChangeNetworkInput
+  sessionId: string
   clientId?: string
 }
 export interface HttpResolveCustom {

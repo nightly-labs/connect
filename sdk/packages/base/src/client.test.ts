@@ -1,10 +1,12 @@
+import { Network } from '@aptos-labs/ts-sdk'
+import { AptosChangeNetworkInput } from '@aptos-labs/wallet-standard'
 import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
-import { BaseApp } from './app'
-import { testAppBaseInitialize, testClientBaseInitialize } from './testUtils'
 import { smartDelay } from '../../../commonTestUtils'
+import { BaseApp } from './app'
 import { BaseClient, Connect } from './client'
 import { ContentType, MessageToSign, TransactionToSign } from './content'
 import { SignedMessage, SignedTransaction } from './responseContent'
+import { testAppBaseInitialize, testClientBaseInitialize } from './testUtils'
 
 // Edit an assertion and save to see HMR in action
 
@@ -77,6 +79,25 @@ describe('Base Client tests', () => {
     const signed = await baseApp.signMessages(randomSignMessage)
 
     assert(signed.length === 2)
+  })
+  test('#on("changeNetwork")', async () => {
+    const randomNewNetwork: AptosChangeNetworkInput = {
+      name: Network.MAINNET,
+      chainId: 27
+    }
+    client.on('changeNetwork', async (e) => {
+      assert(e.newNetwork.chainId === 27)
+      // resolve
+      await client.resolveChangeNetwork({
+        sessionId: e.sessionId,
+        requestId: e.responseId,
+        newNetwork: randomNewNetwork
+      })
+    })
+    await smartDelay()
+    const newNetwork = await baseApp.changeNetwork(randomNewNetwork)
+
+    assert(newNetwork.newNetwork.chainId === 27)
   })
   test('#getPendingRequests', async () => {
     const randomSignMessage: MessageToSign[] = [{ message: '1' }, { message: '13' }]

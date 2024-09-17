@@ -1,6 +1,7 @@
 import { AnyRawTransaction } from '@aptos-labs/ts-sdk'
 import {
   AccountInfo,
+  AptosChangeNetworkInput,
   AptosSignAndSubmitTransactionOutput,
   AptosSignMessageInput,
   AptosSignMessageOutput,
@@ -40,7 +41,13 @@ export interface SignMessagesEvent {
   sessionId: string
   messages: Array<AptosSignMessageInput>
 }
+interface ChangeNetworkEvent {
+  requestId: string
+  sessionId: string
+  newNetwork: AptosChangeNetworkInput
+}
 export interface ClientAptosEvents {
+  changeNetwork: (e: ChangeNetworkEvent) => void
   signAndSubmitTransaction: (e: SignAndSubmitTransactionEvent) => void
   signTransaction: (e: SignTransactionEvent) => void
   signMessage: (e: SignMessagesEvent) => void
@@ -81,6 +88,14 @@ export class ClientAptos extends EventEmitter<ClientAptosEvents> {
         messages: e.messages.map((tx) => deserializeObject(tx.message))
       }
       this.emit('signMessage', event)
+    })
+    baseClient.on('changeNetwork', (e) => {
+      const event: ChangeNetworkEvent = {
+        sessionId: e.sessionId,
+        requestId: e.responseId,
+        newNetwork: e.newNetwork
+      }
+      this.emit('changeNetwork', event)
     })
     baseClient.on('appDisconnected', (e) => {
       this.emit('appDisconnected', e)
@@ -254,6 +269,6 @@ export interface ResolveSignAptosMessage {
 }
 export interface ResolveChangeNetwork {
   requestId: string
-  newNetwork: NetworkInfo
+  newNetwork: AptosChangeNetworkInput
   sessionId?: string
 }

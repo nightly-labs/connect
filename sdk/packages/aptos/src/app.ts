@@ -154,10 +154,7 @@ export class AppAptos extends EventEmitter<AptosAppEvents> {
   }
 
   changeNetwork: AptosChangeNetworkMethod = async (input) => {
-    const changedNetworkSuccess = await this.base.changeNetwork({
-      ...input,
-      name: input.name as string
-    })
+    const changedNetworkSuccess = await this.base.changeNetwork(input)
     return {
       status: UserResponseStatus.APPROVED,
       args: {

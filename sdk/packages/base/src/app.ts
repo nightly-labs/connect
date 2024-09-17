@@ -1,3 +1,4 @@
+import { AptosChangeNetworkInput } from '@aptos-labs/wallet-standard'
 import { EventEmitter } from 'eventemitter3'
 import WebSocket from 'isomorphic-ws'
 import { AppToServer } from '../../../bindings/AppToServer'
@@ -8,13 +9,7 @@ import { ServerToApp } from '../../../bindings/ServerToApp'
 import { UserConnectedEvent } from '../../../bindings/UserConnectedEvent'
 import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
 import { WalletMetadata } from '../../../bindings/WalletMetadata'
-import {
-  ChangeNetworkTo,
-  ContentType,
-  MessageToSign,
-  RequestInternal,
-  TransactionToSign
-} from './content'
+import { ContentType, MessageToSign, RequestInternal, TransactionToSign } from './content'
 import { triggerDeeplink } from './deeplinks'
 import { AppBaseInitialize } from './initializeTypes'
 import {
@@ -233,7 +228,7 @@ export class BaseApp extends EventEmitter<BaseEvents> {
     return response.messages
   }
 
-  changeNetwork = async (newNetwork: ChangeNetworkTo) => {
+  changeNetwork = async (newNetwork: AptosChangeNetworkInput) => {
     const response = (await this.sendRequest({
       type: ContentType.ChangeNetwork,
       newNetwork: newNetwork
