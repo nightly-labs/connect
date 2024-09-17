@@ -1,10 +1,19 @@
-import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
+import { AnyRawTransaction } from '@aptos-labs/ts-sdk'
+import {
+  AccountInfo,
+  AptosSignAndSubmitTransactionOutput,
+  AptosSignMessageInput,
+  AptosSignMessageOutput,
+  AptosSignTransactionOutput,
+  NetworkInfo
+} from '@aptos-labs/wallet-standard'
 import {
   BaseClient,
   ClientBaseInitialize,
   Connect as ConnectBase
 } from '@nightlylabs/nightly-connect-base'
 import { EventEmitter } from 'eventemitter3'
+import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
 import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
 import { AptosRequest } from './requestTypes'
 import {
@@ -16,15 +25,6 @@ import {
   serializeObject,
   serializePendingTransactionResponse
 } from './utils'
-import { AnyRawTransaction } from '@aptos-labs/ts-sdk'
-import {
-  AccountInfo,
-  AptosSignAndSubmitTransactionOutput,
-  AptosSignMessageInput,
-  AptosSignMessageOutput,
-  AptosSignTransactionOutput,
-  NetworkInfo
-} from '@aptos-labs/wallet-standard'
 export interface SignAndSubmitTransactionEvent {
   sessionId: string
   requestId: string
@@ -136,6 +136,22 @@ export class ClientAptos extends EventEmitter<ClientAptosEvents> {
     return requests.map((request) => parseRequest(request, sessionIdToUse))
   }
 
+  public resolveChangeNetwork = async ({
+    requestId,
+    newNetwork,
+    sessionId
+  }: ResolveChangeNetwork) => {
+    const sessionIdToUse = sessionId || this.sessionId
+    if (sessionIdToUse === undefined) {
+      throw new Error('Session id is undefined')
+    }
+    await this.baseClient.resolveChangeNetwork({
+      requestId,
+      newNetwork,
+      sessionId: sessionIdToUse
+    })
+  }
+
   public resolveSignTransaction = async ({
     requestId,
     signedTransactions,
@@ -234,5 +250,10 @@ export interface ResolveSignAndSubmitTransactions {
 export interface ResolveSignAptosMessage {
   requestId: string
   signedMessages: Array<AptosSignMessageOutput>
+  sessionId?: string
+}
+export interface ResolveChangeNetwork {
+  requestId: string
+  newNetwork: NetworkInfo
   sessionId?: string
 }

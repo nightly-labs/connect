@@ -1,20 +1,24 @@
+import { EventEmitter } from 'eventemitter3'
+import WebSocket from 'isomorphic-ws'
 import { AppToServer } from '../../../bindings/AppToServer'
 import { InitializeRequest } from '../../../bindings/InitializeRequest'
 import { InitializeResponse } from '../../../bindings/InitializeResponse'
+import { ResponsePayload } from '../../../bindings/ResponsePayload'
 import { ServerToApp } from '../../../bindings/ServerToApp'
 import { UserConnectedEvent } from '../../../bindings/UserConnectedEvent'
-import WebSocket from 'isomorphic-ws'
-import {
-  getLocalStorage,
-  getRandomId,
-  getSessionIdLocalStorageKey,
-  getWalletsMetadata
-} from './utils'
 import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
-import { ContentType, MessageToSign, RequestInternal, TransactionToSign } from './content'
-import { ResponsePayload } from '../../../bindings/ResponsePayload'
 import { WalletMetadata } from '../../../bindings/WalletMetadata'
 import {
+  ChangeNetworkTo,
+  ContentType,
+  MessageToSign,
+  RequestInternal,
+  TransactionToSign
+} from './content'
+import { triggerDeeplink } from './deeplinks'
+import { AppBaseInitialize } from './initializeTypes'
+import {
+  ChangeNetworkResponseContent,
   CustomResponseContent,
   ResponseContent,
   ResponseContentType,
@@ -23,9 +27,12 @@ import {
   SignedMessage,
   SignedTransaction
 } from './responseContent'
-import { triggerDeeplink } from './deeplinks'
-import { EventEmitter } from 'eventemitter3'
-import { AppBaseInitialize } from './initializeTypes'
+import {
+  getLocalStorage,
+  getRandomId,
+  getSessionIdLocalStorageKey,
+  getWalletsMetadata
+} from './utils'
 
 interface BaseEvents {
   userConnected: (e: UserConnectedEvent) => void
@@ -202,6 +209,9 @@ export class BaseApp extends EventEmitter<BaseEvents> {
       case 'SignMessages': {
         return payload as SignMessagesResponseContent
       }
+      case 'ChangeNetwork': {
+        return payload as ChangeNetworkResponseContent
+      }
       case 'Custom': {
         return payload as CustomResponseContent
       }
@@ -221,6 +231,14 @@ export class BaseApp extends EventEmitter<BaseEvents> {
       messages: messages
     })) as SignMessagesResponseContent
     return response.messages
+  }
+
+  changeNetwork = async (newNetwork: ChangeNetworkTo) => {
+    const response = (await this.sendRequest({
+      type: ContentType.ChangeNetwork,
+      newNetwork: newNetwork
+    })) as ChangeNetworkResponseContent
+    return response
   }
   customRequest = async (content: string): Promise<CustomResponseContent> => {
     const response = (await this.sendRequest({

@@ -1,6 +1,9 @@
+import { ChangeNetworkTo } from './content'
+
 export enum ResponseContentType {
   SignMessages = 'SignMessagesResponse',
   SignTransactions = 'SignTransactionsResponse',
+  ChangedNetwork = 'ChangedNetwork',
   Custom = 'CustomResponse',
   Reject = 'RejectResponse'
 }
@@ -21,6 +24,10 @@ export interface SignTransactionsResponseContent {
   type: ResponseContentType.SignTransactions
   transactions: SignedTransaction[]
 }
+export interface ChangeNetworkResponseContent {
+  type: ResponseContentType.ChangedNetwork
+  newNetwork: ChangeNetworkTo
+}
 export interface RejectResponseContent {
   type: ResponseContentType.Reject
   reason?: string
@@ -32,5 +39,6 @@ export interface CustomResponseContent {
 export type ResponseContent =
   | SignMessagesResponseContent
   | SignTransactionsResponseContent
+  | ChangeNetworkResponseContent
   | RejectResponseContent
   | CustomResponseContent

@@ -173,7 +173,7 @@ importers:
     specifiers:
       '@aptos-labs/ts-sdk': ^1.9.1
       '@aptos-labs/wallet-standard': ^0.0.11
-      '@nightlylabs/nightly-connect-base': ^0.0.28
+      '@nightlylabs/nightly-connect-base': ^0.0.29
       '@rollup/plugin-commonjs': ^25.0.0
       '@rollup/plugin-node-resolve': ^15.2.1
       '@rollup/plugin-terser': ^0.4.3
@@ -317,7 +317,7 @@ importers:
       tweetnacl: 1.0.3
       typescript: 5.5.3
     specifiers:
-      '@nightlylabs/nightly-connect-base': 0.0.28
+      '@nightlylabs/nightly-connect-base': 0.0.29
       '@polkadot/api': ^10.10.1
       '@polkadot/extension-inject': ^0.46.5
       '@polkadot/keyring': ^12.5.1
@@ -381,7 +381,7 @@ importers:
     specifiers:
       '@aptos-labs/ts-sdk': ^1.9.1
       '@aptos-labs/wallet-standard': ^0.0.11
-      '@nightlylabs/nightly-connect-aptos': 0.0.2
+      '@nightlylabs/nightly-connect-aptos': 0.0.3
       '@nightlylabs/wallet-selector-base': 0.4.1
       '@rollup/plugin-commonjs': ^25.0.0
       '@rollup/plugin-node-resolve': ^15.1.0
@@ -409,7 +409,7 @@ importers:
       tslib: 2.6.3
       typescript: 5.5.3
     specifiers:
-      '@nightlylabs/nightly-connect-base': 0.0.28
+      '@nightlylabs/nightly-connect-base': 0.0.29
       '@nightlylabs/wallet-selector-modal': 0.2.1
       '@rollup/plugin-commonjs': ^25.0.0
       '@rollup/plugin-node-resolve': ^15.1.0
@@ -546,7 +546,7 @@ importers:
       tweetnacl: 1.0.3
       typescript: 5.5.3
     specifiers:
-      '@nightlylabs/nightly-connect-base': 0.0.28
+      '@nightlylabs/nightly-connect-base': 0.0.29
       '@rollup/plugin-commonjs': ^25.0.0
       '@rollup/plugin-node-resolve': ^15.1.0
       '@rollup/plugin-terser': ^0.4.3
@@ -589,7 +589,7 @@ importers:
     specifiers:
       '@mysten/sui': ^1.2.1
       '@mysten/wallet-standard': ^0.12.12
-      '@nightlylabs/nightly-connect-base': ^0.0.28
+      '@nightlylabs/nightly-connect-base': ^0.0.29
       '@noble/hashes': ^1.3.0
       '@rollup/plugin-commonjs': ^25.0.0
       '@rollup/plugin-node-resolve': ^15.2.1

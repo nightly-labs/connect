@@ -1,6 +1,7 @@
 export enum ContentType {
   SignMessages = 'SignMessages',
   SignTransactions = 'SignTransactions',
+  ChangeNetwork = 'ChangeNetwork',
   Custom = 'Custom'
 }
 
@@ -16,6 +17,15 @@ export interface TransactionToSign {
   transaction: string
   metadata?: string
 }
+export interface ChangeNetworkTo {
+  name: string
+  chainId: number
+  url?: string
+}
+export interface ChangeNetworkContent {
+  type: ContentType.ChangeNetwork
+  newNetwork: ChangeNetworkTo
+}
 export interface SignTransactionsContent {
   type: ContentType.SignTransactions
   transactions: TransactionToSign[]
@@ -24,7 +34,11 @@ export interface CustomContent {
   type: ContentType.Custom
   content?: string
 }
-export type RequestInternal = SignMessagesContent | SignTransactionsContent | CustomContent
+export type RequestInternal =
+  | SignMessagesContent
+  | SignTransactionsContent
+  | ChangeNetworkContent
+  | CustomContent
 export interface RequestContent {
   requestId: string
   content: RequestInternal
