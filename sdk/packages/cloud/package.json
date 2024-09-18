@@ -1,6 +1,6 @@
 {
   "name": "@nightlylabs/nightly-cloud",
-  "version": "0.0.20",
+  "version": "0.0.24",
   "type": "module",
   "exports": {
     ".": {
