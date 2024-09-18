@@ -29,7 +29,7 @@ pub async fn delete_passkey(
     State(sessions_cache): State<Arc<ApiSessionsCache>>,
     Extension(user_id): Extension<UserId>,
     Json(payload): Json<HttpDeletePasskeyRequest>,
-) -> Result<(), (StatusCode, String)> {
+) -> Result<Json<()>, (StatusCode, String)> {
     // Get cache data
     let sessions_key = SessionsCacheKey::Passkey2FA(user_id.clone()).to_string();
     let session_data = match sessions_cache.get(&sessions_key) {
@@ -64,10 +64,11 @@ pub async fn delete_passkey(
     let user_data = match db.get_user_by_user_id(&user_id).await {
         Ok(Some(user_data)) => user_data,
         Ok(None) => {
+            error!("User does not exists: user_id: {}", user_id);
             return Err((
                 StatusCode::BAD_REQUEST,
                 CloudApiErrors::UserDoesNotExist.to_string(),
-            ))
+            ));
         }
         Err(err) => {
             error!(
@@ -110,7 +111,7 @@ pub async fn delete_passkey(
     }
 
     // Update user passkeys in database
-    if let Err(err) = db.update_passkeys(&user_id, &passkeys).await {
+    if let Err(err) = db.update_passkeys(&user_data.email, &passkeys).await {
         error!(
             "Failed to update user passkeys: {:?}, user_id: {}",
             err, user_id
@@ -122,5 +123,5 @@ pub async fn delete_passkey(
         ));
     }
 
-    return Ok(());
+    return Ok(Json(()));
 }

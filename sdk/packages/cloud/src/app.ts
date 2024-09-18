@@ -371,7 +371,7 @@ export class NightlyCloud {
   }
 
   deletePasskey = async (request: HttpDeletePasskeyRequest): Promise<void> => {
-    await this.sendPostJson('/reset_passkey_finish', EndpointType.Public, request)
+    await this.sendPostJson('/delete_passkey', EndpointType.Private, request)
   }
 
   addNewPasskeyStart = async (): Promise<HttpAddNewPasskeyStartResponse> => {
