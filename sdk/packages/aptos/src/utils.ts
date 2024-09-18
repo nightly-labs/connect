@@ -1,3 +1,13 @@
+import {
+  AccountAddress,
+  AccountAuthenticator,
+  AnyRawTransaction,
+  Deserializer,
+  PendingTransactionResponse,
+  RawTransaction,
+  Serializer
+} from '@aptos-labs/ts-sdk'
+import { AccountInfo, NetworkInfo } from '@aptos-labs/wallet-standard'
 import { AppBaseInitialize, ContentType, RequestContent } from '@nightlylabs/nightly-connect-base'
 import {
   AptosRequest,
@@ -5,18 +15,6 @@ import {
   SignMessagesAptosRequest,
   SignTransactionsAptosRequest
 } from './requestTypes'
-import {
-  AccountAddress,
-  AccountAuthenticator,
-  AnyRawTransaction,
-  Deserializer,
-  Ed25519PublicKey,
-  PendingTransactionResponse,
-  PublicKey,
-  RawTransaction,
-  Serializer
-} from '@aptos-labs/ts-sdk'
-import { AccountInfo, NetworkInfo } from '@aptos-labs/wallet-standard'
 
 export type AppAptosInitialize = Omit<AppBaseInitialize, 'network'>
 
@@ -201,6 +199,15 @@ export const parseRequest = (request: RequestContent, sessionId: string): AptosR
         sessionId: sessionId
       }
       return customRequest
+    }
+    case ContentType.ChangeNetwork: {
+      const changeNetworkRequest: CustomAptosRequest = {
+        type: ContentType.Custom,
+        content: JSON.stringify(request.content),
+        requestId: request.requestId,
+        sessionId: sessionId
+      }
+      return changeNetworkRequest
     }
   }
 }

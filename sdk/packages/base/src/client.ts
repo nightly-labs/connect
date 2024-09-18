@@ -1,27 +1,28 @@
 // import LocalStorage from 'isomorphic-localstorage'
-import { ClientToServer } from '../../../bindings/ClientToServer'
-import { ServerToClient } from '../../../bindings/ServerToClient'
+import { AptosChangeNetworkInput } from '@aptos-labs/wallet-standard'
+import { EventEmitter } from 'eventemitter3'
 import WebSocket from 'isomorphic-ws'
-import { getRandomId } from './utils'
-import { GetInfoRequest } from '../../../bindings/GetInfoRequest'
+import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
+import { ClientInitializeRequest } from '../../../bindings/ClientInitializeRequest'
+import { ClientToServer } from '../../../bindings/ClientToServer'
 import { ConnectRequest } from '../../../bindings/ConnectRequest'
+import { DropSessionsRequest } from '../../../bindings/DropSessionsRequest'
+import { DropSessionsResponse } from '../../../bindings/DropSessionsResponse'
+import { GetInfoRequest } from '../../../bindings/GetInfoRequest'
 import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
 import { GetPendingRequestsResponse } from '../../../bindings/GetPendingRequestsResponse'
-import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
-import { EventEmitter } from 'eventemitter3'
+import { GetSessionsRequest } from '../../../bindings/GetSessionsRequest'
+import { GetSessionsResponse } from '../../../bindings/GetSessionsResponse'
+import { ServerToClient } from '../../../bindings/ServerToClient'
 import { MessageToSign, RequestContent, RequestInternal, TransactionToSign } from './content'
+import { ClientBaseInitialize } from './initializeTypes'
 import {
   ResponseContent,
   ResponseContentType,
   SignedMessage,
   SignedTransaction
 } from './responseContent'
-import { ClientInitializeRequest } from '../../../bindings/ClientInitializeRequest'
-import { GetSessionsRequest } from '../../../bindings/GetSessionsRequest'
-import { GetSessionsResponse } from '../../../bindings/GetSessionsResponse'
-import { DropSessionsRequest } from '../../../bindings/DropSessionsRequest'
-import { DropSessionsResponse } from '../../../bindings/DropSessionsResponse'
-import { ClientBaseInitialize } from './initializeTypes'
+import { getRandomId } from './utils'
 
 export interface SignTransactionsEvent {
   responseId: string
@@ -33,6 +34,11 @@ export interface SignMessagesEvent {
   sessionId: string
   messages: MessageToSign[]
 }
+export interface ChangeNetworkEvent {
+  responseId: string
+  sessionId: string
+  newNetwork: AptosChangeNetworkInput
+}
 export interface CustomEvent {
   responseId: string
   sessionId: string
@@ -40,6 +46,7 @@ export interface CustomEvent {
   content?: any
 }
 interface BaseEvents {
+  changeNetwork: (e: ChangeNetworkEvent) => void
   signTransactions: (e: SignTransactionsEvent) => void
   signMessages: (e: SignMessagesEvent) => void
   customEvent: (e: CustomEvent) => void
@@ -101,6 +108,14 @@ export class BaseClient extends EventEmitter<BaseEvents> {
                     responseId: response.requestId,
                     sessionId: response.sessionId,
                     messages: payload.messages
+                  })
+                  break
+                }
+                case 'ChangeNetwork': {
+                  baseClient.emit('changeNetwork', {
+                    responseId: response.requestId,
+                    sessionId: response.sessionId,
+                    newNetwork: payload.newNetwork
                   })
                   break
                 }
@@ -224,6 +239,16 @@ export class BaseClient extends EventEmitter<BaseEvents> {
       type: 'NewPayloadEventReply'
     })
   }
+  resolveChangeNetwork = async ({ requestId, sessionId, newNetwork }: ResolveChangeNetwork) => {
+    await this.resolveRequest({
+      requestId,
+      content: {
+        type: ResponseContentType.ChangedNetwork,
+        newNetwork: newNetwork
+      },
+      sessionId
+    })
+  }
   resolveSignTransactions = async ({
     requestId,
     sessionId,
@@ -274,6 +299,12 @@ export interface ResolveSignTransactions {
   sessionId: string
   signedTransactions: SignedTransaction[]
 }
+export interface ResolveChangeNetwork {
+  requestId: string
+  newNetwork: AptosChangeNetworkInput
+  sessionId: string
+}
+
 export interface ResolveSignMessages {
   requestId: string
   sessionId: string

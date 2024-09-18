@@ -1,5 +1,5 @@
 import { AnyRawTransaction } from '@aptos-labs/ts-sdk'
-import { AptosSignMessageInput } from '@aptos-labs/wallet-standard'
+import { AptosChangeNetworkInput, AptosSignMessageInput } from '@aptos-labs/wallet-standard'
 import { ContentType } from '@nightlylabs/nightly-connect-base'
 
 export interface SignTransactionsAptosRequest {
@@ -15,6 +15,12 @@ export interface SignMessagesAptosRequest {
   messages: Array<AptosSignMessageInput>
   sessionId: string
 }
+export interface ChangeNetworkAptosRequest {
+  type: ContentType.ChangeNetwork
+  requestId: string
+  newNetwork: AptosChangeNetworkInput
+  sessionId: string
+}
 export interface CustomAptosRequest {
   type: ContentType.Custom
   requestId: string
@@ -24,4 +30,5 @@ export interface CustomAptosRequest {
 export type AptosRequest =
   | SignTransactionsAptosRequest
   | SignMessagesAptosRequest
+  | ChangeNetworkAptosRequest
   | CustomAptosRequest

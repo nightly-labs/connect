@@ -27,6 +27,7 @@ export default function AptosPage() {
   const [adapter, setAdapter] = createSignal<NightlyConnectAptosAdapter>()
   const [eager, setEager] = createSignal(false)
   const [accountInfo, setAccountInfo] = createSignal<AccountInfo>()
+
   onMount(async () => {
     NightlyConnectAptosAdapter.build(
       {
@@ -202,6 +203,42 @@ export default function AptosPage() {
             }
           }}>
           Sign message
+        </button>
+        <button
+          onClick={async () => {
+            try {
+              const network = await adapter()!.network()
+
+              let changeNetworkResponse
+              if (network.chainId === 27) {
+                // Movement network is active
+                changeNetworkResponse = await adapter()!.changeNetwork({
+                  chainId: 1,
+                  name: Network.MAINNET,
+                  url: 'https://fullnode.mainnet.aptoslabs.com/v1'
+                })
+              } else if ([1, 2, 147].includes(network.chainId)) {
+                // Aptos network is active (mainnet, devnet or testnet)
+                changeNetworkResponse = await adapter()!.changeNetwork({
+                  chainId: 27,
+                  name: Network.CUSTOM,
+                  url: 'https://aptos.testnet.suzuka.movementlabs.xyz/v1'
+                })
+              }
+
+              if (
+                changeNetworkResponse &&
+                changeNetworkResponse.status === UserResponseStatus.APPROVED
+              ) {
+                const changedNetwork = await adapter()!.network()
+                toast.success(`Changed network!`)
+              }
+            } catch (error) {
+              toast.error("Couldn't change network")
+              console.log(error)
+            }
+          }}>
+          Change network
         </button>
         <button
           onClick={() => {

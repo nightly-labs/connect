@@ -84,7 +84,7 @@ importers:
       '@nightlylabs/nightly-connect-polkadot': 0.0.16
       '@nightlylabs/nightly-connect-solana': 0.0.29
       '@nightlylabs/nightly-connect-sui': 0.1.0
-      '@nightlylabs/wallet-selector-aptos': 0.1.7
+      '@nightlylabs/wallet-selector-aptos': 0.1.8
       '@nightlylabs/wallet-selector-base': ^0.4.1
       '@nightlylabs/wallet-selector-polkadot': 0.2.7
       '@nightlylabs/wallet-selector-solana': 0.3.6
@@ -173,7 +173,7 @@ importers:
     specifiers:
       '@aptos-labs/ts-sdk': ^1.9.1
       '@aptos-labs/wallet-standard': ^0.0.11
-      '@nightlylabs/nightly-connect-base': ^0.0.28
+      '@nightlylabs/nightly-connect-base': ^0.0.29
       '@rollup/plugin-commonjs': ^25.0.0
       '@rollup/plugin-node-resolve': ^15.2.1
       '@rollup/plugin-terser': ^0.4.3
@@ -188,6 +188,8 @@ importers:
       typescript: ^5.1.3
   packages/base:
     dependencies:
+      '@aptos-labs/ts-sdk': 1.24.0
+      '@aptos-labs/wallet-standard': 0.0.11
       cross-fetch: 3.1.8
       eventemitter3: 5.0.1
       isomorphic-localstorage: 1.0.2
@@ -206,6 +208,8 @@ importers:
       tslib: 2.6.3
       typescript: 5.5.3
     specifiers:
+      '@aptos-labs/ts-sdk': ^1.9.1
+      '@aptos-labs/wallet-standard': ^0.0.11
       '@rollup/plugin-commonjs': ^25.0.0
       '@rollup/plugin-node-resolve': ^15.1.0
       '@rollup/plugin-terser': ^0.4.3
@@ -293,7 +297,7 @@ importers:
       vite: ^4.3.9
   packages/polkadot:
     dependencies:
-      '@nightlylabs/nightly-connect-base': 'link:../base'
+      '@nightlylabs/nightly-connect-base': 0.0.28
       '@polkadot/api': 10.13.1
       '@polkadot/extension-inject': 0.46.9
       '@polkadot/types': 10.13.1
@@ -381,7 +385,7 @@ importers:
     specifiers:
       '@aptos-labs/ts-sdk': ^1.9.1
       '@aptos-labs/wallet-standard': ^0.0.11
-      '@nightlylabs/nightly-connect-aptos': 0.0.2
+      '@nightlylabs/nightly-connect-aptos': 0.0.3
       '@nightlylabs/wallet-selector-base': 0.4.1
       '@rollup/plugin-commonjs': ^25.0.0
       '@rollup/plugin-node-resolve': ^15.1.0
@@ -409,7 +413,7 @@ importers:
       tslib: 2.6.3
       typescript: 5.5.3
     specifiers:
-      '@nightlylabs/nightly-connect-base': 0.0.28
+      '@nightlylabs/nightly-connect-base': 0.0.29
       '@nightlylabs/wallet-selector-modal': 0.2.1
       '@rollup/plugin-commonjs': ^25.0.0
       '@rollup/plugin-node-resolve': ^15.1.0
@@ -527,7 +531,7 @@ importers:
       typescript: ^5.1.3
   packages/solana:
     dependencies:
-      '@nightlylabs/nightly-connect-base': 'link:../base'
+      '@nightlylabs/nightly-connect-base': 0.0.28
       '@solana/web3.js': 1.95.0
       eventemitter3: 5.0.1
       uuid: 9.0.1
@@ -567,7 +571,7 @@ importers:
     dependencies:
       '@mysten/sui': 1.3.0_typescript@5.5.3
       '@mysten/wallet-standard': 0.12.12_typescript@5.5.3
-      '@nightlylabs/nightly-connect-base': 'link:../base'
+      '@nightlylabs/nightly-connect-base': 0.0.28
       '@noble/hashes': 1.4.0
       eventemitter3: 5.0.1
       uuid: 9.0.1
@@ -4647,6 +4651,17 @@ packages:
     dev: false
     resolution:
       integrity: sha512-aDpQJicIjL7S+EzwBgUzMEY/L/HtFalfhf4APE3GaDqK9JqtLJDO9d2RmUQDinTtb1mG9MsHpWBtU6fjYo+PHw==
+  /@nightlylabs/nightly-connect-base/0.0.28:
+    dependencies:
+      cross-fetch: 3.1.8
+      eventemitter3: 5.0.1
+      isomorphic-localstorage: 1.0.2
+      isomorphic-ws: 5.0.0_ws@8.18.0
+      uuid: 9.0.1
+      ws: 8.18.0
+    dev: false
+    resolution:
+      integrity: sha512-lu8K4FITek/rTR9UsIMnejIvXiIWBiw75S/ije+ZFapJJ+P/7Yuqj1UTKXPzR+cN5uVOeszUWXzwjIk+vNp6Bw==
   /@nightlylabs/nightly-connect-solana/0.0.28:
     dependencies:
       '@nightlylabs/nightly-connect-base': 0.0.27

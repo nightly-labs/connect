@@ -1,6 +1,7 @@
 import { Account, Aptos, Ed25519PrivateKey, Network } from '@aptos-labs/ts-sdk'
 import {
   AccountInfo,
+  AptosChangeNetworkInput,
   AptosSignMessageInput,
   NetworkInfo,
   UserResponseStatus
@@ -10,7 +11,11 @@ import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vites
 import { TEST_RELAY_ENDPOINT, smartDelay } from '../../../commonTestUtils'
 import { AppAptos } from './app'
 import { HttpClientAptos } from './http-client'
-import { SignMessagesAptosRequest, SignTransactionsAptosRequest } from './requestTypes'
+import {
+  ChangeNetworkAptosRequest,
+  SignMessagesAptosRequest,
+  SignTransactionsAptosRequest
+} from './requestTypes'
 import { TEST_APP_INITIALIZE } from './testUtils'
 import { APTOS_NETWORK, serializeConnectData } from './utils'
 // Edit an assertion and save to see HMR in action
@@ -78,9 +83,7 @@ describe('Aptos http-client tests', () => {
         functionArguments: [bobAddress, 100]
       }
     })
-    const promiseSignTransaction = app.signTransaction({
-      rawTransaction: transaction.rawTransaction
-    })
+    const promiseSignTransaction = app.signTransaction(transaction)
     await smartDelay()
     // Query for request
     const pendingRequest = (
@@ -123,9 +126,7 @@ describe('Aptos http-client tests', () => {
         functionArguments: [bobAddress, 100]
       }
     })
-    const promiseSignTransaction = app.signAndSubmitTransaction({
-      rawTransaction: transaction.rawTransaction
-    })
+    const promiseSignTransaction = app.signAndSubmitTransaction(transaction)
     await smartDelay()
     // Query for request
     const pendingRequest = (
@@ -189,5 +190,29 @@ describe('Aptos http-client tests', () => {
     if (submitted.status !== UserResponseStatus.APPROVED) {
       throw new Error('Transaction was not approved')
     }
+  })
+  test('#resolveChangeNetwork()', async () => {
+    const newNetwork: AptosChangeNetworkInput = {
+      name: Network.MAINNET,
+      chainId: 27
+    }
+
+    const _changedNetwork = app.changeNetwork(newNetwork)
+    await smartDelay()
+
+    const pendingRequest = (
+      await client.getPendingRequests({ sessionId: app.sessionId })
+    )[0] as ChangeNetworkAptosRequest
+    expect(pendingRequest.type).toBe(ContentType.ChangeNetwork)
+    expect(pendingRequest.newNetwork.chainId).toBe(27)
+    expect(pendingRequest.newNetwork.name).toBe(Network.MAINNET)
+
+    const payload = pendingRequest.newNetwork
+
+    await client.resolveChangeNetwork({
+      requestId: pendingRequest.requestId,
+      sessionId: app.sessionId,
+      newNetwork: payload
+    })
   })
 })

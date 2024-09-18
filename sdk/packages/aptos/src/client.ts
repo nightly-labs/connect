@@ -1,10 +1,20 @@
-import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
+import { AnyRawTransaction } from '@aptos-labs/ts-sdk'
+import {
+  AccountInfo,
+  AptosChangeNetworkInput,
+  AptosSignAndSubmitTransactionOutput,
+  AptosSignMessageInput,
+  AptosSignMessageOutput,
+  AptosSignTransactionOutput,
+  NetworkInfo
+} from '@aptos-labs/wallet-standard'
 import {
   BaseClient,
   ClientBaseInitialize,
   Connect as ConnectBase
 } from '@nightlylabs/nightly-connect-base'
 import { EventEmitter } from 'eventemitter3'
+import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
 import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
 import { AptosRequest } from './requestTypes'
 import {
@@ -16,15 +26,6 @@ import {
   serializeObject,
   serializePendingTransactionResponse
 } from './utils'
-import { AnyRawTransaction } from '@aptos-labs/ts-sdk'
-import {
-  AccountInfo,
-  AptosSignAndSubmitTransactionOutput,
-  AptosSignMessageInput,
-  AptosSignMessageOutput,
-  AptosSignTransactionOutput,
-  NetworkInfo
-} from '@aptos-labs/wallet-standard'
 export interface SignAndSubmitTransactionEvent {
   sessionId: string
   requestId: string
@@ -40,7 +41,13 @@ export interface SignMessagesEvent {
   sessionId: string
   messages: Array<AptosSignMessageInput>
 }
+interface ChangeNetworkEvent {
+  requestId: string
+  sessionId: string
+  newNetwork: AptosChangeNetworkInput
+}
 export interface ClientAptosEvents {
+  changeNetwork: (e: ChangeNetworkEvent) => void
   signAndSubmitTransaction: (e: SignAndSubmitTransactionEvent) => void
   signTransaction: (e: SignTransactionEvent) => void
   signMessage: (e: SignMessagesEvent) => void
@@ -81,6 +88,14 @@ export class ClientAptos extends EventEmitter<ClientAptosEvents> {
         messages: e.messages.map((tx) => deserializeObject(tx.message))
       }
       this.emit('signMessage', event)
+    })
+    baseClient.on('changeNetwork', (e) => {
+      const event: ChangeNetworkEvent = {
+        sessionId: e.sessionId,
+        requestId: e.responseId,
+        newNetwork: e.newNetwork
+      }
+      this.emit('changeNetwork', event)
     })
     baseClient.on('appDisconnected', (e) => {
       this.emit('appDisconnected', e)
@@ -134,6 +149,22 @@ export class ClientAptos extends EventEmitter<ClientAptosEvents> {
     }
     const requests = await this.baseClient.getPendingRequests(sessionIdToUse)
     return requests.map((request) => parseRequest(request, sessionIdToUse))
+  }
+
+  public resolveChangeNetwork = async ({
+    requestId,
+    newNetwork,
+    sessionId
+  }: ResolveChangeNetwork) => {
+    const sessionIdToUse = sessionId || this.sessionId
+    if (sessionIdToUse === undefined) {
+      throw new Error('Session id is undefined')
+    }
+    await this.baseClient.resolveChangeNetwork({
+      requestId,
+      newNetwork,
+      sessionId: sessionIdToUse
+    })
   }
 
   public resolveSignTransaction = async ({
@@ -234,5 +265,10 @@ export interface ResolveSignAndSubmitTransactions {
 export interface ResolveSignAptosMessage {
   requestId: string
   signedMessages: Array<AptosSignMessageOutput>
+  sessionId?: string
+}
+export interface ResolveChangeNetwork {
+  requestId: string
+  newNetwork: AptosChangeNetworkInput
   sessionId?: string
 }

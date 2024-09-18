@@ -1,5 +1,6 @@
 import {
   AccountInfo,
+  AptosChangeNetworkMethod,
   AptosSignAndSubmitTransactionMethod,
   AptosSignMessageMethod,
   AptosSignMessageOutput,
@@ -149,6 +150,16 @@ export class AppAptos extends EventEmitter<AptosAppEvents> {
     return {
       status: UserResponseStatus.APPROVED,
       args: deserializeObject(signedTx[0].message) as AptosSignMessageOutput
+    }
+  }
+
+  changeNetwork: AptosChangeNetworkMethod = async (input) => {
+    const changedNetworkSuccess = await this.base.changeNetwork(input)
+    return {
+      status: UserResponseStatus.APPROVED,
+      args: {
+        success: !!changedNetworkSuccess.newNetwork
+      }
     }
   }
 }

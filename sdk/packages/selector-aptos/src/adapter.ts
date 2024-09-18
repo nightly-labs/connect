@@ -328,9 +328,8 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
     if (!this) {
       throw new Error('Not connected')
     }
-    // TODO: add support for Nightly Connect
     if (this._connectionType === ConnectionType.Nightly) {
-      throw new Error('Not supported for Nightly Connect')
+      return await this._app!.changeNetwork(networkInfo)
     }
     if (this._connectionType === ConnectionType.WalletStandard) {
       return await this._innerStandardAdapter!.features['aptos:changeNetwork']!.changeNetwork(
