@@ -329,7 +329,11 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
       throw new Error('Not connected')
     }
     if (this._connectionType === ConnectionType.Nightly) {
-      return await this._app!.changeNetwork(networkInfo)
+      const response = await this._app!.changeNetwork(networkInfo)
+      if (response.status === UserResponseStatus.APPROVED) {
+        this._networkInfo = networkInfo
+      }
+      return response
     }
     if (this._connectionType === ConnectionType.WalletStandard) {
       return await this._innerStandardAdapter!.features['aptos:changeNetwork']!.changeNetwork(
