@@ -87,13 +87,8 @@ pub async fn register_with_password_start(
             code: code,
         });
 
-        if let Some(err) = mailer.handle_email_request(&request).error_message {
-            error!("Failed to send email: {:?}, request: {:?}", err, request);
-            return Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                CloudApiErrors::InternalServerError.to_string(),
-            ));
-        }
+        // It doesn't matter if this fails
+        mailer.handle_email_request(&request);
     }
 
     return Ok(Json(HttpRegisterWithPasswordStartResponse {}));

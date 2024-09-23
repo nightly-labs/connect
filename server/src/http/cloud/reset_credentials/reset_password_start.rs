@@ -89,16 +89,8 @@ pub async fn reset_password_start(
     });
 
     if !is_test_env() {
-        if let Some(err) = mailer.handle_email_request(&email_request).error_message {
-            error!(
-                "Failed to send email: {:?}, email_request: {:?}",
-                err, email_request
-            );
-            return Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                CloudApiErrors::InternalServerError.to_string(),
-            ));
-        }
+        // It doesn't matter if this fails
+        mailer.handle_email_request(&email_request);
     }
 
     return Ok(Json(HttpResetPasswordStartResponse {}));
