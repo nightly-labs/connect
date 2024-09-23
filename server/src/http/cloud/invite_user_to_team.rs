@@ -202,9 +202,7 @@ pub async fn invite_user_to_team(
                 });
 
                 // It doesn't matter if this fails
-                if let Some(err) = mailer.handle_email_request(&request).error_message {
-                    error!("Failed to send email: {:?}, request: {:?}", err, request);
-                }
+                mailer.handle_email_request(&request);
             }
 
             // Return response
