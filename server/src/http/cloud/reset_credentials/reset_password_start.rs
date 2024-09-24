@@ -27,9 +27,9 @@ use ts_rs::TS;
 pub struct HttpResetPasswordStartRequest {
     #[garde(email)]
     pub email: String,
-    #[garde(skip)]
+    #[garde(alphanumeric)]
     pub device: String,
-    #[garde(skip)]
+    #[garde(alphanumeric)]
     pub browser: String,
 }
 

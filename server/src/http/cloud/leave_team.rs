@@ -25,9 +25,9 @@ use ts_rs::TS;
 pub struct HttpLeaveTeamRequest {
     #[garde(custom(custom_validate_team_id))]
     pub team_id: String,
-    #[garde(skip)]
+    #[garde(alphanumeric)]
     pub device: String,
-    #[garde(skip)]
+    #[garde(alphanumeric)]
     pub browser: String,
 }
 

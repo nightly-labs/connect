@@ -27,9 +27,9 @@ use webauthn_rs::Webauthn;
 pub struct HttpRegisterWithPasskeyStartRequest {
     #[garde(email)]
     pub email: String,
-    #[garde(skip)]
+    #[garde(alphanumeric)]
     pub device: String,
-    #[garde(skip)]
+    #[garde(alphanumeric)]
     pub browser: String,
 }
 
