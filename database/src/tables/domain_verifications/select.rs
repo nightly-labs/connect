@@ -45,7 +45,7 @@ impl Db {
         &self,
         domain_name: &String,
         app_id: &String,
-    ) -> Result<Vec<DomainVerification>, DbError> {
+    ) -> Result<Option<DomainVerification>, DbError> {
         let query =
             format!("SELECT * FROM {DOMAIN_VERIFICATIONS_TABLE_NAME} WHERE domain_name = $1 AND app_id = $2");
         let typed_query = query_as::<_, DomainVerification>(&query);
@@ -53,7 +53,7 @@ impl Db {
         return typed_query
             .bind(&domain_name)
             .bind(&app_id)
-            .fetch_all(&self.connection_pool)
+            .fetch_optional(&self.connection_pool)
             .await
             .map_err(|e| e.into());
     }

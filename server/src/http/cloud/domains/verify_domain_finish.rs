@@ -103,7 +103,7 @@ pub async fn verify_domain_finish(
 
     // Get challenge data
     let domain_verification_challenge = match db
-        .get_domain_verification_by_domain_name(&domain_name)
+        .get_domain_verification_by_domain_name_and_app_id(&domain_name, &request.app_id)
         .await
     {
         Ok(Some(challenge)) => challenge,
