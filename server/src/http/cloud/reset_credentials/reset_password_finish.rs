@@ -127,6 +127,8 @@ mod tests {
 
         let password_reset_start_payload = HttpResetPasswordStartRequest {
             email: email.to_string(),
+            device: "device".to_string(),
+            browser: "browser".to_string(),
         };
 
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
