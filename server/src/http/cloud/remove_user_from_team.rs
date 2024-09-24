@@ -117,12 +117,29 @@ pub async fn remove_user_from_team(
                     CloudApiErrors::DatabaseError.to_string(),
                 ));
             }
+            // Get user data and perform checks
+            let remover = match db.get_user_by_user_id(&user_id).await {
+                Ok(Some(user)) => user,
+                Ok(None) => {
+                    return Err((
+                        StatusCode::BAD_REQUEST,
+                        CloudApiErrors::UserDoesNotExist.to_string(),
+                    ));
+                }
+                Err(err) => {
+                    error!("Failed to get user by id: {:?}", err);
+                    return Err((
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        CloudApiErrors::DatabaseError.to_string(),
+                    ));
+                }
+            };
 
             // Send email notification
             let request = SendEmailRequest::TeamRemoval(TeamRemovalNotification {
                 email: user.email.clone(),
                 team_name: team.team_name.clone(),
-                remover_email: user_id,
+                remover_email: remover.email.clone(),
             });
 
             // It doesn't matter if this fails
