@@ -27,6 +27,10 @@ use ts_rs::TS;
 pub struct HttpResetPasswordStartRequest {
     #[garde(email)]
     pub email: String,
+    #[garde(skip)]
+    pub device: String,
+    #[garde(skip)]
+    pub browser: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
@@ -86,6 +90,8 @@ pub async fn reset_password_start(
     let email_request = SendEmailRequest::ResetPassword(ResetPasswordRequest {
         email: request.email,
         code: code,
+        device: request.device.clone(),
+        browser: request.browser.clone(),
     });
 
     if !is_test_env() {

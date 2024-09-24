@@ -2,10 +2,8 @@ pub static TEAM_LEAVING_NOTIFICATION_TEMPLATE: &str = r##"<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Email Confirmation</title>
-
+    <title>Team leave</title>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap");
       @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap");
@@ -27,6 +25,9 @@ pub static TEAM_LEAVING_NOTIFICATION_TEMPLATE: &str = r##"<!DOCTYPE html>
         }
       }
 
+      a:hover {
+        opacity: 0.5;
+      }
       table {
         border-collapse: collapse !important;
         margin: 0 auto;
@@ -44,144 +45,116 @@ pub static TEAM_LEAVING_NOTIFICATION_TEMPLATE: &str = r##"<!DOCTYPE html>
       width="100%"
       cellpadding="0"
       cellspacing="0"
-      style="background-color: #171c2f; max-width: 640px; height: 156px"
-    >
-      <tr>
-        <td>
-          <img
-            style="width: 100%"
-            src="https://registry.nightly.app/email/img/banner.png"
-            alt=""
-          />
-        </td>
-      </tr>
-    </table>
-    <table
-      width="100%"
-      cellpadding="0"
-      cellspacing="0"
       style="
-        background-color: #ffffff;
-        padding: 0 64px;
+        background-color: #f7f7f7;
         max-width: 640px;
-        border-bottom: #b1bdd4 1px solid;
+        display: flex;
+        flex-direction: column;
       "
     >
       <tr>
-        <td style="padding: 0 64px">
+        <td style="padding: 64px">
+          <img
+            style="height: 48px"
+            src="https://registry.nightly.app/email/img/ncCloudSmall.svg"
+            alt=""
+          />
           <h1
             style="
               font-family: 'Poppins', sans-serif;
               font-size: 36px;
-              font-weight: 800;
-              margin-top: 23px;
-              margin-bottom: 25px;
+              font-weight: 700;
+              margin-top: 32px;
               color: #040407;
+              line-height: 44px;
             "
           >
-            Email confirmation
+            See you again!
           </h1>
           <p
             style="
               font-family: 'Poppins', sans-serif;
               font-size: 16px;
               font-weight: 400;
-              margin-top: 0;
               line-height: 22px;
-              margin-bottom: 32px;
+              margin-top: 32px;
+              color: #2b344d;
             "
           >
-            To complete your profile and start trading, you’ll need to verify
-            your email address:
+            You decided to leave the team EMAIL_TEAM_NAME!
+            <br />
+            You do not recall this action? Catch the details below:
           </p>
-          <tr>
-            <td align="left" bgcolor="#ffffff">
-              <table border="0" cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td
-                    align="center"
-                    bgcolor="#ffffff"
-                    width="100%"
-                    style="padding: 0 0 32px 0"
-                  >
-                    <table border="0" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td
-                          align="center"
-                          bgcolor="#6067F9"
-                          style="border-radius: 6px"
-                        >
-                          <a
-                            href="TEAM_LEAVING_MESSAGE_TO_REPLACE"
-                            target="_blank"
-                            style="
-                              display: inline-block;
-                              padding: 9px 0;
-                              font-size: 16px;
-                              color: #ffffff;
-                              text-decoration: none;
-                              border-radius: 6px;
-                              width: 512px;
-                            "
-                            >Confirm email</a
-                          >
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-        </td>
-      </tr>
-    </table>
-    <table
-      width="100%"
-      cellpadding="0"
-      cellspacing="0"
-      style="margin-top: 32px; max-width: 640px; background-color: #ffffff"
-    >
-      <tr>
-        <td style="padding: 0 64px">
+
           <p
-            style="
-              font-size: 16px;
-              margin-top: 0;
-              font-weight: 400;
-              line-height: 22px;
-              font-family: 'Poppins', sans-serif;
-            "
-          >
-            Button not working? Try the verification link:
-          </p>
-          <a
-            id="link"
             style="
               font-family: 'Poppins', sans-serif;
               font-size: 16px;
               font-weight: 400;
               line-height: 22px;
-              color: #6067f9;
-              text-decoration: none;
-              word-break: break-word;
+              margin-top: 32px;
+              color: #2b344d;
             "
-            href="EMAIL_CONFIRMATION_LINK_TO_REPLACE"
-            >EMAIL_CONFIRMATION_LINK_TO_REPLACE</a
           >
+            Action details: EMAIL_ACTION_DEVICE, EMAIL_ACTION_BROWSER, EMAIL_ACTION_DATE, EMAIL_ACTION_TIME.
+          </p>
+
           <p
             style="
               font-family: 'Poppins', sans-serif;
-              color: #b1bdd4;
-              margin-top: 16px;
-              font-size: 14px;
+              font-size: 12px;
               font-weight: 400;
-              line-height: 20px;
-              margin-bottom: 32px;
+              margin-top: 32px;
+              line-height: 16px;
+              color: #d25858;
             "
           >
-            It’s not you? Please, contact our support as soon as possible.
+            If it was not you, please contact our support team as soon as
+            possible!
           </p>
+          <h3
+            style="
+              font-family: 'Poppins', sans-serif;
+              font-size: 16px;
+              font-weight: 700;
+              line-height: 22px;
+              margin-top: 32px;
+              color: #2b344d;
+            "
+          >
+            <span style="font-weight: 400">We wish to see you again,</span>
+            <br />Nightly's Team
+          </h3>
+          <div>
+            <h4
+              style="
+                font-family: 'Poppins', sans-serif;
+                font-size: 12px;
+                font-weight: 400;
+                line-height: 16px;
+                margin-top: 32px;
+                color: #2b344d;
+              "
+            >
+              Hit us up here
+            </h4>
+            <div style="display: flex; gap: 15px">
+              <a href="https://x.com/Nightly_app" target="_blank">
+                <img
+                  style="height: 14px"
+                  src="https://registry.nightly.app/email/img/X.svg"
+                  alt=""
+                />
+              </a>
+              <a href="https://discord.com/invite/7nhFHA6yZq" target="_blank">
+                <img
+                  style="height: 16px"
+                  src="https://registry.nightly.app/email/img/Discord.svg"
+                  alt=""
+                />
+              </a>
+            </div>
+          </div>
         </td>
       </tr>
     </table>
@@ -190,114 +163,25 @@ pub static TEAM_LEAVING_NOTIFICATION_TEMPLATE: &str = r##"<!DOCTYPE html>
       cellpadding="0"
       cellspacing="0"
       style="
-        height: 100%;
+        background-color: #6067f9;
+        padding: 0 64px;
         max-width: 640px;
-        background-color: #0f0f1a;
-        font-family: 'Poppins', sans-serif;
+        height: 80px;
+        display: grid;
+        place-content: center;
       "
     >
       <tr>
-        <td align="center">
-          <h2
-            style="
-              font-family: 'Poppins', sans-serif;
-              color: #f7f7f7;
-              font-weight: 700;
-              font-size: 22px;
-              line-height: 30px;
-              margin: 16px 0 8px 0;
-            "
-          >
-            Stay in touch!
-          </h2>
-          <table
-            align="center"
-            border="0"
-            cellpadding="0"
-            cellspacing="0"
-            width="100%"
-            style="height: 22px; margin-bottom: 24px"
-          >
-            <tr>
-              <td bgcolor="#0f0f1a" style="border-radius: 6px">
-                <table align="center">
-                  <tr>
-                    <td>
-                      <a
-                        href="https://discord.com/invite/7nhFHA6yZq"
-                        target="_blank"
-                        style="
-                          font-family: 'Source Sans Pro', Helvetica, Arial,
-                            sans-serif;
-                          font-size: 16px;
-                          color: #ffffff;
-                          text-decoration: none;
-
-                          gap: 8px;
-                        "
-                      >
-                        <img
-                          style="
-                            width: 24px;
-                            height: 18px;
-                            margin-bottom: 4px;
-                            vertical-align: middle;
-                          "
-                          src="https://registry.nightly.app/email/img/discordIcon.png"
-                          alt="discordIcon"
-                        />
-                        <span>Discord</span>
-                      </a>
-                    </td>
-                    <td>
-                      <a
-                        href="https://discord.com/invite/7nhFHA6yZq"
-                        target="_blank"
-                        style="
-                          font-family: 'Source Sans Pro', Helvetica, Arial,
-                            sans-serif;
-                          margin-left: 24px;
-                          font-size: 16px;
-                          color: #ffffff;
-                          text-decoration: none;
-                          gap: 8px;
-                        "
-                      >
-                        <img
-                          style="
-                            width: 24px;
-                            height: 18px;
-                            margin-bottom: 4px;
-                            vertical-align: middle;
-                          "
-                          src="https://registry.nightly.app/email/img/twitterIcon.png"
-                          alt="twitterIcon"
-                        />
-                        <span>Twitter</span>
-                      </a>
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-          </table>
-
-          <p
-            style="
-              font-family: 'Poppins', sans-serif;
-              color: #3e4864;
-              font-size: 12px;
-              margin-top: 0;
-              text-align: center;
-              font-weight: 400;
-              line-height: 16px;
-              margin-bottom: 16px;
-            "
-          >
-            ©2023 - Nightly Exchange. All rights reserved.
-          </p>
+        <td>
+          <img
+            style="height: 45px"
+            src="https://registry.nightly.app/email/img/nc_cloud.svg"
+            alt=""
+          />
         </td>
       </tr>
     </table>
   </body>
-</html>"##;
+</html>
+
+"##;

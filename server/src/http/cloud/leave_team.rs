@@ -25,6 +25,10 @@ use ts_rs::TS;
 pub struct HttpLeaveTeamRequest {
     #[garde(custom(custom_validate_team_id))]
     pub team_id: String,
+    #[garde(skip)]
+    pub device: String,
+    #[garde(skip)]
+    pub browser: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
@@ -113,6 +117,8 @@ pub async fn leave_team(
             let request = SendEmailRequest::LeaveTeam(TeamLeavingNotification {
                 email: user.email.clone(),
                 team_name: team.team_name.clone(),
+                device: request.device.clone(),
+                browser: request.browser.clone(),
             });
 
             // It doesn't matter if this fails
@@ -204,6 +210,8 @@ mod tests {
         // Remove user from the team
         let request = HttpLeaveTeamRequest {
             team_id: team_id.to_string(),
+            device: "device".to_string(),
+            browser: "browser".to_string(),
         };
 
         let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));

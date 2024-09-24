@@ -12,9 +12,16 @@ pub fn send_password_reset(
     mailbox: Mailbox,
     mail_sender: &Arc<SmtpTransport>,
     request: &ResetPasswordRequest,
+    date: String,
+    time: String,
 ) -> SendEmailResponse {
     let html = match templates.get(&Templates::ResetPassword) {
-        Some(template) => template.replace("RESET_PASSWORD_LINK_TO_REPLACE", &request.code),
+        Some(template) => template
+            .replace("EMAIL_PASSWORD_RESET_CODE", &request.code)
+            .replace("EMAIL_ACTION_DEVICE", &request.device)
+            .replace("EMAIL_ACTION_BROWSER", &request.browser)
+            .replace("EMAIL_ACTION_DATE", &date)
+            .replace("EMAIL_ACTION_TIME", &time),
         None => {
             // Only possible if someone messes with the templates, print error and go along
             error!(

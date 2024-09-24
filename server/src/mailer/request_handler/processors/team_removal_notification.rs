@@ -14,14 +14,9 @@ pub fn send_team_removal_notification(
     request: &TeamRemovalNotification,
 ) -> SendEmailResponse {
     let html = match templates.get(&Templates::TeamRemovalNotification) {
-        Some(template) => template.replace(
-            "TEAM_REMOVAL_MESSAGE_TO_REPLACE",
-            format!(
-                "{} removed you from team {}",
-                request.remover_email, request.team_name
-            )
-            .as_str(),
-        ),
+        Some(template) => template
+            .replace("EMAIL_TEAM_NAME", &request.team_name)
+            .replace("EMAIL_ADMIN_ADDRESS", &request.remover_email),
         None => {
             // Only possible if someone messes with the templates, print error and go along
             error!(

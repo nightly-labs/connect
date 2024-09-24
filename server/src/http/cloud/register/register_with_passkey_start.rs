@@ -27,6 +27,10 @@ use webauthn_rs::Webauthn;
 pub struct HttpRegisterWithPasskeyStartRequest {
     #[garde(email)]
     pub email: String,
+    #[garde(skip)]
+    pub device: String,
+    #[garde(skip)]
+    pub browser: String,
 }
 
 pub type HttpRegisterWithPasskeyStartResponse = CreationChallengeResponse;
@@ -89,6 +93,8 @@ pub async fn register_with_passkey_start(
     let email_request = SendEmailRequest::EmailConfirmation(EmailConfirmationRequest {
         email: request.email.clone(),
         code: code.clone(),
+        device: request.device.clone(),
+        browser: request.browser.clone(),
     });
 
     if !is_test_env() {

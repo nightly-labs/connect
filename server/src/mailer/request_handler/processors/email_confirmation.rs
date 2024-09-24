@@ -12,9 +12,16 @@ pub fn send_email_confirmation(
     mailbox: Mailbox,
     mail_sender: &Arc<SmtpTransport>,
     request: &EmailConfirmationRequest,
+    date: String,
+    time: String,
 ) -> SendEmailResponse {
     let html = match templates.get(&Templates::EmailConfirmation) {
-        Some(template) => template.replace("EMAIL_CONFIRMATION_LINK_TO_REPLACE", &request.code),
+        Some(template) => template
+            .replace("EMAIL_CONFIRMATION_CODE", &request.code)
+            .replace("EMAIL_ACTION_DEVICE", &request.device)
+            .replace("EMAIL_ACTION_BROWSER", &request.browser)
+            .replace("EMAIL_ACTION_DATE", &date)
+            .replace("EMAIL_ACTION_TIME", &time),
         None => {
             // Only possible if someone messes with the templates, print error and go along
             error!(
