@@ -17,7 +17,9 @@ pub fn send_team_invite_notification(
         // TODO For now simply pass team_name, fix when template is ready, this will require two fields to update
         // 1. message created from request in format "{inviter_email} invited you to join {team_name} on Nightly Connect Cloud"
         // 2. link which will navigate user to his invites page
-        Some(template) => template.replace("TEAM_INVITE_LINK_TO_REPLACE", &request.team_name),
+        Some(template) => template
+            .replace("EMAIL_TEAM_LINK", "https://cloud.nightly.app/settings")
+            .replace("EMAIL_TEAM_NAME", &request.team_name),
         None => {
             // Only possible if someone messes with the templates, print error and go along
             error!(

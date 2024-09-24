@@ -12,12 +12,16 @@ pub fn send_team_leaving_notification(
     mailbox: Mailbox,
     mail_sender: &Arc<SmtpTransport>,
     request: &TeamLeavingNotification,
+    date: String,
+    time: String,
 ) -> SendEmailResponse {
     let html = match templates.get(&Templates::TeamLeavingNotification) {
-        Some(template) => template.replace(
-            "TEAM_LEAVING_MESSAGE_TO_REPLACE",
-            format!("You left the team {}", request.team_name).as_str(),
-        ),
+        Some(template) => template
+            .replace("EMAIL_TEAM_NAME", &request.team_name)
+            .replace("EMAIL_ACTION_DEVICE", &request.device)
+            .replace("EMAIL_ACTION_BROWSER", &request.browser)
+            .replace("EMAIL_ACTION_DATE", &date)
+            .replace("EMAIL_ACTION_TIME", &time),
         None => {
             // Only possible if someone messes with the templates, print error and go along
             error!(

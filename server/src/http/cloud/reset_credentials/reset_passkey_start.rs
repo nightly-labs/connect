@@ -27,6 +27,10 @@ use webauthn_rs::Webauthn;
 pub struct HttpResetPasskeyStartRequest {
     #[garde(email)]
     pub email: String,
+    #[garde(alphanumeric)]
+    pub device: String,
+    #[garde(alphanumeric)]
+    pub browser: String,
 }
 
 pub type HttpResetPasskeyStartResponse = CreationChallengeResponse;
@@ -95,6 +99,8 @@ pub async fn reset_passkey_start(
     let email_request = SendEmailRequest::EmailConfirmation(EmailConfirmationRequest {
         email: request.email.clone(),
         code: code.clone(),
+        device: request.device.clone(),
+        browser: request.browser.clone(),
     });
 
     if !is_test_env() {

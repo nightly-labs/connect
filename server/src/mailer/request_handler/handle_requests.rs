@@ -1,3 +1,5 @@
+use chrono::Datelike;
+use database::tables::utils::get_current_datetime;
 use log::error;
 
 use super::processors::{
@@ -10,6 +12,24 @@ use crate::{
     env::MAILER_ACTIVE,
     mailer::{mail_requests::SendEmailRequest, mailer::Mailer},
 };
+
+fn get_date() -> (String, String) {
+    let now = get_current_datetime();
+    let day = now.day();
+    let month = now.format("%B").to_string();
+    let year = now.year();
+    let time = now.format("%H:%M:%S").to_string();
+    let day_suffix = match day {
+        1 | 21 | 31 => "st",
+        2 | 22 => "nd",
+        3 | 23 => "rd",
+        _ => "th",
+    };
+    let date_string = format!("{}{} {} {}", day, day_suffix, month, year);
+
+    let time_string = time;
+    return (date_string, time_string);
+}
 
 impl Mailer {
     pub fn handle_email_request(&self, request: &SendEmailRequest) {
@@ -27,17 +47,31 @@ impl Mailer {
         tokio::spawn(async move {
             match request {
                 SendEmailRequest::EmailConfirmation(request) => {
-                    if let Some(err) =
-                        send_email_confirmation(&templates, mailbox.clone(), &mail_sender, &request)
-                            .error_message
+                    let date = get_date();
+                    if let Some(err) = send_email_confirmation(
+                        &templates,
+                        mailbox.clone(),
+                        &mail_sender,
+                        &request,
+                        date.0,
+                        date.1,
+                    )
+                    .error_message
                     {
                         error!("Failed to send email: {:?}, request: {:?}", err, request);
                     }
                 }
                 SendEmailRequest::ResetPassword(request) => {
-                    if let Some(err) =
-                        send_password_reset(&templates, mailbox.clone(), &mail_sender, &request)
-                            .error_message
+                    let date = get_date();
+                    if let Some(err) = send_password_reset(
+                        &templates,
+                        mailbox.clone(),
+                        &mail_sender,
+                        &request,
+                        date.0,
+                        date.1,
+                    )
+                    .error_message
                     {
                         error!("Failed to send email: {:?}, request: {:?}", err, request);
                     }
@@ -67,11 +101,14 @@ impl Mailer {
                     }
                 }
                 SendEmailRequest::LeaveTeam(request) => {
+                    let date = get_date();
                     if let Some(err) = send_team_leaving_notification(
                         &templates,
                         mailbox.clone(),
                         &mail_sender,
                         &request,
+                        date.0,
+                        date.1,
                     )
                     .error_message
                     {

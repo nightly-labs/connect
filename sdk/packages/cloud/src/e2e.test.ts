@@ -27,7 +27,9 @@ describe.concurrent(
 
       const registerPayload = {
         email,
-        password: 'Password123'
+        password: 'Password123',
+        device: 'device',
+        browser: 'browser'
       } as HttpRegisterWithPasswordStartRequest
 
       await cloudClient.registerWithPasswordStart(registerPayload)
@@ -42,7 +44,9 @@ describe.concurrent(
 
       const registerPayload = {
         email,
-        password
+        password,
+        device: 'device',
+        browser: 'browser'
       } as HttpRegisterWithPasswordStartRequest
 
       await cloudClient.registerWithPasswordStart(registerPayload)
@@ -79,7 +83,9 @@ describe.concurrent(
 
       const registerPayload = {
         email,
-        password
+        password,
+        device: 'device',
+        browser: 'browser'
       } as HttpRegisterWithPasswordStartRequest
 
       await cloudClient.registerWithPasswordStart(registerPayload)
@@ -131,7 +137,11 @@ describe.concurrent(
 
       // Send reset password request
       const newPassword = 'NewPassword123124123'
-      await cloudClient.resetPasswordStart({ email })
+      await cloudClient.resetPasswordStart({
+        email,
+        device: 'device',
+        browser: 'browser'
+      })
 
       const authCode = await cloudClient.verifyCode({
         email,
@@ -437,7 +447,9 @@ describe.concurrent(
       expect(Object.keys(secondResponse.userPrivileges)).toHaveLength(1)
 
       const leavePayload = {
-        teamId: teamId
+        teamId: teamId,
+        device: 'device',
+        browser: 'browser'
       } as HttpLeaveTeamRequest
 
       // Remove user from team

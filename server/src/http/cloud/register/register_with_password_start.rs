@@ -25,6 +25,10 @@ use ts_rs::TS;
 pub struct HttpRegisterWithPasswordStartRequest {
     #[garde(email)]
     pub email: String,
+    #[garde(alphanumeric)]
+    pub device: String,
+    #[garde(alphanumeric)]
+    pub browser: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
@@ -85,6 +89,8 @@ pub async fn register_with_password_start(
         let request = SendEmailRequest::EmailConfirmation(EmailConfirmationRequest {
             email: request.email,
             code: code,
+            device: request.device.clone(),
+            browser: request.browser.clone(),
         });
 
         // It doesn't matter if this fails

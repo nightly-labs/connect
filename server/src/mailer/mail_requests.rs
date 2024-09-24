@@ -18,12 +18,16 @@ pub struct SendEmailResponse {
 pub struct EmailConfirmationRequest {
     pub email: String,
     pub code: String,
+    pub device: String,
+    pub browser: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ResetPasswordRequest {
     pub email: String,
     pub code: String,
+    pub device: String,
+    pub browser: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -44,4 +48,6 @@ pub struct TeamRemovalNotification {
 pub struct TeamLeavingNotification {
     pub email: String,
     pub team_name: String,
+    pub device: String,
+    pub browser: String,
 }
