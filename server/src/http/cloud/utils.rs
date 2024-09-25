@@ -327,13 +327,9 @@ pub fn custom_validate_domain_name(domain_name: &String) -> anyhow::Result<Strin
     println!("Root: {:?}", domain);
     match parse_domain_name(domain) {
         Ok(name) => {
-            println!("Domain name: {:?}", name);
-            println!("Suffix: {:?}", name.suffix());
-            println!("name{:?}", name.root());
             return Ok(name.to_string());
         }
         Err(err) => {
-            println!("Error: {:?}", err);
             warn!("Failed to convert domain name to ascii: {:?}", err);
             bail!(CloudApiErrors::InvalidDomainName);
         }
@@ -357,7 +353,7 @@ pub fn extract_domain_name(origin: &String) -> Result<String, String> {
     Ok(domain_name.to_string())
 }
 
-// #[cfg(feature = "cloud_integration_tests")]
+#[cfg(feature = "cloud_integration_tests")]
 #[cfg(test)]
 mod tests {
     use super::*;
