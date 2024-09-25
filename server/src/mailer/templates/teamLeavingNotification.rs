@@ -56,7 +56,7 @@ pub static TEAM_LEAVING_NOTIFICATION_TEMPLATE: &str = r##"<!DOCTYPE html>
         <td style="padding: 64px">
           <img
             style="height: 48px"
-            src="https://registry.nightly.app/email/img/ncCloudSmall.svg"
+            src="https://registry.nightly.app/email/img/ncCloudSmall.png"
             alt=""
           />
           <h1
@@ -142,14 +142,14 @@ pub static TEAM_LEAVING_NOTIFICATION_TEMPLATE: &str = r##"<!DOCTYPE html>
               <a href="https://x.com/Nightly_app" target="_blank">
                 <img
                   style="height: 14px"
-                  src="https://registry.nightly.app/email/img/X.svg"
+                  src="https://registry.nightly.app/email/img/X.png"
                   alt=""
                 />
               </a>
               <a href="https://discord.com/invite/7nhFHA6yZq" target="_blank">
                 <img
                   style="height: 16px"
-                  src="https://registry.nightly.app/email/img/Discord.svg"
+                  src="https://registry.nightly.app/email/img/Discord.png"
                   alt=""
                 />
               </a>
@@ -175,7 +175,7 @@ pub static TEAM_LEAVING_NOTIFICATION_TEMPLATE: &str = r##"<!DOCTYPE html>
         <td>
           <img
             style="height: 45px"
-            src="https://registry.nightly.app/email/img/nc_cloud.svg"
+            src="https://registry.nightly.app/email/img/nc_cloud.png"
             alt=""
           />
         </td>
