@@ -891,4 +891,39 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       }
     }
   }
+
+  changeNetwork = async ({ genesisHash, url }: { genesisHash?: string; url?: string }) => {
+    try {
+      // Check if connection is established
+      if (!this._connectionType) {
+        throw new Error('Not connected')
+      }
+      // Check if remote connection is established
+      if (this._connectionType === ConnectionType.Nightly) {
+        // TODO: add support on mobile
+        throw new Error('Not supported on mobile yet')
+      }
+
+      // check if input is correct
+      if (!genesisHash) {
+        throw new Error('Invalid input')
+      }
+      // @ts-ignore
+      const nightlySolana = window.nightly?.solana
+
+      // check if we are connected with nightly wallet
+      if (!nightlySolana?.changeNetwork) {
+        throw new Error('Only supported on Nightly wallet')
+      }
+
+      // @ts-ignore
+      await nightlySolana.changeNetwork({
+        genesisHash,
+        url
+      })
+    } catch (err) {
+      this.emit('error', err)
+      throw err
+    }
+  }
 }
