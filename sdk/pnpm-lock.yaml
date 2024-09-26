@@ -84,7 +84,7 @@ importers:
       '@nightlylabs/nightly-connect-polkadot': 0.0.16
       '@nightlylabs/nightly-connect-solana': 0.0.29
       '@nightlylabs/nightly-connect-sui': 0.1.0
-      '@nightlylabs/wallet-selector-aptos': 0.1.9
+      '@nightlylabs/wallet-selector-aptos': 0.1.10
       '@nightlylabs/wallet-selector-base': ^0.4.1
       '@nightlylabs/wallet-selector-polkadot': 0.2.7
       '@nightlylabs/wallet-selector-solana': 0.3.7

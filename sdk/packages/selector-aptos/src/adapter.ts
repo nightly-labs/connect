@@ -506,7 +506,11 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
                 this.connectToMobileWallet(walletName)
               } else {
                 try {
-                  const response = await this.connectToStandardWallet(walletName)
+                  const response = await this.connectToStandardWallet(
+                    walletName,
+                    silent,
+                    networkInfo
+                  )
                   resolve(Promise.resolve(response))
                 } catch (error) {
                   reject(error)
