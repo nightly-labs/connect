@@ -101,9 +101,43 @@ pub async fn verify_domain_finish(
         ));
     }
 
+    // Additional check
+    match db
+        .get_finished_domain_verification_by_domain_name(&domain_name)
+        .await
+    {
+        Ok(Some(verified)) => {
+            // Check if the domain is verified for the same app or if someone else verified it
+            if verified.app_id == request.app_id {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    CloudApiErrors::DomainAlreadyVerified.to_string(),
+                ));
+            } else {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    CloudApiErrors::DomainAlreadyVerifiedByAnotherApp.to_string(),
+                ));
+            }
+        }
+        Ok(None) => {
+            // Continue
+        }
+        Err(err) => {
+            error!(
+                "Failed to check if domain verification already finished: {:?}",
+                err
+            );
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::DatabaseError.to_string(),
+            ));
+        }
+    }
+
     // Get challenge data
     let domain_verification_challenge = match db
-        .get_domain_verification_by_domain_name_and_app_id(&domain_name, &request.app_id)
+        .get_pending_domain_verification_by_domain_name_and_app_id(&domain_name, &request.app_id)
         .await
     {
         Ok(Some(challenge)) => challenge,
@@ -147,10 +181,13 @@ pub async fn verify_domain_finish(
         .add_new_whitelisted_domain(&mut tx, &request.app_id, &domain_name)
         .await
     {
-        let _ = tx
+        if let Err(err) = tx
             .rollback()
             .await
-            .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
+            .map_err(|err| error!("Failed to rollback transaction: {:?}", err))
+        {
+            error!("Failed to rollback transaction: {:?}", err);
+        }
 
         error!("Failed to add domain to whitelist: {:?}", err);
         return Err((
@@ -164,10 +201,13 @@ pub async fn verify_domain_finish(
         .finish_domain_verification(&mut tx, &domain_name, &request.app_id)
         .await
     {
-        let _ = tx
+        if let Err(err) = tx
             .rollback()
             .await
-            .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
+            .map_err(|err| error!("Failed to rollback transaction: {:?}", err))
+        {
+            error!("Failed to rollback transaction: {:?}", err);
+        }
 
         error!("Failed to finish domain verification: {:?}", err);
         return Err((

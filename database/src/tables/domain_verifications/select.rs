@@ -26,33 +26,16 @@ impl Db {
             .map_err(|e| e.into());
     }
 
-    pub async fn get_domain_verification_by_domain_name(
+    pub async fn get_finished_domain_verification_by_domain_name(
         &self,
         domain_name: &String,
     ) -> Result<Option<DomainVerification>, DbError> {
         let query =
-            format!("SELECT * FROM {DOMAIN_VERIFICATIONS_TABLE_NAME} WHERE domain_name = $1");
+            format!("SELECT * FROM {DOMAIN_VERIFICATIONS_TABLE_NAME} WHERE domain_name = $1 AND finished_at IS NOT NULL AND cancelled_at IS NULL AND deleted_at IS NULL");
         let typed_query = query_as::<_, DomainVerification>(&query);
 
         return typed_query
             .bind(&domain_name)
-            .fetch_optional(&self.connection_pool)
-            .await
-            .map_err(|e| e.into());
-    }
-
-    pub async fn get_domain_verification_by_domain_name_and_app_id(
-        &self,
-        domain_name: &String,
-        app_id: &String,
-    ) -> Result<Option<DomainVerification>, DbError> {
-        let query =
-            format!("SELECT * FROM {DOMAIN_VERIFICATIONS_TABLE_NAME} WHERE domain_name = $1 AND app_id = $2");
-        let typed_query = query_as::<_, DomainVerification>(&query);
-
-        return typed_query
-            .bind(&domain_name)
-            .bind(&app_id)
             .fetch_optional(&self.connection_pool)
             .await
             .map_err(|e| e.into());
@@ -64,7 +47,7 @@ impl Db {
         app_id: &String,
     ) -> Result<Option<DomainVerification>, DbError> {
         let query =
-            format!("SELECT * FROM {DOMAIN_VERIFICATIONS_TABLE_NAME} WHERE domain_name = $1 AND app_id = $2 AND finished_at IS NULL AND cancelled_at IS NULL");
+            format!("SELECT * FROM {DOMAIN_VERIFICATIONS_TABLE_NAME} WHERE domain_name = $1 AND app_id = $2 AND finished_at IS NULL AND cancelled_at IS NULL AND deleted_at IS NULL");
         let typed_query = query_as::<_, DomainVerification>(&query);
 
         return typed_query
@@ -80,7 +63,7 @@ impl Db {
         app_ids: &Vec<String>,
     ) -> Result<HashMap<String, Vec<WhitelistedDomain>>, DbError> {
         let query = format!(
-            "SELECT app_id, domain_name FROM {DOMAIN_VERIFICATIONS_TABLE_NAME} WHERE app_id = ANY($1) AND finished_at IS NULL AND cancelled_at IS NULL"
+            "SELECT app_id, domain_name FROM {DOMAIN_VERIFICATIONS_TABLE_NAME} WHERE app_id = ANY($1) AND finished_at IS NULL AND cancelled_at IS NULL AND deleted_at IS NULL"
         );
         let typed_query = query_as::<_, (String, String)>(&query);
 

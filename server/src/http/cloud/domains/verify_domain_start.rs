@@ -133,6 +133,41 @@ pub async fn verify_domain_start(
         }
     };
 
+    // Additional check, if domain is already verified by someone else
+    match db
+        .get_finished_domain_verification_by_domain_name(&domain_name)
+        .await
+    {
+        Ok(Some(verified)) => {
+            // Check if the domain is verified for the same app or if someone else verified it
+            if verified.app_id == request.app_id {
+                // Kinda impossible to reach this point, but just in case
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    CloudApiErrors::DomainAlreadyVerified.to_string(),
+                ));
+            } else {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    CloudApiErrors::DomainAlreadyVerifiedByAnotherApp.to_string(),
+                ));
+            }
+        }
+        Ok(None) => {
+            // Continue
+        }
+        Err(err) => {
+            error!(
+                "Failed to check if domain verification already finished: {:?}",
+                err
+            );
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::DatabaseError.to_string(),
+            ));
+        }
+    }
+
     Ok(Json(HttpVerifyDomainStartResponse {
         code: verification_code,
     }))
