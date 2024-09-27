@@ -892,7 +892,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     }
   }
 
-  changeNetwork = async ({ genesisHash, url }: { genesisHash?: string; url?: string }) => {
+  changeNetwork = async ({ genesisHash, url }: { genesisHash: string; url?: string }) => {
     try {
       // Check if connection is established
       if (!this._connectionType) {
@@ -904,10 +904,6 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         throw new Error('Not supported on mobile yet')
       }
 
-      // check if input is correct
-      if (!genesisHash) {
-        throw new Error('Invalid input')
-      }
       // @ts-ignore
       const nightlySolana = window.nightly?.solana
 
