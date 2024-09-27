@@ -301,14 +301,33 @@ pub fn refresh_auth_token(
 }
 
 pub fn custom_validate_domain_name(domain_name: &String) -> anyhow::Result<String> {
+    let mut domain = domain_name.trim();
+
+    // Remove 'https://', 'http://', 'www.' prefix or path if present
+    if let Some(stripped) = domain.strip_prefix("https://") {
+        domain = stripped;
+    } else if let Some(stripped) = domain.strip_prefix("http://") {
+        domain = stripped;
+    }
+
+    if let Some(stripped) = domain.strip_prefix("www.") {
+        domain = stripped;
+    }
+
+    if let Some((base_domain, _)) = domain.split_once('/') {
+        domain = base_domain;
+    }
+
     // Check if the domain name is empty
-    if domain_name.trim().is_empty() {
+    if domain.is_empty() {
         warn!("Domain name is empty: {:?}", domain_name);
         bail!(CloudApiErrors::InvalidDomainName);
     }
 
-    match parse_domain_name(domain_name) {
-        Ok(name) => Ok(name.to_string()),
+    match parse_domain_name(domain) {
+        Ok(name) => {
+            return Ok(name.to_string());
+        }
         Err(err) => {
             warn!("Failed to convert domain name to ascii: {:?}", err);
             bail!(CloudApiErrors::InvalidDomainName);
@@ -354,6 +373,26 @@ mod tests {
     fn test_invalid_domain() {
         let domain_name = String::from("this is not a domain");
         assert!(custom_validate_domain_name(&domain_name).is_err());
+        let domain_name = String::from("https://www.figma.com/");
+        assert_eq!(
+            custom_validate_domain_name(&domain_name).unwrap(),
+            "figma.com".to_string()
+        );
+        let domain_name = String::from("http://www.figma.com");
+        assert_eq!(
+            custom_validate_domain_name(&domain_name).unwrap(),
+            "figma.com".to_string()
+        );
+        let domain_name = String::from("www.figma.com");
+        assert_eq!(
+            custom_validate_domain_name(&domain_name).unwrap(),
+            "figma.com".to_string()
+        );
+        let domain_name = String::from("https://www.figma.com/dfgsg");
+        assert_eq!(
+            custom_validate_domain_name(&domain_name).unwrap(),
+            "figma.com".to_string()
+        );
     }
 
     #[test]
