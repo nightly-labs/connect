@@ -18,7 +18,7 @@
   "dependencies": {
     "@aptos-labs/ts-sdk": "^1.9.1",
     "@aptos-labs/wallet-standard": "^0.0.11",
-    "@mysten/sui": "^1.2.1",
+    "@mysten/sui": "1.4.0",
     "@nightlylabs/nightly-connect-polkadot": "0.0.16",
     "@nightlylabs/nightly-connect-solana": "0.0.29",
     "@nightlylabs/nightly-connect-sui": "0.1.0",

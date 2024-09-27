@@ -80,8 +80,8 @@ importers:
         specifier: ^0.0.11
         version: 0.0.11
       '@mysten/sui':
-        specifier: ^1.2.1
-        version: 1.11.0(typescript@4.9.5)
+        specifier: 1.4.0
+        version: 1.4.0(typescript@4.9.5)
       '@nightlylabs/nightly-connect-polkadot':
         specifier: 0.0.16
         version: link:../../packages/polkadot
@@ -715,8 +715,8 @@ importers:
   packages/selector-sui:
     dependencies:
       '@mysten/sui':
-        specifier: ^1.2.1
-        version: 1.11.0(typescript@5.1.6)
+        specifier: 1.4.0
+        version: 1.4.0(typescript@5.1.6)
       '@mysten/wallet-adapter-wallet-standard':
         specifier: ^0.8.0
         version: 0.8.0
@@ -828,8 +828,8 @@ importers:
   packages/sui:
     dependencies:
       '@mysten/sui':
-        specifier: ^1.2.1
-        version: 1.11.0(typescript@5.1.6)
+        specifier: 1.4.0
+        version: 1.4.0(typescript@5.1.6)
       '@mysten/wallet-standard':
         specifier: ^0.12.12
         version: 0.12.14(typescript@5.1.6)
@@ -4648,12 +4648,6 @@ packages:
       bs58: 6.0.0
     dev: false
 
-  /@mysten/bcs@1.1.0:
-    resolution: {integrity: sha512-yy9/1Y4d0FlRywS1+9ze/T7refCbrvwFwJIOKs9M3QBK1njbcHZp+LkVeLqBvIJA5eZ3ZCzmhQ1Xq4Sed5mEBA==}
-    dependencies:
-      bs58: 6.0.0
-    dev: false
-
   /@mysten/sui.js@0.40.0:
     resolution: {integrity: sha512-PEGdMe+QgpIdDIpyO4/yb+CK4x3Hki+kYPbQ5n3DVsWyb2ztFwB+5oYdc7qG3QkniO1lnCrlSHqZ5mN+x3RzrQ==}
     engines: {node: '>=16'}
@@ -4709,12 +4703,12 @@ packages:
       tweetnacl: 1.0.3
     dev: false
 
-  /@mysten/sui@1.11.0(typescript@4.9.5):
-    resolution: {integrity: sha512-+5kSXmoPFrecxUb+fweqqy4eXRpgvv6H51IwRzJbxlolE0AmnM+5IJbLpTlM5RNZEmmocE7p5bUn1OijbuDVkw==}
+  /@mysten/sui@1.4.0(typescript@4.9.5):
+    resolution: {integrity: sha512-j1JVdmL4pAqMmPQXw/RPAVJP0jqCfj/GVH4Z4NBPfl6nwcbLOJdcBczRhyY8WB/87rTog1N0guxPylfvU76gqw==}
     engines: {node: '>=18'}
     dependencies:
       '@graphql-typed-document-node/core': 3.2.0(graphql@16.9.0)
-      '@mysten/bcs': 1.1.0
+      '@mysten/bcs': 1.0.3
       '@noble/curves': 1.6.0
       '@noble/hashes': 1.5.0
       '@scure/bip32': 1.5.0
@@ -4722,28 +4716,6 @@ packages:
       '@suchipi/femver': 1.0.0
       bech32: 2.0.0
       gql.tada: 1.8.9(graphql@16.9.0)(typescript@4.9.5)
-      graphql: 16.9.0
-      tweetnacl: 1.0.3
-      valibot: 0.36.0
-    transitivePeerDependencies:
-      - '@gql.tada/svelte-support'
-      - '@gql.tada/vue-support'
-      - typescript
-    dev: false
-
-  /@mysten/sui@1.11.0(typescript@5.1.6):
-    resolution: {integrity: sha512-+5kSXmoPFrecxUb+fweqqy4eXRpgvv6H51IwRzJbxlolE0AmnM+5IJbLpTlM5RNZEmmocE7p5bUn1OijbuDVkw==}
-    engines: {node: '>=18'}
-    dependencies:
-      '@graphql-typed-document-node/core': 3.2.0(graphql@16.9.0)
-      '@mysten/bcs': 1.1.0
-      '@noble/curves': 1.6.0
-      '@noble/hashes': 1.5.0
-      '@scure/bip32': 1.5.0
-      '@scure/bip39': 1.4.0
-      '@suchipi/femver': 1.0.0
-      bech32: 2.0.0
-      gql.tada: 1.8.9(graphql@16.9.0)(typescript@5.1.6)
       graphql: 16.9.0
       tweetnacl: 1.0.3
       valibot: 0.36.0
