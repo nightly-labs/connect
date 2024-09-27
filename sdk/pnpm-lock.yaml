@@ -95,7 +95,7 @@ importers:
         specifier: 0.1.11
         version: link:../../packages/selector-aptos
       '@nightlylabs/wallet-selector-base':
-        specifier: ^0.4.1
+        specifier: ^0.4.2
         version: link:../../packages/selector-base
       '@nightlylabs/wallet-selector-polkadot':
         specifier: 0.2.7
@@ -549,7 +549,7 @@ importers:
         specifier: ^0.0.29
         version: link:../base
       '@nightlylabs/wallet-selector-base':
-        specifier: 0.4.1
+        specifier: 0.4.2
         version: link:../selector-base
       '@wallet-standard/core':
         specifier: ^1.0.3
@@ -731,7 +731,7 @@ importers:
         version: link:../sui
       '@nightlylabs/wallet-selector-base':
         specifier: 0.4.1
-        version: link:../selector-base
+        version: 0.4.1
       '@wallet-standard/core':
         specifier: ^1.0.3
         version: 1.0.3
@@ -5046,8 +5046,37 @@ packages:
       - utf-8-validate
     dev: false
 
+  /@nightlylabs/wallet-selector-base@0.4.1:
+    resolution: {integrity: sha512-FOS87SbHkifyf7/r/eR92SR/DH15QCsAIgP7mTeQ3m//ga54D3vRaiCU3YXhpsjZZd6D4QB/InJXnnX6wj7ElA==}
+    dependencies:
+      '@nightlylabs/nightly-connect-base': 0.0.28
+      '@nightlylabs/wallet-selector-modal': 0.2.1
+      '@wallet-standard/core': 1.0.3
+      isomorphic-localstorage: 1.0.2
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - ts-node
+      - utf-8-validate
+    dev: false
+
   /@nightlylabs/wallet-selector-modal@0.1.2:
     resolution: {integrity: sha512-vxy9S2dEf3NARW6LDq2ZKpWMlk5JJFIuwUfSxkuJlgUg2OVSlnDS7vdho3h4DmluRU5GM9vVhaXUGHAVp5sDQg==}
+    dependencies:
+      '@nightlylabs/qr-code': 2.0.4
+      autoprefixer: 10.4.20(postcss@8.4.47)
+      lit: 2.8.0
+      postcss: 8.4.47
+      postcss-lit: 1.1.1(postcss@8.4.47)
+      tailwindcss: 3.4.13
+    transitivePeerDependencies:
+      - supports-color
+      - ts-node
+    dev: false
+
+  /@nightlylabs/wallet-selector-modal@0.2.1:
+    resolution: {integrity: sha512-jJghrmUtKwHiSaH0c4Tc8befpqGP23AjTFsQ/Eucpa7uz90lFZ9FHmw+bZZKabqYgI0j+uyViiyfwaPcVPKjlQ==}
     dependencies:
       '@nightlylabs/qr-code': 2.0.4
       autoprefixer: 10.4.20(postcss@8.4.47)
