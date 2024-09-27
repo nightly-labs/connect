@@ -1,5 +1,5 @@
 body {
-  font-family: "Arial", "Helvetica";
+  font-family: 'Arial', 'Helvetica';
 }
 
 main {
@@ -33,4 +33,29 @@ button {
   text-transform: uppercase;
   width: 300px;
   cursor: pointer;
+}
+
+.dropdown-list {
+  display: flex;
+  flex-direction: column;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  width: 280px;
+  align-self: center;
+  align-items: center;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+}
+.dropdown-item {
+  background-color: cornflowerblue;
+  color: white;
+  font-size: 16px;
+  padding: 16px;
+  text-transform: uppercase;
+  width: 280px;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  filter: brightness(95%);
 }

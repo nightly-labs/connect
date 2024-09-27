@@ -125,13 +125,14 @@ describe('SUI client tests', () => {
     })
     try {
       // We need to deserialize the signature
-      const parsedSignature = parseSerializedSignature(signedMessage.messageBytes)
+      const parsedSignature = parseSerializedSignature(signedMessage.signature)
       // Will throw if invalid
       await verifyPersonalMessageSignature(
         new TextEncoder().encode(msgToSign),
         toB64(parsedSignature.signature!)
       )
     } catch (error) {
+      console.log(error)
       assert(false, 'Message is invalid')
     }
   })

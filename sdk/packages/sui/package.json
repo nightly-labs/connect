@@ -46,7 +46,7 @@
     "typescript": "^5.1.3"
   },
   "dependencies": {
-    "@mysten/sui": "^1.2.1",
+    "@mysten/sui": "1.4.0",
     "@mysten/wallet-standard": "^0.12.12",
     "@nightlylabs/nightly-connect-base": "^0.0.28",
     "@noble/hashes": "^1.3.0",
