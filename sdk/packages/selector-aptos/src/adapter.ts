@@ -16,8 +16,9 @@ import {
 import { AnyRawTransaction } from '@aptos-labs/ts-sdk'
 import { AptosSignAndSubmitTransactionMethod } from '@aptos-labs/wallet-standard'
 import { AppAptos, APTOS_NETWORK, deserializeConnectData } from '@nightlylabs/nightly-connect-aptos'
+import { AppBaseInitialize } from '@nightlylabs/nightly-connect-base'
 import {
-  AppInitData,
+  AppAptosInitData,
   clearRecentWalletForNetwork,
   clearSessionIdForNetwork,
   ConnectionOptions,
@@ -64,7 +65,9 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
   // Modal instance
   private _modal: NightlyConnectSelectorModal | undefined
   // Init data for remote app
-  private _appInitData: AppInitData
+  private _appInitData: AppBaseInitialize
+  // Custom network from app init data
+  private _network: string
   // List of wallets to display
   private _walletsList: IWalletListItem[] = []
   // Name of the wallet to be displayed on mobile
@@ -108,23 +111,24 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
     return this._modal?.qrCode
   }
 
-  constructor(appInitData: AppInitData, connectionOptions?: ConnectionOptions) {
+  constructor(appInitData: AppAptosInitData, connectionOptions?: ConnectionOptions) {
     super()
     this._connecting = false
     this._connected = false
-    this._appInitData = appInitData
+    this._network = appInitData.network ?? APTOS_NETWORK
+    this._appInitData = { ...appInitData, network: appInitData.network ?? APTOS_NETWORK }
     if (appInitData.persistent !== false) this._appInitData.persistent = true
     this._appLoading = false
     this._connectionOptions = { ...this._connectionOptions, ...connectionOptions }
 
     // If not persistent, clear session id
     if (!this._appInitData.persistent) {
-      clearSessionIdForNetwork(APTOS_NETWORK)
+      clearSessionIdForNetwork(this._network)
     }
   }
 
   public static initApp = async (
-    appInitData: AppInitData
+    appInitData: AppBaseInitialize
   ): Promise<[AppAptos, WalletMetadata[]]> => {
     try {
       return await Promise.all([
@@ -134,7 +138,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
         )
       ])
     } catch {
-      clearSessionIdForNetwork(APTOS_NETWORK)
+      clearSessionIdForNetwork(appInitData.network)
       return await Promise.all([
         AppAptos.build(appInitData),
         AppAptos.getWalletsMetadata(
@@ -145,7 +149,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
   }
 
   public static build = async (
-    appInitData: AppInitData,
+    appInitData: AppAptosInitData,
     connectionOptions?: ConnectionOptions,
     anchorRef?: HTMLElement | null,
     uiOverrides?: {
@@ -156,10 +160,11 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
     }
   ) => {
     const adapter = new NightlyConnectAptosAdapter(appInitData, connectionOptions)
-
+    const network = appInitData.network ?? APTOS_NETWORK
+    adapter._network = network
     adapter.walletsList = getAptosWalletsList(
       [],
-      getRecentWalletForNetwork(APTOS_NETWORK)?.walletName ?? undefined
+      getRecentWalletForNetwork(network)?.walletName ?? undefined
     )
 
     if (!adapter._connectionOptions.disableModal)
@@ -167,7 +172,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
         adapter.walletsList,
         appInitData.url ?? 'https://nc2.nightly.app',
         {
-          name: uiOverrides?.networkDataOverride?.name ?? APTOS_NETWORK,
+          name: uiOverrides?.networkDataOverride?.name ?? network,
           icon:
             uiOverrides?.networkDataOverride?.icon ??
             'https://registry.nightly.app/networks/aptos.png'
@@ -178,14 +183,17 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
         uiOverrides?.qrConfigOverride
       )
 
-    const [app, metadataWallets] = await NightlyConnectAptosAdapter.initApp(appInitData)
+    const [app, metadataWallets] = await NightlyConnectAptosAdapter.initApp({
+      ...appInitData,
+      network
+    })
 
     adapter._app = app
     adapter._metadataWallets = metadataWallets
 
     adapter.walletsList = getAptosWalletsList(
       metadataWallets,
-      getRecentWalletForNetwork(APTOS_NETWORK)?.walletName ?? undefined
+      getRecentWalletForNetwork(network)?.walletName ?? undefined
     )
 
     adapter.checkForArrivingWallets(metadataWallets)
@@ -193,7 +201,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
     // Add event listener for userConnected
     app.on('userConnected', async (accountInfo, networkInfo) => {
       try {
-        persistRecentWalletForNetwork(APTOS_NETWORK, {
+        persistRecentWalletForNetwork(network, {
           walletName: adapter._chosenMobileWalletName || '',
           walletType: ConnectionType.Nightly
         })
@@ -219,7 +227,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
   }
 
   public static buildLazy = (
-    appInitData: AppInitData,
+    appInitData: AppAptosInitData,
     connectionOptions?: ConnectionOptions,
     anchorRef?: HTMLElement | null,
     uiOverrides?: {
@@ -230,10 +238,12 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
     }
   ) => {
     const adapter = new NightlyConnectAptosAdapter(appInitData, connectionOptions)
+    const network = appInitData.network ?? APTOS_NETWORK
+    adapter._network = network
 
     adapter.walletsList = getAptosWalletsList(
       [],
-      getRecentWalletForNetwork(APTOS_NETWORK)?.walletName ?? undefined
+      getRecentWalletForNetwork(network)?.walletName ?? undefined
     )
 
     // Fetch wallets from registry
@@ -242,7 +252,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
 
       adapter.walletsList = getAptosWalletsList(
         metadataWallets,
-        getRecentWalletForNetwork(APTOS_NETWORK)?.walletName ?? undefined
+        getRecentWalletForNetwork(network)?.walletName ?? undefined
       )
     })
 
@@ -251,7 +261,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
         adapter.walletsList,
         appInitData.url ?? 'https://nc2.nightly.app',
         {
-          name: uiOverrides?.networkDataOverride?.name ?? APTOS_NETWORK,
+          name: uiOverrides?.networkDataOverride?.name ?? network,
           icon:
             uiOverrides?.networkDataOverride?.icon ??
             'https://registry.nightly.app/networks/aptos.png'
@@ -265,7 +275,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
     if (!adapter._connectionOptions.initOnConnect) {
       adapter._appLoading = true
 
-      NightlyConnectAptosAdapter.initApp(appInitData)
+      NightlyConnectAptosAdapter.initApp({ ...appInitData, network })
         .then(([app, metadataWallets]) => {
           adapter._app = app
           adapter._metadataWallets = metadataWallets
@@ -273,14 +283,14 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
 
           adapter.walletsList = getAptosWalletsList(
             metadataWallets,
-            getRecentWalletForNetwork(APTOS_NETWORK)?.walletName ?? undefined
+            getRecentWalletForNetwork(network)?.walletName ?? undefined
           )
 
           adapter.checkForArrivingWallets(metadataWallets)
 
           app.on('userConnected', async (accountInfo, networkInfo) => {
             try {
-              persistRecentWalletForNetwork(APTOS_NETWORK, {
+              persistRecentWalletForNetwork(network, {
                 walletName: adapter._chosenMobileWalletName || '',
                 walletType: ConnectionType.Nightly
               })
@@ -375,7 +385,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
             return
           }
 
-          const recentWallet = getRecentWalletForNetwork(APTOS_NETWORK)
+          const recentWallet = getRecentWalletForNetwork(this._network)
           if (!this._connectionOptions.disableEagerConnect && recentWallet !== null) {
             // Eager connect standard if possible
             if (recentWallet.walletType === ConnectionType.WalletStandard) {
@@ -439,7 +449,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
                 this._appLoading = false
                 this.walletsList = getAptosWalletsList(
                   metadataWallets,
-                  getRecentWalletForNetwork(APTOS_NETWORK)?.walletName ?? undefined
+                  getRecentWalletForNetwork(this._network)?.walletName ?? undefined
                 )
 
                 this.checkForArrivingWallets(metadataWallets)
@@ -447,7 +457,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
                 // Add event listener for userConnected
                 app.on('userConnected', async (accountInfo, networkInfo) => {
                   try {
-                    persistRecentWalletForNetwork(APTOS_NETWORK, {
+                    persistRecentWalletForNetwork(this._network, {
                       walletName: this._chosenMobileWalletName || '',
                       walletType: ConnectionType.Nightly
                     })
@@ -583,7 +593,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
   disconnect = async () => {
     switch (this._connectionType) {
       case ConnectionType.Nightly: {
-        clearSessionIdForNetwork(APTOS_NETWORK)
+        clearSessionIdForNetwork(this._network)
         // Refresh app session
         this._app = await AppAptos.build(this._appInitData)
         this._selectedWallet = undefined
@@ -591,7 +601,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
         // Add event listener for userConnected
         this._app.on('userConnected', async (accountInfo, networkInfo) => {
           try {
-            persistRecentWalletForNetwork(APTOS_NETWORK, {
+            persistRecentWalletForNetwork(this._network, {
               walletName: this._chosenMobileWalletName || '',
               walletType: ConnectionType.Nightly
             })
@@ -619,10 +629,10 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
       case ConnectionType.WalletStandard: {
         if (this._innerStandardAdapter) {
           await this._innerStandardAdapter.features['aptos:disconnect'].disconnect()
-          clearRecentWalletForNetwork(APTOS_NETWORK)
+          clearRecentWalletForNetwork(this._network)
           this.walletsList = getAptosWalletsList(
             this._metadataWallets,
-            getRecentWalletForNetwork(APTOS_NETWORK)?.walletName ?? undefined
+            getRecentWalletForNetwork(this._network)?.walletName ?? undefined
           )
         }
         break
@@ -723,7 +733,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
     if (this._connectionOptions.disableEagerConnect) return false
 
     // Get recent wallet for network
-    const recentWallet = getRecentWalletForNetwork(APTOS_NETWORK)
+    const recentWallet = getRecentWalletForNetwork(this._network)
 
     // If there is no recent wallet, we can't eager connect
     if (recentWallet === null) return false
@@ -822,7 +832,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
         return
       }
     } catch (err) {
-      clearRecentWalletForNetwork(APTOS_NETWORK)
+      clearRecentWalletForNetwork(this._network)
       if (this._modal) {
         this._modal.setStandardWalletConnectProgress(false)
       }
@@ -868,18 +878,18 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
       } else {
         throw new Error('User rejected connection')
       }
-      persistRecentWalletForNetwork(APTOS_NETWORK, {
+      persistRecentWalletForNetwork(this._network, {
         walletName,
         walletType: ConnectionType.WalletStandard
       })
 
       this._modal?.closeModal()
       return response
-    } catch (err: any) {
+    } catch (err) {
       if (this._modal) {
         this._modal.setStandardWalletConnectProgress(false)
       }
-      clearRecentWalletForNetwork(APTOS_NETWORK)
+      clearRecentWalletForNetwork(this._network)
       this._connecting = false
       this.emit('error', err)
       throw err
@@ -905,7 +915,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
     const metadataWallets = await this.fetchWalletsFromRegistry()
     this.walletsList = getAptosWalletsList(
       metadataWallets,
-      getRecentWalletForNetwork(APTOS_NETWORK)?.walletName ?? undefined
+      getRecentWalletForNetwork(this._network)?.walletName ?? undefined
     )
     return this.walletsList
   }
@@ -921,7 +931,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
       checks++
       this.walletsList = getAptosWalletsList(
         metadataWallets,
-        getRecentWalletForNetwork(APTOS_NETWORK)?.walletName ?? undefined
+        getRecentWalletForNetwork(this._network)?.walletName ?? undefined
       )
     }, 500)
   }

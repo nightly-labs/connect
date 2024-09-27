@@ -9,6 +9,7 @@ import {
   UserResponseStatus
 } from '@aptos-labs/wallet-standard'
 import {
+  AppBaseInitialize,
   BaseApp,
   DeeplinkConnect,
   getWalletsMetadata,
@@ -19,8 +20,6 @@ import { EventEmitter } from 'eventemitter3'
 import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
 import { WalletMetadata } from '../../../bindings/WalletMetadata'
 import {
-  AppAptosInitialize,
-  APTOS_NETWORK,
   deserializeAccountAuthenticator,
   deserializeConnectData,
   deserializeObject,
@@ -37,8 +36,8 @@ interface AptosAppEvents {
 export class AppAptos extends EventEmitter<AptosAppEvents> {
   sessionId: string
   base: BaseApp
-  initData: AppAptosInitialize
-  constructor(base: BaseApp, initData: AppAptosInitialize) {
+  initData: AppBaseInitialize
+  constructor(base: BaseApp, initData: AppBaseInitialize) {
     super()
     this.initData = initData
     this.base = base
@@ -61,7 +60,7 @@ export class AppAptos extends EventEmitter<AptosAppEvents> {
   }
   private tryReconnect = async () => {
     try {
-      const base = await BaseApp.build({ ...this.initData, network: APTOS_NETWORK })
+      const base = await BaseApp.build(this.initData)
       // On reconnect, if the base has not been restored, emit serverDisconnected
       if (!base.hasBeenRestored) {
         this.emit('serverDisconnected')
@@ -111,8 +110,8 @@ export class AppAptos extends EventEmitter<AptosAppEvents> {
   public static getWalletsMetadata = async (url?: string): Promise<WalletMetadata[]> => {
     return getWalletsMetadata(url, 'aptos')
   }
-  public static build = async (initData: AppAptosInitialize): Promise<AppAptos> => {
-    const base = await BaseApp.build({ ...initData, network: APTOS_NETWORK })
+  public static build = async (initData: AppBaseInitialize): Promise<AppAptos> => {
+    const base = await BaseApp.build(initData)
     return new AppAptos(base, initData)
   }
   connectDeeplink = async (data: DeeplinkConnect) => {
