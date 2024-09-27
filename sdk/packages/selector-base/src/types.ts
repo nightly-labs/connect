@@ -10,6 +10,7 @@ export interface Adapter {
   connect: () => Promise<void>
 }
 export type AppInitData = Omit<AppBaseInitialize, 'network'>
+export type AppAptosInitData = AppInitData & { network?: string }
 
 export interface MetadataWallet {
   slug: string

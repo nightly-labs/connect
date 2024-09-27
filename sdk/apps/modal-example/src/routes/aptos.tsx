@@ -36,7 +36,9 @@ export default function AptosPage() {
           description: 'Nightly Connect Test',
           icon: 'https://docs.nightly.app/img/logo.png',
           additionalInfo: 'Courtesy of Nightly Connect team'
-        }
+        },
+        // required here because we can also specify e.g Movement
+        network: 'Movement'
       },
       {},
 

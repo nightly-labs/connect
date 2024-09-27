@@ -8,15 +8,13 @@ import {
   Serializer
 } from '@aptos-labs/ts-sdk'
 import { AccountInfo, NetworkInfo } from '@aptos-labs/wallet-standard'
-import { AppBaseInitialize, ContentType, RequestContent } from '@nightlylabs/nightly-connect-base'
+import { ContentType, RequestContent } from '@nightlylabs/nightly-connect-base'
 import {
   AptosRequest,
   CustomAptosRequest,
   SignMessagesAptosRequest,
   SignTransactionsAptosRequest
 } from './requestTypes'
-
-export type AppAptosInitialize = Omit<AppBaseInitialize, 'network'>
 
 export const APTOS_NETWORK = 'Aptos'
 
