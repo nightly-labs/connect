@@ -1,7 +1,7 @@
 import { parseSerializedSignature, toSerializedSignature } from '@mysten/sui/cryptography'
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519'
 import { Transaction } from '@mysten/sui/transactions'
-import { fromB64, toB64 } from '@mysten/sui/utils'
+import { fromBase64, toBase64 } from '@mysten/sui/utils'
 import { verifyPersonalMessageSignature, verifyTransactionSignature } from '@mysten/sui/verify'
 import { WalletAccount } from '@mysten/wallet-standard'
 import { Connect, ContentType } from '@nightlylabs/nightly-connect-base'
@@ -75,7 +75,7 @@ describe('SUI client tests', () => {
         responseId: e.requestId,
         signedTransactions: [
           {
-            transactionBlockBytes: toB64(transactionBlockBytes),
+            transactionBlockBytes: toBase64(transactionBlockBytes),
             signature: signature
           }
         ]
@@ -92,7 +92,10 @@ describe('SUI client tests', () => {
 
     try {
       // Will throw if invalid
-      await verifyTransactionSignature(fromB64(signedTx.transactionBlockBytes), signedTx.signature)
+      await verifyTransactionSignature(
+        fromBase64(signedTx.transactionBlockBytes),
+        signedTx.signature
+      )
     } catch (error) {
       assert(false, 'Transaction block is invalid')
     }
@@ -107,7 +110,7 @@ describe('SUI client tests', () => {
       const signedMessage = {
         messageBytes: msg,
         signature: toSerializedSignature({
-          signature: fromB64(signature),
+          signature: fromBase64(signature),
           signatureScheme: 'ED25519',
           publicKey: alice_keypair.getPublicKey()
         })
@@ -129,7 +132,7 @@ describe('SUI client tests', () => {
       // Will throw if invalid
       await verifyPersonalMessageSignature(
         new TextEncoder().encode(msgToSign),
-        toB64(parsedSignature.signature!)
+        toBase64(parsedSignature.signature!)
       )
     } catch (error) {
       assert(false, 'Message is invalid')

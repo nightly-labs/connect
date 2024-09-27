@@ -1,6 +1,6 @@
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519'
 import { Transaction } from '@mysten/sui/transactions'
-import { fromB64, toB64 } from '@mysten/sui/utils'
+import { fromBase64, toBase64 } from '@mysten/sui/utils'
 import { verifyTransactionSignature } from '@mysten/sui/verify'
 import { WalletAccount } from '@mysten/wallet-standard'
 import { Connect, ContentType, getRandomId } from '@nightlylabs/nightly-connect-base'
@@ -82,7 +82,7 @@ describe('SUI http-client tests', () => {
       sessionId: app.sessionId,
       signedTransactions: [
         {
-          transactionBlockBytes: toB64(transactionBlockBytes),
+          transactionBlockBytes: toBase64(transactionBlockBytes),
           signature: signature
         }
       ]
@@ -93,7 +93,10 @@ describe('SUI http-client tests', () => {
 
     try {
       // Will throw if invalid
-      await verifyTransactionSignature(fromB64(signedTx.transactionBlockBytes), signedTx.signature)
+      await verifyTransactionSignature(
+        fromBase64(signedTx.transactionBlockBytes),
+        signedTx.signature
+      )
     } catch (error) {
       assert(false, 'Transaction block is invalid')
     }
