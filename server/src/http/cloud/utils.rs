@@ -324,7 +324,6 @@ pub fn custom_validate_domain_name(domain_name: &String) -> anyhow::Result<Strin
         bail!(CloudApiErrors::InvalidDomainName);
     }
 
-    println!("Root: {:?}", domain);
     match parse_domain_name(domain) {
         Ok(name) => {
             return Ok(name.to_string());
