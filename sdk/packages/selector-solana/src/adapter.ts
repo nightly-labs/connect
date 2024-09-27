@@ -908,7 +908,7 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       const nightlySolana = window.nightly?.solana
 
       // check if we are connected with nightly wallet
-      if (!nightlySolana?._activeAccount.address) {
+      if (this.selectedWallet?.name !== 'Nightly') {
         throw new Error('Only supported on Nightly wallet')
       }
 
