@@ -282,7 +282,7 @@ async fn get_app_id(
 
                 match cloud
                     .db
-                    .get_domain_verification_by_domain_name(&domain_name)
+                    .get_finished_domain_verification_by_domain_name(&domain_name)
                     .await
                 {
                     // Domain verification has been found

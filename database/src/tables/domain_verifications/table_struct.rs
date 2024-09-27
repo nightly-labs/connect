@@ -6,7 +6,7 @@ use sqlx::{
 
 pub const DOMAIN_VERIFICATIONS_TABLE_NAME: &str = "domain_verifications";
 pub const DOMAIN_VERIFICATIONS_KEYS: &str =
-    "domain_name, app_id, code, created_at, finished_at, cancelled_at";
+    "domain_name, app_id, code, created_at, finished_at, cancelled_at, deleted_at";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct DomainVerification {
@@ -16,6 +16,7 @@ pub struct DomainVerification {
     pub created_at: DateTime<Utc>,
     pub finished_at: Option<DateTime<Utc>>,
     pub cancelled_at: Option<DateTime<Utc>>,
+    pub deleted_at: Option<DateTime<Utc>>,
 }
 
 impl FromRow<'_, PgRow> for DomainVerification {
@@ -27,6 +28,7 @@ impl FromRow<'_, PgRow> for DomainVerification {
             created_at: row.get("created_at"),
             finished_at: row.get("finished_at"),
             cancelled_at: row.get("cancelled_at"),
+            deleted_at: row.get("deleted_at"),
         })
     }
 }

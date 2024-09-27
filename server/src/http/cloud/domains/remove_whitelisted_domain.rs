@@ -97,15 +97,55 @@ pub async fn remove_whitelisted_domain(
         ));
     }
 
+    let mut tx = db.connection_pool.begin().await.unwrap();
+
     // Remove domain from whitelisted domains
     if let Err(err) = db
-        .remove_whitelisted_domain(&request.app_id, &domain_name)
+        .remove_whitelisted_domain(&mut tx, &request.app_id, &domain_name)
         .await
     {
         error!(
             "Failed to remove domain from whitelisted domains: {:?}",
             err
         );
+
+        if let Err(err) = tx
+            .rollback()
+            .await
+            .map_err(|err| error!("Failed to rollback transaction: {:?}", err))
+        {
+            error!("Failed to rollback transaction: {:?}", err);
+        }
+
+        return Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            CloudApiErrors::DatabaseError.to_string(),
+        ));
+    }
+
+    if let Err(err) = db
+        .delete_domain_verification(&mut tx, &domain_name, &request.app_id)
+        .await
+    {
+        error!("Failed to delete domain verification: {:?}", err);
+
+        if let Err(err) = tx
+            .rollback()
+            .await
+            .map_err(|err| error!("Failed to rollback transaction: {:?}", err))
+        {
+            error!("Failed to rollback transaction: {:?}", err);
+        }
+
+        return Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            CloudApiErrors::DatabaseError.to_string(),
+        ));
+    }
+
+    if let Err(err) = tx.commit().await {
+        error!("Failed to commit transaction: {:?}", err);
+
         return Err((
             StatusCode::INTERNAL_SERVER_ERROR,
             CloudApiErrors::DatabaseError.to_string(),
