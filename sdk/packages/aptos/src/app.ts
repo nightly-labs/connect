@@ -153,7 +153,6 @@ export class AppAptos extends EventEmitter<AptosAppEvents> {
   }
 
   changeNetwork: AptosChangeNetworkMethod = async (input) => {
-    console.log(input,'wtf')
     const changedNetworkSuccess = await this.base.changeNetwork({
       ...input,
       id: input.chainId.toString()

@@ -145,7 +145,6 @@ export class AppSolana extends EventEmitter<SolanaAppEvents> {
   }
 
   changeNetwork = async (input: SolanaChangeNetworkInput) => {
-    console.log(input, 'lol')
     const changeNetworkResponse = await this.base.changeNetwork({
       url: input.genesisHash,
       id: input.genesisHash
