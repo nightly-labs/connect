@@ -900,11 +900,10 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       }
       // Check if remote connection is established
       if (this._connectionType === ConnectionType.Nightly) {
-        // TODO: add support on mobile
-        throw new Error('Not supported on mobile yet')
+        await this._app!.changeNetwork({ genesisHash, url })
       }
 
-      // @ts-ignore
+      // @ts-expect-error Window not declared
       const nightlySolana = window.nightly?.solana
 
       // check if we are connected with nightly wallet
@@ -912,7 +911,6 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         throw new Error('Only supported on Nightly wallet')
       }
 
-      // @ts-ignore
       await nightlySolana.changeNetwork({
         genesisHash,
         url

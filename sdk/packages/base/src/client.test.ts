@@ -1,10 +1,9 @@
 import { Network } from '@aptos-labs/ts-sdk'
-import { AptosChangeNetworkInput } from '@aptos-labs/wallet-standard'
 import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { smartDelay } from '../../../commonTestUtils'
 import { BaseApp } from './app'
 import { BaseClient, Connect } from './client'
-import { ContentType, MessageToSign, TransactionToSign } from './content'
+import { ContentType, MessageToSign, NetworkToChange, TransactionToSign } from './content'
 import { SignedMessage, SignedTransaction } from './responseContent'
 import { testAppBaseInitialize, testClientBaseInitialize } from './testUtils'
 
@@ -81,12 +80,12 @@ describe('Base Client tests', () => {
     assert(signed.length === 2)
   })
   test('#on("changeNetwork")', async () => {
-    const randomNewNetwork: AptosChangeNetworkInput = {
+    const randomNewNetwork: NetworkToChange = {
       name: Network.MAINNET,
-      chainId: 27
+      id: '27'
     }
     client.on('changeNetwork', async (e) => {
-      assert(e.newNetwork.chainId === 27)
+      assert(+e.newNetwork.id === 27)
       // resolve
       await client.resolveChangeNetwork({
         sessionId: e.sessionId,
@@ -97,7 +96,7 @@ describe('Base Client tests', () => {
     await smartDelay()
     const newNetwork = await baseApp.changeNetwork(randomNewNetwork)
 
-    assert(newNetwork.newNetwork.chainId === 27)
+    assert(+newNetwork.newNetwork.id === 27)
   })
   test('#getPendingRequests', async () => {
     const randomSignMessage: MessageToSign[] = [{ message: '1' }, { message: '13' }]

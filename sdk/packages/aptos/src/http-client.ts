@@ -77,7 +77,7 @@ export class HttpClientAptos {
   }: ResolveChangeNetwork) => {
     await this.baseClient.resolveChangeNetwork({
       requestId,
-      newNetwork,
+      newNetwork: { ...newNetwork, id: newNetwork.chainId.toString() },
       sessionId: sessionId ?? ''
     })
   }

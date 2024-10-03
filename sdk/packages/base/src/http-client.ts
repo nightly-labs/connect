@@ -1,5 +1,4 @@
 // import LocalStorage from 'isomorphic-localstorage'
-import { AptosChangeNetworkInput } from '@aptos-labs/wallet-standard'
 import { fetch } from 'cross-fetch'
 import { HttpConnectSessionRequest } from '../../../bindings/HttpConnectSessionRequest'
 import { HttpConnectSessionResponse } from '../../../bindings/HttpConnectSessionResponse'
@@ -16,7 +15,7 @@ import { HttpGetSessionsRequest } from '../../../bindings/HttpGetSessionsRequest
 import { HttpGetSessionsResponse } from '../../../bindings/HttpGetSessionsResponse'
 import { HttpResolveRequestRequest } from '../../../bindings/HttpResolveRequestRequest'
 import { HttpResolveRequestResponse } from '../../../bindings/HttpResolveRequestResponse'
-import { RequestContent } from './content'
+import { NetworkToChange, RequestContent } from './content'
 import {
   CustomResponseContent,
   RejectResponseContent,
@@ -233,7 +232,7 @@ export interface HttpResolveSignMessages {
 }
 export interface HttpResolveChangeNetwork {
   requestId: string
-  newNetwork: AptosChangeNetworkInput
+  newNetwork: NetworkToChange
   sessionId: string
   clientId?: string
 }

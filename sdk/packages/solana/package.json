@@ -1,6 +1,6 @@
 {
   "name": "@nightlylabs/nightly-connect-solana",
-  "version": "0.0.29",
+  "version": "0.0.3",
   "type": "module",
   "exports": {
     ".": {
@@ -45,7 +45,7 @@
     "typescript": "^5.1.3"
   },
   "dependencies": {
-    "@nightlylabs/nightly-connect-base": "0.0.28",
+    "@nightlylabs/nightly-connect-base": "^0.0.3",
     "@solana/web3.js": "^1.77.2",
     "eventemitter3": "^5.0.1",
     "uuid": "^9.0.0"

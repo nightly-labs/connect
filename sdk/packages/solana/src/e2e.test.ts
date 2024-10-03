@@ -1,14 +1,14 @@
-import { Keypair, LAMPORTS_PER_SOL, SystemProgram, Transaction } from '@solana/web3.js'
 import { Connect, ContentType } from '@nightlylabs/nightly-connect-base'
+import { Keypair, LAMPORTS_PER_SOL, SystemProgram, Transaction } from '@solana/web3.js'
 import { sha256 } from 'js-sha256'
 import nacl from 'tweetnacl'
 import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
-import { AppSolana } from './app'
-import { ClientSolana } from './client'
-import { SOLANA_NETWORK } from './utils'
-import { TEST_APP_INITIALIZE } from './testUtils'
-import { SignTransactionsSolanaRequest } from './requestTypes'
 import { smartDelay, TEST_RELAY_ENDPOINT } from '../../../commonTestUtils'
+import { AppSolana } from './app'
+import { ClientSolana, SolanaChangeNetworkInput } from './client'
+import { SignTransactionsSolanaRequest } from './requestTypes'
+import { TEST_APP_INITIALIZE } from './testUtils'
+import { SOLANA_NETWORK } from './utils'
 
 // Edit an assertion and save to see HMR in action
 const alice_keypair = Keypair.generate()
@@ -88,6 +88,21 @@ describe('Base Client tests', () => {
       alice_keypair.publicKey.toBuffer()
     )
     assert(verified)
+  })
+  test('#on("changeNetwork")', async () => {
+    client.on('changeNetwork', async (e) => {
+      const payload = e.newNetwork
+      await client.resolveChangeNetwork({
+        requestId: e.requestId,
+        newNetwork: payload
+      })
+    })
+
+    await smartDelay()
+    const newNetwork: SolanaChangeNetworkInput = {
+      genesisHash: 'abcdefgh'
+    }
+    const _changedNetwork = await app.changeNetwork(newNetwork)
   })
   test('#getPendingRequests()', async () => {
     client.removeListener('signTransactions')

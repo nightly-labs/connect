@@ -1,16 +1,15 @@
-import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
-import { VersionedTransaction } from '@solana/web3.js'
 import {
   BaseClient,
   ClientBaseInitialize,
   Connect,
   SignMessagesEvent
 } from '@nightlylabs/nightly-connect-base'
+import { VersionedTransaction } from '@solana/web3.js'
 import { EventEmitter } from 'eventemitter3'
-import { SOLANA_NETWORK } from './utils'
+import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
 import { GetInfoResponse } from '../../../bindings/GetInfoResponse'
-import { parseRequest } from './utils'
 import { SolanaRequest } from './requestTypes'
+import { parseRequest, SOLANA_NETWORK } from './utils'
 
 export interface SignSolanaTransactionEvent {
   requestId: string
@@ -18,7 +17,14 @@ export interface SignSolanaTransactionEvent {
   sessionId: string
 }
 export type SignSolanaMessageEvent = SignMessagesEvent
+
+export interface ChangeSolanaNetworkEvent {
+  requestId: string
+  sessionId: string
+  newNetwork: SolanaChangeNetworkInput
+}
 export interface ClientSolanaEvents {
+  changeNetwork(e: ChangeSolanaNetworkEvent)
   signTransactions: (e: SignSolanaTransactionEvent) => void
   signMessages: (e: SignSolanaMessageEvent) => void
   appDisconnected: (e: AppDisconnectedEvent) => void
@@ -40,6 +46,18 @@ export class ClientSolana extends EventEmitter<ClientSolanaEvents> {
     })
     baseClient.on('signMessages', (e) => {
       this.emit('signMessages', e)
+    })
+    baseClient.on('changeNetwork', (e) => {
+      const newNetwork: SolanaChangeNetworkInput = {
+        url: e.newNetwork.url,
+        genesisHash: e.newNetwork.id
+      }
+      const event: ChangeSolanaNetworkEvent = {
+        sessionId: e.sessionId,
+        requestId: e.responseId,
+        newNetwork: newNetwork
+      }
+      this.emit('changeNetwork', event)
     })
     baseClient.on('appDisconnected', (e) => {
       this.emit('appDisconnected', e)
@@ -110,6 +128,21 @@ export class ClientSolana extends EventEmitter<ClientSolanaEvents> {
       sessionId: sessionIdToUse
     })
   }
+  public resolveChangeNetwork = async ({
+    requestId,
+    newNetwork,
+    sessionId
+  }: ResolveChangeSolanaNetwork) => {
+    const sessionIdToUse = sessionId || this.sessionId
+    if (sessionIdToUse === undefined) {
+      throw new Error('Session id is undefined')
+    }
+    await this.baseClient.resolveChangeNetwork({
+      requestId,
+      newNetwork: { ...newNetwork, id: newNetwork.genesisHash },
+      sessionId: sessionIdToUse
+    })
+  }
   public resolveSignMessage = async ({
     requestId,
     signature,
@@ -142,6 +175,11 @@ export class ClientSolana extends EventEmitter<ClientSolanaEvents> {
   }
 }
 
+export interface SolanaChangeNetworkInput {
+  genesisHash: string
+  url?: string
+}
+
 export interface RejectRequest {
   requestId: string
   reason?: string
@@ -155,5 +193,11 @@ export interface ResolveSignSolanaTransactions {
 export interface ResolveSignSolanaMessage {
   requestId: string
   signature: Uint8Array
+  sessionId?: string
+}
+
+export interface ResolveChangeSolanaNetwork {
+  requestId: string
+  newNetwork: SolanaChangeNetworkInput
   sessionId?: string
 }

@@ -1,10 +1,11 @@
-import { VersionedTransaction } from '@solana/web3.js'
 import { HttpBaseClient, HttpBaseClientInitialize } from '@nightlylabs/nightly-connect-base'
-import { SOLANA_NETWORK, parseRequest } from './utils'
+import { VersionedTransaction } from '@solana/web3.js'
 import { HttpConnectSessionRequest } from '../../../bindings/HttpConnectSessionRequest'
-import { HttpGetPendingRequestsRequest } from '../../../bindings/HttpGetPendingRequestsRequest'
 import { HttpGetPendingRequestRequest } from '../../../bindings/HttpGetPendingRequestRequest'
+import { HttpGetPendingRequestsRequest } from '../../../bindings/HttpGetPendingRequestsRequest'
 import { HttpGetSessionInfoResponse } from '../../../bindings/HttpGetSessionInfoResponse'
+import { SolanaChangeNetworkInput } from './client'
+import { SOLANA_NETWORK, parseRequest } from './utils'
 
 export class HttpClientSolana {
   baseClient: HttpBaseClient
@@ -56,6 +57,17 @@ export class HttpClientSolana {
       signedMessages: [{ message: Buffer.from(signature).toString('hex') }]
     })
   }
+  public resolveChangeNetwork = async ({
+    requestId,
+    newNetwork,
+    sessionId
+  }: ResolveChangeSolanaNetwork) => {
+    await this.baseClient.resolveChangeNetwork({
+      requestId,
+      newNetwork: { ...newNetwork, id: newNetwork.genesisHash },
+      sessionId: sessionId ?? ''
+    })
+  }
   public rejectRequest = async ({ requestId, reason, sessionId }: RejectRequest) => {
     await this.baseClient.reject({ requestId: requestId, reason, sessionId: sessionId })
   }
@@ -74,4 +86,10 @@ export interface ResolveSignSolanaMessage {
   requestId: string
   signature: Uint8Array
   sessionId: string
+}
+
+export interface ResolveChangeSolanaNetwork {
+  requestId: string
+  newNetwork: SolanaChangeNetworkInput
+  sessionId?: string
 }

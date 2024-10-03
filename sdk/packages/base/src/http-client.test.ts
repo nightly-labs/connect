@@ -1,10 +1,9 @@
 import { Network } from '@aptos-labs/ts-sdk'
-import { AptosChangeNetworkInput } from '@aptos-labs/wallet-standard'
 import { assert, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { smartDelay, TEST_RELAY_ENDPOINT } from '../../../commonTestUtils'
 import { BaseApp } from './app'
 import { Connect } from './client'
-import { MessageToSign, TransactionToSign } from './content'
+import { MessageToSign, NetworkToChange, TransactionToSign } from './content'
 import { HttpBaseClient } from './http-client'
 import { SignedMessage, SignedTransaction } from './responseContent'
 import { testAppBaseInitialize } from './testUtils'
@@ -94,9 +93,9 @@ describe('Http Base Client tests', () => {
     assert(signed.length === 2)
   })
   test('#resolveChangeNetwork()', async () => {
-    const randomNewNetwork: AptosChangeNetworkInput = {
+    const randomNewNetwork: NetworkToChange = {
       name: Network.MAINNET,
-      chainId: 27
+      id: '27'
     }
     // send change network
     const newNetworkResponse = baseApp.changeNetwork(randomNewNetwork)
@@ -111,7 +110,7 @@ describe('Http Base Client tests', () => {
 
     await smartDelay()
     const newNetwork = await newNetworkResponse
-    assert(newNetwork.newNetwork.chainId === 27)
+    assert(+newNetwork.newNetwork.id === 27)
   })
   test('#reject()', async () => {
     try {

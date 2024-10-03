@@ -1,11 +1,13 @@
-import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
-import { AppSolana } from './app'
-import { SOLANA_NETWORK } from './utils'
-import { TEST_APP_INITIALIZE } from './testUtils'
-import { Connect, getRandomId, ContentType } from '@nightlylabs/nightly-connect-base'
+import { Connect, ContentType, getRandomId } from '@nightlylabs/nightly-connect-base'
 import { Keypair, LAMPORTS_PER_SOL, SystemProgram, Transaction } from '@solana/web3.js'
-import { HttpClientSolana } from './http-client'
+import { assert, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { smartDelay, TEST_RELAY_ENDPOINT } from '../../../commonTestUtils'
+import { AppSolana } from './app'
+import { SolanaChangeNetworkInput } from './client'
+import { HttpClientSolana } from './http-client'
+import { ChangeNetworkSolanaRequest } from './requestTypes'
+import { TEST_APP_INITIALIZE } from './testUtils'
+import { SOLANA_NETWORK } from './utils'
 
 // Edit an assertion and save to see HMR in action
 const alice_keypair = Keypair.generate()
@@ -69,5 +71,27 @@ describe('Base Client tests', () => {
     // Transform to Transaction cuz idk how to verify VersionedTransaction
     const signed_transaction = Transaction.from(signed.serialize())
     assert(signed_transaction.verifySignatures())
+  })
+  test('#resolveChangeNetwork()', async () => {
+    const newNetwork: SolanaChangeNetworkInput = {
+      genesisHash: 'abcdefgh'
+    }
+
+    const _changedNetwork = app.changeNetwork(newNetwork)
+    await smartDelay()
+
+    const pendingRequest = (
+      await client.getPendingRequests({ sessionId: app.sessionId })
+    )[0] as ChangeNetworkSolanaRequest
+    expect(pendingRequest.type).toBe(ContentType.ChangeNetwork)
+    expect(pendingRequest.newNetwork.genesisHash).toBe('abcdefgh')
+
+    const payload = pendingRequest.newNetwork
+
+    await client.resolveChangeNetwork({
+      requestId: pendingRequest.requestId,
+      sessionId: app.sessionId,
+      newNetwork: payload
+    })
   })
 })
