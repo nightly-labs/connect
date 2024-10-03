@@ -80,9 +80,9 @@ pub static TEAM_INVITE_NOTIFICATION_TEMPLATE: &str = r##"<!DOCTYPE html>
               color: #2b344d;
             "
           >
-            You just got invited to the special group of people EMAIL_TEAM_NAME! Are
-            You willing to accept this invitation? We hope so, click link below
-            to log and say yes!
+            You just got invited to the special group of people EMAIL_TEAM_NAME!
+            Are You willing to accept this invitation? We hope so, click link
+            below to log and say yes!
           </p>
           <a
             href="EMAIL_TEAM_LINK"
@@ -139,15 +139,19 @@ pub static TEAM_INVITE_NOTIFICATION_TEMPLATE: &str = r##"<!DOCTYPE html>
             >
               Hit us up here
             </h4>
-            <div style="display: flex; gap: 15px">
+            <div>
               <a href="https://x.com/Nightly_app" target="_blank">
                 <img
-                  style="height: 14px"
+                  style="height: 14px; margin-bottom: 1px"
                   src="https://registry.nightly.app/email/img/X.png"
                   alt=""
                 />
               </a>
-              <a href="https://discord.com/invite/7nhFHA6yZq" target="_blank">
+              <a
+                href="https://discord.com/invite/7nhFHA6yZq"
+                target="_blank"
+                style="margin-left: 15px"
+              >
                 <img
                   style="height: 16px"
                   src="https://registry.nightly.app/email/img/Discord.png"
@@ -168,8 +172,7 @@ pub static TEAM_INVITE_NOTIFICATION_TEMPLATE: &str = r##"<!DOCTYPE html>
         padding: 0 64px;
         max-width: 640px;
         height: 80px;
-        display: grid;
-        place-content: center;
+        text-align: center;
       "
     >
       <tr>
@@ -184,5 +187,4 @@ pub static TEAM_INVITE_NOTIFICATION_TEMPLATE: &str = r##"<!DOCTYPE html>
     </table>
   </body>
 </html>
-
 "##;
