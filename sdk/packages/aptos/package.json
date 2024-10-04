@@ -45,7 +45,7 @@
   "dependencies": {
     "@aptos-labs/ts-sdk": "^1.9.1",
     "@aptos-labs/wallet-standard": "^0.0.11",
-    "@nightlylabs/nightly-connect-base": "^0.0.3",
+    "@nightlylabs/nightly-connect-base": "^0.0.30",
     "eventemitter3": "^5.0.1"
   }
 }

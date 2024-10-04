@@ -235,7 +235,7 @@ importers:
         specifier: ^0.0.11
         version: 0.0.11
       '@nightlylabs/nightly-connect-base':
-        specifier: ^0.0.3
+        specifier: ^0.0.30
         version: link:../base
       eventemitter3:
         specifier: ^5.0.1
@@ -546,7 +546,7 @@ importers:
         specifier: 0.0.5
         version: link:../aptos
       '@nightlylabs/nightly-connect-base':
-        specifier: ^0.0.3
+        specifier: ^0.0.30
         version: link:../base
       '@nightlylabs/wallet-selector-base':
         specifier: 0.4.3
@@ -586,7 +586,7 @@ importers:
   packages/selector-base:
     dependencies:
       '@nightlylabs/nightly-connect-base':
-        specifier: ^0.0.3
+        specifier: ^0.0.30
         version: link:../base
       '@nightlylabs/wallet-selector-modal':
         specifier: 0.2.1
@@ -776,7 +776,7 @@ importers:
   packages/solana:
     dependencies:
       '@nightlylabs/nightly-connect-base':
-        specifier: ^0.0.3
+        specifier: ^0.0.30
         version: link:../base
       '@solana/web3.js':
         specifier: ^1.77.2
