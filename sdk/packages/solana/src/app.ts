@@ -1,16 +1,17 @@
-import { Keypair, PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js'
 import {
   BaseApp,
+  DeeplinkConnect,
   getWalletsMetadata,
   MessageToSign,
-  TransactionToSign,
-  DeeplinkConnect
+  TransactionToSign
 } from '@nightlylabs/nightly-connect-base'
-import { AppSolanaInitialize, SOLANA_NETWORK } from './utils'
+import { Keypair, PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js'
 import { EventEmitter } from 'eventemitter3'
-import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
 import { UserConnectedEvent } from '../../../bindings/UserConnectedEvent'
+import { UserDisconnectedEvent } from '../../../bindings/UserDisconnectedEvent'
 import { WalletMetadata } from '../../../bindings/WalletMetadata'
+import { SolanaChangeNetworkInput } from './client'
+import { AppSolanaInitialize, SOLANA_NETWORK } from './utils'
 
 interface SolanaAppEvents {
   userConnected: (e: UserConnectedEvent) => void
@@ -141,5 +142,15 @@ export class AppSolana extends EventEmitter<SolanaAppEvents> {
     }
     const signedTx = await this.base.signMessages([request])
     return Uint8Array.from(Buffer.from(signedTx[0].message, 'hex'))
+  }
+
+  changeNetwork = async (input: SolanaChangeNetworkInput) => {
+    const changeNetworkResponse = await this.base.changeNetwork({
+      url: input.url,
+      id: input.genesisHash
+    })
+    return {
+      success: !!changeNetworkResponse.newNetwork
+    }
   }
 }

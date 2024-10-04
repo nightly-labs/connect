@@ -1,11 +1,12 @@
 import { AppBaseInitialize, ContentType, RequestContent } from '@nightlylabs/nightly-connect-base'
+import { VersionedTransaction } from '@solana/web3.js'
 import {
+  ChangeNetworkSolanaRequest,
   CustomSolanaRequest,
   SignMessagesSolanaRequest,
   SignTransactionsSolanaRequest,
   SolanaRequest
 } from './requestTypes'
-import { VersionedTransaction } from '@solana/web3.js'
 
 export type AppSolanaInitialize = Omit<AppBaseInitialize, 'network'>
 
@@ -41,6 +42,15 @@ export const parseRequest = (request: RequestContent, sessionId: string): Solana
         sessionId: sessionId
       }
       return customRequest
+    }
+    case ContentType.ChangeNetwork: {
+      const changeNetworkRequest: ChangeNetworkSolanaRequest = {
+        type: ContentType.ChangeNetwork,
+        newNetwork: { genesisHash: request.content.newNetwork.id, ...request.content.newNetwork },
+        requestId: request.requestId,
+        sessionId: sessionId
+      }
+      return changeNetworkRequest
     }
   }
 }

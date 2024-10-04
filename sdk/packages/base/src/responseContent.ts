@@ -1,4 +1,4 @@
-import { AptosChangeNetworkInput } from '@aptos-labs/wallet-standard'
+import { NetworkToChange } from './content'
 
 export enum ResponseContentType {
   SignMessages = 'SignMessagesResponse',
@@ -26,7 +26,7 @@ export interface SignTransactionsResponseContent {
 }
 export interface ChangeNetworkResponseContent {
   type: ResponseContentType.ChangedNetwork
-  newNetwork: AptosChangeNetworkInput
+  newNetwork: NetworkToChange
 }
 export interface RejectResponseContent {
   type: ResponseContentType.Reject

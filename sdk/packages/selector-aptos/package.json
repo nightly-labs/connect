@@ -1,6 +1,6 @@
 {
   "name": "@nightlylabs/wallet-selector-aptos",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "",
   "type": "module",
   "exports": {
@@ -26,9 +26,9 @@
   "dependencies": {
     "@aptos-labs/ts-sdk": "^1.9.1",
     "@aptos-labs/wallet-standard": "^0.0.11",
-    "@nightlylabs/nightly-connect-aptos": "0.0.4",
-    "@nightlylabs/wallet-selector-base": "0.4.2",
-    "@nightlylabs/nightly-connect-base": "^0.0.29",
+    "@nightlylabs/nightly-connect-aptos": "0.0.5",
+    "@nightlylabs/wallet-selector-base": "0.4.3",
+    "@nightlylabs/nightly-connect-base": "^0.0.3",
     "@wallet-standard/core": "^1.0.3",
     "eventemitter3": "^5.0.1"
   },

@@ -1,5 +1,4 @@
 // import LocalStorage from 'isomorphic-localstorage'
-import { AptosChangeNetworkInput } from '@aptos-labs/wallet-standard'
 import { EventEmitter } from 'eventemitter3'
 import WebSocket from 'isomorphic-ws'
 import { AppDisconnectedEvent } from '../../../bindings/AppDisconnectedEvent'
@@ -14,7 +13,13 @@ import { GetPendingRequestsResponse } from '../../../bindings/GetPendingRequests
 import { GetSessionsRequest } from '../../../bindings/GetSessionsRequest'
 import { GetSessionsResponse } from '../../../bindings/GetSessionsResponse'
 import { ServerToClient } from '../../../bindings/ServerToClient'
-import { MessageToSign, RequestContent, RequestInternal, TransactionToSign } from './content'
+import {
+  MessageToSign,
+  NetworkToChange,
+  RequestContent,
+  RequestInternal,
+  TransactionToSign
+} from './content'
 import { ClientBaseInitialize } from './initializeTypes'
 import {
   ResponseContent,
@@ -37,7 +42,7 @@ export interface SignMessagesEvent {
 export interface ChangeNetworkEvent {
   responseId: string
   sessionId: string
-  newNetwork: AptosChangeNetworkInput
+  newNetwork: NetworkToChange
 }
 export interface CustomEvent {
   responseId: string
@@ -301,7 +306,7 @@ export interface ResolveSignTransactions {
 }
 export interface ResolveChangeNetwork {
   requestId: string
-  newNetwork: AptosChangeNetworkInput
+  newNetwork: NetworkToChange
   sessionId: string
 }
 

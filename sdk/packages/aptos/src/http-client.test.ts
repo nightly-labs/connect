@@ -214,5 +214,9 @@ describe('Aptos http-client tests', () => {
       sessionId: app.sessionId,
       newNetwork: payload
     })
+
+    await smartDelay()
+    const isSuccess = (await _changedNetwork).status === UserResponseStatus.APPROVED
+    assert(isSuccess)
   })
 })

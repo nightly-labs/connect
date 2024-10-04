@@ -1,5 +1,6 @@
 import { ContentType, MessageToSign } from '@nightlylabs/nightly-connect-base'
 import { VersionedTransaction } from '@solana/web3.js'
+import { SolanaChangeNetworkInput } from './client'
 
 export interface SignTransactionsSolanaRequest {
   type: ContentType.SignTransactions
@@ -19,7 +20,14 @@ export interface CustomSolanaRequest {
   content?: string
   sessionId: string
 }
+export interface ChangeNetworkSolanaRequest {
+  type: ContentType.ChangeNetwork
+  requestId: string
+  newNetwork: SolanaChangeNetworkInput
+  sessionId: string
+}
 export type SolanaRequest =
   | SignTransactionsSolanaRequest
   | SignMessagesSolanaRequest
   | CustomSolanaRequest
+  | ChangeNetworkSolanaRequest

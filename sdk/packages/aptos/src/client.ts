@@ -1,4 +1,4 @@
-import { AnyRawTransaction } from '@aptos-labs/ts-sdk'
+import { AnyRawTransaction, Network } from '@aptos-labs/ts-sdk'
 import {
   AccountInfo,
   AptosChangeNetworkInput,
@@ -90,10 +90,15 @@ export class ClientAptos extends EventEmitter<ClientAptosEvents> {
       this.emit('signMessage', event)
     })
     baseClient.on('changeNetwork', (e) => {
+      const newNetwork: AptosChangeNetworkInput = {
+        name: e.newNetwork.name! as Network,
+        url: e.newNetwork.url,
+        chainId: +e.newNetwork.id
+      }
       const event: ChangeNetworkEvent = {
         sessionId: e.sessionId,
         requestId: e.responseId,
-        newNetwork: e.newNetwork
+        newNetwork: newNetwork
       }
       this.emit('changeNetwork', event)
     })
@@ -162,7 +167,7 @@ export class ClientAptos extends EventEmitter<ClientAptosEvents> {
     }
     await this.baseClient.resolveChangeNetwork({
       requestId,
-      newNetwork,
+      newNetwork: { ...newNetwork, id: newNetwork.chainId.toString() },
       sessionId: sessionIdToUse
     })
   }

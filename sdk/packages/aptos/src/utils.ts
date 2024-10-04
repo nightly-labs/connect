@@ -3,6 +3,7 @@ import {
   AccountAuthenticator,
   AnyRawTransaction,
   Deserializer,
+  Network,
   PendingTransactionResponse,
   RawTransaction,
   Serializer
@@ -11,6 +12,7 @@ import { AccountInfo, NetworkInfo } from '@aptos-labs/wallet-standard'
 import { ContentType, RequestContent } from '@nightlylabs/nightly-connect-base'
 import {
   AptosRequest,
+  ChangeNetworkAptosRequest,
   CustomAptosRequest,
   SignMessagesAptosRequest,
   SignTransactionsAptosRequest
@@ -199,9 +201,13 @@ export const parseRequest = (request: RequestContent, sessionId: string): AptosR
       return customRequest
     }
     case ContentType.ChangeNetwork: {
-      const changeNetworkRequest: CustomAptosRequest = {
-        type: ContentType.Custom,
-        content: JSON.stringify(request.content),
+      const changeNetworkRequest: ChangeNetworkAptosRequest = {
+        type: ContentType.ChangeNetwork,
+        newNetwork: {
+          chainId: +request.content.newNetwork.id,
+          name: request.content.newNetwork.name as Network,
+          url: request.content.newNetwork.url
+        },
         requestId: request.requestId,
         sessionId: sessionId
       }
