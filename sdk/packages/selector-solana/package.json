@@ -24,7 +24,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@nightlylabs/nightly-connect-solana": "^0.0.3",
+    "@nightlylabs/nightly-connect-solana": "^0.0.30",
     "@nightlylabs/wallet-selector-base": "^0.4.3",
     "@solana/wallet-adapter-base": "^0.9.22",
     "@solana/wallet-standard": "^1.0.2",

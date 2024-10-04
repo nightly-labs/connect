@@ -20,7 +20,7 @@
     "@aptos-labs/wallet-standard": "^0.0.11",
     "@mysten/sui": "1.4.0",
     "@nightlylabs/nightly-connect-polkadot": "0.0.16",
-    "@nightlylabs/nightly-connect-solana": "0.0.3",
+    "@nightlylabs/nightly-connect-solana": "0.0.30",
     "@nightlylabs/nightly-connect-sui": "0.1.0",
     "@nightlylabs/wallet-selector-aptos": "^0.1.12",
     "@nightlylabs/wallet-selector-base": "^0.4.3",
