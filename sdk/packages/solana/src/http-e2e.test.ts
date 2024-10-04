@@ -74,7 +74,8 @@ describe('Base Client tests', () => {
   })
   test('#resolveChangeNetwork()', async () => {
     const newNetwork: SolanaChangeNetworkInput = {
-      genesisHash: 'abcdefgh'
+      genesisHash: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d',
+      url: 'https://solana-mainnet.rpc.extrnode.com/85c27167-63a1-4fa3-9971-fc1df7b132dc'
     }
 
     const _changedNetwork = app.changeNetwork(newNetwork)
@@ -84,7 +85,12 @@ describe('Base Client tests', () => {
       await client.getPendingRequests({ sessionId: app.sessionId })
     )[0] as ChangeNetworkSolanaRequest
     expect(pendingRequest.type).toBe(ContentType.ChangeNetwork)
-    expect(pendingRequest.newNetwork.genesisHash).toBe('abcdefgh')
+    expect(pendingRequest.newNetwork.genesisHash).toBe(
+      '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d'
+    )
+    expect(pendingRequest.newNetwork.url).toBe(
+      'https://solana-mainnet.rpc.extrnode.com/85c27167-63a1-4fa3-9971-fc1df7b132dc'
+    )
 
     const payload = pendingRequest.newNetwork
 
@@ -93,5 +99,38 @@ describe('Base Client tests', () => {
       sessionId: app.sessionId,
       newNetwork: payload
     })
+
+    await smartDelay()
+    const isSuccess = (await _changedNetwork).success
+    assert(isSuccess)
+  })
+  test('#rejectRequest()', async () => {
+    try {
+      const newNetwork: SolanaChangeNetworkInput = {
+        genesisHash: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d',
+        url: 'https://solana-mainnet.rpc.extrnode.com/85c27167-63a1-4fa3-9971-fc1df7b132dc'
+      }
+
+      // eslint-disable-next-line no-async-promise-executor
+      const promiseChangeNetwork = new Promise<void>(async (resolve) => {
+        expect(() => app.changeNetwork(newNetwork)).rejects.toThrow('test-error')
+        resolve()
+      })
+      await smartDelay()
+
+      const pendingRequest = (
+        await client.getPendingRequests({ sessionId: app.sessionId })
+      )[0] as ChangeNetworkSolanaRequest
+
+      await client.rejectRequest({
+        requestId: pendingRequest.requestId,
+        sessionId: app.sessionId,
+        reason: 'test-error'
+      })
+      await smartDelay()
+      await promiseChangeNetwork
+    } catch (error) {
+      console.log(error)
+    }
   })
 })

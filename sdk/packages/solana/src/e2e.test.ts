@@ -103,6 +103,7 @@ describe('Base Client tests', () => {
       genesisHash: 'abcdefgh'
     }
     const _changedNetwork = await app.changeNetwork(newNetwork)
+    assert(_changedNetwork.success)
   })
   test('#getPendingRequests()', async () => {
     client.removeListener('signTransactions')
