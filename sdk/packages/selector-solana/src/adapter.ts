@@ -898,18 +898,21 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       if (!this._connectionType) {
         throw new Error('Not connected')
       }
-      // Check if remote connection is established
-      if (this._connectionType === ConnectionType.Nightly) {
-        await this._app!.changeNetwork({ genesisHash, url })
-      }
-
-      // @ts-expect-error Window not declared
-      const nightlySolana = window.nightly?.solana
-
       // check if we are connected with nightly wallet
       if (this.selectedWallet?.name !== 'Nightly') {
         throw new Error('Only supported on Nightly wallet')
       }
+      // Check if remote connection is established
+      if (this._connectionType === ConnectionType.Nightly) {
+        const response = await this._app!.changeNetwork({ genesisHash, url })
+        if (response.success) {
+          return
+        }
+
+        throw new Error('Network change unsuccessful')
+      }
+      // @ts-expect-error Window not declared
+      const nightlySolana = window.nightly?.solana
 
       await nightlySolana.changeNetwork({
         genesisHash,
