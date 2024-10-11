@@ -56,6 +56,12 @@ pub async fn leave_team(
                 ));
             }
 
+            if team.active != true {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    CloudApiErrors::TeamDoesNotExist.to_string(),
+                ));
+            }
             // Get user data and perform checks
             let user = match db.get_user_by_user_id(&user_id).await {
                 Ok(Some(user)) => user,

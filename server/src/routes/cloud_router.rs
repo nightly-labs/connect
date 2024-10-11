@@ -6,7 +6,9 @@ use crate::{
         cancel_team_user_invite::cancel_team_user_invite,
         cancel_user_team_invite::cancel_user_team_invite,
         change_user_privileges::change_user_privileges,
+        delete_app::delete_app,
         delete_passkey::delete_passkey,
+        delete_team::delete_team,
         domains::{
             cancel_pending_domain_request::cancel_pending_domain_request,
             remove_whitelisted_domain::remove_whitelisted_domain,
@@ -221,6 +223,11 @@ pub fn private_router(state: ServerState) -> Router<ServerState> {
             &HttpCloudEndpoint::ChangeUserPrivileges.to_string(),
             post(change_user_privileges),
         )
+        .route(&HttpCloudEndpoint::DeleteApp.to_string(), post(delete_app))
         .route(&HttpCloudEndpoint::LeaveTeam.to_string(), post(leave_team))
+        .route(
+            &HttpCloudEndpoint::DeleteTeam.to_string(),
+            post(delete_team),
+        )
         .with_state(state)
 }

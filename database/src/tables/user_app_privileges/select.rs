@@ -13,6 +13,8 @@ use sqlx::{query_as, types::chrono::DateTime};
 use sqlx::{types::chrono::Utc, Row};
 use std::collections::HashMap;
 
+// When app or team is not active, the privileges will be deleted, so we don't need to check it
+
 impl Db {
     pub async fn get_privilege_by_user_id_and_app_id(
         &self,
@@ -122,7 +124,7 @@ impl Db {
                 LEFT JOIN {REGISTERED_APPS_TABLE_NAME} ra ON t.team_id = ra.team_id
                 LEFT JOIN {USER_APP_PRIVILEGES_TABLE_NAME} uap ON ra.app_id = uap.app_id AND uap.user_id = $1
                 JOIN {USERS_TABLE_NAME} gu ON t.team_admin_id = gu.user_id
-                WHERE t.team_admin_id = $1 OR uap.user_id = $1
+                WHERE (t.team_admin_id = $1 OR uap.user_id = $1) AND ra.active = true
             )
             SELECT rt.team_id, rt.team_name, rt.personal, rt.subscription, rt.registration_timestamp, 
                    rt.team_admin_email, rt.team_admin_id, ra.app_id, ra.app_name, ra.whitelisted_domains, 
@@ -132,6 +134,7 @@ impl Db {
             FROM RelevantTeams rt
             LEFT JOIN {REGISTERED_APPS_TABLE_NAME} ra ON rt.team_id = ra.team_id
             LEFT JOIN {USER_APP_PRIVILEGES_TABLE_NAME} uap ON ra.app_id = uap.app_id AND uap.user_id = $1
+            WHERE ra.active = true
             ORDER BY rt.team_id, ra.app_id"
         );
 
@@ -165,6 +168,8 @@ impl Db {
                 subscription: row.get("subscription"),
                 registration_timestamp: row.get("registration_timestamp"),
                 team_admin_id: row.get("team_admin_id"),
+                active: row.get("active"),
+                deactivated_at: row.get("deactivated_at"),
             };
 
             let admin_email = row.get("team_admin_email");
@@ -185,6 +190,8 @@ impl Db {
                         whitelisted_domains: row.get("whitelisted_domains"),
                         ack_public_keys: row.get("ack_public_keys"),
                         registration_timestamp: row.get("app_registration_timestamp"),
+                        active: row.get("active"),
+                        deactivated_at: row.get("deactivated_at"),
                     };
 
                     let privilege = UserAppPrivilege {

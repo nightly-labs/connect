@@ -62,8 +62,9 @@ impl Db {
         team_id: &String,
     ) -> Result<(), DbError> {
         // Retrieve all apps associated with the team
-        let apps_query =
-            format!("SELECT app_id FROM {REGISTERED_APPS_TABLE_NAME} WHERE team_id = $1");
+        let apps_query = format!(
+            "SELECT app_id FROM {REGISTERED_APPS_TABLE_NAME} WHERE team_id = $1 AND active = true"
+        );
         let apps: Vec<String> = sqlx::query_as(&apps_query)
             .bind(team_id)
             .fetch_all(&self.connection_pool)
@@ -110,8 +111,9 @@ impl Db {
         team_id: &String,
     ) -> Result<(), DbError> {
         // Retrieve all apps associated with the team
-        let apps_query =
-            format!("SELECT app_id FROM {REGISTERED_APPS_TABLE_NAME} WHERE team_id = $1");
+        let apps_query = format!(
+            "SELECT app_id FROM {REGISTERED_APPS_TABLE_NAME} WHERE team_id = $1 AND active = true"
+        );
         let apps: Vec<String> = sqlx::query_as(&apps_query)
             .bind(team_id)
             .fetch_all(&self.connection_pool)
@@ -245,6 +247,18 @@ impl Db {
             Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
+    pub async fn remove_privileges_for_inactive_app_within_tx(
+        &self,
+        tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+        app_id: &str,
+    ) -> Result<(), DbError> {
+        let query_body = format!("DELETE FROM {USER_APP_PRIVILEGES_TABLE_NAME} WHERE app_id = $1");
+        let query_result = query(&query_body).bind(app_id).execute(&mut **tx).await;
+        match query_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e).map_err(|e| e.into()),
+        }
+    }
 }
 
 #[cfg(feature = "cloud_integration_tests")]
@@ -333,6 +347,8 @@ mod tests {
                 app_name: format!("test_app_name_{}", i),
                 team_id: team_id.clone(),
                 registration_timestamp: to_microsecond_precision(&Utc::now()),
+                active: true,
+                deactivated_at: None,
             };
 
             db.register_new_app(&app).await.unwrap();
@@ -357,6 +373,8 @@ mod tests {
             subscription: None,
             team_admin_id: "test_team_admin_id".to_string(),
             registration_timestamp: to_microsecond_precision(&Utc::now()),
+            active: true,
+            deactivated_at: None,
         };
 
         db.create_new_team(&team).await.unwrap();
@@ -371,6 +389,8 @@ mod tests {
                 app_name: format!("test_app_name_{}", i),
                 team_id: team_id.clone(),
                 registration_timestamp: to_microsecond_precision(&Utc::now()),
+                active: true,
+                deactivated_at: None,
             };
 
             db.register_new_app(&app).await.unwrap();

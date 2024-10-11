@@ -128,6 +128,8 @@ pub async fn register_new_app(
                     ack_public_keys: vec![],
                     whitelisted_domains: vec![],
                     registration_timestamp: get_current_datetime(),
+                    active: true,
+                    deactivated_at: None,
                 };
 
             if let Err(err) = db
@@ -202,7 +204,6 @@ pub async fn register_new_app(
         }
         Err(err) => {
             error!("Failed to get team by team id: {:?}", err);
-            println!("Failed to get team by team id: {:?}", err);
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 CloudApiErrors::DatabaseError.to_string(),

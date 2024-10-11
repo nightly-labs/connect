@@ -4,7 +4,9 @@ CREATE TABLE registered_apps(
     app_name TEXT NOT NULL,
     whitelisted_domains TEXT [] NOT NULL,
     ack_public_keys TEXT [] NOT NULL,
-    registration_timestamp TIMESTAMPTZ NOT NULL
+    registration_timestamp TIMESTAMPTZ NOT NULL,
+    active BOOLEAN NOT NULL,
+    deactivated_at TIMESTAMPTZ
 );
 
 CREATE UNIQUE INDEX app_id_idx ON registered_apps(app_id);

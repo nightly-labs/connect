@@ -132,6 +132,8 @@ pub async fn register_new_team(
                 subscription: None,
                 personal: request.personal,
                 registration_timestamp: get_current_datetime(),
+                active: true,
+                deactivated_at: None,
             };
 
             if let Err(err) = db.create_new_team(&team).await {
