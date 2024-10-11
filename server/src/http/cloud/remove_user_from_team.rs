@@ -54,6 +54,13 @@ pub async fn remove_user_from_team(
                 ));
             }
 
+            if team.active != true {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    CloudApiErrors::TeamDoesNotExist.to_string(),
+                ));
+            }
+
             // Get user data and perform checks
             let user = match db.get_user_by_email(&request.user_email).await {
                 Ok(Some(user)) => user,
