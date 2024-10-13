@@ -50,13 +50,16 @@ pub async fn register_new_team(
         .get_team_by_team_name_and_admin_id(&request.team_name, &user_id)
         .await
     {
-        Ok(Some(_)) => {
-            return Err((
-                StatusCode::BAD_REQUEST,
-                CloudApiErrors::TeamAlreadyExists.to_string(),
-            ));
-        }
-        Ok(None) => {
+        Ok(team) => {
+            if let Some(team) = team {
+                if team.deactivated_at == None {
+                    return Err((
+                        StatusCode::BAD_REQUEST,
+                        CloudApiErrors::TeamAlreadyExists.to_string(),
+                    ));
+                }
+            }
+
             // Check how many teams the user has
             match db.get_user_created_teams_without_personal(&user_id).await {
                 Ok(teams) => {
@@ -132,7 +135,6 @@ pub async fn register_new_team(
                 subscription: None,
                 personal: request.personal,
                 registration_timestamp: get_current_datetime(),
-                active: true,
                 deactivated_at: None,
             };
 

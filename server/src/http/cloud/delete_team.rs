@@ -34,16 +34,9 @@ pub async fn delete_team(
     // Start a transaction
     let mut tx = db.connection_pool.begin().await.unwrap();
 
-    // First check if app exists
+    // First check if team exists
     let team = match db.get_team_by_team_id(None, &request.team_id).await {
         Ok(Some(team)) => {
-            // Check if team is active
-            if team.active != true {
-                return Err((
-                    StatusCode::BAD_REQUEST,
-                    CloudApiErrors::TeamDoesNotExist.to_string(),
-                ));
-            }
             if team.team_admin_id != user_id {
                 return Err((
                     StatusCode::BAD_REQUEST,
@@ -51,16 +44,11 @@ pub async fn delete_team(
                 ));
             }
 
-            // Delete the team
-            if let Err(err) = db.deactivate_team(&mut tx, &request.team_id).await {
-                let _ = tx
-                    .rollback()
-                    .await
-                    .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
-                error!("Failed to deactivate team: {:?}", err);
+            // Check if team is active
+            if team.deactivated_at != None {
                 return Err((
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    CloudApiErrors::DatabaseError.to_string(),
+                    StatusCode::BAD_REQUEST,
+                    CloudApiErrors::TeamDoesNotExist.to_string(),
                 ));
             }
             team
@@ -80,6 +68,19 @@ pub async fn delete_team(
         }
     };
 
+    // Delete the team
+    if let Err(err) = db.deactivate_team(&mut tx, &request.team_id).await {
+        let _ = tx
+            .rollback()
+            .await
+            .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
+        error!("Failed to deactivate team: {:?}", err);
+        return Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            CloudApiErrors::DatabaseError.to_string(),
+        ));
+    }
+
     // Delete all team invites
     if let Err(err) = db.cancel_all_team_invites(&mut tx, &request.team_id).await {
         let _ = tx
@@ -94,17 +95,17 @@ pub async fn delete_team(
     }
 
     // Get team apps
-    let mut registered_apps: Vec<AppInfo> =
-        match db.get_registered_apps_by_team_id(&team.team_id).await {
-            Ok(apps) => apps.into_iter().map(|app| app.into()).collect(),
-            Err(err) => {
-                error!("Failed to get registered apps by team_id: {:?}", err);
-                return Err((
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    CloudApiErrors::DatabaseError.to_string(),
-                ));
-            }
-        };
+    let registered_apps: Vec<AppInfo> = match db.get_registered_apps_by_team_id(&team.team_id).await
+    {
+        Ok(apps) => apps.into_iter().map(|app| app.into()).collect(),
+        Err(err) => {
+            error!("Failed to get registered apps by team_id: {:?}", err);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::DatabaseError.to_string(),
+            ));
+        }
+    };
 
     let app_ids: Vec<String> = registered_apps
         .iter()
@@ -112,7 +113,7 @@ pub async fn delete_team(
         .collect();
 
     // Delete team apps, privileges and domain verifications
-    for app in registered_apps.iter_mut() {
+    for app in registered_apps.iter() {
         if let Err(err) = db.deactivate_app(&mut tx, &app.app_id).await {
             let _ = tx
                 .rollback()
@@ -157,11 +158,26 @@ pub async fn delete_team(
     // Grafana, delete team
     // TODO, fix this by fixing methods for setting up grafana datasource
     if is_env_production() {
-        handle_grafana_delete_team(&grafana_conf, &request.team_id, &app_ids).await?;
+        match handle_grafana_delete_team(&grafana_conf, &request.team_id, &app_ids).await {
+            Ok(_) => {}
+            Err(err) => {
+                error!("Failed to delete team from grafana: {:?}", err);
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    CloudApiErrors::GrafanaError.to_string(),
+                ));
+            }
+        };
     }
 
     // If nothing failed commit the transaction
-    tx.commit().await.unwrap();
+    if let Err(err) = tx.commit().await {
+        error!("Failed to commit transaction: {:?}", err);
+        return Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            CloudApiErrors::DatabaseError.to_string(),
+        ));
+    }
     return Ok(Json(()));
 }
 
@@ -176,7 +192,7 @@ mod tests {
         structs::cloud::cloud_http_endpoints::HttpCloudEndpoint,
         test_utils::test_utils::{
             add_test_app, add_test_team, add_user_to_test_team, convert_response, create_test_app,
-            generate_valid_name, register_and_login_random_user,
+            generate_valid_name, get_test_team_data, register_and_login_random_user,
         },
     };
     use axum::{
@@ -220,6 +236,11 @@ mod tests {
         let json = serde_json::to_string(&request).unwrap();
         let auth = auth_token.encode(JWT_SECRET()).unwrap();
 
+        let team = get_test_team_data(&team_id, &auth_token, &test_app)
+            .await
+            .unwrap();
+        assert_eq!(team.team_metadata.team_id, team_id.clone());
+
         let req = Request::builder()
             .method(Method::POST)
             .header("content-type", "application/json")
@@ -235,5 +256,10 @@ mod tests {
         // Send request
         let response = test_app.clone().oneshot(req).await.unwrap();
         let _ = convert_response::<()>(response).await.unwrap();
+        let err = get_test_team_data(&team_id, &auth_token, &test_app)
+            .await
+            .unwrap_err();
+
+        assert_eq!(err.to_string(), "TeamDoesNotExist".to_string());
     }
 }

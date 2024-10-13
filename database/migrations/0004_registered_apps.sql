@@ -5,7 +5,6 @@ CREATE TABLE registered_apps(
     whitelisted_domains TEXT [] NOT NULL,
     ack_public_keys TEXT [] NOT NULL,
     registration_timestamp TIMESTAMPTZ NOT NULL,
-    active BOOLEAN NOT NULL,
     deactivated_at TIMESTAMPTZ
 );
 

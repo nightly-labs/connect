@@ -17,7 +17,10 @@ pub async fn handle_grafana_delete_app(
         Ok(response) => match response.dashboard {
             Some(_) => (),
             None => {
-                warn!("Failed to get dashboard: {:?}", response);
+                warn!(
+                    "Failed to get dashboard: {:?}, dashboard_id:{:?}",
+                    response, app_id
+                );
                 return Err((
                     StatusCode::INTERNAL_SERVER_ERROR,
                     CloudApiErrors::AppDoesNotExist.to_string(),
@@ -25,7 +28,10 @@ pub async fn handle_grafana_delete_app(
             }
         },
         Err(err) => {
-            warn!("Failed to get template dashboard: {:?}", err);
+            warn!(
+                "Failed to delete dashboard: {:?}, dashboard_id: {:?}",
+                err, app_id
+            );
             return Err(handle_grafana_error(err));
         }
     };
@@ -33,7 +39,10 @@ pub async fn handle_grafana_delete_app(
     match delete_dashboard_by_uid(&grafana_conf, &app_id).await {
         Ok(_) => return Ok(()),
         Err(err) => {
-            warn!("Failed to delete dashboard: {:?}", err);
+            warn!(
+                "Failed to delete dashboard: {:?}, dashboard_id: {:?}",
+                err, app_id
+            );
             return Err(handle_grafana_error(err));
         }
     }

@@ -5,7 +5,7 @@ use sqlx::{query, Transaction};
 impl Db {
     pub async fn register_new_app(&self, app: &DbRegisteredApp) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {REGISTERED_APPS_TABLE_NAME} ({REGISTERED_APPS_KEYS}) VALUES ($1, $2, $3, $4, $5, $6, $7, NULL)",
+            "INSERT INTO {REGISTERED_APPS_TABLE_NAME} ({REGISTERED_APPS_KEYS}) VALUES ($1, $2, $3, $4, $5, $6, NULL)",
         );
 
         let query_result = query(&query_body)
@@ -15,7 +15,6 @@ impl Db {
             .bind(&app.whitelisted_domains)
             .bind(&app.ack_public_keys)
             .bind(&app.registration_timestamp)
-            .bind(&app.active)
             .execute(&self.connection_pool)
             .await;
 
@@ -31,7 +30,7 @@ impl Db {
         app: &DbRegisteredApp,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {REGISTERED_APPS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6, $7, NULL)",
+            "INSERT INTO {REGISTERED_APPS_TABLE_NAME} ({}) VALUES ($1, $2, $3, $4, $5, $6, NULL)",
             REGISTERED_APPS_KEYS
         );
 
@@ -42,7 +41,6 @@ impl Db {
             .bind(&app.whitelisted_domains)
             .bind(&app.ack_public_keys)
             .bind(&app.registration_timestamp)
-            .bind(&app.active)
             .execute(&mut **tx)
             .await;
 
@@ -59,7 +57,7 @@ impl Db {
         domain: &str,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "UPDATE {REGISTERED_APPS_TABLE_NAME} SET whitelisted_domains = array_append(whitelisted_domains, $1) WHERE app_id = $2 AND active = true",
+            "UPDATE {REGISTERED_APPS_TABLE_NAME} SET whitelisted_domains = array_append(whitelisted_domains, $1) WHERE app_id = $2 AND deactivated_at IS NULL",
         );
 
         let query_result = query(&query_body)
@@ -81,7 +79,7 @@ impl Db {
         domain: &str,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "UPDATE {REGISTERED_APPS_TABLE_NAME} SET whitelisted_domains = array_remove(whitelisted_domains, $1) WHERE app_id = $2 AND active = true",
+            "UPDATE {REGISTERED_APPS_TABLE_NAME} SET whitelisted_domains = array_remove(whitelisted_domains, $1) WHERE app_id = $2 AND deactivated_at IS NULL",
         );
 
         let query_result = query(&query_body)
@@ -102,7 +100,7 @@ impl Db {
         app_id: &str,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "UPDATE {REGISTERED_APPS_TABLE_NAME} SET active = false, deactivated_at = $1 WHERE app_id = $2 AND active = true",
+            "UPDATE {REGISTERED_APPS_TABLE_NAME} SET deactivated_at = $1 WHERE app_id = $2 AND deactivated_at IS NULL",
         );
 
         let query_result = query(&query_body)

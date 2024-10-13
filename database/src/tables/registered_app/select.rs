@@ -7,7 +7,7 @@ impl Db {
         &self,
         app_id: &String,
     ) -> Result<Option<DbRegisteredApp>, DbError> {
-        let query = format!("SELECT * FROM {REGISTERED_APPS_TABLE_NAME} WHERE app_id = $1 AND active = true");
+        let query = format!("SELECT * FROM {REGISTERED_APPS_TABLE_NAME} WHERE app_id = $1 AND deactivated_at IS NULL");
         let typed_query = query_as::<_, DbRegisteredApp>(&query);
 
         return typed_query
@@ -23,7 +23,7 @@ impl Db {
         team_id: &String,
     ) -> Result<Option<DbRegisteredApp>, DbError> {
         let query = format!(
-            "SELECT * FROM {REGISTERED_APPS_TABLE_NAME} WHERE app_name = $1 AND team_id = $2 AND active = true"
+            "SELECT * FROM {REGISTERED_APPS_TABLE_NAME} WHERE app_name = $1 AND team_id = $2 AND deactivated_at IS NULL"
         );
         let typed_query = query_as::<_, DbRegisteredApp>(&query);
 

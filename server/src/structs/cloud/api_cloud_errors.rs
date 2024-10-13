@@ -53,4 +53,5 @@ pub enum CloudApiErrors {
     InvalidOrigin,
     InvalidAction,
     AdminCannotLeaveTeam,
+    GrafanaError,
 }

@@ -36,12 +36,11 @@ pub async fn get_user_joined_teams(
             let mut teams_apps = HashMap::new();
             let mut user_privileges = HashMap::new();
             let mut team_members = HashMap::new();
-
             for (team, admin_email, joined_timestamp, registered_apps) in joined_teams {
                 let team_id = team.team_id.clone();
 
                 ///// TEMP FIX: Get team members
-                let mut team_privileges = match db.get_privileges_by_team_id(&team_id).await {
+                let team_privileges = match db.get_privileges_by_team_id(&team_id).await {
                     Ok(privileges) => privileges,
                     Err(err) => {
                         error!("Failed to get team privileges: {:?}", err);

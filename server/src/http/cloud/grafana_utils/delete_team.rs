@@ -5,11 +5,10 @@ use axum::http::StatusCode;
 use log::warn;
 use openapi::apis::{
     configuration::Configuration,
+    folders_api::delete_folder,
     teams_api::{delete_team_by_id, get_team_by_id},
 };
 use std::sync::Arc;
-
-use super::delete_registered_app::handle_grafana_delete_app;
 
 pub async fn handle_grafana_delete_team(
     grafana_conf: &Arc<Configuration>,
@@ -20,7 +19,7 @@ pub async fn handle_grafana_delete_team(
         Ok(response) => match response.id {
             Some(_) => (),
             None => {
-                warn!("Failed to get team: {:?}", response);
+                warn!("Failed to get team: {:?}, team_id: {:?}", response, team_id);
                 return Err((
                     StatusCode::INTERNAL_SERVER_ERROR,
                     CloudApiErrors::TeamDoesNotExist.to_string(),
@@ -28,7 +27,7 @@ pub async fn handle_grafana_delete_team(
             }
         },
         Err(err) => {
-            warn!("Failed to get team: {:?}", err);
+            warn!("Failed to get team: {:?}, team_id: {:?}", err, team_id);
             return Err(handle_grafana_error(err));
         }
     };
@@ -36,15 +35,16 @@ pub async fn handle_grafana_delete_team(
     match delete_team_by_id(&grafana_conf, team_id).await {
         Ok(_) => (),
         Err(err) => {
-            warn!("Failed to delete team: {:?}", err);
+            warn!("Failed to delete team: {:?}, team_id: {:?}", err, team_id);
             return Err(handle_grafana_error(err));
         }
     }
 
-    for app_id in app_ids {
-        if let Err(err) = handle_grafana_delete_app(&grafana_conf, &app_id).await {
-            return Err(err);
+    let _: () = match delete_folder(&grafana_conf, team_id, None).await {
+        Ok(_) => {}
+        Err(err) => {
+            return Err(handle_grafana_error(err));
         }
-    }
+    };
     return Ok(());
 }

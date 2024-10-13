@@ -34,14 +34,6 @@ pub async fn delete_app(
     // First check if app exists
     match db.get_registered_app_by_app_id(&request.app_id).await {
         Ok(Some(app)) => {
-            // Check if app is active
-            if app.active != true {
-                return Err((
-                    StatusCode::BAD_REQUEST,
-                    CloudApiErrors::AppDoesNotExist.to_string(),
-                ));
-            }
-
             // Check if user has admin privileges
             match db
                 .get_privilege_by_user_id_and_app_id(&user_id, &request.app_id)
@@ -52,6 +44,13 @@ pub async fn delete_app(
                         return Err((
                             StatusCode::BAD_REQUEST,
                             CloudApiErrors::InsufficientPermissions.to_string(),
+                        ));
+                    }
+                    // Check if app is active
+                    if app.deactivated_at != None {
+                        return Err((
+                            StatusCode::BAD_REQUEST,
+                            CloudApiErrors::AppDoesNotExist.to_string(),
                         ));
                     }
                 }
@@ -69,7 +68,6 @@ pub async fn delete_app(
                     ));
                 }
             }
-
             // Delete the app
             // Start a transaction
             let mut tx = db.connection_pool.begin().await.unwrap();
@@ -93,7 +91,7 @@ pub async fn delete_app(
                     .rollback()
                     .await
                     .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
-                error!("Failed to create app: {:?}", err);
+                error!("Failed to delete app: {:?}", err);
                 return Err((
                     StatusCode::INTERNAL_SERVER_ERROR,
                     CloudApiErrors::DatabaseError.to_string(),
@@ -107,7 +105,7 @@ pub async fn delete_app(
                     .rollback()
                     .await
                     .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
-                error!("Failed to create app: {:?}", err);
+                error!("Failed to delete app: {:?}", err);
                 return Err((
                     StatusCode::INTERNAL_SERVER_ERROR,
                     CloudApiErrors::DatabaseError.to_string(),
@@ -116,11 +114,26 @@ pub async fn delete_app(
             // Grafana, delete app
             // TODO, fix this by fixing methods for setting up grafana datasource
             if is_env_production() {
-                handle_grafana_delete_app(&grafana_conf, &request.app_id).await?;
+                match handle_grafana_delete_app(&grafana_conf, &request.app_id).await {
+                    Ok(_) => {}
+                    Err(err) => {
+                        error!("Failed to delete app from grafana: {:?}", err);
+                        return Err((
+                            StatusCode::INTERNAL_SERVER_ERROR,
+                            CloudApiErrors::GrafanaError.to_string(),
+                        ));
+                    }
+                }
             }
 
             // If nothing failed commit the transaction
-            tx.commit().await.unwrap();
+            if let Err(err) = tx.commit().await {
+                error!("Failed to commit transaction: {:?}", err);
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    CloudApiErrors::DatabaseError.to_string(),
+                ));
+            }
             return Ok(Json(()));
         }
         Ok(None) => {
@@ -139,7 +152,7 @@ pub async fn delete_app(
     }
 }
 
-#[cfg(feature = "cloud_integration_tests")]
+#[cfg(feature = "cloud_intsegration_tests")]
 #[cfg(test)]
 mod tests {
     use crate::{
@@ -150,7 +163,7 @@ mod tests {
         structs::cloud::cloud_http_endpoints::HttpCloudEndpoint,
         test_utils::test_utils::{
             add_test_app, add_test_team, add_user_to_test_team, convert_response, create_test_app,
-            generate_valid_name, register_and_login_random_user,
+            generate_valid_name, get_test_app_data, register_and_login_random_user,
         },
     };
     use axum::{
@@ -184,6 +197,14 @@ mod tests {
         let app_id = add_test_app(&request, &auth_token, &test_app)
             .await
             .unwrap();
+
+        let request = HttpRegisterNewAppRequest {
+            team_id: team_id.clone(),
+            app_name: generate_valid_name(),
+        };
+        let app_id_2 = add_test_app(&request, &auth_token, &test_app)
+            .await
+            .unwrap();
         let _ =
             add_user_to_test_team(&team_id, &user_email, &auth_token, &user_token, &test_app).await;
 
@@ -209,6 +230,15 @@ mod tests {
         // Send request
         let response = test_app.clone().oneshot(req).await.unwrap();
         convert_response::<()>(response).await.unwrap();
-        // Validate response
+        let err = get_test_app_data(&team_id, &app_id, &auth_token, &test_app)
+            .await
+            .unwrap_err();
+
+        assert_eq!(err.to_string(), "App not found".to_string());
+        assert!(
+            get_test_app_data(&team_id, &app_id_2, &auth_token, &test_app)
+                .await
+                .is_ok()
+        );
     }
 }

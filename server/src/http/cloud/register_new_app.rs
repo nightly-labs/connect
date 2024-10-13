@@ -56,17 +56,24 @@ pub async fn register_new_app(
                     CloudApiErrors::InsufficientPermissions.to_string(),
                 ));
             }
-
+            if team.deactivated_at != None {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    CloudApiErrors::TeamDoesNotExist.to_string(),
+                ));
+            }
             // Check if user has already registered an app with this name in this team
             match db
                 .get_registered_app_by_app_name_and_team_id(&request.app_name, &request.team_id)
                 .await
             {
-                Ok(Some(_)) => {
-                    return Err((
-                        StatusCode::BAD_REQUEST,
-                        CloudApiErrors::AppAlreadyExists.to_string(),
-                    ));
+                Ok(Some(team)) => {
+                    if team.deactivated_at == None {
+                        return Err((
+                            StatusCode::BAD_REQUEST,
+                            CloudApiErrors::AppAlreadyExists.to_string(),
+                        ));
+                    }
                 }
                 Ok(None) => {}
                 Err(err) => {
@@ -99,7 +106,6 @@ pub async fn register_new_app(
                     ));
                 }
             }
-
             // Generate a new app id
             let app_id = uuid7().to_string();
 
@@ -128,7 +134,6 @@ pub async fn register_new_app(
                     ack_public_keys: vec![],
                     whitelisted_domains: vec![],
                     registration_timestamp: get_current_datetime(),
-                    active: true,
                     deactivated_at: None,
                 };
 
@@ -193,7 +198,14 @@ pub async fn register_new_app(
             }
 
             // If nothing failed commit the transaction
-            tx.commit().await.unwrap();
+            // Commit transaction
+            if let Err(err) = tx.commit().await {
+                error!("Failed to commit transaction: {:?}", err);
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    CloudApiErrors::DatabaseError.to_string(),
+                ));
+            }
             return Ok(Json(HttpRegisterNewAppResponse { app_id }));
         }
         Ok(None) => {

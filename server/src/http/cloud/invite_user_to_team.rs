@@ -51,7 +51,7 @@ pub async fn invite_user_to_team(
                 ));
             }
 
-            if team.active != true {
+            if team.deactivated_at != None {
                 return Err((
                     StatusCode::BAD_REQUEST,
                     CloudApiErrors::TeamDoesNotExist.to_string(),

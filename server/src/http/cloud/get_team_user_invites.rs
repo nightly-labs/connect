@@ -48,7 +48,7 @@ pub async fn get_team_user_invites(
                     CloudApiErrors::InsufficientPermissions.to_string(),
                 ));
             }
-            if team.active == false {
+            if team.deactivated_at != None {
                 return Err((
                     StatusCode::BAD_REQUEST,
                     CloudApiErrors::TeamDoesNotExist.to_string(),

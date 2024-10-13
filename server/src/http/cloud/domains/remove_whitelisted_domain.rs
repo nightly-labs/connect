@@ -42,7 +42,7 @@ pub async fn remove_whitelisted_domain(
     // Check if app exists and get data
     let app = match db.get_registered_app_by_app_id(&request.app_id).await {
         Ok(Some(app)) => {
-            if app.active == false {
+            if app.deactivated_at != None {
                 return Err((
                     StatusCode::BAD_REQUEST,
                     CloudApiErrors::AppDoesNotExist.to_string(),

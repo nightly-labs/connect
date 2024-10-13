@@ -16,7 +16,7 @@ impl Db {
         team: &Team,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {TEAM_TABLE_NAME} ({TEAM_KEYS}) VALUES ($1, $2, $3, $4, $5, $6, $7, NULL)"
+            "INSERT INTO {TEAM_TABLE_NAME} ({TEAM_KEYS}) VALUES ($1, $2, $3, $4, $5, $6, NULL)"
         );
 
         let query_result = query(&query_body)
@@ -26,7 +26,6 @@ impl Db {
             .bind(&team.subscription)
             .bind(&team.team_admin_id)
             .bind(&team.registration_timestamp)
-            .bind(&team.active)
             .execute(&mut **tx)
             .await;
 
@@ -38,7 +37,7 @@ impl Db {
 
     pub async fn create_new_team(&self, team: &Team) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {TEAM_TABLE_NAME} ({TEAM_KEYS}) VALUES ($1, $2, $3, $4, $5, $6, $7, NULL)"
+            "INSERT INTO {TEAM_TABLE_NAME} ({TEAM_KEYS}) VALUES ($1, $2, $3, $4, $5, $6, NULL)"
         );
 
         let query_result = query(&query_body)
@@ -48,7 +47,6 @@ impl Db {
             .bind(&team.subscription)
             .bind(&team.team_admin_id)
             .bind(&team.registration_timestamp)
-            .bind(&team.active)
             .execute(&self.connection_pool)
             .await;
 
@@ -64,7 +62,7 @@ impl Db {
         subscription: &Subscription,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "UPDATE {TEAM_TABLE_NAME} SET subscription = $1 WHERE team_id = $2 AND active = true"
+            "UPDATE {TEAM_TABLE_NAME} SET subscription = $1 WHERE team_id = $2 AND deactivated_at IS NULL"
         );
         let query_result = query(&query_body)
             .bind(subscription)
@@ -84,7 +82,7 @@ impl Db {
         team_id: &str,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "UPDATE {TEAM_TABLE_NAME} SET active = false, deactivated_at = $1 WHERE team_id = $2 AND active = true",
+            "UPDATE {TEAM_TABLE_NAME} SET deactivated_at = $1 WHERE team_id = $2 AND deactivated_at IS NULL",
         );
 
         let query_result = query(&query_body)

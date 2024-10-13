@@ -9,6 +9,7 @@ use crate::tables::user_app_privileges::table_struct::{
     USER_APP_PRIVILEGES_KEYS, USER_APP_PRIVILEGES_TABLE_NAME,
 };
 use crate::tables::utils::get_current_datetime;
+use log::error;
 use sqlx::query;
 use sqlx::Transaction;
 
@@ -63,7 +64,7 @@ impl Db {
     ) -> Result<(), DbError> {
         // Retrieve all apps associated with the team
         let apps_query = format!(
-            "SELECT app_id FROM {REGISTERED_APPS_TABLE_NAME} WHERE team_id = $1 AND active = true"
+            "SELECT app_id FROM {REGISTERED_APPS_TABLE_NAME} WHERE team_id = $1 AND deactivated_at IS NULL"
         );
         let apps: Vec<String> = sqlx::query_as(&apps_query)
             .bind(team_id)
@@ -112,7 +113,7 @@ impl Db {
     ) -> Result<(), DbError> {
         // Retrieve all apps associated with the team
         let apps_query = format!(
-            "SELECT app_id FROM {REGISTERED_APPS_TABLE_NAME} WHERE team_id = $1 AND active = true"
+            "SELECT app_id FROM {REGISTERED_APPS_TABLE_NAME} WHERE team_id = $1 AND deactivated_at IS NULL"
         );
         let apps: Vec<String> = sqlx::query_as(&apps_query)
             .bind(team_id)
@@ -150,7 +151,10 @@ impl Db {
         }
 
         // Commit the transaction
-        tx.commit().await?;
+        if let Err(err) = tx.commit().await {
+            error!("Failed to commit transaction: {:?}", err);
+            return Err(err).map_err(|err| err.into());
+        }
 
         Ok(())
     }

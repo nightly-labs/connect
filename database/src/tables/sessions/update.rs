@@ -49,8 +49,10 @@ impl Db {
             return Err(err);
         }
 
-        tx.commit().await.unwrap();
-
+        if let Err(err) = tx.commit().await {
+            error!("Failed to commit transaction: {:?}", err);
+            return Err(err).map_err(|err| err.into());
+        }
         Ok(())
     }
 
@@ -230,7 +232,10 @@ impl Db {
             return Err(err);
         }
 
-        tx.commit().await.unwrap();
+        if let Err(err) = tx.commit().await {
+            error!("Failed to commit transaction: {:?}", err);
+            return Err(err).map_err(|err| err.into());
+        }
 
         Ok(())
     }
