@@ -107,11 +107,6 @@ pub async fn delete_team(
         }
     };
 
-    let app_ids: Vec<String> = registered_apps
-        .iter()
-        .map(|app| app.app_id.clone())
-        .collect();
-
     // Delete team apps, privileges and domain verifications
     for app in registered_apps.iter() {
         if let Err(err) = db.deactivate_app(&mut tx, &app.app_id).await {
@@ -158,7 +153,7 @@ pub async fn delete_team(
     // Grafana, delete team
     // TODO, fix this by fixing methods for setting up grafana datasource
     if is_env_production() {
-        match handle_grafana_delete_team(&grafana_conf, &request.team_id, &app_ids).await {
+        match handle_grafana_delete_team(&grafana_conf, &request.team_id).await {
             Ok(_) => {}
             Err(err) => {
                 error!("Failed to delete team from grafana: {:?}", err);

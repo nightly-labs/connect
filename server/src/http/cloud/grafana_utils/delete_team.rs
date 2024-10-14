@@ -13,7 +13,6 @@ use std::sync::Arc;
 pub async fn handle_grafana_delete_team(
     grafana_conf: &Arc<Configuration>,
     team_id: &String,
-    app_ids: &Vec<String>,
 ) -> Result<(), (StatusCode, String)> {
     match get_team_by_id(&grafana_conf, &team_id).await {
         Ok(response) => match response.id {
