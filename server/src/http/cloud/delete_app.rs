@@ -114,15 +114,12 @@ pub async fn delete_app(
             // Grafana, delete app
             // TODO, fix this by fixing methods for setting up grafana datasource
             if is_env_production() {
-                match handle_grafana_delete_app(&grafana_conf, &request.app_id).await {
-                    Ok(_) => {}
-                    Err(err) => {
-                        error!("Failed to delete app from grafana: {:?}", err);
-                        return Err((
-                            StatusCode::INTERNAL_SERVER_ERROR,
-                            CloudApiErrors::GrafanaError.to_string(),
-                        ));
-                    }
+                if let Err(err) = handle_grafana_delete_app(&grafana_conf, &request.app_id).await {
+                    error!("Failed to delete app from grafana: {:?}", err);
+                    return Err((
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        CloudApiErrors::GrafanaError.to_string(),
+                    ));
                 }
             }
 

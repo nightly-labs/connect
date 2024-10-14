@@ -56,7 +56,7 @@ pub async fn delete_team(
         Ok(None) => {
             return Err((
                 StatusCode::BAD_REQUEST,
-                CloudApiErrors::AppDoesNotExist.to_string(),
+                CloudApiErrors::TeamDoesNotExist.to_string(),
             ));
         }
         Err(err) => {
@@ -153,15 +153,12 @@ pub async fn delete_team(
     // Grafana, delete team
     // TODO, fix this by fixing methods for setting up grafana datasource
     if is_env_production() {
-        match handle_grafana_delete_team(&grafana_conf, &request.team_id).await {
-            Ok(_) => {}
-            Err(err) => {
-                error!("Failed to delete team from grafana: {:?}", err);
-                return Err((
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    CloudApiErrors::GrafanaError.to_string(),
-                ));
-            }
+        if let Err(err) = handle_grafana_delete_team(&grafana_conf, &request.team_id).await {
+            error!("Failed to delete team from grafana: {:?}", err);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::GrafanaError.to_string(),
+            ));
         };
     }
 

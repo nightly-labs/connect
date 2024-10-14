@@ -112,13 +112,20 @@ pub async fn register_new_app(
             // Grafana, add new app
             // TODO, fix this by fixing methods for setting up grafana datasource
             if is_env_production() {
-                handle_grafana_create_new_app(
+                if let Err(err) = handle_grafana_create_new_app(
                     &grafana_conf,
                     &request.app_name,
                     &app_id,
                     &team.team_id,
                 )
-                .await?;
+                .await
+                {
+                    error!("Failed to create new app in grafana: {:?}", err);
+                    return Err((
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        CloudApiErrors::GrafanaError.to_string(),
+                    ));
+                };
             }
 
             // Register a new app under this team

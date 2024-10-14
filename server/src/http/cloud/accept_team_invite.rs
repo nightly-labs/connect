@@ -3,7 +3,8 @@ use super::{
     utils::{custom_validate_team_id, validate_request},
 };
 use crate::{
-    middlewares::auth_middleware::UserId, structs::cloud::api_cloud_errors::CloudApiErrors,
+    env::is_env_production, middlewares::auth_middleware::UserId,
+    structs::cloud::api_cloud_errors::CloudApiErrors,
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::db::Db;
@@ -101,8 +102,17 @@ pub async fn accept_team_invite(
     }
 
     // Grafana add user to the team
-    handle_grafana_add_user_to_team(&grafana_conf, &request.team_id, &user.email).await?;
-
+    if is_env_production() {
+        if let Err(err) =
+            handle_grafana_add_user_to_team(&grafana_conf, &request.team_id, &user.email).await
+        {
+            error!("Failed to add user to the team in grafana: {:?}", err);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::GrafanaError.to_string(),
+            ));
+        };
+    }
     // Accept invite
     let mut tx = match db.connection_pool.begin().await {
         Ok(tx) => tx,

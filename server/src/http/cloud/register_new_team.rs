@@ -3,8 +3,8 @@ use super::{
     utils::{custom_validate_name, validate_request},
 };
 use crate::{
-    middlewares::auth_middleware::UserId, statics::TEAMS_AMOUNT_LIMIT_PER_USER,
-    structs::cloud::api_cloud_errors::CloudApiErrors,
+    env::is_env_production, middlewares::auth_middleware::UserId,
+    statics::TEAMS_AMOUNT_LIMIT_PER_USER, structs::cloud::api_cloud_errors::CloudApiErrors,
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::{
@@ -121,11 +121,26 @@ pub async fn register_new_team(
                     ));
                 }
             };
-
+            let mut grafana_team_id: i64 = 0;
             // Grafana, add new team
-            let grafana_team_id =
-                handle_grafana_create_new_team(&grafana_conf, &admin_email, &request.team_name)
-                    .await?;
+            if is_env_production() {
+                grafana_team_id = match handle_grafana_create_new_team(
+                    &grafana_conf,
+                    &admin_email,
+                    &request.team_name,
+                )
+                .await
+                {
+                    Ok(id) => id,
+                    Err(err) => {
+                        error!("Failed to create team in grafana: {:?}", err);
+                        return Err((
+                            StatusCode::INTERNAL_SERVER_ERROR,
+                            CloudApiErrors::GrafanaError.to_string(),
+                        ));
+                    }
+                }
+            }
 
             // Create a new team
             let team = Team {
