@@ -102,7 +102,6 @@ pub mod test_utils {
                 subscription: None,
                 team_admin_id: user_id.clone(),
                 registration_timestamp: registration_timestamp,
-                active: true,
                 deactivated_at: None,
             };
 
@@ -113,7 +112,6 @@ pub mod test_utils {
                 whitelisted_domains: vec!["localhost".to_string()],
                 ack_public_keys: vec!["key".to_string()],
                 registration_timestamp: registration_timestamp,
-                active: true,
                 deactivated_at: None,
             };
 
