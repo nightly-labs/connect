@@ -126,7 +126,6 @@ mod tests {
             subscription: None,
             team_admin_id: "test_team_admin_id".to_string(),
             registration_timestamp: to_microsecond_precision(&Utc::now()),
-            active: true,
             deactivated_at: None,
         };
 

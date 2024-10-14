@@ -351,7 +351,6 @@ mod tests {
                 app_name: format!("test_app_name_{}", i),
                 team_id: team_id.clone(),
                 registration_timestamp: to_microsecond_precision(&Utc::now()),
-                active: true,
                 deactivated_at: None,
             };
 
@@ -377,7 +376,6 @@ mod tests {
             subscription: None,
             team_admin_id: "test_team_admin_id".to_string(),
             registration_timestamp: to_microsecond_precision(&Utc::now()),
-            active: true,
             deactivated_at: None,
         };
 
@@ -393,7 +391,6 @@ mod tests {
                 app_name: format!("test_app_name_{}", i),
                 team_id: team_id.clone(),
                 registration_timestamp: to_microsecond_precision(&Utc::now()),
-                active: true,
                 deactivated_at: None,
             };
 
