@@ -10,26 +10,32 @@
 
 use crate::models;
 
+// Response has been modified  - errors in the original OpenAPI spec
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct DeleteFolder200Response {
-    /// ID Identifier of the deleted folder.
-    #[serde(rename = "id")]
-    pub id: i64,
     /// Message Message of the deleted folder.
     #[serde(rename = "message")]
     pub message: String,
-    /// Title of the deleted folder.
-    #[serde(rename = "title")]
-    pub title: String,
 }
 
+// pub struct DeleteFolder200Response {
+//     /// ID Identifier of the deleted folder.
+//     #[serde(rename = "id")]
+//     pub id: i64,
+//     /// Message Message of the deleted folder.
+//     #[serde(rename = "message")]
+//     pub message: String,
+//     /// Title of the deleted folder.
+//     #[serde(rename = "title")]
+//     pub title: String,
+// }
+
 impl DeleteFolder200Response {
-    pub fn new(id: i64, message: String, title: String) -> DeleteFolder200Response {
+    pub fn new(message: String) -> DeleteFolder200Response {
         DeleteFolder200Response {
-            id,
+            // id,
             message,
-            title,
+            // title,
         }
     }
 }
-

@@ -39,9 +39,11 @@ pub async fn handle_grafana_delete_team(
         }
     }
 
-    let _: () = match delete_folder(&grafana_conf, team_id, None).await {
+    // Response for this method has been modified  - errors in the original OpenAPI spec
+    let _: () = match delete_folder(&grafana_conf, team_id, Some(false)).await {
         Ok(_) => {}
         Err(err) => {
+            warn!("Failed to delete folder: {:?}, team_id: {:?}", err, team_id);
             return Err(handle_grafana_error(err));
         }
     };
