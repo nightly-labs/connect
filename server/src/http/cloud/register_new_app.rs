@@ -56,17 +56,24 @@ pub async fn register_new_app(
                     CloudApiErrors::InsufficientPermissions.to_string(),
                 ));
             }
-
+            if team.deactivated_at != None {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    CloudApiErrors::TeamDoesNotExist.to_string(),
+                ));
+            }
             // Check if user has already registered an app with this name in this team
             match db
                 .get_registered_app_by_app_name_and_team_id(&request.app_name, &request.team_id)
                 .await
             {
-                Ok(Some(_)) => {
-                    return Err((
-                        StatusCode::BAD_REQUEST,
-                        CloudApiErrors::AppAlreadyExists.to_string(),
-                    ));
+                Ok(Some(team)) => {
+                    if team.deactivated_at == None {
+                        return Err((
+                            StatusCode::BAD_REQUEST,
+                            CloudApiErrors::AppAlreadyExists.to_string(),
+                        ));
+                    }
                 }
                 Ok(None) => {}
                 Err(err) => {
@@ -99,20 +106,26 @@ pub async fn register_new_app(
                     ));
                 }
             }
-
             // Generate a new app id
             let app_id = uuid7().to_string();
 
             // Grafana, add new app
             // TODO, fix this by fixing methods for setting up grafana datasource
             if is_env_production() {
-                handle_grafana_create_new_app(
+                if let Err(err) = handle_grafana_create_new_app(
                     &grafana_conf,
                     &request.app_name,
                     &app_id,
                     &team.team_id,
                 )
-                .await?;
+                .await
+                {
+                    error!("Failed to create new app in grafana: {:?}", err);
+                    return Err((
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        CloudApiErrors::GrafanaError.to_string(),
+                    ));
+                };
             }
 
             // Register a new app under this team
@@ -128,6 +141,7 @@ pub async fn register_new_app(
                     ack_public_keys: vec![],
                     whitelisted_domains: vec![],
                     registration_timestamp: get_current_datetime(),
+                    deactivated_at: None,
                 };
 
             if let Err(err) = db
@@ -191,7 +205,14 @@ pub async fn register_new_app(
             }
 
             // If nothing failed commit the transaction
-            tx.commit().await.unwrap();
+            // Commit transaction
+            if let Err(err) = tx.commit().await {
+                error!("Failed to commit transaction: {:?}", err);
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    CloudApiErrors::DatabaseError.to_string(),
+                ));
+            }
             return Ok(Json(HttpRegisterNewAppResponse { app_id }));
         }
         Ok(None) => {
@@ -202,7 +223,6 @@ pub async fn register_new_app(
         }
         Err(err) => {
             error!("Failed to get team by team id: {:?}", err);
-            println!("Failed to get team by team id: {:?}", err);
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 CloudApiErrors::DatabaseError.to_string(),

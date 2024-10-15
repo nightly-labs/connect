@@ -7,7 +7,7 @@ use sqlx::{
 
 pub const TEAM_TABLE_NAME: &str = "team";
 pub const TEAM_KEYS: &str =
-    "team_id, team_name, personal, subscription, team_admin_id, registration_timestamp";
+    "team_id, team_name, personal, subscription, team_admin_id, registration_timestamp, deactivated_at";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Team {
@@ -18,6 +18,7 @@ pub struct Team {
     pub subscription: Option<Subscription>,
     pub team_admin_id: String,
     pub registration_timestamp: DateTime<Utc>,
+    pub deactivated_at: Option<DateTime<Utc>>,
 }
 
 impl FromRow<'_, PgRow> for Team {
@@ -29,6 +30,7 @@ impl FromRow<'_, PgRow> for Team {
             subscription: row.get("subscription"),
             registration_timestamp: row.get("registration_timestamp"),
             team_admin_id: row.get("team_admin_id"),
+            deactivated_at: row.get("deactivated_at"),
         })
     }
 }

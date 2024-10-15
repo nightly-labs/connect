@@ -44,6 +44,13 @@ pub async fn cancel_team_user_invite(
                 ));
             }
 
+            if team.deactivated_at != None {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    CloudApiErrors::TeamDoesNotExist.to_string(),
+                ));
+            }
+
             // Check team type
             if team.personal {
                 return Err((

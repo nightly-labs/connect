@@ -3,6 +3,7 @@ use super::{
     utils::{custom_validate_team_id, validate_request},
 };
 use crate::{
+    env::is_env_production,
     mailer::{
         mail_requests::{SendEmailRequest, TeamRemovalNotification},
         mailer::Mailer,
@@ -54,6 +55,13 @@ pub async fn remove_user_from_team(
                 ));
             }
 
+            if team.deactivated_at != None {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    CloudApiErrors::TeamDoesNotExist.to_string(),
+                ));
+            }
+
             // Get user data and perform checks
             let user = match db.get_user_by_email(&request.user_email).await {
                 Ok(Some(user)) => user,
@@ -99,13 +107,21 @@ pub async fn remove_user_from_team(
             }
 
             // Grafana, remove user from the team
-            handle_grafana_remove_user_from_team(
-                &grafana_conf,
-                &request.team_id,
-                &request.user_email,
-            )
-            .await?;
-
+            if is_env_production() {
+                if let Err(err) = handle_grafana_remove_user_from_team(
+                    &grafana_conf,
+                    &request.team_id,
+                    &request.user_email,
+                )
+                .await
+                {
+                    error!("Failed to remove user from the team in grafana: {:?}", err);
+                    return Err((
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        CloudApiErrors::GrafanaError.to_string(),
+                    ));
+                };
+            }
             // Remove user from the team
             if let Err(err) = db
                 .remove_user_from_the_team(&user.user_id, &request.team_id)

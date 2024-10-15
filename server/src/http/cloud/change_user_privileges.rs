@@ -64,6 +64,12 @@ pub async fn change_user_privileges(
                     CloudApiErrors::InsufficientPermissions.to_string(),
                 ));
             }
+            if team.deactivated_at != None {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    CloudApiErrors::TeamDoesNotExist.to_string(),
+                ));
+            }
 
             // Check team type
             if team.personal {

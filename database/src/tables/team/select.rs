@@ -11,7 +11,7 @@ impl Db {
         tx: Option<&mut Transaction<'_, sqlx::Postgres>>,
         team_id: &String,
     ) -> Result<Option<Team>, DbError> {
-        let query = format!("SELECT * FROM {TEAM_TABLE_NAME} WHERE team_id = $1");
+        let query = format!("SELECT * FROM {TEAM_TABLE_NAME} WHERE team_id = $1 AND deactivated_at IS NULL");
         let typed_query = query_as::<_, Team>(&query);
 
         match tx {
@@ -39,7 +39,7 @@ impl Db {
         let query = format!(
             "SELECT r.* FROM {REGISTERED_APPS_TABLE_NAME} r 
             INNER JOIN team t ON r.team_id = t.team_id 
-            WHERE t.team_id = $1
+            WHERE t.team_id = $1 AND r.deactivated_at IS NULL AND t.deactivated_at IS NULL
             ORDER BY t.registration_timestamp DESC"
         );
         let typed_query = query_as::<_, DbRegisteredApp>(&query);
@@ -56,7 +56,7 @@ impl Db {
         admin_id: &String,
     ) -> Result<Vec<Team>, DbError> {
         let query = format!(
-            "SELECT * FROM {TEAM_TABLE_NAME} WHERE team_admin_id = $1 AND personal = false"
+            "SELECT * FROM {TEAM_TABLE_NAME} WHERE team_admin_id = $1 AND personal = false AND deactivated_at IS NULL"
         );
         let typed_query = query_as::<_, Team>(&query);
 
@@ -72,7 +72,7 @@ impl Db {
         admin_id: &String,
     ) -> Result<Option<Team>, DbError> {
         let query =
-            format!("SELECT * FROM {TEAM_TABLE_NAME} WHERE team_admin_id = $1 AND personal = true");
+            format!("SELECT * FROM {TEAM_TABLE_NAME} WHERE team_admin_id = $1 AND personal = true AND deactivated_at IS NULL");
         let typed_query = query_as::<_, Team>(&query);
 
         return typed_query
@@ -88,7 +88,7 @@ impl Db {
         admin_id: &String,
     ) -> Result<Option<Team>, DbError> {
         let query =
-            format!("SELECT * FROM {TEAM_TABLE_NAME} WHERE team_name = $1 AND team_admin_id = $2");
+            format!("SELECT * FROM {TEAM_TABLE_NAME} WHERE team_name = $1 AND deactivated_at IS NULL AND team_admin_id = $2");
         let typed_query = query_as::<_, Team>(&query);
 
         return typed_query
@@ -100,7 +100,7 @@ impl Db {
     }
 
     pub async fn get_team_by_admin_id(&self, admin_id: &String) -> Result<Option<Team>, DbError> {
-        let query = format!("SELECT * FROM {TEAM_TABLE_NAME} WHERE team_admin_id = $1");
+        let query = format!("SELECT * FROM {TEAM_TABLE_NAME} WHERE team_admin_id = $1 AND deactivated_at IS NULL");
         let typed_query = query_as::<_, Team>(&query);
 
         return typed_query

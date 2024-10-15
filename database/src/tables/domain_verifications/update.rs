@@ -81,8 +81,6 @@ impl Db {
         domain_name: &String,
         app_id: &String,
     ) -> Result<(), DbError> {
-        println!("domain_name: {}", domain_name);
-        println!("app_id: {}", app_id);
 
         let query_body = format!(
             "UPDATE {DOMAIN_VERIFICATIONS_TABLE_NAME} SET deleted_at = $1 WHERE domain_name = $2 AND app_id = $3 AND deleted_at IS NULL AND finished_at IS NOT NULL AND cancelled_at IS NULL"
@@ -100,6 +98,29 @@ impl Db {
             Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
+
+    pub async fn delete_domain_verification_for_inactive_app(
+        &self,
+        tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+        app_id: &String,
+    ) -> Result<(), DbError> {
+
+        let query_body = format!(
+            "UPDATE {DOMAIN_VERIFICATIONS_TABLE_NAME} SET deleted_at = $1 WHERE app_id = $2 AND deleted_at IS NULL"
+        );
+
+        let query_result = query(&query_body)
+            .bind(&get_current_datetime())
+            .bind(&app_id)
+            .execute(&mut **tx)
+            .await;
+
+        match query_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e).map_err(|e| e.into()),
+        }
+    }
+
 }
 
 #[cfg(feature = "cloud_integration_tests")]

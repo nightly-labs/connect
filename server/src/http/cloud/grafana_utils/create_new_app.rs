@@ -74,7 +74,7 @@ pub async fn handle_grafana_create_new_app(
             dashboard: Some(template_dashboard),
             folder_id: None,
             folder_uid: Some(team_id.clone()), // When we create a new team, we create a folder with the same uid as the team id
-            inputs: None,
+            inputs: None, 
             overwrite: Some(false),
             path: None,
             plugin_id: None,

@@ -16,6 +16,7 @@ pub mod test_utils {
                     HttpVerifyDomainStartRequest, HttpVerifyDomainStartResponse,
                 },
             },
+            get_team_metadata::HttpGetTeamMetadataResponse,
             get_team_user_invites::HttpGetTeamUserInvitesResponse,
             get_user_joined_teams::HttpGetUserJoinedTeamsResponse,
             get_user_team_invites::HttpGetUserTeamInvitesResponse,
@@ -540,7 +541,6 @@ pub mod test_utils {
         app: &Router,
     ) -> anyhow::Result<AppInfo> {
         let user_joined_teams = get_test_user_joined_teams(user_token, app).await?;
-
         match user_joined_teams.teams_apps.get(team_id) {
             Some(apps) => match apps.iter().find(|app| &app.app_id == app_id) {
                 Some(app) => Ok(app.clone()),
@@ -548,6 +548,32 @@ pub mod test_utils {
             },
             None => bail!("Team not found"),
         }
+    }
+
+    pub async fn get_test_team_data(
+        team_id: &String,
+        user_token: &AuthToken,
+        app: &Router,
+    ) -> anyhow::Result<HttpGetTeamMetadataResponse> {
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let auth = user_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::GET)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}?teamId={team_id}",
+                HttpCloudEndpoint::GetTeamMetadata.to_string()
+            ))
+            .extension(ip.clone())
+            .body(Body::empty())
+            .unwrap();
+
+        // Send request
+        let response = app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        convert_response::<HttpGetTeamMetadataResponse>(response).await
     }
 
     pub async fn body_to_vec(response: Response<Body>) -> anyhow::Result<Vec<u8>> {

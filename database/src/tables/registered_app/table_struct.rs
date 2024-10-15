@@ -6,7 +6,7 @@ use sqlx::{
 
 pub const REGISTERED_APPS_TABLE_NAME: &str = "registered_apps";
 pub const REGISTERED_APPS_KEYS: &str =
-    "team_id, app_id, app_name, whitelisted_domains, ack_public_keys, registration_timestamp";
+    "team_id, app_id, app_name, whitelisted_domains, ack_public_keys, registration_timestamp, deactivated_at";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct DbRegisteredApp {
@@ -16,6 +16,7 @@ pub struct DbRegisteredApp {
     pub whitelisted_domains: Vec<String>,
     pub ack_public_keys: Vec<String>,
     pub registration_timestamp: DateTime<Utc>,
+    pub deactivated_at: Option<DateTime<Utc>>,
 }
 
 impl FromRow<'_, PgRow> for DbRegisteredApp {
@@ -27,6 +28,7 @@ impl FromRow<'_, PgRow> for DbRegisteredApp {
             whitelisted_domains: row.get("whitelisted_domains"),
             ack_public_keys: row.get("ack_public_keys"),
             registration_timestamp: row.get("registration_timestamp"),
+            deactivated_at: row.get("deactivated_at"),
         })
     }
 }
