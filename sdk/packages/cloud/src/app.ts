@@ -9,6 +9,8 @@ import {
   HttpChangeUsersPrivilegesRequest,
   HttpChangeUsersPrivilegesResponse,
   HttpCloudEndpoint,
+  HttpDeleteAppRequest,
+  HttpDeleteTeamRequest,
   HttpGetAppEventsRequest,
   HttpGetAppEventsResponse,
   HttpGetTeamMetadataRequest,
@@ -409,6 +411,10 @@ export class NightlyCloud {
     return response
   }
 
+  deleteTeam = async (request: HttpDeleteTeamRequest): Promise<void> => {
+    await this.sendPostJson('/delete_team', EndpointType.Private, request)
+  }
+
   registerNewApp = async (
     request: HttpRegisterNewAppRequest
   ): Promise<HttpRegisterNewAppResponse> => {
@@ -419,6 +425,10 @@ export class NightlyCloud {
     )) as HttpRegisterNewAppResponse
 
     return response
+  }
+
+  deleteApp = async (request: HttpDeleteAppRequest): Promise<void> => {
+    await this.sendPostJson('/delete_app', EndpointType.Private, request)
   }
 
   inviteUserToTeam = async (

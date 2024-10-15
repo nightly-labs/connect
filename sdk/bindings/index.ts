@@ -51,6 +51,8 @@ export * from './HttpChangeUsersPrivilegesResponse';
 export * from './HttpCloudEndpoint';
 export * from './HttpConnectSessionRequest';
 export * from './HttpConnectSessionResponse';
+export * from './HttpDeleteAppRequest';
+export * from './HttpDeleteTeamRequest';
 export * from './HttpDropSessionsRequest';
 export * from './HttpDropSessionsResponse';
 export * from './HttpEndpoint';
