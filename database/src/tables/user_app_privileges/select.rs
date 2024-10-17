@@ -111,6 +111,7 @@ impl Db {
         )>,
         DbError,
     > {
+        // 17.10.2024 Hubert: "If this ever breaks, I will write comments."
         let query = format!(
             "WITH RelevantTeams AS (
                 SELECT DISTINCT t.team_id, t.team_name, t.personal, t.subscription, 
@@ -124,7 +125,7 @@ impl Db {
                 LEFT JOIN {REGISTERED_APPS_TABLE_NAME} ra ON t.team_id = ra.team_id
                 LEFT JOIN {USER_APP_PRIVILEGES_TABLE_NAME} uap ON ra.app_id = uap.app_id AND uap.user_id = $1
                 JOIN {USERS_TABLE_NAME} gu ON t.team_admin_id = gu.user_id
-                WHERE (t.team_admin_id = $1 OR uap.user_id = $1) AND ra.deactivated_at IS NULL AND t.deactivated_at IS NULL
+                WHERE (t.team_admin_id = $1 OR uap.user_id = $1) AND t.deactivated_at IS NULL
             )
             SELECT rt.team_id, rt.team_name, rt.personal, rt.subscription, rt.registration_timestamp, 
                    rt.team_admin_email, rt.team_admin_id, ra.app_id, ra.app_name, ra.whitelisted_domains, 
@@ -132,9 +133,8 @@ impl Db {
                    uap.user_id, uap.privilege_level, uap.creation_timestamp AS privilege_creation_timestamp,
                    rt.user_joined_team_timestamp, ra.deactivated_at
             FROM RelevantTeams rt
-            LEFT JOIN {REGISTERED_APPS_TABLE_NAME} ra ON rt.team_id = ra.team_id
+            LEFT JOIN {REGISTERED_APPS_TABLE_NAME} ra ON rt.team_id = ra.team_id AND ra.deactivated_at IS NULL
             LEFT JOIN {USER_APP_PRIVILEGES_TABLE_NAME} uap ON ra.app_id = uap.app_id AND uap.user_id = $1
-            WHERE ra.deactivated_at IS NULL
             ORDER BY rt.team_id, ra.app_id"
         );
 
