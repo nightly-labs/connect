@@ -8,4 +8,6 @@ CREATE TABLE registered_apps(
     deactivated_at TIMESTAMPTZ
 );
 
-CREATE UNIQUE INDEX app_id_idx ON registered_apps(app_id);
+CREATE UNIQUE INDEX unique_active_app_name 
+ON registered_apps (team_id, app_name) 
+WHERE deactivated_at IS NULL;
