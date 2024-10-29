@@ -109,4 +109,10 @@ impl Db {
             .await
             .map_err(|e| e.into());
     }
+    pub async fn get_all_teams(&self) -> Result<Vec<Team>, DbError> {
+        let query = format!("SELECT * FROM {TEAM_TABLE_NAME} WHERE deactivated_at IS NULL");
+        let typed_query = query_as::<_, Team>(&query);
+
+        return typed_query.fetch_all(&self.connection_pool).await.map_err(|e| e.into());
+    }
 }
