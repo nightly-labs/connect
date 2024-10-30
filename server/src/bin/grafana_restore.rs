@@ -25,6 +25,10 @@ async fn main() {
     // Setup template dashboards
     import_template_dashboards(&grafana_client_conf).await;
 
+    if let Err(err) = db.clear_all_grafana_ids().await {
+        panic!("Failed to clear grafana ids in database: {:?}", err);
+    }
+
     let teams = match db.get_all_teams().await {
         Ok(teams) => teams,
         Err(e) => {
@@ -84,7 +88,7 @@ async fn main() {
                 }
             };
         }
-        let apps = match db.get_registered_app_by_team_id(&team.team_id).await {
+        let apps = match db.get_registered_apps_by_team_id(&team.team_id).await {
             Ok(apps) => apps,
             Err(e) => {
                 panic!("Failed to get apps. Error: {:?}", e);

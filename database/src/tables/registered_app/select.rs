@@ -34,20 +34,4 @@ impl Db {
             .await
             .map_err(|e| e.into());
     }
-
-    pub async fn get_registered_app_by_team_id(
-        &self,
-        team_id: &String,
-    ) -> Result<Vec<DbRegisteredApp>, DbError> {
-        let query = format!(
-            "SELECT * FROM {REGISTERED_APPS_TABLE_NAME} WHERE team_id = $1 AND deactivated_at IS NULL"
-        );
-        let typed_query = query_as::<_, DbRegisteredApp>(&query);
-
-        return typed_query
-            .bind(&team_id)
-            .fetch_all(&self.connection_pool)
-            .await
-            .map_err(|e| e.into());
-    }
 }

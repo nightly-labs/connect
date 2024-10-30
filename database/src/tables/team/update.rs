@@ -115,6 +115,18 @@ impl Db {
             Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
+
+    pub async fn clear_all_grafana_ids(&self) -> Result<(), DbError> {
+        let query_body =
+            format!("UPDATE {TEAM_TABLE_NAME} SET grafana_id = NULL WHERE deactivated_at IS NULL",);
+
+        let query_result = query(&query_body).execute(&self.connection_pool).await;
+
+        match query_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e).map_err(|e| e.into()),
+        }
+    }
 }
 
 #[cfg(feature = "cloud_integration_tests")]
