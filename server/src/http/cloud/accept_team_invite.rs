@@ -101,10 +101,26 @@ pub async fn accept_team_invite(
         }
     }
 
+    let grafana_team_id = match db.get_team_by_team_id(None, &request.team_id).await {
+        Ok(Some(team)) => team.grafana_id,
+        Ok(None) => {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                CloudApiErrors::TeamDoesNotExist.to_string(),
+            ));
+        }
+        Err(err) => {
+            error!("Failed to get team by team_id: {:?}", err);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::DatabaseError.to_string(),
+            ));
+        }
+    };
     // Grafana add user to the team
     if is_env_production() {
         if let Err(err) =
-            handle_grafana_add_user_to_team(&grafana_conf, &request.team_id, &user.email).await
+            handle_grafana_add_user_to_team(&grafana_conf, &grafana_team_id, &user.email).await
         {
             error!("Failed to add user to the team in grafana: {:?}", err);
             return Err((

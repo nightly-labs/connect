@@ -110,7 +110,7 @@ pub async fn remove_user_from_team(
             if is_env_production() {
                 if let Err(err) = handle_grafana_remove_user_from_team(
                     &grafana_conf,
-                    &request.team_id,
+                    &team.grafana_id,
                     &request.user_email,
                 )
                 .await

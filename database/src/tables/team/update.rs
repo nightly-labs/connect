@@ -16,11 +16,12 @@ impl Db {
         team: &Team,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {TEAM_TABLE_NAME} ({TEAM_KEYS}) VALUES ($1, $2, $3, $4, $5, $6, NULL)"
+            "INSERT INTO {TEAM_TABLE_NAME} ({TEAM_KEYS}) VALUES ($1, $2, $3, $4, $5, $6, $7, NULL)"
         );
 
         let query_result = query(&query_body)
             .bind(&team.team_id)
+            .bind(&team.grafana_id)
             .bind(&team.team_name)
             .bind(&team.personal)
             .bind(&team.subscription)
@@ -37,11 +38,12 @@ impl Db {
 
     pub async fn create_new_team(&self, team: &Team) -> Result<(), DbError> {
         let query_body = format!(
-            "INSERT INTO {TEAM_TABLE_NAME} ({TEAM_KEYS}) VALUES ($1, $2, $3, $4, $5, $6, NULL)"
+            "INSERT INTO {TEAM_TABLE_NAME} ({TEAM_KEYS}) VALUES ($1, $2, $3, $4, $5, $6, $7, NULL)"
         );
 
         let query_result = query(&query_body)
             .bind(&team.team_id)
+            .bind(&team.grafana_id)
             .bind(&team.team_name)
             .bind(&team.personal)
             .bind(&team.subscription)
@@ -96,6 +98,23 @@ impl Db {
             Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
+
+    pub async fn update_grafana_id(&self, team_id: &str, grafana_id: &str) -> Result<(), DbError> {
+        let query_body = format!(
+            "UPDATE {TEAM_TABLE_NAME} SET grafana_id = $1 WHERE team_id = $2 AND deactivated_at IS NULL",
+        );
+
+        let query_result = query(&query_body)
+            .bind(grafana_id)
+            .bind(team_id)
+            .execute(&self.connection_pool)
+            .await;
+
+        match query_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e).map_err(|e| e.into()),
+        }
+    }
 }
 
 #[cfg(feature = "cloud_integration_tests")]
@@ -121,6 +140,7 @@ mod tests {
         // Create team and register app
         let team = Team {
             team_id: "test_team_id".to_string(),
+            grafana_id: "test_grafana_id".to_string(),
             team_name: "test_team_name".to_string(),
             personal: false,
             subscription: None,

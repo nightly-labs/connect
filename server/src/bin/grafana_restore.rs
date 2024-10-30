@@ -40,7 +40,11 @@ async fn main() {
         )
         .await
         {
-            Ok(id) => id,
+            Ok(id) => {
+                if let Err(err) = db.update_grafana_id(&team.team_id, &id.to_string()).await {
+                    panic!("Failed to update grafana id in database: {:?}", err);
+                }
+            }
             Err(err) => {
                 panic!("Failed to create team in grafana: {:?}", err);
             }
@@ -59,19 +63,20 @@ async fn main() {
             .into_iter()
             .collect();
 
-        for user_id in unique_user_ids {
-            let user_email = match db.get_user_by_user_id(&user_id).await {
-                Ok(Some(user)) => user.email,
-                Ok(None) => {
-                    panic!("User not found. User ID: {:?}", user_id);
-                }
-                Err(e) => {
-                    panic!("Failed to get user. Error: {:?}", e);
-                }
-            };
+        let users_emails = match db.get_users_emails_by_ids(&unique_user_ids).await {
+            Ok(emails) => emails,
+            Err(e) => {
+                panic!("Failed to get users emails. Error: {:?}", e);
+            }
+        };
+        for (_, user_email) in users_emails {
             // add users to teams
-            match handle_grafana_add_user_to_team(&grafana_client_conf, &team.team_id, &user_email)
-                .await
+            match handle_grafana_add_user_to_team(
+                &grafana_client_conf,
+                &team.grafana_id,
+                &user_email,
+            )
+            .await
             {
                 Ok(id) => id,
                 Err(err) => {
@@ -93,7 +98,7 @@ async fn main() {
                 &grafana_client_conf,
                 &app_id,
                 &app_name,
-                &team.team_id,
+                &team.grafana_id,
             )
             .await
             {

@@ -116,7 +116,7 @@ pub async fn register_new_app(
                     &grafana_conf,
                     &request.app_name,
                     &app_id,
-                    &team.team_id,
+                    &team.grafana_id,
                 )
                 .await
                 {

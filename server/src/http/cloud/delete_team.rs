@@ -153,7 +153,7 @@ pub async fn delete_team(
     // Grafana, delete team
     // TODO, fix this by fixing methods for setting up grafana datasource
     if is_env_production() {
-        if let Err(err) = handle_grafana_delete_team(&grafana_conf, &request.team_id).await {
+        if let Err(err) = handle_grafana_delete_team(&grafana_conf, &team.grafana_id).await {
             error!("Failed to delete team from grafana: {:?}", err);
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,

@@ -163,6 +163,7 @@ impl Db {
         for row in rows {
             let team = Team {
                 team_id: row.get("team_id"),
+                grafana_id: row.get("grafana_id"),
                 personal: row.get("personal"),
                 team_name: row.get("team_name"),
                 subscription: row.get("subscription"),
