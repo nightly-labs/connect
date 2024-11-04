@@ -166,7 +166,7 @@ pub async fn register_new_team(
             }
 
             return Ok(Json(HttpRegisterNewTeamResponse {
-                team_id: grafana_team_id.to_string(),
+                team_id: team_id.to_string(),
             }));
         }
         Err(err) => {

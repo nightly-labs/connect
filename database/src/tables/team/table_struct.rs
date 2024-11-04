@@ -26,7 +26,9 @@ impl FromRow<'_, PgRow> for Team {
     fn from_row(row: &sqlx::postgres::PgRow) -> std::result::Result<Self, sqlx::Error> {
         Ok(Team {
             team_id: row.get("team_id"),
-            grafana_id: row.get("grafana_id"),
+            grafana_id: row
+                .try_get::<Option<String>, _>("grafana_id")?
+                .unwrap_or_default(),
             team_name: row.get("team_name"),
             personal: row.get("personal"),
             subscription: row.get("subscription"),

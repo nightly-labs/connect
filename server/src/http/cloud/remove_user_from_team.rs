@@ -1,6 +1,6 @@
 use super::{
     grafana_utils::remove_user_from_the_team::handle_grafana_remove_user_from_team,
-    utils::{custom_validate_team_id, validate_request},
+    utils::{custom_validate_uuid, validate_request},
 };
 use crate::{
     env::is_env_production,
@@ -24,7 +24,7 @@ use ts_rs::TS;
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpRemoveUserFromTeamRequest {
-    #[garde(custom(custom_validate_team_id))]
+    #[garde(custom(custom_validate_uuid))]
     pub team_id: String,
     #[garde(email)]
     pub user_email: String,

@@ -117,8 +117,7 @@ impl Db {
     }
 
     pub async fn clear_all_grafana_ids(&self) -> Result<(), DbError> {
-        let query_body =
-            format!("UPDATE {TEAM_TABLE_NAME} SET grafana_id = NULL WHERE deactivated_at IS NULL",);
+        let query_body = format!("UPDATE {TEAM_TABLE_NAME} SET grafana_id = NULL",);
 
         let query_result = query(&query_body).execute(&self.connection_pool).await;
 

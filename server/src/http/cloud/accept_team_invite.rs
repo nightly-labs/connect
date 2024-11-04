@@ -1,6 +1,6 @@
 use super::{
     grafana_utils::add_user_to_team::handle_grafana_add_user_to_team,
-    utils::{custom_validate_team_id, validate_request},
+    utils::{custom_validate_uuid, validate_request},
 };
 use crate::{
     env::is_env_production, middlewares::auth_middleware::UserId,
@@ -19,7 +19,7 @@ use ts_rs::TS;
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpAcceptTeamInviteRequest {
-    #[garde(custom(custom_validate_team_id))]
+    #[garde(custom(custom_validate_uuid))]
     pub team_id: String,
 }
 

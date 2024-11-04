@@ -1,4 +1,4 @@
-use super::utils::{custom_validate_team_id, validate_request};
+use super::utils::{custom_validate_uuid, validate_request};
 use crate::{
     env::is_env_production,
     http::cloud::grafana_utils::delete_team::handle_grafana_delete_team,
@@ -18,7 +18,7 @@ use ts_rs::TS;
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpDeleteTeamRequest {
-    #[garde(custom(custom_validate_team_id))]
+    #[garde(custom(custom_validate_uuid))]
     pub team_id: String,
 }
 

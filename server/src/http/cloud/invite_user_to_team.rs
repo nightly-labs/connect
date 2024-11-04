@@ -1,4 +1,4 @@
-use super::utils::{custom_validate_team_id, validate_request};
+use super::utils::{custom_validate_uuid, validate_request};
 use crate::{
     mailer::{
         mail_requests::{SendEmailRequest, TeamInviteNotification},
@@ -21,7 +21,7 @@ use ts_rs::TS;
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpInviteUserToTeamRequest {
-    #[garde(custom(custom_validate_team_id))]
+    #[garde(custom(custom_validate_uuid))]
     pub team_id: String,
     #[garde(email)]
     pub user_email: String,

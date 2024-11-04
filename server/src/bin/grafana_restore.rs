@@ -37,7 +37,7 @@ async fn main() {
     };
     for team in teams {
         // create teams
-        match handle_grafana_create_new_team(
+        let grafana_id = match handle_grafana_create_new_team(
             &grafana_client_conf,
             &team.team_admin_id,
             &team.team_name,
@@ -48,6 +48,7 @@ async fn main() {
                 if let Err(err) = db.update_grafana_id(&team.team_id, &id.to_string()).await {
                     panic!("Failed to update grafana id in database: {:?}", err);
                 }
+                id.to_string()
             }
             Err(err) => {
                 panic!("Failed to create team in grafana: {:?}", err);
@@ -75,12 +76,8 @@ async fn main() {
         };
         for (_, user_email) in users_emails {
             // add users to teams
-            match handle_grafana_add_user_to_team(
-                &grafana_client_conf,
-                &team.grafana_id,
-                &user_email,
-            )
-            .await
+            match handle_grafana_add_user_to_team(&grafana_client_conf, &grafana_id, &user_email)
+                .await
             {
                 Ok(id) => id,
                 Err(err) => {
@@ -102,7 +99,7 @@ async fn main() {
                 &grafana_client_conf,
                 &app_id,
                 &app_name,
-                &team.grafana_id,
+                &grafana_id,
             )
             .await
             {
