@@ -1,6 +1,6 @@
 use super::{
     grafana_utils::create_new_app::handle_grafana_create_new_app,
-    utils::{custom_validate_name, custom_validate_team_id, validate_request},
+    utils::{custom_validate_name, custom_validate_uuid, validate_request},
 };
 use crate::{
     env::is_env_production, middlewares::auth_middleware::UserId,
@@ -23,7 +23,7 @@ use uuid7::uuid7;
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpRegisterNewAppRequest {
-    #[garde(custom(custom_validate_team_id))]
+    #[garde(custom(custom_validate_uuid))]
     pub team_id: String,
     #[garde(custom(custom_validate_name))]
     pub app_name: String,
@@ -116,7 +116,7 @@ pub async fn register_new_app(
                     &grafana_conf,
                     &request.app_name,
                     &app_id,
-                    &team.team_id,
+                    &team.grafana_id,
                 )
                 .await
                 {

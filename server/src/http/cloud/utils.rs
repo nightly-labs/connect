@@ -49,19 +49,6 @@ pub fn custom_validate_uuid(string_uuid: &String, _context: &()) -> garde::Resul
     Ok(())
 }
 
-pub fn custom_validate_team_id(string_id: &String, _context: &()) -> garde::Result {
-    // For now we are using i64 returned from grafana as team_id, hopefully this will be changed to UUID
-    match i64::from_str(string_id) {
-        Ok(id) => {
-            if id < 0 {
-                return Err(garde::Error::new("Invalid ID format".to_string()));
-            }
-        }
-        Err(_) => return Err(garde::Error::new("Invalid ID format".to_string())),
-    }
-    Ok(())
-}
-
 pub fn custom_validate_name(name: &String, _context: &()) -> garde::Result {
     NAME_REGEX
         .is_match(name)

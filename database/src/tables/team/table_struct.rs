@@ -7,11 +7,12 @@ use sqlx::{
 
 pub const TEAM_TABLE_NAME: &str = "team";
 pub const TEAM_KEYS: &str =
-    "team_id, team_name, personal, subscription, team_admin_id, registration_timestamp, deactivated_at";
+    "team_id, grafana_id, team_name, personal, subscription, team_admin_id, registration_timestamp, deactivated_at";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Team {
     pub team_id: String,
+    pub grafana_id: String,
     pub personal: bool,
     pub team_name: String,
     // Subscription is required to get access to the statistics
@@ -25,6 +26,9 @@ impl FromRow<'_, PgRow> for Team {
     fn from_row(row: &sqlx::postgres::PgRow) -> std::result::Result<Self, sqlx::Error> {
         Ok(Team {
             team_id: row.get("team_id"),
+            grafana_id: row
+                .try_get::<Option<String>, _>("grafana_id")?
+                .unwrap_or_default(),
             team_name: row.get("team_name"),
             personal: row.get("personal"),
             subscription: row.get("subscription"),

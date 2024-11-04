@@ -371,6 +371,7 @@ mod tests {
 
         let team = Team {
             team_id: team_id.clone(),
+            grafana_id: "test_grafana_id_2".to_string(),
             team_name: "test_team_name".to_string(),
             personal: false,
             subscription: None,

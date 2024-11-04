@@ -17,6 +17,7 @@ use openapi::apis::configuration::Configuration;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
+use uuid7::uuid7;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
@@ -141,10 +142,13 @@ pub async fn register_new_team(
                     }
                 }
             }
+            // Generate a new app id
+            let team_id = uuid7().to_string();
 
             // Create a new team
             let team = Team {
-                team_id: grafana_team_id.to_string(),
+                team_id: team_id.to_string(),
+                grafana_id: grafana_team_id.to_string(),
                 team_name: request.team_name.clone(),
                 team_admin_id: user_id.clone(),
                 subscription: None,
@@ -162,7 +166,7 @@ pub async fn register_new_team(
             }
 
             return Ok(Json(HttpRegisterNewTeamResponse {
-                team_id: grafana_team_id.to_string(),
+                team_id: team_id.to_string(),
             }));
         }
         Err(err) => {

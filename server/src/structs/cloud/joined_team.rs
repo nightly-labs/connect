@@ -9,6 +9,7 @@ pub type TeamId = String;
 #[serde(rename_all = "camelCase")]
 pub struct JoinedTeam {
     pub team_id: TeamId,
+    pub grafana_id: String,
     pub team_name: String,
     pub creator_email: String,
     pub created_at: DateTime<Utc>,

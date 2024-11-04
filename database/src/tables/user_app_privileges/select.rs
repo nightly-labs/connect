@@ -114,7 +114,7 @@ impl Db {
         // 17.10.2024 Hubert: "If this ever breaks, I will write comments."
         let query = format!(
             "WITH RelevantTeams AS (
-                SELECT DISTINCT t.team_id, t.team_name, t.personal, t.subscription, 
+                SELECT DISTINCT t.team_id, t.grafana_id, t.team_name, t.personal, t.subscription, 
                                 t.registration_timestamp, gu.email AS team_admin_email,
                                 gu.user_id AS team_admin_id, t.deactivated_at,
                                 CASE
@@ -127,7 +127,7 @@ impl Db {
                 JOIN {USERS_TABLE_NAME} gu ON t.team_admin_id = gu.user_id
                 WHERE (t.team_admin_id = $1 OR uap.user_id = $1) AND t.deactivated_at IS NULL
             )
-            SELECT rt.team_id, rt.team_name, rt.personal, rt.subscription, rt.registration_timestamp, 
+            SELECT rt.team_id, rt.grafana_id, rt.team_name, rt.personal, rt.subscription, rt.registration_timestamp, 
                    rt.team_admin_email, rt.team_admin_id, ra.app_id, ra.app_name, ra.whitelisted_domains, 
                    ra.ack_public_keys, ra.registration_timestamp AS app_registration_timestamp, 
                    uap.user_id, uap.privilege_level, uap.creation_timestamp AS privilege_creation_timestamp,
@@ -163,6 +163,7 @@ impl Db {
         for row in rows {
             let team = Team {
                 team_id: row.get("team_id"),
+                grafana_id: row.get("grafana_id"),
                 personal: row.get("personal"),
                 team_name: row.get("team_name"),
                 subscription: row.get("subscription"),

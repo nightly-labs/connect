@@ -1,5 +1,6 @@
 CREATE TABLE team(
     team_id TEXT NOT NULL UNIQUE,
+    grafana_id TEXT UNIQUE,
     team_name TEXT NOT NULL,
     personal BOOLEAN NOT NULL,
     subscription subscription,

@@ -1,4 +1,4 @@
-use super::utils::custom_validate_team_id;
+use super::utils::custom_validate_uuid;
 use crate::{
     middlewares::auth_middleware::UserId,
     structs::cloud::{api_cloud_errors::CloudApiErrors, team_user_privilege::TeamUserPrivilege},
@@ -19,7 +19,7 @@ use ts_rs::TS;
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpGetTeamUsersPrivilegesRequest {
-    #[garde(custom(custom_validate_team_id))]
+    #[garde(custom(custom_validate_uuid))]
     pub team_id: String,
 }
 

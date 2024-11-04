@@ -11,7 +11,9 @@ impl Db {
         tx: Option<&mut Transaction<'_, sqlx::Postgres>>,
         team_id: &String,
     ) -> Result<Option<Team>, DbError> {
-        let query = format!("SELECT * FROM {TEAM_TABLE_NAME} WHERE team_id = $1 AND deactivated_at IS NULL");
+        let query = format!(
+            "SELECT * FROM {TEAM_TABLE_NAME} WHERE team_id = $1 AND deactivated_at IS NULL"
+        );
         let typed_query = query_as::<_, Team>(&query);
 
         match tx {
@@ -100,12 +102,23 @@ impl Db {
     }
 
     pub async fn get_team_by_admin_id(&self, admin_id: &String) -> Result<Option<Team>, DbError> {
-        let query = format!("SELECT * FROM {TEAM_TABLE_NAME} WHERE team_admin_id = $1 AND deactivated_at IS NULL");
+        let query = format!(
+            "SELECT * FROM {TEAM_TABLE_NAME} WHERE team_admin_id = $1 AND deactivated_at IS NULL"
+        );
         let typed_query = query_as::<_, Team>(&query);
 
         return typed_query
             .bind(&admin_id)
             .fetch_optional(&self.connection_pool)
+            .await
+            .map_err(|e| e.into());
+    }
+    pub async fn get_all_teams(&self) -> Result<Vec<Team>, DbError> {
+        let query = format!("SELECT * FROM {TEAM_TABLE_NAME} WHERE deactivated_at IS NULL");
+        let typed_query = query_as::<_, Team>(&query);
+
+        return typed_query
+            .fetch_all(&self.connection_pool)
             .await
             .map_err(|e| e.into());
     }
