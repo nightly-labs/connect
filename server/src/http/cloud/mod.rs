@@ -4,6 +4,8 @@ pub mod add_passkey_start;
 pub mod cancel_team_user_invite;
 pub mod cancel_user_team_invite;
 pub mod change_user_privileges;
+pub mod delete_account_finish;
+pub mod delete_account_start;
 pub mod delete_app;
 pub mod delete_passkey;
 pub mod delete_team;

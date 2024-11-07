@@ -263,6 +263,40 @@ impl Db {
             Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
+
+    pub async fn remove_inactive_user_from_teams(
+        &self,
+        tx: &mut Transaction<'_, sqlx::Postgres>,
+        user_id: &String,
+    ) -> Result<(), DbError> {
+        let query_body = format!("DELETE FROM {USER_APP_PRIVILEGES_TABLE_NAME} WHERE user_id = $1");
+        let query_result = query(&query_body).bind(user_id).execute(&mut **tx).await;
+        match query_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e).map_err(|e| e.into()),
+        }
+    }
+
+    pub async fn remove_privileges_for_inactive_teams(
+        &self,
+        tx: &mut Transaction<'_, sqlx::Postgres>,
+        user_id: &String,
+    ) -> Result<(), DbError> {
+        let query_body = format!(
+            "DELETE FROM {USER_APP_PRIVILEGES_TABLE_NAME} 
+             WHERE app_id IN (
+                 SELECT app_id 
+                 FROM {REGISTERED_APPS_TABLE_NAME} r
+                 INNER JOIN team t ON r.team_id = t.team_id 
+                 WHERE t.team_admin_id = $1
+             )"
+        );
+        let query_result = query(&query_body).bind(user_id).execute(&mut **tx).await;
+        match query_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e).map_err(|e| e.into()),
+        }
+    }
 }
 
 #[cfg(feature = "cloud_integration_tests")]

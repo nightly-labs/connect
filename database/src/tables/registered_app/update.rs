@@ -1,5 +1,10 @@
 use super::table_struct::{DbRegisteredApp, REGISTERED_APPS_KEYS, REGISTERED_APPS_TABLE_NAME};
-use crate::{db::Db, structs::db_error::DbError, tables::utils::get_current_datetime};
+
+use crate::{
+    db::Db,
+    structs::db_error::DbError,
+    tables::{team::table_struct::TEAM_TABLE_NAME, utils::get_current_datetime},
+};
 use sqlx::{query, Transaction};
 
 impl Db {
@@ -106,6 +111,27 @@ impl Db {
         let query_result = query(&query_body)
             .bind(&get_current_datetime())
             .bind(app_id)
+            .execute(&mut **tx)
+            .await;
+
+        match query_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e).map_err(|e| e.into()),
+        }
+    }
+
+    pub async fn deactivate_user_apps(
+        &self,
+        tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+        user_id: &str,
+    ) -> Result<(), DbError> {
+        let query_body = format!(
+            "UPDATE {REGISTERED_APPS_TABLE_NAME} SET deactivated_at = $1 WHERE team_id IN (SELECT team_id FROM {TEAM_TABLE_NAME} WHERE team_admin_id = $2 AND deactivated_at IS NULL) AND deactivated_at IS NULL",
+        );
+
+        let query_result = query(&query_body)
+            .bind(&get_current_datetime())
+            .bind(user_id)
             .execute(&mut **tx)
             .await;
 

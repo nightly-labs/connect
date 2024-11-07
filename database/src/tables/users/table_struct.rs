@@ -6,7 +6,8 @@ use sqlx::{
 use webauthn_rs::prelude::Passkey;
 
 pub const USERS_TABLE_NAME: &str = "users";
-pub const USERS_KEYS: &str = "user_id, email, password_hash, passkeys, creation_timestamp";
+pub const USERS_KEYS: &str =
+    "user_id, email, password_hash, passkeys, creation_timestamp, deactivated_at";
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct User {
@@ -15,6 +16,7 @@ pub struct User {
     pub password_hash: Option<String>,
     pub passkeys: Option<Vec<Passkey>>,
     pub creation_timestamp: DateTime<Utc>,
+    pub deactivated_at: Option<DateTime<Utc>>,
 }
 
 impl FromRow<'_, PgRow> for User {
@@ -31,6 +33,7 @@ impl FromRow<'_, PgRow> for User {
             },
             user_id: row.get("user_id"),
             creation_timestamp: row.get("creation_timestamp"),
+            deactivated_at: row.get("deactivated_at"),
         })
     }
 }

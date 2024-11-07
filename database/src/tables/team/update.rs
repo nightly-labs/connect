@@ -126,6 +126,25 @@ impl Db {
             Err(e) => Err(e).map_err(|e| e.into()),
         }
     }
+
+    pub async fn delete_all_user_teams(&self, 
+        tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+        user_id: &str) -> Result<(), DbError> {
+        let query_body = format!(
+            "UPDATE {TEAM_TABLE_NAME} SET deactivated_at = $1 WHERE team_admin_id = $2 AND deactivated_at IS NULL",
+        );
+
+        let query_result = query(&query_body)
+            .bind(&get_current_datetime())
+            .bind(user_id)
+            .execute(&mut **tx)
+            .await;
+
+        match query_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e).map_err(|e| e.into()),
+        }
+    }
 }
 
 #[cfg(feature = "cloud_integration_tests")]
