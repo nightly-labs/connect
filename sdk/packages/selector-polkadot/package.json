@@ -1,6 +1,6 @@
 {
   "name": "@nightlylabs/wallet-selector-polkadot",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "",
   "type": "module",
   "exports": {

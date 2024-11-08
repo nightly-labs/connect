@@ -1,6 +1,6 @@
-import { getWallets, Wallet } from '@wallet-standard/core'
-import { isWalletAdapterCompatibleStandardWallet } from '@solana/wallet-adapter-base'
 import { IWalletListItem, WalletMetadata } from '@nightlylabs/wallet-selector-base'
+import { isWalletAdapterCompatibleStandardWallet } from '@solana/wallet-adapter-base'
+import { getWallets, Wallet } from '@wallet-standard/core'
 
 export const solanaWalletsFilter = (wallet: Wallet) =>
   isWalletAdapterCompatibleStandardWallet(wallet)
@@ -8,7 +8,6 @@ export const solanaWalletsFilter = (wallet: Wallet) =>
 export const getSolanaWalletsList = (presetList: WalletMetadata[], recentWalletName?: string) => {
   const { get } = getWallets()
   const windowWallets = get()
-
   const walletsData: Record<string, IWalletListItem> = {}
 
   presetList.forEach((wallet) => {

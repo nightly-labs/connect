@@ -59,7 +59,7 @@ export default function Solana() {
   const [adapter, setAdapter] = createSignal<NightlyConnectAdapter>()
   const [eager, setEager] = createSignal(false)
   const [publicKey, setPublicKey] = createSignal<PublicKey>()
-  onMount(async () => {
+  onMount(() => {
     NightlyConnectAdapter.build(
       {
         appMetadata: {
