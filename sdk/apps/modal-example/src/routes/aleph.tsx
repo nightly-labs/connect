@@ -1,65 +1,64 @@
-import {
-  getPolkadotWallets,
-  NightlyConnectAdapter,
-} from "@nightlylabs/wallet-selector-polkadot";
-import { ApiPromise, WsProvider } from "@polkadot/api";
-import { createEffect, createSignal, onMount, Show } from "solid-js";
-import { Title } from "@solidjs/meta";
-import toast from "solid-toast";
-import { Signer } from "@polkadot/api/types";
+import { getPolkadotWallets, NightlyConnectAdapter } from '@nightlylabs/wallet-selector-polkadot'
+import { ApiPromise, WsProvider } from '@polkadot/api'
+import { createEffect, createSignal, onMount, Show } from 'solid-js'
+import { Title } from '@solidjs/meta'
+import toast from 'solid-toast'
+import { Signer } from '@polkadot/api/types'
 
-const RECEIVER = "5CFRopxy991HCJj1HYtUQjaaBMw9iRLE9jxPndBsgdCjeJj5";
+const RECEIVER = '5CFRopxy991HCJj1HYtUQjaaBMw9iRLE9jxPndBsgdCjeJj5'
 
 export default function Polkadot() {
-  const [adapter, setAdapter] = createSignal<NightlyConnectAdapter>();
-  const [eager, setEager] = createSignal(false);
-  const [publicKey, setPublicKey] = createSignal<string>();
-  const [api, setApi] = createSignal<ApiPromise>();
-  const provider = new WsProvider("wss://ws.test.azero.dev/");
+  const [adapter, setAdapter] = createSignal<NightlyConnectAdapter>()
+  const [eager, setEager] = createSignal(false)
+  const [publicKey, setPublicKey] = createSignal<string>()
+  const [api, setApi] = createSignal<ApiPromise>()
+  const provider = new WsProvider('wss://ws.test.azero.dev/')
 
-  onMount(async () => {
-    const adapter = NightlyConnectAdapter.buildLazy(
+  onMount(() => {
+    NightlyConnectAdapter.build(
       {
         appMetadata: {
-          name: "NC TEST AlephZero",
-          description: "Nightly Connect Test",
-          icon: "https://docs.nightly.app/img/logo.png",
-          additionalInfo: "Courtesy of Nightly Connect team",
+          name: 'NC TEST AlephZero',
+          description: 'Nightly Connect Test',
+          icon: 'https://docs.nightly.app/img/logo.png',
+          additionalInfo: 'Courtesy of Nightly Connect team'
         },
-        network: "AlephZero",
-        persistent: true,
+        network: 'AlephZero'
       },
-      { initOnConnect: false, disableModal: false, disableEagerConnect: false }
-    );
+      {},
+      document.getElementById('modalAnchor')
+    ).then((adapter) => {
+      adapter.canEagerConnect().then((canEagerConnect) => {
+        setEager(canEagerConnect)
+      })
 
-    adapter.canEagerConnect().then((canEagerConnect: boolean) => {
-      setEager(canEagerConnect);
-    });
-    setAdapter(adapter);
+      setAdapter(adapter)
 
-    ApiPromise.create({
-      provider,
-    }).then((api) => {
-      setApi(api);
-    });
-  });
+      ApiPromise.create({
+        provider
+      }).then((api) => {
+        setApi(api)
+      })
+    })
+  })
+
   createEffect(() => {
     if (eager()) {
       adapter()
         ?.connect()
         .then(
           async () => {
-            const accounts = await adapter()!.accounts.get();
-            console.log(accounts);
-            setPublicKey(accounts[0].address);
-            console.log("connect resolved successfully");
+            const accounts = await adapter()!.accounts.get()
+            console.log(accounts)
+            setPublicKey(accounts[0].address)
+            console.log('connect resolved successfully')
           },
           () => {
-            console.log("connect rejected");
+            console.log('connect rejected')
           }
-        );
+        )
     }
-  });
+  })
 
   return (
     <main>
@@ -71,41 +70,36 @@ export default function Polkadot() {
           <button
             onClick={async () => {
               try {
-                console.log(getPolkadotWallets());
-                await adapter()!.connect();
-                const accounts = await adapter()!.accounts.get();
-                console.log(accounts);
-                setPublicKey(accounts[0].address);
-                console.log("adapter", adapter());
+                console.log(getPolkadotWallets())
+
+                await adapter()!.connect()
+                const accounts = await adapter()!.accounts.get()
+                console.log(accounts)
+                setPublicKey(accounts[0].address)
+                console.log('adapter', adapter())
               } catch (err) {
-                console.log(err);
+                console.log(err)
               }
-            }}
-          >
+            }}>
             Connect
           </button>
-        }
-      >
+        }>
         <h1>Current address: {publicKey()}</h1>
         <button
           onClick={async () => {
             try {
-              const payload = api()!.tx.balances.transfer(
-                RECEIVER,
-                5000000000000
-              );
+              const payload = api()!.tx.balances.transfer(RECEIVER, 5000000000000)
               const signed = await payload.signAsync(publicKey()!, {
-                signer: adapter()!.signer as Signer,
-              });
-              console.log({ signed });
-              await signed.send();
-              toast.success("Transaction was signed and sent!");
+                signer: adapter()!.signer as Signer
+              })
+              console.log({ signed })
+              await signed.send()
+              toast.success('Transaction was signed and sent!')
             } catch (e) {
-              toast.error("Error: couldn't sign and send transaction!");
-              console.log(e);
+              toast.error("Error: couldn't sign and send transaction!")
+              console.log(e)
             }
-          }}
-        >
+          }}>
           Sign test transfer
         </button>
         {/* <button
@@ -128,12 +122,11 @@ export default function Polkadot() {
       </Show>
       <button
         onClick={() => {
-          adapter()?.disconnect();
-          setPublicKey(undefined);
-        }}
-      >
+          adapter()?.disconnect()
+          setPublicKey(undefined)
+        }}>
         Disconnect
       </button>
     </main>
-  );
+  )
 }

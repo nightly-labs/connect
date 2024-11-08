@@ -142,59 +142,63 @@ export class NightlyConnectSuiAdapter extends EventEmitter<SuiAdapterEvents> {
   ) => {
     const adapter = new NightlyConnectSuiAdapter(appInitData, connectionOptions)
 
-    adapter.walletsList = getSuiWalletsList(
-      [],
-      getRecentWalletForNetwork(SUI_NETWORK)?.walletName ?? undefined
-    )
-
-    if (!adapter._connectionOptions.disableModal)
-      adapter._modal = new NightlyConnectSelectorModal(
-        adapter.walletsList,
-        appInitData.url ?? 'https://nc2.nightly.app',
-        {
-          name: SUI_NETWORK,
-          icon: 'https://registry.nightly.app/networks/sui.png'
-        },
-        anchorRef,
-        uiOverrides?.variablesOverride,
-        uiOverrides?.stylesOverride,
-        uiOverrides?.qrConfigOverride
+    try {
+      adapter.walletsList = getSuiWalletsList(
+        [],
+        getRecentWalletForNetwork(SUI_NETWORK)?.walletName ?? undefined
       )
 
-    const [app, metadataWallets] = await NightlyConnectSuiAdapter.initApp(appInitData)
+      if (!adapter._connectionOptions.disableModal)
+        adapter._modal = new NightlyConnectSelectorModal(
+          adapter.walletsList,
+          appInitData.url ?? 'https://nc2.nightly.app',
+          {
+            name: SUI_NETWORK,
+            icon: 'https://registry.nightly.app/networks/sui.png'
+          },
+          anchorRef,
+          uiOverrides?.variablesOverride,
+          uiOverrides?.stylesOverride,
+          uiOverrides?.qrConfigOverride
+        )
 
-    adapter._app = app
-    adapter._metadataWallets = metadataWallets
+      const [app, metadataWallets] = await NightlyConnectSuiAdapter.initApp(appInitData)
 
-    adapter.walletsList = getSuiWalletsList(
-      metadataWallets,
-      getRecentWalletForNetwork(SUI_NETWORK)?.walletName ?? undefined
-    )
+      adapter._app = app
+      adapter._metadataWallets = metadataWallets
 
-    adapter.checkForArrivingWallets(metadataWallets)
+      adapter.walletsList = getSuiWalletsList(
+        metadataWallets,
+        getRecentWalletForNetwork(SUI_NETWORK)?.walletName ?? undefined
+      )
 
-    // Add event listener for userConnected
-    app.on('userConnected', async (e) => {
-      try {
-        persistRecentWalletForNetwork(SUI_NETWORK, {
-          walletName: adapter._chosenMobileWalletName || '',
-          walletType: ConnectionType.Nightly
-        })
+      adapter.checkForArrivingWallets(metadataWallets)
 
-        if (!adapter._app || adapter._app.connectedPublicKeys.length <= 0) {
-          adapter.connected = false
-          // If user does not pass any accounts, we should disconnect
+      // Add event listener for userConnected
+      app.on('userConnected', async (e) => {
+        try {
+          persistRecentWalletForNetwork(SUI_NETWORK, {
+            walletName: adapter._chosenMobileWalletName || '',
+            walletType: ConnectionType.Nightly
+          })
+
+          if (!adapter._app || adapter._app.connectedPublicKeys.length <= 0) {
+            adapter.connected = false
+            // If user does not pass any accounts, we should disconnect
+            adapter.disconnect()
+            return
+          }
+          adapter.setSelectedWallet({ isRemote: true })
+          adapter._accounts = e.publicKeys.map((pk) => createSuiWalletAccountFromString(pk))
+          adapter.connected = true
+          adapter.emit('connect', adapter._accounts)
+        } catch {
           adapter.disconnect()
-          return
         }
-        adapter.setSelectedWallet({ isRemote: true })
-        adapter._accounts = e.publicKeys.map((pk) => createSuiWalletAccountFromString(pk))
-        adapter.connected = true
-        adapter.emit('connect', adapter._accounts)
-      } catch {
-        adapter.disconnect()
-      }
-    })
+      })
+    } catch {
+      console.log('Error building adapter')
+    }
 
     return adapter
   }
@@ -387,7 +391,6 @@ export class NightlyConnectSuiAdapter extends EventEmitter<SuiAdapterEvents> {
           }
 
           // Interval that checks if app has connected
-          let loadingInterval: NodeJS.Timeout
 
           if (!this._modal) {
             this._connecting = false
@@ -445,7 +448,7 @@ export class NightlyConnectSuiAdapter extends EventEmitter<SuiAdapterEvents> {
 
           // loop until app is connected or we timeout
           let checks = 0
-          loadingInterval = setInterval(async (): Promise<void> => {
+          const loadingInterval: NodeJS.Timeout = setInterval(async (): Promise<void> => {
             checks++
             if (this._app) {
               // Clear interval if app is connected

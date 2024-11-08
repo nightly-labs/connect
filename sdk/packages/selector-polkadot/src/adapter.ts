@@ -124,9 +124,6 @@ export class NightlyConnectAdapter
   get walletsFromRegistry() {
     return this._metadataWallets
   }
-  get walletsList() {
-    return this._walletsList
-  }
 
   get selectedWallet() {
     return this._selectedWallet
@@ -137,6 +134,10 @@ export class NightlyConnectAdapter
     if (this._modal) {
       this._modal.walletsList = list
     }
+  }
+
+  get walletsList() {
+    return this._walletsList
   }
 
   get sessionId() {
@@ -155,7 +156,7 @@ export class NightlyConnectAdapter
         AppPolkadot.build(appInitData),
         AppPolkadot.getWalletsMetadata(
           `${appInitData.url ?? 'https://nc2.nightly.app'}/get_wallets_metadata`
-        ).catch(() => [] as WalletMetadata[])
+        )
       ])
     } catch {
       clearSessionIdForNetwork(appInitData.network)
@@ -163,7 +164,7 @@ export class NightlyConnectAdapter
         AppPolkadot.build(appInitData),
         AppPolkadot.getWalletsMetadata(
           `${appInitData.url ?? 'https://nc2.nightly.app'}/get_wallets_metadata`
-        ).catch(() => [] as WalletMetadata[])
+        )
       ])
     }
   }
@@ -180,57 +181,63 @@ export class NightlyConnectAdapter
     }
   ) => {
     const adapter = new NightlyConnectAdapter(appInitData, connectionOptions)
-
-    adapter.walletsList = getPolkadotWalletsList(
-      [],
-      getRecentWalletForNetwork(adapter.network)?.walletName ?? undefined
-    )
-    if (!adapter._connectionOptions.disableModal) {
-      adapter._modal = new NightlyConnectSelectorModal(
-        adapter.walletsList,
-        appInitData.url ?? 'https://nc2.nightly.app',
-        {
-          name: uiOverrides?.networkDataOverride?.name ?? networkToData(adapter.network).name,
-          icon: uiOverrides?.networkDataOverride?.icon ?? networkToData(adapter.network).icon
-        },
-        anchorRef,
-        uiOverrides?.variablesOverride,
-        uiOverrides?.stylesOverride,
-        uiOverrides?.qrConfigOverride
+    try {
+      adapter.walletsList = getPolkadotWalletsList(
+        [],
+        getRecentWalletForNetwork(adapter.network)?.walletName ?? undefined
       )
-    }
-    const [app, metadataWallets] = await NightlyConnectAdapter.initApp(appInitData)
 
-    adapter._app = app
-    adapter._metadataWallets = metadataWallets
-
-    adapter.walletsList = getPolkadotWalletsList(
-      metadataWallets,
-      getRecentWalletForNetwork(adapter.network)?.walletName ?? undefined
-    )
-
-    adapter.checkForArrivingWallets(metadataWallets)
-    // Add event listener for userConnected
-    app.on('userConnected', async () => {
-      try {
-        persistRecentWalletForNetwork(adapter.network, {
-          walletName: adapter._chosenMobileWalletName || '',
-          walletType: ConnectionType.Nightly
-        })
-
-        if (!adapter._app || adapter._app.accounts.activeAccounts.length <= 0) {
-          adapter._connected = false
-          // If user does not pass any accounts, we should disconnect
-          adapter.disconnect()
-          return
+      if (!adapter._connectionOptions.disableModal) {
+        const networkData = {
+          name: uiOverrides?.networkDataOverride?.name || networkToData(adapter.network).name,
+          icon: uiOverrides?.networkDataOverride?.icon || networkToData(adapter.network).icon
         }
-        adapter.setSelectedWallet({ isRemote: true })
-        adapter._connected = true
-        adapter.emit('connect', await adapter.accounts.get())
-      } catch {
-        adapter.disconnect()
+
+        adapter._modal = new NightlyConnectSelectorModal(
+          adapter.walletsList,
+          appInitData.url ?? 'https://nc2.nightly.app',
+          networkData,
+          anchorRef,
+          uiOverrides?.variablesOverride,
+          uiOverrides?.stylesOverride,
+          uiOverrides?.qrConfigOverride
+        )
       }
-    })
+
+      const [app, metadataWallets] = await NightlyConnectAdapter.initApp(appInitData)
+      adapter._app = app
+      adapter._metadataWallets = metadataWallets
+
+      adapter.walletsList = getPolkadotWalletsList(
+        metadataWallets,
+        getRecentWalletForNetwork(adapter.network)?.walletName ?? undefined
+      )
+
+      adapter.checkForArrivingWallets(metadataWallets)
+
+      app.on('userConnected', async () => {
+        try {
+          persistRecentWalletForNetwork(adapter.network, {
+            walletName: adapter._chosenMobileWalletName || '',
+            walletType: ConnectionType.Nightly
+          })
+
+          if (!adapter._app || adapter._app.accounts.activeAccounts.length <= 0) {
+            adapter._connected = false
+            adapter.disconnect()
+            return
+          }
+          adapter.setSelectedWallet({ isRemote: true })
+          adapter._connected = true
+          adapter.emit('connect', await adapter.accounts.get())
+        } catch (error) {
+          adapter.disconnect()
+        }
+      })
+    } catch {
+      console.log('Error building adapter')
+    }
+
     return adapter
   }
 

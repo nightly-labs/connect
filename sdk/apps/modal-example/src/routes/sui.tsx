@@ -8,7 +8,7 @@ export default function Sui() {
   const [adapter, setAdapter] = createSignal<NightlyConnectSuiAdapter>()
   const [eager, setEager] = createSignal(false)
   const [publicKey, setPublicKey] = createSignal<string>()
-  onMount(async () => {
+  onMount(() => {
     NightlyConnectSuiAdapter.build(
       {
         appMetadata: {
@@ -20,7 +20,7 @@ export default function Sui() {
       },
       {},
       document.getElementById('modalAnchor')
-    ).then(async (adapter) => {
+    ).then((adapter) => {
       adapter.canEagerConnect().then((canEagerConnect) => {
         setEager(canEagerConnect)
       })

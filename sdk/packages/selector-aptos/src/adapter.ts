@@ -160,68 +160,73 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
     }
   ) => {
     const adapter = new NightlyConnectAptosAdapter(appInitData, connectionOptions)
-    const network = appInitData.network ?? APTOS_NETWORK
-    adapter._network = network
-    adapter.walletsList = getAptosWalletsList(
-      [],
-      getRecentWalletForNetwork(network)?.walletName ?? undefined
-    )
 
-    if (!adapter._connectionOptions.disableModal)
-      adapter._modal = new NightlyConnectSelectorModal(
-        adapter.walletsList,
-        appInitData.url ?? 'https://nc2.nightly.app',
-        {
-          name: uiOverrides?.networkDataOverride?.name ?? network,
-          icon:
-            uiOverrides?.networkDataOverride?.icon ??
-            'https://registry.nightly.app/networks/aptos.png'
-        },
-        anchorRef,
-        uiOverrides?.variablesOverride,
-        uiOverrides?.stylesOverride,
-        uiOverrides?.qrConfigOverride
+    try {
+      const network = appInitData.network ?? APTOS_NETWORK
+      adapter._network = network
+      adapter.walletsList = getAptosWalletsList(
+        [],
+        getRecentWalletForNetwork(network)?.walletName ?? undefined
       )
 
-    const [app, metadataWallets] = await NightlyConnectAptosAdapter.initApp({
-      ...appInitData,
-      network
-    })
+      if (!adapter._connectionOptions.disableModal)
+        adapter._modal = new NightlyConnectSelectorModal(
+          adapter.walletsList,
+          appInitData.url ?? 'https://nc2.nightly.app',
+          {
+            name: uiOverrides?.networkDataOverride?.name ?? network,
+            icon:
+              uiOverrides?.networkDataOverride?.icon ??
+              'https://registry.nightly.app/networks/aptos.png'
+          },
+          anchorRef,
+          uiOverrides?.variablesOverride,
+          uiOverrides?.stylesOverride,
+          uiOverrides?.qrConfigOverride
+        )
 
-    adapter._app = app
-    adapter._metadataWallets = metadataWallets
+      const [app, metadataWallets] = await NightlyConnectAptosAdapter.initApp({
+        ...appInitData,
+        network
+      })
 
-    adapter.walletsList = getAptosWalletsList(
-      metadataWallets,
-      getRecentWalletForNetwork(network)?.walletName ?? undefined
-    )
+      adapter._app = app
+      adapter._metadataWallets = metadataWallets
 
-    adapter.checkForArrivingWallets(metadataWallets)
+      adapter.walletsList = getAptosWalletsList(
+        metadataWallets,
+        getRecentWalletForNetwork(network)?.walletName ?? undefined
+      )
 
-    // Add event listener for userConnected
-    app.on('userConnected', async (accountInfo, networkInfo) => {
-      try {
-        persistRecentWalletForNetwork(network, {
-          walletName: adapter._chosenMobileWalletName || '',
-          walletType: ConnectionType.Nightly
-        })
+      adapter.checkForArrivingWallets(metadataWallets)
 
-        if (!adapter._app || adapter._app.connectedPublicKeys.length <= 0) {
-          adapter._connected = false
-          // If user does not pass any accounts, we should disconnect
+      // Add event listener for userConnected
+      app.on('userConnected', async (accountInfo, networkInfo) => {
+        try {
+          persistRecentWalletForNetwork(network, {
+            walletName: adapter._chosenMobileWalletName || '',
+            walletType: ConnectionType.Nightly
+          })
+
+          if (!adapter._app || adapter._app.connectedPublicKeys.length <= 0) {
+            adapter._connected = false
+            // If user does not pass any accounts, we should disconnect
+            adapter.disconnect()
+            return
+          }
+          adapter.setSelectedWallet({ isRemote: true })
+          adapter._accountInfo = accountInfo
+          adapter._networkInfo = networkInfo
+          adapter._connected = true
+          adapter._connectionType = ConnectionType.Nightly
+          adapter.emit('connect', accountInfo)
+        } catch {
           adapter.disconnect()
-          return
         }
-        adapter.setSelectedWallet({ isRemote: true })
-        adapter._accountInfo = accountInfo
-        adapter._networkInfo = networkInfo
-        adapter._connected = true
-        adapter._connectionType = ConnectionType.Nightly
-        adapter.emit('connect', accountInfo)
-      } catch {
-        adapter.disconnect()
-      }
-    })
+      })
+    } catch {
+      console.log('Error building adapter')
+    }
 
     return adapter
   }

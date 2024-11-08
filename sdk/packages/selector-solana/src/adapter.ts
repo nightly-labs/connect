@@ -115,10 +115,6 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     return this._publicKey
   }
 
-  get walletsList() {
-    return this._walletsList
-  }
-
   get selectedWallet() {
     return this._selectedWallet
   }
@@ -128,6 +124,9 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
     if (this._modal) {
       this._modal.walletsList = list
     }
+  }
+  get walletsList() {
+    return this._walletsList
   }
 
   get sessionId() {
@@ -200,67 +199,70 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
   ) => {
     const adapter = new NightlyConnectAdapter(appInitData, connectionOptions)
 
-    if (adapter._readyState === WalletReadyState.Unsupported) {
-      return adapter
-    }
+    try {
+      if (adapter._readyState === WalletReadyState.Unsupported) {
+        return adapter
+      }
 
-    adapter.walletsList = getSolanaWalletsList(
-      [],
-      getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
-    )
-
-    if (!adapter._connectionOptions.disableModal)
-      adapter._modal = new NightlyConnectSelectorModal(
-        adapter.walletsList,
-        appInitData.url ?? 'https://nc2.nightly.app',
-        {
-          name: SOLANA_NETWORK,
-          icon: 'https://assets.coingecko.com/coins/images/4128/small/solana.png'
-        },
-        anchorRef,
-        uiOverrides?.variablesOverride,
-        uiOverrides?.stylesOverride,
-        uiOverrides?.qrConfigOverride
+      adapter.walletsList = getSolanaWalletsList(
+        [],
+        getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
       )
 
-    const [app, metadataWallets] = await NightlyConnectAdapter.initApp(appInitData)
+      if (!adapter._connectionOptions.disableModal)
+        adapter._modal = new NightlyConnectSelectorModal(
+          adapter.walletsList,
+          appInitData.url ?? 'https://nc2.nightly.app',
+          {
+            name: SOLANA_NETWORK,
+            icon: 'https://assets.coingecko.com/coins/images/4128/small/solana.png'
+          },
+          anchorRef,
+          uiOverrides?.variablesOverride,
+          uiOverrides?.stylesOverride,
+          uiOverrides?.qrConfigOverride
+        )
 
-    adapter._app = app
-    adapter._metadataWallets = metadataWallets
+      const [app, metadataWallets] = await NightlyConnectAdapter.initApp(appInitData)
 
-    adapter.walletsList = getSolanaWalletsList(
-      metadataWallets,
-      getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
-    )
+      adapter._app = app
+      adapter._metadataWallets = metadataWallets
 
-    adapter.checkForArrivingWallets(metadataWallets)
+      adapter.walletsList = getSolanaWalletsList(
+        metadataWallets,
+        getRecentWalletForNetwork(SOLANA_NETWORK)?.walletName ?? undefined
+      )
 
-    // Add event listener for userConnected
-    app.on('userConnected', async () => {
-      try {
-        persistRecentWalletForNetwork(SOLANA_NETWORK, {
-          walletName: adapter._chosenMobileWalletName || '',
-          walletType: ConnectionType.Nightly
-        })
+      adapter.checkForArrivingWallets(metadataWallets)
 
-        if (!adapter._app || adapter._app.connectedPublicKeys.length <= 0) {
-          adapter._connected = false
-          // If user does not pass any accounts, we should disconnect
+      // Add event listener for userConnected
+      app.on('userConnected', async () => {
+        try {
+          persistRecentWalletForNetwork(SOLANA_NETWORK, {
+            walletName: adapter._chosenMobileWalletName || '',
+            walletType: ConnectionType.Nightly
+          })
+
+          if (!adapter._app || adapter._app.connectedPublicKeys.length <= 0) {
+            adapter._connected = false
+            // If user does not pass any accounts, we should disconnect
+            adapter.disconnect()
+            return
+          }
+          adapter.setSelectedWallet({
+            isRemote: true
+          })
+          adapter._publicKey = adapter._app.connectedPublicKeys[0]
+          adapter._connected = true
+          adapter._connectionType = ConnectionType.Nightly
+          adapter.emit('connect', adapter._publicKey)
+        } catch {
           adapter.disconnect()
-          return
         }
-        adapter.setSelectedWallet({
-          isRemote: true
-        })
-        adapter._publicKey = adapter._app.connectedPublicKeys[0]
-        adapter._connected = true
-        adapter._connectionType = ConnectionType.Nightly
-        adapter.emit('connect', adapter._publicKey)
-      } catch {
-        adapter.disconnect()
-      }
-    })
-
+      })
+    } catch {
+      console.log('Error building adapter')
+    }
     return adapter
   }
 
@@ -629,7 +631,6 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
 
           // Interval that checks if app has connected
           let loadingInterval: NodeJS.Timeout
-
           if (this._modal) {
             this._connecting = true
             this._modal.onClose = () => {
