@@ -76,7 +76,6 @@ pub async fn get_user_joined_teams(
                 // Parse joined team
                 let joined_team = JoinedTeam {
                     team_id: team.team_id.clone(),
-                    grafana_id: team.grafana_id,
                     team_name: team.team_name,
                     created_at: team.registration_timestamp,
                     creator_email: admin_email,

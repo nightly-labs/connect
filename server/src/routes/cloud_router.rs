@@ -6,6 +6,8 @@ use crate::{
         cancel_team_user_invite::cancel_team_user_invite,
         cancel_user_team_invite::cancel_user_team_invite,
         change_user_privileges::change_user_privileges,
+        delete_account_finish::delete_account_finish,
+        delete_account_start::delete_account_start,
         delete_app::delete_app,
         delete_passkey::delete_passkey,
         delete_team::delete_team,
@@ -228,6 +230,14 @@ pub fn private_router(state: ServerState) -> Router<ServerState> {
         .route(
             &HttpCloudEndpoint::DeleteTeam.to_string(),
             post(delete_team),
+        )
+        .route(
+            &HttpCloudEndpoint::DeleteAccountStart.to_string(),
+            post(delete_account_start),
+        )
+        .route(
+            &HttpCloudEndpoint::DeleteAccountFinish.to_string(),
+            post(delete_account_finish),
         )
         .with_state(state)
 }

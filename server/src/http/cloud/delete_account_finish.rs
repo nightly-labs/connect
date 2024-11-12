@@ -24,7 +24,7 @@ pub struct HttpDeleteAccountFinishRequest {
     pub auth_code: String,
 }
 
-pub async fn register_with_password_finish(
+pub async fn delete_account_finish(
     State(db): State<Arc<Db>>,
     State(sessions_cache): State<Arc<ApiSessionsCache>>,
     Extension(user_id): Extension<UserId>,

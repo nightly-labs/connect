@@ -86,6 +86,10 @@ pub enum HttpCloudEndpoint {
     DeleteApp,
     #[serde(rename = "/delete_team")]
     DeleteTeam,
+    #[serde(rename = "/delete_account_start")]
+    DeleteAccountStart,
+    #[serde(rename = "/delete_account_finish")]
+    DeleteAccountFinish,
 }
 
 impl HttpCloudEndpoint {
@@ -142,6 +146,8 @@ impl HttpCloudEndpoint {
             HttpCloudEndpoint::LeaveTeam => "/leave_team".to_string(),
             HttpCloudEndpoint::DeleteApp => "/delete_app".to_string(),
             HttpCloudEndpoint::DeleteTeam => "/delete_team".to_string(),
+            HttpCloudEndpoint::DeleteAccountStart => "/delete_account_start".to_string(),
+            HttpCloudEndpoint::DeleteAccountFinish => "/delete_account_finish".to_string(),
         }
     }
 }

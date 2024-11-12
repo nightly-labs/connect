@@ -102,7 +102,15 @@ pub async fn accept_team_invite(
     }
 
     let grafana_team_id = match db.get_team_by_team_id(None, &request.team_id).await {
-        Ok(Some(team)) => team.grafana_id,
+        Ok(Some(team)) => match team.grafana_id {
+            Some(grafana_id) => grafana_id,
+            None => {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    CloudApiErrors::TeamDoesNotExist.to_string(),
+                ));
+            }
+        },
         Ok(None) => {
             return Err((
                 StatusCode::BAD_REQUEST,

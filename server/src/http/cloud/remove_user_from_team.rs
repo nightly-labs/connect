@@ -108,9 +108,19 @@ pub async fn remove_user_from_team(
 
             // Grafana, remove user from the team
             if is_env_production() {
+                let team_grafana_id = match team.grafana_id {
+                    Some(grafana_id) => grafana_id,
+                    None => {
+                        return Err((
+                            StatusCode::INTERNAL_SERVER_ERROR,
+                            CloudApiErrors::TeamWithoutGrafanaId.to_string(),
+                        ));
+                    }
+                };
+
                 if let Err(err) = handle_grafana_remove_user_from_team(
                     &grafana_conf,
-                    &team.grafana_id,
+                    &team_grafana_id,
                     &request.user_email,
                 )
                 .await
