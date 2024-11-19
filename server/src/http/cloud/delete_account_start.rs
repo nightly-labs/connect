@@ -31,6 +31,7 @@ pub struct HttpDeleteAccountStartRequest {
     #[garde(alphanumeric)]
     pub browser: String,
 }
+
 pub async fn delete_account_start(
     State(db): State<Arc<Db>>,
     State(mailer): State<Arc<Mailer>>,
@@ -59,8 +60,8 @@ pub async fn delete_account_start(
         }
     };
 
-    // Save to cache dlete account challenge request
-    let sessions_key = SessionsCacheKey::DeleteAccount(user_id.clone()).to_string();
+    // Save to cache delete account challenge request
+    let sessions_key = SessionsCacheKey::DeleteAccount(user_data.email.clone()).to_string();
 
     // Remove leftover session data
     sessions_cache.remove(&sessions_key);
@@ -72,7 +73,7 @@ pub async fn delete_account_start(
     sessions_cache.set(
         sessions_key,
         SessionCache::DeleteAccount(DeleteAccountVerification {
-            user_id,
+            email: user_data.email.clone(),
             verification_code: verification_code.clone(),
             authentication_code: None,
             created_at: get_timestamp_in_milliseconds(),
@@ -94,4 +95,57 @@ pub async fn delete_account_start(
     }
 
     return Ok(Json(()));
+}
+
+#[cfg(feature = "cloud_intsegration_tests")]
+#[cfg(test)]
+mod tests {
+    use crate::{
+        env::JWT_SECRET,
+        http::cloud::delete_account_start::HttpDeleteAccountStartRequest,
+        structs::cloud::cloud_http_endpoints::HttpCloudEndpoint,
+        test_utils::test_utils::{
+            convert_response, create_test_app, register_and_login_random_user,
+        },
+    };
+    use axum::{
+        body::Body,
+        extract::ConnectInfo,
+        http::{Method, Request},
+    };
+    use std::net::SocketAddr;
+    use tower::ServiceExt;
+
+    #[tokio::test]
+    async fn test_delete_account() {
+        let test_app = create_test_app(false).await;
+
+        let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
+
+        let request = HttpDeleteAccountStartRequest {
+            device: "device".to_string(),
+            browser: "browser".to_string(),
+        };
+
+        let ip: ConnectInfo<SocketAddr> = ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 8080)));
+        let json = serde_json::to_string(&request).unwrap();
+        let auth = auth_token.encode(JWT_SECRET()).unwrap();
+
+        let req = Request::builder()
+            .method(Method::POST)
+            .header("content-type", "application/json")
+            .header("authorization", format!("Bearer {auth}"))
+            .uri(format!(
+                "/cloud/private{}",
+                HttpCloudEndpoint::DeleteAccountStart.to_string()
+            ))
+            .extension(ip)
+            .body(Body::from(json))
+            .unwrap();
+
+        // Send request
+        let response = test_app.clone().oneshot(req).await.unwrap();
+        // Validate response
+        convert_response::<()>(response).await.unwrap();
+    }
 }

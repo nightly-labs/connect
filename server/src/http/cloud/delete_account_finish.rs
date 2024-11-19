@@ -18,8 +18,6 @@ use ts_rs::TS;
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpDeleteAccountFinishRequest {
-    #[garde(email)]
-    pub email: String,
     #[garde(skip)]
     pub auth_code: String,
 }
@@ -34,7 +32,7 @@ pub async fn delete_account_finish(
     validate_request(&request, &())?;
 
     // check if user exists
-    match db.get_user_by_user_id(&user_id).await {
+    let user = match db.get_user_by_user_id(&user_id).await {
         Ok(Some(user)) => user,
         Ok(None) => {
             return Err((
@@ -52,7 +50,7 @@ pub async fn delete_account_finish(
     };
 
     // Get session data
-    let sessions_key = SessionsCacheKey::DeleteAccount(user_id.clone()).to_string();
+    let sessions_key = SessionsCacheKey::DeleteAccount(user.email.clone()).to_string();
     let session_data = match sessions_cache.get(&sessions_key) {
         Some(SessionCache::DeleteAccount(session)) => session,
         _ => {
@@ -107,7 +105,7 @@ pub async fn delete_account_finish(
 
     // Delete all invites connected to user
     if let Err(err) = db
-        .cancel_all_team_invites_containing_email(&mut tx, &request.email, &user_id)
+        .cancel_all_team_invites_containing_email(&mut tx, &user.email, &user_id)
         .await
     {
         error!("Failed to delete team invites: {:?}", err);

@@ -24,7 +24,7 @@ pub enum SessionsCacheKey {
     Passkey2FA(String),                // user id
     AddPasskey(String),                // user id
     PasskeyLogin(String),              // user email
-    DeleteAccount(String),             // user id
+    DeleteAccount(String),             // user email
 }
 
 impl SessionsCacheKey {
@@ -37,7 +37,7 @@ impl SessionsCacheKey {
             SessionsCacheKey::Passkey2FA(user_id) => format!("pass_chal_{}", user_id),
             SessionsCacheKey::AddPasskey(email) => format!("add_pass_{}", email),
             SessionsCacheKey::PasskeyLogin(email) => format!("pass_login_{}", email),
-            SessionsCacheKey::DeleteAccount(user_id) => format!("del_acc_{}", user_id),
+            SessionsCacheKey::DeleteAccount(email) => format!("del_acc_{}", email),
         }
     }
 }
@@ -50,6 +50,7 @@ pub enum VerificationAction {
     RegisterPasskey,
     ResetPassword,
     ResetPasskey,
+    DeleteAccount,
 }
 
 impl VerificationAction {
@@ -65,6 +66,7 @@ impl VerificationAction {
             VerificationAction::ResetPasskey => {
                 SessionsCacheKey::ResetPasskeyVerification(user_data)
             }
+            VerificationAction::DeleteAccount => SessionsCacheKey::DeleteAccount(user_data),
         }
     }
 }
@@ -126,7 +128,7 @@ pub struct PasskeyLoginVerification {
 
 #[derive(Debug, Clone)]
 pub struct DeleteAccountVerification {
-    pub user_id: String,
+    pub email: String,
     pub verification_code: String,
     pub authentication_code: Option<String>,
     pub created_at: u64,
