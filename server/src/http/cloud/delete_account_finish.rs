@@ -84,16 +84,19 @@ pub async fn delete_account_finish(
             CloudApiErrors::DatabaseError.to_string(),
         )
     })?;
-
-    // Deactivate the user
-    if let Err(err) = db.deactivate_user(&user_id, &mut tx).await {
-        error!("Failed to delete user: {:?}", err);
+    
+    // Delete all invites connected to user
+    if let Err(err) = db
+    .cancel_all_team_invites_containing_email(&mut tx, &user.email, &user_id)
+    .await
+    {
+        error!("Failed to delete team invites: {:?}", err);
         return Err((
             StatusCode::INTERNAL_SERVER_ERROR,
             CloudApiErrors::DatabaseError.to_string(),
         ));
     }
-
+    
     // Delete all user apps
     if let Err(err) = db.deactivate_user_apps(&mut tx, &user_id).await {
         error!("Failed to delete user apps: {:?}", err);
@@ -102,19 +105,7 @@ pub async fn delete_account_finish(
             CloudApiErrors::DatabaseError.to_string(),
         ));
     }
-
-    // Delete all invites connected to user
-    if let Err(err) = db
-        .cancel_all_team_invites_containing_email(&mut tx, &user.email, &user_id)
-        .await
-    {
-        error!("Failed to delete team invites: {:?}", err);
-        return Err((
-            StatusCode::INTERNAL_SERVER_ERROR,
-            CloudApiErrors::DatabaseError.to_string(),
-        ));
-    }
-
+    
     // Leave all teams
     if let Err(err) = db.remove_inactive_user_from_teams(&mut tx, &user_id).await {
         error!("Failed to leave teams: {:?}", err);
@@ -126,9 +117,9 @@ pub async fn delete_account_finish(
 
     // delete privileges
     if let Err(err) = db
-        .remove_privileges_for_inactive_teams(&mut tx, &user_id)
+    .remove_privileges_for_inactive_teams(&mut tx, &user_id)
         .await
-    {
+        {
         error!("Failed to leave teams: {:?}", err);
         return Err((
             StatusCode::INTERNAL_SERVER_ERROR,
@@ -144,7 +135,16 @@ pub async fn delete_account_finish(
             CloudApiErrors::DatabaseError.to_string(),
         ));
     }
-
+    
+    // Deactivate the user
+    if let Err(err) = db.deactivate_user(&user_id, &mut tx).await {
+        error!("Failed to delete user: {:?}", err);
+        return Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            CloudApiErrors::DatabaseError.to_string(),
+        ));
+    }
+    
     // Commit transaction
     tx.commit().await.map_err(|err| {
         error!("Failed to commit transaction: {:?}", err);
