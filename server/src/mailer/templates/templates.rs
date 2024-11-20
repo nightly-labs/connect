@@ -42,7 +42,8 @@ pub fn get_templates() -> HashMap<Templates, String> {
     );
     templates.insert(
         Templates::AccountRemovalNotification,
-        TEAM_LEAVING_NOTIFICATION_TEMPLATE.to_string(),
+        // TODO - add account removal notification template
+        EMAIL_CONFIRMATION_TEMPLATE.to_string(),
     );
 
     templates

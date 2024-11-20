@@ -17,6 +17,7 @@ pub fn send_account_removal_notification(
 ) -> SendEmailResponse {
     let html = match templates.get(&Templates::AccountRemovalNotification) {
         Some(template) => template
+            .replace("EMAIL_CONFIRMATION_CODE", &request.code)
             .replace("EMAIL_ACTION_DEVICE", &request.device)
             .replace("EMAIL_ACTION_BROWSER", &request.browser)
             .replace("EMAIL_ACTION_DATE", &date)
