@@ -32,7 +32,6 @@ pub fn send_account_removal_notification(
             };
         }
     };
-    println!("mailbox: {:?}", mailbox);
     match create_message(
         html,
         mailbox,
