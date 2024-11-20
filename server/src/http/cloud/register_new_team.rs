@@ -122,7 +122,7 @@ pub async fn register_new_team(
                     ));
                 }
             };
-            let mut grafana_team_id: i64 = 0;
+            let mut grafana_team_id: Option<String> = None;
             // Grafana, add new team
             if is_env_production() {
                 grafana_team_id = match handle_grafana_create_new_team(
@@ -132,7 +132,7 @@ pub async fn register_new_team(
                 )
                 .await
                 {
-                    Ok(id) => id,
+                    Ok(id) => Some(id.to_string()),
                     Err(err) => {
                         error!("Failed to create team in grafana: {:?}", err);
                         return Err((
@@ -148,7 +148,7 @@ pub async fn register_new_team(
             // Create a new team
             let team = Team {
                 team_id: team_id.to_string(),
-                grafana_id: grafana_team_id.to_string(),
+                grafana_id: grafana_team_id,
                 team_name: request.team_name.clone(),
                 team_admin_id: user_id.clone(),
                 subscription: None,

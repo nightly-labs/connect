@@ -122,6 +122,25 @@ pub async fn verify_code(
                 ));
             }
         }
+        Some(SessionCache::DeleteAccount(mut session)) => {
+            // Check if code is correct and not expired
+            if check_verification_code(
+                &session.verification_code,
+                &request.code,
+                session.created_at,
+            ) {
+                // Generate authentication code
+                let (auth_code, encrypted_auth_code) = generate_authentication_code();
+                session.authentication_code = Some(encrypted_auth_code);
+
+                (auth_code, SessionCache::DeleteAccount(session))
+            } else {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    CloudApiErrors::InvalidOrExpiredVerificationCode.to_string(),
+                ));
+            }
+        }
         _ => {
             return Err((
                 StatusCode::BAD_REQUEST,

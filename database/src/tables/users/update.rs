@@ -2,7 +2,7 @@ use super::table_struct::{USERS_KEYS, USERS_TABLE_NAME};
 use crate::db::Db;
 use crate::structs::db_error::DbError;
 use crate::tables::utils::get_current_datetime;
-use sqlx::query;
+use sqlx::{query, Transaction};
 use webauthn_rs::prelude::Passkey;
 
 impl Db {
@@ -13,8 +13,9 @@ impl Db {
         password_hash: Option<&String>,
         passkey: Option<&Passkey>,
     ) -> Result<(), DbError> {
-        let query_body =
-            format!("INSERT INTO {USERS_TABLE_NAME} ({USERS_KEYS}) VALUES ($1, $2, $3, $4, $5)");
+        let query_body = format!(
+            "INSERT INTO {USERS_TABLE_NAME} ({USERS_KEYS}) VALUES ($1, $2, $3, $4, $5, NULL)"
+        );
 
         let passkey = match passkey {
             Some(passkey) => {
@@ -51,7 +52,7 @@ impl Db {
         new_password: &String,
     ) -> Result<(), DbError> {
         let query_body =
-            format!("UPDATE {USERS_TABLE_NAME} SET password_hash = $1 WHERE email = $2");
+            format!("UPDATE {USERS_TABLE_NAME} SET password_hash = $1 WHERE email = $2 AND deactivated_at IS NULL");
 
         let query_result = query(&query_body)
             .bind(new_password)
@@ -74,12 +75,33 @@ impl Db {
             DbError::DatabaseError(format!("Failed to serialize passkey: {}", e.to_string()))
         })?;
 
-        let query_body = format!("UPDATE {USERS_TABLE_NAME} SET passkeys = $1 WHERE email = $2");
+        let query_body = format!("UPDATE {USERS_TABLE_NAME} SET passkeys = $1 WHERE email = $2 AND deactivated_at IS NULL");
 
         let query_result = query(&query_body)
             .bind(&serialized_passkey)
             .bind(user_email)
             .execute(&self.connection_pool)
+            .await;
+
+        match query_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e).map_err(|e| e.into()),
+        }
+    }
+
+    pub async fn deactivate_user(
+        &self,
+        user_id: &String,
+        tx: &mut Transaction<'_, sqlx::Postgres>,
+    ) -> Result<(), DbError> {
+        let query_body = format!(
+            "UPDATE {USERS_TABLE_NAME} SET deactivated_at = $1 WHERE user_id = $2 AND deactivated_at IS NULL"
+        );
+
+        let query_result = query(&query_body)
+            .bind(&get_current_datetime())
+            .bind(user_id)
+            .execute(&mut **tx)
             .await;
 
         match query_result {
@@ -115,6 +137,7 @@ mod tests {
             user_id: "test_user_id".to_string(),
             passkeys: None,
             creation_timestamp: to_microsecond_precision(&Utc::now()),
+            deactivated_at: None,
         };
 
         db.add_new_user(&user.user_id, &user.email, Some(&password), None)

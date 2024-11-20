@@ -9,6 +9,8 @@ import {
   HttpChangeUsersPrivilegesRequest,
   HttpChangeUsersPrivilegesResponse,
   HttpCloudEndpoint,
+  HttpDeleteAccountFinishRequest,
+  HttpDeleteAccountStartRequest,
   HttpDeleteAppRequest,
   HttpDeleteTeamRequest,
   HttpGetAppEventsRequest,
@@ -237,6 +239,16 @@ export class NightlyCloud {
     )) as HttpVerifyCodeResponse
 
     return response
+  }
+
+  ///////////////////////////////////////////////////// Delete account
+
+  deleteAccountStart = async (request: HttpDeleteAccountStartRequest): Promise<void> => {
+    await this.sendPostJson('/delete_account_start', EndpointType.Private, request)
+  }
+
+  deleteAccountFinish = async (request: HttpDeleteAccountFinishRequest): Promise<void> => {
+    await this.sendPostJson('/delete_account_finish', EndpointType.Private, request)
   }
 
   ///////////////////////////////////////////////////// Login

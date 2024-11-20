@@ -112,11 +112,21 @@ pub async fn register_new_app(
             // Grafana, add new app
             // TODO, fix this by fixing methods for setting up grafana datasource
             if is_env_production() {
+                let team_grafana_id = match team.grafana_id {
+                    Some(grafana_id) => grafana_id,
+                    None => {
+                        return Err((
+                            StatusCode::INTERNAL_SERVER_ERROR,
+                            CloudApiErrors::TeamWithoutGrafanaId.to_string(),
+                        ));
+                    }
+                };
+
                 if let Err(err) = handle_grafana_create_new_app(
                     &grafana_conf,
                     &request.app_name,
                     &app_id,
-                    &team.grafana_id,
+                    &team_grafana_id,
                 )
                 .await
                 {

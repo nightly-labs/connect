@@ -8,7 +8,9 @@ use sqlx::query_as;
 
 impl Db {
     pub async fn get_user_by_user_id(&self, user_id: &String) -> Result<Option<User>, DbError> {
-        let query = format!("SELECT * FROM {USERS_TABLE_NAME} WHERE user_id = $1");
+        let query = format!(
+            "SELECT * FROM {USERS_TABLE_NAME} WHERE user_id = $1 AND deactivated_at IS NULL"
+        );
         let typed_query = query_as::<_, User>(&query);
 
         return typed_query
@@ -19,7 +21,8 @@ impl Db {
     }
 
     pub async fn get_user_by_email(&self, email: &String) -> Result<Option<User>, DbError> {
-        let query = format!("SELECT * FROM {USERS_TABLE_NAME} WHERE email = $1");
+        let query =
+            format!("SELECT * FROM {USERS_TABLE_NAME} WHERE email = $1 AND deactivated_at IS NULL");
         let typed_query = query_as::<_, User>(&query);
 
         return typed_query
@@ -34,7 +37,7 @@ impl Db {
         emails: &Vec<String>,
     ) -> Result<HashMap<String, String>, DbError> {
         // User email to user id
-        let query = format!("SELECT user_id, email FROM {USERS_TABLE_NAME} WHERE email = ANY($1)");
+        let query = format!("SELECT user_id, email FROM {USERS_TABLE_NAME} WHERE email = ANY($1) AND deactivated_at IS NULL");
         let typed_query = query_as::<_, UserIdEmail>(&query);
 
         let data_vec = typed_query
@@ -52,7 +55,7 @@ impl Db {
     ) -> Result<HashMap<String, String>, DbError> {
         // User id to user email
         let query =
-            format!("SELECT user_id, email FROM {USERS_TABLE_NAME} WHERE user_id = ANY($1)");
+            format!("SELECT user_id, email FROM {USERS_TABLE_NAME} WHERE user_id = ANY($1) AND deactivated_at IS NULL");
         let typed_query = query_as::<_, UserIdEmail>(&query);
 
         let data_vec = typed_query

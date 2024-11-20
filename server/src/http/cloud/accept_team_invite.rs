@@ -100,9 +100,8 @@ pub async fn accept_team_invite(
             ));
         }
     }
-
-    let grafana_team_id = match db.get_team_by_team_id(None, &request.team_id).await {
-        Ok(Some(team)) => team.grafana_id,
+    let team = match db.get_team_by_team_id(None, &request.team_id).await {
+        Ok(Some(team)) => team,
         Ok(None) => {
             return Err((
                 StatusCode::BAD_REQUEST,
@@ -117,8 +116,19 @@ pub async fn accept_team_invite(
             ));
         }
     };
+
     // Grafana add user to the team
     if is_env_production() {
+        let grafana_team_id = match team.grafana_id {
+            Some(grafana_id) => grafana_id,
+            None => {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    CloudApiErrors::TeamWithoutGrafanaId.to_string(),
+                ));
+            }
+        };
+
         if let Err(err) =
             handle_grafana_add_user_to_team(&grafana_conf, &grafana_team_id, &user.email).await
         {

@@ -3,7 +3,8 @@ CREATE TABLE users(
     email TEXT NOT NULL UNIQUE,
     password_hash TEXT,
     passkeys TEXT,
-    creation_timestamp TIMESTAMPTZ NOT NULL
+    creation_timestamp TIMESTAMPTZ NOT NULL,
+    deactivated_at TIMESTAMPTZ
 );
 
 CREATE INDEX users_name_idx ON users(user_id);
