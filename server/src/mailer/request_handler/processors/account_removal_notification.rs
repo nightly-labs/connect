@@ -17,6 +17,7 @@ pub fn send_account_removal_notification(
 ) -> SendEmailResponse {
     let html = match templates.get(&Templates::AccountRemovalNotification) {
         Some(template) => template
+            .replace("EMAIL_CONFIRMATION_CODE", &request.code)
             .replace("EMAIL_ACTION_DEVICE", &request.device)
             .replace("EMAIL_ACTION_BROWSER", &request.browser)
             .replace("EMAIL_ACTION_DATE", &date)
@@ -24,7 +25,7 @@ pub fn send_account_removal_notification(
         None => {
             // Only possible if someone messes with the templates, print error and go along
             error!(
-                "MAILER: Could not find account removal notification template under: {:?}",
+                "MAILER: Could not find account removal template under: {:?}",
                 Templates::AccountRemovalNotification
             );
             return SendEmailResponse {
