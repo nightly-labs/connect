@@ -170,7 +170,7 @@ mod tests {
         // Create team and register app
         let team = Team {
             team_id: "test_team_id".to_string(),
-            grafana_id: Some("test_grafana_id").to_string(),
+            grafana_id: Some("test_grafana_id".to_string()),
             team_name: "test_team_name".to_string(),
             personal: false,
             subscription: None,
