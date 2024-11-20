@@ -7,6 +7,7 @@ pub enum SendEmailRequest {
     TeamInvite(TeamInviteNotification),
     TeamRemoval(TeamRemovalNotification),
     LeaveTeam(TeamLeavingNotification),
+    DeleteAccount(DeleteAccountNotification),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -48,6 +49,14 @@ pub struct TeamRemovalNotification {
 pub struct TeamLeavingNotification {
     pub email: String,
     pub team_name: String,
+    pub device: String,
+    pub browser: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct DeleteAccountNotification {
+    pub email: String,
+    pub code: String,
     pub device: String,
     pub browser: String,
 }

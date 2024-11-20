@@ -1,6 +1,6 @@
 use crate::{
     mailer::{
-        mail_requests::{EmailConfirmationRequest, SendEmailRequest},
+        mail_requests::{DeleteAccountNotification, SendEmailRequest},
         mailer::Mailer,
     },
     middlewares::auth_middleware::UserId,
@@ -83,7 +83,7 @@ pub async fn delete_account_start(
 
     if !is_test_env() {
         // Send code via email
-        let request = SendEmailRequest::EmailConfirmation(EmailConfirmationRequest {
+        let request = SendEmailRequest::DeleteAccount(DeleteAccountNotification {
             email: user_data.email,
             code: verification_code,
             device: request.device.clone(),

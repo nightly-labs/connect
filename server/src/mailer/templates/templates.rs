@@ -14,6 +14,7 @@ pub enum Templates {
     TeamInviteNotification,
     TeamRemovalNotification,
     TeamLeavingNotification,
+    AccountRemovalNotification,
 }
 
 pub fn get_templates() -> HashMap<Templates, String> {
@@ -37,6 +38,10 @@ pub fn get_templates() -> HashMap<Templates, String> {
     );
     templates.insert(
         Templates::TeamLeavingNotification,
+        TEAM_LEAVING_NOTIFICATION_TEMPLATE.to_string(),
+    );
+    templates.insert(
+        Templates::AccountRemovalNotification,
         TEAM_LEAVING_NOTIFICATION_TEMPLATE.to_string(),
     );
 

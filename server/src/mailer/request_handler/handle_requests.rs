@@ -3,10 +3,7 @@ use database::tables::utils::get_current_datetime;
 use log::error;
 
 use super::processors::{
-    email_confirmation::send_email_confirmation, reset_password::send_password_reset,
-    team_invite_notification::send_team_invite_notification,
-    team_leaving_notification::send_team_leaving_notification,
-    team_removal_notification::send_team_removal_notification,
+    account_removal_notification::send_account_removal_notification, email_confirmation::send_email_confirmation, reset_password::send_password_reset, team_invite_notification::send_team_invite_notification, team_leaving_notification::send_team_leaving_notification, team_removal_notification::send_team_removal_notification
 };
 use crate::{
     env::MAILER_ACTIVE,
@@ -103,6 +100,21 @@ impl Mailer {
                 SendEmailRequest::LeaveTeam(request) => {
                     let date = get_date();
                     if let Some(err) = send_team_leaving_notification(
+                        &templates,
+                        mailbox.clone(),
+                        &mail_sender,
+                        &request,
+                        date.0,
+                        date.1,
+                    )
+                    .error_message
+                    {
+                        error!("Failed to send email: {:?}, request: {:?}", err, request);
+                    }
+                }
+                SendEmailRequest::DeleteAccount(request) => {
+                    let date = get_date();
+                    if let Some(err) = send_account_removal_notification(
                         &templates,
                         mailbox.clone(),
                         &mail_sender,
