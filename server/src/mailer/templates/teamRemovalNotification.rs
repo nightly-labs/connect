@@ -3,7 +3,7 @@ pub static TEAM_REMOVAL_NOTIFICATION_TEMPLATE: &str = r##"<!DOCTYPE html>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Verification code</title>
+    <title>Team throw out</title>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap");
       @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap");
@@ -70,7 +70,7 @@ pub static TEAM_REMOVAL_NOTIFICATION_TEMPLATE: &str = r##"<!DOCTYPE html>
               line-height: 44px;
             "
           >
-            Verification code
+            Say bye to the team!
           </h1>
           <p
             style="
@@ -82,56 +82,9 @@ pub static TEAM_REMOVAL_NOTIFICATION_TEMPLATE: &str = r##"<!DOCTYPE html>
               color: #2b344d;
             "
           >
-            Your verification code:
-          </p>
-          <h1
-            style="
-              font-family: 'Poppins', sans-serif;
-              font-size: 36px;
-              font-weight: 700;
-              margin-top: 32px;
-              color: #040407;
-              line-height: 44px;
-            "
-          >
-            EMAIL_CONFIRMATION_CODE
-          </h1>
-          <p
-            style="
-              font-family: 'Poppins', sans-serif;
-              font-size: 16px;
-              font-weight: 400;
-              line-height: 22px;
-              margin-top: 32px;
-              color: #2b344d;
-            "
-          >
-            This code will expire in 15 minutes.
-          </p>
-          <p
-            style="
-              font-family: 'Poppins', sans-serif;
-              font-size: 16px;
-              font-weight: 400;
-              line-height: 22px;
-              margin-top: 32px;
-              color: #2b344d;
-            "
-          >
-            Action details: EMAIL_ACTION_DEVICE, EMAIL_ACTION_BROWSER, EMAIL_ACTION_DATE, EMAIL_ACTION_TIME.
-          </p>
-          <p
-            style="
-              font-family: 'Poppins', sans-serif;
-              font-size: 12px;
-              font-weight: 400;
-              margin-top: 32px;
-              line-height: 16px;
-              color: #d25858;
-            "
-          >
-            If it was not you, please contact our support team as soon as
-            possible!
+            You got kicked out from the team EMAIL_TEAM_NAME! If you are not sure of
+            this action, we kindly ask you to talk it out with Team’s Admin
+            EMAIL_ADMIN_ADDRESS.
           </p>
 
           <h3
@@ -144,9 +97,10 @@ pub static TEAM_REMOVAL_NOTIFICATION_TEMPLATE: &str = r##"<!DOCTYPE html>
               color: #2b344d;
             "
           >
-            Best regards,
+            <span style="font-weight: 400">We wish to see you again,</span>
             <br />Nightly's Team
           </h3>
+
           <div>
             <h4
               style="
