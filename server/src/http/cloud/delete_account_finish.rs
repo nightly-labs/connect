@@ -91,7 +91,6 @@ pub async fn delete_account_finish(
     })?;
 
     // Grafana, delete teams, apps and user
-    // TODO, fix this by fixing methods for setting up grafana datasource
     if is_env_production() {
         let mut owned_team_grafana_ids = Vec::new();
         let mut non_owned_team_grafana_ids = Vec::new();
