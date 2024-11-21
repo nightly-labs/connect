@@ -55,4 +55,5 @@ pub enum CloudApiErrors {
     AdminCannotLeaveTeam,
     GrafanaError,
     TeamWithoutGrafanaId,
+    UserDoesNotExistInGrafana,
 }
