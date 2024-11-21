@@ -133,7 +133,7 @@ pub async fn delete_account_finish(
         )
         .await
         {
-            error!("Failed to delete team from grafana: {:?}", err);
+            error!("Failed to delete account in grafana: {:?}", err);
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 CloudApiErrors::GrafanaError.to_string(),
