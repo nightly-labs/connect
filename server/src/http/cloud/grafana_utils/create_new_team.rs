@@ -5,13 +5,16 @@ use axum::http::StatusCode;
 use log::warn;
 use openapi::{
     apis::{
-        admin_users_api::admin_create_user, configuration::Configuration,
-        folder_permissions_api::update_folder_permissions, folders_api::create_folder,
-        teams_api::create_team, users_api::get_user_by_login_or_email,
+        admin_users_api::admin_create_user,
+        configuration::Configuration,
+        folder_permissions_api::update_folder_permissions,
+        folders_api::create_folder,
+        teams_api::{add_team_member, create_team},
+        users_api::get_user_by_login_or_email,
     },
     models::{
-        AdminCreateUserForm, CreateFolderCommand, CreateTeamCommand, DashboardAclUpdateItem,
-        UpdateDashboardAclCommand,
+        AddTeamMemberCommand, AdminCreateUserForm, CreateFolderCommand, CreateTeamCommand,
+        DashboardAclUpdateItem, UpdateDashboardAclCommand,
     },
 };
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
@@ -23,35 +26,55 @@ pub async fn handle_grafana_create_new_team(
     team_name: &String,
 ) -> Result<i64, (StatusCode, String)> {
     let grafana_team_name = format!("[{}][{}]", team_name, admin_email);
-
     // Check if user exists, if not create a new user
-    if let Err(_) = get_user_by_login_or_email(&grafana_conf, admin_email).await {
-        // Create user with the same email as the user, password can be anything, it won't be used
-        let random_password: String = thread_rng()
-            .sample_iter(&Alphanumeric)
-            .take(30)
-            .map(char::from)
-            .collect();
-
-        let request = AdminCreateUserForm {
-            password: Some(random_password),
-            email: Some(admin_email.to_lowercase().clone()),
-            login: None,
-            name: None,
-            org_id: None,
-        };
-
-        match admin_create_user(&grafana_conf, request).await {
-            Ok(_) => (),
-            Err(err) => {
-                warn!("Failed to create user: {:?}", err);
+    let admin_id = match get_user_by_login_or_email(&grafana_conf, admin_email).await {
+        Ok(user) => match user.id {
+            Some(id) => id,
+            None => {
+                warn!("Failed to get user from grafana: {:?}", user);
                 return Err((
                     StatusCode::INTERNAL_SERVER_ERROR,
                     CloudApiErrors::InternalServerError.to_string(),
                 ));
             }
+        },
+        Err(_) => {
+            // Create user with the same email as the user, password can be anything, it won't be used
+            let random_password: String = thread_rng()
+                .sample_iter(&Alphanumeric)
+                .take(30)
+                .map(char::from)
+                .collect();
+
+            let request = AdminCreateUserForm {
+                password: Some(random_password),
+                email: Some(admin_email.to_lowercase().clone()),
+                login: None,
+                name: None,
+                org_id: None,
+            };
+
+            match admin_create_user(&grafana_conf, request).await {
+                Ok(create_user_response) => match create_user_response.id {
+                    Some(id) => id,
+                    None => {
+                        warn!("Failed to create user: {:?}", create_user_response);
+                        return Err((
+                            StatusCode::INTERNAL_SERVER_ERROR,
+                            CloudApiErrors::InternalServerError.to_string(),
+                        ));
+                    }
+                },
+                Err(err) => {
+                    warn!("Failed to create user: {:?}", err);
+                    return Err((
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        CloudApiErrors::InternalServerError.to_string(),
+                    ));
+                }
+            }
         }
-    }
+    };
 
     // create new team
     let team_request = CreateTeamCommand {
@@ -112,6 +135,21 @@ pub async fn handle_grafana_create_new_team(
     if let Err(err) =
         update_folder_permissions(&grafana_conf, &folder_uid, update_permissions_request).await
     {
+        return Err(handle_grafana_error(err));
+    }
+
+    // Add user to the team
+    let request = AddTeamMemberCommand {
+        user_id: Some(admin_id),
+    };
+
+    if let Err(err) =
+        add_team_member(&grafana_conf, grafana_team_id.to_string().as_str(), request).await
+    {
+        warn!(
+            "Failed to add user [{:?}] to team [{:?}], error: {:?}",
+            admin_email, grafana_team_id, err
+        );
         return Err(handle_grafana_error(err));
     }
 

@@ -115,8 +115,8 @@ pub async fn delete_account_finish(
     };
 
     for (team, _, _, registered_apps) in teams {
-        if team.clone().team_admin_id == user_id {
-            if let Some(grafana_id) = team.clone().grafana_id {
+        if team.team_admin_id == user_id {
+            if let Some(grafana_id) = team.grafana_id {
                 owned_team_grafana_ids.push(grafana_id);
             }
             for (app, _) in registered_apps {
