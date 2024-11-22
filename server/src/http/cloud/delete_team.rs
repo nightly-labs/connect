@@ -109,12 +109,15 @@ pub async fn delete_team(
 
     // Delete team apps, privileges and domain verifications
     for app in registered_apps.iter() {
-        if let Err(err) = db.deactivate_app(&mut tx, &app.app_id).await {
+        if let Err(err) = db
+            .delete_domain_verification_for_inactive_app(&mut tx, &app.app_id)
+            .await
+        {
             let _ = tx
                 .rollback()
                 .await
                 .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
-            error!("Failed to deactivate app: {:?}", err);
+            error!("Failed to create app: {:?}", err);
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 CloudApiErrors::DatabaseError.to_string(),
@@ -134,15 +137,12 @@ pub async fn delete_team(
                 CloudApiErrors::DatabaseError.to_string(),
             ));
         }
-        if let Err(err) = db
-            .delete_domain_verification_for_inactive_app(&mut tx, &app.app_id)
-            .await
-        {
+        if let Err(err) = db.deactivate_app(&mut tx, &app.app_id).await {
             let _ = tx
                 .rollback()
                 .await
                 .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
-            error!("Failed to create app: {:?}", err);
+            error!("Failed to deactivate app: {:?}", err);
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 CloudApiErrors::DatabaseError.to_string(),

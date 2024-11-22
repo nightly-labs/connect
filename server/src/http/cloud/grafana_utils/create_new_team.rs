@@ -5,13 +5,16 @@ use axum::http::StatusCode;
 use log::warn;
 use openapi::{
     apis::{
-        configuration::Configuration, folder_permissions_api::update_folder_permissions,
-        folders_api::create_folder, teams_api::create_team,
+        admin_users_api::admin_create_user, configuration::Configuration,
+        folder_permissions_api::update_folder_permissions, folders_api::create_folder,
+        teams_api::create_team, users_api::get_user_by_login_or_email,
     },
     models::{
-        CreateFolderCommand, CreateTeamCommand, DashboardAclUpdateItem, UpdateDashboardAclCommand,
+        AdminCreateUserForm, CreateFolderCommand, CreateTeamCommand, DashboardAclUpdateItem,
+        UpdateDashboardAclCommand,
     },
 };
+use rand::{distributions::Alphanumeric, thread_rng, Rng};
 use std::sync::Arc;
 
 pub async fn handle_grafana_create_new_team(
@@ -20,6 +23,35 @@ pub async fn handle_grafana_create_new_team(
     team_name: &String,
 ) -> Result<i64, (StatusCode, String)> {
     let grafana_team_name = format!("[{}][{}]", team_name, admin_email);
+
+    // Check if user exists, if not create a new user
+    if let Err(_) = get_user_by_login_or_email(&grafana_conf, admin_email).await {
+        // Create user with the same email as the user, password can be anything, it won't be used
+        let random_password: String = thread_rng()
+            .sample_iter(&Alphanumeric)
+            .take(30)
+            .map(char::from)
+            .collect();
+
+        let request = AdminCreateUserForm {
+            password: Some(random_password),
+            email: Some(admin_email.to_lowercase().clone()),
+            login: None,
+            name: None,
+            org_id: None,
+        };
+
+        match admin_create_user(&grafana_conf, request).await {
+            Ok(_) => (),
+            Err(err) => {
+                warn!("Failed to create user: {:?}", err);
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    CloudApiErrors::InternalServerError.to_string(),
+                ));
+            }
+        }
+    }
 
     // create new team
     let team_request = CreateTeamCommand {

@@ -90,41 +90,48 @@ pub async fn delete_account_finish(
         )
     })?;
 
-    // Grafana, delete teams, apps and user
-    if is_env_production() {
-        let mut owned_team_grafana_ids = Vec::new();
-        let mut non_owned_team_grafana_ids = Vec::new();
+    let mut owned_team_grafana_ids = Vec::new();
+    let mut non_owned_team_grafana_ids = Vec::new();
+    let mut app_ids: Vec<String> = Vec::new();
 
-        let teams = match db
-            .get_joined_teams_by_user_id(&user_id)
-            .await
-            .map_err(|err| {
-                error!("Failed to get user teams: {:?}", err);
-                (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    CloudApiErrors::DatabaseError.to_string(),
-                )
-            }) {
-            Ok(joined_teams) => joined_teams,
-            Err(err) => {
-                error!("Failed to get user teams: {:?}", err);
-                return Err((
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    CloudApiErrors::DatabaseError.to_string(),
-                ));
+    let teams = match db
+        .get_joined_teams_by_user_id(&user_id)
+        .await
+        .map_err(|err| {
+            error!("Failed to get user teams: {:?}", err);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::DatabaseError.to_string(),
+            )
+        }) {
+        Ok(joined_teams) => joined_teams,
+        Err(err) => {
+            error!("Failed to get user teams: {:?}", err);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::DatabaseError.to_string(),
+            ));
+        }
+    };
+
+    for (team, _, _, registered_apps) in teams {
+        if team.clone().team_admin_id == user_id {
+            if let Some(grafana_id) = team.clone().grafana_id {
+                owned_team_grafana_ids.push(grafana_id);
             }
-        };
-
-        for (team, _, _, _) in teams {
-            if let Some(grafana_id) = team.grafana_id {
-                if team.team_admin_id == user_id {
-                    owned_team_grafana_ids.push(grafana_id);
-                } else {
-                    non_owned_team_grafana_ids.push(grafana_id);
+            for (app, _) in registered_apps {
+                if app.team_id == team.team_id {
+                    app_ids.push(app.app_id.clone());
                 }
             }
+        } else {
+            if let Some(grafana_id) = team.clone().grafana_id {
+                non_owned_team_grafana_ids.push(grafana_id)
+            }
         }
-
+    }
+    // Grafana, delete teams, apps and user
+    if is_env_production() {
         if let Err(err) = handle_grafana_delete_user_account(
             &grafana_conf,
             &owned_team_grafana_ids,
@@ -147,6 +154,18 @@ pub async fn delete_account_finish(
         .await
     {
         error!("Failed to delete team invites: {:?}", err);
+        return Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            CloudApiErrors::DatabaseError.to_string(),
+        ));
+    }
+
+    // Delete all verified domains
+    if let Err(err) = db
+        .delete_domain_verifications_for_inactive_apps(&mut tx, &app_ids)
+        .await
+    {
+        error!("Failed to delete domains: {:?}", err);
         return Err((
             StatusCode::INTERNAL_SERVER_ERROR,
             CloudApiErrors::DatabaseError.to_string(),

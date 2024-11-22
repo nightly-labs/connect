@@ -4,6 +4,7 @@ use crate::structs::cloud::{
 use axum::http::StatusCode;
 use log::warn;
 use openapi::apis::{
+    admin_users_api::admin_delete_user,
     configuration::Configuration,
     folders_api::delete_folder,
     teams_api::{delete_team_by_id, get_team_by_id, remove_team_member},
@@ -101,6 +102,14 @@ pub async fn handle_grafana_delete_user_account(
                 );
                 return Err(handle_grafana_error(err));
             }
+        }
+    }
+
+    match admin_delete_user(&grafana_conf, user_id).await {
+        Ok(_) => (),
+        Err(err) => {
+            warn!("Failed to delete user: {:?}", err);
+            return Err(handle_grafana_error(err));
         }
     }
 
