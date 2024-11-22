@@ -1,4 +1,5 @@
 use crate::{
+    env::is_env_production,
     http::cloud::utils::{check_auth_code, validate_request},
     middlewares::auth_middleware::UserId,
     structs::{
@@ -10,9 +11,12 @@ use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::db::Db;
 use garde::Validate;
 use log::error;
+use openapi::apis::configuration::Configuration;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use ts_rs::TS;
+
+use super::grafana_utils::delete_user_account::handle_grafana_delete_user_account;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS, Validate)]
 #[ts(export)]
@@ -25,6 +29,7 @@ pub struct HttpDeleteAccountFinishRequest {
 pub async fn delete_account_finish(
     State(db): State<Arc<Db>>,
     State(sessions_cache): State<Arc<ApiSessionsCache>>,
+    State(grafana_conf): State<Arc<Configuration>>,
     Extension(user_id): Extension<UserId>,
     Json(request): Json<HttpDeleteAccountFinishRequest>,
 ) -> Result<Json<()>, (StatusCode, String)> {
@@ -84,11 +89,69 @@ pub async fn delete_account_finish(
             CloudApiErrors::DatabaseError.to_string(),
         )
     })?;
-    
+
+    let mut owned_team_grafana_ids = Vec::new();
+    let mut non_owned_team_grafana_ids = Vec::new();
+    let mut app_ids: Vec<String> = Vec::new();
+
+    let teams = match db
+        .get_joined_teams_by_user_id(&user_id)
+        .await
+        .map_err(|err| {
+            error!("Failed to get user teams: {:?}", err);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::DatabaseError.to_string(),
+            )
+        }) {
+        Ok(joined_teams) => joined_teams,
+        Err(err) => {
+            error!("Failed to get user teams: {:?}", err);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::DatabaseError.to_string(),
+            ));
+        }
+    };
+
+    for (team, _, _, registered_apps) in teams {
+        if team.team_admin_id == user_id {
+            if let Some(grafana_id) = team.grafana_id {
+                owned_team_grafana_ids.push(grafana_id);
+            }
+            for (app, _) in registered_apps {
+                if app.team_id == team.team_id {
+                    app_ids.push(app.app_id.clone());
+                }
+            }
+        } else {
+            if let Some(grafana_id) = team.clone().grafana_id {
+                non_owned_team_grafana_ids.push(grafana_id)
+            }
+        }
+    }
+    // Grafana, delete teams, apps and user
+    if is_env_production() {
+        if let Err(err) = handle_grafana_delete_user_account(
+            &grafana_conf,
+            &owned_team_grafana_ids,
+            &non_owned_team_grafana_ids,
+            &user.email,
+        )
+        .await
+        {
+            error!("Failed to delete account in grafana: {:?}", err);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::GrafanaError.to_string(),
+            ));
+        };
+    }
+
     // Delete all invites connected to user
     if let Err(err) = db
-    .cancel_all_team_invites_containing_email(&mut tx, &user.email, &user_id)
-    .await
+        .cancel_all_team_invites_containing_email(&mut tx, &user.email, &user_id)
+        .await
     {
         error!("Failed to delete team invites: {:?}", err);
         return Err((
@@ -96,7 +159,19 @@ pub async fn delete_account_finish(
             CloudApiErrors::DatabaseError.to_string(),
         ));
     }
-    
+
+    // Delete all verified domains
+    if let Err(err) = db
+        .delete_domain_verifications_for_inactive_apps(&mut tx, &app_ids)
+        .await
+    {
+        error!("Failed to delete domains: {:?}", err);
+        return Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            CloudApiErrors::DatabaseError.to_string(),
+        ));
+    }
+
     // Delete all user apps
     if let Err(err) = db.deactivate_user_apps(&mut tx, &user_id).await {
         error!("Failed to delete user apps: {:?}", err);
@@ -105,7 +180,7 @@ pub async fn delete_account_finish(
             CloudApiErrors::DatabaseError.to_string(),
         ));
     }
-    
+
     // Leave all teams
     if let Err(err) = db.remove_inactive_user_from_teams(&mut tx, &user_id).await {
         error!("Failed to leave teams: {:?}", err);
@@ -117,9 +192,9 @@ pub async fn delete_account_finish(
 
     // delete privileges
     if let Err(err) = db
-    .remove_privileges_for_inactive_teams(&mut tx, &user_id)
+        .remove_privileges_for_inactive_teams(&mut tx, &user_id)
         .await
-        {
+    {
         error!("Failed to leave teams: {:?}", err);
         return Err((
             StatusCode::INTERNAL_SERVER_ERROR,
@@ -135,7 +210,7 @@ pub async fn delete_account_finish(
             CloudApiErrors::DatabaseError.to_string(),
         ));
     }
-    
+
     // Deactivate the user
     if let Err(err) = db.deactivate_user(&user_id, &mut tx).await {
         error!("Failed to delete user: {:?}", err);
@@ -144,7 +219,7 @@ pub async fn delete_account_finish(
             CloudApiErrors::DatabaseError.to_string(),
         ));
     }
-    
+
     // Commit transaction
     tx.commit().await.map_err(|err| {
         error!("Failed to commit transaction: {:?}", err);

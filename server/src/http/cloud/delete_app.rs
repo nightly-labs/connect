@@ -72,17 +72,6 @@ pub async fn delete_app(
             // Start a transaction
             let mut tx = db.connection_pool.begin().await.unwrap();
 
-            if let Err(err) = db.deactivate_app(&mut tx, &request.app_id).await {
-                let _ = tx
-                    .rollback()
-                    .await
-                    .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
-                error!("Failed to deactivate app: {:?}", err);
-                return Err((
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    CloudApiErrors::DatabaseError.to_string(),
-                ));
-            }
             if let Err(err) = db
                 .remove_privileges_for_inactive_app_within_tx(&mut tx, &request.app_id)
                 .await
@@ -106,6 +95,17 @@ pub async fn delete_app(
                     .await
                     .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
                 error!("Failed to delete app: {:?}", err);
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    CloudApiErrors::DatabaseError.to_string(),
+                ));
+            }
+            if let Err(err) = db.deactivate_app(&mut tx, &request.app_id).await {
+                let _ = tx
+                    .rollback()
+                    .await
+                    .map_err(|err| error!("Failed to rollback transaction: {:?}", err));
+                error!("Failed to deactivate app: {:?}", err);
                 return Err((
                     StatusCode::INTERNAL_SERVER_ERROR,
                     CloudApiErrors::DatabaseError.to_string(),

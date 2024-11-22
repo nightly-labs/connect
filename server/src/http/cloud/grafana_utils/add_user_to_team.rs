@@ -5,14 +5,12 @@ use axum::http::StatusCode;
 use log::{error, warn};
 use openapi::{
     apis::{
-        admin_users_api::admin_create_user,
         configuration::Configuration,
         teams_api::add_team_member,
         users_api::{get_user_by_login_or_email, get_user_teams},
     },
-    models::{AddTeamMemberCommand, AdminCreateUserForm},
+    models::AddTeamMemberCommand,
 };
-use rand::{distributions::Alphanumeric, thread_rng, Rng};
 use std::sync::Arc;
 
 pub async fn handle_grafana_add_user_to_team(
@@ -23,32 +21,12 @@ pub async fn handle_grafana_add_user_to_team(
     // Check if user exists, if not create a new user
     let user_id = match get_user_by_login_or_email(&grafana_conf, user_email).await {
         Ok(user) => user.id,
-        Err(_) => {
-            // Create user with the same email as the user, password can be anything, it won't be used
-            let random_password: String = thread_rng()
-                .sample_iter(&Alphanumeric)
-                .take(30)
-                .map(char::from)
-                .collect();
-
-            let request = AdminCreateUserForm {
-                password: Some(random_password),
-                email: Some(user_email.to_lowercase().clone()),
-                login: None,
-                name: None,
-                org_id: None,
-            };
-
-            match admin_create_user(&grafana_conf, request).await {
-                Ok(user) => user.id,
-                Err(err) => {
-                    warn!("Failed to create user: {:?}", err);
-                    return Err((
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        CloudApiErrors::InternalServerError.to_string(),
-                    ));
-                }
-            }
+        Err(err) => {
+            warn!("Failed to get user from grafana: {:?}", err);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::InternalServerError.to_string(),
+            ));
         }
     };
 
