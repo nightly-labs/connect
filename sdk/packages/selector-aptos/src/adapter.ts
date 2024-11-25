@@ -422,7 +422,7 @@ export class NightlyConnectAptosAdapter extends EventEmitter<AptosAdapterEvents>
                   this._connected = true
                   this._connecting = false
                   this._connectionType = ConnectionType.Nightly
-                  // we only run it to reassign deeplinks on eager connect (not on qr connection)
+                  // we only run it to reassign deeplinks on eager connect mobile browser (not on qr connection)
                   if (isMobileBrowser()) {
                     const wallet = this.walletsList.find((w) => w.name === 'Nightly')
                     if (wallet?.mobile) {

@@ -329,7 +329,7 @@ export class NightlyConnectSuiAdapter extends EventEmitter<SuiAdapterEvents> {
                   this.connecting = false
                   this._connectionType = ConnectionType.Nightly
                   this.setSelectedWallet({ isRemote: true })
-                  // we only run it to reassign deeplinks on eager connect (not on qr connection)
+                  // we only run it to reassign deeplinks on eager connect mobile browser (not on qr connection)
                   if (isMobileBrowser()) {
                     const wallet = this.walletsList.find((w) => w.name === 'Nightly')
                     if (wallet?.mobile) {
