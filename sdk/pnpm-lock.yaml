@@ -58,19 +58,19 @@ importers:
         specifier: 0.1.0
         version: link:../../packages/sui
       '@nightlylabs/wallet-selector-aptos':
-        specifier: ^0.1.14
+        specifier: ^0.1.15
         version: link:../../packages/selector-aptos
       '@nightlylabs/wallet-selector-base':
         specifier: ^0.4.3
         version: link:../../packages/selector-base
       '@nightlylabs/wallet-selector-polkadot':
-        specifier: 0.2.8
+        specifier: 0.2.9
         version: link:../../packages/selector-polkadot
       '@nightlylabs/wallet-selector-solana':
-        specifier: 0.3.10
+        specifier: 0.3.11
         version: link:../../packages/selector-solana
       '@nightlylabs/wallet-selector-sui':
-        specifier: 0.4.1
+        specifier: 0.4.2
         version: link:../../packages/selector-sui
       '@polkadot/api':
         specifier: ^10.10.1

@@ -566,6 +566,26 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
                   this._connecting = false
                   this._connectionType = ConnectionType.Nightly
                   this.setSelectedWallet({ isRemote: true })
+                  // we only run it to reassign deeplinks on eager connect mobile browser (not on qr connection)
+                  if (isMobileBrowser()) {
+                    const wallet = this.walletsList.find((w) => w.name === 'Nightly')
+                    if (wallet?.mobile) {
+                      // If we have a native deeplink, we should use it
+                      if (wallet.mobile?.native !== null) {
+                        this._app.connectDeeplink({
+                          walletName: wallet.name,
+                          url: wallet.mobile.native
+                        })
+                      }
+                      // If we have a universal deeplink, we should use it
+                      else if (wallet.mobile?.universal !== null) {
+                        this._app.connectDeeplink({
+                          walletName: wallet.name,
+                          url: wallet.mobile.universal
+                        })
+                      }
+                    }
+                  }
                   this.emit('connect', this._publicKey)
                   resolve()
                   return
