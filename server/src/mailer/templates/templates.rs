@@ -1,4 +1,5 @@
 use super::{
+    accountRemovalConfirmation::DELETE_ACCOUNT_EMAIL_TEMPLATE,
     emailConfirmation::EMAIL_CONFIRMATION_TEMPLATE, resetPassword::RESET_PASSWORD_TEMPLATE,
     teamInviteNotification::TEAM_INVITE_NOTIFICATION_TEMPLATE,
     teamLeavingNotification::TEAM_LEAVING_NOTIFICATION_TEMPLATE,
@@ -42,8 +43,7 @@ pub fn get_templates() -> HashMap<Templates, String> {
     );
     templates.insert(
         Templates::AccountRemovalNotification,
-        // TODO - add account removal notification template
-        EMAIL_CONFIRMATION_TEMPLATE.to_string(),
+        DELETE_ACCOUNT_EMAIL_TEMPLATE.to_string(),
     );
 
     templates

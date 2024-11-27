@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+pub mod accountRemovalConfirmation;
 pub mod emailConfirmation;
 pub mod resetPassword;
 pub mod teamInviteNotification;
