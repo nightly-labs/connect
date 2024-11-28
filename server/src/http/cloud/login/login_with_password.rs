@@ -22,7 +22,7 @@ use ts_rs::TS;
 pub struct HttpLoginRequest {
     #[garde(email)]
     pub email: String,
-    #[garde(ascii, length(min = 6, max = 30))]
+    #[garde(ascii)]
     pub password: String,
     #[garde(skip)]
     pub enforce_ip: bool,
@@ -62,7 +62,8 @@ pub async fn login_with_password(
             ));
         }
     };
-
+    println!("useeeeeeeeeeeeeeeeeeeeeeeeer");
+    println!("{:?}", user);
     // Check if user has password
     let password_hash = match user.password_hash {
         Some(password_hash) => password_hash,
