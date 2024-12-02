@@ -27,7 +27,6 @@ impl Db {
 #[cfg(feature = "cloud_integration_tests")]
 #[cfg(test)]
 mod tests {
-    use crate::tables::utils::to_microsecond_precision;
     use sqlx::types::chrono::Utc;
 
     #[tokio::test]

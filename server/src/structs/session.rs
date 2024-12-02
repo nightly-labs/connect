@@ -178,7 +178,7 @@ pub struct AppState {
     pub metadata: AppMetadata,
     pub app_socket: HashMap<Uuid, SplitSink<WebSocket, Message>>,
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ClientState {
     pub client_id: Option<ClientId>,
     pub device: Option<Device>,
