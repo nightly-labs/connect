@@ -4,6 +4,7 @@ use crate::{
     http::cloud::grafana_utils::delete_team::handle_grafana_delete_team,
     middlewares::auth_middleware::UserId,
     structs::cloud::{api_cloud_errors::CloudApiErrors, app_info::AppInfo},
+    utils::start_transaction,
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::db::Db;
@@ -32,16 +33,7 @@ pub async fn delete_team(
     validate_request(&request, &())?;
     warn!("Delete team request: {:?}", request);
     // Start a transaction
-    let mut tx = match db.connection_pool.begin().await {
-        Ok(tx) => tx,
-        Err(err) => {
-            error!("Failed to start transaction: {:?}", err);
-            return Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                CloudApiErrors::DatabaseError.to_string(),
-            ));
-        }
-    };
+    let mut tx = start_transaction(&db).await?;
 
     // First check if team exists
     let team = match db.get_team_by_team_id(None, &request.team_id).await {

@@ -306,7 +306,8 @@ mod tests {
         structs::privilege_level::PrivilegeLevel,
         tables::{
             registered_app::table_struct::DbRegisteredApp, team::table_struct::Team,
-            user_app_privileges::table_struct::UserAppPrivilege, utils::to_microsecond_precision,
+            test_utils::test_utils::to_microsecond_precision,
+            user_app_privileges::table_struct::UserAppPrivilege,
         },
     };
     use sqlx::types::chrono::Utc;

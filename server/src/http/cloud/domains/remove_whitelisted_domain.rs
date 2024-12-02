@@ -2,6 +2,7 @@ use crate::{
     http::cloud::utils::{custom_validate_domain_name, custom_validate_uuid},
     middlewares::auth_middleware::UserId,
     structs::cloud::api_cloud_errors::CloudApiErrors,
+    utils::start_transaction,
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::{db::Db, structs::privilege_level::PrivilegeLevel};
@@ -105,16 +106,7 @@ pub async fn remove_whitelisted_domain(
         ));
     }
 
-    let mut tx = match db.connection_pool.begin().await {
-        Ok(tx) => tx,
-        Err(err) => {
-            error!("Failed to start transaction: {:?}", err);
-            return Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                CloudApiErrors::DatabaseError.to_string(),
-            ));
-        }
-    };
+    let mut tx = start_transaction(&db).await?;
 
     // Remove domain from whitelisted domains
     if let Err(err) = db

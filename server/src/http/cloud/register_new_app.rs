@@ -5,7 +5,7 @@ use super::{
 use crate::{
     env::is_env_production, middlewares::auth_middleware::UserId,
     statics::REGISTERED_APPS_LIMIT_PER_TEAM, structs::cloud::api_cloud_errors::CloudApiErrors,
-    test_env::is_test_env,
+    utils::start_transaction,
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::{
@@ -140,16 +140,7 @@ pub async fn register_new_app(
 
             // Register a new app under this team
             // Start a transaction
-            let mut tx = match db.connection_pool.begin().await {
-                Ok(tx) => tx,
-                Err(err) => {
-                    error!("Failed to start transaction: {:?}", err);
-                    return Err((
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        CloudApiErrors::DatabaseError.to_string(),
-                    ));
-                }
-            };
+            let mut tx = start_transaction(&db).await?;
 
             // Register a new app
             let db_registered_app =

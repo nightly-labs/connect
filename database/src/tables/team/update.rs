@@ -127,9 +127,11 @@ impl Db {
         }
     }
 
-    pub async fn delete_all_user_teams(&self, 
+    pub async fn delete_all_user_teams(
+        &self,
         tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
-        user_id: &str) -> Result<(), DbError> {
+        user_id: &str,
+    ) -> Result<(), DbError> {
         let query_body = format!(
             "UPDATE {TEAM_TABLE_NAME} SET deactivated_at = $1 WHERE team_admin_id = $2 AND deactivated_at IS NULL",
         );
@@ -150,7 +152,9 @@ impl Db {
 #[cfg(feature = "cloud_integration_tests")]
 #[cfg(test)]
 mod tests {
-    use crate::tables::{team::table_struct::Team, utils::to_microsecond_precision};
+    use crate::tables::{
+        team::table_struct::Team, test_utils::test_utils::to_microsecond_precision,
+    };
     use sqlx::types::chrono::Utc;
 
     #[tokio::test]

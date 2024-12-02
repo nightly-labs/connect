@@ -4,11 +4,15 @@ use crate::{
         setup_database_datasource::setup_database_datasource,
         setup_template_folder::setup_templates_folder,
     },
-    structs::{wallet_metadata::WalletMetadata, wallets::*},
+    structs::{
+        cloud::api_cloud_errors::CloudApiErrors, wallet_metadata::WalletMetadata, wallets::*,
+    },
 };
-use axum::http::{header, Method};
+use axum::http::{header, Method, StatusCode};
+use database::db::Db;
 use log::error;
 use openapi::apis::configuration::Configuration;
+use sqlx::{Postgres, Transaction};
 use std::{
     sync::Arc,
     time::{Duration, SystemTime, UNIX_EPOCH},
@@ -17,18 +21,10 @@ use tower_http::cors::{Any, CorsLayer};
 
 pub fn get_timestamp_in_milliseconds() -> u64 {
     let now = SystemTime::now();
-    let since_the_epoch = match now.duration_since(UNIX_EPOCH) {
-        Ok(duration) => duration,
-        Err(err) => {
-            error!(
-                "Error getting timestamp in milliseconds: {}. Time went backwards",
-                err
-            );
-            return 0;
-        }
-    };
+    let since_the_epoch = now.duration_since(UNIX_EPOCH).expect("Time went backwards");
     since_the_epoch.as_millis() as u64
 }
+
 pub fn get_cors() -> CorsLayer {
     CorsLayer::new()
         .allow_methods([Method::GET, Method::POST, Method::OPTIONS])
@@ -54,6 +50,21 @@ pub fn get_wallets_metadata_vec() -> Vec<WalletMetadata> {
         aleph_zero_signer_metadata(),
         subwallet_metadata(),
     ]
+}
+
+pub async fn start_transaction(
+    db: &Arc<Db>,
+) -> Result<Transaction<'static, Postgres>, (StatusCode, String)> {
+    match db.connection_pool.begin().await {
+        Ok(tx) => Ok(tx),
+        Err(err) => {
+            error!("Failed to start transaction: {:?}", err);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::DatabaseError.to_string(),
+            ))
+        }
+    }
 }
 
 // CHECK THIS - used only at the begginning - better to have error

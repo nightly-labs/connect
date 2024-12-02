@@ -4,6 +4,7 @@ use crate::{
     structs::cloud::{
         api_cloud_errors::CloudApiErrors, new_user_privilege_level::NewUserPrivilegeLevel,
     },
+    utils::start_transaction,
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::{
@@ -125,13 +126,7 @@ pub async fn change_user_privileges(
                 .collect();
 
             // Start transaction to update users privileges
-            let mut tx = db.connection_pool.begin().await.map_err(|err| {
-                error!("Failed to start transaction: {:?}", err);
-                (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    CloudApiErrors::DatabaseError.to_string(),
-                )
-            })?;
+            let mut tx = start_transaction(&db).await?;
 
             // Update users privileges
             for requested_change in request.privileges_changes {

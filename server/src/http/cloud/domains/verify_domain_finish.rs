@@ -4,6 +4,7 @@ use crate::{
     http::cloud::utils::{custom_validate_domain_name, custom_validate_uuid},
     middlewares::auth_middleware::UserId,
     structs::cloud::api_cloud_errors::CloudApiErrors,
+    utils::start_transaction,
 };
 use anyhow::bail;
 use axum::{extract::State, http::StatusCode, Extension, Json};
@@ -183,16 +184,7 @@ pub async fn verify_domain_finish(
     }
 
     // Add domain to whitelist
-    let mut tx = match db.connection_pool.begin().await {
-        Ok(tx) => tx,
-        Err(err) => {
-            error!("Failed to start transaction: {:?}", err);
-            return Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                CloudApiErrors::DatabaseError.to_string(),
-            ));
-        }
-    };
+    let mut tx = start_transaction(&db).await?;
 
     if let Err(err) = db
         .add_new_whitelisted_domain(&mut tx, &request.app_id, &domain_name)

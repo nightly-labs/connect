@@ -33,7 +33,7 @@ pub async fn initialize_session_connection(
     // Lock the whole sessions map as we might need to add a new app sessions entry
     let mut sessions_write = sessions.write().await;
     // Check if the app sessions already exists
-    let created_new = match sessions_write.get(app_id) {
+    let (created_new, app_sessions) = match sessions_write.get(app_id) {
         Some(app_sessions) => {
             let mut app_sessions_write = app_sessions.write().await;
 
@@ -47,7 +47,7 @@ pub async fn initialize_session_connection(
                         .app_socket
                         .insert(connection_id.clone(), sender);
 
-                    false
+                    (false, app_sessions.read().await)
                 }
                 None => {
                     // Insert a new session into a app sessions map
@@ -59,7 +59,7 @@ pub async fn initialize_session_connection(
                     session_to_app
                         .add_session_to_app(&session_id, &app_id)
                         .await;
-                    true
+                    (true, app_sessions.read().await)
                 }
             }
         }
@@ -75,20 +75,21 @@ pub async fn initialize_session_connection(
             session_to_app
                 .add_session_to_app(&session_id, &app_id)
                 .await;
-            true
+
+            let app = match sessions_write.get(app_id) {
+                Some(app) => app,
+                None => {
+                    error!(
+                        "App sessions not found after creating a new session; should not happen"
+                    );
+                    return session_id;
+                }
+            };
+            (true, app.read().await)
         }
     };
 
-    let app = match sessions_write.get(app_id) {
-        Some(app) => app,
-        None => {
-            error!("App sessions not found after creating a new session; should not happen");
-            return session_id;
-        }
-    };
-    let app_sessions_read = app.read().await;
-
-    let session = match app_sessions_read.get(&session_id) {
+    let session = match app_sessions.get(&session_id) {
         Some(session) => session,
         None => {
             error!("Session not found after creating a new session; should not happen");

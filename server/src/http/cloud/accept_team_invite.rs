@@ -4,7 +4,7 @@ use super::{
 };
 use crate::{
     env::is_env_production, middlewares::auth_middleware::UserId,
-    structs::cloud::api_cloud_errors::CloudApiErrors,
+    structs::cloud::api_cloud_errors::CloudApiErrors, utils::start_transaction,
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::db::Db;
@@ -140,16 +140,7 @@ pub async fn accept_team_invite(
         };
     }
     // Accept invite
-    let mut tx = match db.connection_pool.begin().await {
-        Ok(tx) => tx,
-        Err(err) => {
-            error!("Failed to start transaction: {:?}", err);
-            return Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                CloudApiErrors::DatabaseError.to_string(),
-            ));
-        }
-    };
+    let mut tx = start_transaction(&db).await?;
 
     // Accept invite
     if let Err(err) = db
