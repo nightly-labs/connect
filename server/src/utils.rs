@@ -7,12 +7,9 @@ use crate::{
     structs::{wallet_metadata::WalletMetadata, wallets::*},
 };
 use axum::http::{header, Method};
-use openapi::{
-    apis::{configuration::Configuration, dashboards_api::import_dashboard},
-    models::ImportDashboardRequest,
-};
+use log::error;
+use openapi::apis::configuration::Configuration;
 use std::{
-    env,
     sync::Arc,
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
@@ -20,7 +17,16 @@ use tower_http::cors::{Any, CorsLayer};
 
 pub fn get_timestamp_in_milliseconds() -> u64 {
     let now = SystemTime::now();
-    let since_the_epoch = now.duration_since(UNIX_EPOCH).expect("Time went backwards");
+    let since_the_epoch = match now.duration_since(UNIX_EPOCH) {
+        Ok(duration) => duration,
+        Err(err) => {
+            error!(
+                "Error getting timestamp in milliseconds: {}. Time went backwards",
+                err
+            );
+            return 0;
+        }
+    };
     since_the_epoch.as_millis() as u64
 }
 pub fn get_cors() -> CorsLayer {
@@ -50,6 +56,7 @@ pub fn get_wallets_metadata_vec() -> Vec<WalletMetadata> {
     ]
 }
 
+// CHECK THIS - used only at the begginning - better to have error
 pub async fn import_template_dashboards(grafana_client: &Arc<Configuration>) {
     // Check if folder exists if not create it
     setup_templates_folder(&grafana_client).await.unwrap();

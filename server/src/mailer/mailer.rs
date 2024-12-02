@@ -10,7 +10,7 @@ pub struct Mailer {
     pub templates: Arc<HashMap<Templates, String>>,
     pub mailbox: Mailbox,
 }
-
+// CHECK THIS
 impl Mailer {
     pub async fn init(username: String, password: String) -> Self {
         let creds = Credentials::new(username.clone(), password);

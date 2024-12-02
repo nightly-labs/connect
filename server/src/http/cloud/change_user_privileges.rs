@@ -136,7 +136,17 @@ pub async fn change_user_privileges(
             // Update users privileges
             for requested_change in request.privileges_changes {
                 // Determine action
-                let new_privilege_level = requested_change.new_privilege_level.to_privilege_level();
+                let new_privilege_level =
+                    match requested_change.new_privilege_level.to_privilege_level() {
+                        Some(privilege) => privilege,
+                        None => {
+                            error!("Failed to convert new privilege level");
+                            return Err((
+                                StatusCode::BAD_REQUEST,
+                                CloudApiErrors::InternalServerError.to_string(),
+                            ));
+                        }
+                    };
                 let user_id = user_ids.get(&requested_change.user_email).ok_or((
                     StatusCode::BAD_REQUEST,
                     CloudApiErrors::UserDoesNotExist.to_string(),
@@ -158,8 +168,7 @@ pub async fn change_user_privileges(
                                     &mut tx,
                                     user_id,
                                     &requested_change.app_id,
-                                    // Safe unwrap
-                                    new_privilege_level.unwrap(),
+                                    new_privilege_level,
                                 )
                                 .await
                                 .map_err(|err| {
@@ -212,8 +221,7 @@ pub async fn change_user_privileges(
                                     &mut tx,
                                     user_id,
                                     &requested_change.app_id,
-                                    // Safe unwrap
-                                    new_privilege_level.unwrap(),
+                                    new_privilege_level,
                                 )
                                 .await
                                 .map_err(|err| {

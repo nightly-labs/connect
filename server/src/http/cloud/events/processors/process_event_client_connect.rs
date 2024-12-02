@@ -21,7 +21,16 @@ pub async fn process_event_client_connect_init(
     save_event_client_connect(db, app_id, network, event, &current_time).await;
 
     // Save connection attempt by client
-    let mut tx = db.connection_pool.begin().await.unwrap();
+    let mut tx = match db.connection_pool.begin().await {
+        Ok(tx) => tx,
+        Err(err) => {
+            error!(
+                "Failed to create new transaction to save client connect event, app_id: [{}], event: [{:?}], err: [{}]",
+                app_id, event, err
+            );
+            return;
+        }
+    };
 
     // Get the geolocation data
     let geo_location_data = get_geolocation_data(&db, &geo_loc_requester, &ip).await;

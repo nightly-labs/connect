@@ -26,7 +26,8 @@ impl FromRow<'_, PgRow> for Request {
         Ok(Request {
             request_id: row.get("request_id"),
             app_id: row.get("app_id"),
-            request_type: RequestType::from_str(row.get("request_type")).unwrap(),
+            request_type: RequestType::from_str(row.get("request_type"))
+                .map_err(|_| sqlx::Error::Decode(format!("Invalid request_type")))?,
             session_id: row.get("session_id"),
             request_status: row.get("request_status"),
             network: row.get("network"),

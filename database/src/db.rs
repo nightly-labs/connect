@@ -5,6 +5,7 @@ pub struct Db {
 }
 
 impl Db {
+    // CHECK THIS
     pub async fn connect_to_the_pool() -> Db {
         dotenvy::from_filename("infra/.env").unwrap();
 

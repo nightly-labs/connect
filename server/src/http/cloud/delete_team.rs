@@ -32,7 +32,16 @@ pub async fn delete_team(
     validate_request(&request, &())?;
     warn!("Delete team request: {:?}", request);
     // Start a transaction
-    let mut tx = db.connection_pool.begin().await.unwrap();
+    let mut tx = match db.connection_pool.begin().await {
+        Ok(tx) => tx,
+        Err(err) => {
+            error!("Failed to start transaction: {:?}", err);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::DatabaseError.to_string(),
+            ));
+        }
+    };
 
     // First check if team exists
     let team = match db.get_team_by_team_id(None, &request.team_id).await {

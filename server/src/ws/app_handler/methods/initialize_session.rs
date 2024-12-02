@@ -79,15 +79,22 @@ pub async fn initialize_session_connection(
         }
     };
 
-    let app_sessions_read = sessions_write
-        .get(app_id)
-        .expect("Session just created or updated; unwrap safe")
-        .read()
-        .await;
+    let app = match sessions_write.get(app_id) {
+        Some(app) => app,
+        None => {
+            error!("App sessions not found after creating a new session; should not happen");
+            return session_id;
+        }
+    };
+    let app_sessions_read = app.read().await;
 
-    let session = app_sessions_read
-        .get(&session_id)
-        .expect("Session just created or updated; unwrap safe");
+    let session = match app_sessions_read.get(&session_id) {
+        Some(session) => session,
+        None => {
+            error!("Session not found after creating a new session; should not happen");
+            return session_id;
+        }
+    };
 
     // Prepare the InitializeResponse
     let session_read = session.read().await;

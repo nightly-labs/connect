@@ -17,7 +17,16 @@ pub async fn process_event_client_disconnect(
     save_event_client_disconnect(db, app_id, network, event, &current_timestamp).await;
 
     // Update connection status for user
-    let mut tx = db.connection_pool.begin().await.unwrap();
+    let mut tx = match db.connection_pool.begin().await {
+        Ok(tx) => tx,
+        Err(err) => {
+            error!(
+                "Failed to create new transaction to update client disconnect status, app_id: [{}], event: [{:?}], err: [{}]",
+                app_id, event, err
+            );
+            return;
+        }
+    };
 
     match db
         .close_client_connection(&mut tx, &app_id, &event.disconnected_session_id)

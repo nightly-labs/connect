@@ -35,10 +35,14 @@ impl Session {
                 "Send to app from session: {}, msg: {:?}",
                 self.session_id, msg
             );
+            let serialized_msg = match serde_json::to_string(&msg) {
+                Ok(serialized_msg) => serialized_msg,
+                Err(e) => {
+                    bail!("Failed to serialize message: {:?}", e);
+                }
+            };
             socket
-                .send(Message::Text(
-                    serde_json::to_string(&msg).expect("Serialization should work"),
-                ))
+                .send(Message::Text(serialized_msg))
                 .await
                 .unwrap_or_default();
         }

@@ -10,6 +10,7 @@ pub const TEMPLATES_FOLDER_UID: &str = "TEMPLATE_FOLDER_UID";
 pub const POSTGRES_DATASOURCE_UID: &str = "POSTGRES_DATASOURCE_UID";
 
 // Name must be 3-30 characters long and include only alphanumeric characters, underscores, or slashes.
+// CHECK THIS - all regex creation
 pub static NAME_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"^[a-zA-Z0-9_-]{3,30}$").expect("Regex creation failed"));
 

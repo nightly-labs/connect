@@ -140,7 +140,16 @@ pub async fn register_new_app(
 
             // Register a new app under this team
             // Start a transaction
-            let mut tx = db.connection_pool.begin().await.unwrap();
+            let mut tx = match db.connection_pool.begin().await {
+                Ok(tx) => tx,
+                Err(err) => {
+                    error!("Failed to start transaction: {:?}", err);
+                    return Err((
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        CloudApiErrors::DatabaseError.to_string(),
+                    ));
+                }
+            };
 
             // Register a new app
             let db_registered_app =

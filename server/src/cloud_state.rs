@@ -31,6 +31,7 @@ pub struct CloudState {
     pub grafana_client_conf: Arc<Configuration>,
 }
 
+// CHECK THIS
 impl CloudState {
     pub async fn new() -> Self {
         let sessions_cache = get_new_session();

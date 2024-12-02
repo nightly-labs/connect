@@ -14,7 +14,7 @@ use openapi::{
 use serde_json::Value;
 use std::{env, sync::Arc};
 use tokio::fs;
-
+// CHECK THIS -  used only at the begginning - better to have error
 pub async fn setup_templates_dashboard(
     grafana_conf: &Arc<Configuration>,
 ) -> Result<(), (StatusCode, String)> {

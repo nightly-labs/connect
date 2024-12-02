@@ -1,9 +1,19 @@
+use log::error;
 use sqlx::types::chrono::{DateTime, TimeZone, Utc};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub fn get_timestamp_in_milliseconds() -> u64 {
     let now = SystemTime::now();
-    let since_the_epoch = now.duration_since(UNIX_EPOCH).expect("Time went backwards");
+    let since_the_epoch = match now.duration_since(UNIX_EPOCH) {
+        Ok(duration) => duration,
+        Err(err) => {
+            error!(
+                "Error getting timestamp in milliseconds: {}. Time went backwards",
+                err
+            );
+            return 0;
+        }
+    };
     since_the_epoch.as_millis() as u64
 }
 
@@ -17,7 +27,10 @@ pub fn get_current_datetime() -> DateTime<Utc> {
 
 pub fn to_microsecond_precision(datetime: &DateTime<Utc>) -> DateTime<Utc> {
     // Should never fail as we are converting from a valid DateTime<Utc>
-    Utc.timestamp_micros(datetime.timestamp_micros()).unwrap()
+    match Utc.timestamp_micros(datetime.timestamp_micros()) {
+        chrono::LocalResult::Single(dt) => dt,
+        _ => get_current_datetime(),
+    }
 }
 
 // This function is used to format the keys of a table to be used in a view query

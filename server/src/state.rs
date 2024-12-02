@@ -15,7 +15,7 @@ use axum::extract::{
 };
 use database::db::Db;
 use futures::{stream::SplitSink, SinkExt};
-use log::info;
+use log::{error, info};
 use openapi::apis::configuration::Configuration;
 use std::{
     collections::{HashMap, HashSet},
@@ -41,6 +41,7 @@ pub struct ServerState {
     pub cloud_state: Option<Arc<CloudState>>,
 }
 
+// CHECK THIS
 impl FromRef<ServerState> for Arc<Db> {
     fn from_ref(state: &ServerState) -> Self {
         // Safe as middleware will prevent this from being None
@@ -125,12 +126,18 @@ impl SendToClient for ClientSockets {
         match self.read().await.get(&client_id) {
             Some(client_socket) => {
                 info!("Send to client {}, msg: {:?}", client_id, msg);
+                let serialized_msg = match serde_json::to_string(&msg) {
+                    Ok(serialized_msg) => serialized_msg,
+                    Err(err) => {
+                        error!("Failed to serialize message: {:?}", err);
+                        return Err(anyhow::anyhow!("Failed to serialize message: {:?}", err));
+                    }
+                };
+
                 return Ok(client_socket
                     .write()
                     .await
-                    .send(Message::Text(
-                        serde_json::to_string(&msg).expect("Serialization should work"),
-                    ))
+                    .send(Message::Text(serialized_msg))
                     .await?);
             }
             None => Err(anyhow::anyhow!("No client socket found for session")),

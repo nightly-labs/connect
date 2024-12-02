@@ -18,7 +18,10 @@ impl Db {
         ip_address: &String,
         current_time: &DateTime<Utc>,
     ) -> Result<(), DbError> {
-        let mut tx = self.connection_pool.begin().await.unwrap();
+        let mut tx = match self.connection_pool.begin().await {
+            Ok(tx) => tx,
+            Err(err) => return Err(err.into()),
+        };
 
         // 1. Save the new session
         if let Err(err) = self.save_new_session(&mut tx, &session).await {
@@ -116,7 +119,10 @@ impl Db {
         session_id: &String,
     ) -> Result<(), DbError> {
         // Start a new transaction
-        let mut tx = self.connection_pool.begin().await.unwrap();
+        let mut tx = match self.connection_pool.begin().await {
+            Ok(tx) => tx,
+            Err(err) => return Err(err.into()),
+        };
 
         // User can't connect to the session without any connected keys
         if connected_keys.is_empty() {

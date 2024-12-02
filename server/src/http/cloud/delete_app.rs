@@ -70,7 +70,16 @@ pub async fn delete_app(
             }
             // Delete the app
             // Start a transaction
-            let mut tx = db.connection_pool.begin().await.unwrap();
+            let mut tx = match db.connection_pool.begin().await {
+                Ok(tx) => tx,
+                Err(err) => {
+                    error!("Failed to start transaction: {:?}", err);
+                    return Err((
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        CloudApiErrors::DatabaseError.to_string(),
+                    ));
+                }
+            };
 
             if let Err(err) = db
                 .remove_privileges_for_inactive_app_within_tx(&mut tx, &request.app_id)
