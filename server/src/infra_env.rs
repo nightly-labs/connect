@@ -30,7 +30,6 @@ pub struct INFRA_ENV {
     pub OFELIA_EMAIL_TO: String,
 }
 
-// CHECK THIS
 pub fn get_env() -> &'static INFRA_ENV {
     static INSTANCE: OnceCell<INFRA_ENV> = OnceCell::new();
 

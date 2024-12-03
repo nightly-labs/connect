@@ -41,7 +41,6 @@ pub struct ServerState {
     pub cloud_state: Option<Arc<CloudState>>,
 }
 
-// CHECK THIS
 impl FromRef<ServerState> for Arc<Db> {
     fn from_ref(state: &ServerState) -> Self {
         // Safe as middleware will prevent this from being None

@@ -67,7 +67,6 @@ pub async fn start_transaction(
     }
 }
 
-// CHECK THIS - used only at the begginning - better to have error
 pub async fn import_template_dashboards(grafana_client: &Arc<Configuration>) {
     // Check if folder exists if not create it
     setup_templates_folder(&grafana_client).await.unwrap();
