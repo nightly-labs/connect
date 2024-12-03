@@ -36,7 +36,15 @@ pub fn get_env() -> &'static ENV {
                     .collect();
                 std::env::var("JWT_SECRET").expect("JWT_SECRET env not set") + rand_string.as_str()
             },
-            JWT_PUBLIC_KEY: std::env::var("JWT_PUBLIC_KEY").expect("JWT_PUBLIC_KEY env not set"),
+            JWT_PUBLIC_KEY: {
+                let rand_string: String = thread_rng()
+                    .sample_iter(&Alphanumeric)
+                    .take(6)
+                    .map(char::from)
+                    .collect();
+                std::env::var("JWT_PUBLIC_KEY").expect("JWT_PUBLIC_KEY env not set")
+                    + rand_string.as_str()
+            },
             ONLY_RELAY_SERVICE: std::env::var("ONLY_RELAY_SERVICE")
                 .expect("Failed to get ONLY_RELAY_SERVICE env")
                 .eq_ignore_ascii_case("true"),
