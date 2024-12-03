@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 use once_cell::sync::OnceCell;
+use rand::{distributions::Alphanumeric, thread_rng, Rng};
 
 #[derive(Debug)]
 pub struct ENV {
@@ -27,7 +28,14 @@ pub fn get_env() -> &'static ENV {
 
         let env = ENV {
             ENVIRONMENT: ENVIRONMENT.to_owned(),
-            JWT_SECRET: std::env::var("JWT_SECRET").expect("JWT_SECRET env not set"),
+            JWT_SECRET: {
+                let rand_string: String = thread_rng()
+                    .sample_iter(&Alphanumeric)
+                    .take(6)
+                    .map(char::from)
+                    .collect();
+                std::env::var("JWT_SECRET").expect("JWT_SECRET env not set") + rand_string.as_str()
+            },
             JWT_PUBLIC_KEY: std::env::var("JWT_PUBLIC_KEY").expect("JWT_PUBLIC_KEY env not set"),
             ONLY_RELAY_SERVICE: std::env::var("ONLY_RELAY_SERVICE")
                 .expect("Failed to get ONLY_RELAY_SERVICE env")
