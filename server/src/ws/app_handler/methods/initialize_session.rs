@@ -33,7 +33,7 @@ pub async fn initialize_session_connection(
     // Lock the whole sessions map as we might need to add a new app sessions entry
     let mut sessions_write = sessions.write().await;
     // Check if the app sessions already exists
-    let (created_new, app_sessions, session_data) = match sessions_write.get(app_id) {
+    let created_new = match sessions_write.get(app_id) {
         Some(app_sessions) => {
             let mut app_sessions_write = app_sessions.write().await;
 
@@ -46,29 +46,26 @@ pub async fn initialize_session_connection(
                         .app_state
                         .app_socket
                         .insert(connection_id.clone(), sender);
-                    let session_data = session_write.client_state.clone();
-                    (false, app_sessions.read().await, session_data)
+
+                    false
                 }
                 None => {
                     // Insert a new session into a app sessions map
                     let new_session =
                         Session::new(&session_id, connection_id.clone(), sender, &init_data);
-                    let new_session_data = new_session.client_state.clone();
-
                     app_sessions_write.insert(session_id.clone(), RwLock::new(new_session));
 
                     // Insert session to app map
                     session_to_app
                         .add_session_to_app(&session_id, &app_id)
                         .await;
-                    (true, app_sessions.read().await, new_session_data)
+                    true
                 }
             }
         }
         None => {
             // Creating a new session map and insert session
             let new_session = Session::new(&session_id, connection_id.clone(), sender, &init_data);
-            let new_session_data = new_session.client_state.clone();
             let mut app_sessions = HashMap::new();
             app_sessions.insert(session_id.clone(), RwLock::new(new_session));
 
@@ -78,37 +75,34 @@ pub async fn initialize_session_connection(
             session_to_app
                 .add_session_to_app(&session_id, &app_id)
                 .await;
-
-            let app = match sessions_write.get(app_id) {
-                Some(app) => app,
-                None => {
-                    error!(
-                        "App sessions not found after creating a new session; should not happen"
-                    );
-                    return session_id;
-                }
-            };
-            (true, app.read().await, new_session_data)
+            true
         }
     };
 
-    let session = match app_sessions.get(&session_id) {
-        Some(session) => session,
-        None => {
-            error!("Session not found after creating a new session; should not happen");
-            return session_id;
-        }
-    };
+    //// JS: Hubert said to leave this here
+    let app_sessions_read = sessions_write
+        .get(app_id)
+        .expect("Session just created or updated; unwrap safe")
+        .read()
+        .await;
+
+    let session = app_sessions_read
+        .get(&session_id)
+        .expect("Session just created or updated; unwrap safe");
+    ////
 
     // Prepare the InitializeResponse
+    let session_read = session.read().await;
     let response = ServerToApp::InitializeResponse(InitializeResponse {
         session_id: session_id.clone(),
         created_new,
-        public_keys: session_data.connected_public_keys.clone(),
+        public_keys: session_read.client_state.connected_public_keys.clone(),
         response_id: init_data.response_id.clone(),
-        metadata: session_data.metadata.clone(),
+        metadata: session_read.client_state.metadata.clone(),
         app_id: app_id.clone(),
     });
+    // Drop session read lock
+    drop(session_read);
 
     // Acquire write lock
     let mut session_write = session.write().await;
