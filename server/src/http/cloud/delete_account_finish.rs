@@ -6,6 +6,7 @@ use crate::{
         cloud::api_cloud_errors::CloudApiErrors,
         session_cache::{ApiSessionsCache, SessionCache, SessionsCacheKey},
     },
+    utils::start_transaction,
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::db::Db;
@@ -82,13 +83,7 @@ pub async fn delete_account_finish(
     sessions_cache.remove(&sessions_key);
 
     // Start transaction to update users privileges
-    let mut tx = db.connection_pool.begin().await.map_err(|err| {
-        error!("Failed to start transaction: {:?}", err);
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            CloudApiErrors::DatabaseError.to_string(),
-        )
-    })?;
+    let mut tx = start_transaction(&db).await?;
 
     let mut owned_team_grafana_ids = Vec::new();
     let mut non_owned_team_grafana_ids = Vec::new();

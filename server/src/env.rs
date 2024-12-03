@@ -16,6 +16,7 @@ pub struct ENV {
     pub GF_SECURITY_ADMIN_PASSWORD: String,
     pub MAILER_ACTIVE: bool,
 }
+
 pub fn get_env() -> &'static ENV {
     static INSTANCE: OnceCell<ENV> = OnceCell::new();
 

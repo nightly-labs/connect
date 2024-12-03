@@ -3,7 +3,7 @@ use crate::{
     utils::get_timestamp_in_milliseconds,
 };
 use futures::SinkExt;
-use log::info;
+use log::{error, info};
 use std::{collections::HashMap, time::Duration, vec};
 
 pub fn start_cleaning_sessions(
@@ -78,12 +78,26 @@ pub fn start_cleaning_sessions(
 
             // Remove all sessions that expired
             for (app_id, session_id) in sessions_to_remove {
-                // safe unwrap because we just checked if the session exists
-                let app_sessions = sessions_write.get_mut(&app_id).unwrap();
+                let app_sessions = match sessions_write.get_mut(&app_id) {
+                    Some(app_sessions) => app_sessions,
+                    None => {
+                        error!("App: [{}] does not have any sessions", app_id);
+                        return;
+                    }
+                };
                 let mut app_sessions_write = app_sessions.write().await;
 
                 for session_id in session_id {
-                    let session = app_sessions_write.get_mut(&session_id).unwrap();
+                    let session = match app_sessions_write.get_mut(&session_id) {
+                        Some(session) => session,
+                        None => {
+                            error!(
+                                "App: [{}] does not have session with id: [{}]",
+                                app_id, session_id
+                            );
+                            return;
+                        }
+                    };
                     let mut session_write = session.write().await;
 
                     // Remove session from client_to_sessions

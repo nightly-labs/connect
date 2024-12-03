@@ -3,6 +3,7 @@ use crate::{
     env::is_env_production,
     http::cloud::grafana_utils::delete_registered_app::handle_grafana_delete_app,
     middlewares::auth_middleware::UserId, structs::cloud::api_cloud_errors::CloudApiErrors,
+    utils::start_transaction,
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::{db::Db, structs::privilege_level::PrivilegeLevel};
@@ -70,7 +71,7 @@ pub async fn delete_app(
             }
             // Delete the app
             // Start a transaction
-            let mut tx = db.connection_pool.begin().await.unwrap();
+            let mut tx = start_transaction(&db).await?;
 
             if let Err(err) = db
                 .remove_privileges_for_inactive_app_within_tx(&mut tx, &request.app_id)

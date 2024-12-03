@@ -4,15 +4,16 @@ use crate::{
         setup_database_datasource::setup_database_datasource,
         setup_template_folder::setup_templates_folder,
     },
-    structs::{wallet_metadata::WalletMetadata, wallets::*},
+    structs::{
+        cloud::api_cloud_errors::CloudApiErrors, wallet_metadata::WalletMetadata, wallets::*,
+    },
 };
-use axum::http::{header, Method};
-use openapi::{
-    apis::{configuration::Configuration, dashboards_api::import_dashboard},
-    models::ImportDashboardRequest,
-};
+use axum::http::{header, Method, StatusCode};
+use database::db::Db;
+use log::error;
+use openapi::apis::configuration::Configuration;
+use sqlx::{Postgres, Transaction};
 use std::{
-    env,
     sync::Arc,
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
@@ -23,6 +24,7 @@ pub fn get_timestamp_in_milliseconds() -> u64 {
     let since_the_epoch = now.duration_since(UNIX_EPOCH).expect("Time went backwards");
     since_the_epoch.as_millis() as u64
 }
+
 pub fn get_cors() -> CorsLayer {
     CorsLayer::new()
         .allow_methods([Method::GET, Method::POST, Method::OPTIONS])
@@ -48,6 +50,21 @@ pub fn get_wallets_metadata_vec() -> Vec<WalletMetadata> {
         aleph_zero_signer_metadata(),
         subwallet_metadata(),
     ]
+}
+
+pub async fn start_transaction(
+    db: &Arc<Db>,
+) -> Result<Transaction<'static, Postgres>, (StatusCode, String)> {
+    match db.connection_pool.begin().await {
+        Ok(tx) => Ok(tx),
+        Err(err) => {
+            error!("Failed to start transaction: {:?}", err);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                CloudApiErrors::DatabaseError.to_string(),
+            ))
+        }
+    }
 }
 
 pub async fn import_template_dashboards(grafana_client: &Arc<Configuration>) {

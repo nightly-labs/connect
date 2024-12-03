@@ -91,7 +91,16 @@ pub async fn process_event_app_connect(
         }
     } else {
         // Reconnection to an existing session
-        let mut tx = db.connection_pool.begin().await.unwrap();
+        let mut tx = match db.connection_pool.begin().await {
+            Ok(tx) => tx,
+            Err(err) => {
+                error!(
+                    "Failed to create new transaction to save app connection event, app_id: [{}], event: [{:?}], err: [{}]",
+                    app_id, event, err
+                );
+                return;
+            }
+        };
 
         // Get the geolocation data
         let geo_location_data = get_geolocation_data(&db, &geo_loc_requester, &ip).await;

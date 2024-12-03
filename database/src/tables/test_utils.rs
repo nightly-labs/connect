@@ -6,9 +6,10 @@ pub mod test_utils {
         structs::{db_error::DbError, privilege_level::PrivilegeLevel},
         tables::{
             registered_app::table_struct::DbRegisteredApp, team::table_struct::Team,
-            user_app_privileges::table_struct::UserAppPrivilege,
+            user_app_privileges::table_struct::UserAppPrivilege, utils::get_current_datetime,
         },
     };
+    use chrono::TimeZone;
     use sqlx::{
         types::chrono::{DateTime, Utc},
         Row, Transaction,
@@ -157,6 +158,14 @@ pub mod test_utils {
             // If both actions succeeded, commit the transaction
             tx.commit().await?;
             Ok(())
+        }
+    }
+
+    pub fn to_microsecond_precision(datetime: &DateTime<Utc>) -> DateTime<Utc> {
+        // Should never fail as we are converting from a valid DateTime<Utc>
+        match Utc.timestamp_micros(datetime.timestamp_micros()) {
+            chrono::LocalResult::Single(dt) => dt,
+            _ => get_current_datetime(),
         }
     }
 }

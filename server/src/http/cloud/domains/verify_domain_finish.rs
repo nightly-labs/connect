@@ -4,6 +4,7 @@ use crate::{
     http::cloud::utils::{custom_validate_domain_name, custom_validate_uuid},
     middlewares::auth_middleware::UserId,
     structs::cloud::api_cloud_errors::CloudApiErrors,
+    utils::start_transaction,
 };
 use anyhow::bail;
 use axum::{extract::State, http::StatusCode, Extension, Json};
@@ -183,7 +184,7 @@ pub async fn verify_domain_finish(
     }
 
     // Add domain to whitelist
-    let mut tx = db.connection_pool.begin().await.unwrap();
+    let mut tx = start_transaction(&db).await?;
 
     if let Err(err) = db
         .add_new_whitelisted_domain(&mut tx, &request.app_id, &domain_name)
@@ -249,7 +250,10 @@ async fn check_verification_code(
                 let txt_data = txt.txt_data();
                 // Each TXT record can contain multiple strings, so we iterate through them all
                 for txt_str in txt_data {
-                    let txt_str = std::str::from_utf8(txt_str).unwrap();
+                    let txt_str = match std::str::from_utf8(txt_str) {
+                        Ok(txt_str) => txt_str,
+                        Err(err) => bail!("Failed to parse TXT record: {:?}", err),
+                    };
                     // Check if the verification code is present
                     if txt_str.contains(&code) {
                         return Ok(());

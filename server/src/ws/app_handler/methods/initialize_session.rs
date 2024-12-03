@@ -79,6 +79,7 @@ pub async fn initialize_session_connection(
         }
     };
 
+    //// JS: Hubert said to leave this here
     let app_sessions_read = sessions_write
         .get(app_id)
         .expect("Session just created or updated; unwrap safe")
@@ -88,6 +89,7 @@ pub async fn initialize_session_connection(
     let session = app_sessions_read
         .get(&session_id)
         .expect("Session just created or updated; unwrap safe");
+    ////
 
     // Prepare the InitializeResponse
     let session_read = session.read().await;

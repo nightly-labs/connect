@@ -22,7 +22,13 @@ pub async fn trigger_notification(
     notification: NotificationPayload,
 ) -> Result<()> {
     tokio::spawn(async move {
-        let body = serde_json::to_string(&notification).expect("Failed to serialize notification");
+        let body = match serde_json::to_string(&notification) {
+            Ok(body) => body,
+            Err(e) => {
+                log::error!("Failed to serialize notification: {:?}", e);
+                return false;
+            }
+        };
         let client = reqwest::Client::new();
         return client
             .post(endpoint)

@@ -4,6 +4,7 @@ use crate::{
     structs::cloud::{
         api_cloud_errors::CloudApiErrors, new_user_privilege_level::NewUserPrivilegeLevel,
     },
+    utils::start_transaction,
 };
 use axum::{extract::State, http::StatusCode, Extension, Json};
 use database::{
@@ -125,18 +126,22 @@ pub async fn change_user_privileges(
                 .collect();
 
             // Start transaction to update users privileges
-            let mut tx = db.connection_pool.begin().await.map_err(|err| {
-                error!("Failed to start transaction: {:?}", err);
-                (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    CloudApiErrors::DatabaseError.to_string(),
-                )
-            })?;
+            let mut tx = start_transaction(&db).await?;
 
             // Update users privileges
             for requested_change in request.privileges_changes {
                 // Determine action
-                let new_privilege_level = requested_change.new_privilege_level.to_privilege_level();
+                let new_privilege_level =
+                    match requested_change.new_privilege_level.to_privilege_level() {
+                        Some(privilege) => privilege,
+                        None => {
+                            error!("Failed to convert new privilege level");
+                            return Err((
+                                StatusCode::BAD_REQUEST,
+                                CloudApiErrors::InternalServerError.to_string(),
+                            ));
+                        }
+                    };
                 let user_id = user_ids.get(&requested_change.user_email).ok_or((
                     StatusCode::BAD_REQUEST,
                     CloudApiErrors::UserDoesNotExist.to_string(),
@@ -158,8 +163,7 @@ pub async fn change_user_privileges(
                                     &mut tx,
                                     user_id,
                                     &requested_change.app_id,
-                                    // Safe unwrap
-                                    new_privilege_level.unwrap(),
+                                    new_privilege_level,
                                 )
                                 .await
                                 .map_err(|err| {
@@ -212,8 +216,7 @@ pub async fn change_user_privileges(
                                     &mut tx,
                                     user_id,
                                     &requested_change.app_id,
-                                    // Safe unwrap
-                                    new_privilege_level.unwrap(),
+                                    new_privilege_level,
                                 )
                                 .await
                                 .map_err(|err| {

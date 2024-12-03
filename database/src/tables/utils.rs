@@ -15,11 +15,6 @@ pub fn get_current_datetime() -> DateTime<Utc> {
     Utc::now()
 }
 
-pub fn to_microsecond_precision(datetime: &DateTime<Utc>) -> DateTime<Utc> {
-    // Should never fail as we are converting from a valid DateTime<Utc>
-    Utc.timestamp_micros(datetime.timestamp_micros()).unwrap()
-}
-
 // This function is used to format the keys of a table to be used in a view query
 pub fn format_view_keys(prefix: &str, keys: &[(&'static str, bool)]) -> String {
     keys.iter()
