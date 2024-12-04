@@ -4,8 +4,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**color** | Option<[**std::collections::HashMap<String, serde_json::Value>**](serde_json::Value.md)> | Map values to a display color NOTE: this interface is under development in the frontend... so simple map for now | [optional]
-**custom** | Option<[**std::collections::HashMap<String, serde_json::Value>**](serde_json::Value.md)> | Panel Specific Values | [optional]
+**color** | Option<[**serde_json::Value**](.md)> | Map values to a display color NOTE: this interface is under development in the frontend... so simple map for now | [optional]
+**custom** | Option<[**serde_json::Value**](.md)> | Panel Specific Values | [optional]
 **decimals** | Option<**i32**> |  | [optional]
 **description** | Option<**String**> | Description is human readable field metadata | [optional]
 **display_name** | Option<**String**> | DisplayName overrides Grafana default naming, should not be used from a data source | [optional]

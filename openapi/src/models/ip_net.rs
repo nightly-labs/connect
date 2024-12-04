@@ -14,7 +14,7 @@ use crate::models;
 pub struct IpNet {
     #[serde(rename = "IP", skip_serializing_if = "Option::is_none")]
     pub ip: Option<String>,
-    /// See type [IPNet] and func [ParseCIDR] for details.
+    /// See type IPNet and func ParseCIDR for details.
     #[serde(rename = "Mask", skip_serializing_if = "Option::is_none")]
     pub mask: Option<Vec<i32>>,
 }

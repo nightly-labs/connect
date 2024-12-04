@@ -14,10 +14,10 @@ use crate::models;
 pub struct FieldConfig {
     /// Map values to a display color NOTE: this interface is under development in the frontend... so simple map for now
     #[serde(rename = "color", skip_serializing_if = "Option::is_none")]
-    pub color: Option<std::collections::HashMap<String, serde_json::Value>>,
+    pub color: Option<serde_json::Value>,
     /// Panel Specific Values
     #[serde(rename = "custom", skip_serializing_if = "Option::is_none")]
-    pub custom: Option<std::collections::HashMap<String, serde_json::Value>>,
+    pub custom: Option<serde_json::Value>,
     #[serde(rename = "decimals", skip_serializing_if = "Option::is_none")]
     pub decimals: Option<i32>,
     /// Description is human readable field metadata

@@ -15,7 +15,7 @@ use crate::models;
 pub struct PublicError {
     /// Extra Additional information about the error
     #[serde(rename = "extra", skip_serializing_if = "Option::is_none")]
-    pub extra: Option<std::collections::HashMap<String, serde_json::Value>>,
+    pub extra: Option<serde_json::Value>,
     /// Message A human readable message
     #[serde(rename = "message", skip_serializing_if = "Option::is_none")]
     pub message: Option<String>,

@@ -113,7 +113,6 @@ pub mod get_current_org_api;
 pub mod ldap_debug_api;
 pub mod library_elements_api;
 pub mod licensing_api;
-pub mod migrations_api;
 pub mod org_api;
 pub mod org_invites_api;
 pub mod org_preferences_api;

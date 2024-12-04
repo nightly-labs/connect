@@ -17,7 +17,7 @@ pub struct UpdateProviderSettingsRequest {
     #[serde(rename = "provider", skip_serializing_if = "Option::is_none")]
     pub provider: Option<String>,
     #[serde(rename = "settings", skip_serializing_if = "Option::is_none")]
-    pub settings: Option<std::collections::HashMap<String, serde_json::Value>>,
+    pub settings: Option<serde_json::Value>,
 }
 
 impl UpdateProviderSettingsRequest {

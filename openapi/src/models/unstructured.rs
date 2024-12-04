@@ -15,7 +15,7 @@ use crate::models;
 pub struct Unstructured {
     /// Object is a JSON compatible map with string, float, int, bool, []interface{}, or map[string]interface{} children.
     #[serde(rename = "Object", skip_serializing_if = "Option::is_none")]
-    pub object: Option<std::collections::HashMap<String, serde_json::Value>>,
+    pub object: Option<serde_json::Value>,
 }
 
 impl Unstructured {
