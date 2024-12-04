@@ -1,6 +1,6 @@
 services:
   grafana:
-    image: grafana/grafana:11.0.0
+    image: grafana/grafana:${GRAFANA_VERSION}
     user: "${GRAFANA_USER_ID:-1000:1000}"
     volumes:
       - ./grafana-data:/var/lib/grafana # Persists Grafana data
@@ -9,3 +9,5 @@ services:
     ports:
       - '3005:3000'
     restart: unless-stopped
+    env_file:
+      - .env
