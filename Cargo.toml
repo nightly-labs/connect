@@ -27,7 +27,7 @@ tower = { version = "0.4.13", features = [
   "limit",
 ] }
 tower-http = { version = "0.5.2", features = ["cors", "trace"] }
-reqwest = {version = "0.11.24", features = ["json"]}
+reqwest = { version = "0.11.24", features = ["json"] }
 tokio = { version = "1.35.1", features = ["full"] }
 async-trait = "0.1.77"
 r-cache = "0.5.0"
@@ -48,6 +48,7 @@ sqlx = { version = "0.7.3", features = [
   "chrono",
 ] }
 chrono = { version = "0.4.22", features = ["serde"] }
+configparser = "3.1.0"
 
 [profile.dev]
 debug = 0

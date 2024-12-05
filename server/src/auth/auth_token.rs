@@ -1,3 +1,5 @@
+use crate::env::NONCE;
+
 use super::auth_token_type::AuthTokenType;
 use chrono::{Duration, Utc};
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
@@ -11,6 +13,7 @@ pub struct AuthToken {
     pub ip: Option<IpAddr>,
     pub token_type: AuthTokenType,
     pub sub: String,
+    pub nonce: String,
     pub exp: u64, // Required (validate_exp defaults to true in validation). Expiration time (as UTC timestamp)
 }
 
@@ -25,6 +28,7 @@ impl AuthToken {
             },
             token_type: AuthTokenType::Access,
             sub: user_id.clone(),
+            nonce: NONCE().to_string(),
             exp: (Utc::now() + Duration::minutes(30)).timestamp() as u64, // Token expires in 30 minutes
         }
     }
@@ -38,6 +42,7 @@ impl AuthToken {
             },
             token_type: AuthTokenType::Refresh,
             sub: user_id.clone(),
+            nonce: NONCE().to_string(),
             exp: (Utc::now() + Duration::minutes(60 * 7 * 24)).timestamp() as u64, // Token expires in 7 days
         }
     }
@@ -169,6 +174,7 @@ mod tests {
             user_id: user_id.clone(),
             exp,
             ip: Some(ip.ip()),
+            nonce: "NONCE".to_string(),
             token_type: AuthTokenType::Access,
             sub: user_id,
         };
