@@ -98,7 +98,12 @@ mod tests {
     fn test_auth_token_encode() {
         // Test the `encode` method to generate a JWT from an `AuthToken` instance.
         let ip = SocketAddr::from(([123, 233, 3, 21], 8080));
-        let auth_token = AuthToken::new_access(&"1".to_string(), &"1".to_string(), Some(ip));
+        let auth_token = AuthToken::new_access(
+            &"1".to_string(),
+            &"dupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupadupa@gmail.com"
+                .to_string(),
+            Some(ip),
+        );
         let token = auth_token.encode(JWT_SECRET()).unwrap();
 
         // Check that the JWT is a non-empty string.

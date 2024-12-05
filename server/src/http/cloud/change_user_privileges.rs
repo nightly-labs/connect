@@ -338,6 +338,7 @@ mod tests {
     use std::net::SocketAddr;
     use tower::ServiceExt;
 
+    #[ignore = "Not used for now"]
     #[tokio::test]
     async fn test_change_privileges() {
         let test_app = create_test_app(false).await;

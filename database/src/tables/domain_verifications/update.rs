@@ -252,10 +252,14 @@ mod tests {
             .await
             .unwrap();
 
-        assert_eq!(data.len(), 1);
-        let verification = data.get(0).unwrap();
-        assert!(verification.cancelled_at.is_some());
-        assert!(verification.domain_name == "valid_domain_name_2");
+        assert_eq!(data.len(), 2);
+        // Find the cancelled verification
+        let cancelled_verification = data
+            .iter()
+            .find(|v| v.domain_name == "valid_domain_name_2".to_string())
+            .unwrap();
+
+        assert!(cancelled_verification.cancelled_at.is_some());
     }
 
     #[tokio::test]
@@ -284,7 +288,40 @@ mod tests {
 
         // Check
         let data = db
-            .get_domain_verifications_by_app_id(&&app_id)
+            .get_domain_verifications_by_app_id(&app_id)
+            .await
+            .unwrap();
+
+        assert_eq!(data.len(), 1);
+        assert!(data.get(0).unwrap().deleted_at.is_none());
+
+        // FInish verification
+        let mut tx = db.connection_pool.begin().await.unwrap();
+        db.finish_domain_verification(&mut tx, &domain_name, &app_id)
+            .await
+            .unwrap();
+        tx.commit().await.unwrap();
+
+        // Check
+        let data = db
+            .get_domain_verifications_by_app_id(&app_id)
+            .await
+            .unwrap();
+
+        assert_eq!(data.len(), 1);
+        assert!(data.get(0).unwrap().finished_at.is_some());
+
+        // Delete verification
+        let mut tx = db.connection_pool.begin().await.unwrap();
+        db.delete_domain_verification(&mut tx, &domain_name, &app_id)
+            .await
+            .unwrap();
+
+        tx.commit().await.unwrap();
+
+        // Check
+        let data = db
+            .get_domain_verifications_by_app_id(&app_id)
             .await
             .unwrap();
 
