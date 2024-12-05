@@ -1,4 +1,6 @@
 #![allow(non_snake_case)]
+use std::fs;
+
 use once_cell::sync::OnceCell;
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
 
@@ -26,6 +28,12 @@ pub fn get_env() -> &'static ENV {
         let ENVIRONMENT = std::env::var("ENV").expect("Failed to get ENV env");
         let ENVIRONMENT = ENVIRONMENT.as_str();
 
+        // Read JWT keys from files
+        let jwt_secret = fs::read_to_string("../jwt_keys/grafana.key")
+            .expect("Failed to read JWT private key file");
+        let jwt_public = fs::read_to_string("../jwt_keys/grafana.key.pub")
+            .expect("Failed to read JWT public key file");
+
         let env = ENV {
             ENVIRONMENT: ENVIRONMENT.to_owned(),
             JWT_SECRET: {
@@ -34,7 +42,7 @@ pub fn get_env() -> &'static ENV {
                     .take(6)
                     .map(char::from)
                     .collect();
-                std::env::var("JWT_SECRET").expect("JWT_SECRET env not set") + rand_string.as_str()
+                jwt_secret + &rand_string
             },
             JWT_PUBLIC_KEY: {
                 let rand_string: String = thread_rng()
@@ -42,8 +50,7 @@ pub fn get_env() -> &'static ENV {
                     .take(6)
                     .map(char::from)
                     .collect();
-                std::env::var("JWT_PUBLIC_KEY").expect("JWT_PUBLIC_KEY env not set")
-                    + rand_string.as_str()
+                jwt_public + &rand_string
             },
             ONLY_RELAY_SERVICE: std::env::var("ONLY_RELAY_SERVICE")
                 .expect("Failed to get ONLY_RELAY_SERVICE env")
