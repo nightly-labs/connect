@@ -97,7 +97,8 @@ pub async fn login_with_passkey_finish(
     };
 
     // Generate tokens
-    let (auth_token, refresh_token) = generate_tokens(request.enforce_ip, ip, &user.user_id)?;
+    let (auth_token, refresh_token) =
+        generate_tokens(request.enforce_ip, ip, &user.user_id, &user.email)?;
 
     return Ok(Json(HttpLoginWithPasskeyFinishResponse {
         auth_token,

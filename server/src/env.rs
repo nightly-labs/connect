@@ -1,9 +1,7 @@
 #![allow(non_snake_case)]
-use std::fs;
-
 use configparser::ini::Ini;
 use once_cell::sync::OnceCell;
-use rand::{distributions::Alphanumeric, thread_rng, Rng};
+use std::fs;
 
 #[derive(Debug)]
 pub struct ENV {
@@ -38,7 +36,7 @@ pub fn get_env() -> &'static ENV {
         // Parse grafana.ini
         let mut config = Ini::new();
         config
-            .load("grafana/grafana.ini")
+            .load("../grafana/grafana.ini")
             .expect("Failed to load grafana.ini");
 
         // Read admin credentials from grafana.ini

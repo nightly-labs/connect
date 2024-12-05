@@ -12,13 +12,13 @@ pub struct AuthToken {
     pub user_id: String,
     pub ip: Option<IpAddr>,
     pub token_type: AuthTokenType,
-    pub sub: String,
+    pub sub: String, // user email
     pub nonce: String,
     pub exp: u64, // Required (validate_exp defaults to true in validation). Expiration time (as UTC timestamp)
 }
 
 impl AuthToken {
-    pub fn new_access(user_id: &String, ip: Option<SocketAddr>) -> Self {
+    pub fn new_access(user_id: &String, email: &String, ip: Option<SocketAddr>) -> Self {
         AuthToken {
             id: uuid7::uuid7().to_string(),
             user_id: user_id.clone(),
@@ -27,12 +27,12 @@ impl AuthToken {
                 None => None,
             },
             token_type: AuthTokenType::Access,
-            sub: user_id.clone(),
+            sub: email.clone(),
             nonce: NONCE().to_string(),
             exp: (Utc::now() + Duration::minutes(30)).timestamp() as u64, // Token expires in 30 minutes
         }
     }
-    pub fn new_refresh(user_id: &String, ip: Option<SocketAddr>) -> Self {
+    pub fn new_refresh(user_id: &String, email: &String, ip: Option<SocketAddr>) -> Self {
         AuthToken {
             id: uuid7::uuid7().to_string(),
             user_id: user_id.clone(),
@@ -41,7 +41,7 @@ impl AuthToken {
                 None => None,
             },
             token_type: AuthTokenType::Refresh,
-            sub: user_id.clone(),
+            sub: email.clone(),
             nonce: NONCE().to_string(),
             exp: (Utc::now() + Duration::minutes(60 * 7 * 24)).timestamp() as u64, // Token expires in 7 days
         }
@@ -87,7 +87,7 @@ mod tests {
     fn test_auth_token_new() {
         // Test the `new` method to create a new `AuthToken` instance.
         let ip = SocketAddr::from(([123, 233, 3, 21], 8080));
-        let auth_token = AuthToken::new_access(&"1".to_string(), Some(ip));
+        let auth_token = AuthToken::new_access(&"1".to_string(), &"1".to_string(), Some(ip));
         // Check that the `user_id` and `exp` fields are set correctly.
         assert_eq!(auth_token.user_id, "1".to_string());
         assert_eq!(auth_token.ip.unwrap(), ip.ip());
@@ -98,18 +98,19 @@ mod tests {
     fn test_auth_token_encode() {
         // Test the `encode` method to generate a JWT from an `AuthToken` instance.
         let ip = SocketAddr::from(([123, 233, 3, 21], 8080));
-        let auth_token = AuthToken::new_access(&"1".to_string(), Some(ip));
+        let auth_token = AuthToken::new_access(&"1".to_string(), &"1".to_string(), Some(ip));
         let token = auth_token.encode(JWT_SECRET()).unwrap();
 
         // Check that the JWT is a non-empty string.
         assert!(!token.is_empty());
+        println!("Token: {}", token);
     }
 
     #[test]
     fn test_auth_token_decode() {
         // Test the `decode` method to parse a JWT and create an `AuthToken` instance.
         let ip = SocketAddr::from(([123, 233, 3, 21], 8080));
-        let auth_token = AuthToken::new_access(&"1".to_string(), Some(ip));
+        let auth_token = AuthToken::new_access(&"1".to_string(), &"1".to_string(), Some(ip));
         let token = auth_token.encode(JWT_SECRET()).unwrap();
         let decoded_auth_token = AuthToken::decode(&token, JWT_PUBLIC_KEY(), ip).unwrap();
 
@@ -136,7 +137,7 @@ mod tests {
     fn test_auth_token_decode_incorrect_secret() {
         // Test the `decode` method with the incorrect public key.
         let ip = SocketAddr::from(([123, 233, 3, 21], 8080));
-        let auth_token = AuthToken::new_access(&"1".to_string(), Some(ip));
+        let auth_token = AuthToken::new_access(&"1".to_string(), &"1".to_string(), Some(ip));
         let incorrect_public_key = "-----BEGIN PUBLIC KEY-----
         MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAzlUYIpqSUAyLJaf8ZUef
         06YBh5DcmaTrwGcVwC57VtywY7bHXQUtGooULQjiYgnyOPxHDt2W+gQW1axiMxOQ
@@ -189,7 +190,7 @@ mod tests {
     fn test_decode_different_ip() {
         // Test the `decode` method with an expired JWT.
         let ip = SocketAddr::from(([123, 233, 3, 21], 8080));
-        let auth_token = AuthToken::new_access(&"1".to_string(), Some(ip));
+        let auth_token = AuthToken::new_access(&"1".to_string(), &"1".to_string(), Some(ip));
         let token = auth_token.encode(JWT_SECRET()).unwrap();
         let different_ip = SocketAddr::from(([2, 133, 3, 21], 8080));
 

@@ -110,7 +110,8 @@ pub async fn register_with_passkey_finish(
     {
         Ok(_) => {
             // Generate tokens
-            let (auth_token, refresh_token) = generate_tokens(request.enforce_ip, ip, &user_id)?;
+            let (auth_token, refresh_token) =
+                generate_tokens(request.enforce_ip, ip, &user_id, &request.email)?;
             return Ok(Json(HttpRegisterWithPasskeyFinishResponse {
                 auth_token,
                 refresh_token,

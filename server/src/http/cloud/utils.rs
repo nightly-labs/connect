@@ -241,12 +241,13 @@ pub fn generate_tokens(
     enforce_ip: bool,
     ip: SocketAddr,
     user_id: &String,
+    user_email: &String,
     // (Auth Token, Refresh Token)
 ) -> Result<(String, String), (StatusCode, String)> {
     // Generate tokens
     let ip = if enforce_ip { Some(ip) } else { None };
     // Access token
-    let token = match AuthToken::new_access(&user_id, ip).encode(JWT_SECRET()) {
+    let token = match AuthToken::new_access(&user_id, &user_email, ip).encode(JWT_SECRET()) {
         Ok(token) => token,
         Err(err) => {
             error!("Failed to create access token: {:?}", err);
@@ -257,7 +258,8 @@ pub fn generate_tokens(
         }
     };
     // Refresh token
-    let refresh_token = match AuthToken::new_refresh(&user_id, ip).encode(JWT_SECRET()) {
+    let refresh_token = match AuthToken::new_refresh(&user_id, &user_email, ip).encode(JWT_SECRET())
+    {
         Ok(token) => token,
         Err(err) => {
             error!("Failed to create refresh token: {:?}", err);
@@ -275,7 +277,8 @@ pub fn refresh_auth_token(
     refresh_token: AuthToken,
     ip: Option<SocketAddr>,
 ) -> Result<String, (StatusCode, String)> {
-    match AuthToken::new_access(&refresh_token.user_id, ip).encode(JWT_SECRET()) {
+    match AuthToken::new_access(&refresh_token.user_id, &refresh_token.sub, ip).encode(JWT_SECRET())
+    {
         Ok(token) => return Ok(token),
         Err(err) => {
             error!("Failed to create access token: {:?}", err);
