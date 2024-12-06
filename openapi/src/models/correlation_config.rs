@@ -17,7 +17,7 @@ pub struct CorrelationConfig {
     pub field: String,
     /// Target data query
     #[serde(rename = "target")]
-    pub target: std::collections::HashMap<String, serde_json::Value>,
+    pub target: serde_json::Value,
     #[serde(rename = "transformations", skip_serializing_if = "Option::is_none")]
     pub transformations: Option<Vec<models::Transformation>>,
     #[serde(rename = "type")]
@@ -25,7 +25,7 @@ pub struct CorrelationConfig {
 }
 
 impl CorrelationConfig {
-    pub fn new(field: String, target: std::collections::HashMap<String, serde_json::Value>, r#type: String) -> CorrelationConfig {
+    pub fn new(field: String, target: serde_json::Value, r#type: String) -> CorrelationConfig {
         CorrelationConfig {
             field,
             target,

@@ -15,7 +15,7 @@ pub struct AlertQueryExport {
     #[serde(rename = "datasourceUid", skip_serializing_if = "Option::is_none")]
     pub datasource_uid: Option<String>,
     #[serde(rename = "model", skip_serializing_if = "Option::is_none")]
-    pub model: Option<std::collections::HashMap<String, serde_json::Value>>,
+    pub model: Option<serde_json::Value>,
     #[serde(rename = "queryType", skip_serializing_if = "Option::is_none")]
     pub query_type: Option<String>,
     #[serde(rename = "refId", skip_serializing_if = "Option::is_none")]

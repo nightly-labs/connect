@@ -5,7 +5,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **field** | **String** | Field used to attach the correlation link | 
-**target** | [**std::collections::HashMap<String, serde_json::Value>**](serde_json::Value.md) | Target data query | 
+**target** | [**serde_json::Value**](.md) | Target data query | 
 **transformations** | Option<[**Vec<models::Transformation>**](Transformation.md)> |  | [optional]
 **r#type** | **String** |  | 
 

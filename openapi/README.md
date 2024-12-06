@@ -222,14 +222,6 @@ Class | Method | HTTP request | Description
 *LicensingApi* | [**post_license_token**](docs/LicensingApi.md#post_license_token) | **POST** /licensing/token | Create license token.
 *LicensingApi* | [**post_renew_license_token**](docs/LicensingApi.md#post_renew_license_token) | **POST** /licensing/token/renew | Manually force license refresh.
 *LicensingApi* | [**refresh_license_stats**](docs/LicensingApi.md#refresh_license_stats) | **GET** /licensing/refresh-stats | Refresh license stats.
-*MigrationsApi* | [**create_cloud_migration_token**](docs/MigrationsApi.md#create_cloud_migration_token) | **POST** /cloudmigration/token | Create gcom access token.
-*MigrationsApi* | [**create_migration**](docs/MigrationsApi.md#create_migration) | **POST** /cloudmigration/migration | Create a migration.
-*MigrationsApi* | [**delete_cloud_migration**](docs/MigrationsApi.md#delete_cloud_migration) | **DELETE** /cloudmigration/migration/{id} | Delete a migration.
-*MigrationsApi* | [**get_cloud_migration**](docs/MigrationsApi.md#get_cloud_migration) | **GET** /cloudmigration/migration/{id} | Get a cloud migration.
-*MigrationsApi* | [**get_cloud_migration_run**](docs/MigrationsApi.md#get_cloud_migration_run) | **GET** /cloudmigration/migration/{id}/run/{runID} | Get the result of a single migration run.
-*MigrationsApi* | [**get_cloud_migration_run_list**](docs/MigrationsApi.md#get_cloud_migration_run_list) | **GET** /cloudmigration/migration/{id}/run | Get a list of migration runs for a migration.
-*MigrationsApi* | [**get_migration_list**](docs/MigrationsApi.md#get_migration_list) | **GET** /cloudmigration/migration | Get a list of all cloud migrations.
-*MigrationsApi* | [**run_cloud_migration**](docs/MigrationsApi.md#run_cloud_migration) | **POST** /cloudmigration/migration/{id}/run | Trigger the run of a migration to the Grafana Cloud.
 *OrgApi* | [**add_org_user_to_current_org**](docs/OrgApi.md#add_org_user_to_current_org) | **POST** /org/users | Add a new user to the current organization.
 *OrgApi* | [**get_current_org**](docs/OrgApi.md#get_current_org) | **GET** /org | Get current Organization.
 *OrgApi* | [**get_org_users_for_current_org**](docs/OrgApi.md#get_org_users_for_current_org) | **GET** /org/users | Get all users within the current organization.
@@ -446,10 +438,6 @@ Class | Method | HTTP request | Description
  - [Certificate](docs/Certificate.md)
  - [ChangeUserPasswordCommand](docs/ChangeUserPasswordCommand.md)
  - [ClearHelpFlags200Response](docs/ClearHelpFlags200Response.md)
- - [CloudMigrationListResponse](docs/CloudMigrationListResponse.md)
- - [CloudMigrationRequest](docs/CloudMigrationRequest.md)
- - [CloudMigrationResponse](docs/CloudMigrationResponse.md)
- - [CloudMigrationRunList](docs/CloudMigrationRunList.md)
  - [ClusterStatus](docs/ClusterStatus.md)
  - [Config](docs/Config.md)
  - [ContactPointExport](docs/ContactPointExport.md)
@@ -457,7 +445,6 @@ Class | Method | HTTP request | Description
  - [Correlation](docs/Correlation.md)
  - [CorrelationConfig](docs/CorrelationConfig.md)
  - [CorrelationConfigUpdateDto](docs/CorrelationConfigUpdateDto.md)
- - [CreateAccessTokenResponseDto](docs/CreateAccessTokenResponseDto.md)
  - [CreateCorrelationCommand](docs/CreateCorrelationCommand.md)
  - [CreateCorrelationResponseBody](docs/CreateCorrelationResponseBody.md)
  - [CreateDashboardSnapshot200Response](docs/CreateDashboardSnapshot200Response.md)
@@ -566,8 +553,6 @@ Class | Method | HTTP request | Description
  - [MassDeleteAnnotationsCmd](docs/MassDeleteAnnotationsCmd.md)
  - [Matcher](docs/Matcher.md)
  - [MetricRequest](docs/MetricRequest.md)
- - [MigrateDataResponseDto](docs/MigrateDataResponseDto.md)
- - [MigrateDataResponseItemDto](docs/MigrateDataResponseItemDto.md)
  - [MoveFolderCommand](docs/MoveFolderCommand.md)
  - [MsTeamsConfig](docs/MsTeamsConfig.md)
  - [MuteTimeInterval](docs/MuteTimeInterval.md)

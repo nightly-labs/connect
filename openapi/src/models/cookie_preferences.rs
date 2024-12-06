@@ -13,11 +13,11 @@ use crate::models;
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct CookiePreferences {
     #[serde(rename = "analytics", skip_serializing_if = "Option::is_none")]
-    pub analytics: Option<std::collections::HashMap<String, serde_json::Value>>,
+    pub analytics: Option<serde_json::Value>,
     #[serde(rename = "functional", skip_serializing_if = "Option::is_none")]
-    pub functional: Option<std::collections::HashMap<String, serde_json::Value>>,
+    pub functional: Option<serde_json::Value>,
     #[serde(rename = "performance", skip_serializing_if = "Option::is_none")]
-    pub performance: Option<std::collections::HashMap<String, serde_json::Value>>,
+    pub performance: Option<serde_json::Value>,
 }
 
 impl CookiePreferences {

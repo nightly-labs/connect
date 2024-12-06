@@ -5,7 +5,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **datasource_uid** | Option<**String**> |  | [optional]
-**model** | Option<[**std::collections::HashMap<String, serde_json::Value>**](serde_json::Value.md)> |  | [optional]
+**model** | Option<[**serde_json::Value**](.md)> |  | [optional]
 **query_type** | Option<**String**> |  | [optional]
 **ref_id** | Option<**String**> |  | [optional]
 **relative_time_range** | Option<[**models::RelativeTimeRangeExport**](RelativeTimeRangeExport.md)> |  | [optional]

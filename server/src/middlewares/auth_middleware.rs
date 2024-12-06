@@ -1,5 +1,5 @@
 use crate::auth::{auth_token_type::AuthTokenType, AuthToken};
-use crate::env::JWT_PUBLIC_KEY;
+use crate::env::{JWT_PUBLIC_KEY, NONCE};
 use axum::{
     extract::{ConnectInfo, Request},
     http::{HeaderMap, StatusCode},
@@ -39,6 +39,12 @@ pub async fn access_auth_middleware(
         }
         None => return Err((StatusCode::UNAUTHORIZED, "No auth token".to_string())),
     };
+
+    // Check if nonce is the same
+    if auth_token.nonce != NONCE() {
+        return Err((StatusCode::UNAUTHORIZED, "Expired token".to_string()));
+    }
+
     // Insert the user_id into the request extensions
     req.extensions_mut()
         .insert(auth_token.user_id.clone() as UserId);

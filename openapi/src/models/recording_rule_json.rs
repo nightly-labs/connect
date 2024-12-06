@@ -30,7 +30,7 @@ pub struct RecordingRuleJson {
     #[serde(rename = "prom_name", skip_serializing_if = "Option::is_none")]
     pub prom_name: Option<String>,
     #[serde(rename = "queries", skip_serializing_if = "Option::is_none")]
-    pub queries: Option<Vec<std::collections::HashMap<String, serde_json::Value>>>,
+    pub queries: Option<Vec<serde_json::Value>>,
     #[serde(rename = "range", skip_serializing_if = "Option::is_none")]
     pub range: Option<i64>,
     #[serde(rename = "target_ref_id", skip_serializing_if = "Option::is_none")]

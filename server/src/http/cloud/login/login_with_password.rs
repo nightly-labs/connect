@@ -62,8 +62,7 @@ pub async fn login_with_password(
             ));
         }
     };
-    println!("useeeeeeeeeeeeeeeeeeeeeeeeer");
-    println!("{:?}", user);
+
     // Check if user has password
     let password_hash = match user.password_hash {
         Some(password_hash) => password_hash,
@@ -84,7 +83,8 @@ pub async fn login_with_password(
     }
 
     // Generate tokens
-    let (auth_token, refresh_token) = generate_tokens(request.enforce_ip, ip, &user.user_id)?;
+    let (auth_token, refresh_token) =
+        generate_tokens(request.enforce_ip, ip, &user.user_id, &user.email)?;
 
     return Ok(Json(HttpLoginResponse {
         auth_token,

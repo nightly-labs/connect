@@ -17,7 +17,7 @@ pub struct CorrelationConfigUpdateDto {
     pub field: Option<String>,
     /// Target data query
     #[serde(rename = "target", skip_serializing_if = "Option::is_none")]
-    pub target: Option<std::collections::HashMap<String, serde_json::Value>>,
+    pub target: Option<serde_json::Value>,
     /// Source data transformations
     #[serde(rename = "transformations", skip_serializing_if = "Option::is_none")]
     pub transformations: Option<Vec<models::Transformation>>,

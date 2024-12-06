@@ -69,7 +69,7 @@ pub async fn login_with_google(
     match db.get_user_by_email(&request.email).await {
         Ok(Some(user)) => {
             let (auth_token, refresh_token) =
-                generate_tokens(request.enforce_ip, ip, &user.user_id)?;
+                generate_tokens(request.enforce_ip, ip, &user.user_id, &request.email)?;
 
             return Ok(Json(HttpLoginWithGoogleResponse {
                 user_id: user.user_id,
@@ -114,7 +114,8 @@ pub async fn login_with_google(
             }
 
             // Generate tokens
-            let (auth_token, refresh_token) = generate_tokens(request.enforce_ip, ip, &user_id)?;
+            let (auth_token, refresh_token) =
+                generate_tokens(request.enforce_ip, ip, &user_id, &request.email)?;
 
             return Ok(Json(HttpLoginWithGoogleResponse {
                 user_id: user_id,

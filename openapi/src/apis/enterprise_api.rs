@@ -1753,8 +1753,8 @@ pub async fn list_recording_rules(configuration: &configuration::Configuration, 
     }
 }
 
-/// Gets all existing roles. The response contains all global and organization local roles, for the organization which user is signed in.  You need to have a permission with action `roles:read` and scope `roles:*`.  The `delegatable` flag reduces the set of roles to only those for which the signed-in user has permissions to assign.
-pub async fn list_roles(configuration: &configuration::Configuration, delegatable: Option<bool>, include_hidden: Option<bool>) -> Result<Vec<models::RoleDto>, Error<ListRolesError>> {
+/// Gets all existing roles. The response contains all global and organization local roles, for the organization which user is signed in.  You need to have a permission with action `roles:read` and scope `roles:*`.
+pub async fn list_roles(configuration: &configuration::Configuration, delegatable: Option<bool>) -> Result<Vec<models::RoleDto>, Error<ListRolesError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
@@ -1764,9 +1764,6 @@ pub async fn list_roles(configuration: &configuration::Configuration, delegatabl
 
     if let Some(ref local_var_str) = delegatable {
         local_var_req_builder = local_var_req_builder.query(&[("delegatable", &local_var_str.to_string())]);
-    }
-    if let Some(ref local_var_str) = include_hidden {
-        local_var_req_builder = local_var_req_builder.query(&[("includeHidden", &local_var_str.to_string())]);
     }
     if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
         local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());

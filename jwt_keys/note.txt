@@ -1,0 +1,3 @@
+# Generated so it can work with grafana 
+# ssh-keygen -t rsa -b 4096 -m PEM -f grafana.key -N ""
+# openssl rsa -in grafana.key -pubout -outform PEM -out grafana.key.pub

@@ -256,6 +256,7 @@ mod tests {
     };
     use std::net::SocketAddr;
     use tower::ServiceExt;
+    use uuid7::uuid7;
 
     #[tokio::test]
     async fn test_invite_user_to_team() {
@@ -354,9 +355,11 @@ mod tests {
 
         let (auth_token, _email, _password) = register_and_login_random_user(&test_app).await;
 
+        let team_id = uuid7().to_string();
+
         // Team does not exist
         let resp = invite_user_to_test_team(
-            &i64::MAX.to_string(),
+            &team_id,
             &"test_user_email@gmail.com".to_string(),
             &auth_token,
             &test_app,

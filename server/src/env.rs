@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
+use configparser::ini::Ini;
 use once_cell::sync::OnceCell;
-use rand::{distributions::Alphanumeric, thread_rng, Rng};
+use std::fs;
 
 #[derive(Debug)]
 pub struct ENV {
@@ -26,25 +27,30 @@ pub fn get_env() -> &'static ENV {
         let ENVIRONMENT = std::env::var("ENV").expect("Failed to get ENV env");
         let ENVIRONMENT = ENVIRONMENT.as_str();
 
+        // Read JWT keys from files
+        let jwt_secret = fs::read_to_string("../jwt_keys/grafana.key")
+            .expect("Failed to read JWT private key file");
+        let jwt_public = fs::read_to_string("../jwt_keys/grafana.key.pub")
+            .expect("Failed to read JWT public key file");
+
+        // Parse grafana.ini
+        let mut config = Ini::new();
+        config
+            .load("../grafana/grafana.ini")
+            .expect("Failed to load grafana.ini");
+
+        // Read admin credentials from grafana.ini
+        let admin_user = config
+            .get("security", "admin_user")
+            .expect("Failed to get admin_user from grafana.ini");
+        let admin_password = config
+            .get("security", "admin_password")
+            .expect("Failed to get admin_password from grafana.ini");
+
         let env = ENV {
             ENVIRONMENT: ENVIRONMENT.to_owned(),
-            JWT_SECRET: {
-                let rand_string: String = thread_rng()
-                    .sample_iter(&Alphanumeric)
-                    .take(6)
-                    .map(char::from)
-                    .collect();
-                std::env::var("JWT_SECRET").expect("JWT_SECRET env not set") + rand_string.as_str()
-            },
-            JWT_PUBLIC_KEY: {
-                let rand_string: String = thread_rng()
-                    .sample_iter(&Alphanumeric)
-                    .take(6)
-                    .map(char::from)
-                    .collect();
-                std::env::var("JWT_PUBLIC_KEY").expect("JWT_PUBLIC_KEY env not set")
-                    + rand_string.as_str()
-            },
+            JWT_SECRET: jwt_secret,
+            JWT_PUBLIC_KEY: jwt_public,
             ONLY_RELAY_SERVICE: std::env::var("ONLY_RELAY_SERVICE")
                 .expect("Failed to get ONLY_RELAY_SERVICE env")
                 .eq_ignore_ascii_case("true"),
@@ -57,10 +63,8 @@ pub fn get_env() -> &'static ENV {
                 .expect("Failed to get DATABASE_ADDRESS env"),
             GRAFANA_BASE_PATH: std::env::var("GRAFANA_BASE_PATH")
                 .expect("Failed to get GRAFANA_BASE_PATH env"),
-            GF_SECURITY_ADMIN_USER: std::env::var("GF_SECURITY_ADMIN_USER")
-                .expect("Failed to get GF_SECURITY_ADMIN_USER env"),
-            GF_SECURITY_ADMIN_PASSWORD: std::env::var("GF_SECURITY_ADMIN_PASSWORD")
-                .expect("Failed to get GF_SECURITY_ADMIN_PASSWORD env"),
+            GF_SECURITY_ADMIN_USER: admin_user,
+            GF_SECURITY_ADMIN_PASSWORD: admin_password,
             MAILER_ACTIVE: std::env::var("MAILER_ACTIVE")
                 .expect("Failed to get MAILER_ACTIVE env")
                 .eq_ignore_ascii_case("true"),

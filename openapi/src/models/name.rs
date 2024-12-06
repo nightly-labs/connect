@@ -10,7 +10,7 @@
 
 use crate::models;
 
-/// Name : Name represents an X.509 distinguished name. This only includes the common elements of a DN. Note that Name is only an approximation of the X.509 structure. If an accurate representation is needed, asn1.Unmarshal the raw subject or issuer as an [RDNSequence].
+/// Name : Name represents an X.509 distinguished name. This only includes the common elements of a DN. Note that Name is only an approximation of the X.509 structure. If an accurate representation is needed, asn1.Unmarshal the raw subject or issuer as an RDNSequence.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Name {
     #[serde(rename = "Country", skip_serializing_if = "Option::is_none")]
@@ -30,7 +30,7 @@ pub struct Name {
 }
 
 impl Name {
-    /// Name represents an X.509 distinguished name. This only includes the common elements of a DN. Note that Name is only an approximation of the X.509 structure. If an accurate representation is needed, asn1.Unmarshal the raw subject or issuer as an [RDNSequence].
+    /// Name represents an X.509 distinguished name. This only includes the common elements of a DN. Note that Name is only an approximation of the X.509 structure. If an accurate representation is needed, asn1.Unmarshal the raw subject or issuer as an RDNSequence.
     pub fn new() -> Name {
         Name {
             country: None,

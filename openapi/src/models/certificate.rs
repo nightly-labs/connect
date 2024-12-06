@@ -74,10 +74,6 @@ pub struct Certificate {
     pub permitted_ip_ranges: Option<Vec<models::IpNet>>,
     #[serde(rename = "PermittedURIDomains", skip_serializing_if = "Option::is_none")]
     pub permitted_uri_domains: Option<Vec<String>>,
-    /// Policies contains all policy identifiers included in the certificate. In Go 1.22, encoding/gob cannot handle and ignores this field.
-    #[serde(rename = "Policies", skip_serializing_if = "Option::is_none")]
-    pub policies: Option<Vec<serde_json::Value>>,
-    /// PolicyIdentifiers contains asn1.ObjectIdentifiers, the components of which are limited to int32. If a certificate contains a policy which cannot be represented by asn1.ObjectIdentifier, it will not be included in PolicyIdentifiers, but will be present in Policies, which contains all parsed policy OIDs.
     #[serde(rename = "PolicyIdentifiers", skip_serializing_if = "Option::is_none")]
     pub policy_identifiers: Option<Vec<Vec<i64>>>,
     #[serde(rename = "PublicKey", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
@@ -144,7 +140,6 @@ impl Certificate {
             permitted_email_addresses: None,
             permitted_ip_ranges: None,
             permitted_uri_domains: None,
-            policies: None,
             policy_identifiers: None,
             public_key: None,
             public_key_algorithm: None,
