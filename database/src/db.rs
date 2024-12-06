@@ -16,15 +16,16 @@ impl Db {
         let db_password =
             std::env::var("POSTGRES_PASSWORD").expect("POSTGRES_PASSWORD must be set");
 
+        let connection_string = format!(
+            "postgres://{}:{}@{}:{}/{}",
+            db_user, db_password, db_address, db_port, db_name
+        );
+
+        println!("Connecting to the database... {:?}", connection_string);
+
         let pool = PoolOptions::new()
             .max_connections(50)
-            .connect(
-                format!(
-                    "postgres://{}:{}@{}:{}/{}",
-                    db_user, db_password, db_address, db_port, db_name
-                )
-                .as_str(),
-            )
+            .connect(connection_string.as_str())
             .await
             .unwrap();
 

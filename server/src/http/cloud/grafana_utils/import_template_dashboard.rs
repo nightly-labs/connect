@@ -12,23 +12,36 @@ use openapi::{
     models::{ImportDashboardInput, ImportDashboardRequest},
 };
 use serde_json::Value;
-use std::{env, sync::Arc};
+use std::{path::PathBuf, sync::Arc};
 use tokio::fs;
 
 pub async fn setup_templates_dashboard(
     grafana_conf: &Arc<Configuration>,
 ) -> Result<(), (StatusCode, String)> {
-    // Load file with dashboard
-    let current_dir = env::current_dir().unwrap();
-    // Construct the path to the JSON file
-    let json_path = current_dir
-        .join("..")
-        .join("grafana")
-        .join("TEMPLATE_DASHBOARD.json");
+    let project_root = PathBuf::from("/root/connect");
 
-    let dashboard_blob = fs::read(json_path).await.expect("Failed to read file");
-    let dashboard: Value =
-        serde_json::from_slice(&dashboard_blob).expect("Failed to deserialize json");
+    // Construct the path to the JSON file
+    let json_path = project_root.join("grafana").join("TEMPLATE_DASHBOARD.json");
+    println!(
+        "Attempting to read dashboard template from: {:?}",
+        json_path
+    );
+
+    let dashboard_blob = match fs::read(json_path).await {
+        Ok(content) => content,
+        Err(e) => {
+            println!("Error reading dashboard template file: {}", e);
+            panic!("Failed to read dashboard template file");
+        }
+    };
+
+    let dashboard: Value = match serde_json::from_slice(&dashboard_blob) {
+        Ok(json) => json,
+        Err(e) => {
+            println!("Error deserializing dashboard JSON: {}", e);
+            panic!("Failed to deserialize dashboard JSON");
+        }
+    };
 
     // Check if dashboard exists if not create it
     match get_dashboard_by_uid(&grafana_conf, &DASHBOARD_TEMPLATE_UID).await {

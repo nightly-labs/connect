@@ -63,5 +63,3 @@ services:
       ofelia.email-to: "${OFELIA_EMAIL_TO}"
       ofelia.email-from: "${OFELIA_EMAIL_FROM}"
   
-
-

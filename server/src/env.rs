@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use configparser::ini::Ini;
 use once_cell::sync::OnceCell;
-use std::fs;
+use std::{fs, path::PathBuf};
 
 #[derive(Debug)]
 pub struct ENV {
@@ -27,16 +27,44 @@ pub fn get_env() -> &'static ENV {
         let ENVIRONMENT = std::env::var("ENV").expect("Failed to get ENV env");
         let ENVIRONMENT = ENVIRONMENT.as_str();
 
-        // Read JWT keys from files
-        let jwt_secret = fs::read_to_string("../jwt_keys/grafana.key")
-            .expect("Failed to read JWT private key file");
-        let jwt_public = fs::read_to_string("../jwt_keys/grafana.key.pub")
-            .expect("Failed to read JWT public key file");
+        let project_root = PathBuf::from("/root/connect");
+        println!("Using absolute project root: {:?}", project_root);
+
+        let jwt_secret_path = project_root.join("jwt_keys/grafana.key");
+        let jwt_public_path = project_root.join("jwt_keys/grafana.key.pub");
+
+        println!("Attempting to read JWT secret from: {:?}", jwt_secret_path);
+        println!(
+            "Attempting to read JWT public key from: {:?}",
+            jwt_public_path
+        );
+
+        let jwt_secret = match fs::read_to_string(&jwt_secret_path) {
+            Ok(content) => content,
+            Err(e) => {
+                println!("Error reading JWT secret file: {}", e);
+                panic!("Failed to read JWT secret file");
+            }
+        };
+
+        let jwt_public = match fs::read_to_string(&jwt_public_path) {
+            Ok(content) => content,
+            Err(e) => {
+                println!("Error reading JWT public file: {}", e);
+                panic!("Failed to read JWT public file");
+            }
+        };
 
         // Parse grafana.ini
+        let grafana_ini_path = project_root.join("grafana/grafana.ini");
+        println!(
+            "Attempting to read grafana.ini from: {:?}",
+            grafana_ini_path
+        );
+
         let mut config = Ini::new();
         config
-            .load("../grafana/grafana.ini")
+            .load(grafana_ini_path)
             .expect("Failed to load grafana.ini");
 
         // Read admin credentials from grafana.ini
