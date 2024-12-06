@@ -85,7 +85,7 @@ jobs:
         run: |
           cargo test-integration
           cargo run --bin nightly-connect-server &
-          sleep 5
+          sleep 50
       - name: test base local
         run: |
           pnpm test:ci
