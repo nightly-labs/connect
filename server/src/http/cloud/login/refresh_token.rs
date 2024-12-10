@@ -1,5 +1,5 @@
 use crate::{
-    auth::AuthToken, env::JWT_PUBLIC_KEY, http::cloud::utils::refresh_auth_token,
+    auth::AuthToken, env::{JWT_PUBLIC_KEY, NONCE}, http::cloud::utils::refresh_auth_token,
     structs::cloud::api_cloud_errors::CloudApiErrors,
 };
 use axum::{extract::ConnectInfo, http::StatusCode, Json};
@@ -36,6 +36,11 @@ pub async fn refresh_token(
             ));
         }
     };
+
+    if refresh_token.nonce != NONCE() {
+        return Err((StatusCode::UNAUTHORIZED, "Expired token".to_string()));
+    }
+
     let ip = match request.enforce_ip {
         true => Some(ip),
         false => None,
