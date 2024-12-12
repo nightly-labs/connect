@@ -36,7 +36,7 @@ impl Db {
         app_id: &String,
     ) -> Result<(), DbError> {
         let query_body = format!(
-            "UPDATE {DOMAIN_VERIFICATIONS_TABLE_NAME} SET finished_at = $1 WHERE domain_name = $2 AND app_id = $3 AND finished_at IS NULL AND deleted_at IS NULL"
+            "UPDATE {DOMAIN_VERIFICATIONS_TABLE_NAME} SET finished_at = $1 WHERE domain_name = $2 AND app_id = $3 AND finished_at IS NULL AND cancelled_at IS NULL AND deleted_at IS NULL"
         );
 
         let query_result = query(&query_body)
