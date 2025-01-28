@@ -147,7 +147,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
           `${appInitData.url ?? 'https://nc2.nightly.app'}/get_wallets_metadata`
         )
       ])
-    } catch {
+    } catch (error) {
+      console.log('app init', error)
       clearSessionIdForNetwork(SOLANA_NETWORK)
       return await Promise.all([
         AppSolana.build(appInitData),
@@ -260,8 +261,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
           adapter.disconnect()
         }
       })
-    } catch {
-      console.log('Error building adapter')
+    } catch (error) {
+      console.log('Error building adapter', error)
     }
     return adapter
   }
@@ -351,8 +352,8 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
             }
           })
         })
-        .catch(() => {
-          throw new Error('Failed to initialize adapter')
+        .catch((error) => {
+          throw new Error('Failed to initialize adapter', error)
         })
     }
 
@@ -643,9 +644,9 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
                   }
                 })
               })
-              .catch(() => {
+              .catch((error) => {
                 this._appLoading = false
-                throw new Error('Failed to initialize adapter')
+                throw new Error('Failed to initialize adapter', error)
               })
           }
 
