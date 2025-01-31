@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import { getStorage, ILocalStorage } from 'isomorphic-localstorage'
 import { WalletMetadata } from '../../../bindings/WalletMetadata'
-import { fetch } from 'cross-fetch'
+import fetch from 'cross-fetch'
 
 export const getRandomId = () => uuidv4()
 
@@ -13,7 +13,7 @@ export const getWalletsMetadata = async (
 ): Promise<WalletMetadata[]> => {
   const endpoint = url ?? RELAY_ENDPOINT + '/get_wallets_metadata'
   const result = (await (
-    await fetch(endpoint, {
+    await fetch.bind(window)(endpoint, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
