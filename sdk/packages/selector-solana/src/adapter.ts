@@ -148,7 +148,6 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
         )
       ])
     } catch (error) {
-      console.log('app init', error)
       clearSessionIdForNetwork(SOLANA_NETWORK)
       return await Promise.all([
         AppSolana.build(appInitData),
@@ -223,7 +222,6 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
           uiOverrides?.stylesOverride,
           uiOverrides?.qrConfigOverride
         )
-
       const [app, metadataWallets] = await NightlyConnectAdapter.initApp(appInitData)
 
       adapter._app = app
