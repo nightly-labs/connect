@@ -27,6 +27,7 @@ import {
   serializeAptosTx,
   serializeObject
 } from './utils'
+import { Aptos, AptosConfig, Network } from '@aptos-labs/ts-sdk'
 
 interface AptosAppEvents {
   userConnected: (e: AccountInfo, networkInfo: NetworkInfo) => void
@@ -117,7 +118,20 @@ export class AppAptos extends EventEmitter<AptosAppEvents> {
   connectDeeplink = async (data: DeeplinkConnect) => {
     this.base.connectDeeplink(data)
   }
-  signAndSubmitTransaction: AptosSignAndSubmitTransactionMethod = async (tx) => {
+  signAndSubmitTransaction: AptosSignAndSubmitTransactionMethod = async (input) => {
+    const aptosConfig = new AptosConfig({
+      network: Network.MAINNET
+    })
+    const aptos = new Aptos(aptosConfig)
+
+    const tx = await aptos.transaction.build.simple({
+      sender: (this.connectedPublicKeys ?? [])[0],
+      data: input.payload,
+      options: {
+        gasUnitPrice: input.gasUnitPrice,
+        maxGasAmount: input.maxGasAmount
+      }
+    })
     const transactionToSign: TransactionToSign = {
       transaction: serializeAptosTx(tx),
       metadata: JSON.stringify({ execute: true })

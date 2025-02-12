@@ -1,6 +1,6 @@
 {
   "name": "@nightlylabs/nightly-connect-base",
-  "version": "0.0.31",
+  "version": "0.0.32",
   "type": "module",
   "exports": {
     ".": {
@@ -45,8 +45,8 @@
     "cross-fetch": "4.1.0",
     "eventemitter3": "^5.0.1",
     "isomorphic-localstorage": "^1.0.2",
-    "@aptos-labs/wallet-standard": "^0.0.11",
-    "@aptos-labs/ts-sdk": "^1.9.1",
+    "@aptos-labs/wallet-standard": "0.2.0",
+    "@aptos-labs/ts-sdk": "1.35.0",
     "isomorphic-ws": "^5.0.0",
     "uuid": "^9.0.0",
     "ws": "^8.13.0"

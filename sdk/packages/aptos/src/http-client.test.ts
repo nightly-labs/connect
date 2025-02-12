@@ -1,4 +1,10 @@
-import { Account, Aptos, Ed25519PrivateKey, Network } from '@aptos-labs/ts-sdk'
+import {
+  Account,
+  Aptos,
+  Ed25519PrivateKey,
+  InputGenerateTransactionPayloadData,
+  Network
+} from '@aptos-labs/ts-sdk'
 import {
   AccountInfo,
   AptosChangeNetworkInput,
@@ -118,15 +124,13 @@ describe('Aptos http-client tests', () => {
   })
   test('#resolveSignAndSubmitTransaction()', async () => {
     const bobAddress = '0xb0b'
-    const transaction = await aptos.transaction.build.simple({
-      sender: alice.accountAddress,
-      data: {
-        function: '0x1::coin::transfer',
-        typeArguments: ['0x1::aptos_coin::AptosCoin'],
-        functionArguments: [bobAddress, 100]
-      }
-    })
-    const promiseSignTransaction = app.signAndSubmitTransaction(transaction)
+    const payload: InputGenerateTransactionPayloadData = {
+      function: '0x1::coin::transfer',
+      typeArguments: ['0x1::aptos_coin::AptosCoin'],
+      functionArguments: [bobAddress, 100]
+    }
+
+    const promiseSignTransaction = app.signAndSubmitTransaction({ payload })
     await smartDelay()
     // Query for request
     const pendingRequest = (

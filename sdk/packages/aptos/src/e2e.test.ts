@@ -5,10 +5,17 @@ import { ClientAptos, Connect } from './client'
 import { TEST_APP_INITIALIZE } from './testUtils'
 import { APTOS_NETWORK } from './utils'
 
-import { Account, Aptos, Ed25519PrivateKey, Network } from '@aptos-labs/ts-sdk'
+import {
+  Account,
+  Aptos,
+  Ed25519PrivateKey,
+  InputGenerateTransactionPayloadData,
+  Network
+} from '@aptos-labs/ts-sdk'
 import {
   AccountInfo,
   AptosChangeNetworkInput,
+  AptosSignAndSubmitTransactionInput,
   AptosSignMessageInput,
   NetworkInfo,
   UserResponseStatus
@@ -178,16 +185,18 @@ describe('Aptos client tests', () => {
 
     await smartDelay()
 
+    const payload: InputGenerateTransactionPayloadData = {
+      function: '0x1::coin::transfer',
+      typeArguments: ['0x1::aptos_coin::AptosCoin'],
+      functionArguments: [bobAddress, 100]
+    }
+
     const transaction = await aptos.transaction.build.simple({
       sender: alice.accountAddress,
-      data: {
-        function: '0x1::coin::transfer',
-        typeArguments: ['0x1::aptos_coin::AptosCoin'],
-        functionArguments: [bobAddress, 100]
-      }
+      data: payload
     })
 
-    const submittedTx = await app.signAndSubmitTransaction(transaction)
+    const submittedTx = await app.signAndSubmitTransaction({ payload })
     // Verify the transaction was signed
     if (submittedTx.status !== UserResponseStatus.APPROVED) {
       throw new Error('Transaction was not approved')
@@ -198,16 +207,14 @@ describe('Aptos client tests', () => {
   test('#getPendingRequests()', async () => {
     client.removeAllListeners()
     const bobAddress = '0xb0b'
-    const transaction = await aptos.transaction.build.simple({
-      sender: alice.accountAddress,
-      data: {
-        function: '0x1::coin::transfer',
-        typeArguments: ['0x1::aptos_coin::AptosCoin'],
-        functionArguments: [bobAddress, 100]
-      }
-    })
-    app.signAndSubmitTransaction(transaction)
-    app.signAndSubmitTransaction(transaction)
+    const payload: InputGenerateTransactionPayloadData = {
+      function: '0x1::coin::transfer',
+      typeArguments: ['0x1::aptos_coin::AptosCoin'],
+      functionArguments: [bobAddress, 100]
+    }
+
+    app.signAndSubmitTransaction({ payload })
+    app.signAndSubmitTransaction({ payload })
     await smartDelay(500)
     const requests = await client.getPendingRequests()
     expect(requests.length).toBe(2)

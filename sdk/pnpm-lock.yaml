@@ -40,11 +40,11 @@ importers:
   apps/modal-example:
     dependencies:
       '@aptos-labs/ts-sdk':
-        specifier: ^1.9.1
-        version: 1.33.0
+        specifier: 1.35.0
+        version: 1.35.0(axios@1.7.4)(got@11.8.6)
       '@aptos-labs/wallet-standard':
-        specifier: ^0.0.11
-        version: 0.0.11
+        specifier: 0.2.0
+        version: 0.2.0(@aptos-labs/ts-sdk@1.35.0(axios@1.7.4)(got@11.8.6))(@wallet-standard/core@1.1.0)
       '@mysten/sui':
         specifier: 1.4.0
         version: 1.4.0(typescript@4.9.5)
@@ -53,22 +53,22 @@ importers:
         version: 0.0.16(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@nightlylabs/nightly-connect-solana':
         specifier: 0.0.30
-        version: 0.0.30(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+        version: 0.0.30(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)
       '@nightlylabs/nightly-connect-sui':
         specifier: 0.1.0
         version: 0.1.0(bufferutil@4.0.8)(typescript@4.9.5)(utf-8-validate@5.0.10)
       '@nightlylabs/wallet-selector-aptos':
-        specifier: ^0.1.15
-        version: 0.1.15(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+        specifier: workspace:*
+        version: link:../../packages/selector-aptos
       '@nightlylabs/wallet-selector-base':
         specifier: ^0.4.3
-        version: 0.4.3(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+        version: 0.4.3(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)
       '@nightlylabs/wallet-selector-polkadot':
         specifier: 0.2.9
-        version: 0.2.9(@polkadot/util@12.6.2)(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+        version: 0.2.9(@polkadot/util@12.6.2)(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)
       '@nightlylabs/wallet-selector-solana':
         specifier: 0.3.13
-        version: 0.3.13(bs58@6.0.0)(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)
+        version: 0.3.13(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)
       '@nightlylabs/wallet-selector-sui':
         specifier: 0.4.2
         version: 0.4.2(bufferutil@4.0.8)(typescript@4.9.5)(utf-8-validate@5.0.10)
@@ -195,14 +195,14 @@ importers:
   packages/aptos:
     dependencies:
       '@aptos-labs/ts-sdk':
-        specifier: ^1.9.1
-        version: 1.33.0
+        specifier: 1.35.0
+        version: 1.35.0(axios@1.7.4)(got@11.8.6)
       '@aptos-labs/wallet-standard':
-        specifier: ^0.0.11
-        version: 0.0.11
+        specifier: 0.2.0
+        version: 0.2.0(@aptos-labs/ts-sdk@1.35.0(axios@1.7.4)(got@11.8.6))(@wallet-standard/core@1.1.0)
       '@nightlylabs/nightly-connect-base':
-        specifier: ^0.0.30
-        version: 0.0.30(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+        specifier: workspace:*
+        version: link:../base
       eventemitter3:
         specifier: ^5.0.1
         version: 5.0.1
@@ -244,11 +244,11 @@ importers:
   packages/base:
     dependencies:
       '@aptos-labs/ts-sdk':
-        specifier: ^1.9.1
-        version: 1.33.0
+        specifier: 1.35.0
+        version: 1.35.0(axios@1.7.4)(got@11.8.6)
       '@aptos-labs/wallet-standard':
-        specifier: ^0.0.11
-        version: 0.0.11
+        specifier: 0.2.0
+        version: 0.2.0(@aptos-labs/ts-sdk@1.35.0(axios@1.7.4)(got@11.8.6))(@wallet-standard/core@1.1.0)
       cross-fetch:
         specifier: 4.1.0
         version: 4.1.0
@@ -503,20 +503,20 @@ importers:
   packages/selector-aptos:
     dependencies:
       '@aptos-labs/ts-sdk':
-        specifier: ^1.9.1
-        version: 1.33.0
+        specifier: 1.35.0
+        version: 1.35.0(axios@1.7.4)(got@11.8.6)
       '@aptos-labs/wallet-standard':
-        specifier: ^0.0.11
-        version: 0.0.11
+        specifier: 0.2.0
+        version: 0.2.0(@aptos-labs/ts-sdk@1.35.0(axios@1.7.4)(got@11.8.6))(@wallet-standard/core@1.1.0)
       '@nightlylabs/nightly-connect-aptos':
-        specifier: 0.0.5
-        version: 0.0.5(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+        specifier: workspace:*
+        version: link:../aptos
       '@nightlylabs/nightly-connect-base':
         specifier: ^0.0.30
-        version: 0.0.30(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+        version: 0.0.30(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)
       '@nightlylabs/wallet-selector-base':
         specifier: 0.4.3
-        version: 0.4.3(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+        version: 0.4.3(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)
       '@wallet-standard/core':
         specifier: ^1.0.3
         version: 1.1.0
@@ -553,7 +553,7 @@ importers:
     dependencies:
       '@nightlylabs/nightly-connect-base':
         specifier: ^0.0.30
-        version: 0.0.30(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+        version: 0.0.30(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)
       '@nightlylabs/wallet-selector-modal':
         specifier: 0.2.1
         version: 0.2.1
@@ -596,7 +596,7 @@ importers:
         version: 0.0.16(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@nightlylabs/wallet-selector-base':
         specifier: ^0.4.1
-        version: 0.4.3(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+        version: 0.4.3(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)
       '@polkadot/api':
         specifier: 10.10.1
         version: 10.10.1(bufferutil@4.0.8)(utf-8-validate@5.0.10)
@@ -639,10 +639,10 @@ importers:
     dependencies:
       '@nightlylabs/nightly-connect-solana':
         specifier: ^0.0.32
-        version: 0.0.32(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+        version: 0.0.32(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)
       '@nightlylabs/wallet-selector-base':
         specifier: ^0.4.3
-        version: 0.4.3(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+        version: 0.4.3(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)
       '@solana/wallet-adapter-base':
         specifier: ^0.9.22
         version: 0.9.23(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))
@@ -743,7 +743,7 @@ importers:
     dependencies:
       '@nightlylabs/nightly-connect-base':
         specifier: ^0.0.31
-        version: 0.0.31(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+        version: 0.0.31(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)
       '@solana/web3.js':
         specifier: ^1.77.2
         version: 1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)
@@ -906,16 +906,31 @@ packages:
     resolution: {integrity: sha512-PYPsd0Kk3ynkxNfe3S4fanI3DiUICCoh4ibQderbvjPFL5A0oK6F4lPEO2t0MDsQySTk2t4vh99Xjy6Bd9y+aQ==}
     hasBin: true
 
-  '@aptos-labs/aptos-client@0.1.1':
-    resolution: {integrity: sha512-kJsoy4fAPTOhzVr7Vwq8s/AUg6BQiJDa7WOqRzev4zsuIS3+JCuIZ6vUd7UBsjnxtmguJJulMRs9qWCzVBt2XA==}
+  '@aptos-labs/aptos-client@1.0.0':
+    resolution: {integrity: sha512-P/U/xz9w7+tTQDkaeAc693lDFcADO15bjD5RtP/2sa5FSIYbAyGI5A1RfSNPESuBjvskHBa6s47wajgSt4yX7g==}
     engines: {node: '>=15.10.0'}
+    peerDependencies:
+      axios: ^1.7.7
+      got: ^11.8.6
 
-  '@aptos-labs/ts-sdk@1.33.0':
-    resolution: {integrity: sha512-svdlPH5r2dlSue2D9WXaaTslsmX18WLytAho6IRZJxQjEssglk64I6c1G9S8BTjRQj/ug6ahTwp6lx3eWuyd8Q==}
-    engines: {node: '>=11.0.0'}
+  '@aptos-labs/aptos-dynamic-transaction-composer@0.1.3':
+    resolution: {integrity: sha512-bJl+Zq5QbhpcPIJakAkl9tnT3T02mxCYhZThQDhUmjsOZ5wMRlKJ0P7aaq1dmlybSHkVj7vRgOy2t86/NDKKng==}
+
+  '@aptos-labs/script-composer-pack@0.0.9':
+    resolution: {integrity: sha512-Y3kA1rgF65HETgoTn2omDymsgO+fnZouPLrKJZ9sbxTGdOekIIHtGee3A2gk84eCqa02ZKBumZmP+IDCXRtU/g==}
+
+  '@aptos-labs/ts-sdk@1.35.0':
+    resolution: {integrity: sha512-ChW2Lvi6lKfEb0AYo0HAa98bYf0+935nMdjl40wFMWsR+mxFhtNA4EYINXsHVTMPfE/WV9sXEvDInvscJFrALQ==}
+    engines: {node: '>=20.0.0'}
 
   '@aptos-labs/wallet-standard@0.0.11':
     resolution: {integrity: sha512-8dygyPBby7TaMJjUSyeVP4R1WC9D/FPpX9gVMMLaqTKCXrSbkzhGDxcuwbMZ3ziEwRmx3zz+d6BIJbDhd0hm5g==}
+
+  '@aptos-labs/wallet-standard@0.2.0':
+    resolution: {integrity: sha512-4aoO4MlqzrW+CtO83MwbHMMtu91DL5B7YKRvhJbRnVB4R+QCOwBI/aQTkNZbKBDfOplLlqWTTl6Li0l6e02YLQ==}
+    peerDependencies:
+      '@aptos-labs/ts-sdk': ^1.17.0
+      '@wallet-standard/core': ^1.0.3
 
   '@aw-web-design/x-default-browser@1.4.126':
     resolution: {integrity: sha512-Xk1sIhyNC/esHGGVjL/niHLowM0csl/kFO5uawBy4IrWwy0o1G8LGt3jP6nmWGz+USxeeqbihAmp/oVZju6wug==}
@@ -2497,9 +2512,6 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@nightlylabs/nightly-connect-aptos@0.0.5':
-    resolution: {integrity: sha512-eKK2x+qKN7bYhFhv3cEyF4X7ufQJStnCAxoyY5f+Snp8mji87EhIOFanzomYkjlr6r6yVrECN4K+L5ucfZ221A==}
-
   '@nightlylabs/nightly-connect-base@0.0.27':
     resolution: {integrity: sha512-aDpQJicIjL7S+EzwBgUzMEY/L/HtFalfhf4APE3GaDqK9JqtLJDO9d2RmUQDinTtb1mG9MsHpWBtU6fjYo+PHw==}
 
@@ -2532,9 +2544,6 @@ packages:
 
   '@nightlylabs/qr-code@2.0.4':
     resolution: {integrity: sha512-GU8u8Cm1Q5YnoB/kikM4whFQhJ7ZWKaazBm4wiZK9Qi64Ht9tyRVzASBbZRpeOZVzxwi7Mml5sz0hUKPEFMpdA==}
-
-  '@nightlylabs/wallet-selector-aptos@0.1.15':
-    resolution: {integrity: sha512-O0mAyQoQUHmps6dBF6sZiESjSp6bXvcLRisFJA66HtEDK9Xphb1wMAzjKc5be29mL5q6ht1srCLaQ8P3w9Gehg==}
 
   '@nightlylabs/wallet-selector-base@0.2.4':
     resolution: {integrity: sha512-r5WktkwgsNz6SFgEXnWYKdxmQMU2+0emckxyJqGgi9bnV5TnohWmXMaRHukB202ptYUI++37tbZa7P3DXm+BqQ==}
@@ -9505,17 +9514,22 @@ snapshots:
     dependencies:
       commander: 12.1.0
 
-  '@aptos-labs/aptos-client@0.1.1':
+  '@aptos-labs/aptos-client@1.0.0(axios@1.7.4)(got@11.8.6)':
     dependencies:
       axios: 1.7.4
       got: 11.8.6
-    transitivePeerDependencies:
-      - debug
 
-  '@aptos-labs/ts-sdk@1.33.0':
+  '@aptos-labs/aptos-dynamic-transaction-composer@0.1.3': {}
+
+  '@aptos-labs/script-composer-pack@0.0.9':
+    dependencies:
+      '@aptos-labs/aptos-dynamic-transaction-composer': 0.1.3
+
+  '@aptos-labs/ts-sdk@1.35.0(axios@1.7.4)(got@11.8.6)':
     dependencies:
       '@aptos-labs/aptos-cli': 1.0.2
-      '@aptos-labs/aptos-client': 0.1.1
+      '@aptos-labs/aptos-client': 1.0.0(axios@1.7.4)(got@11.8.6)
+      '@aptos-labs/script-composer-pack': 0.0.9
       '@noble/curves': 1.6.0
       '@noble/hashes': 1.5.0
       '@scure/bip32': 1.5.0
@@ -9526,14 +9540,21 @@ snapshots:
       jwt-decode: 4.0.0
       poseidon-lite: 0.2.1
     transitivePeerDependencies:
-      - debug
+      - axios
+      - got
 
-  '@aptos-labs/wallet-standard@0.0.11':
+  '@aptos-labs/wallet-standard@0.0.11(axios@1.7.4)(got@11.8.6)':
     dependencies:
-      '@aptos-labs/ts-sdk': 1.33.0
+      '@aptos-labs/ts-sdk': 1.35.0(axios@1.7.4)(got@11.8.6)
       '@wallet-standard/core': 1.0.3
     transitivePeerDependencies:
-      - debug
+      - axios
+      - got
+
+  '@aptos-labs/wallet-standard@0.2.0(@aptos-labs/ts-sdk@1.35.0(axios@1.7.4)(got@11.8.6))(@wallet-standard/core@1.1.0)':
+    dependencies:
+      '@aptos-labs/ts-sdk': 1.35.0(axios@1.7.4)(got@11.8.6)
+      '@wallet-standard/core': 1.1.0
 
   '@aw-web-design/x-default-browser@1.4.126':
     dependencies:
@@ -11098,18 +11119,6 @@ snapshots:
   '@next/swc-win32-x64-msvc@13.4.10':
     optional: true
 
-  '@nightlylabs/nightly-connect-aptos@0.0.5(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
-    dependencies:
-      '@aptos-labs/ts-sdk': 1.33.0
-      '@aptos-labs/wallet-standard': 0.0.11
-      '@nightlylabs/nightly-connect-base': 0.0.30(bufferutil@4.0.8)(utf-8-validate@5.0.10)
-      eventemitter3: 5.0.1
-    transitivePeerDependencies:
-      - bufferutil
-      - debug
-      - encoding
-      - utf-8-validate
-
   '@nightlylabs/nightly-connect-base@0.0.27(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
     dependencies:
       cross-fetch: 3.1.8
@@ -11136,10 +11145,10 @@ snapshots:
       - encoding
       - utf-8-validate
 
-  '@nightlylabs/nightly-connect-base@0.0.30(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@nightlylabs/nightly-connect-base@0.0.30(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)':
     dependencies:
-      '@aptos-labs/ts-sdk': 1.33.0
-      '@aptos-labs/wallet-standard': 0.0.11
+      '@aptos-labs/ts-sdk': 1.35.0(axios@1.7.4)(got@11.8.6)
+      '@aptos-labs/wallet-standard': 0.0.11(axios@1.7.4)(got@11.8.6)
       cross-fetch: 3.1.8
       eventemitter3: 5.0.1
       isomorphic-localstorage: 1.0.2
@@ -11147,15 +11156,16 @@ snapshots:
       uuid: 9.0.1
       ws: 8.18.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
+      - axios
       - bufferutil
-      - debug
       - encoding
+      - got
       - utf-8-validate
 
-  '@nightlylabs/nightly-connect-base@0.0.31(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@nightlylabs/nightly-connect-base@0.0.31(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)':
     dependencies:
-      '@aptos-labs/ts-sdk': 1.33.0
-      '@aptos-labs/wallet-standard': 0.0.11
+      '@aptos-labs/ts-sdk': 1.35.0(axios@1.7.4)(got@11.8.6)
+      '@aptos-labs/wallet-standard': 0.0.11(axios@1.7.4)(got@11.8.6)
       cross-fetch: 4.1.0
       eventemitter3: 5.0.1
       isomorphic-localstorage: 1.0.2
@@ -11163,9 +11173,10 @@ snapshots:
       uuid: 9.0.1
       ws: 8.18.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
+      - axios
       - bufferutil
-      - debug
       - encoding
+      - got
       - utf-8-validate
 
   '@nightlylabs/nightly-connect-polkadot@0.0.16(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
@@ -11195,28 +11206,30 @@ snapshots:
       - encoding
       - utf-8-validate
 
-  '@nightlylabs/nightly-connect-solana@0.0.30(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@nightlylabs/nightly-connect-solana@0.0.30(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)':
     dependencies:
-      '@nightlylabs/nightly-connect-base': 0.0.30(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@nightlylabs/nightly-connect-base': 0.0.30(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)
       '@solana/web3.js': 1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       eventemitter3: 5.0.1
       uuid: 9.0.1
     transitivePeerDependencies:
+      - axios
       - bufferutil
-      - debug
       - encoding
+      - got
       - utf-8-validate
 
-  '@nightlylabs/nightly-connect-solana@0.0.32(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@nightlylabs/nightly-connect-solana@0.0.32(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)':
     dependencies:
-      '@nightlylabs/nightly-connect-base': 0.0.31(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@nightlylabs/nightly-connect-base': 0.0.31(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)
       '@solana/web3.js': 1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       eventemitter3: 5.0.1
       uuid: 9.0.1
     transitivePeerDependencies:
+      - axios
       - bufferutil
-      - debug
       - encoding
+      - got
       - utf-8-validate
 
   '@nightlylabs/nightly-connect-sui@0.0.28(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
@@ -11268,23 +11281,6 @@ snapshots:
     dependencies:
       qrcode-generator: 1.4.4
 
-  '@nightlylabs/wallet-selector-aptos@0.1.15(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
-    dependencies:
-      '@aptos-labs/ts-sdk': 1.33.0
-      '@aptos-labs/wallet-standard': 0.0.11
-      '@nightlylabs/nightly-connect-aptos': 0.0.5(bufferutil@4.0.8)(utf-8-validate@5.0.10)
-      '@nightlylabs/nightly-connect-base': 0.0.30(bufferutil@4.0.8)(utf-8-validate@5.0.10)
-      '@nightlylabs/wallet-selector-base': 0.4.3(bufferutil@4.0.8)(utf-8-validate@5.0.10)
-      '@wallet-standard/core': 1.1.0
-      eventemitter3: 5.0.1
-    transitivePeerDependencies:
-      - bufferutil
-      - debug
-      - encoding
-      - supports-color
-      - ts-node
-      - utf-8-validate
-
   '@nightlylabs/wallet-selector-base@0.2.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
     dependencies:
       '@nightlylabs/nightly-connect-base': 0.0.27(bufferutil@4.0.8)(utf-8-validate@5.0.10)
@@ -11311,16 +11307,17 @@ snapshots:
       - ts-node
       - utf-8-validate
 
-  '@nightlylabs/wallet-selector-base@0.4.3(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@nightlylabs/wallet-selector-base@0.4.3(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)':
     dependencies:
-      '@nightlylabs/nightly-connect-base': 0.0.30(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@nightlylabs/nightly-connect-base': 0.0.30(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)
       '@nightlylabs/wallet-selector-modal': 0.2.1
       '@wallet-standard/core': 1.1.0
       isomorphic-localstorage: 1.0.2
     transitivePeerDependencies:
+      - axios
       - bufferutil
-      - debug
       - encoding
+      - got
       - supports-color
       - ts-node
       - utf-8-validate
@@ -11349,19 +11346,20 @@ snapshots:
       - supports-color
       - ts-node
 
-  '@nightlylabs/wallet-selector-polkadot@0.2.9(@polkadot/util@12.6.2)(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@nightlylabs/wallet-selector-polkadot@0.2.9(@polkadot/util@12.6.2)(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)':
     dependencies:
       '@nightlylabs/nightly-connect-polkadot': 0.0.16(bufferutil@4.0.8)(utf-8-validate@5.0.10)
-      '@nightlylabs/wallet-selector-base': 0.4.3(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@nightlylabs/wallet-selector-base': 0.4.3(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)
       '@polkadot/api': 10.10.1(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@polkadot/extension-inject': 0.46.5(@polkadot/api@10.10.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(@polkadot/util@12.6.2)(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@wallet-standard/core': 1.1.0
       eventemitter3: 5.0.1
     transitivePeerDependencies:
       - '@polkadot/util'
+      - axios
       - bufferutil
-      - debug
       - encoding
+      - got
       - supports-color
       - ts-node
       - utf-8-validate
@@ -11371,7 +11369,7 @@ snapshots:
       '@nightlylabs/nightly-connect-solana': 0.0.28(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@nightlylabs/wallet-selector-base': 0.2.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@solana/wallet-adapter-base': 0.9.23(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))
-      '@solana/wallet-standard': 1.1.2(@solana/wallet-adapter-base@0.9.23(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)))(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(bs58@6.0.0)(react@18.2.0)
+      '@solana/wallet-standard': 1.1.2(@solana/wallet-adapter-base@0.9.23(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)))(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(react@18.2.0)
       '@solana/web3.js': 1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@wallet-standard/core': 1.1.0
     transitivePeerDependencies:
@@ -11383,19 +11381,20 @@ snapshots:
       - ts-node
       - utf-8-validate
 
-  '@nightlylabs/wallet-selector-solana@0.3.13(bs58@6.0.0)(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)':
+  '@nightlylabs/wallet-selector-solana@0.3.13(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)':
     dependencies:
-      '@nightlylabs/nightly-connect-solana': 0.0.32(bufferutil@4.0.8)(utf-8-validate@5.0.10)
-      '@nightlylabs/wallet-selector-base': 0.4.3(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@nightlylabs/nightly-connect-solana': 0.0.32(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)
+      '@nightlylabs/wallet-selector-base': 0.4.3(axios@1.7.4)(bufferutil@4.0.8)(got@11.8.6)(utf-8-validate@5.0.10)
       '@solana/wallet-adapter-base': 0.9.23(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))
-      '@solana/wallet-standard': 1.1.2(@solana/wallet-adapter-base@0.9.23(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)))(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(bs58@6.0.0)(react@18.2.0)
+      '@solana/wallet-standard': 1.1.2(@solana/wallet-adapter-base@0.9.23(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)))(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(react@18.2.0)
       '@solana/web3.js': 1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@wallet-standard/core': 1.1.0
     transitivePeerDependencies:
+      - axios
       - bs58
       - bufferutil
-      - debug
       - encoding
+      - got
       - react
       - supports-color
       - ts-node
@@ -12620,6 +12619,17 @@ snapshots:
       - '@solana/web3.js'
       - bs58
 
+  '@solana/wallet-standard-wallet-adapter-react@1.1.2(@solana/wallet-adapter-base@0.9.23(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)))(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(react@18.2.0)':
+    dependencies:
+      '@solana/wallet-adapter-base': 0.9.23(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+      '@solana/wallet-standard-wallet-adapter-base': 1.1.2(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(bs58@6.0.0)
+      '@wallet-standard/app': 1.1.0
+      '@wallet-standard/base': 1.1.0
+      react: 18.2.0
+    transitivePeerDependencies:
+      - '@solana/web3.js'
+      - bs58
+
   '@solana/wallet-standard-wallet-adapter@1.1.2(@solana/wallet-adapter-base@0.9.23(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)))(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(bs58@6.0.0)(react@18.2.0)':
     dependencies:
       '@solana/wallet-standard-wallet-adapter-base': 1.1.2(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(bs58@6.0.0)
@@ -12630,10 +12640,30 @@ snapshots:
       - bs58
       - react
 
+  '@solana/wallet-standard-wallet-adapter@1.1.2(@solana/wallet-adapter-base@0.9.23(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)))(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(react@18.2.0)':
+    dependencies:
+      '@solana/wallet-standard-wallet-adapter-base': 1.1.2(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(bs58@6.0.0)
+      '@solana/wallet-standard-wallet-adapter-react': 1.1.2(@solana/wallet-adapter-base@0.9.23(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)))(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(react@18.2.0)
+    transitivePeerDependencies:
+      - '@solana/wallet-adapter-base'
+      - '@solana/web3.js'
+      - bs58
+      - react
+
   '@solana/wallet-standard@1.1.2(@solana/wallet-adapter-base@0.9.23(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)))(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(bs58@6.0.0)(react@18.2.0)':
     dependencies:
       '@solana/wallet-standard-core': 1.1.1
       '@solana/wallet-standard-wallet-adapter': 1.1.2(@solana/wallet-adapter-base@0.9.23(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)))(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(bs58@6.0.0)(react@18.2.0)
+    transitivePeerDependencies:
+      - '@solana/wallet-adapter-base'
+      - '@solana/web3.js'
+      - bs58
+      - react
+
+  '@solana/wallet-standard@1.1.2(@solana/wallet-adapter-base@0.9.23(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)))(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(react@18.2.0)':
+    dependencies:
+      '@solana/wallet-standard-core': 1.1.1
+      '@solana/wallet-standard-wallet-adapter': 1.1.2(@solana/wallet-adapter-base@0.9.23(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)))(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(react@18.2.0)
     transitivePeerDependencies:
       - '@solana/wallet-adapter-base'
       - '@solana/web3.js'

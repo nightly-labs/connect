@@ -8,7 +8,11 @@ import {
   RawTransaction,
   Serializer
 } from '@aptos-labs/ts-sdk'
-import { AccountInfo, NetworkInfo } from '@aptos-labs/wallet-standard'
+import {
+  AccountInfo,
+  AptosSignAndSubmitTransactionOutput,
+  NetworkInfo
+} from '@aptos-labs/wallet-standard'
 import { ContentType, RequestContent } from '@nightlylabs/nightly-connect-base'
 import {
   AptosRequest,
@@ -123,7 +127,7 @@ export const deserializeAccountAuthenticator = (s: string): AccountAuthenticator
   return AccountAuthenticator.deserialize(deserializer)
 }
 export const serializePendingTransactionResponse = (
-  pendingTransactionResponse: PendingTransactionResponse
+  pendingTransactionResponse: AptosSignAndSubmitTransactionOutput
 ): string => {
   return serializeObject(pendingTransactionResponse)
 }
