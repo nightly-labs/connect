@@ -15,7 +15,6 @@ import {
 import {
   AccountInfo,
   AptosChangeNetworkInput,
-  AptosSignAndSubmitTransactionInput,
   AptosSignMessageInput,
   NetworkInfo,
   UserResponseStatus
@@ -167,9 +166,18 @@ describe('Aptos client tests', () => {
 
     client.on('signAndSubmitTransaction', async (e) => {
       const tx = e.transactions[0]
+      const transaction = await aptos.transaction.build.simple({
+        sender: alice.accountAddress,
+        data: tx.payload,
+        options: {
+          maxGasAmount: tx.maxGasAmount,
+          gasUnitPrice: tx.gasUnitPrice
+        }
+      })
+
       const senderAuthenticator = aptos.transaction.sign({
         signer: alice,
-        transaction: tx
+        transaction: transaction
       })
       // Try to submit the transaction
       const pendingTransaction = await aptos.transaction.submit.simple({
