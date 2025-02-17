@@ -13,7 +13,7 @@ export const getWalletsMetadata = async (
 ): Promise<WalletMetadata[]> => {
   const endpoint = url ?? RELAY_ENDPOINT + '/get_wallets_metadata'
   const result = (await (
-    await fetch.bind(window)(endpoint, {
+    await fetch(endpoint, {
       method: 'GET',
       headers: {
         Accept: 'application/json',

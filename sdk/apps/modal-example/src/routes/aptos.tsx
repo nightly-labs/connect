@@ -5,7 +5,8 @@ import {
   Aptos,
   AccountPublicKey,
   Network,
-  AptosConfig
+  AptosConfig,
+  InputGenerateTransactionPayloadData
 } from '@aptos-labs/ts-sdk'
 import {
   AccountInfo,
@@ -108,18 +109,15 @@ export default function AptosPage() {
         <button
           onClick={async () => {
             try {
-              const transaction = await aptos.transaction.build.simple({
-                sender: accountInfo()!.address?.toString(),
-                data: {
-                  function: '0x1::coin::transfer',
-                  typeArguments: ['0x1::aptos_coin::AptosCoin'],
-                  functionArguments: [
-                    '0x960dbc655b847cad38b6dd056913086e5e0475abc27152b81570fd302cb10c38',
-                    100
-                  ]
-                }
-              })
-              const signedTx = await adapter()!.signAndSubmitTransaction(transaction)
+              const payload: InputGenerateTransactionPayloadData = {
+                function: '0x1::coin::transfer',
+                typeArguments: ['0x1::aptos_coin::AptosCoin'],
+                functionArguments: [
+                  '0x960dbc655b847cad38b6dd056913086e5e0475abc27152b81570fd302cb10c38',
+                  100
+                ]
+              }
+              const signedTx = await adapter()!.signAndSubmitTransaction({ payload })
 
               // Verify the transaction was signed
               if (signedTx.status !== UserResponseStatus.APPROVED) {

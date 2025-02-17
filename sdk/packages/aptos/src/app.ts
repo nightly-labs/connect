@@ -117,9 +117,9 @@ export class AppAptos extends EventEmitter<AptosAppEvents> {
   connectDeeplink = async (data: DeeplinkConnect) => {
     this.base.connectDeeplink(data)
   }
-  signAndSubmitTransaction: AptosSignAndSubmitTransactionMethod = async (tx) => {
+  signAndSubmitTransaction: AptosSignAndSubmitTransactionMethod = async (input) => {
     const transactionToSign: TransactionToSign = {
-      transaction: serializeAptosTx(tx),
+      transaction: serializeObject(input),
       metadata: JSON.stringify({ execute: true })
     }
     const signedTx = await this.base.signTransactions([transactionToSign])

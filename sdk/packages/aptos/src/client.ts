@@ -2,6 +2,7 @@ import { AnyRawTransaction, Network } from '@aptos-labs/ts-sdk'
 import {
   AccountInfo,
   AptosChangeNetworkInput,
+  AptosSignAndSubmitTransactionInput,
   AptosSignAndSubmitTransactionOutput,
   AptosSignMessageInput,
   AptosSignMessageOutput,
@@ -29,7 +30,7 @@ import {
 export interface SignAndSubmitTransactionEvent {
   sessionId: string
   requestId: string
-  transactions: Array<AnyRawTransaction>
+  transactions: Array<AptosSignAndSubmitTransactionInput>
 }
 export interface SignTransactionEvent {
   sessionId: string
@@ -69,7 +70,7 @@ export class ClientAptos extends EventEmitter<ClientAptosEvents> {
         const event: SignAndSubmitTransactionEvent = {
           sessionId: e.sessionId,
           requestId: e.responseId,
-          transactions: e.transactions.map((tx) => deserializeAptosTx(tx.transaction))
+          transactions: e.transactions.map((tx) => deserializeObject(tx.transaction))
         }
         this.emit('signAndSubmitTransaction', event)
       } else {
