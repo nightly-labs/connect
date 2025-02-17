@@ -1,7 +1,8 @@
-import { Wallet, getWallets } from '@wallet-standard/core'
+import { getWallets, Wallet } from '@wallet-standard/core'
 
 import { isWalletWithRequiredFeatureSet } from '@aptos-labs/wallet-standard'
 import { IWalletListItem, WalletMetadata } from '@nightlylabs/wallet-selector-base'
+import { getMetamaskFlaskAdapter } from './moveSnap'
 
 export const aptosWalletsFilter = (wallet: Wallet) => {
   const is = isWalletWithRequiredFeatureSet(wallet, []) // We don't filter for now
@@ -50,6 +51,28 @@ export const getAptosWalletsList = (presetList: WalletMetadata[], recentWalletNa
       }
     }
   })
+
+  const metamaskFlask = getMetamaskFlaskAdapter()
+
+  if (metamaskFlask.flaskStatus === true) {
+    walletsData[metamaskFlask.name] = {
+      name: metamaskFlask.name,
+      image: {
+        default: metamaskFlask.icon as string,
+        lg: metamaskFlask.icon as string,
+        md: metamaskFlask.icon as string,
+        sm: metamaskFlask.icon as string
+      },
+      desktop: null,
+      homepage: 'https://nightly.app/download', // Fall back to nightly.app
+      mobile: null,
+      slug: metamaskFlask.name,
+      recent: recentWalletName === metamaskFlask.name,
+      walletType: 'hybrid',
+      detected: true,
+      standardWallet: metamaskFlask
+    }
+  }
 
   return Object.values(walletsData)
 }

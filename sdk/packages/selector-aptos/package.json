@@ -29,6 +29,7 @@
     "@nightlylabs/nightly-connect-aptos": "0.0.6",
     "@nightlylabs/wallet-selector-base": "0.4.3",
     "@nightlylabs/nightly-connect-base": "^0.0.30",
+    "@metamask/providers": "^16.0.0",
     "@wallet-standard/core": "^1.0.3",
     "eventemitter3": "^5.0.1"
   },
