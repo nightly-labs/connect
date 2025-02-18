@@ -53,7 +53,7 @@ export const getAptosWalletsList = (presetList: WalletMetadata[], recentWalletNa
   })
 
   const metamaskFlask = getMetamaskFlaskAdapter()
-  if (metamaskFlask) {
+  if (metamaskFlask && metamaskFlask.isMetamaskReady === true) {
     walletsData[metamaskFlask.name] = {
       name: metamaskFlask.name,
       image: {
