@@ -1,4 +1,12 @@
-import { Ed25519PublicKey, Network, PublicKey, type AccountAddressInput } from '@aptos-labs/ts-sdk'
+import {
+  AccountAuthenticator,
+  Aptos,
+  AptosConfig,
+  Deserializer,
+  Ed25519PublicKey,
+  Hex,
+  Network
+} from '@aptos-labs/ts-sdk'
 import {
   AccountInfo,
   APTOS_DEVNET_CHAIN,
@@ -6,64 +14,58 @@ import {
   APTOS_TESTNET_CHAIN,
   AptosChangeNetworkMethod,
   AptosChangeNetworkNamespace,
+  AptosConnectMethod,
   AptosConnectNamespace,
   AptosDisconnectMethod,
   AptosDisconnectNamespace,
+  AptosFeatures,
+  AptosGetAccountMethod,
   AptosGetAccountNamespace,
   AptosGetNetworkMethod,
   AptosGetNetworkNamespace,
+  AptosOnAccountChangeInput,
   AptosOnAccountChangeMethod,
   AptosOnAccountChangeNamespace,
+  AptosOnNetworkChangeInput,
   AptosOnNetworkChangeMethod,
   AptosOnNetworkChangeNamespace,
   AptosSignAndSubmitTransactionMethod,
   AptosSignAndSubmitTransactionNamespace,
+  AptosSignMessageInput,
   AptosSignMessageMethod,
   AptosSignMessageNamespace,
+  AptosSignMessageOutput,
   AptosSignTransactionMethod,
   AptosSignTransactionNamespace,
   AptosWalletAccount,
+  NetworkInfo,
   UserResponseStatus,
-  Wallet,
-  type AptosConnectMethod,
-  type AptosFeatures,
-  type AptosGetAccountMethod,
-  type AptosOnAccountChangeInput,
-  type AptosOnNetworkChangeInput,
-  type NetworkInfo
+  Wallet
 } from '@aptos-labs/wallet-standard'
 import { MetaMaskInpageProvider } from '@metamask/providers'
+import { getRandomId } from '@nightlylabs/nightly-connect-base'
+import { defaultSnapOrigin } from './config'
 import { defaultAccountAptos, defaultAccountInfo, METAMASK_FLASK_ICON } from './const'
-import { getSnapsProvider } from './provider'
-import { getFlaskStatus, getInvokeSnap, getRequestSnaps, InvokeSnapParams } from './utils'
-
-export interface IWebsiteMetadata {
-  title: string | null
-  url: string | null
-  image: string | null
-}
-
-// TODO remove if types are to be exported
-export type AccountInfoInput = {
-  address: AccountAddressInput
-  publicKey: PublicKey
-  ansName?: string
-}
+import { getInvokeSnap, InvokeSnapParams } from './snap/getInvoke'
+import { getReadyStatus } from './snap/getMetamask'
+import { getSnapsProvider } from './snap/provider'
+import { getRequestSnaps } from './snap/requestSnaps'
+import { Snap } from './types'
+import { encodeAptosTransaction, isLocalSnap } from './utils'
 
 export class MetamaskFlask implements Wallet {
-  private _activeAccountInfo: AccountInfo | null = defaultAccountInfo
-  private _activeAccount: AptosWalletAccount = defaultAccountAptos
+  #activeAccount: AptosWalletAccount = defaultAccountAptos
+
+  private _activeAccountInfo: AccountInfo = defaultAccountInfo
   private _isFlaskInstalled = false
-  _metadata: IWebsiteMetadata | null = null
+  private _installedSnap: Snap | null = null
   onNetworkChangeInput: AptosOnNetworkChangeInput | undefined
   onAccountChangeInput: AptosOnAccountChangeInput | undefined
-
   private networkInfo: NetworkInfo = {
     url: 'https://fullnode.mainnet.aptoslabs.com/v1',
     chainId: 1,
     name: Network.MAINNET
   }
-
   private _provider: MetaMaskInpageProvider | null = null
   private _invokeSnap: (({ method, params }: InvokeSnapParams) => Promise<unknown>) | null = null
 
@@ -76,15 +78,15 @@ export class MetamaskFlask implements Wallet {
   }
 
   get accounts() {
-    return [this._activeAccount]
+    return [this.#activeAccount]
   }
 
   get url() {
-    return ''
+    return 'https://docs.metamask.io/snaps/get-started/install-flask/'
   }
 
   get name() {
-    return 'Flask'
+    return 'MetaMask'
   }
 
   get icon() {
@@ -93,6 +95,14 @@ export class MetamaskFlask implements Wallet {
 
   get flaskStatus() {
     return this._isFlaskInstalled
+  }
+
+  get installedSnap() {
+    return this._installedSnap
+  }
+
+  get isMetamaskReady() {
+    return isLocalSnap(defaultSnapOrigin) ? this._isFlaskInstalled : this._provider !== null
   }
 
   get features(): AptosFeatures {
@@ -140,8 +150,7 @@ export class MetamaskFlask implements Wallet {
     }
   }
 
-  constructor(metadata: IWebsiteMetadata | null = null) {
-    this._metadata = metadata
+  constructor() {
     this.setUpProvider()
   }
 
@@ -149,9 +158,8 @@ export class MetamaskFlask implements Wallet {
     try {
       const provider = await getSnapsProvider()
       this._provider = provider
-
       if (provider) {
-        this._isFlaskInstalled = await getFlaskStatus(provider)
+        this.checkReady()
         const invokeSnap = getInvokeSnap(provider)
         this._invokeSnap = invokeSnap
       }
@@ -161,37 +169,57 @@ export class MetamaskFlask implements Wallet {
     }
   }
 
+  private async checkReady() {
+    const { isFlask, installedSnap } = await getReadyStatus(this._provider!)
+    this._isFlaskInstalled = isFlask
+    this._installedSnap = installedSnap
+  }
+
   public network = () => {
     return { network: this.networkInfo.name }
   }
 
   public connect: AptosConnectMethod = async (silent, networkInfo) => {
     try {
+      // on eager connect set up provider
+      if (silent) {
+        await this.setUpProvider()
+      }
       if (!this._invokeSnap || !this._provider) {
         throw new Error("Can't invoke snap")
       }
-      const { requestSnap } = getRequestSnaps(this._provider)
-      await requestSnap()
+      await this.checkReady()
+      if (!this._installedSnap) {
+        const { requestSnap, installedSnap } = getRequestSnaps(this._provider)
+        this._installedSnap = installedSnap
+        await requestSnap()
+      }
       const response = (await this._invokeSnap({ method: 'connect' })) as {
         publicKey: string
         address: string
       }
-
       this._activeAccountInfo = new AccountInfo({
         address: response.address,
         publicKey: new Ed25519PublicKey(response.publicKey)
       })
-
+      if (networkInfo && networkInfo.chainId !== this.networkInfo.chainId) {
+        try {
+          await this.changeNetwork(networkInfo)
+        } catch {
+          // silent error
+        }
+      }
       return {
         status: UserResponseStatus.APPROVED,
         args: this._activeAccountInfo
       }
     } catch (error) {
       console.log(error, 'Error connecting')
-      return {
-        status: UserResponseStatus.REJECTED,
-        args: null
-      }
+      return new Promise((resolve) =>
+        resolve({
+          status: UserResponseStatus.REJECTED
+        })
+      )
     }
   }
 
@@ -200,20 +228,166 @@ export class MetamaskFlask implements Wallet {
   }
 
   public getNetwork: AptosGetNetworkMethod = async () => {
-    return await new Promise((resolve) => {
-      resolve(this.networkInfo)
+    try {
+      if (!this._invokeSnap || !this._provider) {
+        throw new Error("Can't invoke snap")
+      }
+
+      const response = (await this._invokeSnap({
+        method: 'getNetwork'
+      })) as NetworkInfo
+
+      if (!response) {
+        throw new Error("Couldn't get network info")
+      }
+
+      this.networkInfo = response
+
+      return response
+    } catch (error) {
+      console.log('Error getting network info', error)
+      return this.networkInfo
+    }
+  }
+  public signTransaction: AptosSignTransactionMethod = async (transaction) => {
+    try {
+      if (!this._invokeSnap || !this._provider) {
+        throw new Error("Can't invoke snap")
+      }
+
+      const response = await this._invokeSnap({
+        method: 'signAndSubmitTransaction',
+        params: {
+          payload: encodeAptosTransaction(transaction)
+        }
+      })
+
+      const hexAuthericator = Hex.fromHexString(response as string)
+      const signature = AccountAuthenticator.deserialize(
+        new Deserializer(hexAuthericator.toUint8Array())
+      )
+
+      return {
+        status: UserResponseStatus.APPROVED,
+        args: signature
+      }
+    } catch (error) {
+      console.log(error, 'Error signing tx')
+      return new Promise((resolve) =>
+        resolve({
+          status: UserResponseStatus.REJECTED
+        })
+      )
+    }
+  }
+
+  public signAndSubmitTransaction: AptosSignAndSubmitTransactionMethod = async (input) => {
+    try {
+      if (!this._invokeSnap || !this._provider) {
+        throw new Error("Can't invoke snap")
+      }
+      const aptosConfig = new AptosConfig({
+        network: this.networkInfo.name
+      })
+      const aptos = new Aptos(aptosConfig)
+      const transaction = await aptos.transaction.build.simple({
+        sender: this._activeAccountInfo.address.toUint8Array(),
+        data: input.payload
+      })
+
+      const response = await this._invokeSnap({
+        method: 'signAndSubmitTransaction',
+        params: {
+          payload: encodeAptosTransaction(transaction)
+        }
+      })
+
+      const hexAuthericator = Hex.fromHexString(response as string)
+      const signature = AccountAuthenticator.deserialize(
+        new Deserializer(hexAuthericator.toUint8Array())
+      )
+      const tx = await aptos.transaction.submit.simple({
+        transaction: transaction,
+        senderAuthenticator: signature
+      })
+      return {
+        status: UserResponseStatus.APPROVED,
+        args: tx
+      }
+    } catch (error) {
+      console.log(error, 'Error signing and submitting tx')
+      return new Promise((resolve) =>
+        resolve({
+          status: UserResponseStatus.REJECTED
+        })
+      )
+    }
+  }
+
+  public signMessage: AptosSignMessageMethod = async (msg) => {
+    try {
+      if (!this._invokeSnap || !this._provider) {
+        throw new Error("Can't invoke snap")
+      }
+      let toSign: AptosSignMessageInput
+      if (typeof msg === 'string') {
+        toSign = {
+          message: msg,
+          nonce: getRandomId()
+        }
+      } else {
+        toSign = msg
+      }
+
+      const signature = await this._invokeSnap({
+        method: 'signMessage',
+        params: {
+          ...toSign
+        }
+      })
+      if (!signature) {
+        throw new Error('Invalid sidnature')
+      }
+      const response = {
+        fullMessage: toSign.message,
+        message: toSign.message,
+        nonce: toSign.nonce,
+        prefix: 'APTOS' as const,
+        signature
+      } as AptosSignMessageOutput
+
+      return {
+        status: UserResponseStatus.APPROVED,
+        args: response
+      }
+    } catch (error) {
+      console.log(error, 'Error signing message')
+      return new Promise((resolve) =>
+        resolve({
+          status: UserResponseStatus.REJECTED
+        })
+      )
+    }
+  }
+  public disconnect: AptosDisconnectMethod = () => {
+    return new Promise((resolve) => {
+      resolve()
     })
   }
-  // @ts-expect-error - uedninde
-  public signTransaction: AptosSignTransactionMethod = async (input, asFeePayer) => {}
-  // @ts-expect-error - uedninde
-  public signAndSubmitTransaction: AptosSignAndSubmitTransactionMethod = async (input) => {}
-  // @ts-expect-error - uedninde
-  public signMessage: AptosSignMessageMethod = async (msg) => {}
-  // @ts-expect-error - uedninde
-  public disconnect: AptosDisconnectMethod = () => {}
-  // @ts-expect-error - uedninde
-  public onAccountChange: AptosOnAccountChangeMethod = (input) => {}
+
+  public onAccountChange: AptosOnAccountChangeMethod = (input) => {
+    this.onAccountChangeInput = input
+
+    return new Promise((resolve) => {
+      input(
+        new AccountInfo({
+          address: this._activeAccountInfo.address,
+          publicKey: this._activeAccountInfo.publicKey
+        })
+      )
+      resolve()
+    })
+  }
 
   public onNetworkChange: AptosOnNetworkChangeMethod = (input) => {
     this.onNetworkChangeInput = input
@@ -222,11 +396,41 @@ export class MetamaskFlask implements Wallet {
       resolve()
     })
   }
-  onInjectNetworkChange = (input: NetworkInfo) => {}
 
-  onInjectAccountChange = (input: string) => {}
-  // @ts-expect-error - uedninde
-  changeNetwork: AptosChangeNetworkMethod = async (input) => {}
+  changeNetwork: AptosChangeNetworkMethod = async (input) => {
+    try {
+      if (!this._invokeSnap || !this._provider) {
+        throw new Error("Can't invoke snap")
+      }
+
+      if (this.networkInfo.name === input.name && this.networkInfo.chainId === input.chainId) {
+        return {
+          status: UserResponseStatus.APPROVED,
+          args: {
+            success: true
+          }
+        }
+      }
+      await this._invokeSnap({
+        method: 'changeNetwork',
+        // @ts-expect-error - generic params type - Record<string, unknown>
+        params: input
+      })
+
+      this.onNetworkChangeInput?.(input)
+      return {
+        status: UserResponseStatus.APPROVED,
+        args: {
+          success: true
+        }
+      }
+    } catch (error) {
+      console.log('Error changing network', error)
+      return {
+        status: UserResponseStatus.REJECTED
+      }
+    }
+  }
 }
 
 let _adapter: MetamaskFlask | null = null

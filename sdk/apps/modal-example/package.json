@@ -22,7 +22,7 @@
     "@nightlylabs/nightly-connect-polkadot": "0.0.16",
     "@nightlylabs/nightly-connect-solana": "0.0.30",
     "@nightlylabs/nightly-connect-sui": "0.1.0",
-    "@nightlylabs/wallet-selector-aptos": "workspace:*",
+    "@nightlylabs/wallet-selector-aptos": "0.1.17",
     "@nightlylabs/wallet-selector-base": "^0.4.3",
     "@nightlylabs/wallet-selector-polkadot": "0.2.9",
     "@nightlylabs/wallet-selector-solana": "0.3.13",

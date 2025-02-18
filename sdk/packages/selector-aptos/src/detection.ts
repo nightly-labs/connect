@@ -53,8 +53,7 @@ export const getAptosWalletsList = (presetList: WalletMetadata[], recentWalletNa
   })
 
   const metamaskFlask = getMetamaskFlaskAdapter()
-
-  if (metamaskFlask.flaskStatus === true) {
+  if (metamaskFlask) {
     walletsData[metamaskFlask.name] = {
       name: metamaskFlask.name,
       image: {
@@ -64,12 +63,12 @@ export const getAptosWalletsList = (presetList: WalletMetadata[], recentWalletNa
         sm: metamaskFlask.icon as string
       },
       desktop: null,
-      homepage: 'https://nightly.app/download', // Fall back to nightly.app
+      homepage: metamaskFlask.url,
       mobile: null,
       slug: metamaskFlask.name,
       recent: recentWalletName === metamaskFlask.name,
       walletType: 'hybrid',
-      detected: true,
+      detected: metamaskFlask.isMetamaskReady,
       standardWallet: metamaskFlask
     }
   }
