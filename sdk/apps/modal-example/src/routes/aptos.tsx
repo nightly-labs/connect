@@ -206,7 +206,7 @@ export default function AptosPage() {
           onClick={async () => {
             try {
               const network = await adapter()!.network()
-
+              console.log(network)
               let changeNetworkResponse
               if (network.chainId === 27) {
                 // Movement network is active

@@ -287,6 +287,7 @@ export class MetamaskFlask implements Wallet {
         throw new Error("Can't invoke snap")
       }
       const aptosConfig = new AptosConfig({
+        fullnode: this.networkInfo.url ?? 'https://fullnode.mainnet.aptoslabs.com/v1',
         network: this.networkInfo.name
       })
       const aptos = new Aptos(aptosConfig)
@@ -398,6 +399,7 @@ export class MetamaskFlask implements Wallet {
   }
 
   changeNetwork: AptosChangeNetworkMethod = async (input) => {
+    console.log(input, 'input')
     try {
       if (!this._invokeSnap || !this._provider) {
         throw new Error("Can't invoke snap")

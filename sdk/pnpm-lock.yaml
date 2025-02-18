@@ -58,7 +58,7 @@ importers:
         specifier: 0.1.0
         version: link:../../packages/sui
       '@nightlylabs/wallet-selector-aptos':
-        specifier: 0.1.17
+        specifier: 0.1.18
         version: link:../../packages/selector-aptos
       '@nightlylabs/wallet-selector-base':
         specifier: ^0.4.3
