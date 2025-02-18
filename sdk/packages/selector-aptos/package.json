@@ -1,6 +1,6 @@
 {
   "name": "@nightlylabs/wallet-selector-aptos",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "description": "",
   "type": "module",
   "exports": {
@@ -24,15 +24,19 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bs58": "^4.0.1",
+    "js-sha3": "^0.9.3",
     "@aptos-labs/ts-sdk": "1.35.0",
     "@aptos-labs/wallet-standard": "0.2.0",
     "@nightlylabs/nightly-connect-aptos": "0.0.6",
     "@nightlylabs/wallet-selector-base": "0.4.3",
     "@nightlylabs/nightly-connect-base": "^0.0.30",
+    "@metamask/providers": "^16.0.0",
     "@wallet-standard/core": "^1.0.3",
     "eventemitter3": "^5.0.1"
   },
   "devDependencies": {
+    "@types/bs58": "^4.0.1",
     "@rollup/plugin-commonjs": "^25.0.0",
     "@rollup/plugin-node-resolve": "^15.1.0",
     "@rollup/plugin-terser": "^0.4.3",

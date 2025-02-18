@@ -1,7 +1,7 @@
 import {
-  type XMLOptions,
   type NightlySelector,
-  WalletSelectorItem
+  WalletSelectorItem,
+  type XMLOptions
 } from '@nightlylabs/wallet-selector-modal'
 import { type IWalletListItem, type NetworkData } from './types'
 

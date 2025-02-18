@@ -70,7 +70,7 @@ export default function AptosPage() {
   createEffect(() => {
     if (eager()) {
       adapter()
-        ?.connect()
+        ?.connect(true)
         .then(
           () => {
             console.log('connect resolved successfully')
@@ -228,8 +228,10 @@ export default function AptosPage() {
                 changeNetworkResponse &&
                 changeNetworkResponse.status === UserResponseStatus.APPROVED
               ) {
-                const changedNetwork = await adapter()!.network()
+                await adapter()!.network()
                 toast.success(`Changed network!`)
+              } else {
+                throw new Error("Couldn't change network")
               }
             } catch (error) {
               toast.error("Couldn't change network")
