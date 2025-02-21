@@ -503,7 +503,10 @@ export class NightlyConnectAdapter extends BaseMessageSignerWalletAdapter {
       this.emit('connect', this._publicKey!)
       // Subscribe to change event
       adapter.wallet.features['standard:events'].on('change', (a) => {
-        this.emit('change', a)
+        if (!!a.accounts?.length) {
+          this._publicKey = new PublicKey(a.accounts[0].publicKey)
+          this.emit('change', a)
+        }
       })
       persistRecentWalletForNetwork(SOLANA_NETWORK, {
         walletName,
