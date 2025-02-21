@@ -2,7 +2,7 @@ import { getWallets, Wallet } from '@wallet-standard/core'
 
 import { isWalletWithRequiredFeatureSet } from '@aptos-labs/wallet-standard'
 import { IWalletListItem, WalletMetadata } from '@nightlylabs/wallet-selector-base'
-import { getMetamaskFlaskAdapter } from './moveSnap'
+import { getNightlySnapAdapter } from './moveSnap'
 
 export const aptosWalletsFilter = (wallet: Wallet) => {
   const is = isWalletWithRequiredFeatureSet(wallet, []) // We don't filter for now
@@ -52,24 +52,24 @@ export const getAptosWalletsList = (presetList: WalletMetadata[], recentWalletNa
     }
   })
 
-  const metamaskFlask = getMetamaskFlaskAdapter()
-  if (metamaskFlask && metamaskFlask.isMetamaskReady === true) {
-    walletsData[metamaskFlask.name] = {
-      name: metamaskFlask.name,
+  const nightlySnap = getNightlySnapAdapter()
+  if (nightlySnap && nightlySnap.isMetamaskReady) {
+    walletsData[nightlySnap.name] = {
+      name: nightlySnap.name,
       image: {
-        default: metamaskFlask.icon as string,
-        lg: metamaskFlask.icon as string,
-        md: metamaskFlask.icon as string,
-        sm: metamaskFlask.icon as string
+        default: nightlySnap.icon as string,
+        lg: nightlySnap.icon as string,
+        md: nightlySnap.icon as string,
+        sm: nightlySnap.icon as string
       },
       desktop: null,
-      homepage: metamaskFlask.url,
+      homepage: nightlySnap.url,
       mobile: null,
-      slug: metamaskFlask.name,
-      recent: recentWalletName === metamaskFlask.name,
+      slug: nightlySnap.name,
+      recent: recentWalletName === nightlySnap.name,
       walletType: 'hybrid',
-      detected: metamaskFlask.isMetamaskReady,
-      standardWallet: metamaskFlask
+      detected: nightlySnap.isMetamaskReady,
+      standardWallet: nightlySnap
     }
   }
 

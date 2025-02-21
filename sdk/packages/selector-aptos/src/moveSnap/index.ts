@@ -1,11 +1,14 @@
 import {
+  AccountAddress,
   AccountAuthenticator,
   Aptos,
   AptosConfig,
   Deserializer,
   Ed25519PublicKey,
+  Ed25519Signature,
   Hex,
-  Network
+  Network,
+  Signature
 } from '@aptos-labs/ts-sdk'
 import {
   AccountInfo,
@@ -43,7 +46,6 @@ import {
   Wallet
 } from '@aptos-labs/wallet-standard'
 import { MetaMaskInpageProvider } from '@metamask/providers'
-import { getRandomId } from '@nightlylabs/nightly-connect-base'
 import { defaultSnapOrigin } from './config'
 import { defaultAccountAptos, defaultAccountInfo, METAMASK_FLASK_ICON } from './const'
 import { getInvokeSnap, InvokeSnapParams } from './snap/getInvoke'
@@ -51,10 +53,11 @@ import { getReadyStatus } from './snap/getMetamask'
 import { getSnapsProvider } from './snap/provider'
 import { getRequestSnaps } from './snap/requestSnaps'
 import { Snap } from './types'
-import { encodeAptosTransaction, isLocalSnap } from './utils'
+import { encodeAptosTransaction, isLocalSnap, NETWORK_MAP } from './utils'
+import { getRandomId } from '@nightlylabs/nightly-connect-base'
 
-export class MetamaskFlask implements Wallet {
-  #activeAccount: AptosWalletAccount = defaultAccountAptos
+export class NightlySnap implements Wallet {
+  private _activeAccount: AptosWalletAccount = defaultAccountAptos
 
   private _activeAccountInfo: AccountInfo = defaultAccountInfo
   private _isFlaskInstalled = false
@@ -78,7 +81,7 @@ export class MetamaskFlask implements Wallet {
   }
 
   get accounts() {
-    return [this.#activeAccount]
+    return [this._activeAccount]
   }
 
   get url() {
@@ -198,10 +201,12 @@ export class MetamaskFlask implements Wallet {
         publicKey: string
         address: string
       }
+
       this._activeAccountInfo = new AccountInfo({
-        address: response.address,
+        address: AccountAddress.fromString(response.address),
         publicKey: new Ed25519PublicKey(response.publicKey)
       })
+
       if (networkInfo && networkInfo.chainId !== this.networkInfo.chainId) {
         try {
           await this.changeNetwork(networkInfo)
@@ -287,7 +292,7 @@ export class MetamaskFlask implements Wallet {
         throw new Error("Can't invoke snap")
       }
       const aptosConfig = new AptosConfig({
-        fullnode: this.networkInfo.url ?? 'https://fullnode.mainnet.aptoslabs.com/v1',
+        fullnode: this.networkInfo.url ?? NETWORK_MAP[this.networkInfo.chainId]?.url,
         network: this.networkInfo.name
       })
       const aptos = new Aptos(aptosConfig)
@@ -332,29 +337,37 @@ export class MetamaskFlask implements Wallet {
       }
       let toSign: AptosSignMessageInput
       if (typeof msg === 'string') {
+        const nonce = getRandomId()
         toSign = {
-          message: msg,
-          nonce: getRandomId()
+          message: `${'APTOS'}\nmessage: ${msg}\nnonce: ${nonce}`,
+          nonce
         }
       } else {
-        toSign = msg
+        toSign = {
+          message: `${'APTOS'}\nmessage: ${msg.message}\nnonce: ${msg.nonce}`,
+          nonce: msg.nonce
+        }
       }
 
-      const signature = await this._invokeSnap({
+      const signature = (await this._invokeSnap({
         method: 'signMessage',
         params: {
           ...toSign
         }
-      })
+      })) as string
+
       if (!signature) {
-        throw new Error('Invalid sidnature')
+        throw new Error('Invalid signature')
       }
+
+      const signatureBytes = new Uint8Array(Buffer.from(signature.slice(2), 'hex'))
+
       const response = {
         fullMessage: toSign.message,
         message: toSign.message,
         nonce: toSign.nonce,
         prefix: 'APTOS' as const,
-        signature
+        signature: new Ed25519Signature(signatureBytes)
       } as AptosSignMessageOutput
 
       return {
@@ -399,7 +412,7 @@ export class MetamaskFlask implements Wallet {
   }
 
   changeNetwork: AptosChangeNetworkMethod = async (input) => {
-    console.log(input, 'input')
+    console.log(input)
     try {
       if (!this._invokeSnap || !this._provider) {
         throw new Error("Can't invoke snap")
@@ -420,6 +433,11 @@ export class MetamaskFlask implements Wallet {
       })
 
       this.onNetworkChangeInput?.(input)
+      this.networkInfo = {
+        ...input,
+        url: input.url ?? NETWORK_MAP[input.chainId]?.url
+      }
+
       return {
         status: UserResponseStatus.APPROVED,
         args: {
@@ -435,11 +453,11 @@ export class MetamaskFlask implements Wallet {
   }
 }
 
-let _adapter: MetamaskFlask | null = null
-export const getMetamaskFlaskAdapter = () => {
+let _adapter: NightlySnap | null = null
+export const getNightlySnapAdapter = () => {
   if (_adapter) {
     return _adapter
   }
-  _adapter = new MetamaskFlask()
+  _adapter = new NightlySnap()
   return _adapter
 }

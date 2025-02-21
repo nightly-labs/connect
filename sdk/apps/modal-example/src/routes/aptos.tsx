@@ -206,21 +206,20 @@ export default function AptosPage() {
           onClick={async () => {
             try {
               const network = await adapter()!.network()
-              console.log(network)
               let changeNetworkResponse
-              if (network.chainId === 27) {
+              if ([126, 27, 177, 250].includes(network.chainId)) {
                 // Movement network is active
                 changeNetworkResponse = await adapter()!.changeNetwork({
                   chainId: 1,
                   name: Network.MAINNET,
                   url: 'https://fullnode.mainnet.aptoslabs.com/v1'
                 })
-              } else if ([1, 2, 147].includes(network.chainId)) {
+              } else if ([1, 2, 174].includes(network.chainId)) {
                 // Aptos network is active (mainnet, devnet or testnet)
                 changeNetworkResponse = await adapter()!.changeNetwork({
-                  chainId: 27,
+                  chainId: 126,
                   name: Network.CUSTOM,
-                  url: 'https://aptos.testnet.suzuka.movementlabs.xyz/v1'
+                  url: 'https://mainnet.movementnetwork.xyz/v1'
                 })
               }
 
