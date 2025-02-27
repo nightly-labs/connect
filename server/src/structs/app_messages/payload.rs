@@ -15,3 +15,10 @@ pub struct ResponsePayload {
     pub response_id: String,
     pub content: String,
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
+#[ts(export)]
+#[serde(rename_all = "camelCase")]
+pub struct DisconnectRequest {
+    pub response_id: String,
+}

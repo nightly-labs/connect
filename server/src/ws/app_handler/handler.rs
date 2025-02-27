@@ -234,6 +234,23 @@ pub async fn app_handler(
                     }
                 }
             }
+            AppToServer::DisconnectRequest(_) => {
+                // Disconnect session
+                if let Err(err) = disconnect_session(
+                    &app_id,
+                    &session_id,
+                    connection_id,
+                    &sessions,
+                    &client_sockets,
+                    &client_to_sessions,
+                    &session_to_app_map,
+                )
+                .await
+                {
+                    warn!("Error disconnecting session: {}", err);
+                }
+                return;
+            }
             AppToServer::InitializeRequest(_) => {
                 // App should not send initialize message after the first one
                 continue;

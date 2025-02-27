@@ -159,7 +159,9 @@ impl Session {
         self.pending_requests.clear();
 
         // Send disconnect event to app
-        let user_disconnected_event = ServerToApp::UserDisconnectedEvent(UserDisconnectedEvent {});
+        let user_disconnected_event = ServerToApp::UserDisconnectedEvent(UserDisconnectedEvent {
+            message: "Disconnected".to_owned(),
+        });
         self.send_to_app(user_disconnected_event)
             .await
             .unwrap_or_default();
