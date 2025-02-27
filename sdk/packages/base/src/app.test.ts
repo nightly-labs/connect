@@ -46,4 +46,48 @@ describe('Base App tests', () => {
     assert(filteredWalletsMetadata.length > 0)
     assert(filteredWalletsMetadata.length < walletsMetadata.length)
   })
+  test('#requestDisconnect()', async () => {
+    // Create a new app instance with non-persistent session for testing
+    const baseApp = await BaseApp.build({ ...testAppBaseInitialize, persistent: false })
+    expect(baseApp).toBeDefined()
+    assert(baseApp.sessionId !== '')
+
+    // Create a client and connect it to the app
+    const client = await BaseClient.build(testClientBaseInitialize)
+    const msg: Connect = {
+      publicKeys: ['1', '2'],
+      sessionId: baseApp.sessionId
+    }
+
+    // Connect client to app
+    await client.connect(msg)
+    await smartDelay()
+
+    // Verify client is connected
+    expect(baseApp.connectedPublicKeys).toStrictEqual(msg.publicKeys)
+
+    // Set up the disconnect event handler BEFORE calling requestDisconnect
+    const disconnectFn = vi.fn()
+    baseApp.on('serverDisconnected', disconnectFn)
+
+    // Set up spy for the send method to verify the correct message is sent
+    const sendSpy = vi.spyOn(baseApp, 'send')
+
+    // Call requestDisconnect - this will cause the server to close the connection
+    // which will trigger the serverDisconnected event
+    baseApp.requestDisconnect()
+
+    // Wait for the disconnect event to be processed
+    await smartDelay(1000)
+
+    // Verify the correct message was sent
+    expect(sendSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'DisconnectRequest'
+      })
+    )
+
+    // Verify the serverDisconnected event was fired
+    expect(disconnectFn).toHaveBeenCalledOnce()
+  })
 })
