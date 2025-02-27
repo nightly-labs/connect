@@ -33,6 +33,7 @@ import {
   getSessionIdLocalStorageKey,
   getWalletsMetadata
 } from './utils'
+import { DisconnectRequest } from '../../../bindings/DisconnectRequest'
 
 interface BaseEvents {
   userConnected: (e: UserConnectedEvent) => void
@@ -217,6 +218,18 @@ export class BaseApp extends EventEmitter<BaseEvents> {
       }
     }
     throw new Error('Unknown response type')
+  }
+  requestDisconnect = async () => {
+    try {
+      await this.send({
+        responseId: getRandomId(),
+        type: 'DisconnectRequest'
+      })
+      return
+    } catch (error) {
+      console.error('Error disconnecting session:', error)
+      throw error
+    }
   }
   signTransactions = async (transactions: TransactionToSign[]): Promise<SignedTransaction[]> => {
     const response = (await this.sendRequest({
