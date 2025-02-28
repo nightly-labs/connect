@@ -31,6 +31,7 @@ export interface SignTransactionsContent {
   type: ContentType.SignTransactions
   transactions: TransactionToSign[]
 }
+
 export interface CustomContent {
   type: ContentType.Custom
   content?: string
@@ -40,6 +41,7 @@ export type RequestInternal =
   | SignTransactionsContent
   | ChangeNetworkContent
   | CustomContent
+
 export interface RequestContent {
   requestId: string
   content: RequestInternal

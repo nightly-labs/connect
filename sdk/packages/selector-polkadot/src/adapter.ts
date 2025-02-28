@@ -234,6 +234,9 @@ export class NightlyConnectAdapter
           adapter.disconnect()
         }
       })
+      app.on('userDisconnected', async () => {
+        adapter.disconnect(true)
+      })
     } catch {
       console.log('Error building adapter')
     }
@@ -317,6 +320,9 @@ export class NightlyConnectAdapter
             } catch {
               adapter.disconnect()
             }
+          })
+          app.on('userDisconnected', async () => {
+            adapter.disconnect(true)
           })
         })
         .catch(() => {
@@ -617,6 +623,9 @@ export class NightlyConnectAdapter
                     this.disconnect()
                   }
                 })
+                this._app.on('userDisconnected', async () => {
+                  this.disconnect(true)
+                })
                 this._loading = false
               })
               .catch(() => {
@@ -680,6 +689,9 @@ export class NightlyConnectAdapter
                     this._connecting = false
                   }
                 })
+                this._app.on('userDisconnected', async () => {
+                  this.disconnect(true)
+                })
                 return
               }
 
@@ -731,8 +743,11 @@ export class NightlyConnectAdapter
     }, 500)
   }
 
-  disconnect = async () => {
+  disconnect = async (fromClient?: boolean) => {
     try {
+      // when the disconnect is invoked by the client (mobile app) don't send an event back to mobile
+      if (!fromClient && this._app) this._app.disconnectFromDApp()
+
       // Some apps might use disconnect to reset state / recreate session
       clearSessionIdForNetwork(this.network)
       clearRecentWalletForNetwork(this.network)
@@ -759,6 +774,10 @@ export class NightlyConnectAdapter
         } catch {
           this.disconnect()
         }
+      })
+
+      this._app.on('userDisconnected', async () => {
+        this.disconnect(true)
       })
 
       // Update recent wallet

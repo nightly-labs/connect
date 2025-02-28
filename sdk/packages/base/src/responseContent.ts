@@ -36,6 +36,7 @@ export interface CustomResponseContent {
   type: ResponseContentType.Custom
   content?: string
 }
+
 export type ResponseContent =
   | SignMessagesResponseContent
   | SignTransactionsResponseContent
