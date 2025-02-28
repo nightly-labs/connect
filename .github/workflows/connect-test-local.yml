@@ -28,12 +28,12 @@ jobs:
         with:
           version: 8
           run_install: false
-      - name: Setup Infra
-        working-directory: ./infra
-        run: |
-          docker-compose down
-          rm -rf .infra/target
-          docker-compose up -d --no-deps --force-recreate --remove-orphans
+      # - name: Setup Infra
+      #   working-directory: ./infra
+      #   run: |
+      #     docker-compose down
+      #     rm -rf .infra/target
+      #     docker-compose up -d --no-deps --force-recreate --remove-orphans
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -44,18 +44,17 @@ jobs:
         run: |
           pnpm install
         working-directory: ./sdk
-      - name: Wait for Infra
-        continue-on-error: true
-        timeout-minutes: 2
-        working-directory: ./infra
-        run: |
-          ( docker-compose logs --follow  &  ) | grep -q "database system is ready to accept connections"
-      - name: Prepare db tables
-        run: |
-          cargo run --bin tables_migration
+      # - name: Wait for Infra
+      #   continue-on-error: true
+      #   timeout-minutes: 2
+      #   working-directory: ./infra
+      #   run: |
+      #     ( docker-compose logs --follow  &  ) | grep -q "database system is ready to accept connections"
+      # - name: Prepare db tables
+      #   run: |
+      #     cargo run --bin tables_migration
       - name: run cargo test
         run: |
-          cargo tests-with-db
           cargo run --bin nightly-connect-server &
       - name: test base local
         run: |
@@ -69,8 +68,8 @@ jobs:
         run: |
           pnpm test:ci
         working-directory: ./sdk/packages/sui
-      - name: Clean target
-        working-directory: ./infra
-        run: |
-          docker-compose down
-          rm -rf .infra/target
+      # - name: Clean target
+      #   working-directory: ./infra
+      #   run: |
+      #     docker-compose down
+      #     rm -rf .infra/target

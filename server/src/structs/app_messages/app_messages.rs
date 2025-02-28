@@ -1,7 +1,7 @@
 use super::{
     already_connected::AlreadyConnected,
     initialize::{InitializeRequest, InitializeResponse},
-    payload::{RequestPayload, ResponsePayload},
+    payload::{DisconnectRequest, RequestPayload, ResponsePayload},
     user_connected_event::UserConnectedEvent,
     user_disconnected_event::UserDisconnectedEvent,
 };
@@ -15,6 +15,7 @@ use ts_rs::TS;
 pub enum AppToServer {
     InitializeRequest(InitializeRequest),
     RequestPayload(RequestPayload),
+    DisconnectRequest(DisconnectRequest),
 }
 #[derive(Debug, Eq, PartialEq, Clone, Deserialize, Serialize, TS)]
 #[ts(export)]
