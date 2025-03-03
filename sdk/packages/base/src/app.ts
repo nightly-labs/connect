@@ -33,7 +33,6 @@ import {
   getSessionIdLocalStorageKey,
   getWalletsMetadata
 } from './utils'
-import { DisconnectRequest } from '../../../bindings/DisconnectRequest'
 
 interface BaseEvents {
   userConnected: (e: UserConnectedEvent) => void
@@ -107,6 +106,10 @@ export class BaseApp extends EventEmitter<BaseEvents> {
               case 'UserConnectedEvent': {
                 baseApp.connectedPublicKeys = response.publicKeys
                 baseApp.emit('userConnected', response)
+                break
+              }
+              case 'UserDisconnectedEvent': {
+                baseApp.emit('userDisconnected', { message: 'userDisconnected' })
                 break
               }
               case 'AlreadyConnected': {

@@ -32,6 +32,10 @@ export default function Polkadot() {
         setEager(canEagerConnect)
       })
 
+      adapter.on('disconnect', () => {
+        setPublicKey(undefined)
+      })
+
       setAdapter(adapter)
 
       ApiPromise.create({
@@ -102,13 +106,14 @@ export default function Polkadot() {
           }}>
           Sign test transfer
         </button>
-        {/* <button
+        <button
           onClick={async () => {
             try {
-              const accounts = await adapter()!.getAccounts()
-              await adapter()!.signMessage!({
-                message: new TextEncoder().encode('I love Nightly'),
-                account: accounts[0]
+              const message = 'I love Nightly 🦊'
+              const _signed = await adapter()!.signer.signRaw!({
+                address: publicKey()!,
+                data: message,
+                type: 'bytes'
               })
 
               toast.success('Message was signed!')
@@ -118,7 +123,7 @@ export default function Polkadot() {
             }
           }}>
           Sign message
-        </button> */}
+        </button>
       </Show>
       <button
         onClick={() => {

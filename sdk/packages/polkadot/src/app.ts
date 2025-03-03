@@ -67,6 +67,7 @@ export class AppPolkadot extends EventEmitter<PolkadotAppEvents> implements Inje
     this.signer = new Signer(base)
     this.sessionId = base.sessionId
   }
+
   private tryReconnect = async () => {
     try {
       const base = await BaseApp.build({ ...this.initData })
@@ -131,5 +132,9 @@ export class AppPolkadot extends EventEmitter<PolkadotAppEvents> implements Inje
 
   connectDeeplink = async (data: DeeplinkConnect) => {
     this.signer.base.connectDeeplink(data)
+  }
+
+  disconnectFromDApp = () => {
+    this.signer.base.requestDisconnect()
   }
 }
