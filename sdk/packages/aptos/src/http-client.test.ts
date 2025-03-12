@@ -23,7 +23,7 @@ import {
   SignTransactionsAptosRequest
 } from './requestTypes'
 import { TEST_APP_INITIALIZE } from './testUtils'
-import { APTOS_NETWORK, serializeConnectData } from './utils'
+import { APTOS_NETWORK, deserializeAptosTx, serializeConnectData } from './utils'
 // Edit an assertion and save to see HMR in action
 const aptos = new Aptos() // default to devnet
 const alice: Account = Account.fromPrivateKey({
@@ -100,7 +100,7 @@ describe('Aptos http-client tests', () => {
     expect(pendingRequest.execute).toBe(false)
     const senderAuthenticator = aptos.transaction.sign({
       signer: alice,
-      transaction: pendingRequest.transactions[0]
+      transaction: deserializeAptosTx(pendingRequest.transactions[0])
     })
     // resolve
     await client.resolveSignTransaction({
@@ -141,7 +141,7 @@ describe('Aptos http-client tests', () => {
     expect(pendingRequest.execute).toBe(true)
     const submittedTx = await aptos.transaction.signAndSubmitTransaction({
       signer: alice,
-      transaction: pendingRequest.transactions[0]
+      transaction: deserializeAptosTx(pendingRequest.transactions[0])
     })
     // resolve
     await client.resolveSignAndSubmitTransaction({
