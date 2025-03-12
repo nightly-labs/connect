@@ -179,7 +179,7 @@ export const parseRequest = (request: RequestContent, sessionId: string): AptosR
         type: ContentType.SignTransactions,
         requestId: request.requestId,
         sessionId: sessionId,
-        transactions: request.content.transactions.map((tx) => deserializeAptosTx(tx.transaction)),
+        transactions: request.content.transactions.map((tx) => tx.transaction),
         execute: request.content.transactions[0].metadata
           ? JSON.parse(request.content.transactions[0].metadata).execute
           : true

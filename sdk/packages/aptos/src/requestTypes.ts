@@ -5,7 +5,7 @@ import { ContentType } from '@nightlylabs/nightly-connect-base'
 export interface SignTransactionsAptosRequest {
   type: ContentType.SignTransactions
   requestId: string
-  transactions: Array<AnyRawTransaction>
+  transactions: Array<string>
   execute: boolean
   sessionId: string
 }
