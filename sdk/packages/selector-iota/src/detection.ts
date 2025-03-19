@@ -1,15 +1,15 @@
-import { isWalletWithRequiredFeatureSet, Wallet, getWallets } from '@iota/wallet-standard'
+import { getWallets, isWalletWithRequiredFeatureSet, Wallet } from '@iota/wallet-standard'
 import { IWalletListItem, WalletMetadata } from '@nightlylabs/wallet-selector-base'
 
-export const suiWalletsFilter = (wallet: Wallet) => {
+export const iotaWalletsFilter = (wallet: Wallet) => {
   const is = isWalletWithRequiredFeatureSet(wallet, [
-    'sui:signAndExecuteTransactionBlock',
-    'sui:signTransactionBlock'
+    'iota:signAndExecuteTransaction',
+    'iota:signTransaction'
   ])
   return is
 }
 
-export const getSuiWalletsList = (presetList: WalletMetadata[], recentWalletName?: string) => {
+export const getIotaWalletsList = (presetList: WalletMetadata[], recentWalletName?: string) => {
   const { get } = getWallets()
   const windowWallets = get()
 
@@ -22,7 +22,7 @@ export const getSuiWalletsList = (presetList: WalletMetadata[], recentWalletName
     }
   })
 
-  windowWallets.filter(suiWalletsFilter).forEach((wallet) => {
+  windowWallets.filter(iotaWalletsFilter).forEach((wallet) => {
     if (walletsData[wallet.name]) {
       walletsData[wallet.name] = {
         ...walletsData[wallet.name],

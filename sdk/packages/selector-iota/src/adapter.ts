@@ -1,17 +1,16 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { publicKeyFromRawBytes } from '@iota/iota-sdk/verify'
 import type {
+  IotaFeatures,
   IotaSignAndExecuteTransactionMethod,
   IotaSignPersonalMessageMethod,
   IotaSignTransactionMethod,
-  WalletAccount,
-  StandardEventsChangeProperties,
-  Wallet,
-  WalletWithFeatures,
   StandardConnectFeature,
+  StandardDisconnectFeature,
+  StandardEventsChangeProperties,
   StandardEventsFeature,
-  IotaFeatures,
-  StandardDisconnectFeature
+  WalletAccount,
+  WalletWithFeatures
 } from '@iota/wallet-standard'
 
 import { AppIota, IOTA_NETWORK } from '@nightlylabs/nightly-connect-iota'
@@ -36,7 +35,7 @@ import {
 } from '@nightlylabs/wallet-selector-base'
 import bs58 from 'bs58'
 import EventEmitter from 'eventemitter3'
-import { getSuiWalletsList } from './detection'
+import { getIotaWalletsList } from './detection'
 
 export const convertBase58toBase64 = (base58: string) => {
   const buffer = bs58.decode(base58)
@@ -156,7 +155,7 @@ export class NightlyConnectIotaAdapter extends EventEmitter<IotaAdapterEvents> {
     const adapter = new NightlyConnectIotaAdapter(appInitData, connectionOptions)
 
     try {
-      adapter.walletsList = getSuiWalletsList(
+      adapter.walletsList = getIotaWalletsList(
         [],
         getRecentWalletForNetwork(IOTA_NETWORK)?.walletName ?? undefined
       )
@@ -167,7 +166,7 @@ export class NightlyConnectIotaAdapter extends EventEmitter<IotaAdapterEvents> {
           appInitData.url ?? 'https://nc2.nightly.app',
           {
             name: IOTA_NETWORK,
-            icon: 'https://registry.nightly.app/networks/sui.png'
+            icon: 'https://registry.nightly.app/networks/iota.svg'
           },
           anchorRef,
           uiOverrides?.variablesOverride,
@@ -180,7 +179,7 @@ export class NightlyConnectIotaAdapter extends EventEmitter<IotaAdapterEvents> {
       adapter._app = app
       adapter._metadataWallets = metadataWallets
 
-      adapter.walletsList = getSuiWalletsList(
+      adapter.walletsList = getIotaWalletsList(
         metadataWallets,
         getRecentWalletForNetwork(IOTA_NETWORK)?.walletName ?? undefined
       )
@@ -202,7 +201,7 @@ export class NightlyConnectIotaAdapter extends EventEmitter<IotaAdapterEvents> {
             return
           }
           adapter.setSelectedWallet({ isRemote: true })
-          adapter._accounts = e.publicKeys.map((pk) => createSuiWalletAccountFromString(pk))
+          adapter._accounts = e.publicKeys.map((pk) => createIotaWalletAccountFromString(pk))
           adapter.connected = true
           adapter.emit('connect', adapter._accounts)
         } catch {
@@ -228,7 +227,7 @@ export class NightlyConnectIotaAdapter extends EventEmitter<IotaAdapterEvents> {
   ) => {
     const adapter = new NightlyConnectIotaAdapter(appInitData, connectionOptions)
 
-    adapter.walletsList = getSuiWalletsList(
+    adapter.walletsList = getIotaWalletsList(
       [],
       getRecentWalletForNetwork(IOTA_NETWORK)?.walletName ?? undefined
     )
@@ -237,7 +236,7 @@ export class NightlyConnectIotaAdapter extends EventEmitter<IotaAdapterEvents> {
     adapter.fetchWalletsFromRegistry().then((metadataWallets) => {
       adapter._metadataWallets = metadataWallets
 
-      adapter.walletsList = getSuiWalletsList(
+      adapter.walletsList = getIotaWalletsList(
         metadataWallets,
         getRecentWalletForNetwork(IOTA_NETWORK)?.walletName ?? undefined
       )
@@ -265,7 +264,7 @@ export class NightlyConnectIotaAdapter extends EventEmitter<IotaAdapterEvents> {
           adapter._app = app
           adapter._metadataWallets = metadataWallets
 
-          adapter.walletsList = getSuiWalletsList(
+          adapter.walletsList = getIotaWalletsList(
             metadataWallets,
             getRecentWalletForNetwork(IOTA_NETWORK)?.walletName ?? undefined
           )
@@ -286,7 +285,7 @@ export class NightlyConnectIotaAdapter extends EventEmitter<IotaAdapterEvents> {
                 return
               }
               adapter.setSelectedWallet({ isRemote: true })
-              adapter._accounts = e.publicKeys.map((pk) => createSuiWalletAccountFromString(pk))
+              adapter._accounts = e.publicKeys.map((pk) => createIotaWalletAccountFromString(pk))
               adapter.connected = true
               adapter.emit('connect', adapter._accounts)
             } catch {
@@ -335,7 +334,7 @@ export class NightlyConnectIotaAdapter extends EventEmitter<IotaAdapterEvents> {
                 try {
                   // TODO add support for Secp256k1 key and features detection
                   this._accounts = this._app.connectedPublicKeys.map((pk) =>
-                    createSuiWalletAccountFromString(pk)
+                    createIotaWalletAccountFromString(pk)
                   )
                   this.connected = true
                   this._connecting = false
@@ -386,7 +385,7 @@ export class NightlyConnectIotaAdapter extends EventEmitter<IotaAdapterEvents> {
               .then(([app, metadataWallets]) => {
                 this._app = app
                 this._metadataWallets = metadataWallets
-                this.walletsList = getSuiWalletsList(
+                this.walletsList = getIotaWalletsList(
                   metadataWallets,
                   getRecentWalletForNetwork(IOTA_NETWORK)?.walletName ?? undefined
                 )
@@ -408,7 +407,7 @@ export class NightlyConnectIotaAdapter extends EventEmitter<IotaAdapterEvents> {
                       return
                     }
                     this.setSelectedWallet({ isRemote: true })
-                    this._accounts = e.publicKeys.map((pk) => createSuiWalletAccountFromString(pk))
+                    this._accounts = e.publicKeys.map((pk) => createIotaWalletAccountFromString(pk))
                     this.connected = true
                     this.emit('connect', this._accounts)
                   } catch {
@@ -550,7 +549,7 @@ export class NightlyConnectIotaAdapter extends EventEmitter<IotaAdapterEvents> {
                 return
               }
               this.setSelectedWallet({ isRemote: true })
-              this._accounts = e.publicKeys.map((pk) => createSuiWalletAccountFromString(pk))
+              this._accounts = e.publicKeys.map((pk) => createIotaWalletAccountFromString(pk))
               this.connected = true
               this.emit('connect', this._accounts)
             } catch {
@@ -564,7 +563,7 @@ export class NightlyConnectIotaAdapter extends EventEmitter<IotaAdapterEvents> {
           if (this._innerStandardAdapter) {
             await this._innerStandardAdapter.features['standard:disconnect']?.disconnect()
             clearRecentWalletForNetwork(IOTA_NETWORK)
-            this.walletsList = getSuiWalletsList(
+            this.walletsList = getIotaWalletsList(
               this._metadataWallets,
               getRecentWalletForNetwork(IOTA_NETWORK)?.walletName ?? undefined
             )
@@ -606,7 +605,7 @@ export class NightlyConnectIotaAdapter extends EventEmitter<IotaAdapterEvents> {
     }
   }
 
-  signTransactionBlock: IotaSignTransactionMethod = async (transactionInput) => {
+  signTransaction: IotaSignTransactionMethod = async (transactionInput) => {
     if (!this._app || !this._connectionType) {
       const error = new Error('Wallet not ready')
       this.emit('error', error)
@@ -615,21 +614,19 @@ export class NightlyConnectIotaAdapter extends EventEmitter<IotaAdapterEvents> {
     switch (this._connectionType) {
       case ConnectionType.Nightly: {
         return await this._app.signTransactionBlock(transactionInput)
-        // return { bytes: res.transactionBlockBytes, signature: res.signature }
       }
       case ConnectionType.WalletStandard: {
         if (!this._innerStandardAdapter) {
           throw new Error('Wallet not ready')
         }
-        // @ts-expect-error(remove after standard will use 0.42)
-        return await this._innerStandardAdapter.signTransactionBlock(transactionInput)
+        return await this._innerStandardAdapter.features['iota:signTransaction'].signTransaction(
+          transactionInput
+        )
       }
     }
   }
 
-  signAndExecuteTransactionBlock: IotaSignAndExecuteTransactionMethod = async (
-    transactionInput
-  ) => {
+  signAndExecuteTransaction: IotaSignAndExecuteTransactionMethod = async (transactionInput) => {
     if (!this._app || !this._connectionType) {
       const error = new Error('Wallet not ready')
       this.emit('error', error)
@@ -643,8 +640,9 @@ export class NightlyConnectIotaAdapter extends EventEmitter<IotaAdapterEvents> {
         if (!this._innerStandardAdapter) {
           throw new Error('Wallet not ready')
         }
-        // @ts-expect-error(remove after standard will use 0.42)
-        return await this._innerStandardAdapter.signAndExecuteTransactionBlock(transactionInput)
+        return await this._innerStandardAdapter.features[
+          'iota:signAndExecuteTransaction'
+        ].signAndExecuteTransaction(transactionInput)
       }
     }
   }
@@ -837,7 +835,7 @@ export class NightlyConnectIotaAdapter extends EventEmitter<IotaAdapterEvents> {
 
   fetchAllWallets = async () => {
     const metadataWallets = await this.fetchWalletsFromRegistry()
-    this.walletsList = getSuiWalletsList(
+    this.walletsList = getIotaWalletsList(
       metadataWallets,
       getRecentWalletForNetwork(IOTA_NETWORK)?.walletName ?? undefined
     )
@@ -853,7 +851,7 @@ export class NightlyConnectIotaAdapter extends EventEmitter<IotaAdapterEvents> {
         clearInterval(this._detectionIntervalId)
       }
       checks++
-      this.walletsList = getSuiWalletsList(
+      this.walletsList = getIotaWalletsList(
         metadataWallets,
         getRecentWalletForNetwork(IOTA_NETWORK)?.walletName ?? undefined
       )
@@ -883,7 +881,7 @@ export class NightlyConnectIotaAdapter extends EventEmitter<IotaAdapterEvents> {
   }
 }
 
-export const createSuiWalletAccountFromString = (publicKey: string): WalletAccount => {
+export const createIotaWalletAccountFromString = (publicKey: string): WalletAccount => {
   const iotaPk = publicKeyFromRawBytes('ED25519', bs58.decode(publicKey))
   return {
     address: iotaPk.toIotaAddress(),
@@ -892,7 +890,7 @@ export const createSuiWalletAccountFromString = (publicKey: string): WalletAccou
     features: [
       'standard:connect',
       'standard:events',
-      'iota:signTransactionBlock',
+      'iota:signTransaction',
       'iota:signAndExecuteTransaction',
       'iota:signPersonalMessage'
     ]

@@ -6,9 +6,9 @@ import { AppBaseInitialize, ContentType, RequestContent } from '@nightlylabs/nig
 import { blake2b } from '@noble/hashes/blake2b'
 import {
   CustomIotaRequest,
+  IotaRequest,
   SignMessagesIotaRequest,
-  SignTransactionsIotaRequest,
-  IotaRequest
+  SignTransactionsIotaRequest
 } from './requestTypes'
 
 export type AppIotaInitialize = Omit<AppBaseInitialize, 'network'>
@@ -18,7 +18,7 @@ export const IOTA_NETWORK = 'IOTA'
 type SerializedSignature = string
 
 export type SignedTransaction = {
-  transactionBlockBytes: string
+  bytes: string
   signature: SerializedSignature
 }
 

@@ -24,6 +24,9 @@ export default function Home() {
       <A href="/suiInitOnConnect">
         <button>Sui - init app on connect</button>
       </A>
+      <A href="/iota">
+        <button>IOTA</button>
+      </A>
       <A href="/aleph">
         <button>Aleph</button>
       </A>

@@ -82,7 +82,7 @@ describe('SUI http-client tests', () => {
       sessionId: app.sessionId,
       signedTransactions: [
         {
-          transactionBlockBytes: toB64(transactionBlockBytes),
+          bytes: toB64(transactionBlockBytes),
           signature: signature
         }
       ]
@@ -93,7 +93,7 @@ describe('SUI http-client tests', () => {
 
     try {
       // Will throw if invalid
-      await verifyTransactionSignature(fromB64(signedTx.transactionBlockBytes), signedTx.signature)
+      await verifyTransactionSignature(fromB64(signedTx.bytes), signedTx.signature)
     } catch (error) {
       assert(false, 'Transaction block is invalid')
     }
