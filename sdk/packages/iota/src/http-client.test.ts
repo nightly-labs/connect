@@ -24,7 +24,7 @@ const aliceWalletAccount: WalletAccount = {
   features: ['iota:signAndExecuteTransactionBlock'],
   label: ''
 }
-describe('SUI http-client tests', () => {
+describe('IOTA http-client tests', () => {
   let app: AppIota
   let client: HttpClientIota
   const clientId = getRandomId()

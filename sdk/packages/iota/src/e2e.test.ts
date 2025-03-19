@@ -30,7 +30,7 @@ const aliceWalletAccount: WalletAccount = {
 // Wallet 4 from test seed
 const RECEIVER_IOTA_ADDRESS = '0x62248df36a0f520bac63a54301079eb62b45c0c3374211a53fa0f57de5d8c415'
 
-describe('SUI client tests', () => {
+describe('IOTA client tests', () => {
   let app: AppIota
   let client: ClientIota
 
@@ -87,7 +87,7 @@ describe('SUI client tests', () => {
     const signedTx = await app.signTransactionBlock({
       transaction: tx,
       account: aliceWalletAccount,
-      chain: 'sui:testnet'
+      chain: 'iota:testnet'
     })
 
     try {

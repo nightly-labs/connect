@@ -28,7 +28,7 @@
     "@nightlylabs/wallet-selector-polkadot": "0.2.10",
     "@nightlylabs/wallet-selector-solana": "0.3.14",
     "@nightlylabs/wallet-selector-sui": "0.4.2",
-    "@nightlylabs/wallet-selector-iota": "workspace:*",
+    "@nightlylabs/wallet-selector-iota": "0.1.0",
     "@polkadot/api": "^10.10.1",
     "@polkadot/extension-inject": "^0.46.5",
     "@solana/web3.js": "^1.77.2",

@@ -27,10 +27,10 @@ export type SignedMessage = {
   signature: SerializedSignature
 }
 
-const suiConnection = new IotaClient({ url: 'https://api.testnet.iota.cafe/' })
+const iotaConnection = new IotaClient({ url: 'https://api.testnet.iota.cafe/' })
 export const signTransactionBlock = async (tx: Transaction, account: Ed25519Keypair) => {
   const transactionBlockBytes = await tx.build({
-    client: suiConnection,
+    client: iotaConnection,
     onlyTransactionKind: true
   })
 
