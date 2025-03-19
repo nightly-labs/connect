@@ -28,9 +28,8 @@ export default [
     external: [
       '@iota/iota-sdk',
       '@iota/wallet-standard',
-      '@nightlylabs/nightly-connect-sui',
+      '@nightlylabs/nightly-connect-iota',
       '@nightlylabs/wallet-selector-base',
-      '@wallet-standard/core',
       'bs58',
       'events',
       'eventemitter3'
