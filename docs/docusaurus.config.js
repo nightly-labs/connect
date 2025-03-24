@@ -75,6 +75,12 @@ const config = {
               },
               { to: 'docs/sui/sui/start', label: 'Sui', className: 'network_navlink sui_navlink' },
               {
+                to: 'docs/iota/iota/start',
+                label: 'IOTA',
+                className: 'network_navlink iota_navlink'
+              },
+
+              {
                 to: 'docs/substrate/substrate/start',
                 label: 'Substrate',
                 className: 'network_navlink substrate_navlink'
@@ -110,6 +116,7 @@ const config = {
             items: [
               { href: 'https://solana-web3-template.nightly.app', label: 'Solana template' },
               { href: 'https://sui-web3-template.nightly.app', label: 'Sui template' },
+              { href: 'https://iota-web3-template.vercel.app', label: 'IOTA template' },
               { href: 'https://aleph-zero-web3-template.nightly.app', label: 'Substrate template' },
               { href: 'https://aptos-web3-template.vercel.app', label: 'Aptos template' },
               { href: 'https://movement-web3-template.vercel.app', label: 'Movement M1 template' }

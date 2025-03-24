@@ -33,6 +33,13 @@ const sidebars = {
     },
     {
       type: 'category',
+      className: 'drop iota-dropdown',
+      label: 'IOTA',
+      collapsed: true,
+      items: ['iota/start', 'iota/connect', 'iota/events', 'iota/sign_transaction']
+    },
+    {
+      type: 'category',
       className: 'drop substrate-dropdown',
       label: 'Substrate',
       collapsed: true,

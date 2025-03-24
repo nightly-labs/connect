@@ -151,6 +151,10 @@ img[src*='#connectImage'] {
   background-image: url('https://registry.nightly.app/networks/sui.png');
 }
 
+.iota-dropdown > div::before {
+  background-image: url('https://registry.nightly.app/networks/iota.svg');
+}
+
 .substrate-dropdown > div::before {
   background-image: url('https://registry.nightly.app/networks/polkadot.png');
 }
@@ -196,6 +200,9 @@ img[src*='#connectImage'] {
 }
 .sui_navlink::before {
   background-image: url('https://registry.nightly.app/networks/sui.png');
+}
+.iota_navlink::before {
+  background-image: url('https://registry.nightly.app/networks/iota.svg');
 }
 
 .substrate_navlink::before {
