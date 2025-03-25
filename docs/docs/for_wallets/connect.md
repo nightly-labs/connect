@@ -88,6 +88,27 @@ await client.connect(message)
 ```
 
 </TabItem>
+<TabItem value="IOTA" label="IOTA">
+
+```js
+import { ClientIota } from '@nightlylabs/nightly-connect-iota'
+
+const client: ClientIota = await ClientIota.create({
+  url: RELAY_ENDPOINT // default: https://nc2.nightly.app
+})
+const info: GetInfoResponse = await client.getInfo(sessionId)
+
+const message: Connect = {
+  publicKeys: [
+    '0x9353aa5322295a6542b69a05e873177b2594373a5ac58efa5055562630434a9e',
+    '0x46f4dba3f180b8237119989d798c108f5d4c87b6aea02e6a093dd402a07083bd'
+  ],
+  sessionId: sessionId
+}
+await client.connect(message)
+```
+
+</TabItem>
 <TabItem value="Substrate" label="Substrate">
 
 ```js

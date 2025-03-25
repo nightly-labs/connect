@@ -90,6 +90,46 @@ client.on('signTransactions', async (e) => {
 ```
 
 </TabItem>
+
+<TabItem value="IOTA" label="IOTA">
+
+```js
+import { toB64 } from '@iota/iota-sdk/utils'
+import { Ed25519Keypair as Ed25519KeypairIota } from '@iota/iota-sdk/keypairs/ed25519'
+import { Transaction as IotaTransaction } from '@iota/iota-sdk/transactions'
+
+interface SignIOTATransactionEvent {
+  sessionId: string
+  requestId: string
+  transactions: Array<TransactionToSign>
+}
+
+const alice_keypair: Ed25519Keypair  = Ed25519KeypairIota.fromSecretKey(hexToBytes(ALICE_PRIVE_KEY))
+
+client.on('signTransactions', async (e) => {
+  const tx = e.transactions[0].transaction
+  const bytes = await IotaTransaction.from(tx).build({
+    client: iotaConnection,
+  })
+
+  const { signature } = alice_keypair.signTransaction(bytes)
+
+  // resolve
+  await client.resolveSignTransaction({
+    responseId: e.requestId,
+    sessionId: e.sessionId,
+    signedTransactions: [
+      {
+        signature,
+        bytes: toB64(bytes)
+      }
+    ]
+  })
+})
+```
+
+</TabItem>
+
 <TabItem value="Substrate" label="Substrate">
 
 ```js

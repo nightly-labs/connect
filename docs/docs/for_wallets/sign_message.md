@@ -58,6 +58,32 @@ client.on('signMessages', async (e) => {
 ```
 
 </TabItem>
+
+<TabItem value="IOTA" label="IOTA">
+
+```js
+import { fromB64, toB64 } from '@iota/iota-sdk/utils'
+import { Ed25519Keypair as Ed25519KeypairIota } from '@iota/iota-sdk/keypairs/ed25519'
+
+const alice_keypair: Ed25519Keypair = Ed25519KeypairIota.fromSecretKey(hexToBytes(ALICE_PRIVE_KEY))
+
+client.on('signMessages', async (e) => {
+  const msg = e.messages[0].message
+  const { signature } = await account.signPersonalMessage(
+    fromB64(toB64(new TextEncoder().encode(msg)))
+  )
+
+  // resolve
+  await client.resolveSignMessage({
+    responseId: e.responseId,
+    sessionId: e.sessionId,
+    signature
+  })
+})
+```
+
+</TabItem>
+
 <TabItem value="Substrate" label="Substrate">
 Signing messages on Substrate works the same way as signing transactions
 </TabItem>
