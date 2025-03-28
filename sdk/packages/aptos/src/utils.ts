@@ -1,12 +1,19 @@
 import {
   AccountAddress,
+  AccountAddressInput,
   AccountAuthenticator,
+  AnyPublicKey,
   AnyRawTransaction,
   Deserializer,
+  Ed25519PublicKey,
+  MultiEd25519PublicKey,
+  MultiKey,
   Network,
   PendingTransactionResponse,
+  PublicKey,
   RawTransaction,
-  Serializer
+  Serializer,
+  SigningScheme
 } from '@aptos-labs/ts-sdk'
 import {
   AccountInfo,
@@ -140,11 +147,30 @@ interface SerializedConnectData {
   networkInfo: NetworkInfo
 }
 export const serializeConnectData = (
-  accountInfo: AccountInfo,
+  accountInfo: {
+    publicKey: PublicKey
+    address: AccountAddressInput
+    ansName?: string
+  },
   networkInfo: NetworkInfo
 ): string => {
+  // manual serialization because AccountInfo breaks mobile app
   const serializerAccountInfo = new Serializer()
-  serializerAccountInfo.serialize(accountInfo)
+  accountInfo.address = AccountAddress.from(accountInfo.address)
+  accountInfo.address.serialize(serializerAccountInfo)
+  if (accountInfo.publicKey instanceof Ed25519PublicKey) {
+    serializerAccountInfo.serializeU32AsUleb128(SigningScheme.Ed25519)
+  } else if (accountInfo.publicKey instanceof MultiEd25519PublicKey) {
+    serializerAccountInfo.serializeU32AsUleb128(SigningScheme.MultiEd25519)
+  } else if (accountInfo.publicKey instanceof AnyPublicKey) {
+    serializerAccountInfo.serializeU32AsUleb128(SigningScheme.SingleKey)
+  } else if (accountInfo.publicKey instanceof MultiKey) {
+    serializerAccountInfo.serializeU32AsUleb128(SigningScheme.MultiKey)
+  } else {
+    throw new Error('Unsupported public key')
+  }
+  accountInfo.publicKey.serialize(serializerAccountInfo)
+  serializerAccountInfo.serializeStr(accountInfo.ansName ?? '')
 
   const obj: SerializedConnectData = {
     accountInfo: Buffer.from(serializerAccountInfo.toUint8Array()).toString('hex'),
