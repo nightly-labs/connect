@@ -1,4 +1,4 @@
-import { AnyRawTransaction, Network } from '@aptos-labs/ts-sdk'
+import { AccountAddressInput, AnyRawTransaction, Network, PublicKey } from '@aptos-labs/ts-sdk'
 import {
   AccountInfo,
   AptosChangeNetworkInput,
@@ -250,7 +250,11 @@ export class ClientAptos extends EventEmitter<ClientAptosEvents> {
   }
 }
 export type Connect = Omit<ConnectBase, 'publicKeys' | 'metadata'> & {
-  accountInfo: AccountInfo
+  accountInfo: {
+    publicKey: PublicKey
+    address: AccountAddressInput
+    ansName?: string
+  }
   networkInfo: NetworkInfo
 }
 export interface RejectRequest {
