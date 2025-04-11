@@ -22,8 +22,6 @@ jobs:
           run_install: false
       - name: Install Vercel CLI
         run: pnpm install -g vercel
-      - name: Install Vercel CLI
-        run: pnpm install -g vercel
       - name: Deploy to Vercel Action
         id: vercel-deploy
         uses: BetaHuhn/deploy-to-vercel-action@v1
