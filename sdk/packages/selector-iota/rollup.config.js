@@ -27,6 +27,7 @@ export default [
     ],
     external: [
       '@iota/iota-sdk',
+      '@wallet-standard/core',
       '@iota/wallet-standard',
       '@nightlylabs/nightly-connect-iota',
       '@nightlylabs/wallet-selector-base',
