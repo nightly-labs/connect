@@ -139,6 +139,13 @@ const config = {
           }
         ]
       },
+      announcementBar: {
+        id: 'deprecated_notice',
+        content: '🚨 This project is deprecated and no longer maintained.',
+        backgroundColor: 'yellow',
+        textColor: '#000000',
+        isCloseable: false
+      },
       // algolia: {
       //   apiKey: '57f60c8df985aec6f8f44287f6b98c16',
       //   indexName: 'NightlyConnect',
