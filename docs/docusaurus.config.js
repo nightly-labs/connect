@@ -128,7 +128,7 @@ const config = {
             position: 'right'
           },
           {
-            href: 'https://discord.gg/3b6GecKPBH',
+            href: 'https://discord.nightly.app/',
             label: 'Discord',
             position: 'right'
           },
@@ -169,7 +169,7 @@ const config = {
             items: [
               {
                 label: 'Discord',
-                href: 'https://discord.gg/3b6GecKPBH'
+                href: 'https://discord.nightly.app/'
               },
               {
                 label: 'Twitter',
